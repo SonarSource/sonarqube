@@ -16,6 +16,7 @@
     r.is_ad_hoc as "isAdHoc",
     r.language as "language",
     r.template_uuid as "templateUuid",
+    r.organization_uuid as "organizationUuid",
     r.def_remediation_function as "defRemediationFunction",
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
@@ -125,6 +126,18 @@
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOrganizationAndKey" parameterType="map" resultMap="ruleResultMap">
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="leftOuterJoinRulesDescriptionSections"/>
+    where
+      r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
+      and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectIndexingRuleExtensionsByIds" parameterType="map" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto">

@@ -259,6 +259,33 @@ export function postJSONBody(
 }
 
 /**
+ * Shortcut to do a PUT request with a json body and return response json
+ */
+export function putJsonBody(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+    request(url)
+        .setMethod('PUT')
+        .setData(data, true)
+        .submit()
+        .then((response) => checkStatus(response, bypassRedirect))
+        .then(() => resolve(), reject);
+  });
+}
+
+/**
+ * Shortcut to do a DELETE request
+ */
+export function deleteRequest(url: string, bypassRedirect?: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+    request(url)
+        .setMethod('DELETE')
+        .submit()
+        .then((response) => checkStatus(response, bypassRedirect))
+        .then(() => resolve(), reject);
+  });
+}
+
+/**
  * Shortcut to do a POST request
  */
 export function post(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<void> {

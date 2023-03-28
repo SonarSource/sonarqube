@@ -31,7 +31,7 @@ public interface DefaultQProfileMapper {
 
   void deleteByQProfileUuids(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  List<String> selectExistingQProfileUuids(@Param("qProfileUuids") Collection<String> qProfileUuids);
+  List<String> selectExistingQProfileUuids(@Param("organizationUuid") String organizationUuid, @Param("qProfileUuids") Collection<String> qProfileUuids);
 
   Optional<String> selectDefaultQProfileUuid(@Param("language") String language);
 }

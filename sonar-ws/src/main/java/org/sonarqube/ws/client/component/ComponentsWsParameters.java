@@ -31,6 +31,7 @@ public class ComponentsWsParameters {
   public static final String ACTION_SUGGESTIONS = "suggestions";
 
   // parameters
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_FILTER = "filter";

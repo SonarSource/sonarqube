@@ -147,6 +147,7 @@ public class ComponentUpdater {
 
     ComponentDto component = new ComponentDto()
       .setUuid(uuid)
+      .setOrganizationUuid(newComponent.getOrganizationUuid())
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setRootUuid(uuid)
       .setModuleUuid(null)
@@ -184,6 +185,7 @@ public class ComponentUpdater {
       .setQualifier(component.qualifier())
       .setName(component.name())
       .setPrivate(component.isPrivate())
+      .setOrganizationUuid(component.getOrganizationUuid())
       .setDescription(component.description())
       .setUpdatedAt(now)
       .setCreatedAt(now);

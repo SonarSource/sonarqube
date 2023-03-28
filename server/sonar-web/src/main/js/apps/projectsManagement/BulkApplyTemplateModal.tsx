@@ -31,6 +31,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { PermissionTemplate } from '../../types/types';
 
 export interface Props {
+  organization: string;
   analyzedBefore: Date | undefined;
   onClose: () => void;
   provisioned: boolean;
@@ -63,7 +64,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
   loadPermissionTemplates() {
     this.setState({ loading: true });
-    getPermissionTemplates().then(
+    getPermissionTemplates(this.props.organization).then(
       ({ permissionTemplates }) => {
         if (this.mounted) {
           this.setState({
@@ -89,11 +90,13 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
       this.setState({ submitting: true });
       const parameters = this.props.selection.length
         ? {
+            organization: this.props.organization,
             projects: this.props.selection.join(),
             qualifiers: this.props.qualifier,
             templateId: permissionTemplate,
           }
         : {
+            organization: this.props.organization,
             analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
             onProvisionedOnly: this.props.provisioned || undefined,
             qualifiers: this.props.qualifier,

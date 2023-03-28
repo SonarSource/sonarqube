@@ -36,6 +36,7 @@ public class QualityGatesWsParameters {
   public static final String ACTION_SEARCH_GROUPS = "search_groups";
   public static final String ACTION_SEARCH_USERS = "search_users";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_ANALYSIS_ID = "analysisId";
   public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_PULL_REQUEST = "pullRequest";

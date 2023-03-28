@@ -33,15 +33,17 @@ import {
   removeWhitePageClass,
 } from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { QualityGate } from '../../../types/types';
+import { Organization, QualityGate } from '../../../types/types';
 import '../styles.css';
 import Details from './Details';
 import List from './List';
 import ListHeader from './ListHeader';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
   id?: string;
   navigate: NavigateFunction;
+  organization: Organization;
 }
 
 interface State {
@@ -74,7 +76,7 @@ class App extends React.PureComponent<Props, State> {
   }
 
   fetchQualityGates = () => {
-    return fetchQualityGates().then(
+    return fetchQualityGates({ organization: this.props.organization.kee }).then(
       ({ actions, qualitygates: qualityGates }) => {
         if (this.mounted) {
           this.setState({ canCreate: actions.create, loading: false, qualityGates });
@@ -94,7 +96,7 @@ class App extends React.PureComponent<Props, State> {
 
   openDefault(qualityGates: QualityGate[]) {
     const defaultQualityGate = qualityGates.find((gate) => Boolean(gate.isDefault))!;
-    this.props.navigate(getQualityGateUrl(String(defaultQualityGate.id)), { replace: true });
+    this.props.navigate(getQualityGateUrl(this.props.organization.kee, String(defaultQualityGate.id)), { replace: true });
   }
 
   handleSetDefault = (qualityGate: QualityGate) => {
@@ -129,9 +131,10 @@ class App extends React.PureComponent<Props, State> {
                     <ListHeader
                       canCreate={canCreate}
                       refreshQualityGates={this.fetchQualityGates}
+                      organization={this.props.organization.kee}
                     />
                     <DeferredSpinner loading={this.state.loading}>
-                      <List qualityGates={qualityGates} />
+                      <List organization={this.props.organization.kee} qualityGates={qualityGates} />
                     </DeferredSpinner>
                   </div>
                 </div>
@@ -141,6 +144,7 @@ class App extends React.PureComponent<Props, State> {
 
           {id !== undefined && (
             <Details
+              organization={this.props.organization.kee}
               id={id}
               onSetDefault={this.handleSetDefault}
               qualityGates={this.state.qualityGates}
@@ -153,9 +157,15 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default function AppWrapper() {
+export interface AppWrapperProps {
+  organization: Organization;
+}
+
+function AppWrapper(props: AppWrapperProps) {
   const params = useParams();
   const navigate = useNavigate();
 
-  return <App id={params['id']} navigate={navigate} />;
+  return <App id={params['id']} navigate={navigate} organization={props.organization}/>;
 }
+
+export default withOrganizationContext(AppWrapper);

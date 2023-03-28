@@ -32,6 +32,7 @@ public class SearchQualityProfilePermissionQuery extends SearchPermissionQuery {
 
   public SearchQualityProfilePermissionQuery(Builder builder) {
     this.qProfileUuid = builder.profile.getKee();
+    this.organizationUuid = builder.getOrganization().getUuid();
     this.query = builder.getQuery();
     this.membership = builder.getMembership();
     this.querySql = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER);

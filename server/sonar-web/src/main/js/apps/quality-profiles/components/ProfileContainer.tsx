@@ -67,6 +67,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
         profile={profile}
         isComparable={filteredProfiles.length > 1}
         updateProfiles={props.updateProfiles}
+        organization={profile.organization}
       />
       <Outlet context={context} />
     </div>

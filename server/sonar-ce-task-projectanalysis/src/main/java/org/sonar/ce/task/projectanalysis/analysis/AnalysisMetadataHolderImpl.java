@@ -25,7 +25,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.util.InitializedProperty;
-import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.project.Project;
@@ -37,6 +36,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
   private static final String BRANCH_NOT_SET = "Branch has not been set";
+  private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
@@ -54,6 +54,20 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   public AnalysisMetadataHolderImpl(PlatformEditionProvider editionProvider) {
     this.editionProvider = editionProvider;
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
+    checkState(!this.organization.isInitialized(), "Organization has already been set");
+    requireNonNull(organization, "Organization can't be null");
+    this.organization.setProperty(organization);
+    return this;
+  }
+
+  @Override
+  public Organization getOrganization() {
+    checkState(organization.isInitialized(), "Organization has not been set");
+    return organization.getProperty();
   }
 
   @Override
@@ -123,10 +137,6 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @Override
   public MutableAnalysisMetadataHolder setBranch(Branch branch) {
     checkState(!this.branch.isInitialized(), "Branch has already been set");
-    boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
-    checkState(
-      !isCommunityEdition || branch.isMain(),
-      "Branches and Pull Requests are not supported in Community Edition");
     this.branch.setProperty(branch);
     return this;
   }

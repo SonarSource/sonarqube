@@ -78,12 +78,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
 
   return (
     <>
-      <FirstAnalysisNextStepsNotif
-        component={component}
-        branchesEnabled={branchesEnabled}
-        detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
-        projectBinding={projectBinding}
-      />
       <div className="page page-limited">
         <div className="overview">
           <A11ySkipTarget anchor="overview_main" />

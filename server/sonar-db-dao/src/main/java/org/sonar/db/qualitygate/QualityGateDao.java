@@ -27,6 +27,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 
 public class QualityGateDao implements Dao {
 
@@ -43,8 +44,12 @@ public class QualityGateDao implements Dao {
     return newQualityGate;
   }
 
-  public Collection<QualityGateDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public void associate(DbSession dbSession, String uuid, OrganizationDto organization, QualityGateDto qualityGate) {
+    mapper(dbSession).insertOrgQualityGate(uuid, organization.getUuid(), qualityGate.getUuid());
+  }
+
+  public Collection<QualityGateDto> selectAll(DbSession session, OrganizationDto organization) {
+    return mapper(session).selectAll(organization.getUuid());
   }
 
   @CheckForNull
@@ -58,8 +63,17 @@ public class QualityGateDao implements Dao {
   }
 
   @CheckForNull
-  public QualityGateDto selectDefault(DbSession session) {
-    return mapper(session).selectDefault();
+  public QualityGateDto selectByOrganizationAndUuid(DbSession session, OrganizationDto organization, String qualityGateUuid) {
+    return mapper(session).selectByUuidAndOrganization(qualityGateUuid, organization.getUuid());
+  }
+
+  @CheckForNull
+  public QualityGateDto selectByOrganizationAndName(DbSession session, OrganizationDto organization, String name) {
+    return mapper(session).selectByNameAndOrganization(name, organization.getUuid());
+  }
+
+  public QualityGateDto selectDefault(DbSession dbSession, OrganizationDto organization) {
+    return mapper(dbSession).selectDefault(organization.getUuid());
   }
 
   public void delete(QualityGateDto qGate, DbSession session) {

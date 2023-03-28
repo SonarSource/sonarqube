@@ -148,7 +148,7 @@ public class UserDbTester {
   }
 
   public Optional<GroupDto> selectGroup(String name) {
-    return db.getDbClient().groupDao().selectByName(db.getSession(), name);
+    return db.getDbClient().groupDao().selectByName(db.getSession(), null, name);
   }
 
   // GROUP MEMBERSHIP
@@ -203,7 +203,7 @@ public class UserDbTester {
   }
 
   public void deletePermissionFromGroup(GroupDto group, String permission) {
-    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, group.getUuid(), group.getName(), null, null);
+    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, null, group.getUuid(), group.getName(), null, null);
     db.commit();
   }
 
@@ -224,7 +224,7 @@ public class UserDbTester {
   }
 
   public void deleteProjectPermissionFromAnyone(ComponentDto project, String permission) {
-    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, null, null, project.uuid(), project);
+    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, null, null, null, project.uuid(), project);
     db.commit();
   }
 
@@ -246,16 +246,16 @@ public class UserDbTester {
 
   public List<String> selectGroupPermissions(GroupDto group, @Nullable ComponentDto project) {
     if (project == null) {
-      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group.getUuid());
+      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null, group.getUuid());
     }
-    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group.getUuid(), project.uuid());
+    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), null, group.getUuid(), project.uuid());
   }
 
   public List<String> selectAnyonePermissions(@Nullable ComponentDto project) {
     if (project == null) {
-      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null);
+      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null, null);
     }
-    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), null, project.uuid());
+    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), null, null, project.uuid());
   }
 
   // USER PERMISSIONS
@@ -273,14 +273,14 @@ public class UserDbTester {
    */
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(UserDto user, String permission) {
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, permission, user.getUuid(), null);
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto, null, user, null);
     db.commit();
     return dto;
   }
 
   public void deletePermissionFromUser(UserDto user, GlobalPermission permission) {
-    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user, permission.getKey());
+    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user, permission.getKey(), null);
     db.commit();
   }
 
@@ -296,7 +296,7 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, permission, user.getUuid(), project.uuid());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto, project, user, null);
     db.commit();
     return dto;
@@ -304,7 +304,7 @@ public class UserDbTester {
 
   public List<GlobalPermission> selectPermissionsOfUser(UserDto user) {
     return toListOfGlobalPermissions(db.getDbClient().userPermissionDao()
-      .selectGlobalPermissionsOfUser(db.getSession(), user.getUuid()));
+      .selectGlobalPermissionsOfUser(db.getSession(), user.getUuid(), null));
   }
 
   public List<String> selectProjectPermissionsOfUser(UserDto user, ComponentDto project) {

@@ -33,6 +33,7 @@ export interface ProfileDetailsProps {
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
+  organization: string;
 }
 
 export function ProfileDetails(props: ProfileDetailsProps) {
@@ -44,7 +45,7 @@ export function ProfileDetails(props: ProfileDetailsProps) {
           <ProfileRules profile={profile} />
           <ProfileExporters exporters={props.exporters} profile={profile} />
           {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
-            <ProfilePermissions profile={profile} />
+            <ProfilePermissions profile={profile} organization={props.organization}/>
           )}
         </div>
         <div className="quality-profile-grid-right">

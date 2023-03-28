@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.GroupEditorNewValue;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 
@@ -63,9 +64,9 @@ public class QProfileEditGroupsDao implements Dao {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public List<String> selectQProfileUuidsByGroups(DbSession dbSession, Collection<GroupDto> groups) {
+  public List<String> selectQProfileUuidsByOrganizationAndGroups(DbSession dbSession, OrganizationDto organization, Collection<GroupDto> groups) {
     return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()),
-      g -> mapper(dbSession).selectQProfileUuidsByGroups(g));
+      g -> mapper(dbSession).selectQProfileUuidsByOrganizationAndGroups(organization.getUuid(), g));
   }
 
   public void insert(DbSession dbSession, QProfileEditGroupsDto dto, String qualityProfileName, String groupName) {

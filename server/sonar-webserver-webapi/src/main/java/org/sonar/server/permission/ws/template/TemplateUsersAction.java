@@ -102,9 +102,9 @@ public class TemplateUsersAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, templateRef);
-      checkGlobalAdmin(userSession);
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
-      PermissionQuery query = buildQuery(wsRequest);
+      PermissionQuery query = buildQuery(wsRequest, template);
       int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getUuid());
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<UserDto> users = findUsers(dbSession, query, template);
@@ -115,10 +115,11 @@ public class TemplateUsersAction implements PermissionsWsAction {
     }
   }
 
-  private PermissionQuery buildQuery(Request wsRequest) {
+  private PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
     String textQuery = wsRequest.param(TEXT_QUERY);
     String permission = wsRequest.param(PARAM_PERMISSION);
     PermissionQuery.Builder query = PermissionQuery.builder()
+      .setOrganizationUuid(template.getOrganizationUuid())
       .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
       .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))

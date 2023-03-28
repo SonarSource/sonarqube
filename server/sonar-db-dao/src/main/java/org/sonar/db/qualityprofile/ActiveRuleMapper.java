@@ -43,7 +43,7 @@ public interface ActiveRuleMapper {
   @CheckForNull
   ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
-  List<OrgActiveRuleDto> selectOrgByRuleUuid(@Param("ruleUuid") String ruleUuid);
+  List<OrgActiveRuleDto> selectOrgByRuleUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleUuid") String ruleUuid);
 
   List<ActiveRuleDto> selectByRuleUuid(String ruleUuid);
 

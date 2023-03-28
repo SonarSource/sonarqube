@@ -31,6 +31,7 @@ export interface QualityProfilesContextProps {
   profile?: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
+  organization: string;
 }
 
 export function withQualityProfilesContext<P extends Partial<QualityProfilesContextProps>>(

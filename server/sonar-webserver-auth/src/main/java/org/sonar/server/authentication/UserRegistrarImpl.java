@@ -217,7 +217,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     Collection<String> groupsToRemove = Sets.difference(userGroups, identityGroups);
     Collection<String> allGroups = new ArrayList<>(groupsToAdd);
     allGroups.addAll(groupsToRemove);
-    Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, allGroups)
+    Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, null /* TODO */, allGroups)
       .stream()
       .collect(uniqueIndex(GroupDto::getName));
 
@@ -235,7 +235,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private void removeGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToRemove, Map<String, GroupDto> groupsByName) {
-    Optional<GroupDto> defaultGroup = getDefaultGroup(dbSession);
+    Optional<GroupDto> defaultGroup = Optional.empty();
     groupsToRemove.stream().map(groupsByName::get)
       .filter(Objects::nonNull)
       // user should be member of default group only when organizations are disabled, as the IdentityProvider API doesn't handle yet
@@ -245,10 +245,6 @@ public class UserRegistrarImpl implements UserRegistrar {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto, userDto);
       });
-  }
-
-  private Optional<GroupDto> getDefaultGroup(DbSession dbSession) {
-    return Optional.of(defaultGroupFinder.findDefaultGroup(dbSession));
   }
 
   private static NewUser createNewUser(UserRegistration authenticatorParameters) {

@@ -40,8 +40,7 @@ import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.api.web.page.Page.Scope.COMPONENT;
-import static org.sonar.api.web.page.Page.Scope.GLOBAL;
+import static org.sonar.api.web.page.Page.Scope.*;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -122,6 +121,10 @@ public class PageRepository implements Startable {
 
   public List<Page> getGlobalPages(boolean isAdmin) {
     return getPages(GLOBAL, isAdmin, null);
+  }
+
+  public List<Page> getOrganizationPages(boolean isAdmin) {
+    return getPages(ORGANIZATION, isAdmin, null);
   }
 
 

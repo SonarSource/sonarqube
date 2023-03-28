@@ -34,7 +34,7 @@ import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 
@@ -87,10 +87,10 @@ public class CopyAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
 
       QProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
-      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getKee());
+      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getOrganizationUuid(), copiedProfile.getKee());
 
       CopyWsResponse wsResponse = buildResponse(copiedProfile, isDefault);
 

@@ -28,6 +28,7 @@ import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
   isDefault?: boolean;
+  organization: string;
   onAddCondition: (condition: Condition) => void;
   onRemoveCondition: (Condition: Condition) => void;
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
@@ -53,6 +54,7 @@ export function DetailsContent(props: DetailsContentProps) {
         onRemoveCondition={props.onRemoveCondition}
         onSaveCondition={props.onSaveCondition}
         qualityGate={qualityGate}
+        organization={props.organization}
         updatedConditionId={updatedConditionId}
       />
 
@@ -77,12 +79,13 @@ export function DetailsContent(props: DetailsContentProps) {
               // pass unique key to re-mount the component when the quality gate changes
               key={qualityGate.id}
               qualityGate={qualityGate}
+              organization={props.organization}
             />
           )}
         </div>
         {actions.delegate && (
           <div className="width-50 big-padded-left">
-            <QualityGatePermissions qualityGate={qualityGate} />
+            <QualityGatePermissions organization={props.organization} qualityGate={qualityGate} />
           </div>
         )}
       </div>

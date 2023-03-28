@@ -32,6 +32,8 @@ public class ScannerProperties {
 
   public static final String BRANCHES_DOC_LINK = "https://docs.sonarqube.org/latest/analyzing-source-code/branches/branch-analysis/";
 
+  public static final String ORGANIZATION = "sonar.organization";
+
   public static final String BRANCH_NAME = "sonar.branch.name";
   @Deprecated
   public static final String BRANCH_TARGET = "sonar.branch.target";
@@ -39,6 +41,8 @@ public class ScannerProperties {
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
   public static final String PULL_REQUEST_BRANCH = "sonar.pullrequest.branch";
   public static final String PULL_REQUEST_BASE = "sonar.pullrequest.base";
+  public static final String COMPARISON_BRANCH = "sonar.comparison.branch";
+  public static final String COMPARISON_BASE = "sonar.comparison.base";
   public static final String FILE_SIZE_LIMIT = "sonar.filesize.limit";
   public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
   public static final String DISABLE_PROJECT_AND_ORG_AUTODETECTION = "sonar.keys_autodetection.disabled";
@@ -63,6 +67,11 @@ public class ScannerProperties {
         .category(CoreProperties.CATEGORY_SCM)
         .onlyOnQualifiers(Qualifiers.PROJECT)
         .build(),
+      PropertyDefinition.builder(ORGANIZATION)
+              .name("Organization key")
+              .description("Key of the organization that contains the project being analyzed. If unset, then the organization marked as default is used.")
+              .hidden()
+              .build(),
       PropertyDefinition.builder(BRANCH_NAME)
         .name("Optional name of SonarQube/SCM branch")
         .description("Provide a name for the branch being analyzed. It might match an existing branch of the project, otherwise a new branch will be created.")

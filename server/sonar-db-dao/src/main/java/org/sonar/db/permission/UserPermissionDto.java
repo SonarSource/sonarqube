@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 public class UserPermissionDto {
   private String uuid;
+  private String organizationUuid;
   private String permission;
   private String userUuid;
   private String componentUuid;
@@ -32,8 +33,9 @@ public class UserPermissionDto {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String uuid, String permission, String userUuid, @Nullable String componentUuid) {
+  public UserPermissionDto(String uuid, String organizationUuid, String permission, String userUuid, @Nullable String componentUuid) {
     this.uuid = uuid;
+    this.organizationUuid = organizationUuid;
     this.permission = permission;
     this.userUuid = userUuid;
     this.componentUuid = componentUuid;
@@ -51,6 +53,10 @@ public class UserPermissionDto {
     return userUuid;
   }
 
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
   /**
    * @return {@code null} if it's a global permission, otherwise return the project uiid.
    */
@@ -64,6 +70,7 @@ public class UserPermissionDto {
     StringBuilder sb = new StringBuilder("UserPermissionDto{");
     sb.append("permission='").append(permission).append('\'');
     sb.append(", userUuid=").append(userUuid);
+    sb.append(", organizationUuid=").append(organizationUuid);
     sb.append(", componentUuid=").append(componentUuid);
     sb.append('}');
     return sb.toString();

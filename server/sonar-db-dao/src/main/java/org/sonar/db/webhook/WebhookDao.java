@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.audit.model.WebhookNewValue;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 public class WebhookDao implements Dao {
@@ -40,8 +41,12 @@ public class WebhookDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public List<WebhookDto> selectGlobalWebhooks(DbSession dbSession) {
-    return mapper(dbSession).selectGlobalWebhooksOrderedByName();
+  public List<WebhookDto> selectByOrganization(DbSession dbSession, OrganizationDto organizationDto) {
+    return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationDto.getUuid());
+  }
+
+  public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
   }
 
   public Optional<WebhookDto> selectByUuid(DbSession dbSession, String uuid) {

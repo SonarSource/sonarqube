@@ -19,7 +19,9 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
@@ -69,13 +71,16 @@ public class UserIndexer implements ResilientIndexer {
 
   private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
+      dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByUserUuid::put);
+
       BulkIndexer bulkIndexer = newBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
 
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.
         // Deactivated users are not deleted but updated.
-        u -> bulkIndexer.add(newIndexRequest(u)));
+        u -> bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid)));
       bulkIndexer.stop();
     }
   }
@@ -116,6 +121,9 @@ public class UserIndexer implements ResilientIndexer {
       .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
+    ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
+    dbClient.organizationMemberDao().selectForUserIndexing(dbSession, uuids, organizationUuidsByUserUuid::put);
+
     BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
@@ -124,7 +132,7 @@ public class UserIndexer implements ResilientIndexer {
       // Deactivated users are not deleted but updated.
       u -> {
         uuids.remove(u.getUuid());
-        bulkIndexer.add(newIndexRequest(u));
+        bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid));
       });
 
     // the remaining uuids reference rows that don't exist in db. They must
@@ -137,7 +145,7 @@ public class UserIndexer implements ResilientIndexer {
     return new BulkIndexer(esClient, TYPE_USER, bulkSize, listener);
   }
 
-  private static IndexRequest newIndexRequest(UserDto user) {
+  private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByUserUuid) {
     UserDoc doc = new UserDoc(Maps.newHashMapWithExpectedSize(8));
     // all the keys must be present, even if value is null
     doc.setUuid(user.getUuid());
@@ -146,6 +154,7 @@ public class UserIndexer implements ResilientIndexer {
     doc.setEmail(user.getEmail());
     doc.setActive(user.isActive());
     doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
+    doc.setOrganizationUuids(organizationUuidsByUserUuid.get(user.getUuid()));
 
     return doc.toIndexRequest();
   }

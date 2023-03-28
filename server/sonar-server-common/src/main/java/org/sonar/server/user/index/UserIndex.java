@@ -49,6 +49,7 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
 
 @ServerSide
@@ -67,7 +68,7 @@ public class UserIndex {
    * Returns the active users (at most 3) who are associated to the given SCM account. This method can be used
    * to detect user conflicts.
    */
-  public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
+  public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount, String organizationUuid) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
       SearchResponse response = esClient.search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
@@ -75,6 +76,7 @@ public class UserIndex {
           .query(boolQuery().must(matchAllQuery()).filter(
             boolQuery()
               .must(termQuery(FIELD_ACTIVE, true))
+              .must(termQuery(FIELD_ORGANIZATION_UUIDS, organizationUuid))
               .should(termQuery(FIELD_LOGIN, scmAccount))
               .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_EMAIL), scmAccount))
               .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))
@@ -94,6 +96,11 @@ public class UserIndex {
       .sort(FIELD_NAME, SortOrder.ASC);
 
     BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, userQuery.isActive()));
+    userQuery.getOrganizationUuid()
+            .ifPresent(o -> filter.must(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
+    userQuery.getExcludedOrganizationUuid()
+            .ifPresent(o -> filter.mustNot(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
+
     QueryBuilder esQuery = matchAllQuery();
     Optional<String> textQuery = userQuery.getTextQuery();
     if (textQuery.isPresent()) {

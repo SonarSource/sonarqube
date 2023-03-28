@@ -39,7 +39,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -57,6 +59,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -69,13 +72,15 @@ public class BulkDeleteAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
+  private final ProjectsWsSupport wsSupport;
 
   public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession,
-    ProjectLifeCycleListeners projectLifeCycleListeners) {
+    ProjectLifeCycleListeners projectLifeCycleListeners, ProjectsWsSupport wsSupport) {
     this.componentCleanerService = componentCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -133,6 +138,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false")
       .setSince("6.6");
+
+    wsSupport.addOrganizationParam(action);
   }
 
   @Override
@@ -140,12 +147,13 @@ public class BulkDeleteAction implements ProjectsWsAction {
     SearchRequest searchRequest = toSearchWsRequest(request);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(GlobalPermission.ADMINISTER);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, searchRequest.getOrganization());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
       checkAtLeastOneParameterIsPresent(searchRequest);
       checkIfAnalyzedBeforeIsFutureDate(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE));
 
       try {
         componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
@@ -182,6 +190,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   private static SearchRequest toSearchWsRequest(Request request) {
     return SearchRequest.builder()
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setVisibility(request.param(PARAM_VISIBILITY))

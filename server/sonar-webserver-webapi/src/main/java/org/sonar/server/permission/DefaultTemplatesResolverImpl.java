@@ -24,6 +24,7 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.server.property.InternalProperties;
 
 public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
@@ -37,10 +38,8 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
   }
 
   @Override
-  public ResolvedDefaultTemplates resolve(DbSession dbSession) {
-    String defaultProjectTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_PROJECT_TEMPLATE).orElseThrow(() -> {
-      throw new IllegalStateException("Default template for project is missing");
-    });
+  public ResolvedDefaultTemplates resolve(DbSession dbSession, DefaultTemplates defaultTemplates) {
+    String defaultProjectTemplate = defaultTemplates.getProjectUuid();
 
     String defaultPortfolioTemplate = null;
     String defaultApplicationTemplate = null;

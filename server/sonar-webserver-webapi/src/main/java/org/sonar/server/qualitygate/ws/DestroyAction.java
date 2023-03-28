@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 
@@ -68,6 +69,8 @@ public class DestroyAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -78,15 +81,16 @@ public class DestroyAction implements QualityGatesWsAction {
     checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateDto qualityGate;
 
       if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
       } else {
-        qualityGate = wsSupport.getByName(dbSession, name);
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
       }
 
-      QualityGateDto defaultQualityGate = finder.getDefault(dbSession);
+      QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
       checkArgument(!defaultQualityGate.getUuid().equals(qualityGate.getUuid()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 

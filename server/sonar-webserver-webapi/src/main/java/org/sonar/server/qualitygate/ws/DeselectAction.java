@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -60,19 +61,22 @@ public class DeselectAction implements QualityGatesWsAction {
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       ProjectDto project = wsSupport.getProject(dbSession, request.mandatoryParam(PARAM_PROJECT_KEY));
-      dissociateProject(dbSession, project);
+      dissociateProject(dbSession, organization, project);
       response.noContent();
     }
   }
 
-  private void dissociateProject(DbSession dbSession, ProjectDto project) {
-    wsSupport.checkCanAdminProject(project);
+  private void dissociateProject(DbSession dbSession, OrganizationDto organization, ProjectDto project) {
+    wsSupport.checkCanAdminProject(organization, project);
     dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
     dbSession.commit();
   }

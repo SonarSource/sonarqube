@@ -184,10 +184,6 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
-        {this.renderRulesLink()}
-        {this.renderProfilesLink()}
-        {this.renderQualityGatesLink()}
-        {this.renderAdministrationLink()}
         {this.renderMore()}
       </ul>
     );

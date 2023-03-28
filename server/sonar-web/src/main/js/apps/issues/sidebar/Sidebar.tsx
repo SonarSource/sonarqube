@@ -35,7 +35,7 @@ import {
   ReferencedRule,
 } from '../../../types/issues';
 import { GlobalSettingKeys } from '../../../types/settings';
-import { Component, Dict } from '../../../types/types';
+import { Component, Dict, Organization } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
@@ -59,6 +59,7 @@ export interface Props {
   appState: AppState;
   branchLike?: BranchLike;
   component: Component | undefined;
+  organization?: Organization;
   createdAfterIncludesTime: boolean;
   facets: Dict<Facet | undefined>;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
@@ -272,6 +273,7 @@ export class Sidebar extends React.PureComponent<Props> {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.projects}
+            organization={this.props.organization}
             projects={query.projects}
             query={query}
             referencedComponents={this.props.referencedComponentsByKey}

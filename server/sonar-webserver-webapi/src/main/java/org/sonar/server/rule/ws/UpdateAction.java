@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -66,6 +67,7 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAMS = "params";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
   private final RuleUpdater ruleUpdater;
@@ -144,6 +146,11 @@ public class UpdateAction implements RulesWsAction {
       .setPossibleValues(RuleStatus.values())
       .setDescription("Rule status (Only when updating a custom rule)");
 
+    action.createParam(PARAM_ORGANIZATION)
+            .setRequired(true)
+            .setDescription("Organization key")
+            .setExampleValue("my-org");
+
     action.createParam(PARAMS)
       .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only when updating a custom rule)");
   }
@@ -152,18 +159,19 @@ public class UpdateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleWsSupport.checkQProfileAdminPermission();
-      RuleUpdate update = readRequest(dbSession, request);
-      ruleUpdater.update(dbSession, update, userSession);
-      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      ruleWsSupport.checkQProfileAdminPermission(organization);
+      RuleUpdate update = readRequest(dbSession, request, organization);
+      ruleUpdater.update(dbSession, update, organization, userSession);
+      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey(), organization);
 
       writeProtobuf(updateResponse, request, response);
     }
   }
 
-  private RuleUpdate readRequest(DbSession dbSession, Request request) {
+  private RuleUpdate readRequest(DbSession dbSession, Request request, OrganizationDto organization) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = createRuleUpdate(dbSession, key);
+    RuleUpdate update = createRuleUpdate(dbSession, key, organization);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
@@ -191,12 +199,14 @@ public class UpdateAction implements RulesWsAction {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
+  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
-    return ofNullable(rule.getTemplateUuid())
+    RuleUpdate ruleUpdate = ofNullable(rule.getTemplateUuid())
       .map(x -> RuleUpdate.createForCustomRule(key))
       .orElseGet(() -> RuleUpdate.createForPluginRule(key));
+    ruleUpdate.setOrganization(organization);
+    return ruleUpdate;
   }
 
   private static void readTags(Request request, RuleUpdate update) {
@@ -234,8 +244,8 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
+  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, OrganizationDto organization) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDto> templateRules = new ArrayList<>(1);
     if (rule.isCustomRule()) {

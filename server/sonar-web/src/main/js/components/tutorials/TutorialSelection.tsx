@@ -64,7 +64,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   async componentDidMount() {
     this.mounted = true;
 
-    await Promise.all([this.fetchAlmBindings(), this.fetchBaseUrl(), this.checkUserPermissions()]);
+    await Promise.all([this.fetchBaseUrl(), this.checkUserPermissions()]);
 
     if (this.mounted) {
       this.setState({ loading: false });

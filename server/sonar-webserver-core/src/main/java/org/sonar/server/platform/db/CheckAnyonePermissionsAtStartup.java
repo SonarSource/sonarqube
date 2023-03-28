@@ -57,7 +57,7 @@ public class CheckAnyonePermissionsAtStartup implements Startable {
 
   private void logWarningsIfAnyonePermissionsExist() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, null).isEmpty()) {
+      if (!dbClient.groupPermissionDao().selectGlobalPermissionsOfGroups(dbSession, null).isEmpty()) {
         LOG.warn("Authentication is not enforced, and permissions assigned to the 'Anyone' group globally expose the " +
           "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
       }

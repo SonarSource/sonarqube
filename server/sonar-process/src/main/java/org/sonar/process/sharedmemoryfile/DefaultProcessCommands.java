@@ -41,7 +41,7 @@ public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
    * Therefore there should be only one main DefaultProcessCommands.
    */
   public static DefaultProcessCommands main(File directory, int processNumber) {
-    return new DefaultProcessCommands(directory, processNumber, true);
+    return new DefaultProcessCommands(directory, processNumber, false);
   }
 
   /**

@@ -31,6 +31,7 @@ export type OptionWithValue = Option & { value: string };
 interface Props {
   onClose: () => void;
   onSubmit: (selection: UserBase | Group) => void;
+  organization: string;
   qualityGate: QualityGate;
   submitting: boolean;
 }
@@ -59,9 +60,10 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
   }
 
   handleSearch = (q: string, resolve: (options: OptionWithValue[]) => void) => {
-    const { qualityGate } = this.props;
+    const { qualityGate, organization } = this.props;
 
     const queryParams: SearchPermissionsParameters = {
+      organization,
       gateName: qualityGate.name,
       q,
       selected: 'deselected',

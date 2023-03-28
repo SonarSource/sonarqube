@@ -29,6 +29,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
@@ -42,8 +43,10 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
   private final DefaultScannerWsClient wsClient;
+  private final ScanProperties properties;
 
-  public DefaultQualityProfileLoader(DefaultScannerWsClient wsClient) {
+  public DefaultQualityProfileLoader(ScanProperties properties, DefaultScannerWsClient wsClient) {
+    this.properties = properties;
     this.wsClient = wsClient;
   }
 
@@ -55,6 +58,7 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   @Override
   public List<QualityProfile> load(String projectKey) {
     StringBuilder url = new StringBuilder(WS_URL + "?project=").append(encodeForUrl(projectKey));
+    properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     return handleErrors(url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey), true);
   }
 

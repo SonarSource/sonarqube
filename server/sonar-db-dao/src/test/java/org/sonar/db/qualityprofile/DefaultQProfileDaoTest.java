@@ -102,7 +102,7 @@ public class DefaultQProfileDaoTest {
     dbTester.qualityProfiles().setAsDefault(profile1);
 
     List<String> profileUuids = asList(profile1.getKee(), profile2.getKee(), "other");
-    assertThat(underTest.selectExistingQProfileUuids(dbSession, profileUuids))
+    assertThat(underTest.selectExistingQProfileUuids(dbSession, null, profileUuids))
       .containsExactly(profile1.getKee());
   }
 
@@ -112,14 +112,14 @@ public class DefaultQProfileDaoTest {
     QProfileDto profile2 = dbTester.qualityProfiles().insert();
     dbTester.qualityProfiles().setAsDefault(profile1);
 
-    assertThat(underTest.isDefault(dbSession, profile1.getKee())).isTrue();
-    assertThat(underTest.isDefault(dbSession, profile2.getKee())).isFalse();
-    assertThat(underTest.isDefault(dbSession, "does_not_exist")).isFalse();
+    assertThat(underTest.isDefault(dbSession, null, profile1.getKee())).isTrue();
+    assertThat(underTest.isDefault(dbSession, null, profile2.getKee())).isFalse();
+    assertThat(underTest.isDefault(dbSession, null, "does_not_exist")).isFalse();
   }
 
   private void assertThatIsDefault(QProfileDto profile) {
     assertThat(selectUuidOfDefaultProfile(profile.getLanguage())).hasValue(profile.getKee());
-    assertThat(underTest.isDefault(dbSession, profile.getKee())).isTrue();
+    assertThat(underTest.isDefault(dbSession, null, profile.getKee())).isTrue();
   }
 
   private int countRows() {

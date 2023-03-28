@@ -29,10 +29,10 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
-import { PermissionTemplate } from '../../../types/types';
-import { PERMISSION_TEMPLATES_PATH } from '../utils';
+import { Organization, PermissionTemplate } from '../../../types/types';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
   fromDetails?: boolean;
@@ -40,6 +40,7 @@ interface Props {
   refresh: () => void;
   router: Router;
   topQualifiers: string[];
+  organization: Organization;
 }
 
 interface State {
@@ -91,13 +92,13 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
   handleDeleteSubmit = () => {
     return deletePermissionTemplate({ templateId: this.props.permissionTemplate.id }).then(() => {
-      this.props.router.replace(PERMISSION_TEMPLATES_PATH);
+      this.props.router.replace(`/organizations/${this.props.organization.kee}/permission_templates`);
       this.props.refresh();
     });
   };
 
   setDefault = (qualifier: string) => () => {
-    setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier).then(
+    setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier, this.props.organization.kee).then(
       this.props.refresh,
       () => {}
     );
@@ -154,7 +155,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { permissionTemplate: t } = this.props;
+    const { permissionTemplate: t, organization } = this.props;
 
     return (
       <>
@@ -163,7 +164,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
           {!this.props.fromDetails && (
             <ActionsDropdownItem
-              to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}
+              to={{ pathname: `/organizations/${organization.kee}/permission_templates`, search: queryToSearch({ id: t.id }) }}
             >
               {translate('edit_permissions')}
             </ActionsDropdownItem>
@@ -206,4 +207,4 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(ActionsCell);
+export default withRouter(withOrganizationContext(ActionsCell));

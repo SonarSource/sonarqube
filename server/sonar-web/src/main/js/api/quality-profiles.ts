@@ -51,6 +51,7 @@ export interface Profile {
   rulesUpdatedAt?: string;
   lastUsed?: string;
   userUpdatedAt?: string;
+  organization: string;
   isBuiltIn?: boolean;
   projectCount?: number;
 }
@@ -58,6 +59,7 @@ export interface Profile {
 export interface SearchQualityProfilesParameters {
   defaults?: boolean;
   language?: string;
+  organization?: string;
   project?: string;
   qualityProfile?: string;
 }
@@ -103,7 +105,7 @@ export function getProfileProjects(
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 
-export function getProfileInheritance({ language, name: qualityProfile }: Profile): Promise<{
+export function getProfileInheritance({ language, name: qualityProfile, organization }: Profile): Promise<{
   ancestors: ProfileInheritanceDetails[];
   children: ProfileInheritanceDetails[];
   profile: ProfileInheritanceDetails;
@@ -111,13 +113,15 @@ export function getProfileInheritance({ language, name: qualityProfile }: Profil
   return getJSON('/api/qualityprofiles/inheritance', {
     language,
     qualityProfile,
+    organization,
   }).catch(throwGlobalError);
 }
 
-export function setDefaultProfile({ language, name: qualityProfile }: Profile) {
+export function setDefaultProfile({ language, name: qualityProfile, organization }: Profile) {
   return post('/api/qualityprofiles/set_default', {
     language,
     qualityProfile,
+    organization,
   });
 }
 
@@ -129,23 +133,24 @@ export function copyProfile(fromKey: string, name: string): Promise<Profile> {
   return postJSON('/api/qualityprofiles/copy', { fromKey, toName: name }).catch(throwGlobalError);
 }
 
-export function deleteProfile({ language, name: qualityProfile }: Profile) {
-  return post('/api/qualityprofiles/delete', { language, qualityProfile }).catch(throwGlobalError);
+export function deleteProfile({ language, name: qualityProfile, organization }: Profile) {
+  return post('/api/qualityprofiles/delete', { language, qualityProfile, organization }).catch(throwGlobalError);
 }
 
 export function changeProfileParent(
-  { language, name: qualityProfile }: Profile,
+  { language, name: qualityProfile, organization }: Profile,
   parentProfile?: Profile
 ) {
   return post('/api/qualityprofiles/change_parent', {
     language,
     qualityProfile,
+    organization,
     parentQualityProfile: parentProfile ? parentProfile.name : undefined,
   }).catch(throwGlobalError);
 }
 
-export function getQualityProfileBackupUrl({ language, name: qualityProfile }: Profile) {
-  const queryParams = Object.entries({ language, qualityProfile })
+export function getQualityProfileBackupUrl({ language, name: qualityProfile, organization }: Profile) {
+  const queryParams = Object.entries({ language, qualityProfile, organization })
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join('&');
   return `/api/qualityprofiles/backup?${queryParams}`;
@@ -153,9 +158,9 @@ export function getQualityProfileBackupUrl({ language, name: qualityProfile }: P
 
 export function getQualityProfileExporterUrl(
   { key: exporterKey }: Exporter,
-  { language, name: qualityProfile }: Profile
+  { language, name: qualityProfile, organization }: Profile
 ) {
-  const queryParams = Object.entries({ exporterKey, language, qualityProfile })
+  const queryParams = Object.entries({ exporterKey, language, qualityProfile, organization })
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join('&');
   return `/api/qualityprofiles/export?${queryParams}`;
@@ -174,7 +179,7 @@ export function getExporters(): Promise<any> {
 export function getProfileChangelog(
   since: any,
   to: any,
-  { language, name: qualityProfile }: Profile,
+  { language, name: qualityProfile, organization }: Profile,
   page?: number
 ): Promise<{
   events: ProfileChangelogEvent[];
@@ -187,6 +192,7 @@ export function getProfileChangelog(
     to,
     language,
     qualityProfile,
+    organization,
     p: page,
   });
 }
@@ -208,25 +214,28 @@ export function compareProfiles(leftKey: string, rightKey: string): Promise<Comp
   return getJSON('/api/qualityprofiles/compare', { leftKey, rightKey });
 }
 
-export function associateProject({ language, name: qualityProfile }: Profile, project: string) {
+export function associateProject({ language, name: qualityProfile, organization }: Profile, project: string) {
   return post('/api/qualityprofiles/add_project', {
     language,
     qualityProfile,
+    organization,
     project,
   }).catch(throwGlobalError);
 }
 
-export function dissociateProject({ language, name: qualityProfile }: Profile, project: string) {
+export function dissociateProject({ language, name: qualityProfile, organization }: Profile, project: string) {
   return post('/api/qualityprofiles/remove_project', {
     language,
     qualityProfile,
     project,
+    organization,
   }).catch(throwGlobalError);
 }
 
 export interface SearchUsersGroupsParameters {
   language: string;
   qualityProfile: string;
+  organization: string;
   q?: string;
   selected?: 'all' | 'selected' | 'deselected';
 }
@@ -255,6 +264,7 @@ export interface AddRemoveUserParameters {
   language: string;
   login: string;
   qualityProfile: string;
+  organization: string;
 }
 
 export function addUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
@@ -269,6 +279,7 @@ export interface AddRemoveGroupParameters {
   group: string;
   language: string;
   qualityProfile: string;
+  organization: string;
 }
 
 export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {

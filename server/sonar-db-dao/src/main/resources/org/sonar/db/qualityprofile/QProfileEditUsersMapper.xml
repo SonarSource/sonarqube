@@ -77,9 +77,10 @@
     </where>
   </sql>
 
-  <select id="selectQProfileUuidsByUser" parameterType="map" resultType="string">
+  <select id="selectQProfileUuidsByOrganizationAndUser" parameterType="map" resultType="string">
     SELECT qeu.qprofile_uuid as qProfileUuid
     FROM qprofile_edit_users qeu
+    INNER JOIN org_qprofiles oq ON qeu.qprofile_uuid=oq.uuid AND oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
     <where>
       qeu.user_uuid=#{userUuid, jdbcType=VARCHAR}
     </where>

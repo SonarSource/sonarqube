@@ -28,7 +28,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 
@@ -82,7 +82,7 @@ public class ProjectFinder {
   }
 
   private boolean hasPermission(Set<String> projectsUserHasAccessTo, String projectKey) {
-    return userSession.hasPermission(GlobalPermission.SCAN) || projectsUserHasAccessTo.contains(projectKey);
+    return userSession.hasPermission(OrganizationPermission.SCAN, "" /* TODO */) || projectsUserHasAccessTo.contains(projectKey);
   }
 
   public static class SearchResult {

@@ -19,9 +19,12 @@
  */
 package org.sonar.server.qualitygate;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
@@ -32,16 +35,16 @@ public class QualityGateFinder {
     this.dbClient = dbClient;
   }
 
-  public QualityGateData getEffectiveQualityGate(DbSession dbSession, ProjectDto projectDto) {
-    return getEffectiveQualityGate(dbSession, projectDto.getUuid());
+  public QualityGateData getEffectiveQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto projectDto) {
+    return getEffectiveQualityGate(dbSession, organization, projectDto.getUuid());
   }
 
-  public QualityGateData getEffectiveQualityGate(DbSession dbSession, String projectUuid) {
+  public QualityGateData getEffectiveQualityGate(DbSession dbSession, OrganizationDto organization, String projectUuid) {
     Optional<QualityGateData> res = getQualityGateForProject(dbSession, projectUuid);
     if (res.isPresent()) {
       return res.get();
     }
-    QualityGateDto defaultQualityGate = getDefault(dbSession);
+    QualityGateDto defaultQualityGate = getDefault(dbSession, organization);
     return new QualityGateData(defaultQualityGate, true);
   }
 
@@ -51,8 +54,10 @@ public class QualityGateFinder {
       .map(qualityGateDto -> new QualityGateData(qualityGateDto, false));
   }
 
-  public QualityGateDto getDefault(DbSession dbSession) {
-    return Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)).orElseThrow(() -> new IllegalStateException("Default quality gate is missing"));
+  public QualityGateDto getDefault(DbSession dbSession, OrganizationDto organization) {
+    QualityGateDto qgate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
+    checkState(qgate != null, "Default quality gate [%s] is missing on organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
+    return qgate;
   }
 
   public static class QualityGateData {

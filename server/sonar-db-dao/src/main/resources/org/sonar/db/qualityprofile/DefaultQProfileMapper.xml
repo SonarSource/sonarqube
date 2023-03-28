@@ -39,7 +39,8 @@
     select qprofile_uuid
     from default_qprofiles
     where
-      qprofile_uuid in
+      organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and qprofile_uuid in
       <foreach collection="qProfileUuids" open="(" close=")" item="qProfileUuid" separator=",">
         #{qProfileUuid, jdbcType=VARCHAR}
       </foreach>

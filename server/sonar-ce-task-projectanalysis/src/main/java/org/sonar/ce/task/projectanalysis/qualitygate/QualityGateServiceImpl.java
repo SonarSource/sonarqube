@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -41,13 +42,9 @@ public class QualityGateServiceImpl implements QualityGateService {
   }
 
   @Override
-  public QualityGate findEffectiveQualityGate(Project project) {
-    return findQualityGate(project).orElseGet(this::findDefaultQualityGate);
-  }
-
-  private QualityGate findDefaultQualityGate() {
+  public QualityGate findDefaultQualityGate(Organization organization) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectDefault(dbSession);
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization.toDto(), organization.getDefaultQualityGateUuid());
       if (qualityGateDto == null) {
         throw new IllegalStateException("The default Quality gate is missing");
       }
@@ -55,7 +52,8 @@ public class QualityGateServiceImpl implements QualityGateService {
     }
   }
 
-  private Optional<QualityGate> findQualityGate(Project project) {
+  @Override
+  public Optional<QualityGate> findQualityGate(Project project) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return Optional.ofNullable(dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid()))
         .map(qg -> toQualityGate(dbSession, qg));

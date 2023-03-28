@@ -45,6 +45,7 @@ public class UserIndexDefinition implements IndexDefinition {
   public static final String FIELD_EMAIL = "email";
   public static final String FIELD_ACTIVE = "active";
   public static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
+  public static final String FIELD_ORGANIZATION_UUIDS = "organizationUuids";
 
   private final Configuration config;
 
@@ -73,5 +74,6 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
     mapping.createBooleanField(FIELD_ACTIVE);
     mapping.keywordFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();
   }
 }

@@ -30,6 +30,7 @@ import PermissionItem from './PermissionItem';
 import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsRendererProps {
+  organization: string;
   groups: Group[];
   loading: boolean;
   onClickAddPermission: () => void;
@@ -76,6 +77,7 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
 
       {showAddModal && (
         <QualityGatePermissionsAddModal
+          organization={props.organization}
           qualityGate={qualityGate}
           onClose={props.onCloseAddPermission}
           onSubmit={props.onSubmitAddPermission}

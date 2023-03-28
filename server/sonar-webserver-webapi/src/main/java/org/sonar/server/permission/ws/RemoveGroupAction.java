@@ -79,6 +79,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action, "The permission you would like to revoke from the group.");
+    wsParameters.createOrganizationParameter(action).setSince("6.2");
     createGroupNameParameter(action);
     createGroupIdParameter(action);
     createProjectParameters(action);
@@ -90,7 +91,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
 
-      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
+      wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,

@@ -28,7 +28,7 @@ public class GroupPermissionChange extends PermissionChange {
 
   public GroupPermissionChange(Operation operation, String permission, @Nullable ComponentDto project,
     GroupUuidOrAnyone group, PermissionService permissionService) {
-    super(operation, permission, project, permissionService);
+    super(operation, group.getOrganizationUuid(), permission, project, permissionService);
     this.group = group;
   }
 

@@ -38,6 +38,7 @@ interface Props {
   onAddCondition: (condition: Condition) => void;
   onClose: () => void;
   qualityGate: QualityGate;
+  organization?: string;
 }
 
 interface State {
@@ -65,15 +66,15 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   }
 
   handleFormSubmit = () => {
-    const { condition, qualityGate } = this.props;
+    const { condition, qualityGate, organization } = this.props;
     const newCondition: Omit<Condition, 'id'> = {
       metric: this.state.metric!.key,
       op: this.getSinglePossibleOperator(this.state.metric!) || this.state.op,
       error: this.state.error,
     };
     const submitPromise = condition
-      ? updateCondition({ id: condition.id, ...newCondition })
-      : createCondition({ gateId: qualityGate.id, ...newCondition });
+      ? updateCondition({ organization, id: condition.id, ...newCondition })
+      : createCondition({ organization, gateId: qualityGate.id, ...newCondition });
     return submitPromise.then(this.props.onAddCondition);
   };
 

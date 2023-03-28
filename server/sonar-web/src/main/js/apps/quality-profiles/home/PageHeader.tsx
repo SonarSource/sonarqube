@@ -36,6 +36,7 @@ interface Props {
   profiles: Profile[];
   router: Router;
   updateProfiles: () => Promise<void>;
+  organization: string;
 }
 
 interface State {
@@ -56,7 +57,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
   handleCreate = (profile: Profile) => {
     this.props.updateProfiles().then(
       () => {
-        this.props.router.push(getProfilePath(profile.name, profile.language));
+        this.props.router.push(getProfilePath(profile.name, profile.language, this.props.organization));
       },
       () => {}
     );
@@ -75,7 +76,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { actions, languages, location, profiles } = this.props;
+    const { organization, actions, languages, location, profiles } = this.props;
     return (
       <header className="page-header">
         <h1 className="page-title">{translate('quality_profiles.page')}</h1>
@@ -127,6 +128,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
             onClose={this.closeCreateForm}
             onCreate={this.handleCreate}
             profiles={profiles}
+            organization={this.props.organization}
           />
         )}
       </header>

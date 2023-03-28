@@ -29,16 +29,17 @@ import { QualityGate } from '../../../types/types';
 interface Props {
   onDelete: () => Promise<void>;
   qualityGate: QualityGate;
+  organization: string;
   router: Router;
 }
 
 export class DeleteQualityGateForm extends React.PureComponent<Props> {
   onDelete = () => {
-    const { qualityGate } = this.props;
-    return deleteQualityGate({ id: qualityGate.id })
+    const { organization, qualityGate } = this.props;
+    return deleteQualityGate({ id: qualityGate.id, organization })
       .then(this.props.onDelete)
       .then(() => {
-        this.props.router.push(getQualityGatesUrl());
+        this.props.router.push(getQualityGatesUrl(organization));
       });
   };
 

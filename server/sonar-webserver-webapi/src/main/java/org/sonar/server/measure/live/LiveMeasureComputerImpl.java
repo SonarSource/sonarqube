@@ -38,6 +38,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -91,6 +92,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private Optional<QGChangeEvent> refreshComponentsOnSameProject(DbSession dbSession, List<ComponentDto> touchedComponents) {
     ComponentIndex components = componentIndexFactory.create(dbSession, touchedComponents);
     ComponentDto branchComponent = components.getBranch();
+    OrganizationDto organization = loadOrganization(dbSession, branchComponent);
     Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
     if (lastAnalysis.isEmpty()) {
       return Optional.empty();
@@ -99,7 +101,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     BranchDto branch = loadBranch(dbSession, branchComponent);
     Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, branchComponent);
     ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
-    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
+    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, organization, project, branch);
     MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), qualityGate);
 
     treeUpdater.update(dbSession, lastAnalysis.get(), config, components, branch, matrix);
@@ -109,6 +111,12 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     persistAndIndex(dbSession, matrix, branchComponent);
 
     return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
+  }
+
+  private OrganizationDto loadOrganization(DbSession dbSession, ComponentDto project) {
+    String organizationUuid = project.getOrganizationUuid();
+    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+            .orElseThrow(() -> new IllegalStateException("No organization with UUID " + organizationUuid));
   }
 
   private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {

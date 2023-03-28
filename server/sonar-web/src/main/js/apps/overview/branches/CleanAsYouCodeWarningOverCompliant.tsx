@@ -26,7 +26,7 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
 
 interface Props {
-  component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
+  component: Pick<Component, 'key' | 'qualifier' | 'qualityGate' | 'organization'>;
 }
 
 export default function CleanAsYouCodeWarningOverCompliant({ component }: Props) {
@@ -41,7 +41,7 @@ export default function CleanAsYouCodeWarningOverCompliant({ component }: Props)
             )}
             values={{
               link: (
-                <Link to={getQualityGateUrl(component.qualityGate.key)}>
+                <Link to={getQualityGateUrl(component.organization, component.qualityGate.key)}>
                   {translate('overview.quality_gate.conditions.cayc_over_compliant.warning.link')}
                 </Link>
               ),

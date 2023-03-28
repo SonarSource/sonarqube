@@ -88,16 +88,19 @@ export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCon
 
 export interface SearchPermissionsParameters {
   gateName: string;
+  organization: string;
   q?: string;
   selected?: 'all' | 'selected' | 'deselected';
 }
 
 export interface AddDeleteUserPermissionsParameters {
+  organization: string;
   gateName: string;
   login: string;
 }
 
 export interface AddDeleteGroupPermissionsParameters {
+  organization: string;
   gateName: string;
   groupName: string;
 }

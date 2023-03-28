@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -91,14 +92,15 @@ public class RenameAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto qualityProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      wsSupport.checkCanEdit(dbSession, qualityProfile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
+      wsSupport.checkCanEdit(dbSession, organization, qualityProfile);
 
       if (newName.equals(qualityProfile.getName())) {
         return;
       }
 
       String language = qualityProfile.getLanguage();
-      ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, newName, language))
+      ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, newName, language))
         .ifPresent(found -> {
           throw BadRequestException.create(format("Quality profile already exists: %s", newName));
         });

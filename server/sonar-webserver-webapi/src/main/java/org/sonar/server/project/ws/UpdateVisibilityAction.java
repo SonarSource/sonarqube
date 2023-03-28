@@ -163,7 +163,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, UserId userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()),
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), null /* TODO */, permission, userId.getUuid(), component.uuid()),
       component, userId, null);
   }
 

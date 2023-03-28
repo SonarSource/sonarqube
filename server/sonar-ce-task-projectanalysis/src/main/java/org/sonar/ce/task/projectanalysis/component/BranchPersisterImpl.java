@@ -30,6 +30,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.protobuf.DbProjectBranches;
 
 import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
@@ -58,11 +60,23 @@ public class BranchPersisterImpl implements BranchPersister {
       .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
-    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge()));
+    BranchDto branchDto = toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge());
+    dbClient.branchDao().upsert(dbSession, branchDto);
+
+    // Insert NewCodePeriods settings if there is a target branch.
+    if (branch.getTargetBranchName() != null) {
+      // Create branch-level New Code Periods settings.
+      NewCodePeriodDto newCodePeriod = new NewCodePeriodDto()
+              .setProjectUuid(branchDto.getProjectUuid())
+              .setBranchUuid(branchComponentDto.uuid())
+              .setType(NewCodePeriodType.REFERENCE_BRANCH)
+              .setValue(branch.getTargetBranchName());
+      dbClient.newCodePeriodDao().upsert(dbSession, newCodePeriod);
+    }
   }
 
   private boolean checkIfExcludedFromPurge() {
-    if (analysisMetadataHolder.getBranch().isMain()) {
+    if (analysisMetadataHolder.getBranch().isMain() || analysisMetadataHolder.getBranch().getTargetBranchName() == null) {
       return true;
     }
 

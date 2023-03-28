@@ -8,6 +8,7 @@
     g.uuid as uuid,
     g.name as name,
     g.description as description,
+    g.organization_uuid as organizationUuid,
     g.created_at as "createdAt",
     g.updated_at as "updatedAt"
   </sql>
@@ -16,7 +17,7 @@
     select
     <include refid="groupColumns"/>
     from groups g
-    where g.name = #{name,jdbcType=VARCHAR}
+    where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and g.name = #{name,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUuids" parameterType="String" resultType="Group">
@@ -59,6 +60,7 @@
     <include refid="groupColumns"/>
     from groups g
     where
+    g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
       g.name in
       <foreach item="name" index="index" collection="names" open="(" separator="," close=")">
         #{name,jdbcType=VARCHAR}
@@ -68,12 +70,14 @@
   <insert id="insert" parameterType="Group" useGeneratedKeys="false">
     insert into groups (
     uuid,
+    organization_uuid,
     name,
     description,
     created_at,
     updated_at
     ) values (
     #{uuid,jdbcType=VARCHAR},
+    #{organizationUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},
@@ -93,8 +97,10 @@
     select
     <include refid="groupColumns"/>
     from groups g
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     <if test="query!=null">
-      where upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
+      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
     </if>
     order by upper(g.name)
   </select>
@@ -102,8 +108,27 @@
   <select id="countByQuery" parameterType="map" resultType="int">
     select count(1)
     from groups g
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     <if test="query!=null">
-          where upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
+      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
     </if>
+  </select>
+
+  <select id="countGroupByOrganizationAndUuid" parameterType="map" resultType="int">
+    select
+    count(1)
+    from groups g
+    where
+    g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    and g.uuid = #{groupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    order by upper(g.name)
   </select>
 </mapper>

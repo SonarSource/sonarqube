@@ -20,15 +20,14 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import Link from "../../../components/common/Link";
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;
@@ -36,11 +35,10 @@ export interface EmptyOverviewProps {
   component: Component;
   currentUser: CurrentUser;
   hasAnalyses?: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function EmptyOverview(props: EmptyOverviewProps) {
-  const { branchLike, branchLikes, component, currentUser, hasAnalyses, projectBinding } = props;
+  const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
 
   if (component.qualifier === ComponentQualifier.Application) {
     return (
@@ -90,12 +88,13 @@ export function EmptyOverview(props: EmptyOverviewProps) {
         <>
           {showWarning && <Alert variant="warning">{warning}</Alert>}
           {showTutorial && (
-            <TutorialSelection
-              component={component}
-              currentUser={currentUser}
-              projectBinding={projectBinding}
-              willRefreshAutomatically={true}
-            />
+            <div className="page-header big-spacer-bottom">
+              <h1 className="page-title">{translate('onboarding.project_analysis.header')}</h1>
+              <p className="page-description">
+                {translate('layout.must_be_configured')}
+                Run analysis on <Link to={`/project/extension/developer/project?id=${component.key}`}>Project Analysis</Link> Page.
+              </p>
+            </div>
           )}
         </>
       ) : (

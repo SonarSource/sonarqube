@@ -37,6 +37,7 @@ import {
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
   onProvisionedOnly?: boolean;
+  organization: string;
   projects?: string;
   q?: string;
   qualifiers?: string;
@@ -48,6 +49,7 @@ export interface ProjectBase {
   name: string;
   qualifier: string;
   visibility: Visibility;
+  organization: string;
 }
 
 export interface Project extends ProjectBase {
@@ -83,6 +85,7 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
 
 export function createProject(data: {
   name: string;
+  organization: string;
   project: string;
   mainBranch: string;
   visibility?: Visibility;

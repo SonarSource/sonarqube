@@ -20,6 +20,7 @@
 package org.sonar.db.qualitygate;
 
 import java.util.Locale;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.SearchPermissionQuery;
 
 import static java.util.Objects.requireNonNull;
@@ -32,6 +33,7 @@ public class SearchQualityGatePermissionQuery extends SearchPermissionQuery {
 
   public SearchQualityGatePermissionQuery(Builder builder) {
     this.qualityGateUuid = builder.qualityGate.getUuid();
+    this.organizationUuid = builder.getOrganization().getUuid();
     this.query = builder.getQuery();
     this.membership = builder.getMembership();
     this.querySql = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER);

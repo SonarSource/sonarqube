@@ -60,7 +60,7 @@ public interface PermissionTemplateMapper {
 
   int deleteByGroupUuid(String groupUuid);
 
-  PermissionTemplateDto selectByName(@Param("name") String name);
+  PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
   List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid, RowBounds rowBounds);
 
@@ -68,9 +68,9 @@ public interface PermissionTemplateMapper {
 
   List<String> selectGroupNamesByQueryAndTemplate(@Param("templateUuid") String templateUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
+  int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
-  List<PermissionTemplateDto> selectAll(@Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
+  List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
   void usersCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 

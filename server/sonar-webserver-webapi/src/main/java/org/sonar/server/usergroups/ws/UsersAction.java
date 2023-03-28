@@ -31,7 +31,7 @@ import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.permission.GroupUuid;
@@ -84,10 +84,11 @@ public class UsersAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupUuid group = support.findGroup(dbSession, request);
-      userSession.checkPermission(GlobalPermission.ADMINISTER);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
 
       UserMembershipQuery query = UserMembershipQuery.builder()
         .groupUuid(group.getUuid())
+        .organizationUuid(group.getOrganizationUuid())
         .memberSearch(queryString)
         .membership(getMembership(selected))
         .pageIndex(page)

@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
@@ -72,6 +73,7 @@ public class AddProjectAction implements QProfileWsAction {
       .setHandler(this);
 
     QProfileReference.defineParams(action, languages);
+    QProfileWsSupport.createOrganizationParam(action);
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
@@ -87,13 +89,22 @@ public class AddProjectAction implements QProfileWsAction {
 
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+
+      if (!profile.getOrganizationUuid().equals(organization.getUuid())) {
+        throw new IllegalArgumentException("Quality profile must have the same organization");
+      }
+      if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
+        throw new IllegalArgumentException("Project and quality profile must have the same organization");
+      }
       checkPermissions(profile, project);
+
       QProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
 
       QProfileDto deactivatedProfile = null;
 
       if (currentProfile == null) {
-        QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage());
+        QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, profile.getLanguage());
         if (defaultProfile != null) {
           deactivatedProfile = defaultProfile;
         }

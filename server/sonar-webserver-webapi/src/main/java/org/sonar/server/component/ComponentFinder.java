@@ -32,12 +32,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class ComponentFinder {
   private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided";
@@ -190,6 +192,12 @@ public class ComponentFinder {
       .stream()
       .map(ResourceType::getQualifier)
       .collect(MoreCollectors.toSet(rootTypes.size()));
+  }
+
+  public OrganizationDto getOrganization(DbSession dbSession, ComponentDto component) {
+    String organizationUuid = component.getOrganizationUuid();
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+    return checkFoundWithOptional(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
   }
 
   public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {

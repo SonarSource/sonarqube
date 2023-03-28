@@ -6,6 +6,11 @@
       qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.created_at as createdAt, qg.updated_at as updatedAt
   </sql>
 
+  <sql id="qateWithOrgColumns">
+    <include refid="gateColumns"/>,
+    oqg.organization_uuid as organizationUuid
+  </sql>
+
   <sql id="qualityGateFindingColumns">
     m.short_name as description,
     qgc.operator as operator,
@@ -18,10 +23,17 @@
     values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 
+  <insert id="insertOrgQualityGate" parameterType="Map">
+    INSERT INTO org_quality_gates (uuid, organization_uuid, quality_gate_uuid)
+    VALUES (#{uuid, jdbcType=VARCHAR}, #{organizationUuid, jdbcType=VARCHAR}, #{qualityGateUuid, jdbcType=VARCHAR})
+  </insert>
+
   <select id="selectAll" resultType="QualityGate">
     SELECT
-    <include refid="gateColumns"/>
+    <include refid="qateWithOrgColumns"/>
     FROM quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY qg.name ASC
   </select>
 
@@ -56,14 +68,35 @@
       is_built_in = ${_true}
   </select>
 
+  <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
+    SELECT
+      <include refid="qateWithOrgColumns"/>
+    FROM
+      quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    WHERE
+      qg.uuid = #{qualityGateUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByNameAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
+    SELECT
+      <include refid="qateWithOrgColumns"/>
+    FROM
+      quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    WHERE
+      qg.name = #{name, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectDefault" resultType="org.sonar.db.qualitygate.QualityGateDto">
     SELECT
-      <include refid="gateColumns"/>
-    FROM quality_gates qg INNER JOIN properties p ON qg.uuid = p.text_value
-    WHERE
-      p.prop_key = 'qualitygate.default'
-      and p.component_uuid is null
-      and p.user_uuid is null
+      <include refid="qateWithOrgColumns"/>
+    FROM
+      quality_gates qg
+    INNER JOIN org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid
+    INNER JOIN organizations o ON o.default_quality_gate_uuid = qg.uuid AND oqg.organization_uuid = o.uuid  AND o.uuid=#{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectQualityGateFindings" parameterType="String" resultType="org.sonar.db.qualitygate.QualityGateFindingDto">

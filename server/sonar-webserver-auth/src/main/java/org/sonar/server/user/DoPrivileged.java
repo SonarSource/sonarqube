@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 
 /**
@@ -104,11 +103,6 @@ public final class DoPrivileged {
       @Override
       public Optional<ExternalIdentity> getExternalIdentity() {
         return Optional.empty();
-      }
-
-      @Override
-      protected boolean hasPermissionImpl(GlobalPermission permission) {
-        return true;
       }
 
       @Override

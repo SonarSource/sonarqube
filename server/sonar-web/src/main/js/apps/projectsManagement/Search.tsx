@@ -54,6 +54,7 @@ export interface Props {
   appState: AppState;
   total: number;
   visibility?: Visibility;
+  organization: string;
 }
 
 interface State {
@@ -273,6 +274,7 @@ export class Search extends React.PureComponent<Props, State> {
 
         {this.state.bulkApplyTemplateModal && (
           <BulkApplyTemplateModal
+            organization={this.props.organization}
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeBulkApplyTemplateModal}
             provisioned={this.props.provisioned}
@@ -285,6 +287,7 @@ export class Search extends React.PureComponent<Props, State> {
 
         {this.state.deleteModal && (
           <DeleteModal
+            organization={this.props.organization}
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeDeleteModal}
             onConfirm={this.handleDeleteConfirm}

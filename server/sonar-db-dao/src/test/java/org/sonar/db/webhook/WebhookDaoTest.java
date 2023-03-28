@@ -58,7 +58,7 @@ public class WebhookDaoTest {
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
 
-    List<WebhookDto> results = underTest.selectGlobalWebhooks(dbSession);
+    List<WebhookDto> results = underTest.selectByOrganization(dbSession, null);
 
     assertThat(results).hasSize(2);
   }
@@ -69,7 +69,7 @@ public class WebhookDaoTest {
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
 
-    List<WebhookDto> results = underTest.selectGlobalWebhooks(dbSession);
+    List<WebhookDto> results = underTest.selectByOrganization(dbSession, null);
 
     assertThat(results).isEmpty();
   }

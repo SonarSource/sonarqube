@@ -4,8 +4,9 @@
 <mapper namespace="org.sonar.db.permission.template.PermissionTemplateMapper">
 
   <insert id="insert" parameterType="PermissionTemplate" useGeneratedKeys="false">
-    INSERT INTO permission_templates (name, uuid, description, key_pattern, created_at, updated_at)
+    INSERT INTO permission_templates (organization_uuid, name, uuid, description, key_pattern, created_at, updated_at)
     VALUES (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
@@ -37,6 +38,13 @@
     WHERE template_uuid = #{templateUuid}
     AND user_uuid = #{userUuid}
     AND permission_reference = #{permission}
+  </delete>
+
+  <delete id="deleteUserPermissionsByOrganization" parameterType="map">
+    delete from perm_templates_users
+    where
+    user_uuid = #{userUuid,jdbcType=VARCHAR}
+    and template_uuid in (select uuid from permission_templates where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
   </delete>
 
   <delete id="deleteUserPermissionsByUserUuid" parameterType="String">
@@ -106,6 +114,7 @@
   <sql id="userLoginsByQueryAndTemplate">
     FROM users u
     LEFT JOIN perm_templates_users ptu ON ptu.user_uuid=u.uuid AND ptu.template_uuid=#{templateUuid}
+    INNER JOIN organization_members om ON u.uuid=om.user_uuid AND om.organization_uuid=#{query.organizationUuid}
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
@@ -147,6 +156,8 @@
     LEFT JOIN perm_templates_groups ptg ON
         ptg.group_uuid=g.uuid
       AND ptg.template_uuid=#{templateUuid}
+    where
+      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     UNION ALL
     SELECT
       'Anyone' AS group_uuid,
@@ -156,11 +167,12 @@
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON
       ptg.template_uuid=#{templateUuid}
-          <if test="query.withAtLeastOnePermission()">
     <where>
-      ptg.group_uuid IS NULL
+      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+      <if test="query.withAtLeastOnePermission()">
+        AND ptg.group_uuid IS NULL
+      </if>
     </where>
-          </if>
     ) groups
     <where>
       <if test="query.searchQueryToSql != null">
@@ -177,7 +189,7 @@
   </sql>
 
   <sql id="templateColumns">
-    name, uuid, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+    organization_uuid as organizationUuid, name, uuid, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="PermissionTemplate">
@@ -191,8 +203,10 @@
     select
     <include refid="templateColumns"/>
     from permission_templates
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     <if test="upperCaseNameLikeSql != null">
-        where upper(name) like #{upperCaseNameLikeSql} escape '/'
+        and upper(name) like #{upperCaseNameLikeSql} escape '/'
     </if>
     order by upper(name), name
   </select>
@@ -202,6 +216,7 @@
     <include refid="templateColumns"/>
     from permission_templates
     where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     upper(name) = #{name,jdbcType=VARCHAR}
   </select>
 
@@ -360,6 +375,15 @@
     <if test="groupUuid != null">
       ptg.group_uuid = #{groupUuid}
     </if>
+  </select>
+
+  <select id="selectTemplateUuidsByOrganization" resultType="String">
+    select
+    uuid
+    from
+    permission_templates
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectAllGroupPermissionTemplatesByGroupUuid" parameterType="string" resultType="PermissionTemplateGroup">

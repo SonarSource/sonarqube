@@ -31,11 +31,13 @@ import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthoriza
 import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translateWithParameters } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
-import { Component } from '../../types/types';
+import { Component, Organization } from '../../types/types';
 import ProjectQualityProfilesAppRenderer from './ProjectQualityProfilesAppRenderer';
 import { ProjectProfile } from './types';
+import { withOrganizationContext } from "../organizations/OrganizationContext";
 
 interface Props {
+  organization: Organization;
   component: Component;
 }
 
@@ -71,9 +73,9 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
   }
 
   fetchProfiles = async () => {
-    const { component } = this.props;
+    const { component, organization } = this.props;
 
-    const allProfiles = await searchQualityProfiles()
+    const allProfiles = await searchQualityProfiles({organization: organization.kee})
       .then(({ profiles }) => profiles)
       .catch(() => [] as Profile[]);
 
@@ -295,4 +297,4 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
   }
 }
 
-export default withComponentContext(ProjectQualityProfilesApp);
+export default withComponentContext(withOrganizationContext(ProjectQualityProfilesApp));

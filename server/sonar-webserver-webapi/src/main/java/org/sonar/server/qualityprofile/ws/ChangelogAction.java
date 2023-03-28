@@ -89,6 +89,8 @@ public class ChangelogAction implements QProfileWsAction {
       .setDescription("End date for the changelog (exclusive, strictly before). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+
+    wsSupport.createOrganizationParam(wsAction);
   }
 
   @Override

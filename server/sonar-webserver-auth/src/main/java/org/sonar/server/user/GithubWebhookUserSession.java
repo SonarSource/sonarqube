@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.Optional;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Collections.emptySet;
@@ -78,11 +77,6 @@ public class GithubWebhookUserSession extends AbstractUserSession {
   @Override
   public boolean isActive() {
     return true;
-  }
-
-  @Override
-  protected boolean hasPermissionImpl(GlobalPermission permission) {
-    return false;
   }
 
   @Override

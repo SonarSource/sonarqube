@@ -31,6 +31,7 @@ interface Props {
   headerClassName?: string;
   languages: Languages;
   profiles: ComponentQualityProfile[];
+  organization: string;
 }
 
 interface State {
@@ -95,7 +96,7 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
         {profile.deleted ? (
           profile.name
         ) : (
-          <Link to={getQualityProfileUrl(profile.name, profile.language)}>
+          <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>
             <span
               aria-label={translateWithParameters(
                 'overview.link_to_x_profile_y',

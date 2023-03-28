@@ -3,6 +3,7 @@
 <mapper namespace="org.sonar.db.component.ComponentMapper">
 
   <sql id="componentColumns">
+    p.organization_uuid as organizationUuid,
     p.uuid as uuid,
     p.uuid_path as uuidPath,
     p.branch_uuid as branchUuid,
@@ -55,6 +56,7 @@
 
   <select id="selectByKeyAndBranchOrPr" parameterType="String" resultType="Component">
     select
+          p.organization_uuid as organizationUuid,
           p.uuid as uuid,
           p.uuid_path as uuidPath,
           p.branch_uuid as branchUuid,
@@ -289,6 +291,9 @@
       p.enabled=${_true}
       AND p.main_branch_project_uuid is null
       AND p.copy_component_uuid is null
+      <if test="organizationUuid!=null">
+        and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+      </if>
       <if test="query.qualifiers!=null">
         and p.qualifier in
           <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
@@ -611,6 +616,7 @@
 
   <insert id="insert" parameterType="Component">
     INSERT INTO components (
+      organization_uuid,
       kee,
       uuid,
       uuid_path,
@@ -644,6 +650,7 @@
       b_qualifier
     )
     VALUES (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{kee,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},
     #{uuidPath,jdbcType=VARCHAR},

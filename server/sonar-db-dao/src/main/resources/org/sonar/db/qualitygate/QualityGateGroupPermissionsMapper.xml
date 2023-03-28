@@ -69,6 +69,7 @@
     FROM groups g
     LEFT JOIN qgate_group_permissions qggp ON qggp.group_uuid=g.uuid AND qggp.quality_gate_uuid=#{query.qualityGateUuid, jdbcType=VARCHAR}
     <where>
+      AND g.organization_uuid=#{query.organizationUuid}
       <choose>
         <when test="query.getMembership() == 'IN'">
           AND qggp.uuid IS NOT NULL

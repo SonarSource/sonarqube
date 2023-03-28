@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.container;
 
+import ce.CodeScanBranchLoaderDelegate;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -339,6 +340,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BranchLoader.class,
       MeasureToMeasureDto.class,
       SmallChangesetQualityGateSpecialCase.class,
+      CodeScanBranchLoaderDelegate.class,
 
       // webhooks
       WebhookPostTask.class,

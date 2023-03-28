@@ -56,6 +56,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
@@ -146,11 +147,11 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private void doHandle(BulkApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
-        request.getTemplateId(), request.getTemplateName()));
-      checkGlobalAdmin(userSession);
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, 0, Integer.MAX_VALUE);
 
       permissionTemplateService.applyAndCommit(dbSession, template, projects);
     }
@@ -158,6 +159,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private static BulkApplyTemplateRequest toBulkApplyTemplateWsRequest(Request request) {
     return new BulkApplyTemplateRequest()
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
@@ -188,6 +190,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private static class BulkApplyTemplateRequest {
     private String templateId;
     private String templateName;
+    private String organization;
     private String query;
     private Collection<String> qualifiers = singleton(Qualifiers.PROJECT);
     private String visibility;
@@ -212,6 +215,15 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     public BulkApplyTemplateRequest setTemplateName(@Nullable String templateName) {
       this.templateName = templateName;
+      return this;
+    }
+
+    public String getOrganization() {
+      return organization;
+    }
+
+    public BulkApplyTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
       return this;
     }
 

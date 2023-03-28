@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.GroupDto;
 
@@ -32,6 +33,7 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 
 public abstract class AbstractGroupAction implements QualityGatesWsAction {
   protected final DbClient dbClient;
@@ -53,6 +55,8 @@ public abstract class AbstractGroupAction implements QualityGatesWsAction {
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setRequired(true)
       .setExampleValue("sonar-administrators");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -61,9 +65,10 @@ public abstract class AbstractGroupAction implements QualityGatesWsAction {
     final String qualityGateName = request.mandatoryParam(PARAM_GATE_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = wsSupport.getByName(dbSession, qualityGateName);
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      QualityGateDto qualityGateDto = wsSupport.getByOrganizationAndName(dbSession, organization, qualityGateName);
       wsSupport.checkCanLimitedEdit(dbSession, qualityGateDto);
-      GroupDto group = getGroup(dbSession, groupName);
+      GroupDto group = getGroup(dbSession, groupName, organization);
       apply(dbSession, qualityGateDto, group);
     }
     response.noContent();
@@ -71,8 +76,8 @@ public abstract class AbstractGroupAction implements QualityGatesWsAction {
 
   protected abstract void apply(DbSession dbSession, QualityGateDto qualityGate, GroupDto group);
 
-  private GroupDto getGroup(DbSession dbSession, String groupName) {
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
+  private GroupDto getGroup(DbSession dbSession, String groupName, OrganizationDto organization) {
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), groupName);
     checkFoundWithOptional(group, "Group with name '%s' is not found", groupName);
     return group.get();
   }

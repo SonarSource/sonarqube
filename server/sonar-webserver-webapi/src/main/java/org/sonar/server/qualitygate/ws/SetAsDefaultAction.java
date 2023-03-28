@@ -25,13 +25,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
@@ -73,6 +73,8 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -82,15 +84,17 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
     checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(ADMINISTER_QUALITY_GATES);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organization);
       QualityGateDto qualityGate;
 
       if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
       } else {
-        qualityGate = wsSupport.getByName(dbSession, name);
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
       }
-      dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(DEFAULT_QUALITY_GATE_PROPERTY_NAME).setValue(qualityGate.getUuid()));
+      organization.setDefaultQualityGateUuid(qualityGate.getUuid());
+      dbClient.organizationDao().update(dbSession, organization);
       dbSession.commit();
     }
 

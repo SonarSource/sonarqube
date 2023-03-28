@@ -32,11 +32,12 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { QualityGate } from '../../types/types';
+import { Organization, QualityGate } from '../../types/types';
 import BuiltInQualityGateBadge from '../quality-gates/components/BuiltInQualityGateBadge';
 import { USE_SYSTEM_DEFAULT } from './constants';
 
 export interface ProjectQualityGateAppRendererProps {
+  organization: Organization;
   allQualityGates?: QualityGate[];
   currentQualityGate?: QualityGate;
   loading: boolean;
@@ -51,6 +52,7 @@ function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
 }
 
 interface QualityGateOption extends BasicSelectOption {
+  organizationKey: string;
   isDisabled: boolean;
 }
 
@@ -68,7 +70,7 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
               defaultMessage={translate('project_quality_gate.no_condition')}
               values={{
                 link: (
-                  <Link to={{ pathname: `/quality_gates/show/${props.data.value}` }}>
+                  <Link to={{ pathname: `/organizations/${props.data.organizationKey}/quality_gates/show/${props.data.value}` }}>
                     {translate('project_quality_gate.no_condition.link')}
                   </Link>
                 ),
@@ -82,7 +84,7 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
 }
 
 export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateAppRendererProps) {
-  const { allQualityGates, currentQualityGate, loading, selectedQualityGateId, submitting } = props;
+  const { organization, allQualityGates, currentQualityGate, loading, selectedQualityGateId, submitting } = props;
   const defaultQualityGate = allQualityGates?.find((g) => g.isDefault);
 
   if (loading) {
@@ -107,6 +109,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
   const selectedQualityGate = allQualityGates.find((qg) => qg.id === selectedQualityGateId);
 
   const options: QualityGateOption[] = allQualityGates.map((g) => ({
+    organizationKey: organization.kee,
     isDisabled: g.conditions === undefined || g.conditions.length === 0,
     label: g.name,
     value: g.id,
@@ -210,7 +213,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                   defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
                   values={{
                     link: (
-                      <Link to={{ pathname: `/quality_gates/show/${selectedQualityGate.id}` }}>
+                      <Link to={{ pathname: `organizations/${organization.kee}/quality_gates/show/${selectedQualityGate.id}` }}>
                         {translate('project_quality_gate.no_condition.link')}
                       </Link>
                     ),

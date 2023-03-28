@@ -46,6 +46,7 @@ message SearchWsResponse {
     optional string rulesUpdatedAt = 11;
     optional string lastUsed = 13;
     optional string userUpdatedAt = 14;
+    optional string organization = 15;
     optional bool isBuiltIn = 16;
     optional Actions actions = 17;
 
@@ -76,6 +77,7 @@ message CreateWsResponse {
     optional bool isDefault = 6;
     optional Infos infos = 7;
     optional Warnings warnings = 8;
+    optional string organization = 9;
 
     message Infos {
       repeated string infos = 1;
@@ -132,6 +134,7 @@ message ShowResponse {
     optional string rulesUpdatedAt = 10;
     optional string lastUsed = 11;
     optional string userUpdatedAt = 12;
+    optional string organization = 13;
     optional bool isBuiltIn = 14;
   }
 

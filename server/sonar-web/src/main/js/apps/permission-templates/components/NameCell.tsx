@@ -20,16 +20,16 @@
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { queryToSearch } from '../../../helpers/urls';
-import { PermissionTemplate } from '../../../types/types';
-import { PERMISSION_TEMPLATES_PATH } from '../utils';
+import { Organization, PermissionTemplate } from '../../../types/types';
 import Defaults from './Defaults';
 
 interface Props {
   template: PermissionTemplate;
+  organization: Organization;
 }
 
-export default function NameCell({ template }: Props) {
-  const pathname = PERMISSION_TEMPLATES_PATH;
+export default function NameCell({ template, organization }: Props) {
+  const pathname = `/organizations/${organization}/permission_templates`;
 
   return (
     <td className="little-padded-left little-padded-right">

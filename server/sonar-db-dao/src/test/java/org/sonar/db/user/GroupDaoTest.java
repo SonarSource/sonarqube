@@ -63,7 +63,7 @@ public class GroupDaoTest {
   public void selectByName() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    GroupDto group = underTest.selectByName(dbSession, aGroup.getName()).get();
+    GroupDto group = underTest.selectByName(dbSession, null, aGroup.getName()).get();
 
     assertThat(group.getUuid()).isNotNull();
     assertThat(group.getName()).isEqualTo(aGroup.getName());
@@ -74,7 +74,7 @@ public class GroupDaoTest {
 
   @Test
   public void selectByName_returns_absent() {
-    Optional<GroupDto> group = underTest.selectByName(dbSession, "missing");
+    Optional<GroupDto> group = underTest.selectByName(dbSession, null, "missing");
 
     assertThat(group).isNotPresent();
   }
@@ -99,9 +99,9 @@ public class GroupDaoTest {
 
     dbSession.commit();
 
-    assertThat(underTest.selectByNames(dbSession, asList("group1", "group2", "group3", "missingGroup"))).extracting(GroupDto::getUuid)
+    assertThat(underTest.selectByNames(dbSession, null, asList("group1", "group2", "group3", "missingGroup"))).extracting(GroupDto::getUuid)
       .containsOnly(group1.getUuid(), group2.getUuid());
-    assertThat(underTest.selectByNames(dbSession, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectByNames(dbSession, null, Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -153,29 +153,29 @@ public class GroupDaoTest {
      */
 
     // Null query
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, null, null, 0, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Empty query
-    assertThat(underTest.selectByQuery(dbSession, "", 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, null, "", 0, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Filter on name
-    assertThat(underTest.selectByQuery(dbSession, "sonar", 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, null, "sonar", 0, 10))
       .hasSize(2)
       .extracting("name").containsOnly("SONAR-ADMINS", "sonar-users");
 
     // Pagination
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 3))
+    assertThat(underTest.selectByQuery(dbSession, null, null, 0, 3))
       .hasSize(3);
-    assertThat(underTest.selectByQuery(dbSession, null, 3, 3))
+    assertThat(underTest.selectByQuery(dbSession, null, null, 3, 3))
       .hasSize(2);
-    assertThat(underTest.selectByQuery(dbSession, null, 6, 3)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 5))
+    assertThat(underTest.selectByQuery(dbSession, null, null, 6, 3)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, null, null, 0, 5))
       .hasSize(5);
-    assertThat(underTest.selectByQuery(dbSession, null, 5, 5)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, null, null, 5, 5)).isEmpty();
   }
 
   @Test
@@ -184,8 +184,8 @@ public class GroupDaoTest {
     underTest.insert(dbSession, newGroupDto().setName(groupNameWithSpecialCharacters));
     db.commit();
 
-    List<GroupDto> result = underTest.selectByQuery(dbSession, "roup%_%/nam", 0, 10);
-    int resultCount = underTest.countByQuery(dbSession, "roup%_%/nam");
+    List<GroupDto> result = underTest.selectByQuery(dbSession, null, "roup%_%/nam", 0, 10);
+    int resultCount = underTest.countByQuery(dbSession, null, "roup%_%/nam");
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo(groupNameWithSpecialCharacters);
@@ -201,13 +201,13 @@ public class GroupDaoTest {
     db.users().insertGroup("customers-group3");
 
     // Null query
-    assertThat(underTest.countByQuery(dbSession, null)).isEqualTo(5);
+    assertThat(underTest.countByQuery(dbSession, null, null)).isEqualTo(5);
 
     // Empty query
-    assertThat(underTest.countByQuery(dbSession, "")).isEqualTo(5);
+    assertThat(underTest.countByQuery(dbSession, null, "")).isEqualTo(5);
 
     // Filter on name
-    assertThat(underTest.countByQuery(dbSession, "sonar")).isEqualTo(2);
+    assertThat(underTest.countByQuery(dbSession, null, "sonar")).isEqualTo(2);
   }
 
   @Test

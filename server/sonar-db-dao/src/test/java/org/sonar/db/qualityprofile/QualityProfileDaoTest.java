@@ -264,7 +264,7 @@ public class QualityProfileDaoTest {
   public void test_selectAll() {
     List<QProfileDto> sharedData = createSharedData();
 
-    List<QProfileDto> reloadeds = underTest.selectAll(dbSession);
+    List<QProfileDto> reloadeds = underTest.selectOrderedByOrganizationUuid(dbSession, null);
 
     assertThat(reloadeds).hasSize(sharedData.size());
 
@@ -321,7 +321,7 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, dto3);
 
-    List<QProfileDto> dtos = underTest.selectAll(dbSession);
+    List<QProfileDto> dtos = underTest.selectOrderedByOrganizationUuid(dbSession, null);
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
@@ -333,11 +333,11 @@ public class QualityProfileDaoTest {
   public void selectDefaultProfile() {
     createSharedData();
 
-    QProfileDto java = underTest.selectDefaultProfile(dbSession, "java");
+    QProfileDto java = underTest.selectDefaultProfile(dbSession, null, "java");
     assertThat(java).isNotNull();
     assertThat(java.getKee()).isEqualTo("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfile(dbSession, "js")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbSession, null, "js")).isNull();
   }
 
   @Test
@@ -352,27 +352,27 @@ public class QualityProfileDaoTest {
   public void selectDefaultProfiles() {
     createSharedData();
 
-    List<QProfileDto> java = underTest.selectDefaultProfiles(dbSession, singletonList("java"));
+    List<QProfileDto> java = underTest.selectDefaultProfiles(dbSession, null, singletonList("java"));
     assertThat(java).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfiles(dbSession, singletonList("js"))).isEmpty();
-    assertThat(underTest.selectDefaultProfiles(dbSession, of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbSession, of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbSession, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectDefaultProfiles(dbSession, null, singletonList("js"))).isEmpty();
+    assertThat(underTest.selectDefaultProfiles(dbSession, null, of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, null, of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, null, Collections.emptyList())).isEmpty();
   }
 
   @Test
   public void selectByNameAndLanguage() {
     createSharedData();
 
-    QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, "Sonar Way", "java");
+    QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, null, "Sonar Way", "java");
     assertThat(dto).isNotNull();
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectByNameAndLanguage(dbSession, "Sonar Way", "java")).isNotNull();
-    assertThat(underTest.selectByNameAndLanguage(dbSession, "Sonar Way", "unknown")).isNull();
+    assertThat(underTest.selectByNameAndLanguage(dbSession, null, "Sonar Way", "java")).isNotNull();
+    assertThat(underTest.selectByNameAndLanguage(dbSession, null, "Sonar Way", "unknown")).isNull();
   }
 
   @Test
@@ -530,11 +530,11 @@ public class QualityProfileDaoTest {
 
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleProfileUuid(dbSession, qprofile1.getRulesProfileUuid()))
+    assertThat(underTest.selectByRuleProfileUuid(dbSession, null, qprofile1.getRulesProfileUuid()))
       .extracting(QProfileDto::getName)
       .isEqualTo(qprofile1.getName());
 
-    assertThat(underTest.selectByRuleProfileUuid(dbSession, "A"))
+    assertThat(underTest.selectByRuleProfileUuid(dbSession, null, "A"))
       .isNull();
   }
 
@@ -632,9 +632,9 @@ public class QualityProfileDaoTest {
     db.qualityProfiles().associateWithProject(project1, profileWithProjects);
     db.qualityProfiles().associateWithProject(project2, profileWithProjects);
 
-    assertThat(underTest.countProjectsByProfiles(dbSession, asList(profileWithoutProjects, profileWithProjects))).containsOnly(
+    assertThat(underTest.countProjectsByOrganizationAndProfiles(dbSession, null, asList(profileWithoutProjects, profileWithProjects))).containsOnly(
       MapEntry.entry(profileWithProjects.getKee(), 2L));
-    assertThat(underTest.countProjectsByProfiles(dbSession, Collections.emptyList())).isEmpty();
+    assertThat(underTest.countProjectsByOrganizationAndProfiles(dbSession, null, Collections.emptyList())).isEmpty();
   }
 
   @Test

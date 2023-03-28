@@ -22,13 +22,15 @@ import { createPermissionTemplate } from '../../../api/permissions';
 import { Button } from '../../../components/controls/buttons';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
+import { Organization } from "../../../types/types";
 
 interface Props {
   ready?: boolean;
   refresh: () => Promise<void>;
   router: Router;
+  organization: Organization;
 }
 
 interface State {
@@ -62,10 +64,11 @@ class Header extends React.PureComponent<Props, State> {
     name: string;
     projectKeyPattern: string;
   }) => {
-    return createPermissionTemplate({ ...data }).then((response) => {
+    const organization = this.props.organization && this.props.organization.kee;
+    return createPermissionTemplate({ ...data, organization }).then((response) => {
       this.props.refresh().then(() => {
         this.props.router.push({
-          pathname: PERMISSION_TEMPLATES_PATH,
+          pathname: `/organizations/${organization}/permission_templates`,
           query: { id: response.permissionTemplate.id },
         });
       });
@@ -98,4 +101,4 @@ class Header extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(Header);
+export default withRouter(withOrganizationContext(Header));

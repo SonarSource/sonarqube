@@ -64,7 +64,7 @@ message SearchWsResponse {
   repeated Component components = 2;
 
   message Component {
-    reserved 1; //drop organization
+    optional string organization = 1;
     optional string key = 3;
     optional string name = 4;
     optional string qualifier = 5;

@@ -24,17 +24,11 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.AbstractUserSession;
 
 @Immutable
 public class SafeModeUserSession extends AbstractUserSession {
-
-  @Override
-  protected boolean hasPermissionImpl(GlobalPermission permission) {
-    return false;
-  }
 
   @Override
   protected Optional<String> componentUuidToProjectUuid(String componentUuid) {

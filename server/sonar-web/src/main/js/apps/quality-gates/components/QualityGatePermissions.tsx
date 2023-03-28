@@ -34,6 +34,7 @@ import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {
   qualityGate: QualityGate;
+  organization: string;
 }
 
 interface State {
@@ -72,10 +73,11 @@ export default class QualityGatePermissions extends React.Component<Props, State
   }
 
   fetchPermissions = async () => {
-    const { qualityGate } = this.props;
+    const { qualityGate, organization } = this.props;
     this.setState({ loading: true });
 
     const params: SearchPermissionsParameters = {
+      organization,
       gateName: qualityGate.name,
       selected: 'selected',
     };
@@ -98,15 +100,15 @@ export default class QualityGatePermissions extends React.Component<Props, State
   };
 
   handleSubmitAddPermission = async (item: UserBase | Group) => {
-    const { qualityGate } = this.props;
+    const { organization, qualityGate } = this.props;
     this.setState({ submitting: true });
 
     let error = false;
     try {
       if (isUser(item)) {
-        await addUser({ gateName: qualityGate.name, login: item.login });
+        await addUser({ organization, gateName: qualityGate.name, login: item.login });
       } else {
-        await addGroup({ gateName: qualityGate.name, groupName: item.name });
+        await addGroup({ organization, gateName: qualityGate.name, groupName: item.name });
       }
     } catch {
       error = true;
@@ -142,14 +144,14 @@ export default class QualityGatePermissions extends React.Component<Props, State
   };
 
   handleConfirmDeletePermission = async (item: UserBase | Group) => {
-    const { qualityGate } = this.props;
+    const { organization, qualityGate } = this.props;
 
     let error = false;
     try {
       if (isUser(item)) {
-        await removeUser({ gateName: qualityGate.name, login: item.login });
+        await removeUser({ organization, gateName: qualityGate.name, login: item.login });
       } else {
-        await removeGroup({ gateName: qualityGate.name, groupName: item.name });
+        await removeGroup({ organization, gateName: qualityGate.name, groupName: item.name });
       }
     } catch {
       error = true;
@@ -173,6 +175,7 @@ export default class QualityGatePermissions extends React.Component<Props, State
     const { groups, submitting, loading, showAddModal, permissionToDelete, users } = this.state;
     return (
       <QualityGatePermissionsRenderer
+        organization={this.props.organization}
         groups={groups}
         loading={loading}
         onClickAddPermission={this.handleClickAddPermission}

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileTree;
 import org.sonar.server.user.UserSession;
@@ -64,6 +65,7 @@ public class ChangeParentAction implements QProfileWsAction {
         "</ul>")
       .setHandler(this);
 
+    QProfileWsSupport.createOrganizationParam(inheritance);
     QProfileReference.defineParams(inheritance, languages);
 
     inheritance.createParam(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE)
@@ -80,14 +82,15 @@ public class ChangeParentAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
-      wsSupport.checkCanEdit(dbSession, profile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
 
       String parentName = request.param(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE);
       if (isEmpty(parentName)) {
         ruleActivator.removeParentAndCommit(dbSession, profile);
       } else {
         String parentLanguage = request.mandatoryParam(PARAM_LANGUAGE);
-        QProfileReference parentRef = QProfileReference.fromName(parentLanguage, parentName);
+        QProfileReference parentRef = QProfileReference.fromName(organization.getKey(), parentLanguage, parentName);
         QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParentAndCommit(dbSession, profile, parent);
       }

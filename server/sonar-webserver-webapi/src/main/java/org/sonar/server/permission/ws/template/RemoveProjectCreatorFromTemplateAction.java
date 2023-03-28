@@ -39,6 +39,7 @@ import org.sonar.server.user.UserSession;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -65,6 +66,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     RemoveProjectCreatorFromTemplateRequest wsRequest = RemoveProjectCreatorFromTemplateRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .build();
     requestValidator.validateProjectPermission(wsRequest.getPermission());
@@ -92,8 +94,9 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
 
   private void doHandle(RemoveProjectCreatorFromTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
-      checkGlobalAdmin(userSession);
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionTemplateCharacteristicDao dao = dbClient.permissionTemplateCharacteristicDao();
       dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getUuid())
@@ -114,11 +117,13 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     private final String templateId;
     private final String templateName;
     private final String permission;
+    private final String organization;
 
     private RemoveProjectCreatorFromTemplateRequest(Builder builder) {
       this.templateId = builder.templateId;
       this.templateName = builder.templateName;
       this.permission = requireNonNull(builder.permission);
+      this.organization = requireNonNull(builder.organization);
     }
 
     @CheckForNull
@@ -135,6 +140,10 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
       return permission;
     }
 
+    public String getOrganization() {
+      return organization;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -144,6 +153,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     private String templateId;
     private String templateName;
     private String permission;
+    private String organization;
 
     private Builder() {
       // enforce method constructor
@@ -161,6 +171,11 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
 
     public Builder setPermission(@Nullable String permission) {
       this.permission = permission;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String s) {
+      this.organization = s;
       return this;
     }
 

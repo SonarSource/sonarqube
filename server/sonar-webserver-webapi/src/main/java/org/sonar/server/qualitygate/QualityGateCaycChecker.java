@@ -28,6 +28,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static java.util.stream.Collectors.toUnmodifiableMap;
@@ -97,9 +98,9 @@ public class QualityGateCaycChecker {
     return NON_COMPLIANT;
   }
 
-  public QualityGateCaycStatus checkCaycCompliantFromProject(DbSession dbSession, String projectUuid) {
+  public QualityGateCaycStatus checkCaycCompliantFromProject(DbSession dbSession, OrganizationDto organization, String projectUuid) {
     return Optional.ofNullable(dbClient.qualityGateDao().selectByProjectUuid(dbSession, projectUuid))
-      .or(() -> Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)))
+      .or(() -> Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession, organization)))
       .map(qualityGate -> checkCaycCompliant(dbSession, qualityGate.getUuid()))
       .orElse(NON_COMPLIANT);
   }

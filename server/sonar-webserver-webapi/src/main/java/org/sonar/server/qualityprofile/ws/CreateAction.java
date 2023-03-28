@@ -32,6 +32,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -44,10 +46,13 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.language.LanguageParamUtils.getOrderedLanguageKeys;
+import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CreateAction implements QProfileWsAction {
@@ -62,23 +67,25 @@ public class CreateAction implements QProfileWsAction {
   private final ProfileImporter[] importers;
   private final UserSession userSession;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final QProfileWsSupport wsSupport;
 
   @Autowired(required = false)
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    UserSession userSession, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
+    UserSession userSession, ActiveRuleIndexer activeRuleIndexer, QProfileWsSupport wsSupport, ProfileImporter... importers) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
     this.languages = languages;
     this.userSession = userSession;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.wsSupport = wsSupport;
     this.importers = importers;
   }
 
   @Autowired(required = false)
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
-    this(dbClient, profileFactory, exporters, languages, userSession, activeRuleIndexer, new ProfileImporter[0]);
+    UserSession userSession, ActiveRuleIndexer activeRuleIndexer, QProfileWsSupport wsSupport) {
+    this(dbClient, profileFactory, exporters, languages, userSession, activeRuleIndexer, wsSupport, new ProfileImporter[0]);
   }
 
   @Override
@@ -91,6 +98,8 @@ public class CreateAction implements QProfileWsAction {
       .setSince("5.2")
       .setHandler(this);
     List<Change> changelog = new ArrayList<>();
+
+    createOrganizationParam(create);
 
     create.createParam(PARAM_NAME)
       .setRequired(true)
@@ -119,15 +128,16 @@ public class CreateAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
-      CreateRequest createRequest = toRequest(request);
-      writeProtobuf(doHandle(dbSession, createRequest, request), request, response);
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+      CreateRequest createRequest = toRequest(request, organization);
+      writeProtobuf(doHandle(dbSession, createRequest, request, organization), request, response);
     }
   }
 
-  private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request) {
+  private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request, OrganizationDto organization) {
     QProfileResult result = new QProfileResult();
-    QProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, QProfileName.createFor(createRequest.getLanguage(), createRequest.getName()));
+    QProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, organization, QProfileName.createFor(createRequest.getLanguage(), createRequest.getName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
       String importerKey = importer.getKey();
@@ -137,19 +147,21 @@ public class CreateAction implements QProfileWsAction {
       }
     }
     activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
-    return buildResponse(result);
+    return buildResponse(result, organization);
   }
 
-  private static CreateRequest toRequest(Request request) {
+  private static CreateRequest toRequest(Request request, OrganizationDto organization) {
     Builder builder = CreateRequest.builder()
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
+      .setOrganizationKey(organization.getKey())
       .setName(request.mandatoryParam(PARAM_NAME));
     return builder.build();
   }
 
-  private CreateWsResponse buildResponse(QProfileResult result) {
+  private CreateWsResponse buildResponse(QProfileResult result, OrganizationDto organization) {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
+      .setOrganization(organization.getKey())
       .setKey(result.profile().getKee())
       .setName(result.profile().getName())
       .setLanguage(language)
@@ -172,10 +184,12 @@ public class CreateAction implements QProfileWsAction {
   private static class CreateRequest {
     private final String name;
     private final String language;
+    private final String organizationKey;
 
     private CreateRequest(Builder builder) {
       this.name = builder.name;
       this.language = builder.language;
+      this.organizationKey = builder.organizationKey;
     }
 
     public String getLanguage() {
@@ -186,6 +200,10 @@ public class CreateAction implements QProfileWsAction {
       return name;
     }
 
+    public String getOrganizationKey() {
+      return organizationKey;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -194,9 +212,15 @@ public class CreateAction implements QProfileWsAction {
   private static class Builder {
     private String language;
     private String name;
+    private String organizationKey;
 
     private Builder() {
       // enforce factory method use
+    }
+
+    public Builder setOrganizationKey(@Nullable String organizationKey) {
+      this.organizationKey = organizationKey;
+      return this;
     }
 
     public Builder setLanguage(@Nullable String language) {
@@ -212,6 +236,7 @@ public class CreateAction implements QProfileWsAction {
     public CreateRequest build() {
       checkArgument(language != null && !language.isEmpty(), "Language is mandatory and must not be empty.");
       checkArgument(name != null && !name.isEmpty(), "Profile name is mandatory and must not be empty.");
+      checkArgument(organizationKey == null || !organizationKey.isEmpty(), "Organization key may be either null or not empty. Empty organization key is invalid.");
       return new CreateRequest(this);
     }
   }

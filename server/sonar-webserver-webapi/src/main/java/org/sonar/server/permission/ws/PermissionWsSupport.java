@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserId;
@@ -39,13 +40,14 @@ import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class PermissionWsSupport {
 
@@ -61,8 +63,12 @@ public class PermissionWsSupport {
     this.groupWsSupport = groupWsSupport;
   }
 
-  public void checkPermissionManagementAccess(UserSession userSession, @Nullable ComponentDto project) {
-    checkProjectAdmin(userSession, configuration, project);
+  public OrganizationDto findOrganization(DbSession dbSession, String organizationKey) {
+    return groupWsSupport.findOrganizationByKey(dbSession, organizationKey);
+  }
+
+  public void checkPermissionManagementAccess(UserSession userSession, String organizationUuid, @Nullable ComponentDto project) {
+    checkProjectAdmin(userSession, configuration, organizationUuid, project);
   }
 
   public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {
@@ -81,8 +87,9 @@ public class PermissionWsSupport {
 
   public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
     String groupUuid = request.param(PARAM_GROUP_ID);
+    String orgKey = request.param(PARAM_ORGANIZATION);
     String groupName = request.param(PARAM_GROUP_NAME);
-    GroupWsRef groupRef = GroupWsRef.create(groupUuid, groupName);
+    GroupWsRef groupRef = GroupWsRef.create(groupUuid, orgKey, groupName);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
   }
 
@@ -100,11 +107,15 @@ public class PermissionWsSupport {
         dbClient.permissionTemplateDao().selectByUuid(dbSession, uuid),
         "Permission template with id '%s' is not found", uuid);
     } else {
-      checkNotNull(name);
+      OrganizationDto org = findOrganization(dbSession, ref.getOrganization());
       return checkFound(
-        dbClient.permissionTemplateDao().selectByName(dbSession, name),
-        "Permission template with name '%s' is not found (case insensitive)", name);
+              dbClient.permissionTemplateDao().selectByName(dbSession, org.getUuid(), ref.name()),
+              "Permission template with name '%s' is not found (case insensitive) in organization with key '%s'", ref.name(), org.getKey());
     }
   }
 
+  public void checkMembership(DbSession dbSession, OrganizationDto organization, UserId user) {
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid()).isPresent(),
+            "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
+  }
 }

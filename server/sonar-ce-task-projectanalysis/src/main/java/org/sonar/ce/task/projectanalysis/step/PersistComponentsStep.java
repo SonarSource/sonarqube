@@ -352,6 +352,7 @@ public class PersistComponentsStep implements ComputationStep {
       String componentUuid = component.getUuid();
 
       ComponentDto componentDto = new ComponentDto();
+      componentDto.setOrganizationUuid(analysisMetadataHolder.getOrganization().getUuid());
       componentDto.setUuid(componentUuid);
       componentDto.setKey(componentKey);
       componentDto.setMainBranchProjectUuid(mainBranchProjectUuid);

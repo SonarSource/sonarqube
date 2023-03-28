@@ -25,11 +25,16 @@ import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
-import { Group, Paging } from '../../../types/types';
+import { Group, Organization, Paging } from '../../../types/types';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import Header from './Header';
 import List from './List';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
+
+interface Props {
+  organization: Organization;
+}
 
 interface State {
   groups?: Group[];
@@ -40,7 +45,7 @@ interface State {
   query: string;
 }
 
-export default class App extends React.PureComponent<{}, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true, query: '' };
 
@@ -53,10 +58,15 @@ export default class App extends React.PureComponent<{}, State> {
     this.mounted = false;
   }
 
+  get organization() {
+    return this.props.organization && this.props.organization.kee;
+  }
+
   makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
     this.setState({ loading: true });
     return searchUsersGroups({
       q: this.state.query,
+      organization: this.organization,
       ...data,
     });
   };
@@ -134,7 +144,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   handleCreate = async (data: { description: string; name: string }) => {
-    await createGroup({ ...data });
+    await createGroup({ ...data, organization: this.organization });
 
     await this.refresh();
   };
@@ -146,7 +156,7 @@ export default class App extends React.PureComponent<{}, State> {
       return;
     }
 
-    await deleteGroup({ name: groupToBeDeleted.name });
+    await deleteGroup({ name: groupToBeDeleted.name, organization: this.organization });
 
     await this.refresh();
 
@@ -209,6 +219,7 @@ export default class App extends React.PureComponent<{}, State> {
               onEdit={this.openEditForm}
               onEditMembers={this.refresh}
               showAnyone={showAnyone}
+              organization={this.organization}
             />
           )}
 
@@ -246,3 +257,5 @@ export default class App extends React.PureComponent<{}, State> {
     );
   }
 }
+
+export default withOrganizationContext(App);

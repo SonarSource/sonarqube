@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { PermissionTemplate } from '../../../types/types';
+import { Organization, PermissionTemplate } from '../../../types/types';
 import ActionsCell from './ActionsCell';
 import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
@@ -27,6 +27,7 @@ interface Props {
   refresh: () => Promise<void>;
   template: PermissionTemplate;
   topQualifiers: string[];
+  organization: Organization;
 }
 
 export default function ListItem(props: Props) {
@@ -36,7 +37,7 @@ export default function ListItem(props: Props) {
 
   return (
     <tr data-id={props.template.id} data-name={props.template.name}>
-      <NameCell template={props.template} />
+      <NameCell template={props.template} organization={props.organization} />
 
       {permissions}
 

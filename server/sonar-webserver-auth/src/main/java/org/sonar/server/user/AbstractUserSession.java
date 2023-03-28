@@ -28,12 +28,14 @@ import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
@@ -81,11 +83,18 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasPermission(GlobalPermission permission) {
-    return hasPermissionImpl(permission);
+  public final boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return hasPermission(permission, organization.getUuid());
   }
 
-  protected abstract boolean hasPermissionImpl(GlobalPermission permission);
+  @Override
+  public final boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
+    return isRoot() || hasPermissionImpl(permission, organizationUuid);
+  }
+
+  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+    return false;
+  }
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
@@ -174,8 +183,13 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final UserSession checkPermission(GlobalPermission permission) {
-    if (!hasPermission(permission)) {
+  public final UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return checkPermission(permission, organization.getUuid());
+  }
+
+  @Override
+  public final UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
+    if (!hasPermission(permission, organizationUuid)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
@@ -234,5 +248,28 @@ public abstract class AbstractUserSession implements UserSession {
       throw insufficientPrivilegesException();
     }
     return this;
+  }
+
+  @Override
+  public void checkMembership(OrganizationDto organization) {
+    if (!hasMembership(organization)) {
+      throw new ForbiddenException(format("You're not member of organization '%s'", organization.getKey()));
+    }
+  }
+
+  @Override
+  public final boolean hasMembership(OrganizationDto organizationDto) {
+    return isRoot() || hasMembershipImpl(organizationDto);
+  }
+
+  @Override
+  public boolean isRoot() {
+    // Implement in subclasses if required.
+    throw new RuntimeException("Not implemented");
+  }
+
+  protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
+    // Implement in subclasses if required.
+    throw new RuntimeException("Not implemented");
   }
 }

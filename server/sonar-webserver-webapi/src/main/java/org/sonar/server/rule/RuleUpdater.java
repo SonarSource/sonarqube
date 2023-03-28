@@ -40,6 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
@@ -74,7 +75,7 @@ public class RuleUpdater {
   /**
    * Update manual rules and custom rules (rules instantiated from templates)
    */
-  public boolean update(DbSession dbSession, RuleUpdate update, UserSession userSession) {
+  public boolean update(DbSession dbSession, RuleUpdate update, OrganizationDto organization, UserSession userSession) {
     if (update.isEmpty()) {
       return false;
     }
@@ -83,8 +84,8 @@ public class RuleUpdater {
     // validate only the changes, not all the rule fields
     apply(update, rule, userSession);
     update(dbSession, rule);
-    updateParameters(dbSession, update, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
+    updateParameters(dbSession, organization, update, rule);
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid(), organization);
 
     return true;
   }
@@ -213,7 +214,7 @@ public class RuleUpdater {
       .isEquals();
   }
 
-  private void updateParameters(DbSession dbSession, RuleUpdate update, RuleDto rule) {
+  private void updateParameters(DbSession dbSession, OrganizationDto organization, RuleUpdate update, RuleDto rule) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = rule;
       String templateUuid = customRule.getTemplateUuid();
@@ -226,14 +227,14 @@ public class RuleUpdater {
       List<String> paramKeys = newArrayList();
 
       // Load active rules and its parameters in cache
-      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule = getActiveRuleParamsByActiveRule(dbSession, customRule);
+      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule = getActiveRuleParamsByActiveRule(dbSession, organization, customRule);
       // Browse custom rule parameters to create, update or delete them
       deleteOrUpdateParameters(dbSession, update, customRule, paramKeys, activeRuleParamsByActiveRule);
     }
   }
 
-  private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, RuleDto customRule) {
-    List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, customRule.getUuid());
+  private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, OrganizationDto organization, RuleDto customRule) {
+    List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, organization, customRule.getUuid());
     Map<String, OrgActiveRuleDto> activeRuleByUuid = from(activeRuleDtos).uniqueIndex(ActiveRuleDto::getUuid);
     List<String> activeRuleUuids = Lists.transform(activeRuleDtos, ActiveRuleDto::getUuid);
     List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);

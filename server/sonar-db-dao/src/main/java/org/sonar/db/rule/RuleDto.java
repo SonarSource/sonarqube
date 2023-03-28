@@ -91,6 +91,7 @@ public class RuleDto {
 
   private String language = null;
   private String templateUuid = null;
+  private String organizationUuid = null;
   private String defRemediationFunction = null;
   private String defRemediationGapMultiplier = null;
   private String defRemediationBaseEffort = null;
@@ -610,6 +611,16 @@ public class RuleDto {
 
   private static String serializeStringSet(@Nullable Set<String> strings) {
     return strings == null || strings.isEmpty() ? null : String.join(",", strings);
+  }
+
+  @CheckForNull
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public RuleDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
   }
 
   @Override

@@ -122,6 +122,7 @@ public class GroupPermissionChanger {
     GroupPermissionDto addedDto = new GroupPermissionDto()
       .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
+      .setOrganizationUuid(change.getOrganizationUuid())
       .setGroupUuid(groupUuid)
       .setComponentName(change.getProjectName())
       .setComponentUuid(change.getProjectUuid());
@@ -153,6 +154,7 @@ public class GroupPermissionChanger {
 
     dbClient.groupPermissionDao().delete(dbSession,
       change.getPermission(),
+      change.getOrganizationUuid(),
       groupUuid,
       groupName,
       change.getProjectUuid(),
@@ -164,10 +166,12 @@ public class GroupPermissionChanger {
     String projectUuid = change.getProjectUuid();
     if (projectUuid != null) {
       return dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession,
+        change.getOrganizationUuid(),
         change.getGroupUuidOrAnyone().getUuid(),
         projectUuid);
     }
     return dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession,
+      change.getOrganizationUuid(),
       change.getGroupUuidOrAnyone().getUuid());
   }
 
@@ -178,7 +182,7 @@ public class GroupPermissionChanger {
       change.getProjectUuid() == null) {
       String groupUuid = checkNotNull(groupUuidOrAnyone.getUuid());
       // removing global admin permission from group
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, SYSTEM_ADMIN, groupUuid);
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, change.getOrganizationUuid(), SYSTEM_ADMIN, groupUuid);
       checkRequest(remaining > 0, "Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }

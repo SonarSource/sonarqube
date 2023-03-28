@@ -26,6 +26,7 @@ import { toNotSoISOString } from '../../helpers/dates';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export interface Props {
+  organization: string;
   analyzedBefore: Date | undefined;
   onClose: () => void;
   onConfirm: () => void;
@@ -57,9 +58,11 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
     const { analyzedBefore } = this.props;
     const parameters = this.props.selection.length
       ? {
+          organization: this.props.organization,
           projects: this.props.selection.join(),
         }
       : {
+          organization: this.props.organization,
           analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
           onProvisionedOnly: this.props.provisioned || undefined,
           qualifiers: this.props.qualifier,

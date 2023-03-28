@@ -50,6 +50,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -245,21 +246,22 @@ public class TreeAction implements ComponentsWsAction {
     Map<String, ComponentDto> referenceComponentsByUuid, Map<String, String> branchKeyByReferenceUuid, Request request) {
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
+    OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
 
     Components.Component.Builder wsComponent;
     if (component.getMainBranchProjectUuid() == null && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
-      wsComponent = projectOrAppToWsComponent(projectDto, null);
+      wsComponent = projectOrAppToWsComponent(projectDto, organizationDto, null);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
 
       if (referenceComponent != null) {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
       } else if (component.getMainBranchProjectUuid() != null) {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, request.branch, request.pullRequest);
       } else {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, null, null);
+        wsComponent = componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), null, null, null);
       }
     }
 

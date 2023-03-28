@@ -51,6 +51,7 @@ interface Props extends WithAvailableFeaturesProps {
   onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
   qualityGate: QualityGate;
   updatedConditionId?: string;
+  organization: string;
 }
 
 interface State {
@@ -108,6 +109,7 @@ export class Conditions extends React.PureComponent<Props, State> {
         onAddCondition={this.props.onAddCondition}
         onClose={onClose}
         qualityGate={qualityGate}
+        organization={this.props.organization}
       />
     );
   };
@@ -129,6 +131,7 @@ export class Conditions extends React.PureComponent<Props, State> {
         conditions={conditions}
         scope="new-cayc"
         onClose={onClose}
+        organization={this.props.organization}
       />
     );
   };
@@ -309,6 +312,7 @@ export class Conditions extends React.PureComponent<Props, State> {
               conditions={sortedConditionsOnNewMetrics}
               showEdit={this.state.unlockEditing}
               scope="new"
+              organization={this.props.organization}
             />
           </div>
         )}
@@ -334,6 +338,7 @@ export class Conditions extends React.PureComponent<Props, State> {
               updatedConditionId={updatedConditionId}
               conditions={sortedConditionsOnOverallMetrics}
               scope="overall"
+              organization={this.props.organization}
             />
           </div>
         )}

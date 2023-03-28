@@ -48,6 +48,7 @@ export interface UserGroup {
 
 export function getUserGroups(data: {
   login: string;
+  organization?: string;
   p?: number;
   ps?: number;
   q?: string;

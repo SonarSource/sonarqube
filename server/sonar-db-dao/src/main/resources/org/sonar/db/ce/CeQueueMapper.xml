@@ -5,6 +5,7 @@
 
   <sql id="columns">
     cq.uuid,
+    pj.organization_uuid as organizationUuid,
     cq.task_type as taskType,
     cq.component_uuid as componentUuid,
     cq.main_component_uuid as mainComponentUuid,
@@ -33,6 +34,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     where
       cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
@@ -88,6 +90,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     where
       cq.main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
     <include refid="orderByDateAndUuid"/>
@@ -98,6 +101,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     <include refid="orderByDateAndUuid"/>
   </select>
 
@@ -117,6 +121,7 @@
   <sql id="sqlSelectByQuery">
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     <where>
       <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
         and cq.main_component_uuid in
@@ -210,6 +215,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     where
       cq.status = 'PENDING'
   </select>
@@ -219,6 +225,7 @@
       <include refid="columns"/>
     from
       ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     where
       cq.status = 'PENDING'
       and cq.started_at is not null
@@ -228,11 +235,12 @@
     select
     <include refid="columns"/>
     from
-    ce_queue cq
+      ce_queue cq
+    inner join projects pj on pj.uuid = cq.main_component_uuid
     where
-    cq.status = 'IN_PROGRESS'
-    and cq.started_at is not null
-    and cq.started_at &lt; #{date,jdbcType=BIGINT}
+      cq.status = 'IN_PROGRESS'
+      and cq.started_at is not null
+      and cq.started_at &lt; #{date,jdbcType=BIGINT}
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">

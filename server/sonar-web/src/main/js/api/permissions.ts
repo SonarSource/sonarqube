@@ -35,6 +35,7 @@ export function grantPermissionToUser(data: {
   projectKey?: string;
   login: string;
   permission: string;
+  organization?: string;
 }) {
   return post('/api/permissions/add_user', data).catch(throwGlobalError);
 }
@@ -43,6 +44,7 @@ export function revokePermissionFromUser(data: {
   projectKey?: string;
   login: string;
   permission: string;
+  organization?: string;
 }) {
   return post('/api/permissions/remove_user', data).catch(throwGlobalError);
 }
@@ -51,6 +53,7 @@ export function grantPermissionToGroup(data: {
   projectKey?: string;
   groupName: string;
   permission: string;
+  organization?: string;
 }) {
   return post('/api/permissions/add_group', data).catch(throwGlobalError);
 }
@@ -59,6 +62,7 @@ export function revokePermissionFromGroup(data: {
   projectKey?: string;
   groupName: string;
   permission: string;
+  organization?: string;
 }) {
   return post('/api/permissions/remove_group', data).catch(throwGlobalError);
 }
@@ -69,9 +73,9 @@ interface GetPermissionTemplatesResponse {
   permissions: Array<Permission>;
 }
 
-export function getPermissionTemplates(): Promise<GetPermissionTemplatesResponse> {
+export function getPermissionTemplates(organization: string): Promise<GetPermissionTemplatesResponse> {
   const url = '/api/permissions/search_templates';
-  return getJSON(url);
+  return organization ? getJSON(url, { organization }) : getJSON(url);
 }
 
 export function createPermissionTemplate(data: RequestData) {
@@ -89,8 +93,8 @@ export function deletePermissionTemplate(data: RequestData) {
 /**
  * Set default permission template for a given qualifier
  */
-export function setDefaultPermissionTemplate(templateId: string, qualifier: string): Promise<void> {
-  return post('/api/permissions/set_default_template', { templateId, qualifier });
+export function setDefaultPermissionTemplate(templateId: string, qualifier: string, organization: string): Promise<void> {
+  return post('/api/permissions/set_default_template', { templateId, qualifier, organization });
 }
 
 export function applyTemplateToProject(data: RequestData) {
@@ -105,6 +109,7 @@ export function grantTemplatePermissionToUser(data: {
   templateId: string;
   login: string;
   permission: string;
+  organization?: string;
 }): Promise<void> {
   return post('/api/permissions/add_user_to_template', data);
 }
@@ -113,6 +118,7 @@ export function revokeTemplatePermissionFromUser(data: {
   templateId: string;
   login: string;
   permission: string;
+  organization?: string;
 }): Promise<void> {
   return post('/api/permissions/remove_user_from_template', data);
 }
@@ -140,6 +146,7 @@ export function getPermissionsUsersForComponent(data: {
   projectKey: string;
   q?: string;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
@@ -153,6 +160,7 @@ export function getPermissionsGroupsForComponent(data: {
   projectKey: string;
   q?: string;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
@@ -165,6 +173,7 @@ export function getPermissionsGroupsForComponent(data: {
 export function getGlobalPermissionsUsers(data: {
   q?: string;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
@@ -177,6 +186,7 @@ export function getGlobalPermissionsUsers(data: {
 export function getGlobalPermissionsGroups(data: {
   q?: string;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
@@ -190,6 +200,7 @@ export function getPermissionTemplateUsers(data: {
   templateId: string;
   q?: string | null;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
@@ -203,6 +214,7 @@ export function getPermissionTemplateGroups(data: {
   templateId: string;
   q?: string | null;
   permission?: string;
+  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
@@ -220,9 +232,10 @@ export function changeProjectVisibility(
 }
 
 export function changeProjectDefaultVisibility(
+  organization: string,
   projectVisibility: Visibility
 ): Promise<void | Response> {
-  return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
+  return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
     throwGlobalError
   );
 }

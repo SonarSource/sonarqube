@@ -28,9 +28,9 @@ public interface WebhookMapper {
   @CheckForNull
   WebhookDto selectByUuid(@Param("webhookUuid") String webhookUuid);
 
-  List<WebhookDto> selectGlobalWebhooksOrderedByName();
-
   List<WebhookDto> selectForProjectUuidOrderedByName(@Param("projectUuid") String projectUuid);
+
+  List<WebhookDto> selectForOrganizationUuidOrderedByName(@Param("organizationUuid") String organizationUuid);
 
   void insert(WebhookDto dto);
 

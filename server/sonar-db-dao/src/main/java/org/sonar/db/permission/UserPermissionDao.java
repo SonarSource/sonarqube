@@ -96,8 +96,8 @@ public class UserPermissionDao implements Dao {
    *
    * @return the global permissions. An empty list is returned if user do not exist.
    */
-  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid) {
-    return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid);
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid, String organizationUuid) {
+    return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid, organizationUuid);
   }
 
   /**
@@ -127,8 +127,8 @@ public class UserPermissionDao implements Dao {
   /**
    * Removes a single global permission from user
    */
-  public void deleteGlobalPermission(DbSession dbSession, UserId user, String permission) {
-    int deletedRows = mapper(dbSession).deleteGlobalPermission(user.getUuid(), permission);
+  public void deleteGlobalPermission(DbSession dbSession, UserId user, String permission, String organizationUuid) {
+    int deletedRows = mapper(dbSession).deleteGlobalPermission(user.getUuid(), permission, organizationUuid);
 
     if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, null, null, null, user, null));

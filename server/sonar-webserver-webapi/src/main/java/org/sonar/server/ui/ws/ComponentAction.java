@@ -46,7 +46,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -68,8 +68,9 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -157,18 +158,19 @@ public class ComponentAction implements NavigationWsAction {
         !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
+      OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.branchUuid());
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         boolean isFavourite = isFavourite(session, rootProject, component);
         String branchKey = getBranchKey(session, component);
-        writeComponent(json, component, analysis.orElse(null), isFavourite, branchKey);
+        writeComponent(json, component, org, analysis.orElse(null), isFavourite, branchKey);
         writeProfiles(json, session, component);
-        writeQualityGate(json, session, rootProject);
+        writeQualityGate(json, session, org, rootProject);
         if (userSession.hasComponentPermission(ADMIN, component) ||
-          userSession.hasPermission(ADMINISTER_QUALITY_PROFILES) ||
-          userSession.hasPermission(ADMINISTER_QUALITY_GATES)) {
+          userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
+          userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
           writeConfiguration(json, component);
         }
         writeBreadCrumbs(json, session, component);
@@ -213,8 +215,9 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite, @Nullable String branchKey) {
+  private void writeComponent(JsonWriter json, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis, boolean isFavourite, @Nullable String branchKey) {
     json.prop("key", component.getKey())
+      .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
@@ -266,8 +269,8 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
-    var qualityGateData = qualityGateFinder.getEffectiveQualityGate(session, component.uuid());
+  private void writeQualityGate(JsonWriter json, DbSession session, OrganizationDto organization, ComponentDto component) {
+    var qualityGateData = qualityGateFinder.getEffectiveQualityGate(session, organization, component.uuid());
     json.name("qualityGate").beginObject()
       .prop("key", qualityGateData.getUuid())
       .prop("name", qualityGateData.getName())
@@ -305,9 +308,9 @@ public class ComponentAction implements NavigationWsAction {
   private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
-    boolean isQualityProfileAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
-    boolean isQualityGateAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
-    boolean isGlobalAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER);
+    boolean isQualityProfileAdmin = userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, component.getOrganizationUuid());
+    boolean isQualityGateAdmin = userSession.hasPermission(ADMINISTER_QUALITY_GATES, component.getOrganizationUuid());
+    boolean isGlobalAdmin = userSession.hasPermission(ADMINISTER, component.getOrganizationUuid());
     boolean canBrowseProject = userSession.hasComponentPermission(USER, component);
     boolean allowChangingPermissionsByProjectAdmins = config.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
       .orElse(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE);

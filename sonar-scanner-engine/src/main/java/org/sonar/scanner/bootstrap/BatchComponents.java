@@ -19,6 +19,9 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import io.codescan.sonarqube.codescanhosted.scanner.CodeScanBranchConfigurationLoader;
+import io.codescan.sonarqube.codescanhosted.scanner.CodeScanBranchParamsValidator;
+import io.codescan.sonarqube.codescanhosted.scanner.ProjectBranchesLoaderImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +48,12 @@ public class BatchComponents {
 
   public static Collection<Object> all() {
     List<Object> components = new ArrayList<>();
+
+    //branch
+    components.add(ProjectBranchesLoaderImpl.class);
+    components.add(CodeScanBranchParamsValidator.class);
+    components.add(CodeScanBranchConfigurationLoader.class);
+
     components.add(DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     components.add(ZeroCoverageSensor.class);

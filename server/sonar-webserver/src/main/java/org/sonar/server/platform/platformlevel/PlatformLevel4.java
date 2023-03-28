@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import io.codescan.sonarqube.codescanhosted.ce.CodeScanBranchSupportDelegate;
+import io.codescan.sonarqube.codescanhosted.web.CodeScanBranchFeatureExtension;
 import java.util.List;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
@@ -54,12 +56,6 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
-import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
-import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
-import org.sonar.server.almsettings.MultipleAlmFeature;
-import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -145,6 +141,7 @@ import org.sonar.server.monitoring.devops.GitlabMetricsTask;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
+import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -188,6 +185,7 @@ import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
+import org.sonar.server.pullrequest.ws.PullRequestWsModule;
 import org.sonar.server.pushapi.ServerPushModule;
 import org.sonar.server.pushapi.issues.IssueChangeEventServiceImpl;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
@@ -310,6 +308,9 @@ public class PlatformLevel4 extends PlatformLevel {
       // update center
       new UpdateCenterModule(),
 
+      // organizations
+      new OrganizationsWsModule(),
+
       // quality profile
       BuiltInQProfileRepositoryImpl.class,
       ActiveRuleIndexer.class,
@@ -421,6 +422,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // components
       new BranchWsModule(),
+      new PullRequestWsModule(),
       new ProjectsWsModule(),
       new ProjectsEsModule(),
       new ProjectTagsWsModule(),
@@ -539,9 +541,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // ALM integrations
       TimeoutConfigurationImpl.class,
-      CredentialsEncoderHelper.class,
-      ImportHelper.class,
-      ProjectKeyGenerator.class,
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,
       GithubApplicationHttpClientImpl.class,
@@ -549,21 +548,18 @@ public class PlatformLevel4 extends PlatformLevel {
       BitbucketServerRestClient.class,
       GitlabHttpClient.class,
       AzureDevOpsHttpClient.class,
-      new AlmIntegrationsWSModule(),
       BitbucketCloudValidator.class,
       BitbucketServerSettingsValidator.class,
       GithubGlobalSettingsValidator.class,
       GitlabGlobalSettingsValidator.class,
       AzureDevOpsValidator.class,
 
-      // ALM settings
-      new AlmSettingsWsModule(),
-
       // Project export
       new ProjectExportWsModule(),
 
       // Branch
       BranchFeatureProxyImpl.class,
+      new CodeScanBranchFeatureExtension(),
 
       // Project badges
       new ProjectBadgesWsModule(),
@@ -572,8 +568,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CoreExtensionBootstraper.class,
       CoreExtensionStopper.class,
 
-      MultipleAlmFeature.class,
-
       LoginMessageFeature.class,
 
       // ServerPush endpoints
@@ -581,6 +575,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Compute engine (must be after Views and Developer Cockpit)
       new ReportAnalysisFailureNotificationModule(),
+      CodeScanBranchSupportDelegate.class,
       new CeModule(),
       new CeWsModule(),
       ReportTaskProcessor.class,

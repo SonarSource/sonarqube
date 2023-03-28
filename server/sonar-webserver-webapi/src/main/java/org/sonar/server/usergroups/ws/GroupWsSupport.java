@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuid;
@@ -44,6 +45,7 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
 public class GroupWsSupport {
 
   static final String PARAM_GROUP_ID = "id";
+  static final String PARAM_ORGANIZATION_KEY = "organization";
   static final String PARAM_GROUP_NAME = "name";
   static final String PARAM_GROUP_DESCRIPTION = "description";
   static final String PARAM_LOGIN = "login";
@@ -74,8 +76,9 @@ public class GroupWsSupport {
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
     String uuid = request.param(PARAM_GROUP_ID);
+    String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
     String name = request.param(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, GroupWsRef.create(uuid, name));
+    return findGroupDto(dbSession, GroupWsRef.create(uuid, organizationKey, name));
   }
 
   public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
@@ -85,8 +88,9 @@ public class GroupWsSupport {
       return group;
     }
 
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s'", ref.getName());
+    OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
+    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
     return group.get();
   }
 
@@ -97,30 +101,45 @@ public class GroupWsSupport {
       return GroupUuidOrAnyone.from(group);
     }
 
+    OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
     if (ref.isAnyone()) {
-      return GroupUuidOrAnyone.forAnyone();
+      return GroupUuidOrAnyone.forAnyone(org.getUuid());
     }
 
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s'", ref.getName());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
+    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
     return GroupUuidOrAnyone.from(group.get());
   }
 
-  void checkNameDoesNotExist(DbSession dbSession, String name) {
+  /**
+   * Loads organization from database by its key.
+   * @param dbSession
+   * @param key the organization key
+   * @return non-null organization
+   * @throws NotFoundException if no organizations match the provided key
+   */
+  public OrganizationDto findOrganizationByKey(DbSession dbSession, String key) {
+    Optional<OrganizationDto> org = dbClient.organizationDao().selectByKey(dbSession, key);
+    checkFoundWithOptional(org, "No organization with key '%s'", key);
+    return org.get();
+  }
+
+  void checkNameDoesNotExist(DbSession dbSession, String organizationUuid, String name) {
     // There is no database constraint on column groups.name
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
-    checkRequest(!dbClient.groupDao().selectByName(dbSession, name).isPresent(), "Group '%s' already exists", name);
+    checkRequest(!dbClient.groupDao().selectByName(dbSession, organizationUuid, name).isPresent(), "Group '%s' already exists", name);
   }
 
   void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, groupDto.getOrganizationUuid());
     checkArgument(!defaultGroup.getUuid().equals(groupDto.getUuid()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
-  static UserGroups.Group.Builder toProtobuf(GroupDto group, int membersCount, boolean isDefault) {
+  static UserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
     UserGroups.Group.Builder wsGroup = UserGroups.Group.newBuilder()
       .setId(group.getUuid())
+      .setOrganization(organization.getKey())
       .setName(group.getName())
       .setMembersCount(membersCount)
       .setDefault(isDefault);
@@ -141,9 +160,14 @@ public class GroupWsSupport {
   }
 
   private static void defineGroupNameWsParameter(WebService.NewAction action) {
+    action.createParam(PARAM_ORGANIZATION_KEY)
+            .setDescription("Key of organization")
+            .setExampleValue("my-org")
+            .setInternal(true)
+            .setRequired(true);
     action.createParam(PARAM_GROUP_NAME)
-      .setDescription("Group name")
-      .setExampleValue("sonar-administrators");
+            .setDescription("Group name")
+            .setExampleValue("sonar-administrators");
   }
 
   static WebService.NewParam defineLoginWsParameter(WebService.NewAction action) {

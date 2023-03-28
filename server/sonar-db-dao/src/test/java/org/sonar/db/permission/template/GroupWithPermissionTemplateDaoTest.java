@@ -270,7 +270,7 @@ public class GroupWithPermissionTemplateDaoTest {
   }
 
   private int countGroupNamesByQueryAndTemplate(PermissionQuery query, String templateUuid) {
-    return underTest.countGroupNamesByQueryAndTemplate(session, query, templateUuid);
+    return underTest.countGroupNamesByQueryAndTemplate(session, query, null, templateUuid);
   }
 
 }

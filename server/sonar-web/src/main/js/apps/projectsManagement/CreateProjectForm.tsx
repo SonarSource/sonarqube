@@ -32,8 +32,9 @@ import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
 import { GlobalSettingKeys } from '../../types/settings';
 import { Visibility } from '../../types/types';
+import { OrganizationContextProps, withOrganizationContext } from "../organizations/OrganizationContext";
 
-interface Props {
+interface Props extends OrganizationContextProps {
   defaultProjectVisibility?: Visibility;
   onClose: () => void;
   onProjectCreated: () => void;
@@ -50,7 +51,7 @@ interface State {
   mainBranchName: string;
 }
 
-export default class CreateProjectForm extends React.PureComponent<Props, State> {
+class CreateProjectForm extends React.PureComponent<Props, State> {
   closeButton?: HTMLElement | null;
   mounted = false;
 
@@ -105,6 +106,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     const { name, key, mainBranchName, visibility } = this.state;
 
     const data = {
+      organization: this.props.organization.kee,
       name,
       project: key,
       mainBranch: mainBranchName,
@@ -245,3 +247,5 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     );
   }
 }
+
+export default withOrganizationContext(CreateProjectForm);

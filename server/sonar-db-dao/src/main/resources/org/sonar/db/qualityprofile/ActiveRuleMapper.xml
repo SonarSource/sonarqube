@@ -152,6 +152,7 @@
     inner join rules r on r.uuid = a.rule_uuid
     where
     a.rule_uuid = #{ruleUuid, jdbcType=VARCHAR}
+    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByRuleUuid" parameterType="String" resultType="ActiveRule">

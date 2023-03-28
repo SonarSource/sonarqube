@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -143,11 +144,12 @@ public class ShowAction implements ComponentsWsAction {
 
   private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto lastAnalysis,
     Request request) {
+    OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
     if (isProjectOrApp(component)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
       boolean needIssueSync = needIssueSync(dbSession, component, project);
-      return projectOrAppToWsComponent(project, lastAnalysis)
+      return projectOrAppToWsComponent(project, organizationDto, lastAnalysis)
         .setNeedIssueSync(needIssueSync);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
@@ -158,13 +160,13 @@ public class ShowAction implements ComponentsWsAction {
           .filter(b -> !b.isMain())
           .map(BranchDto::getKey)
           .orElse(null);
-        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, branch, null)
+        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, branch, null)
           .setNeedIssueSync(needIssueSync);
       } else if (component.getMainBranchProjectUuid() != null) {
-        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
+        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
           .setNeedIssueSync(needIssueSync);
       } else {
-        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, null, null)
+        return componentDtoToWsComponent(component, organizationDto, parentProject.orElse(null), lastAnalysis, null, null)
           .setNeedIssueSync(needIssueSync);
       }
     }

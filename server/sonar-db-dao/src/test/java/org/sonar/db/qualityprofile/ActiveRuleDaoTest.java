@@ -112,9 +112,9 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByOrgRuleUuid(dbSession, rule1.getUuid())).extracting("key")
+    assertThat(underTest.selectByOrgRuleUuid(dbSession, null, rule1.getUuid())).extracting("key")
       .containsOnly(activeRule1.getKey(), activeRule2.getKey());
-    assertThat(underTest.selectByOrgRuleUuid(dbSession, rule3.getUuid())).isEmpty();
+    assertThat(underTest.selectByOrgRuleUuid(dbSession, null, rule3.getUuid())).isEmpty();
   }
 
   @Test

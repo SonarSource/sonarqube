@@ -32,6 +32,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
@@ -44,6 +45,7 @@ import org.sonar.server.es.ResilientIndexer;
 import org.sonar.server.security.SecurityStandards;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
@@ -86,6 +88,10 @@ public class RuleIndexer implements ResilientIndexer {
     }
   }
 
+  public void commitAndIndex(DbSession dbSession, String ruleUuid) {
+    commitAndIndex(dbSession, singletonList(ruleUuid));
+  }
+
   public void commitAndIndex(DbSession dbSession, Collection<String> ruleUuids) {
     List<EsQueueDto> items = ruleUuids.stream()
       .map(RuleIndexer::createQueueDtoForRule)
@@ -99,8 +105,8 @@ public class RuleIndexer implements ResilientIndexer {
   /**
    * Commit a change on a rule and its extension
    */
-  public void commitAndIndex(DbSession dbSession, String ruleUuid) {
-    List<EsQueueDto> items = asList(createQueueDtoForRule(ruleUuid));
+  public void commitAndIndex(DbSession dbSession, String ruleUuid, OrganizationDto organization) {
+    List<EsQueueDto> items = asList(createQueueDtoForRule(ruleUuid, organization));
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
     postCommit(dbSession, items);
@@ -174,5 +180,11 @@ public class RuleIndexer implements ResilientIndexer {
 
   private static EsQueueDto createQueueDtoForRule(String ruleUuid) {
     return EsQueueDto.create(TYPE_RULE.format(), ruleUuid, null, ruleUuid);
+  }
+
+  private static EsQueueDto createQueueDtoForRule(String ruleUuid, OrganizationDto organization) {
+//    String docId = RuleExtensionDoc.idOf(ruleUuid, RuleExtensionScope.organization(organization));
+//    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, ruleUuid);
+    throw new IllegalStateException("To be implemented");
   }
 }

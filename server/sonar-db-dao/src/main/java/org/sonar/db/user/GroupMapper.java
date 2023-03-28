@@ -32,20 +32,22 @@ public interface GroupMapper {
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
-  List<GroupDto> selectByNames(@Param("names") List<String> names);
+  List<GroupDto> selectByNames(@Param("organizationUuid") String organizationUuid, @Param("names") List<String> names);
 
   void insert(GroupDto groupDto);
 
   void update(GroupDto item);
 
-  List<GroupDto> selectByQuery(@Nullable @Param("query") String query, RowBounds rowBounds);
+  List<GroupDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query, RowBounds rowBounds);
 
-  int countByQuery(@Nullable @Param("query") String query);
+  int countByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query);
 
   int deleteByUuid(String groupUuid);
 
   @CheckForNull
-  GroupDto selectByName(@Param("name") String name);
+  GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
+
+  List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
   List<GroupDto> selectByUuids(@Param("uuids") List<String> uuids);
 }

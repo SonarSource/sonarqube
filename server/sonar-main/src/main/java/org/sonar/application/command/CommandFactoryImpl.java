@@ -169,7 +169,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEnvVariable(PATH_LOGS.getKey(), props.nonNullValue(PATH_LOGS.getKey()))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
       .setClassName("org.sonar.server.app.WebServer")
-      .addClasspath("./lib/sonar-application-" + SQ_VERSION + ".jar");
+      .addClasspath("./lib/codescan-application-" + SQ_VERSION + ".jar");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);
@@ -193,7 +193,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setJvmOptions(jvmOptions)
       .setGracefulStopTimeoutMs(getGracefulStopTimeoutMs(props, CE_GRACEFUL_STOP_TIMEOUT))
       .setClassName("org.sonar.ce.app.CeServer")
-      .addClasspath("./lib/sonar-application-" + SQ_VERSION + ".jar");
+      .addClasspath("./lib/codescan-application-" + SQ_VERSION + ".jar");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);

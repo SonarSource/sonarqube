@@ -33,12 +33,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.scannercache.ScannerCache;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -120,7 +120,7 @@ public class GetAction implements AnalysisCacheWsAction {
   private void checkPermission(ComponentDto project) {
     if (userSession.hasComponentPermission(UserRole.SCAN, project) ||
       userSession.hasComponentPermission(UserRole.ADMIN, project) ||
-      userSession.hasPermission(SCAN)) {
+      userSession.hasPermission(OrganizationPermission.SCAN, "" /* TODO */)) {
       return;
     }
     throw insufficientPrivilegesException();

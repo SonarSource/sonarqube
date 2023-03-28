@@ -8,6 +8,7 @@
     uuid,
     name,
     url,
+    organization_uuid as organizationUuid,
     project_uuid as projectUuid,
     secret,
     created_at as createdAt,
@@ -20,10 +21,10 @@
     where uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectGlobalWebhooksOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
+  <select id="selectForOrganizationUuidOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
     select <include refid="sqlColumns" />
     from webhooks
-    where project_uuid is null
+    where organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     order by name asc
   </select>
 
@@ -39,6 +40,7 @@
     uuid,
     name,
     url,
+    organization_uuid,
     project_uuid,
     secret,
     created_at,
@@ -47,6 +49,7 @@
     #{uuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{url,jdbcType=VARCHAR},
+    #{organizationUuid,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR},
     #{secret,jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT},

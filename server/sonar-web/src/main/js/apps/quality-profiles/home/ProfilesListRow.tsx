@@ -32,6 +32,7 @@ export interface ProfilesListRowProps {
   profile: Profile;
   updateProfiles: () => Promise<void>;
   isComparable: boolean;
+  organization: string;
 }
 
 export function ProfilesListRow(props: ProfilesListRowProps) {
@@ -57,7 +58,7 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       <td className="quality-profiles-table-name text-middle">
         <div className="display-flex-center" style={{ paddingLeft: offset }}>
           <div>
-            <ProfileLink language={profile.language} name={profile.name}>
+            <ProfileLink language={profile.language} name={profile.name} organization={props.organization}>
               {profile.name}
             </ProfileLink>
           </div>
@@ -103,6 +104,7 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
         <ProfileActions
           isComparable={isComparable}
           profile={profile}
+          organization={props.organization}
           updateProfiles={props.updateProfiles}
         />
       </td>

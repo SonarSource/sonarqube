@@ -80,8 +80,9 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   fetchHotspot = async () => {
     this.setState({ loading: true });
     try {
-      const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
-      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then((r) => r.rule);
+      const { hotspotKey, component } = this.props;
+      const hotspot = await getSecurityHotspotDetails(hotspotKey);
+      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key, organization: component.organization }).then((r) => r.rule);
 
       if (this.mounted) {
         this.setState({

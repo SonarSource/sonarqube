@@ -30,6 +30,7 @@ public class ProjectsWsParameters {
   public static final String ACTION_UPDATE_KEY = "update_key";
   public static final String ACTION_UPDATE_VISIBILITY = "update_visibility";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_NAME = "name";

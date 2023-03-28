@@ -28,6 +28,7 @@ import org.sonar.api.utils.MessageException;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.FILE_SIZE_LIMIT;
+import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 
 /**
  * Properties that can be passed to the scanners and are not exposed in SonarQube.
@@ -55,6 +56,10 @@ public class ScanProperties {
 
   public boolean shouldKeepReport() {
     return configuration.getBoolean(KEEP_REPORT_PROP_KEY).orElse(false) || configuration.getBoolean(VERBOSE_KEY).orElse(false);
+  }
+
+  public Optional<String> organizationKey() {
+    return configuration.get(ORGANIZATION);
   }
 
   public boolean preloadFileMetadata() {

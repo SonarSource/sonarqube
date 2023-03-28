@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 public class PermissionTemplateDto {
   private String name;
+  private String organizationUuid;
   private String uuid;
   private String description;
   private String keyPattern;
@@ -37,6 +38,15 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public PermissionTemplateDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 

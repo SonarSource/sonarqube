@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.io.Writer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 /**
@@ -37,7 +38,7 @@ public interface QProfileBackuper {
    * is the name of the profile to be used. If the parameter is null, then the name is loaded from the backup.
    * The profile is created if it does not exist.
    */
-  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, @Nullable String overriddenProfileName);
+  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName);
 
   /**
    * Restore backup on an existing profile.

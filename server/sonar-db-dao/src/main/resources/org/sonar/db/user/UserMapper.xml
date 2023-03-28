@@ -17,6 +17,7 @@
         u.external_login as "externalLogin",
         u.external_identity_provider as "externalIdentityProvider",
         u.user_local as "local",
+        u.is_root as "root",
         u.reset_password as "resetPassword",
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter",

@@ -31,6 +31,7 @@ interface Props {
   onGroupAdd: (group: Group) => void;
   onUserAdd: (user: UserSelected) => void;
   profile: { language: string; name: string };
+  organization: string;
 }
 
 interface State {
@@ -64,6 +65,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       language,
       login: user.login,
       qualityProfile: name,
+      organization: this.props.organization,
     }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
   };
 
@@ -75,6 +77,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       group: group.name,
       language,
       qualityProfile: name,
+      organization: this.props.organization,
     }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
   };
 
@@ -110,7 +113,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
               <label htmlFor="change-profile-permission-input">
                 {translate('quality_profiles.search_description')}
               </label>
-              <ProfilePermissionsFormSelect onChange={this.handleValueChange} profile={profile} />
+              <ProfilePermissionsFormSelect onChange={this.handleValueChange} profile={profile} organization={this.props.organization}/>
             </div>
           </div>
           <footer className="modal-foot">

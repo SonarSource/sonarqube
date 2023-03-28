@@ -32,6 +32,7 @@ import ComparisonResultActivation from './ComparisonResultActivation';
 type Params = Dict<string>;
 
 interface Props extends CompareResponse {
+  organization: string;
   leftProfile: Profile;
   refresh: () => Promise<void>;
   rightProfile?: Profile;
@@ -42,7 +43,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <div>
         <SeverityIcon severity={severity} />{' '}
-        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>{rule.name}</Link>
+        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key }, this.props.organization)}>{rule.name}</Link>
       </div>
     );
   }

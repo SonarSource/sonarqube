@@ -36,6 +36,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -80,7 +81,7 @@ public class BranchSupportTest {
     ComponentDto mainComponentDto = new ComponentDto();
     BranchDto mainComponentBranchDto = new BranchDto();
 
-    assertThatThrownBy(() -> underTestNoBranch.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto))
+    assertThatThrownBy(() -> underTestNoBranch.createBranchComponent(dbSession, componentKey, null, mainComponentDto, mainComponentBranchDto))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Current edition does not support branch feature");
   }
@@ -92,10 +93,10 @@ public class BranchSupportTest {
     ComponentDto mainComponentDto = new ComponentDto();
     ComponentDto expected = new ComponentDto();
     BranchDto mainComponentBranchDto = new BranchDto();
-    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto))
+    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, any(), mainComponentDto, mainComponentBranchDto))
       .thenReturn(expected);
 
-    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto);
+    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, null, mainComponentDto, mainComponentBranchDto);
 
     assertThat(dto).isSameAs(expected);
   }

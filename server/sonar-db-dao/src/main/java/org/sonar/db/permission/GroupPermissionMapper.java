@@ -33,7 +33,7 @@ public interface GroupPermissionMapper {
 
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
-  List<GroupPermissionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
+  List<GroupPermissionDto> selectByGroupUuids(@Param("organizationUuid") String organizationUuid, @Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
 
   void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerProjectPermission> resultHandler);
 
@@ -43,13 +43,15 @@ public interface GroupPermissionMapper {
 
   void insert(GroupPermissionDto dto);
 
-  int delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
+  int delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
 
-  List<String> selectGlobalPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid);
+  List<String> selectGlobalPermissionsOfGroups(@Nullable @Param("groupUuid") String groupUuid);
 
-  List<String> selectProjectPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
+  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid);
 
-  void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
+  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
+
+  void selectAllPermissionsByGroupUuid(@Param("organizationUuid") String organizationUuid, @Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
 
   /**
    * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified

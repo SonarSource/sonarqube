@@ -32,10 +32,12 @@ import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
+  private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseAnalysis = new InitializedProperty<>();
@@ -48,6 +50,19 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
   private final InitializedProperty<String> newCodeReferenceBranch = new InitializedProperty<>();
+
+  @Override
+  public AnalysisMetadataHolderRule setOrganization(Organization organization) {
+    requireNonNull(organization, "organization can't be null");
+    this.organization.setProperty(organization);
+    return this;
+  }
+
+  @Override
+  public Organization getOrganization() {
+    checkState(organization.isInitialized(), "Organization has not been set");
+    return this.organization.getProperty();
+  }
 
   @Override
   public AnalysisMetadataHolderRule setUuid(String s) {

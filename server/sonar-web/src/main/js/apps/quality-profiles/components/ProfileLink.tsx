@@ -26,13 +26,14 @@ interface Props {
   children?: React.ReactElement<any> | string;
   language: string;
   name: string;
+  organization: string;
 }
 
-export default function ProfileLink({ name, language, children, ...other }: Props) {
+export default function ProfileLink({ name, language, organization, children, ...other }: Props) {
   return (
     <NavLink
       className={({ isActive }) => (isActive ? 'link-no-underline' : '')}
-      to={getProfilePath(name, language)}
+      to={getProfilePath(name, language, organization)}
       {...other}
     >
       {children}

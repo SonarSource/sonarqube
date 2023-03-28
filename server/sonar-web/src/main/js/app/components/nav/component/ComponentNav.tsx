@@ -27,7 +27,7 @@ import {
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
-import { Component } from '../../../../types/types';
+import { Component, Organization } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
@@ -51,6 +51,7 @@ export interface ComponentNavProps {
   projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   warnings: TaskWarning[];
+  organization: Organization;
 }
 
 const ALERT_HEIGHT = 30;
@@ -68,6 +69,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     projectBinding,
     projectBindingErrors,
     warnings,
+    organization,
   } = props;
   const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
 
@@ -127,7 +129,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     >
       <div
         className={classNames('display-flex-center display-flex-space-between', {
-          'padded-bottom little-padded-top': warnings.length === 0,
+          'little-padded-bottom little-padded-top': warnings.length === 0,
           'little-padded-bottom': warnings.length > 0,
         })}
       >
@@ -136,6 +138,7 @@ export default function ComponentNav(props: ComponentNavProps) {
           component={component}
           currentBranchLike={currentBranchLike}
           projectBinding={projectBinding}
+          organization={organization}
         />
         <HeaderMeta
           branchLike={currentBranchLike}

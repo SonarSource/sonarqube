@@ -56,9 +56,9 @@ public interface ComponentMapper {
 
   int countEnabledModulesByBranchUuid(@Param("branchUuid") String branchUuid);
 
-  List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
+  List<ComponentDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query, RowBounds rowBounds);
 
-  int countByQuery(@Param("query") ComponentQuery query);
+  int countByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query);
 
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 

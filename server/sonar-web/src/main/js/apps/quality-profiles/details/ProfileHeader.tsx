@@ -30,7 +30,6 @@ import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';
-import { PROFILE_PATH } from '../constants';
 import { Profile } from '../types';
 import {
   getProfileChangelogPath,
@@ -40,26 +39,27 @@ import {
 
 interface Props {
   profile: Profile;
+  organization: string;
   isComparable: boolean;
   updateProfiles: () => Promise<void>;
 }
 
 export default function ProfileHeader(props: Props) {
-  const { profile, isComparable, updateProfiles } = props;
+  const { profile, organization, isComparable, updateProfiles } = props;
   const location = useLocation();
 
   return (
     <div className="page-header quality-profile-header">
       <div className="note spacer-bottom">
-        <NavLink end={true} to={PROFILE_PATH}>
+        <NavLink end={true} to={`/organizations/${organization}/quality_profiles`}>
           {translate('quality_profiles.page')}
         </NavLink>
         {' / '}
-        <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
+        <Link to={getProfilesForLanguagePath(profile.language, organization)}>{profile.languageName}</Link>
       </div>
 
       <h1 className="page-title">
-        <ProfileLink language={profile.language} name={profile.name}>
+        <ProfileLink language={profile.language} name={profile.name} organization={props.organization}>
           <span>{profile.name}</span>
         </ProfileLink>
         {profile.isDefault && (
@@ -81,7 +81,7 @@ export default function ProfileHeader(props: Props) {
               {translate('quality_profiles.used_')} <DateFromNow date={profile.lastUsed} />
             </li>
             <li>
-              <Link className="button" to={getProfileChangelogPath(profile.name, profile.language)}>
+              <Link className="button" to={getProfileChangelogPath(profile.name, profile.language, organization)}>
                 {translate('changelog')}
               </Link>
             </li>
@@ -92,6 +92,7 @@ export default function ProfileHeader(props: Props) {
                 profile={profile}
                 isComparable={isComparable}
                 updateProfiles={updateProfiles}
+                organization={props.organization}
               />
             </li>
           </ul>

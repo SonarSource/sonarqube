@@ -96,8 +96,7 @@ public class BranchReportSubmitterTest {
   private final BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
 
-  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    projectDefaultVisibility);
+  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport);
 
   @Before
   public void before() {
@@ -133,9 +132,9 @@ public class BranchReportSubmitterTest {
 
     verifyNoInteractions(permissionTemplateService);
     verifyNoInteractions(favoriteUpdater);
-    verify(branchSupport, times(0)).createBranchComponent(any(), any(), any(), any());
+    verify(branchSupport, times(0)).createBranchComponent(any(), any(), any(), any(), any());
     verify(branchSupportDelegate).createComponentKey(project.getKey(), randomCharacteristics);
-    verify(branchSupportDelegate, times(0)).createBranchComponent(any(), any(), any(), any());
+    verify(branchSupportDelegate, times(0)).createBranchComponent(any(), any(), any(), any(), any());
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(project, branch, user, randomCharacteristics, taskUuid);
   }
@@ -150,7 +149,7 @@ public class BranchReportSubmitterTest {
     ComponentDto createdBranch = createButDoNotInsertBranch(existingProject);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(existingProject.getKey(), "branch1");
     when(branchSupportDelegate.createComponentKey(existingProject.getKey(), randomCharacteristics)).thenReturn(componentKey);
-    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(existingProject), eq(exitingProjectMainBranch))).thenReturn(createdBranch);
+    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(existingProject), eq(exitingProjectMainBranch))).thenReturn(createdBranch);
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
 
@@ -158,9 +157,9 @@ public class BranchReportSubmitterTest {
 
     verifyNoInteractions(permissionTemplateService);
     verifyNoInteractions(favoriteUpdater);
-    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(existingProject), eq(exitingProjectMainBranch));
+    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(existingProject), eq(exitingProjectMainBranch));
     verify(branchSupportDelegate).createComponentKey(existingProject.getKey(), randomCharacteristics);
-    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(existingProject), eq(exitingProjectMainBranch));
+    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(existingProject), eq(exitingProjectMainBranch));
     verifyNoMoreInteractions(branchSupportDelegate);
     verify(componentUpdater, times(0)).commitAndIndex(any(), any());
     verifyQueueSubmit(existingProject, createdBranch, user, randomCharacteristics, taskUuid);
@@ -180,17 +179,17 @@ public class BranchReportSubmitterTest {
     when(branchSupportDelegate.createComponentKey(nonExistingProject.getKey(), randomCharacteristics)).thenReturn(componentKey);
     when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin()), any()))
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject));
-    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), any())).thenReturn(createdBranch);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingProject.getKey()))).thenReturn(true);
+    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(nonExistingProject), any())).thenReturn(createdBranch);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), any(), eq(nonExistingProject.getKey()))).thenReturn(true);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
 
     underTest.submit(nonExistingProject.getKey(), nonExistingProject.name(), randomCharacteristics, reportInput);
 
     BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), nonExistingProject.uuid()).get();
-    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), eq(exitingProjectMainBranch));
+    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(nonExistingProject), eq(exitingProjectMainBranch));
     verify(branchSupportDelegate).createComponentKey(nonExistingProject.getKey(), randomCharacteristics);
-    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), eq(exitingProjectMainBranch));
+    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(nonExistingProject), eq(exitingProjectMainBranch));
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(nonExistingProject, createdBranch, user, randomCharacteristics, taskUuid);
     verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(nonExistingProject));
@@ -224,7 +223,7 @@ public class BranchReportSubmitterTest {
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(nonExistingProject.getKey());
     String nonExistingProjectDbKey = nonExistingProject.getKey();
     when(branchSupportDelegate.createComponentKey(nonExistingProjectDbKey, randomCharacteristics)).thenReturn(componentKey);
-    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), any())).thenReturn(createdBranch);
+    when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), any(), eq(nonExistingProject), any())).thenReturn(createdBranch);
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
 
     String name = nonExistingProject.name();

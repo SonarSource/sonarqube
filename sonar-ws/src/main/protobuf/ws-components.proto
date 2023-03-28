@@ -98,7 +98,7 @@ message ProvisionedWsResponse {
 }
 
 message Component {
-  reserved 12; //drop organization
+  optional string organization = 12;
   optional string key = 2;
   optional string refId = 3;
   optional string refKey = 4;

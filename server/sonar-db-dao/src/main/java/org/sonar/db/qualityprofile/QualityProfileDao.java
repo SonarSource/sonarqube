@@ -36,6 +36,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
@@ -69,8 +70,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(uuids, mapper(dbSession)::selectByUuids);
   }
 
-  public List<QProfileDto> selectAll(DbSession dbSession) {
-    return mapper(dbSession).selectAll();
+  public List<QProfileDto> selectOrderedByOrganizationUuid(DbSession dbSession, OrganizationDto organization) {
+    return mapper(dbSession).selectOrderedByOrganizationUuid(organization.getUuid());
   }
 
   public List<RulesProfileDto> selectBuiltInRuleProfiles(DbSession dbSession) {
@@ -141,8 +142,8 @@ public class QualityProfileDao implements Dao {
     mapper.updateOrgQProfile(OrgQProfileDto.from(profile), now);
   }
 
-  public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, Collection<String> languages) {
-    return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultProfiles(partition));
+  public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, OrganizationDto organization, Collection<String> languages) {
+    return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultProfiles(organization.getUuid(), partition));
   }
 
   public List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(DbSession dbSession, Set<String> languages) {
@@ -150,12 +151,12 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QProfileDto selectDefaultProfile(DbSession dbSession, String language) {
-    return mapper(dbSession).selectDefaultProfile(language);
+  public QProfileDto selectDefaultProfile(DbSession dbSession, OrganizationDto organization, String language) {
+    return mapper(dbSession).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
-  public String selectDefaultProfileUuid(DbSession dbSession, String language) {
+  public List<String> selectDefaultProfileUuid(DbSession dbSession, String language) {
     return mapper(dbSession).selectDefaultProfileUuid(language);
   }
 
@@ -203,22 +204,22 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QProfileDto selectByNameAndLanguage(DbSession dbSession, String name, String language) {
-    return mapper(dbSession).selectByNameAndLanguage(name, language);
+  public QProfileDto selectByNameAndLanguage(DbSession dbSession, OrganizationDto organization, String name, String language) {
+    return mapper(dbSession).selectByNameAndLanguage(organization.getUuid(), name, language);
   }
 
   @CheckForNull
-  public QProfileDto selectByRuleProfileUuid(DbSession dbSession, String ruleProfileKee) {
-    return mapper(dbSession).selectByRuleProfileUuid(ruleProfileKee);
+  public QProfileDto selectByRuleProfileUuid(DbSession dbSession, String organizationUuid, String ruleProfileKee) {
+    return mapper(dbSession).selectByRuleProfileUuid(organizationUuid, ruleProfileKee);
   }
 
   public List<QProfileDto> selectByNameAndLanguages(DbSession dbSession, String name, Collection<String> languages) {
     return mapper(dbSession).selectByNameAndLanguages(name, languages);
   }
 
-  public Map<String, Long> countProjectsByProfiles(DbSession dbSession, List<QProfileDto> profiles) {
+  public Map<String, Long> countProjectsByOrganizationAndProfiles(DbSession dbSession, OrganizationDto organization, List<QProfileDto> profiles) {
     List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
-    return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByProfiles(partition)));
+    return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByOrganizationAndProfiles(organization.getUuid(), partition)));
   }
 
   public void insertProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {

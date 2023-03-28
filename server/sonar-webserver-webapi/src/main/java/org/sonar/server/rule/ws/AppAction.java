@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -27,7 +29,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 public class AppAction implements RulesWsAction {
@@ -35,37 +38,49 @@ public class AppAction implements RulesWsAction {
   private final Languages languages;
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final RuleWsSupport wsSupport;
 
-  public AppAction(Languages languages, DbClient dbClient, UserSession userSession) {
+  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, RuleWsSupport wsSupport) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("app")
+    WebService.NewAction action = controller.createAction("app")
       .setDescription("Get data required for rendering the page 'Coding Rules'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setRequired(false)
+            .setExampleValue("my-org");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization;
+      if (request.param(PARAM_ORGANIZATION) != null) {
+        organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      } else {
+        organization = dbClient.organizationDao().getDefaultOrganization(dbSession);
+      }
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      addPermissions(json);
+      addPermissions(organization, json);
       addLanguages(json);
       addRuleRepositories(json, dbSession);
       json.endObject().close();
     }
   }
 
-  private void addPermissions(JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+  private void addPermissions(OrganizationDto organization, JsonWriter json) {
+    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     json.prop("canWrite", canWrite);
   }
 

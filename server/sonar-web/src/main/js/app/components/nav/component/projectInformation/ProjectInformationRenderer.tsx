@@ -99,12 +99,13 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
           (component.qualityGate ||
             (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
             <div className="big-padded bordered-bottom">
-              {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
+              {component.qualityGate && <MetaQualityGate organization={component.organization} qualityGate={component.qualityGate} />}
 
               {component.qualityProfiles && component.qualityProfiles.length > 0 && (
                 <MetaQualityProfiles
                   headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
                   profiles={component.qualityProfiles}
+                  organization={component.organization ? component.organization : ''}
                 />
               )}
             </div>

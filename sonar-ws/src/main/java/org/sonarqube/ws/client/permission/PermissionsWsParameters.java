@@ -23,6 +23,7 @@ public class PermissionsWsParameters {
   public static final String CONTROLLER = "api/permissions";
 
   public static final String PARAM_PERMISSION = "permission";
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_GROUP_NAME = "groupName";
   public static final String PARAM_GROUP_ID = "groupId";
   public static final String PARAM_PROJECT_ID = "projectId";

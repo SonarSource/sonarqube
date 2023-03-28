@@ -22,22 +22,29 @@ package org.sonar.server.scannercache.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.scannercache.ScannerCache;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ClearAction implements AnalysisCacheWsAction {
+  public static final String PARAM_ORGANIZATION_KEY = "organization";
   public static final String PARAM_PROJECT_KEY = "project";
   public static final String PARAM_BRANCH_KEY = "branch";
   private final UserSession userSession;
   private final ScannerCache cache;
+  private final DbClient dbClient;
 
-  public ClearAction(UserSession userSession, ScannerCache cache) {
+  public ClearAction(UserSession userSession, ScannerCache cache, DbClient dbClient) {
     this.userSession = userSession;
     this.cache = cache;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -58,13 +65,17 @@ public class ClearAction implements AnalysisCacheWsAction {
       .setSince("9.7")
       .setDescription("Filter which project's branch's cached data will be cleared with the provided key. '" + PARAM_PROJECT_KEY + "' parameter must be set.")
       .setExampleValue("6468");
+    clearDefinition.createParam(PARAM_ORGANIZATION_KEY)
+      .setRequired(true);
   }
 
   private static class ClearRequestDto {
+    private final String organizationKey;
     private final String projectKey;
     private final String branchKey;
 
     private ClearRequestDto(Request request) {
+      this.organizationKey = request.mandatoryParam(PARAM_ORGANIZATION_KEY);
       this.projectKey = request.param(PARAM_PROJECT_KEY);
       this.branchKey = request.param(PARAM_BRANCH_KEY);
     }
@@ -72,8 +83,8 @@ public class ClearAction implements AnalysisCacheWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkPermission();
     ClearRequestDto params = new ClearRequestDto(request);
+    checkPermission(params.organizationKey);
     validateParams(params);
     if (params.projectKey != null) {
       if (params.branchKey != null) {
@@ -96,9 +107,15 @@ public class ClearAction implements AnalysisCacheWsAction {
     }
   }
 
-  private void checkPermission() {
-    if (!userSession.hasPermission(GlobalPermission.ADMINISTER)) {
-      throw insufficientPrivilegesException();
+  private void checkPermission(String organizationKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = checkFoundWithOptional(
+              dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+              "No organization with key '%s'", organizationKey);
+
+      if (!userSession.isRoot() && !userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
+        throw insufficientPrivilegesException();
+      }
     }
   }
 }

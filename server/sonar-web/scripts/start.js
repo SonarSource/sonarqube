@@ -97,6 +97,15 @@ function run() {
             esbuildProxy.web(req, res);
           } else if (req.url.match(/l10n\/index/)) {
             handleL10n(res);
+          } else if (req.url.includes('_codescan/')) {
+            proxy.web(
+                req,
+                res,
+                {
+                  target: proxyTarget
+                },
+                e => console.error('req error', e)
+            );
           } else if (
             (req.url.includes('api/') && !req.url.includes('/web_api')) ||
             req.url.includes('images/') ||

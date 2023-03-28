@@ -349,6 +349,7 @@ public class CeQueueImpl implements CeQueue {
 
   CeTask convertToTask(DbSession dbSession, CeQueueDto taskDto, Map<String, String> characteristics, @Nullable ComponentDto component, @Nullable ComponentDto mainComponent) {
     CeTask.Builder builder = new CeTask.Builder()
+      .setOrganizationUuid(taskDto.getOrganizationUuid())
       .setUuid(taskDto.getUuid())
       .setType(taskDto.getTaskType())
       .setCharacteristics(characteristics)

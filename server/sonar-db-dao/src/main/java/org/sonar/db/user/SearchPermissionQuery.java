@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -34,6 +35,7 @@ public abstract class SearchPermissionQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = Set.of(ANY, IN, OUT);
 
+  protected String organizationUuid;
   protected String query;
   protected String membership;
 
@@ -51,6 +53,7 @@ public abstract class SearchPermissionQuery {
   }
 
   public abstract static class Builder<T extends Builder<T>> {
+    private OrganizationDto organization;
     private String query;
     private String membership;
 
@@ -60,6 +63,15 @@ public abstract class SearchPermissionQuery {
 
     public T setQuery(@Nullable String s) {
       this.query = StringUtils.defaultIfBlank(s, null);
+      return self();
+    }
+
+    public OrganizationDto getOrganization() {
+      return organization;
+    }
+
+    public T setOrganization(OrganizationDto organization) {
+      this.organization = organization;
       return self();
     }
 

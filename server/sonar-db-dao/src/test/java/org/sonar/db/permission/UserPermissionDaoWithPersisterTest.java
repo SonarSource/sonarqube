@@ -56,7 +56,7 @@ public class UserPermissionDaoWithPersisterTest {
   @Test
   public void userGlobalPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), null);
     underTest.insert(dbSession, dto, null, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -64,7 +64,7 @@ public class UserPermissionDaoWithPersisterTest {
     assertNewValue(newValue, dto.getUuid(), user.getUuid(), user.getLogin(), null, dto.getPermission(), null, null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
-    underTest.deleteGlobalPermission(dbSession, user, SYSTEM_ADMIN);
+    underTest.deleteGlobalPermission(dbSession, user, SYSTEM_ADMIN, null);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -77,7 +77,7 @@ public class UserPermissionDaoWithPersisterTest {
     PermissionTemplateDto templateDto = newPermissionTemplateDto();
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), templateDto);
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), null);
     underTest.insert(dbSession, dto, null, user, templateDto);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -96,7 +96,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userProjectPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -130,7 +130,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userPortfolioPermissionIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto portfolio = db.components().insertPublicPortfolio();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), portfolio.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), portfolio.uuid());
     underTest.insert(dbSession, dto, portfolio, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -144,7 +144,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userApplicationPermissionIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto application = db.components().insertPublicApplication();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), application.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), application.uuid());
     underTest.insert(dbSession, dto, application, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -158,7 +158,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void deleteUserPermissionOfAnyUserIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN_EXECUTION, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SCAN_EXECUTION, user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
     underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
 
@@ -183,7 +183,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void deleteUserPermissionByUserUuidIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), null, SYSTEM_ADMIN, user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
     underTest.deleteByUserUuid(dbSession, user);
 

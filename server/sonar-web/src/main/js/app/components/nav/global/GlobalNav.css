@@ -83,6 +83,10 @@
   white-space: nowrap;
 }
 
+.global-navbar-menu > li > a > svg {
+  vertical-align: top;
+}
+
 .navbar-brand:hover,
 .navbar-brand:focus,
 .global-navbar-menu > li > a.active,

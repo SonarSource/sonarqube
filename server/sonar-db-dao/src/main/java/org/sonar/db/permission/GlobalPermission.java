@@ -24,6 +24,7 @@ public enum GlobalPermission {
   ADMINISTER("admin"),
   ADMINISTER_QUALITY_GATES("gateadmin"),
   ADMINISTER_QUALITY_PROFILES("profileadmin"),
+  ADMINISTER_CUSTOMER("customerAdmin"),
   PROVISION_PROJECTS("provisioning"),
   SCAN("scan"),
 

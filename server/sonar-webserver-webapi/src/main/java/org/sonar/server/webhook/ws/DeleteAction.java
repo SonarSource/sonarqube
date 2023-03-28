@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.user.UserSession;
@@ -75,14 +76,19 @@ public class DeleteAction implements WebhooksWsAction {
       Optional<WebhookDto> dtoOptional = dbClient.webhookDao().selectByUuid(dbSession, webhookKey);
       WebhookDto webhookDto = checkFoundWithOptional(dtoOptional, "No webhook with key '%s'", webhookKey);
 
+      String organizationUuid = webhookDto.getOrganizationUuid();
+      if (organizationUuid != null) {
+        Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+        OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
+        webhookSupport.checkPermission(organizationDto);
+        deleteWebhook(dbSession, webhookDto);
+      }
+
       String projectUuid = webhookDto.getProjectUuid();
       if (projectUuid != null) {
         Optional<ProjectDto> optionalDto = dbClient.projectDao().selectByUuid(dbSession, projectUuid);
         ProjectDto projectDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
         webhookSupport.checkPermission(projectDto);
-        deleteWebhook(dbSession, webhookDto);
-      } else {
-        webhookSupport.checkPermission();
         deleteWebhook(dbSession, webhookDto);
       }
 

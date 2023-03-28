@@ -83,11 +83,11 @@ public class ProjectStatusActionTest {
   private final DbSession dbSession = db.getSession();
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
 
-  private final WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession, qualityGateCaycChecker));
+  private final WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession, qualityGateCaycChecker, null));
 
   @Before
   public void setUp() {
-    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(), any())).thenReturn(NON_COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(), any(), any())).thenReturn(NON_COMPLIANT);
   }
 
   @Test
@@ -336,7 +336,7 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     var qg = db.qualityGates().insertBuiltInQualityGate();
     db.qualityGates().setDefaultQualityGate(qg);
-    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), eq(project.uuid()))).thenReturn(COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), null, eq(project.uuid()))).thenReturn(COMPLIANT);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);

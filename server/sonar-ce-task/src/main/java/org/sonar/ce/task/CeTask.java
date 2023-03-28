@@ -37,6 +37,7 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class CeTask {
 
+  private final String organizationUuid;
   private final String type;
   private final String uuid;
   private final Component component;
@@ -45,6 +46,7 @@ public class CeTask {
   private final Map<String, String> characteristics;
 
   private CeTask(Builder builder) {
+    this.organizationUuid = builder.organizationUuid;
     this.uuid = requireNonNull(emptyToNull(builder.uuid), "uuid can't be null nor empty");
     this.type = requireNonNull(emptyToNull(builder.type), "type can't be null nor empty");
     checkArgument((builder.component == null) == (builder.mainComponent == null),
@@ -91,6 +93,10 @@ public class CeTask {
     }
   }
 
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
   public String getUuid() {
     return uuid;
   }
@@ -119,6 +125,7 @@ public class CeTask {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
+      .add("organizationUuid", organizationUuid)
       .add("type", type)
       .add("uuid", uuid)
       .add("component", component)
@@ -145,12 +152,18 @@ public class CeTask {
   }
 
   public static final class Builder {
+    private String organizationUuid;
     private String uuid;
     private String type;
     private Component component;
     private Component mainComponent;
     private User submitter;
     private Map<String, String> characteristics;
+
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
+    }
 
     public Builder setUuid(String uuid) {
       this.uuid = uuid;

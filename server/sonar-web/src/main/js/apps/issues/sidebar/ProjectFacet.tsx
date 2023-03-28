@@ -26,11 +26,12 @@ import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { ComponentQualifier } from '../../../types/component';
 import { Facet, ReferencedComponent } from '../../../types/issues';
-import { Component, Dict, Paging } from '../../../types/types';
+import { Component, Dict, Organization, Paging } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
   component: Component | undefined;
+  organization?: Organization;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -52,7 +53,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     query: string,
     page = 1
   ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
-    const { component } = this.props;
+    const { component, organization } = this.props;
     if (
       component &&
       [
@@ -80,6 +81,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
       p: page,
       ps: 30,
       filter: query ? `query = "${query}"` : '',
+      organization: organization && organization.kee,
     }).then(({ components, paging }) => ({
       paging,
       results: components.map((component) => ({

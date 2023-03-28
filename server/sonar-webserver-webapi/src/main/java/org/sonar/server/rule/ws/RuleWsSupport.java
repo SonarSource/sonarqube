@@ -31,6 +31,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -46,7 +47,9 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
@@ -80,10 +83,16 @@ public class RuleWsSupport {
     this.userSession = userSession;
   }
 
-  public void checkQProfileAdminPermission() {
+  public void checkQProfileAdminPermission(OrganizationDto organization) {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES);
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+  }
+
+  public OrganizationDto getOrganizationByKey(DbSession dbSession, String organizationKey) {
+    return checkFoundWithOptional(
+            dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+            "No organization with key '%s'", organizationKey);
   }
 
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {
@@ -234,6 +243,13 @@ public class RuleWsSupport {
       .setDefaultValue(false)
       .setBooleanPossibleValues()
       .setSince("7.2");
+  }
+
+  boolean areActiveRulesVisible(OrganizationDto organization) {
+    if (!organization.getSubscription().equals(PAID)) {
+      return true;
+    }
+    return userSession.hasMembership(organization);
   }
 
 }

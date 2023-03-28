@@ -71,7 +71,7 @@ public class UserDeactivator {
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
-    boolean isLastAdmin = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, ADMINISTER.getKey(), user.getUuid()) == 0;
+    boolean isLastAdmin = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, null /* TODO */, ADMINISTER.getKey(), user.getUuid()) == 0;
     checkRequest(!isLastAdmin, "User is last administrator, and cannot be deactivated");
   }
 

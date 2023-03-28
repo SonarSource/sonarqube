@@ -29,7 +29,9 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -342,13 +344,24 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasPermission(GlobalPermission permission) {
-    return currentUserSession.hasPermission(permission);
+  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
+    return currentUserSession.hasPermission(permission, organization);
   }
 
   @Override
-  public UserSession checkPermission(GlobalPermission permission) {
-    currentUserSession.checkPermission(permission);
+  public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
+    return currentUserSession.hasPermission(permission, organizationUuid);
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
+    currentUserSession.checkPermission(permission, organization);
+    return this;
+  }
+
+  @Override
+  public UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
+    currentUserSession.checkPermission(permission, organizationUuid);
     return this;
   }
 

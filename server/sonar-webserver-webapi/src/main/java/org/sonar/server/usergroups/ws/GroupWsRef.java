@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.security.DefaultGroups;
@@ -44,10 +45,12 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 public class GroupWsRef {
 
   private final String uuid;
+  private final String organizationKey;
   private final String name;
 
-  private GroupWsRef(@Nullable String uuid, @Nullable String name) {
+  private GroupWsRef(@Nullable String uuid, @Nullable String organizationKey, @Nullable String name) {
     this.uuid = uuid;
+    this.organizationKey = organizationKey;
     this.name = name;
   }
 
@@ -69,6 +72,16 @@ public class GroupWsRef {
   }
 
   /**
+   * @return the organization key
+   * @throws IllegalStateException if {@link #getUuid()} is {@code true}
+   */
+  @CheckForNull
+  public String getOrganizationKey() {
+    checkState(!hasUuid(), "Organization is not present. Please see hasId().");
+    return organizationKey;
+  }
+
+  /**
    * @return the non-null group name. Can be anyone.
    * @throws IllegalStateException if {@link #getUuid()} is {@code true}
    */
@@ -82,7 +95,7 @@ public class GroupWsRef {
    * as they can't be referenced by an uuid.
    */
   static GroupWsRef fromUuid(String uuid) {
-    return new GroupWsRef(uuid, null);
+    return new GroupWsRef(uuid, null, null);
   }
 
   /**
@@ -91,18 +104,18 @@ public class GroupWsRef {
    *
    * @param name non-null name. Can refer to anyone group (case-insensitive {@code "anyone"}).
    */
-  static GroupWsRef fromName(String name) {
-    return new GroupWsRef(null, requireNonNull(name));
+  static GroupWsRef fromName(@Nullable String organizationKey, String name) {
+    return new GroupWsRef(null, organizationKey, requireNonNull(name));
   }
 
-  public static GroupWsRef create(@Nullable String uuid, @Nullable String name) {
+  public static GroupWsRef create(@Nullable String uuid, @Nullable String organizationKey, @Nullable String name) {
     if (uuid != null) {
-      checkRequest(name == null, "Either group id or group name must be set");
+      checkRequest(organizationKey == null && name == null, "Either group id or couple organization/group name must be set");
       return fromUuid(uuid);
     }
 
     checkRequest(name != null, "Group name or group id must be provided");
-    return fromName(name);
+    return fromName(organizationKey, name);
   }
 
   public boolean isAnyone() {

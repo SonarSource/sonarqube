@@ -31,6 +31,7 @@ public class UsersWsParameters {
   public static final String ACTION_UPDATE_IDENTITY_PROVIDER = "update_identity_provider";
   public static final String ACTION_DISMISS_SONARLINT_AD = "dismiss_sonarlint_ad";
 
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_PASSWORD = "password";
   public static final String PARAM_PREVIOUS_PASSWORD = "previousPassword";

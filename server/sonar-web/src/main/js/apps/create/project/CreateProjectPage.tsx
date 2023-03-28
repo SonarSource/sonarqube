@@ -31,7 +31,6 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
-import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
@@ -41,6 +40,7 @@ import GitlabProjectCreate from './GitlabProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 import { CreateProjectModes } from './types';
+import CreateProjectPageSonarCloud from "./CreateProjectPageSonarCloud";
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
@@ -79,7 +79,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchAlmBindings();
   }
 
   componentWillUnmount() {
@@ -132,8 +131,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     let { creatingAlmDefinition: createdAlmDefinition } = this.state;
 
     this.setState({ creatingAlmDefinition: undefined });
-
-    await this.fetchAlmBindings();
 
     if (this.mounted && createdAlmDefinition) {
       const { bitbucketCloudSettings } = this.state;
@@ -252,24 +249,12 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   }
 
   render() {
-    const { location } = this.props;
-    const { creatingAlmDefinition } = this.state;
-    const mode: CreateProjectModes | undefined = location.query?.mode;
-
     return (
       <>
         <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          {this.renderProjectCreation(mode)}
-          {creatingAlmDefinition && (
-            <AlmBindingDefinitionForm
-              alm={creatingAlmDefinition}
-              onCancel={this.handleOnCancelCreation}
-              afterSubmit={this.handleAfterSubmit}
-              enforceValidation={true}
-            />
-          )}
+          <CreateProjectPageSonarCloud />
         </div>
       </>
     );

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Objects;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Request;
@@ -27,7 +28,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -36,6 +39,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class DeleteAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
@@ -66,19 +70,31 @@ public class DeleteAction implements RulesWsAction {
       .setDescription("Rule key")
       .setRequired(true)
       .setExampleValue("java:S1144");
+
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setRequired(true)
+            .setExampleValue("org-key");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    ruleWsSupport.checkQProfileAdminPermission();
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    delete(key);
+    delete(key, request.mandatoryParam(PARAM_ORGANIZATION));
   }
 
-  public void delete(RuleKey ruleKey) {
+  public void delete(RuleKey ruleKey, String organizationKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, organizationKey);
+      ruleWsSupport.checkQProfileAdminPermission(organization);
+
       RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
       checkArgument(rule.isCustomRule(), "Rule '%s' cannot be deleted because it is not a custom rule", rule.getKey().toString());
+
+      OrganizationDto organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+              .orElseThrow(() -> new NotFoundException("No organization with key " + organizationKey));
+      checkArgument(Objects.equals(rule.getOrganizationUuid(), organizationDto.getUuid()),
+              "Rule '%s' cannot be deleted because it's organization does not equals the input param", rule.getKey().toString());
 
       qProfileRules.deleteRule(dbSession, rule);
 

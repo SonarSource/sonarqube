@@ -30,20 +30,20 @@ import org.sonar.db.EmailSubscriberDto;
  */
 public interface AuthorizationMapper {
 
-  Set<String> selectGlobalPermissions(@Param("userUuid") String userUuid);
+  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
-  Set<String> selectGlobalPermissionsOfAnonymous();
+  Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
-  int countUsersWithGlobalPermissionExcludingGroup(@Param("permission") String permission, @Param("excludedGroupUuid") String excludedGroupUuid);
+  int countUsersWithGlobalPermissionExcludingGroup(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission, @Param("excludedGroupUuid") String excludedGroupUuid);
 
-  int countUsersWithGlobalPermissionExcludingUser(@Param("permission") String permission,
+  int countUsersWithGlobalPermissionExcludingUser(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission,
     @Param("excludedUserUuid") String excludedUserUuid);
 
-  List<String> selectUserUuidsWithGlobalPermission(@Param("permission") String permission);
+  List<String> selectUserUuidsWithGlobalPermission(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission);
 
-  int countUsersWithGlobalPermissionExcludingGroupMember(@Param("permission") String permission, @Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
+  int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission, @Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
 
-  int countUsersWithGlobalPermissionExcludingUserPermission(@Param("permission") String permission, @Param("userUuid") String userUuid);
+  int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission, @Param("userUuid") String userUuid);
 
   List<String> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentUuid") String componentUuid, @Param("userUuids") List<String> userUuids);
 

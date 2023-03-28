@@ -32,7 +32,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
@@ -82,9 +82,7 @@ public class UserTokenSupport {
   }
 
   public void validateGlobalScanPermission() {
-    if (userSession.hasPermission(SCAN)){
-      return;
-    }
+    // TODO
     throw insufficientPrivilegesException();
   }
 
@@ -97,7 +95,7 @@ public class UserTokenSupport {
   }
 
   private void validateProjectScanPermission(ProjectDto projectDto) {
-    if (userSession.hasProjectPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
+    if (userSession.hasProjectPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN, projectDto.getOrganizationUuid())) {
       return;
     }
     throw insufficientPrivilegesException();

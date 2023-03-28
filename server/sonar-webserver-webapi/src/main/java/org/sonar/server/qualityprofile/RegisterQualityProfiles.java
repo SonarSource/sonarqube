@@ -185,14 +185,15 @@ public class RegisterQualityProfiles implements Startable {
           return;
         }
 
-        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, rulesProfile.getUuid());
+        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, qp.getOrganizationUuid(), rulesProfile.getUuid());
         if (qualityProfile == null) {
           return;
         }
 
-        Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, Collections.singleton(qp.getKee()));
+        Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, qp.getOrganizationUuid(), Collections.singleton(qp.getKee()));
         dbClient.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
         dbClient.defaultQProfileDao().insertOrUpdate(dbSession, new DefaultQProfileDto()
+          .setOrganizationUuid(qp.getOrganizationUuid())
           .setQProfileUuid(qualityProfile.getKee())
           .setLanguage(qp.getLanguage()));
 

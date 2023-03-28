@@ -73,7 +73,7 @@ import {
   ReferencedRule,
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
+import { Component, Dict, Issue, Organization, Paging, RawQuery, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
@@ -102,8 +102,10 @@ import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
+  organization?: Organization;
   branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
@@ -348,7 +350,7 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
     this.setState({ loadingRule: true });
-    const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
+    const openRuleDetails = await getRuleDetails({ key: openIssue.rule, organization: this.props.organization?.kee})
       .then((response) => response.rule)
       .catch(() => undefined);
     if (this.mounted) {
@@ -435,7 +437,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   fetchIssues = (additional: RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
-    const { component } = this.props;
+    const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
     const facets = requestFacets
@@ -446,6 +448,7 @@ export class App extends React.PureComponent<Props, State> {
 
     const parameters: Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike),
+      organization: organization?.kee,
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
@@ -670,11 +673,12 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   loadSearchResultCount = (property: string, changes: Partial<Query>) => {
-    const { component } = this.props;
+    const { component, organization } = this.props;
     const { myIssues, query } = this.state;
 
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
+      organization: organization?.kee,
       componentKeys: component && component.key,
       facets: property,
       s: 'FILE_LINE',
@@ -906,6 +910,7 @@ export class App extends React.PureComponent<Props, State> {
         <Sidebar
           branchLike={branchLike}
           component={component}
+          organization={this.props.organization}
           createdAfterIncludesTime={this.createdAfterIncludesTime()}
           facets={this.state.facets}
           loadSearchResultCount={this.loadSearchResultCount}
@@ -1186,6 +1191,6 @@ const AlertContent = styled.div`
 `;
 
 export default withIndexationGuard(
-  withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(App)))),
+  withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(withOrganizationContext(App))))),
   PageContext.Issues
 );

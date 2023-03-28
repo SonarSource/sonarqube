@@ -24,12 +24,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 
 public abstract class AbstractUserAction implements QualityGatesWsAction {
@@ -52,6 +54,8 @@ public abstract class AbstractUserAction implements QualityGatesWsAction {
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("john.doe");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -60,7 +64,8 @@ public abstract class AbstractUserAction implements QualityGatesWsAction {
     final String qualityGateName = request.mandatoryParam(PARAM_GATE_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = wsSupport.getByName(dbSession, qualityGateName);
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      QualityGateDto qualityGateDto = wsSupport.getByOrganizationAndName(dbSession, organization, qualityGateName);
       wsSupport.checkCanLimitedEdit(dbSession, qualityGateDto);
       UserDto user = getUser(dbSession, login);
       apply(dbSession, qualityGateDto, user);

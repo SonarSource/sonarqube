@@ -113,7 +113,7 @@ public class PermissionTemplateDaoTest {
       .setName("template3")
       .setDescription("description3"));
 
-    assertThat(underTest.selectAll(dbSession, null))
+    assertThat(underTest.selectAll(dbSession, null, null))
       .extracting(PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription)
       .containsOnly(
         tuple("tpl1", "template1", "description1"),
@@ -127,8 +127,8 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto t2InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("cdefgh"));
     PermissionTemplateDto t3InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("hijkl"));
 
-    assertThat(underTest.selectAll(dbSession, "def")).extracting(PermissionTemplateDto::getUuid).containsExactly(t1InOrg1.getUuid(), t2InOrg1.getUuid());
-    assertThat(underTest.selectAll(dbSession, "missing")).isEmpty();
+    assertThat(underTest.selectAll(dbSession, null, "def")).extracting(PermissionTemplateDto::getUuid).containsExactly(t1InOrg1.getUuid(), t2InOrg1.getUuid());
+    assertThat(underTest.selectAll(dbSession, null, "missing")).isEmpty();
   }
 
   @Test
@@ -179,7 +179,7 @@ public class PermissionTemplateDaoTest {
     underTest.deleteByUuid(dbSession, permissionTemplate1.getUuid(), permissionTemplate1.getName());
     dbSession.commit();
 
-    assertThat(underTest.selectAll(db.getSession(), null))
+    assertThat(underTest.selectAll(db.getSession(), null, null))
       .extracting(PermissionTemplateDto::getUuid)
       .containsOnly(permissionTemplate2.getUuid());
     assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate1.getUuid())).isEmpty();

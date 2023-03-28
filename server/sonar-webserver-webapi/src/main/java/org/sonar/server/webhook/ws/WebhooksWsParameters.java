@@ -27,6 +27,9 @@ class WebhooksWsParameters {
   static final String ACTION_CREATE = "create";
   static final String UPDATE_ACTION = "update";
   static final String DELETE_ACTION = "delete";
+
+  static final String ORGANIZATION_KEY_PARAM = "organization";
+  static final int ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH = 255;
   static final String PROJECT_KEY_PARAM = "project";
   static final int PROJECT_KEY_PARAM_MAXIMUM_LENGTH = 400;
   static final String NAME_PARAM = "name";

@@ -57,12 +57,12 @@ public class DefaultQProfileDao implements Dao {
     DatabaseUtils.executeLargeUpdates(qProfileUuids, mapper::deleteByQProfileUuids);
   }
 
-  public Set<String> selectExistingQProfileUuids(DbSession dbSession, Collection<String> qProfileUuids) {
-    return new HashSet<>(DatabaseUtils.executeLargeInputs(qProfileUuids, uuids -> mapper(dbSession).selectExistingQProfileUuids(uuids)));
+  public Set<String> selectExistingQProfileUuids(DbSession dbSession, String organizationUuid, Collection<String> qProfileUuids) {
+    return new HashSet<>(DatabaseUtils.executeLargeInputs(qProfileUuids, uuids -> mapper(dbSession).selectExistingQProfileUuids(organizationUuid, uuids)));
   }
 
-  public boolean isDefault(DbSession dbSession, String qProfileUuid) {
-    return selectExistingQProfileUuids(dbSession, singletonList(qProfileUuid)).contains(qProfileUuid);
+  public boolean isDefault(DbSession dbSession, String organizationUuid, String qProfileUuid) {
+    return selectExistingQProfileUuids(dbSession, organizationUuid, singletonList(qProfileUuid)).contains(qProfileUuid);
   }
 
   public Optional<String> selectDefaultQProfileUuid(DbSession dbSession, String language) {

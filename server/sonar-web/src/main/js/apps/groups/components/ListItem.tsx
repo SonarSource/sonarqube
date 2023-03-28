@@ -31,6 +31,7 @@ export interface ListItemProps {
   onDelete: (group: Group) => void;
   onEdit: (group: Group) => void;
   onEditMembers: () => void;
+  organization: string | undefined;
 }
 
 export default function ListItem(props: ListItemProps) {
@@ -45,7 +46,7 @@ export default function ListItem(props: ListItemProps) {
 
       <td className="thin text-middle text-right little-padded-right">{group.membersCount}</td>
       <td className="little-padded-left">
-        {!group.default && <EditMembers group={group} onEdit={props.onEditMembers} />}
+        {!group.default && <EditMembers group={group} onEdit={props.onEditMembers} organization={props.organization} />}
       </td>
 
       <td className="width-40">

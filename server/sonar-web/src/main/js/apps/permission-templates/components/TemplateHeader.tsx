@@ -20,23 +20,24 @@
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
-import { PermissionTemplate } from '../../../types/types';
-import { PERMISSION_TEMPLATES_PATH } from '../utils';
+import { Organization, PermissionTemplate } from '../../../types/types';
 import ActionsCell from './ActionsCell';
 
 interface Props {
   loading: boolean;
+  organization: Organization;
   refresh: () => void;
   template: PermissionTemplate;
   topQualifiers: string[];
 }
 
 export default function TemplateHeader(props: Props) {
-  const { template } = props;
+  const { template, organization } = props;
+  const pathname = `/organizations/${organization.kee}/permission_templates`;
   return (
     <header className="page-header" id="project-permissions-header">
       <div className="note spacer-bottom">
-        <Link to={PERMISSION_TEMPLATES_PATH}>{translate('permission_templates.page')}</Link>
+        <Link to={pathname}>{translate('permission_templates.page')}</Link>
       </div>
 
       <h1 className="page-title">{template.name}</h1>

@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,6 +48,7 @@ public class ShowAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
   private final RuleMapper mapper;
@@ -93,13 +95,19 @@ public class ShowAction implements RulesWsAction {
       .setDescription("Show rule's activations for all profiles (\"active rules\")")
       .setBooleanPossibleValues()
       .setDefaultValue(false);
+
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setRequired(true)
+            .setExampleValue("my-org");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
         .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
 
       List<RuleDto> templateRules = ofNullable(rule.getTemplateUuid())
@@ -107,7 +115,7 @@ public class ShowAction implements RulesWsAction {
         .map(Collections::singletonList).orElseGet(Collections::emptyList);
 
       List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
-      ShowResponse showResponse = buildResponse(dbSession, request,
+      ShowResponse showResponse = buildResponse(dbSession, organization, request,
         new SearchAction.SearchResult()
           .setRules(singletonList(rule))
           .setTemplateRules(templateRules)
@@ -117,13 +125,13 @@ public class ShowAction implements RulesWsAction {
     }
   }
 
-  private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
+  private ShowResponse buildResponse(DbSession dbSession, OrganizationDto organization, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
     responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet(),
       ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules()), emptyMap()));
-    if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(dbSession, rule).forEach(responseBuilder::addActives);
+    if (request.mandatoryParamAsBoolean(PARAM_ACTIVES) && ruleWsSupport.areActiveRulesVisible(organization)) {
+      activeRuleCompleter.completeShow(dbSession, organization, rule).forEach(responseBuilder::addActives);
     }
     return responseBuilder.build();
   }

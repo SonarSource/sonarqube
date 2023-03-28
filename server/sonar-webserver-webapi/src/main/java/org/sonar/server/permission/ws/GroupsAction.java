@@ -37,6 +37,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
@@ -51,6 +52,7 @@ import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class GroupsAction implements PermissionsWsAction {
@@ -90,6 +92,7 @@ public class GroupsAction implements PermissionsWsAction {
       .setDescription("Limit search to group names that contain the supplied string.")
       .setMinimumLength(SEARCH_QUERY_MIN_LENGTH);
 
+    wsParameters.createOrganizationParameter(action);
     wsParameters.createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
@@ -97,22 +100,24 @@ public class GroupsAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = wsSupport.findOrganization(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
+      wsSupport.checkPermissionManagementAccess(userSession, org.getUuid(), project.orElse(null));
 
-      PermissionQuery query = buildPermissionQuery(request, project.orElse(null));
-      List<GroupDto> groups = findGroups(dbSession, query);
+      PermissionQuery query = buildPermissionQuery(request, org, project.orElse(null));
+      List<GroupDto> groups = findGroups(dbSession, org, query);
       int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
-      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project.orElse(null));
+      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, org, groups, project.orElse(null));
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, paging);
       writeProtobuf(groupsResponse, request, response);
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, @Nullable ComponentDto project) {
+  private static PermissionQuery buildPermissionQuery(Request request, OrganizationDto org, @Nullable ComponentDto project) {
     String textQuery = request.param(Param.TEXT_QUERY);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .setOrganizationUuid(org.getUuid())
       .setPermission(request.param(PARAM_PERMISSION))
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
@@ -146,20 +151,20 @@ public class GroupsAction implements PermissionsWsAction {
     return response.build();
   }
 
-  private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery) {
+  private List<GroupDto> findGroups(DbSession dbSession, OrganizationDto org, PermissionQuery dbQuery) {
     List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, dbQuery);
-    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
+    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, org.getUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE));
     }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, @Nullable ComponentDto project) {
+  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, OrganizationDto org, List<GroupDto> groups, @Nullable ComponentDto project) {
     if (groups.isEmpty()) {
       return emptyList();
     }
     List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
-    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, uuids, project != null ? project.uuid() : null);
+    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, org.getUuid(), uuids, project != null ? project.uuid() : null);
   }
 }

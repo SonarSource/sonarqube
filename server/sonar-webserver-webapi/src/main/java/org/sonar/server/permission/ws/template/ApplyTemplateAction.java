@@ -39,6 +39,7 @@ import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -63,7 +64,8 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
+      .setOrganization(request.param(PARAM_ORGANIZATION));
   }
 
   @Override
@@ -90,10 +92,10 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   private void doHandle(ApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
-        request.getTemplateId(), request.getTemplateName()));
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
 
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
-      checkGlobalAdmin(userSession);
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(project));
     }
@@ -104,6 +106,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     private String projectKey;
     private String templateId;
     private String templateName;
+    private String organization;
 
     @CheckForNull
     public String getProjectId() {
@@ -142,6 +145,15 @@ public class ApplyTemplateAction implements PermissionsWsAction {
 
     public ApplyTemplateRequest setTemplateName(@Nullable String templateName) {
       this.templateName = templateName;
+      return this;
+    }
+
+    public String getOrganization() {
+      return organization;
+    }
+
+    public ApplyTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
       return this;
     }
   }

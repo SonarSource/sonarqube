@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
@@ -35,20 +35,20 @@ public class PermissionPrivilegeChecker {
     // static methods only
   }
 
-  public static void checkGlobalAdmin(UserSession userSession) {
+  public static void checkGlobalAdmin(UserSession userSession, String organizationUuid) {
     userSession
       .checkLoggedIn()
-      .checkPermission(GlobalPermission.ADMINISTER);
+      .checkPermission(OrganizationPermission.ADMINISTER, organizationUuid);
   }
 
   /**
    * Checks that user is administrator of the specified project
    * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
    */
-  public static void checkProjectAdmin(UserSession userSession, Configuration config, @Nullable ComponentDto componentDto) {
+  public static void checkProjectAdmin(UserSession userSession, Configuration config, String organizationUuid, @Nullable ComponentDto componentDto) {
     userSession.checkLoggedIn();
 
-    if (userSession.hasPermission(GlobalPermission.ADMINISTER)) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
       return;
     }
 

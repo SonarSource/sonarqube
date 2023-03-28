@@ -138,7 +138,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
 
-      String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
+      String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession, null /* TODO */).getUuid();
 
       data.setDefaultQualityGate(defaultQualityGateUuid);
       resolveUnanalyzedLanguageCode(data, dbSession);
@@ -237,7 +237,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
   private void resolveQualityGates(TelemetryData.Builder data, DbSession dbSession) {
     List<TelemetryData.QualityGate> qualityGates = new ArrayList<>();
-    Collection<QualityGateDto> qualityGateDtos = dbClient.qualityGateDao().selectAll(dbSession);
+    Collection<QualityGateDto> qualityGateDtos = dbClient.qualityGateDao().selectAll(dbSession, null /* TODO */);
     for (QualityGateDto qualityGateDto : qualityGateDtos) {
       qualityGates.add(
         new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,

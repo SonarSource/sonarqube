@@ -23,15 +23,17 @@ import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../types/types';
+import { Component, Organization } from '../../../types/types';
 import { Webhook } from '../../../types/webhook';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
   // eslint-disable-next-line react/no-unused-prop-types
   component?: Component;
+  organization?: Organization;
 }
 
 interface State {
@@ -67,8 +69,10 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
-  getScopeParams = ({ component } = this.props) => {
+  getScopeParams = ({ organization, component } = this.props) => {
+    const organizationKey = organization && organization.kee;
     return {
+      organization: component ? component.organization : organizationKey,
       project: component && component.key,
     };
   };
@@ -151,4 +155,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withComponentContext(App);
+export default withComponentContext(withOrganizationContext(App));

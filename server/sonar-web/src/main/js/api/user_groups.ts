@@ -26,6 +26,7 @@ export function searchUsersGroups(data: {
   p?: number;
   ps?: number;
   q?: string;
+  organization?: string;
 }): Promise<{ groups: Group[]; paging: Paging }> {
   return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
 }
@@ -37,19 +38,20 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
+  organization?: string;
 }): Promise<Paging & { users: UserSelected[] }> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 
-export function addUserToGroup(data: { id?: string; name?: string; login?: string }) {
+export function addUserToGroup(data: { id?: string; name?: string; login?: string; organization?: string; }) {
   return post('/api/user_groups/add_user', data).catch(throwGlobalError);
 }
 
-export function removeUserFromGroup(data: { id?: string; name?: string; login?: string }) {
+export function removeUserFromGroup(data: { id?: string; name?: string; login?: string; organization?: string; }) {
   return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
 }
 
-export function createGroup(data: { description?: string; name: string }): Promise<Group> {
+export function createGroup(data: { description?: string; name: string; organization?: string; }): Promise<Group> {
   return postJSON('/api/user_groups/create', data).then((r) => r.group, throwGlobalError);
 }
 
@@ -57,6 +59,6 @@ export function updateGroup(data: { description?: string; id: number; name?: str
   return post('/api/user_groups/update', data).catch(throwGlobalError);
 }
 
-export function deleteGroup(data: { name: string }) {
+export function deleteGroup(data: { name: string; organization?: string; }) {
   return post('/api/user_groups/delete', data).catch(throwGlobalError);
 }

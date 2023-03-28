@@ -42,7 +42,7 @@ import {
   removeWhitePageClass,
 } from '../../../helpers/pages';
 import { SecurityStandard } from '../../../types/security';
-import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
+import { Dict, Organization, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import {
   shouldOpenSonarSourceSecurityFacet,
@@ -73,6 +73,7 @@ import FacetsList from './FacetsList';
 import PageActions from './PageActions';
 import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 const PAGE_SIZE = 100;
 const MAX_SEARCH_LENGTH = 200;
@@ -80,6 +81,7 @@ const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props {
   currentUser: CurrentUser;
+  organization: Organization;
   location: Location;
   router: Router;
 }
@@ -232,7 +234,7 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchInitialData = () => {
     this.setState({ loading: true });
-    Promise.all([getRulesApp(), searchQualityProfiles()]).then(
+    Promise.all([getRulesApp(this.props.organization.kee), searchQualityProfiles({ organization: this.props.organization.kee })]).then(
       ([{ canWrite, repositories }, { profiles }]) => {
         this.setState({
           canWrite,
@@ -703,4 +705,4 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
   return facets;
 }
 
-export default withRouter(withCurrentUserContext(App));
+export default withRouter(withCurrentUserContext(withOrganizationContext(App)));

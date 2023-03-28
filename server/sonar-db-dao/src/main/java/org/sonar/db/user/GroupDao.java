@@ -53,12 +53,12 @@ public class GroupDao implements Dao {
    * @param name      non-null group name
    * @return the group with the given name
    */
-  public Optional<GroupDto> selectByName(DbSession dbSession, String name) {
-    return Optional.ofNullable(mapper(dbSession).selectByName(name));
+  public Optional<GroupDto> selectByName(DbSession dbSession, String organizationUuid, String name) {
+    return Optional.ofNullable(mapper(dbSession).selectByName(organizationUuid, name));
   }
 
-  public List<GroupDto> selectByNames(DbSession dbSession, Collection<String> names) {
-    return executeLargeInputs(names, pageOfNames -> mapper(dbSession).selectByNames(pageOfNames));
+  public List<GroupDto> selectByNames(DbSession dbSession, String organizationUuid, Collection<String> names) {
+    return executeLargeInputs(names, pageOfNames -> mapper(dbSession).selectByNames(organizationUuid, pageOfNames));
   }
 
   @CheckForNull
@@ -78,12 +78,12 @@ public class GroupDao implements Dao {
     }
   }
 
-  public int countByQuery(DbSession session, @Nullable String query) {
-    return mapper(session).countByQuery(groupSearchToSql(query));
+  public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
+    return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectByQuery(organizationUuid, groupSearchToSql(query), new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {

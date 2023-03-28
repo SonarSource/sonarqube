@@ -24,6 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import { LoggedInUser } from '../../../types/users';
 import { Preferences } from './Preferences';
 import UserExternalIdentity from './UserExternalIdentity';
+import Link from "../../../components/common/Link";
 
 export interface ProfileProps {
   currentUser: LoggedInUser;
@@ -37,7 +38,7 @@ export function Profile({ currentUser }: ProfileProps) {
       <div className="boxed-group">
         {renderLogin()}
         {renderEmail()}
-        {renderUserGroups()}
+        {renderOrganizationGroups()}
         {renderScmAccounts()}
       </div>
       <Preferences />
@@ -77,22 +78,43 @@ export function Profile({ currentUser }: ProfileProps) {
     );
   }
 
-  function renderUserGroups() {
-    if (!currentUser.groups || currentUser.groups.length === 0) {
+  function renderOrganizationGroups() {
+    if (!currentUser.orgGroups || currentUser.orgGroups.length === 0) {
       return null;
     }
 
     return (
-      <div className="boxed-group-inner">
-        <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
-        <ul id="groups">
-          {currentUser.groups.map((group) => (
-            <li className="little-spacer-bottom" key={group} title={group}>
-              {group}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div className="boxed-group-inner">
+          <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+          <table className="data zebra zebra-hover" id="organization-group-table">
+            <thead>
+            <tr>
+              <th className="nowrap width-20">
+                Organization
+              </th>
+              <th className="nowrap width-80">
+                Groups
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            {currentUser.orgGroups.map(orgGroup => (
+              <tr key={orgGroup.organizationKey}>
+                <td className="width-20">
+                  <Link to={`/organizations/${orgGroup.organizationKey}/groups`}>
+                    <strong>{orgGroup.organizationName}</strong>
+                  </Link>
+                </td>
+                <td className="width-80">
+                <span >
+                  {orgGroup.organizationGroups}
+                </span>
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
     );
   }
 

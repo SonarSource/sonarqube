@@ -35,7 +35,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.core.plugin.PluginType;
@@ -111,7 +110,7 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!userSession.isLoggedIn() && !userSession.hasPermission(GlobalPermission.SCAN)) {
+    if (!userSession.isLoggedIn()) {
       throw insufficientPrivilegesException();
     }
 

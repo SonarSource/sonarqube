@@ -125,14 +125,14 @@ public class RoleDaoTest {
     underTest.deleteGroupRolesByGroupUuid(db.getSession(), group1.getUuid());
     db.getSession().commit();
 
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group1.getUuid())).isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group1.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null, group1.getUuid())).isEmpty();
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), null, group1.getUuid(), project.uuid()))
       .isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group2.getUuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null, group2.getUuid()))
       .containsOnly("gateadmin");
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group2.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), null, group2.getUuid(), project.uuid()))
       .containsOnly("admin");
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null, null)).containsOnly("scan",
       "provisioning");
   }
 }

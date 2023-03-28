@@ -25,7 +25,7 @@ import java.util.Set;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.UserSession;
 
@@ -58,11 +58,11 @@ public class SettingsWsSupport {
     if (isAdmin(component)) {
       return true;
     }
-    return hasPermission(GlobalPermission.SCAN, UserRole.SCAN, component) || !isProtected(key);
+    return hasPermission(OrganizationPermission.SCAN, UserRole.SCAN, component) || !isProtected(key);
   }
 
   private boolean isAdmin(Optional<ComponentDto> component) {
-    return userSession.isSystemAdministrator() || hasPermission(GlobalPermission.ADMINISTER, ADMIN, component);
+    return userSession.isSystemAdministrator() || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component);
   }
 
   private static boolean isProtected(String key) {
@@ -77,12 +77,12 @@ public class SettingsWsSupport {
     return ADMIN_ONLY_SETTINGS.contains(key);
   }
 
-  private boolean hasPermission(GlobalPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {
-    if (userSession.hasPermission(orgPermission)) {
+  private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {
+    if (userSession.isSystemAdministrator()) {
       return true;
     }
     return component
-      .map(c -> userSession.hasComponentPermission(projectPermission, c))
+      .map(c -> userSession.hasPermission(orgPermission, c.getOrganizationUuid()) || userSession.hasComponentPermission(projectPermission, c))
       .orElse(false);
   }
 

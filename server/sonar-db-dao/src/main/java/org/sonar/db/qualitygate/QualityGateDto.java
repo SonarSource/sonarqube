@@ -26,11 +26,20 @@ import java.util.Date;
  */
 public class QualityGateDto {
 
+  private String organizationUuid;
   private String name;
   private String uuid;
   private boolean isBuiltIn;
   private Date createdAt;
   private Date updatedAt;
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public void setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+  }
 
   public String getUuid() {
     return uuid;

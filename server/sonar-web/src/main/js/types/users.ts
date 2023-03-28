@@ -34,6 +34,12 @@ export enum NoticeType {
   SONARLINT_AD = 'sonarlintAd',
 }
 
+export interface UserOrgGroup {
+  organizationKey: string;
+  organizationName: string;
+  organizationGroups: string;
+}
+
 export interface LoggedInUser extends CurrentUser, UserActive {
   externalIdentity?: string;
   externalProvider?: string;
@@ -44,6 +50,7 @@ export interface LoggedInUser extends CurrentUser, UserActive {
   scmAccounts: string[];
   settings?: CurrentUserSetting[];
   sonarLintAdSeen?: boolean;
+  orgGroups?: UserOrgGroup[];
 }
 
 export type HomePage =
@@ -52,6 +59,7 @@ export type HomePage =
   | { type: 'MY_ISSUES' }
   | { type: 'MY_PROJECTS' }
   | { type: 'PORTFOLIO'; component: string }
+  | { type: 'ORGANIZATION'; organization: string }
   | { type: 'PORTFOLIOS' }
   | { type: 'PROJECT'; branch: string | undefined; component: string }
   | { type: 'PROJECTS' };

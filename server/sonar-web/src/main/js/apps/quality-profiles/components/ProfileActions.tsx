@@ -47,6 +47,7 @@ import ProfileModalForm from './ProfileModalForm';
 interface Props {
   className?: string;
   profile: Profile;
+  organization: string;
   router: Router;
   isComparable: boolean;
   updateProfiles: () => Promise<void>;
@@ -163,7 +164,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       this.setState({ loading: false, openModal: undefined });
       this.props.updateProfiles().then(
         () => {
-          router.push(getProfilePath(name, profile.language));
+          router.push(getProfilePath(name, profile.language, this.props.organization));
         },
         () => {
           /* noop */
@@ -188,7 +189,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     const activateMoreUrl = getRulesUrl({
       qprofile: profile.key,
       activation: 'false',
-    });
+    }, this.props.organization);
 
     const hasNoActiveRules = profile.activeRuleCount === 0;
     const hasAnyAction = some([...Object.values(actions), !profile.isBuiltIn, isComparable]);
@@ -225,7 +226,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           {isComparable && (
             <ActionsDropdownItem
               className="it__quality-profiles__compare"
-              to={getProfileComparePath(profile.name, profile.language)}
+              to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
             >
               {translate('compare')}
             </ActionsDropdownItem>

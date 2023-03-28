@@ -28,6 +28,7 @@ class SearchQualityProfileUsersRequest extends SearchUsersRequest {
   private SearchQualityProfileUsersRequest(Builder builder) {
     this.qualityProfile = builder.qualityProfile;
     this.language = builder.language;
+    this.organization = builder.getOrganization();
     this.selected = builder.getSelected();
     this.query = builder.getQuery();
     this.page = builder.getPage();

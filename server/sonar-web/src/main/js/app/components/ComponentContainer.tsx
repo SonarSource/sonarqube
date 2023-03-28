@@ -20,7 +20,6 @@
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
@@ -42,7 +41,7 @@ import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
-import { Component, Status } from '../../types/types';
+import { Component, Organization, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -52,6 +51,7 @@ import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
+import { getOrganization, getOrganizationNavigation } from "../../api/organizations";
 
 interface Props extends WithAvailableFeaturesProps {
   location: Location;
@@ -70,6 +70,7 @@ interface State {
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
+  organization?: Organization;
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -110,6 +111,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         getComponentData({ component: key, branch, pullRequest }),
       ]);
       componentWithQualifier = this.addQualifier({ ...nav, ...component });
+
+      const [organization, navigation] = await Promise.all([
+        getOrganization(component.organization),
+        getOrganizationNavigation(component.organization)
+      ]);
+      this.setState({ organization: { ...organization, ...navigation } });
     } catch (e) {
       if (this.mounted) {
         if (e && e instanceof Response && e.status === HttpStatus.Forbidden) {
@@ -135,23 +142,16 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     const { branchLike, branchLikes } = await this.fetchBranches(componentWithQualifier);
 
-    let projectBinding;
-    if (componentWithQualifier.qualifier === ComponentQualifier.Project) {
-      projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
-    }
-
     if (this.mounted) {
       this.setState({
         branchLike,
         branchLikes,
         component: componentWithQualifier,
-        projectBinding,
         loading: false,
       });
 
       this.fetchStatus(componentWithQualifier.key);
       this.fetchWarnings(componentWithQualifier, branchLike);
-      this.fetchProjectBindingErrors(componentWithQualifier);
     }
   };
 
@@ -244,21 +244,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         },
         () => {}
       );
-    }
-  };
-
-  fetchProjectBindingErrors = async (component: Component) => {
-    if (
-      component.qualifier === ComponentQualifier.Project &&
-      component.analysisDate === undefined &&
-      this.props.hasFeature(Feature.BranchSupport)
-    ) {
-      const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
-        () => undefined
-      );
-      if (this.mounted) {
-        this.setState({ projectBindingErrors });
-      }
     }
   };
 
@@ -411,9 +396,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, loading } = this.state;
+    const { component, organization, loading } = this.state;
 
-    if (!loading && !component) {
+    if (!loading && !component && !organization) {
       return <ComponentContainerNotFound />;
     }
 
@@ -435,7 +420,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        {component &&
+        {component && organization &&
           !([ComponentQualifier.File, ComponentQualifier.TestFile] as string[]).includes(
             component.qualifier
           ) && (
@@ -452,6 +437,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               projectBinding={projectBinding}
               projectBindingErrors={projectBindingErrors}
               warnings={warnings}
+              organization={organization}
             />
           )}
         {loading ? (
@@ -469,6 +455,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               onBranchesChange: this.handleBranchesChange,
               onComponentChange: this.handleComponentChange,
               projectBinding,
+              organization,
             }}
           >
             <Outlet />

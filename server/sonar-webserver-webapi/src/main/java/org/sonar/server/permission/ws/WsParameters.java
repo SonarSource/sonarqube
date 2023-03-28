@@ -30,6 +30,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_D
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -58,6 +59,13 @@ public class WsParameters {
       "<li>Possible values for project permissions %s</li>" +
       "</ul>",
       allProjectsPermissionsOnOneLine);
+  }
+
+  public WebService.NewParam createOrganizationParameter(WebService.NewAction action) {
+    return action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Key of organization, used when group name is set")
+            .setExampleValue("my-org")
+            .setRequired(true);
   }
 
   public WebService.NewParam createPermissionParameter(WebService.NewAction action) {
@@ -121,6 +129,10 @@ public class WsParameters {
     action.createParam(PARAM_TEMPLATE_NAME)
       .setDescription("Template name")
       .setExampleValue("Default Permission Template for Projects");
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Key of organization, used when group name is set")
+            .setExampleValue("my-org")
+            .setRequired(false);
   }
 
   public static void createTemplateProjectKeyPatternParameter(WebService.NewAction action) {

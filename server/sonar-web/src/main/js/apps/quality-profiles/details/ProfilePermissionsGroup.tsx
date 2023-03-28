@@ -30,6 +30,7 @@ interface Props {
   group: Group;
   onDelete: (group: Group) => void;
   profile: { language: string; name: string };
+  organization: string;
 }
 
 interface State {
@@ -65,6 +66,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
       group: group.name,
       language: profile.language,
       qualityProfile: profile.name,
+      organization: this.props.organization,
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(group);

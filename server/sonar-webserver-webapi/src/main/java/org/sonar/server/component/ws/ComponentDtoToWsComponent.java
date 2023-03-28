@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.project.Visibility;
 import org.sonarqube.ws.Components;
@@ -44,8 +45,9 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
-  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, @Nullable SnapshotDto lastAnalysis) {
+  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, OrganizationDto organizationDto, @Nullable SnapshotDto lastAnalysis) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
+      .setOrganization(organizationDto.getKey())
       .setKey(project.getKey())
       .setName(project.getName())
       .setQualifier(project.getQualifier());
@@ -65,9 +67,10 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto,
+  public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, @Nullable ProjectDto parentProjectDto,
     @Nullable SnapshotDto lastAnalysis, @Nullable String branch, @Nullable String pullRequest) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
+      .setOrganization(organizationDto.getKey())
       .setKey(ComponentDto.removeBranchAndPullRequestFromKey(dto.getKey()))
       .setName(dto.name())
       .setQualifier(dto.qualifier());

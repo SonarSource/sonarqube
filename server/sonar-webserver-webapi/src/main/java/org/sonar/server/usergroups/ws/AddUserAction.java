@@ -26,17 +26,20 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParameter;
 
@@ -72,12 +75,14 @@ public class AddUserAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
-      userSession.checkLoggedIn().checkPermission(ADMINISTER);
+      userSession.checkLoggedIn().checkPermission(ADMINISTER, group.getOrganizationUuid());
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       checkFound(user, "Could not find a user with login '%s'", login);
 
+      OrganizationDto organization = support.findOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY));
+      checkMembership(dbSession, organization, user);
       support.checkGroupIsNotDefault(dbSession, group);
 
       if (!isMemberOf(dbSession, user, group)) {
@@ -92,5 +97,10 @@ public class AddUserAction implements UserGroupsWsAction {
 
   private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto group) {
     return dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid()).contains(group.getUuid());
+  }
+
+  private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid()).isPresent(),
+            "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
 }

@@ -208,11 +208,11 @@ public class QProfileEditGroupsDaoTest {
     db.qualityProfiles().addGroupPermission(profile1, group2);
     db.qualityProfiles().addGroupPermission(profile2, group2);
 
-    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), asList(group1, group2)))
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), null, asList(group1, group2)))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), asList(group1, group2, group3)))
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), null, asList(group1, group2, group3)))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), emptyList())).isEmpty();
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), null, emptyList())).isEmpty();
   }
 
   @Test

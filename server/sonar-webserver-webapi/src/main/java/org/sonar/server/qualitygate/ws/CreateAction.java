@@ -29,7 +29,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
@@ -37,6 +38,7 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
@@ -65,12 +67,14 @@ public class CreateAction implements QualityGatesWsAction {
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
+  private final QualityGatesWsSupport wsSupport;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater) {
+  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -90,16 +94,20 @@ public class CreateAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("The name of the quality gate to create")
       .setExampleValue("My Quality Gate");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
+      OrganizationDto organizationDto = wsSupport.getOrganization(dbSession, request);
+
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationDto.getUuid());
 
       String name = request.mandatoryParam(PARAM_NAME);
 
-      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, name);
+      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, name);
       addCaycConditions(dbSession, newQualityGate);
 
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()

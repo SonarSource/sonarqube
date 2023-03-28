@@ -38,6 +38,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -108,13 +109,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, @Nullable String overriddenProfileName) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
     return restore(dbSession, backup, nameInBackup -> {
       QProfileName targetName = nameInBackup;
       if (overriddenProfileName != null) {
         targetName = new QProfileName(nameInBackup.getLanguage(), overriddenProfileName);
       }
-      return profileFactory.getOrCreateCustom(dbSession, targetName);
+      return profileFactory.getOrCreateCustom(dbSession, organization, targetName);
     });
   }
 

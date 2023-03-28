@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -31,12 +32,22 @@ import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.copyOf;
 
 class SearchData {
+  private OrganizationDto organization;
   private List<QProfileDto> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
   private Set<String> defaultProfileKeys;
   private Set<String> editableProfileKeys;
+
+  SearchData setOrganization(OrganizationDto organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  OrganizationDto getOrganization() {
+    return organization;
+  }
 
   List<QProfileDto> getProfiles() {
     return profiles;

@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.util.Arrays.asList;
@@ -52,6 +53,7 @@ public class RuleQuery {
   private boolean ascendingSort = true;
   private String internalKey;
   private String ruleKey;
+  private OrganizationDto organization;
   private boolean includeExternal;
   private Collection<String> owaspTop10;
   private Collection<String> owaspTop10For2021;
@@ -276,6 +278,15 @@ public class RuleQuery {
   @CheckForNull
   public String getRuleKey() {
     return ruleKey;
+  }
+
+  public OrganizationDto getOrganization() {
+    return organization;
+  }
+
+  public RuleQuery setOrganization(OrganizationDto o) {
+    this.organization = o;
+    return this;
   }
 
   @CheckForNull

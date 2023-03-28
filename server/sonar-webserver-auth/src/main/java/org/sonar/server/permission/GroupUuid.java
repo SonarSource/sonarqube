@@ -19,6 +19,8 @@
  */
 package org.sonar.server.permission;
 
+import static java.util.Objects.requireNonNull;
+
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.user.GroupDto;
 
@@ -32,16 +34,22 @@ import org.sonar.db.user.GroupDto;
 public class GroupUuid {
 
   private final String uuid;
+  private final String organizationUuid;
 
-  private GroupUuid(String uuid) {
+  private GroupUuid(String organizationUuid, String uuid) {
     this.uuid = uuid;
+    this.organizationUuid = requireNonNull(organizationUuid);
   }
 
   public String getUuid() {
     return uuid;
   }
 
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
   public static GroupUuid from(GroupDto dto) {
-    return new GroupUuid(dto.getUuid());
+    return new GroupUuid(dto.getOrganizationUuid(), dto.getUuid());
   }
 }

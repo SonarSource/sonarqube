@@ -30,6 +30,7 @@ interface Props {
   onDelete: (user: UserSelected) => void;
   profile: { language: string; name: string };
   user: UserSelected;
+  organization: string;
 }
 
 interface State {
@@ -65,6 +66,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
       language: profile.language,
       login: user.login,
       qualityProfile: profile.name,
+      organization: this.props.organization,
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(user);

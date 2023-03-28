@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
-import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
+import { Organization, Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
 import AllHoldersList from '../../permissions/shared/components/AllHoldersList';
 import { FilterOption } from '../../permissions/shared/components/SearchForm';
 import {
@@ -36,6 +36,7 @@ interface Props {
   refresh: () => void;
   template: PermissionTemplate;
   topQualifiers: string[];
+  organization: Organization;
 }
 
 interface State {
@@ -71,7 +72,7 @@ export default class Template extends React.PureComponent<Props, State> {
   loadUsersAndGroups = (usersPage?: number, groupsPage?: number) => {
     this.setState({ loading: true });
 
-    const { template } = this.props;
+    const { template, organization } = this.props;
     const { query, filter, selectedPermission } = this.state;
 
     const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
@@ -80,6 +81,7 @@ export default class Template extends React.PureComponent<Props, State> {
             templateId: template.id,
             q: query || null,
             permission: selectedPermission,
+            organization: organization.kee,
             p: usersPage,
           })
         : Promise.resolve({ paging: undefined, users: [] });
@@ -90,6 +92,7 @@ export default class Template extends React.PureComponent<Props, State> {
             templateId: template.id,
             q: query || null,
             permission: selectedPermission,
+            organization: organization.kee,
             p: groupsPage,
           })
         : Promise.resolve({ paging: undefined, groups: [] });
@@ -155,7 +158,7 @@ export default class Template extends React.PureComponent<Props, State> {
     );
 
   grantPermissionToUser = (login: string, permission: string) => {
-    const { template } = this.props;
+    const { template, organization } = this.props;
     const isProjectCreator = login === '<creator>';
 
     this.setState(({ users }) => ({
@@ -168,6 +171,7 @@ export default class Template extends React.PureComponent<Props, State> {
           templateId: template.id,
           login,
           permission,
+          organization: organization.kee,
         });
 
     return request.then(this.props.refresh).catch(() => {
@@ -178,7 +182,7 @@ export default class Template extends React.PureComponent<Props, State> {
   };
 
   revokePermissionFromUser = (login: string, permission: string) => {
-    const { template } = this.props;
+    const { template, organization } = this.props;
     const isProjectCreator = login === '<creator>';
 
     this.setState(({ users }) => ({
@@ -191,6 +195,7 @@ export default class Template extends React.PureComponent<Props, State> {
           templateId: template.id,
           login,
           permission,
+          organization: organization.kee,
         });
 
     return request.then(this.props.refresh).catch(() => {
@@ -201,7 +206,7 @@ export default class Template extends React.PureComponent<Props, State> {
   };
 
   grantPermissionToGroup = (groupName: string, permission: string) => {
-    const { template } = this.props;
+    const { template, organization } = this.props;
 
     this.setState(({ groups }) => ({
       groups: this.addPermissionToEntity(groups, groupName, permission),
@@ -212,6 +217,7 @@ export default class Template extends React.PureComponent<Props, State> {
         templateId: template.id,
         groupName,
         permission,
+        organization: organization.kee,
       })
       .then(this.props.refresh)
       .catch(() => {
@@ -222,7 +228,7 @@ export default class Template extends React.PureComponent<Props, State> {
   };
 
   revokePermissionFromGroup = (groupName: string, permission: string) => {
-    const { template } = this.props;
+    const { template, organization } = this.props;
 
     this.setState(({ groups }) => ({
       groups: this.removePermissionFromEntity(groups, groupName, permission),
@@ -233,6 +239,7 @@ export default class Template extends React.PureComponent<Props, State> {
         templateId: template.id,
         groupName,
         permission,
+        organization: organization.kee,
       })
       .then(this.props.refresh)
       .catch(() => {
@@ -310,6 +317,7 @@ export default class Template extends React.PureComponent<Props, State> {
           refresh={this.props.refresh}
           template={template}
           topQualifiers={topQualifiers}
+          organization={this.props.organization}
         />
 
         <TemplateDetails template={template} />

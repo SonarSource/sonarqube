@@ -39,6 +39,7 @@ public class ProjectDto {
   private String tags;
   private long createdAt;
   private long updatedAt;
+  private String organizationUuid;
 
   public ProjectDto() {
     // nothing to do here
@@ -124,6 +125,15 @@ public class ProjectDto {
 
   public ProjectDto setTagsString(@Nullable String tags) {
     this.tags = trimToNull(tags);
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public ProjectDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
     return this;
   }
 

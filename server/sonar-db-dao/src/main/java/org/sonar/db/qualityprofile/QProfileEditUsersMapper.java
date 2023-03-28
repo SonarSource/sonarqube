@@ -33,7 +33,7 @@ public interface QProfileEditUsersMapper {
 
   List<SearchUserMembershipDto> selectByQuery(@Param("query") SearchQualityProfilePermissionQuery query, @Param("pagination") Pagination pagination);
 
-  List<String> selectQProfileUuidsByUser(@Param("userUuid") String userUuid);
+  List<String> selectQProfileUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 

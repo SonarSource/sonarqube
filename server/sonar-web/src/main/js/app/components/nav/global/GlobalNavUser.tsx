@@ -26,9 +26,13 @@ import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { CurrentUser, isLoggedIn, LoggedInUser } from '../../../../types/users';
 import { rawSizes } from '../../../theme';
+import { Organization } from "../../../../types/types";
+import OrganizationListItem from "../../../../apps/organizations/components/OrganizationListItem";
+import { sortBy } from "lodash";
 
 interface Props {
   currentUser: CurrentUser;
+  userOrganizations: Organization[];
   router: Router;
 }
 
@@ -78,6 +82,14 @@ export class GlobalNavUser extends React.PureComponent<Props> {
                 {translate('my_account.page')}
               </Link>
             </li>
+            <li className="divider" role="separator" />
+            <li>
+              <Link to="/account/organizations">{translate('my_organizations')}</Link>
+            </li>
+            {sortBy(this.props.userOrganizations, org => org.name.toLowerCase()).map(organization => (
+                <OrganizationListItem key={organization.kee} organization={organization} />
+            ))}
+            <li className="divider" role="separator" />
             <li>
               <a href="#" onClick={this.handleLogout}>
                 {translate('layout.logout')}

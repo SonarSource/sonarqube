@@ -33,6 +33,7 @@ interface Props {
   languages: Language[];
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
+  organization: string;
 }
 
 export default class ProfilesList extends React.PureComponent<Props> {
@@ -43,6 +44,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
         profile={profile}
         updateProfiles={this.props.updateProfiles}
         isComparable={profiles.length > 1}
+        organization={this.props.organization}
       />
     ));
   }

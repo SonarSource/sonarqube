@@ -22,6 +22,8 @@ import { useParams } from 'react-router-dom';
 import { ComponentContext } from '../componentContext/ComponentContext';
 import NotFound from '../NotFound';
 import Extension from './Extension';
+import withCurrentUserContext from "../current-user/withCurrentUserContext";
+import { CurrentUserContextInterface } from "../current-user/CurrentUserContext";
 
 export interface ProjectPageExtensionProps {
   params?: {
@@ -30,9 +32,9 @@ export interface ProjectPageExtensionProps {
   };
 }
 
-export default function ProjectPageExtension({ params }: ProjectPageExtensionProps) {
+function ProjectPageExtension({ params }: ProjectPageExtensionProps & CurrentUserContextInterface) {
   const { extensionKey, pluginKey } = useParams();
-  const { branchLike, component } = React.useContext(ComponentContext);
+  const { branchLike, component, organization } = React.useContext(ComponentContext);
 
   if (component === undefined) {
     return null;
@@ -45,8 +47,10 @@ export default function ProjectPageExtension({ params }: ProjectPageExtensionPro
 
   const extension = component.extensions && component.extensions.find((p) => p.key === fullKey);
   return extension ? (
-    <Extension extension={extension} options={{ branchLike, component }} />
+    <Extension extension={extension} options={{ branchLike, component, organization }} />
   ) : (
     <NotFound withContainer={false} />
   );
 }
+
+export default withCurrentUserContext(ProjectPageExtension);

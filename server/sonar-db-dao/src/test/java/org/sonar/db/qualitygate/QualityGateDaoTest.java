@@ -84,7 +84,7 @@ public class QualityGateDaoTest {
     QualityGateDto qualityGate2 = qualityGateDbTester.insertQualityGate();
     QualityGateDto qualityGateOnOtherOrg = qualityGateDbTester.insertQualityGate();
 
-    assertThat(underTest.selectAll(dbSession))
+    assertThat(underTest.selectAll(dbSession, null))
       .extracting(QualityGateDto::getUuid)
       .containsExactlyInAnyOrder(qualityGate1.getUuid(), qualityGate2.getUuid(), qualityGateOnOtherOrg.getUuid());
   }
@@ -181,7 +181,7 @@ public class QualityGateDaoTest {
     underTest.deleteByUuids(dbSession, asList(qualityGate1.getUuid(), qualityGate2.getUuid()));
     dbSession.commit();
 
-    assertThat(underTest.selectAll(dbSession).stream())
+    assertThat(underTest.selectAll(dbSession, null).stream())
       .extracting(QualityGateDto::getUuid)
       .doesNotContain(qualityGate1.getUuid(), qualityGate2.getUuid());
   }

@@ -22,12 +22,14 @@ import { Helmet } from 'react-helmet-async';
 import Favorite from '../../../../components/controls/Favorite';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
-import { Component } from '../../../../types/types';
+import { Component, Organization } from '../../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
+import OrganizationAvatar from "../../../../apps/organizations/components/OrganizationAvatar";
+import OrganizationLink from "../../../../apps/organizations/components/OrganizationLink";
 
 export interface HeaderProps {
   branchLikes: BranchLike[];
@@ -35,15 +37,27 @@ export interface HeaderProps {
   currentBranchLike: BranchLike | undefined;
   currentUser: CurrentUser;
   projectBinding?: ProjectAlmBindingResponse;
+  organization: Organization;
 }
 
 export function Header(props: HeaderProps) {
-  const { branchLikes, component, currentBranchLike, currentUser, projectBinding } = props;
+  const { branchLikes, component, currentBranchLike, currentUser, projectBinding, organization } = props;
 
   return (
     <>
       <Helmet title={component.name} />
       <div className="display-flex-center flex-shrink">
+        {organization &&
+            <>
+              <OrganizationAvatar organization={organization} />
+              <OrganizationLink
+                  className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
+                  organization={organization}>
+                {organization.name}
+              </OrganizationLink>
+              <span className="slash-separator" />
+            </>
+        }
         <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
         {isLoggedIn(currentUser) && (
           <Favorite

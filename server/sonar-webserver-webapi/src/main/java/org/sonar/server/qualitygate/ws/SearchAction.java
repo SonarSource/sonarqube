@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -104,12 +105,14 @@ public class SearchAction implements QualityGatesWsAction {
     action.createParam(PARAM_PAGE_SIZE)
       .setDescription("Page size")
       .setExampleValue("10");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       String gateUuid = request.param(PARAM_GATE_ID);
       String gateName = request.param(PARAM_GATE_NAME);
 
@@ -117,9 +120,9 @@ public class SearchAction implements QualityGatesWsAction {
 
       QualityGateDto qualityGate;
       if (gateUuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, gateUuid);
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
       } else {
-        qualityGate = wsSupport.getByName(dbSession, gateName);
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
       }
 
       ProjectQgateAssociationQuery projectQgateAssociationQuery = ProjectQgateAssociationQuery.builder()

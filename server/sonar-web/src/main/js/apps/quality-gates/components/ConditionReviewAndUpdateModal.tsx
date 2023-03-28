@@ -30,6 +30,7 @@ import ConditionsTable from './ConditionsTable';
 
 interface Props {
   canEdit: boolean;
+  organization: string;
   metrics: Dict<Metric>;
   updatedConditionId?: string;
   conditions: Condition[];
@@ -44,7 +45,7 @@ interface Props {
 
 export default class CaycReviewUpdateConditionsModal extends React.PureComponent<Props> {
   updateCaycQualityGate = () => {
-    const { conditions, qualityGate } = this.props;
+    const { conditions, qualityGate, organization } = this.props;
     const promiseArr: Promise<Condition | undefined | void>[] = [];
     const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
 
@@ -53,6 +54,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
         updateCondition({
           ...getCorrectCaycCondition(condition),
           id: condition.id,
+          organization,
         })
           .then((resultCondition) => {
             const currentCondition = conditions.find((con) => con.metric === condition.metric);
@@ -69,6 +71,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
         createCondition({
           ...getCorrectCaycCondition(condition),
           gateId: qualityGate.id,
+          organization,
         })
           .then((resultCondition) => this.props.onAddCondition(resultCondition))
           .catch(() => undefined)

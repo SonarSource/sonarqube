@@ -128,7 +128,7 @@ export default function ProjectQualityProfilesAppRenderer(
                         </span>
                       </td>
                       <td className="nowrap text-right">
-                        <Link to={getRulesUrl({ activation: 'true', qprofile: profile.key })}>
+                        <Link to={getRulesUrl({ activation: 'true', qprofile: profile.key }, component.organization)}>
                           {profile.activeRuleCount}
                         </Link>
                       </td>

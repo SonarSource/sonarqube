@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
@@ -76,6 +77,8 @@ public class RenameAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("New name of the quality gate")
       .setExampleValue("My New Quality Gate");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -86,14 +89,14 @@ public class RenameAction implements QualityGatesWsAction {
     checkArgument(uuid != null ^ currentName != null, "One of 'id' or 'currentName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateDto qualityGate;
       if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
       } else {
-        qualityGate = wsSupport.getByName(dbSession, currentName);
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, currentName);
       }
-      QualityGateDto renamedQualityGate = rename(dbSession, qualityGate, request.mandatoryParam(PARAM_NAME));
+      QualityGateDto renamedQualityGate = rename(dbSession, organization, qualityGate, request.mandatoryParam(PARAM_NAME));
       writeProtobuf(QualityGate.newBuilder()
         .setId(renamedQualityGate.getUuid())
         .setName(renamedQualityGate.getName())
@@ -101,17 +104,17 @@ public class RenameAction implements QualityGatesWsAction {
     }
   }
 
-  private QualityGateDto rename(DbSession dbSession, QualityGateDto qualityGate, String name) {
+  private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, String name) {
     wsSupport.checkCanEdit(qualityGate);
-    checkNotAlreadyExists(dbSession, qualityGate, name);
+    checkNotAlreadyExists(dbSession, organization, qualityGate, name);
     qualityGate.setName(name);
     dbClient.qualityGateDao().update(qualityGate, dbSession);
     dbSession.commit();
     return qualityGate;
   }
 
-  private void checkNotAlreadyExists(DbSession dbSession, QualityGateDto qualityGate, String name) {
-    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(dbSession, name);
+  private void checkNotAlreadyExists(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, String name) {
+    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, name);
     boolean isModifyingCurrentQgate = existingQgate == null || existingQgate.getUuid().equals(qualityGate.getUuid());
     checkArgument(isModifyingCurrentQgate, "Name '%s' has already been taken", name);
   }

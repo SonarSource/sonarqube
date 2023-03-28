@@ -26,7 +26,7 @@ import Suggestions from '../../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
 import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
-import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import { Organization, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import AllHoldersList from '../../shared/components/AllHoldersList';
 import { FilterOption } from '../../shared/components/SearchForm';
 import '../../styles.css';
@@ -36,9 +36,11 @@ import {
   PERMISSIONS_ORDER_GLOBAL,
 } from '../../utils';
 import PageHeader from './PageHeader';
+import { withOrganizationContext } from "../../../organizations/OrganizationContext";
 
 interface Props {
   appState: AppState;
+  organization: Organization;
 }
 interface State {
   filter: FilterOption;
@@ -73,12 +75,14 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   loadUsersAndGroups = (userPage?: number, groupsPage?: number) => {
+    const { organization } = this.props;
     const { filter, query } = this.state;
 
     const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
       filter !== 'groups'
         ? api.getGlobalPermissionsUsers({
             q: query || undefined,
+            organization: organization && organization.kee,
             p: userPage,
           })
         : Promise.resolve({ paging: undefined, users: [] });
@@ -87,6 +91,7 @@ export class App extends React.PureComponent<Props, State> {
       filter !== 'users'
         ? api.getGlobalPermissionsGroups({
             q: query || undefined,
+            organization: organization && organization.kee,
             p: groupsPage,
           })
         : Promise.resolve({ paging: undefined, groups: [] });
@@ -177,6 +182,7 @@ export class App extends React.PureComponent<Props, State> {
         .grantPermissionToGroup({
           groupName: group,
           permission,
+          organization: this.props.organization && this.props.organization.kee,
         })
         .then(
           () => {},
@@ -201,6 +207,7 @@ export class App extends React.PureComponent<Props, State> {
         .grantPermissionToUser({
           login: user,
           permission,
+          organization: this.props.organization && this.props.organization.kee,
         })
         .then(
           () => {},
@@ -225,6 +232,7 @@ export class App extends React.PureComponent<Props, State> {
         .revokePermissionFromGroup({
           groupName: group,
           permission,
+          organization: this.props.organization && this.props.organization.kee,
         })
         .then(
           () => {},
@@ -249,6 +257,7 @@ export class App extends React.PureComponent<Props, State> {
         .revokePermissionFromUser({
           login: user,
           permission,
+          organization: this.props.organization && this.props.organization.kee,
         })
         .then(
           () => {},
@@ -284,7 +293,7 @@ export class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Suggestions suggestions="global_permissions" />
         <Helmet defer={false} title={translate('global_permissions.permission')} />
-        <PageHeader loading={loading} />
+        <PageHeader loading={loading} organization={this.props.organization} />
         <AllHoldersList
           permissions={permissions}
           filter={filter}
@@ -307,4 +316,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppStateContext(App);
+export default withAppStateContext(withOrganizationContext(App));

@@ -27,10 +27,11 @@ import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 
 interface Props {
+  organization: string;
   qualityGates: QualityGate[];
 }
 
-export default function List({ qualityGates }: Props) {
+export default function List({ organization, qualityGates }: Props) {
   return (
     <div className="list-group" role="menu">
       {qualityGates.map((qualityGate) => (
@@ -39,7 +40,7 @@ export default function List({ qualityGates }: Props) {
           role="menuitem"
           data-id={qualityGate.id}
           key={qualityGate.id}
-          to={getQualityGateUrl(String(qualityGate.id))}
+          to={getQualityGateUrl(organization, String(qualityGate.id))}
         >
           <span className="flex-1 text-ellipsis" title={qualityGate.name}>
             {qualityGate.name}

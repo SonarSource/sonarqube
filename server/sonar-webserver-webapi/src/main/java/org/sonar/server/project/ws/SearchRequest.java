@@ -31,6 +31,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE
 
 class SearchRequest {
 
+  private final String organization;
   private final String query;
   private final List<String> qualifiers;
   private final String visibility;
@@ -41,6 +42,7 @@ class SearchRequest {
   private final List<String> projects;
 
   public SearchRequest(Builder builder) {
+    this.organization = builder.organization;
     this.query = builder.query;
     this.qualifiers = builder.qualifiers;
     this.visibility = builder.visibility;
@@ -49,6 +51,10 @@ class SearchRequest {
     this.analyzedBefore = builder.analyzedBefore;
     this.onProvisionedOnly = builder.onProvisionedOnly;
     this.projects = builder.projects;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   public List<String> getQualifiers() {
@@ -94,6 +100,7 @@ class SearchRequest {
   }
 
   public static class Builder {
+    private String organization;
     private List<String> qualifiers = singletonList(Qualifiers.PROJECT);
     private Integer page;
     private Integer pageSize;
@@ -102,6 +109,11 @@ class SearchRequest {
     private String analyzedBefore;
     private boolean onProvisionedOnly = false;
     private List<String> projects;
+
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
 
     public Builder setQualifiers(List<String> qualifiers) {
       this.qualifiers = requireNonNull(qualifiers, "Qualifiers cannot be null");

@@ -28,16 +28,18 @@ import org.sonar.api.user.UserGroupValidation;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.toProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -67,6 +69,12 @@ public class CreateAction implements UserGroupsWsAction {
       .setChangelog(
         new Change("8.4", "Field 'id' format in the response changes from integer to string."));
 
+    action.createParam(PARAM_ORGANIZATION_KEY)
+            .setDescription("Key of organization.")
+            .setExampleValue("my-org")
+            .setSince("6.2")
+            .setRequired(true);
+
     action.createParam(PARAM_GROUP_NAME)
       .setRequired(true)
       .setMaximumLength(GROUP_NAME_MAX_LENGTH)
@@ -84,27 +92,29 @@ public class CreateAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(ADMINISTER);
+      OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
       GroupDto group = new GroupDto()
         .setUuid(uuidFactory.create())
+        .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
         .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
 
       // validations
       UserGroupValidation.validateGroupName(group.getName());
-      support.checkNameDoesNotExist(dbSession, group.getName());
+      support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), group.getName());
 
       dbClient.groupDao().insert(dbSession, group);
       dbSession.commit();
 
-      writeResponse(request, response, group);
+      writeResponse(request, response, organization, group);
     }
   }
 
-  private static void writeResponse(Request request, Response response, GroupDto group) {
+  private static void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
     UserGroups.CreateWsResponse.Builder respBuilder = UserGroups.CreateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to create a default group
-    respBuilder.setGroup(toProtobuf(group, 0, false));
+    respBuilder.setGroup(toProtobuf(organization, group, 0, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
 }

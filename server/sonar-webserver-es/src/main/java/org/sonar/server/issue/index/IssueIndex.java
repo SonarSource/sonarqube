@@ -49,6 +49,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -1099,6 +1100,37 @@ public class IssueIndex {
           return Stream.of(new ProjectStatistics(branchBucket.getKeyAsString(), count, lastIssueDate));
         }))
       .collect(MoreCollectors.toList(projectUuids.size()));
+  }
+
+  public List<PrStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
+    if (branchUuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
+            .query(
+                    boolQuery()
+                            .must(termsQuery(FIELD_ISSUE_BRANCH_UUID, branchUuids))
+                            .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION))
+                            .must(termQuery(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(false))))
+            .size(0)
+            .aggregation(AggregationBuilders.terms("branchUuids")
+                    .field(FIELD_ISSUE_BRANCH_UUID)
+                    .size(branchUuids.size())
+                    .subAggregation(AggregationBuilders.terms("types")
+                            .field(FIELD_ISSUE_TYPE)));
+
+    SearchRequest requestBuilder = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
+            .routing(AuthorizationDoc.idOf(projectUuid));
+
+    requestBuilder.source(sourceBuilder);
+    SearchResponse response = client.search(requestBuilder);
+    return ((ParsedStringTerms) response.getAggregations().get("branchUuids")).getBuckets().stream()
+            .map(bucket -> new PrStatistics(bucket.getKeyAsString(),
+                    ((ParsedStringTerms) bucket.getAggregations().get("types")).getBuckets()
+                            .stream()
+                            .collect(uniqueIndex(MultiBucketsAggregation.Bucket::getKeyAsString, MultiBucketsAggregation.Bucket::getDocCount))))
+            .collect(MoreCollectors.toList(branchUuids.size()));
   }
 
   /**

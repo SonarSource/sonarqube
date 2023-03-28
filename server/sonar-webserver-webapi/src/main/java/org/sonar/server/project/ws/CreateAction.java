@@ -28,6 +28,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -39,8 +41,8 @@ import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
@@ -55,13 +57,15 @@ public class CreateAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
   private final ProjectDefaultVisibility projectDefaultVisibility;
+  private final ProjectsWsSupport support;
 
   public CreateAction(DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
-    ProjectDefaultVisibility projectDefaultVisibility) {
+    ProjectDefaultVisibility projectDefaultVisibility, ProjectsWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.projectDefaultVisibility = projectDefaultVisibility;
+    this.support = support;
   }
 
   @Override
@@ -102,6 +106,7 @@ public class CreateAction implements ProjectsWsAction {
       .setSince("6.4")
       .setPossibleValues(Visibility.getLabels());
 
+    support.addOrganizationParam(action);
   }
 
   @Override
@@ -112,11 +117,13 @@ public class CreateAction implements ProjectsWsAction {
 
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(PROVISION_PROJECTS);
+      OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
+      userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
+        .setOrganizationUuid(organization.getUuid())
         .setKey(request.getProjectKey())
         .setName(request.getName())
         .setPrivate(changeToPrivate)
@@ -131,6 +138,7 @@ public class CreateAction implements ProjectsWsAction {
 
   private static CreateRequest toCreateRequest(Request request) {
     return CreateRequest.builder()
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
       .setVisibility(request.param(PARAM_VISIBILITY))
@@ -149,6 +157,7 @@ public class CreateAction implements ProjectsWsAction {
   }
 
   static class CreateRequest {
+    private final String organization;
     private final String projectKey;
     private final String name;
     private final String mainBranchKey;
@@ -156,10 +165,16 @@ public class CreateAction implements ProjectsWsAction {
     private final String visibility;
 
     private CreateRequest(Builder builder) {
+      this.organization = builder.organization;
       this.projectKey = builder.projectKey;
       this.name = builder.name;
       this.visibility = builder.visibility;
       this.mainBranchKey = builder.mainBranchKey;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
     }
 
     public String getProjectKey() {
@@ -185,6 +200,7 @@ public class CreateAction implements ProjectsWsAction {
   }
 
   static class Builder {
+    private String organization;
     private String projectKey;
     private String name;
     private String mainBranchKey;
@@ -193,6 +209,11 @@ public class CreateAction implements ProjectsWsAction {
     private String visibility;
 
     private Builder() {
+    }
+
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
     }
 
     public Builder setProjectKey(String projectKey) {

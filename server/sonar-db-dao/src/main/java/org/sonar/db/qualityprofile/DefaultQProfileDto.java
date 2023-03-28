@@ -20,6 +20,8 @@
 package org.sonar.db.qualityprofile;
 
 public class DefaultQProfileDto {
+
+  private String organizationUuid;
   private String language;
   private String qProfileUuid;
 
@@ -29,6 +31,15 @@ public class DefaultQProfileDto {
 
   public DefaultQProfileDto setLanguage(String s) {
     this.language = s;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public DefaultQProfileDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 

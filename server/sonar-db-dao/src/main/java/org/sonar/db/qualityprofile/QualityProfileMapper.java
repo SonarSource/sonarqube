@@ -47,26 +47,28 @@ public interface QualityProfileMapper {
   @CheckForNull
   RulesProfileDto selectRuleProfile(@Param("uuid") String ruleProfileUuid);
 
-  List<QProfileDto> selectAll();
+  List<QProfileDto> selectOrderedByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  QProfileDto selectDefaultProfile(@Param("language") String language);
+  QProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
   List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(@Param("languages") List<String> languages);
 
   List<QProfileDto> selectDefaultProfiles(
+    @Param("organizationUuid") String organizationUuid,
     @Param("languages") Collection<String> languages);
 
   @CheckForNull
-  String selectDefaultProfileUuid(@Param("language") String language);
+  List<String> selectDefaultProfileUuid(@Param("language") String language);
 
   @CheckForNull
   QProfileDto selectByNameAndLanguage(
+    @Param("organizationUuid") String organizationUuid,
     @Param("name") String name,
     @Param("language") String language);
 
   @CheckForNull
-  QProfileDto selectByRuleProfileUuid(@Param("ruleProfileUuid") String ruleProfileKee);
+  QProfileDto selectByRuleProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleProfileUuid") String ruleProfileKee);
 
   List<QProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") Collection<String> languages);
 
@@ -83,7 +85,7 @@ public interface QualityProfileMapper {
 
   // PROJECTS
 
-  List<KeyLongValue> countProjectsByProfiles(@Param("profileUuids") List<String> profiles);
+  List<KeyLongValue> countProjectsByOrganizationAndProfiles(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profiles);
 
   @CheckForNull
   QProfileDto selectAssociatedToProjectUuidAndLanguage(

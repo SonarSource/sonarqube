@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.NewCustomRule;
@@ -59,6 +60,7 @@ public class CreateAction implements RulesWsAction {
   public static final String PARAM_TEMPLATE_KEY = "templateKey";
   public static final String PARAM_TYPE = "type";
   public static final String PARAMS = "params";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   public static final String PARAM_PREVENT_REACTIVATION = "preventReactivation";
   static final int KEY_MAXIMUM_LENGTH = 200;
@@ -147,19 +149,28 @@ public class CreateAction implements RulesWsAction {
       .setPossibleValues(RuleType.names())
       .setDescription("Rule type")
       .setSince("6.7");
+
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setRequired(true)
+            .setExampleValue("org-key");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ruleWsSupport.checkQProfileAdminPermission();
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
+    String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, organizationKey);
+      ruleWsSupport.checkQProfileAdminPermission(organization);
+
       try {
         NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
           .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
           .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
+          .setOrganizationKey(organizationKey)
           .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
         String params = request.param(PARAMS);
         if (!isNullOrEmpty(params)) {
@@ -179,8 +190,7 @@ public class CreateAction implements RulesWsAction {
   }
 
   private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, ruleKey)
-      .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
+    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
     List<RuleDto> templateRules = new ArrayList<>();
     if (rule.isCustomRule()) {
       Optional<RuleDto> templateRule = dbClient.ruleDao().selectByUuid(rule.getTemplateUuid(), dbSession);

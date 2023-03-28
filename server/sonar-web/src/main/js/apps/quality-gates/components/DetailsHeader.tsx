@@ -34,6 +34,7 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 interface Props {
   onSetDefault: () => void;
   qualityGate: QualityGate;
+  organization: string;
   refreshItem: () => Promise<void>;
   refreshList: () => Promise<void>;
 }
@@ -50,11 +51,11 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   };
 
   handleSetAsDefaultClick = () => {
-    const { qualityGate } = this.props;
+    const { organization, qualityGate } = this.props;
     if (!qualityGate.isDefault) {
       // Optimistic update
       this.props.onSetDefault();
-      setQualityGateAsDefault({ id: qualityGate.id }).then(
+      setQualityGateAsDefault({ id: qualityGate.id, organization }).then(
         this.handleActionRefresh,
         this.handleActionRefresh
       );
@@ -62,7 +63,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   };
 
   render() {
-    const { qualityGate } = this.props;
+    const { organization, qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
 
     return (
@@ -87,6 +88,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                       onClose={onClose}
                       onRename={this.handleActionRefresh}
                       qualityGate={qualityGate}
+                      organization={organization}
                     />
                   )}
                 >
@@ -103,6 +105,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                     <CopyQualityGateForm
                       onClose={onClose}
                       onCopy={this.handleActionRefresh}
+                      organization={organization}
                       qualityGate={qualityGate}
                     />
                   )}
@@ -151,6 +154,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                 <DeleteQualityGateForm
                   onDelete={this.props.refreshList}
                   qualityGate={qualityGate}
+                  organization={organization}
                 />
               )}
             </div>

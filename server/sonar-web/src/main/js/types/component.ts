@@ -19,7 +19,7 @@
  */
 import { ProjectAlmBindingResponse } from './alm-settings';
 import { BranchLike } from './branch-like';
-import { Component, LightComponent } from './types';
+import { Component, LightComponent, Organization } from './types';
 
 export enum Visibility {
   Public = 'public',
@@ -106,4 +106,5 @@ export interface ComponentContextShape {
   onBranchesChange: (updateBranches?: boolean, updatePRs?: boolean) => void;
   onComponentChange: (changes: Partial<Component>) => void;
   projectBinding?: ProjectAlmBindingResponse;
+  organization?: Organization;
 }

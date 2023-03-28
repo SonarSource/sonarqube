@@ -63,7 +63,7 @@ public class GroupPermissionDaoWithPersisterTest {
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), null, dto.getRole(), null, null, null);
     assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
 
-    underTest.delete(dbSession, ADMIN, group.getUuid(), group.getName(), null, null);
+    underTest.delete(dbSession, ADMIN, null, group.getUuid(), group.getName(), null, null);
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -73,7 +73,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
   @Test
   public void groupGlobalPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
-    underTest.delete(dbSession, ADMIN, "group-uuid", "group-name", null, null);
+    underTest.delete(dbSession, ADMIN, null, "group-uuid", "group-name", null, null);
 
     verifyNoInteractions(auditPersister);
   }

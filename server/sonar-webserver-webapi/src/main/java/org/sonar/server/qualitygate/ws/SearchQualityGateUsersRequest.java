@@ -26,6 +26,7 @@ class SearchQualityGateUsersRequest extends SearchUsersRequest {
 
   private SearchQualityGateUsersRequest(Builder builder) {
     this.qualityGate = builder.qualityGate;
+    this.organization = builder.getOrganization();
     this.selected = builder.getSelected();
     this.query = builder.getQuery();
     this.page = builder.getPage();

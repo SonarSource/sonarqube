@@ -4,6 +4,7 @@
 
     <sql id="projectColumns">
       p.uuid as uuid,
+      p.organization_uuid as organizationUuid,
       p.kee as kee,
       p.qualifier as qualifier,
       p.name as name,
@@ -131,6 +132,7 @@
 
   <insert id="insert" parameterType="Project">
     INSERT INTO projects (
+      organization_uuid,
       kee,
       qualifier,
       uuid,
@@ -142,6 +144,7 @@
       updated_at
     )
     VALUES (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{kee,jdbcType=VARCHAR},
     #{qualifier,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},

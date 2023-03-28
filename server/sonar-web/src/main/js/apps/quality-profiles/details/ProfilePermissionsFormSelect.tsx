@@ -38,6 +38,7 @@ type OptionWithValue = Option & { value: string };
 interface Props {
   onChange: (option: OptionWithValue) => void;
   profile: { language: string; name: string };
+  organization: string;
 }
 
 const DEBOUNCE_DELAY = 250;
@@ -68,6 +69,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
       q,
+      organization: this.props.organization,
       qualityProfile: profile.name,
       selected: 'deselected',
     };

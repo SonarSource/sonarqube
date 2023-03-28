@@ -6,6 +6,7 @@
   <select id="selectUserPermissionsByQueryAndUserUuids" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
       u.uuid as userUuid,
+      ur.organization_uuid as organizationUuid,
       ur.component_uuid as componentUuid,
       ur.role as permission
     <include refid="sqlQueryJoins"/>
@@ -30,7 +31,7 @@
     select
     u.uuid, lower(u.name)
     from users u
-    left join user_roles ur on ur.user_uuid = u.uuid
+    left join user_roles ur on ur.user_uuid = u.uuid and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <choose>
       <when test="query.componentUuid == null">
         and ur.component_uuid is null
@@ -40,6 +41,7 @@
       </otherwise>
     </choose>
     left join components p on ur.component_uuid = p.uuid
+    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <include refid="sqlQueryFilters"/>
     </where>
@@ -59,6 +61,7 @@
     from users u
     left join user_roles ur on ur.user_uuid = u.uuid
     left join components p on ur.component_uuid = p.uuid
+    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
 
   <sql id="sqlQueryFilters">
@@ -71,6 +74,7 @@
     </if>
     <!-- filter rows with user permissions -->
     <if test="query.withAtLeastOnePermission()">
+      and ur.organization_uuid = om.organization_uuid
       and ur.role is not null
       <if test="query.componentUuid==null">
         and ur.component_uuid is null
@@ -88,6 +92,7 @@
     select ur.role
     from user_roles ur
     where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
     ur.component_uuid is null
   </select>
@@ -133,11 +138,13 @@
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
     insert into user_roles (
     uuid,
+    organization_uuid,
     user_uuid,
     component_uuid,
     role
     ) values (
     #{dto.uuid,jdbcType=VARCHAR},
+    #{dto.organizationUuid,jdbcType=VARCHAR},
     #{dto.userUuid,jdbcType=VARCHAR},
     #{dto.componentUuid,jdbcType=VARCHAR},
     #{dto.permission,jdbcType=VARCHAR}
@@ -149,6 +156,7 @@
     where
     role = #{permission,jdbcType=VARCHAR} and
     user_uuid = #{userUuid,jdbcType=VARCHAR} and
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     component_uuid is null
   </delete>
 

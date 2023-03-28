@@ -30,6 +30,7 @@ interface Props {
   qualityGate: QualityGate;
   updatedConditionId?: string;
   conditions: ConditionType[];
+  organization: string;
   scope: 'new' | 'overall' | 'new-cayc';
   isCaycModal?: boolean;
   showEdit?: boolean;
@@ -74,6 +75,7 @@ export default class ConditionsTable extends React.PureComponent<Props> {
               onRemoveCondition={onRemoveCondition}
               onSaveCondition={onSaveCondition}
               qualityGate={qualityGate}
+              organization={this.props.organization}
               updated={condition.id === updatedConditionId}
               isCaycModal={isCaycModal}
               showEdit={showEdit}

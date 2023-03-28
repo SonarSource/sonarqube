@@ -7,6 +7,7 @@
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_uuid=g.uuid AND gu.user_uuid=#{userUuid}
     <where>
+      AND g.organization_uuid=#{organizationUuid}
       <choose>
         <when test="query.membership() == 'IN'">
           AND gu.user_uuid IS NOT NULL
@@ -75,6 +76,7 @@
   <sql id="userCommonClauses">
     FROM users u
     LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid AND gu.group_uuid=#{groupUuid}
+    INNER JOIN organization_members om ON u.uuid=om.user_uuid AND om.organization_uuid=#{organizationUuid}
     <where>
       <choose>
         <when test="query.membership() == 'IN'">
@@ -109,6 +111,30 @@
     select group_uuid
     from groups_users
     where user_uuid = #{userUuid}
+  </select>
+
+  <select id="selectGroupsAndOrganizationsByLogin" parameterType="String" resultType="org.sonar.db.user.UserOrganizationGroup">
+    SELECT  g.name as groupName, o.name as organizationName, o.kee as organizationKey
+    FROM groups g
+    INNER JOIN groups_users gu ON g.uuid=gu.group_uuid
+    AND gu.user_uuid=(select uuid from users u <where>u.login = #{login}</where>)
+    INNER JOIN organizations o ON g.organization_uuid=o.uuid
+    ORDER BY o.created_at DESC
+  </select>
+
+  <select id="selectGroupsByLoginsAndOrganization" parameterType="map" resultType="org.sonar.db.user.LoginGroup">
+    SELECT u.login as login, g.name as groupName
+    FROM users u
+    LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid
+    INNER JOIN groups g ON gu.group_uuid=g.uuid
+    <where>
+      u.login in
+      <foreach collection="logins" open="(" close=")" item="login" separator=",">
+        #{login}
+      </foreach>
+      and g.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+    </where>
+    ORDER BY u.login, g.name, g.created_at
   </select>
 
 

@@ -32,7 +32,7 @@ import { PermissionTemplate } from '../../../../types/types';
 interface Props {
   onApply?: () => void;
   onClose: () => void;
-  project: { key: string; name: string };
+  project: { key: string; name: string; organization: string };
 }
 
 interface State {
@@ -56,7 +56,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
   }
 
   fetchPermissionTemplates = () => {
-    getPermissionTemplates().then(
+    getPermissionTemplates(this.props.project.organization).then(
       ({ permissionTemplates }) => {
         if (this.mounted) {
           this.setState({ loading: false, permissionTemplates });

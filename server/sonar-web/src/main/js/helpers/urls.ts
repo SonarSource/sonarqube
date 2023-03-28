@@ -309,19 +309,19 @@ export function getComponentPermissionsUrl(componentKey: string): To {
 /**
  * Generate URL for a quality profile
  */
-export function getQualityProfileUrl(name: string, language: string): To {
-  return getProfilePath(name, language);
+export function getQualityProfileUrl(name: string, language: string, organization: string): To {
+  return getProfilePath(name, language, organization);
 }
 
-export function getQualityGateUrl(key: string): To {
+export function getQualityGateUrl(organizationKey: string, key: string): To {
   return {
-    pathname: '/quality_gates/show/' + encodeURIComponent(key),
+    pathname: `/organizations/${organizationKey}/quality_gates/show/` + encodeURIComponent(key),
   };
 }
 
-export function getQualityGatesUrl(): To {
+export function getQualityGatesUrl(organization?: string | null): To {
   return {
-    pathname: '/quality_gates',
+    pathname: (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates',
   };
 }
 
@@ -345,20 +345,20 @@ export function getProjectSettingsUrl(id: string, category?: string): Partial<Pa
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query): To {
-  return { pathname: '/coding_rules', search: queryToSearch(query) };
+export function getRulesUrl(query: Query, organization: string): To {
+  return { pathname: `/organizations/${organization}/rules`, search: queryToSearch(query) };
 }
 
 /**
  * Generate URL for the rules page filtering only active deprecated rules
  */
-export function getDeprecatedActiveRulesUrl(query: Query = {}): To {
+export function getDeprecatedActiveRulesUrl(query: Query = {}, organization: string): To {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
-  return getRulesUrl({ ...query, ...baseQuery });
+  return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
-export function getRuleUrl(rule: string) {
-  return getRulesUrl({ open: rule, rule_key: rule });
+export function getRuleUrl(rule: string, organization: string) {
+  return getRulesUrl({ open: rule, rule_key: rule }, organization);
 }
 
 export function getFormattingHelpUrl(): string {
@@ -382,6 +382,10 @@ export function getCodeUrl(
   };
 }
 
+export function getOrganizationUrl(organization: string) {
+  return `/organizations/${organization}`;
+}
+
 export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
     case 'APPLICATION':
@@ -392,6 +396,8 @@ export function getHomePageUrl(homepage: HomePage) {
       return homepage.branch
         ? getBranchUrl(homepage.component, homepage.branch)
         : getProjectUrl(homepage.component);
+    case 'ORGANIZATION':
+      return getOrganizationUrl(homepage.organization);
     case 'PORTFOLIO':
       return getPortfolioUrl(homepage.component);
     case 'PORTFOLIOS':

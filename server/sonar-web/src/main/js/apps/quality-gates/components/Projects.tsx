@@ -34,6 +34,7 @@ import { QualityGate } from '../../../types/types';
 interface Props {
   canEdit?: boolean;
   qualityGate: QualityGate;
+  organization?: string;
 }
 
 interface State {
@@ -75,6 +76,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   fetchProjects = (searchParams: SelectListSearchParams) =>
     searchProjects({
       gateName: this.props.qualityGate.name,
+      organization: this.props.organization,
       page: searchParams.page,
       pageSize: searchParams.pageSize,
       query: searchParams.query !== '' ? searchParams.query : undefined,
@@ -106,6 +108,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   handleSelect = (key: string) =>
     associateGateWithProject({
       gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
       projectKey: key,
     }).then(() => {
       if (this.mounted) {
@@ -119,6 +122,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   handleUnselect = (key: string) =>
     dissociateGateWithProject({
       gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
       projectKey: key,
     }).then(() => {
       if (this.mounted) {

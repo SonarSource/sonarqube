@@ -38,6 +38,8 @@ public interface RuleMapper {
 
   RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
 
+  RuleDto selectByOrganizationAndKey(@Param("organizationUuid") String organizationUuid, @Param("ruleKey") RuleKey ruleKey);
+
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);

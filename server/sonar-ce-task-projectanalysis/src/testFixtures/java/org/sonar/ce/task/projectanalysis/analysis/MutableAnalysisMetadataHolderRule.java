@@ -40,6 +40,17 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     delegate = new AnalysisMetadataHolderImpl(editionProvider);
   }
 
+  @Override
+  public MutableAnalysisMetadataHolderRule setOrganization(Organization organization) {
+    delegate.setOrganization(organization);
+    return this;
+  }
+
+  @Override
+  public Organization getOrganization() {
+    return delegate.getOrganization();
+  }
+
   public MutableAnalysisMetadataHolderRule setUuid(String s) {
     delegate.setUuid(s);
     return this;

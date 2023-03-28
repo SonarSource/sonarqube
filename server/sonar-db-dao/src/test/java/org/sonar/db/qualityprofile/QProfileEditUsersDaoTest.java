@@ -219,9 +219,9 @@ public class QProfileEditUsersDaoTest {
     db.qualityProfiles().addUserPermission(profile1, user1);
     db.qualityProfiles().addUserPermission(profile2, user1);
 
-    assertThat(underTest.selectQProfileUuidsByUser(db.getSession(), user1))
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndUser(db.getSession(), null, user1))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByUser(db.getSession(), user2)).isEmpty();
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndUser(db.getSession(), null, user2)).isEmpty();
   }
 
   @Test

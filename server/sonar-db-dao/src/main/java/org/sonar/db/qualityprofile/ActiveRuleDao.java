@@ -29,6 +29,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -57,8 +58,8 @@ public class ActiveRuleDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key.getRuleProfileUuid(), key.getRuleKey().repository(), key.getRuleKey().rule()));
   }
 
-  public List<OrgActiveRuleDto> selectByOrgRuleUuid(DbSession dbSession, String ruleUuid) {
-    return mapper(dbSession).selectOrgByRuleUuid(ruleUuid);
+  public List<OrgActiveRuleDto> selectByOrgRuleUuid(DbSession dbSession, OrganizationDto organization, String ruleUuid) {
+    return mapper(dbSession).selectOrgByRuleUuid(organization.getUuid(), ruleUuid);
   }
 
   public List<ActiveRuleDto> selectByRuleUuid(DbSession dbSession, String ruleUuid) {

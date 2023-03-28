@@ -60,7 +60,8 @@ public class LoadQualityGateStep implements ComputationStep {
 
   private QualityGate getProjectQualityGate() {
     Project project = analysisMetadataHolder.getProject();
-    return qualityGateService.findEffectiveQualityGate(project);
+    return qualityGateService.findQualityGate(project)
+            .orElseGet(() -> qualityGateService.findDefaultQualityGate(analysisMetadataHolder.getOrganization()));
   }
 
   @Override

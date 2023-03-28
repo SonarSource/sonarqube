@@ -254,8 +254,8 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   private Map<Boolean, List<QProfileDto>> classifyQualityProfilesByDefaultStatus(DbSession dbSession, Collection<QProfileDto> profiles, String language) {
-    String defaultQualityProfileUuid = dbClient.qualityProfileDao().selectDefaultProfileUuid(dbSession, language);
-    Predicate<QProfileDto> isDefaultQualityProfile = profile -> profile.getKee().equals(defaultQualityProfileUuid);
+    List<String> defaultQualityProfileUuids = dbClient.qualityProfileDao().selectDefaultProfileUuid(dbSession, language);
+    Predicate<QProfileDto> isDefaultQualityProfile = profile -> profile.getKee().equals(defaultQualityProfileUuids);
 
     return profiles
       .stream()

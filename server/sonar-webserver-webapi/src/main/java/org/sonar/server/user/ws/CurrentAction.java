@@ -19,8 +19,11 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -33,9 +36,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserOrganizationGroup;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
@@ -55,6 +60,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
+import static org.sonarqube.ws.Users.CurrentWsResponse.OrganizationGroup;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
@@ -65,16 +71,14 @@ public class CurrentAction implements UsersWsAction {
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
   private final PlatformEditionProvider editionProvider;
-  private final PermissionService permissionService;
 
   public CurrentAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver, HomepageTypes homepageTypes,
-    PlatformEditionProvider editionProvider, PermissionService permissionService) {
+    PlatformEditionProvider editionProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
     this.editionProvider = editionProvider;
-    this.permissionService = permissionService;
   }
 
   @Override
@@ -103,7 +107,7 @@ public class CurrentAction implements UsersWsAction {
     } else {
       writeProtobuf(newBuilder()
           .setIsLoggedIn(false)
-          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+          .setPermissions(Permissions.newBuilder().addAllGlobal(List.of()).build())
           .build(),
         request, response);
     }
@@ -113,6 +117,7 @@ public class CurrentAction implements UsersWsAction {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     checkState(user != null, "User login '%s' cannot be found", userLogin);
     Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
+    List<UserOrganizationGroup> orgGroups = dbClient.groupMembershipDao().selectGroupsAndOrganizationsByLogin(dbSession, userLogin);
 
     CurrentWsResponse.Builder builder = newBuilder()
       .setIsLoggedIn(true)
@@ -120,8 +125,9 @@ public class CurrentAction implements UsersWsAction {
       .setName(user.getName())
       .setLocal(user.isLocal())
       .addAllGroups(groups)
+      .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
       .addAllScmAccounts(user.getScmAccountsAsList())
-      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+      .setPermissions(Permissions.newBuilder().addAllGlobal(List.of()).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
@@ -131,13 +137,6 @@ public class CurrentAction implements UsersWsAction {
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
     ofNullable(user.getExternalIdentityProvider()).ifPresent(builder::setExternalProvider);
     return builder.build();
-  }
-
-  private List<String> getGlobalPermissions() {
-    return permissionService.getGlobalPermissions().stream()
-      .filter(userSession::hasPermission)
-      .map(GlobalPermission::getKey)
-      .toList();
   }
 
   private boolean isNoticeDismissed(UserDto user, String noticeName) {
@@ -238,6 +237,33 @@ public class CurrentAction implements UsersWsAction {
 
   private static boolean noHomepageSet(UserDto user) {
     return user.getHomepageType() == null;
+  }
+
+  private List<OrganizationGroup> toWsOrganizationGroups(List<UserOrganizationGroup> userOrgGroups) {
+    Map<String, List<String>> aggregateGroupsMap = new HashMap<>();
+    for (UserOrganizationGroup userOrgGrp : userOrgGroups) {
+      aggregateGroupsMap.computeIfAbsent(userOrgGrp.organizationKey(),
+                      k -> {
+                        List<String> groups = new ArrayList<>();
+                        // The first item in the list of groups per org is organizationName.
+                        // It is added to help in the computation of result.
+                        groups.add(userOrgGrp.organizationName());
+                        return groups;
+                      })
+              .add(userOrgGrp.groupName());
+    }
+    List<OrganizationGroup> result = new ArrayList<>();
+    for (String orgKey : aggregateGroupsMap.keySet()) {
+      OrganizationGroup.Builder orgGroupBuilder = OrganizationGroup.newBuilder()
+              .setOrganizationKey(orgKey)
+              .setOrganizationName(aggregateGroupsMap.get(orgKey).get(0));
+      // Remove the org name from the groups list.
+      aggregateGroupsMap.get(orgKey).remove(0);
+      String groupsAsString = String.join(", ", aggregateGroupsMap.get(orgKey));
+      orgGroupBuilder.setOrganizationGroups(groupsAsString);
+      result.add(orgGroupBuilder.build());
+    }
+    return result;
   }
 
 }

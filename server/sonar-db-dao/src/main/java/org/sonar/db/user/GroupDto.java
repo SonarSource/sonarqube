@@ -28,6 +28,7 @@ public class GroupDto {
   private String uuid;
   private String name;
   private String description;
+  private String organizationUuid;
   private Date createdAt;
   private Date updatedAt;
 
@@ -56,6 +57,15 @@ public class GroupDto {
 
   public GroupDto setDescription(@Nullable String description) {
     this.description = description;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public GroupDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 

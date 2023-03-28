@@ -78,6 +78,7 @@ public class AddGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action, "The permission you would like to grant to the group.");
+    wsParameters.createOrganizationParameter(action);
     createGroupNameParameter(action);
     createGroupIdParameter(action);
     createProjectParameters(action);
@@ -88,7 +89,7 @@ public class AddGroupAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
+      wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),

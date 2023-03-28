@@ -27,7 +27,6 @@ import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import ChangeAdminPasswordApp from '../../apps/change-admin-password/ChangeAdminPasswordApp';
 import codeRoutes from '../../apps/code/routes';
-import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import { globalIssuesRoutes, projectIssuesRoutes } from '../../apps/issues/routes';
@@ -47,8 +46,6 @@ import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
 import projectsRoutes from '../../apps/projects/routes';
 import projectsManagementRoutes from '../../apps/projectsManagement/routes';
-import qualityGatesRoutes from '../../apps/quality-gates/routes';
-import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import SecurityHotspotsApp from '../../apps/security-hotspots/SecurityHotspotsApp';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
@@ -94,6 +91,8 @@ import SonarLintConnection from '../components/SonarLintConnection';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 import NavigateWithParams from './NavigateWithParams';
 import NavigateWithSearchAndHash from './NavigateWithSearchAndHash';
+import organizationsRoutes from '../../apps/organizations/routes';
+import { Organization } from "../../types/types";
 
 function renderRedirect({ from, to }: { from: string; to: string }) {
   return <Route path={from} element={<Navigate to={{ pathname: to }} replace={true} />} />;
@@ -111,8 +110,6 @@ function renderRedirects() {
           />
         }
       />
-
-      <Route path="/codingrules" element={<NavigateWithSearchAndHash pathname="/coding_rules" />} />
 
       <Route
         path="/dashboard/index/:key"
@@ -145,9 +142,7 @@ function renderRedirects() {
       {renderRedirect({ from: '/groups', to: '/admin/groups' })}
       {renderRedirect({ from: '/extension/governance/portfolios', to: '/portfolios' })}
       {renderRedirect({ from: '/permission_templates', to: '/admin/permission_templates' })}
-      {renderRedirect({ from: '/profiles/index', to: '/profiles' })}
       {renderRedirect({ from: '/projects_admin', to: '/admin/projects_management' })}
-      {renderRedirect({ from: '/quality_gates/index', to: '/quality_gates' })}
       {renderRedirect({ from: '/roles/global', to: '/admin/permissions' })}
       {renderRedirect({ from: '/admin/roles/global', to: '/admin/permissions' })}
       {renderRedirect({ from: '/settings', to: '/admin/settings' })}
@@ -235,6 +230,7 @@ function renderAdminRoutes() {
 export default function startReactApp(
   lang: string,
   currentUser?: CurrentUser,
+  userOrganizations?: Organization[],
   appState?: AppState,
   availableFeatures?: Feature[]
 ) {
@@ -246,7 +242,7 @@ export default function startReactApp(
     <HelmetProvider>
       <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
         <AvailableFeaturesContext.Provider value={availableFeatures ?? DEFAULT_AVAILABLE_FEATURES}>
-          <CurrentUserContextProvider currentUser={currentUser}>
+          <CurrentUserContextProvider currentUser={currentUser} userOrganizations={userOrganizations}>
             <IntlProvider defaultLocale={lang} locale={lang}>
               <GlobalMessagesContainer />
               <BrowserRouter basename={getBaseUrl()}>
@@ -265,8 +261,6 @@ export default function startReactApp(
                       <Route element={<GlobalContainer />}>
                         {accountRoutes()}
 
-                        {codingRulesRoutes()}
-
                         <Route
                           path="extension/:pluginKey/:extensionKey"
                           element={<GlobalPageExtension />}
@@ -274,10 +268,9 @@ export default function startReactApp(
 
                         {globalIssuesRoutes()}
 
-                        {projectsRoutes()}
+                        {organizationsRoutes()}
 
-                        {qualityGatesRoutes()}
-                        {qualityProfilesRoutes()}
+                        {projectsRoutes()}
 
                         <Route path="portfolios" element={<PortfoliosPage />} />
 

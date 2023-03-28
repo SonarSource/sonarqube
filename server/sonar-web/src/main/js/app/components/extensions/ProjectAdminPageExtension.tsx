@@ -25,7 +25,7 @@ import Extension from './Extension';
 
 export default function ProjectAdminPageExtension() {
   const { extensionKey, pluginKey } = useParams();
-  const { component, onBranchesChange } = React.useContext(ComponentContext);
+  const { organization, component, onBranchesChange } = React.useContext(ComponentContext);
 
   const extension =
     component &&
@@ -35,7 +35,7 @@ export default function ProjectAdminPageExtension() {
     );
 
   return extension ? (
-    <Extension extension={extension} options={{ component, onBranchesChange }} />
+    <Extension extension={extension} options={{ organization, component, onBranchesChange }} />
   ) : (
     <NotFound withContainer={false} />
   );

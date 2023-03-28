@@ -26,6 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserEditorNewValue;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
@@ -54,8 +55,8 @@ public class QProfileEditUsersDao implements Dao {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public List<String> selectQProfileUuidsByUser(DbSession dbSession, UserDto userDto) {
-    return mapper(dbSession).selectQProfileUuidsByUser(userDto.getUuid());
+  public List<String> selectQProfileUuidsByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto userDto) {
+    return mapper(dbSession).selectQProfileUuidsByOrganizationAndUser(organization.getUuid(), userDto.getUuid());
   }
 
   public void insert(DbSession dbSession, QProfileEditUsersDto dto, String qualityProfileName, String userLogin) {

@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
@@ -30,6 +31,7 @@ import static org.sonar.db.component.ComponentValidator.checkComponentQualifier;
 
 @Immutable
 public class NewComponent {
+  private final String organizationUuid;
   private final String key;
   private final String qualifier;
   private final String name;
@@ -37,6 +39,7 @@ public class NewComponent {
   private final boolean isPrivate;
 
   private NewComponent(NewComponent.Builder builder) {
+    this.organizationUuid = builder.organizationUuid;
     this.key = builder.key;
     this.qualifier = builder.qualifier;
     this.name = builder.name;
@@ -46,6 +49,10 @@ public class NewComponent {
 
   public static Builder newComponentBuilder() {
     return new Builder();
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String key() {
@@ -75,6 +82,7 @@ public class NewComponent {
 
   public static class Builder {
     private String description;
+    private String organizationUuid;
     private String key;
     private String qualifier = PROJECT;
     private String name;
@@ -82,6 +90,11 @@ public class NewComponent {
 
     private Builder() {
       // use static factory method newComponentBuilder()
+    }
+
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
     }
 
     public Builder setKey(String key) {
@@ -110,6 +123,7 @@ public class NewComponent {
     }
 
     public NewComponent build() {
+      requireNonNull(organizationUuid, "organization uuid can't be null");
       checkComponentKey(key);
       checkComponentName(name);
       checkComponentQualifier(qualifier);

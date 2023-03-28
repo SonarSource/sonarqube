@@ -56,8 +56,6 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-
-    this.fetchAlmBindings();
   }
 
   componentWillUnmount() {

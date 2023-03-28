@@ -94,7 +94,7 @@ public class RegisterPermissionTemplates implements Startable {
   }
 
   private void insertPermissionForAdministrators(DbSession dbSession, PermissionTemplateDto template) {
-    Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, DefaultGroups.ADMINISTRATORS);
+    Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, template.getOrganizationUuid(), DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
     } else {
@@ -103,7 +103,7 @@ public class RegisterPermissionTemplates implements Startable {
   }
 
   private void insertPermissionsForDefaultGroup(DbSession dbSession, PermissionTemplateDto template) {
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, template.getOrganizationUuid());
     insertGroupPermission(dbSession, template, UserRole.USER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, defaultGroup);

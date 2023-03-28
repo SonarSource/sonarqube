@@ -30,6 +30,8 @@ public class WebhookDto {
   /** URL, can't be null */
   private String url;
 
+  private String organizationUuid;
+
   @Nullable
   private String projectUuid;
 
@@ -54,6 +56,11 @@ public class WebhookDto {
 
   public WebhookDto setUrl(String url) {
     this.url = url;
+    return this;
+  }
+
+  public WebhookDto setOrganizationUuid(@Nullable String organizationUuid) {
+    this.organizationUuid = organizationUuid;
     return this;
   }
 
@@ -87,6 +94,10 @@ public class WebhookDto {
 
   public String getUrl() {
     return url;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   @Nullable

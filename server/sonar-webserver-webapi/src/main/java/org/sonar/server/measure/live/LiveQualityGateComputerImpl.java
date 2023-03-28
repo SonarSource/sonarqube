@@ -36,6 +36,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.qualitygate.Condition;
@@ -62,8 +63,8 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   }
 
   @Override
-  public QualityGate loadQualityGate(DbSession dbSession, ProjectDto project, BranchDto branch) {
-    QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, project);
+  public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto project, BranchDto branch) {
+    QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, organization, project);
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
     Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(toHashSet(conditionDtos.size()));
     Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(uniqueIndex(MetricDto::getUuid));

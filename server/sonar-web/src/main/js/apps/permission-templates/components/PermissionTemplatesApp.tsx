@@ -25,15 +25,17 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
-import { Permission, PermissionTemplate } from '../../../types/types';
+import { Organization, Permission, PermissionTemplate } from '../../../types/types';
 import '../../permissions/styles.css';
 import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';
 import Home from './Home';
 import Template from './Template';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props {
   location: Location;
   appState: AppState;
+  organization: Organization;
 }
 
 interface State {
@@ -60,7 +62,7 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   }
 
   requestPermissions = async () => {
-    const { permissions, defaultTemplates, permissionTemplates } = await getPermissionTemplates();
+    const { permissions, defaultTemplates, permissionTemplates } = await getPermissionTemplates(this.props.organization.kee);
 
     if (this.mounted) {
       const sortedPerm = sortPermissions(permissions);
@@ -91,6 +93,7 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
         refresh={this.requestPermissions}
         template={template}
         topQualifiers={this.props.appState.qualifiers}
+        organization={this.props.organization}
       />
     );
   }
@@ -121,4 +124,4 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(PermissionTemplatesApp));
+export default withRouter(withAppStateContext(withOrganizationContext(PermissionTemplatesApp)));

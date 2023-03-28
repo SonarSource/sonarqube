@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../../helpers/l10n';
-import { Permission, PermissionTemplate } from '../../../types/types';
+import { Organization, Permission, PermissionTemplate } from '../../../types/types';
 import Header from './Header';
 import List from './List';
 
@@ -30,6 +30,7 @@ interface Props {
   ready: boolean;
   refresh: () => Promise<void>;
   topQualifiers: string[];
+  organization: Organization;
 }
 
 export default function Home(props: Props) {
@@ -44,6 +45,7 @@ export default function Home(props: Props) {
         permissions={props.permissions}
         refresh={props.refresh}
         topQualifiers={props.topQualifiers}
+        organization={props.organization}
       />
     </div>
   );

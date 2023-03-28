@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
@@ -37,6 +39,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -48,6 +51,12 @@ public class RuleDao implements Dao {
 
   public RuleDao(UuidFactory uuidFactory) {
     this.uuidFactory = uuidFactory;
+  }
+
+  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
+    RuleDto res = mapper(session).selectByOrganizationAndKey(organizationUuid, key);
+    ensureOrganizationIsSet(organizationUuid, res);
+    return ofNullable(res);
   }
 
   public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
@@ -233,5 +242,16 @@ public class RuleDao implements Dao {
 
   public void insert(DbSession dbSession, DeprecatedRuleKeyDto deprecatedRuleKey) {
     mapper(dbSession).insertDeprecatedRuleKey(deprecatedRuleKey);
+  }
+
+  private static void ensureOrganizationIsSet(String organizationUuid, @Nullable RuleDto res) {
+    if (res != null) {
+      res.setOrganizationUuid(organizationUuid);
+    }
+  }
+
+  private static List<RuleDto> ensureOrganizationIsSet(String organizationUuid, List<RuleDto> res) {
+    res.forEach(dto -> ensureOrganizationIsSet(organizationUuid, dto));
+    return res;
   }
 }

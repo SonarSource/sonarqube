@@ -51,6 +51,11 @@ public class ComponentDto {
   private static final Splitter UUID_PATH_SPLITTER = Splitter.on(UUID_PATH_SEPARATOR).omitEmptyStrings();
 
   /**
+   * The UUID of the organization the component belongs to. Can't be null in DB.
+   */
+  private String organizationUuid;
+
+  /**
    * Non-empty and unique functional key. Do not rename, used by MyBatis.
    */
   private String kee;
@@ -145,6 +150,15 @@ public class ComponentDto {
 
   public String getUuidPathLikeIncludingSelf() {
     return buildLikeValue(formatUuidPathFromParent(this), WildcardPosition.AFTER);
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public ComponentDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
   }
 
   public String uuid() {
@@ -395,6 +409,7 @@ public class ComponentDto {
 
   public ComponentDto copy() {
     ComponentDto copy = new ComponentDto();
+    copy.organizationUuid = organizationUuid;
     copy.kee = kee;
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;

@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.SearchPermissionQuery;
 import org.sonar.db.user.SearchUserMembershipDto;
@@ -53,6 +54,7 @@ import static org.sonar.db.user.SearchPermissionQuery.IN;
 import static org.sonar.db.user.SearchPermissionQuery.OUT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SEARCH_USERS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchUsersAction implements QualityGatesWsAction {
@@ -91,16 +93,20 @@ public class SearchUsersAction implements QualityGatesWsAction {
       .setDescription("Quality Gate name")
       .setRequired(true)
       .setExampleValue("Recommended quality gate");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     SearchQualityGateUsersRequest wsRequest = buildRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto gate = wsSupport.getByName(dbSession, wsRequest.getQualityGate());
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, wsRequest.getOrganization());
+      QualityGateDto gate = wsSupport.getByOrganizationAndName(dbSession, organization, wsRequest.getQualityGate());
       wsSupport.checkCanLimitedEdit(dbSession, gate);
 
       SearchPermissionQuery query = builder()
+        .setOrganization(organization)
         .setQualityGate(gate)
         .setQuery(wsRequest.getQuery())
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
@@ -122,6 +128,7 @@ public class SearchUsersAction implements QualityGatesWsAction {
 
   private static SearchQualityGateUsersRequest buildRequest(Request request) {
     return SearchQualityGateUsersRequest.builder()
+      .setOrganization(request.mandatoryParam(PARAM_ORGANIZATION))
       .setQualityGate(request.mandatoryParam(PARAM_GATE_NAME))
       .setQuery(request.param(TEXT_QUERY))
       .setSelected(request.mandatoryParam(SELECTED))

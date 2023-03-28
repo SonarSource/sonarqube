@@ -44,6 +44,7 @@ import org.sonar.db.audit.model.ComponentNewValue;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
@@ -114,12 +115,11 @@ public class ComponentDao implements Dao {
    */
 
   /**
-   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * Same as {@link #selectByQuery(DbSession, String, ComponentQuery, int, int)} except
+   * that the filter on organization is disabled.
    */
-  public List<ComponentDto> selectByQuery(DbSession dbSession, ComponentQuery query, int offset, int limit) {
-    return selectByQueryImpl(dbSession, query, offset, limit);
+  public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
+    return selectByQueryImpl(session, null, query, offset, limit);
   }
 
   /**
@@ -127,24 +127,42 @@ public class ComponentDao implements Dao {
    * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    */
-  public int countByQuery(DbSession session, ComponentQuery query) {
-    return countByQueryImpl(session, query);
+  public List<ComponentDto> selectByQuery(DbSession dbSession, String organizationUuid, ComponentQuery query, int offset, int limit) {
+    requireNonNull(organizationUuid, "organizationUuid can't be null");
+    return selectByQueryImpl(dbSession, organizationUuid, query, offset, limit);
   }
 
-  private static List<ComponentDto> selectByQueryImpl(DbSession session, ComponentQuery query, int offset, int limit) {
+  /**
+   * Same as {@link #countByQuery(DbSession, String, ComponentQuery)} except
+   * that the filter on organization is disabled.
+   */
+  public int countByQuery(DbSession session, ComponentQuery query) {
+    return countByQueryImpl(session, null, query);
+  }
+
+  /**
+   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   */
+  public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
+    return countByQueryImpl(session, organizationUuid, query);
+  }
+
+  private static List<ComponentDto> selectByQueryImpl(DbSession session, String organizationUuid, ComponentQuery query, int offset, int limit) {
     if (query.hasEmptySetOfComponents()) {
       return emptyList();
     }
     checkThatNotTooManyComponents(query);
-    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
+    return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
   }
 
-  private static int countByQueryImpl(DbSession session, ComponentQuery query) {
+  private static int countByQueryImpl(DbSession session, String organizationUuid, ComponentQuery query) {
     if (query.hasEmptySetOfComponents()) {
       return 0;
     }
     checkThatNotTooManyComponents(query);
-    return mapper(session).countByQuery(query);
+    return mapper(session).countByQuery(organizationUuid, query);
   }
 
   /*

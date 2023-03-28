@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.template.DefaultTemplates;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -39,7 +40,7 @@ public interface DefaultTemplatesResolver {
    *       when it is non {@code null}, otherwise it is {@link DefaultTemplates#projectUuid}</li>
    * </ul>
    */
-  ResolvedDefaultTemplates resolve(DbSession dbSession);
+  ResolvedDefaultTemplates resolve(DbSession dbSession, DefaultTemplates defaultTemplates);
 
   @Immutable
   final class ResolvedDefaultTemplates {

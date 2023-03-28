@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
 import { queryToSearch } from '../../helpers/urls';
-import { PROFILE_COMPARE_PATH, PROFILE_PATH } from './constants';
+import { PROFILE_COMPARE_PATH } from './constants';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
@@ -66,23 +66,23 @@ export function isStagnant(profile: Profile): boolean {
   return false;
 }
 
-export const getProfilesForLanguagePath = (language: string) => ({
-  pathname: PROFILE_PATH,
+export const getProfilesForLanguagePath = (language: string, organization: string) => ({
+  pathname: `/organizations/${organization}/quality_profiles`,
   search: queryToSearch({ language }),
 });
 
-export const getProfilePath = (name: string, language: string) => ({
-  pathname: `${PROFILE_PATH}/show`,
+export const getProfilePath = (name: string, language: string, organization: string) => ({
+  pathname: `/organizations/${organization}/quality_profiles/show`,
   search: queryToSearch({ name, language }),
 });
 
-export const getProfileComparePath = (name: string, language: string, withKey?: string) => {
+export const getProfileComparePath = (name: string, language: string, organization: string, withKey?: string) => {
   const query = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
   return {
-    pathname: PROFILE_COMPARE_PATH,
+    pathname: `/organizations/${organization}/quality_profiles/compare`,
     search: queryToSearch(query),
   };
 };
@@ -90,6 +90,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
 export const getProfileChangelogPath = (
   name: string,
   language: string,
+  organization: string,
   filter?: { since?: string; to?: string }
 ) => {
   const query = { language, name };
@@ -102,7 +103,7 @@ export const getProfileChangelogPath = (
     }
   }
   return {
-    pathname: `${PROFILE_PATH}/changelog`,
+    pathname: `/organizations/${organization}/quality_profiles/changelog`,
     search: queryToSearch(query),
   };
 };

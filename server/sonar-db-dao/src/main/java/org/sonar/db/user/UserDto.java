@@ -52,6 +52,7 @@ public class UserDto implements UserId {
   private String homepageType;
   private String homepageParameter;
   private boolean local = true;
+  private boolean root = false;
   private boolean resetPassword = false;
 
   /**
@@ -240,6 +241,17 @@ public class UserDto implements UserId {
   public UserDto setHomepageParameter(@Nullable String homepageParameter) {
     this.homepageParameter = homepageParameter;
     return this;
+  }
+
+  public boolean isRoot() {
+    return root;
+  }
+
+  /**
+   * Setters accessible to support customer admin feature
+   */
+  public void setRoot(boolean root) {
+    this.root = root;
   }
 
   public boolean isResetPassword() {

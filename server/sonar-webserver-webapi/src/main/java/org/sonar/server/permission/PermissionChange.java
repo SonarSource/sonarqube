@@ -35,12 +35,14 @@ public abstract class PermissionChange {
   }
 
   private final Operation operation;
+  private final String organizationUuid;
   private final String permission;
   private final ComponentDto project;
   protected final PermissionService permissionService;
 
-  protected PermissionChange(Operation operation, String permission, @Nullable ComponentDto project, PermissionService permissionService) {
+  protected PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ComponentDto project, PermissionService permissionService) {
     this.operation = requireNonNull(operation);
+    this.organizationUuid = requireNonNull(organizationUuid);
     this.permission = requireNonNull(permission);
     this.project = project;
     this.permissionService = permissionService;
@@ -56,6 +58,10 @@ public abstract class PermissionChange {
 
   public Operation getOperation() {
     return operation;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String getPermission() {

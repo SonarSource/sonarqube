@@ -35,6 +35,7 @@ public class ProjectsWsModule extends Module {
       ProjectDefaultVisibility.class,
       ProjectFinder.class,
       ProjectLifeCycleListenersImpl.class,
+      ProjectsWsSupport.class,
       ProjectsWs.class,
       CreateAction.class,
       BulkDeleteAction.class,

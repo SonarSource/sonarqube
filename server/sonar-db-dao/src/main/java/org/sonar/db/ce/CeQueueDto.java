@@ -33,6 +33,7 @@ public class CeQueueDto {
     PENDING, IN_PROGRESS
   }
 
+  private String organizationUuid;
   private String uuid;
   private String taskType;
   /**
@@ -59,6 +60,14 @@ public class CeQueueDto {
   private Long startedAt;
   private long createdAt;
   private long updatedAt;
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public void setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+  }
 
   public String getUuid() {
     return uuid;

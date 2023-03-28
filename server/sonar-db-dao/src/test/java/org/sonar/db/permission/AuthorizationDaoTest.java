@@ -106,7 +106,7 @@ public class AuthorizationDaoTest {
     // ignored permissions, user is not member of this group
     db.users().insertPermissionOnGroup(group2, "ignored");
 
-    Set<String> permissions = underTest.selectGlobalPermissions(dbSession, user.getUuid());
+    Set<String> permissions = underTest.selectOrganizationPermissions(dbSession, null, user.getUuid());
 
     assertThat(permissions).containsOnly("perm1", "perm2", "perm3");
   }
@@ -145,19 +145,19 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnAnyone("perm1");
 
     // excluding group "g1" -> remain u1, u3 and u4
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(), null,
       "perm1", group1.getUuid())).isEqualTo(3);
 
     // excluding group "g2" -> remain u1, u2 and u4
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(), null,
       "perm1", group2.getUuid())).isEqualTo(3);
 
     // excluding group "g3" -> remain u1, u2, u3 and u4
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(), null,
       "perm1", group3.getUuid())).isEqualTo(4);
 
     // nobody has the permission
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(), null,
       "missingPermission", group1.getUuid())).isZero();
   }
 
@@ -178,19 +178,19 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnAnyone("p1");
 
     // excluding user1 -> remain user2 and user3
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(), null,
       "p1", user1.getUuid())).isEqualTo(2);
 
     // excluding user3 -> remain the members of group g1
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(), null,
       "p1", user3.getUuid())).isEqualTo(2);
 
     // excluding unknown user
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(), null,
       "p1", "-1")).isEqualTo(3);
 
     // nobody has the permission
-    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(), null,
       "missingPermission", user1.getUuid())).isZero();
   }
 
@@ -210,9 +210,9 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnUser(user3, ADMINISTER);
     db.users().insertPermissionOnAnyone(ADMINISTER);
 
-    assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), ADMINISTER.getKey()))
+    assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), null, ADMINISTER.getKey()))
       .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid());
-    assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), PROVISION_PROJECTS.getKey()))
+    assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), null, PROVISION_PROJECTS.getKey()))
       .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
   }
 
@@ -684,17 +684,17 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group1, u3);
 
     // excluding u2 membership --> remain u1 and u3
-    int count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, A_PERMISSION, group1.getUuid(), u2.getUuid());
+    int count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, null, A_PERMISSION, group1.getUuid(), u2.getUuid());
     assertThat(count).isEqualTo(2);
 
     // excluding unknown memberships
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, A_PERMISSION, group1.getUuid(), MISSING_UUID);
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, null, A_PERMISSION, group1.getUuid(), MISSING_UUID);
     assertThat(count).isEqualTo(3);
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, A_PERMISSION, MISSING_UUID, u2.getUuid());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, null, A_PERMISSION, MISSING_UUID, u2.getUuid());
     assertThat(count).isEqualTo(3);
 
     // another permission
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, group1.getUuid(), u2.getUuid());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, null, DOES_NOT_EXIST, group1.getUuid(), u2.getUuid());
     assertThat(count).isZero();
   }
 
@@ -710,15 +710,15 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group1, u3);
 
     // excluding u2 permission --> remain u1 and u3
-    int count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, A_PERMISSION, u2.getUuid());
+    int count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, null, A_PERMISSION, u2.getUuid());
     assertThat(count).isEqualTo(2);
 
     // excluding unknown user
-    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, A_PERMISSION, MISSING_UUID);
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, null, A_PERMISSION, MISSING_UUID);
     assertThat(count).isEqualTo(3);
 
     // another permission
-    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, DOES_NOT_EXIST, u2.getUuid());
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, null, DOES_NOT_EXIST, u2.getUuid());
     assertThat(count).isZero();
   }
 

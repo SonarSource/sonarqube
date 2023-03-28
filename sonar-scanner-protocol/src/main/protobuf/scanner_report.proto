@@ -30,7 +30,7 @@ option optimize_for = SPEED;
 
 message Metadata {
   int64 analysis_date = 1;
-  reserved 2; // organization drop
+  string organization_key = 2;
   // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   string project_key = 3;
 

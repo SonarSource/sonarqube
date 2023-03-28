@@ -25,6 +25,7 @@ public class NavigationWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      OrganizationAction.class,
       NavigationWs.class,
       ComponentAction.class,
       GlobalAction.class,

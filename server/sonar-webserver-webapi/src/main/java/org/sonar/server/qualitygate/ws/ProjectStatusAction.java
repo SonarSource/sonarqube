@@ -37,7 +37,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -153,7 +153,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectUuid, projectKey, branchKey, pullRequestId);
     checkPermission(projectAndSnapshot.project);
     Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
-    QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliantFromProject(dbSession, projectAndSnapshot.project.getUuid());
+    OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, projectAndSnapshot.project.getOrganizationUuid())
+            .orElseThrow(IllegalArgumentException::new);
+    QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliantFromProject(dbSession, organization, projectAndSnapshot.project.getUuid());
 
     return ProjectStatusResponse.newBuilder()
       .setProjectStatus(new QualityGateDetailsFormatter(measureData.orElse(null), projectAndSnapshot.snapshotDto.orElse(null), caycStatus).format())
@@ -222,8 +224,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   private void checkPermission(ProjectDto project) {
     if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
       !userSession.hasProjectPermission(UserRole.USER, project) &&
-      !userSession.hasProjectPermission(UserRole.SCAN, project) &&
-      !userSession.hasPermission(GlobalPermission.SCAN)) {
+      !userSession.hasProjectPermission(UserRole.SCAN, project)) {
       throw insufficientPrivilegesException();
     }
   }

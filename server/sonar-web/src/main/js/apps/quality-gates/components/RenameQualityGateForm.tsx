@@ -29,6 +29,7 @@ interface Props {
   onClose: () => void;
   onRename: () => Promise<void>;
   qualityGate: QualityGate;
+  organization: string;
 }
 
 interface State {
@@ -46,10 +47,10 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
   };
 
   handleRename = () => {
-    const { qualityGate } = this.props;
+    const { organization, qualityGate } = this.props;
     const { name } = this.state;
 
-    return renameQualityGate({ id: qualityGate.id, name }).then(() => this.props.onRename());
+    return renameQualityGate({ id: qualityGate.id, name, organization }).then(() => this.props.onRename());
   };
 
   render() {

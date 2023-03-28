@@ -38,6 +38,7 @@ export interface Group {
 
 interface Props {
   profile: Pick<Profile, 'key' | 'language' | 'name'>;
+  organization: string;
 }
 
 interface State {
@@ -70,6 +71,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     this.setState({ loading: true });
     const { profile } = this.props;
     const parameters: SearchUsersGroupsParameters = {
+      organization: this.props.organization,
       language: profile.language,
       qualityProfile: profile.name,
       selected: 'selected',
@@ -156,6 +158,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                     onDelete={this.handleUserDelete}
                     profile={this.props.profile}
                     user={user}
+                    organization={this.props.organization}
                   />
                 ))}
               {this.state.groups &&
@@ -165,6 +168,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                     key={group.name}
                     onDelete={this.handleGroupDelete}
                     profile={this.props.profile}
+                    organization={this.props.organization}
                   />
                 ))}
               <div className="text-right">
@@ -182,6 +186,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
             onGroupAdd={this.handleGroupAdd}
             onUserAdd={this.handleUserAdd}
             profile={this.props.profile}
+            organization={this.props.organization}
           />
         )}
       </div>

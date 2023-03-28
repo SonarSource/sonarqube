@@ -23,10 +23,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public abstract class SearchUsersRequest {
+  protected String organization;
   protected String selected;
   protected String query;
   protected Integer page;
   protected Integer pageSize;
+
+  public String getOrganization() {
+    return organization;
+  }
 
   @CheckForNull
   public String getQuery() {
@@ -46,10 +51,20 @@ public abstract class SearchUsersRequest {
   }
 
   public abstract static class Builder<T extends Builder<T>> {
+    private String organization;
     private String selected;
     private String query;
     private Integer page;
     private Integer pageSize;
+
+    public T setOrganization(String organization) {
+      this.organization = organization;
+      return self();
+    }
+
+    public String getOrganization() {
+      return organization;
+    }
 
     public String getSelected() {
       return selected;

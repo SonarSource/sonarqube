@@ -27,16 +27,17 @@ import CreateQualityGateForm from './CreateQualityGateForm';
 interface Props {
   canCreate: boolean;
   refreshQualityGates: () => Promise<void>;
+  organization: string;
 }
 
-export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
+export default function ListHeader({ canCreate, refreshQualityGates, organization }: Props) {
   return (
     <div className="page-header">
       {canCreate && (
         <div className="page-actions">
           <ModalButton
             modal={({ onClose }) => (
-              <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
+              <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} organization={organization} />
             )}
           >
             {({ onClick }) => (

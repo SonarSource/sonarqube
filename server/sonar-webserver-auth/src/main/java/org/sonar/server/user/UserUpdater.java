@@ -41,7 +41,6 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -122,7 +121,6 @@ public class UserUpdater {
     }
     updateDto(dbSession, updateUser, reactivatedUser);
     updateUser(dbSession, reactivatedUser);
-    addUserToDefaultGroup(dbSession, reactivatedUser);
   }
 
   public void updateAndCommit(DbSession dbSession, UserDto dto, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
@@ -415,9 +413,7 @@ public class UserUpdater {
 
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
     userDto.setActive(true);
-    UserDto res = dbClient.userDao().insert(dbSession, userDto);
-    addUserToDefaultGroup(dbSession, userDto);
-    return res;
+    return dbClient.userDao().insert(dbSession, userDto);
   }
 
   private void updateUser(DbSession dbSession, UserDto dto) {
@@ -435,19 +431,5 @@ public class UserUpdater {
 
   private static boolean isUserAlreadyMemberOfDefaultGroup(GroupDto defaultGroup, List<GroupDto> userGroups) {
     return userGroups.stream().anyMatch(group -> defaultGroup.getUuid().equals(group.getUuid()));
-  }
-
-  private void addUserToDefaultGroup(DbSession dbSession, UserDto userDto) {
-    addDefaultGroup(dbSession, userDto);
-  }
-
-  private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
-    List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
-    if (isUserAlreadyMemberOfDefaultGroup(defaultGroup, userGroups)) {
-      return;
-    }
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserUuid(userDto.getUuid()).setGroupUuid(defaultGroup.getUuid()),
-      defaultGroup.getName(), userDto.getLogin());
   }
 }

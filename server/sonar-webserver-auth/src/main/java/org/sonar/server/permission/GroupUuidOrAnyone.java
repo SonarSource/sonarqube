@@ -19,6 +19,8 @@
  */
 package org.sonar.server.permission;
 
+import static java.util.Objects.requireNonNull;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -35,11 +37,12 @@ import org.sonar.db.user.GroupDto;
 public class GroupUuidOrAnyone {
 
   private final String uuid;
+  private final String organizationUuid;
 
-  private GroupUuidOrAnyone(@Nullable String uuid) {
+  private GroupUuidOrAnyone(String organizationUuid, @Nullable String uuid) {
     this.uuid = uuid;
+    this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
   }
-
   public boolean isAnyone() {
     return uuid == null;
   }
@@ -49,11 +52,15 @@ public class GroupUuidOrAnyone {
     return uuid;
   }
 
-  public static GroupUuidOrAnyone from(GroupDto dto) {
-    return new GroupUuidOrAnyone(dto.getUuid());
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
-  public static GroupUuidOrAnyone forAnyone() {
-    return new GroupUuidOrAnyone(null);
+  public static GroupUuidOrAnyone from(GroupDto dto) {
+    return new GroupUuidOrAnyone(dto.getOrganizationUuid(), dto.getUuid());
+  }
+
+  public static GroupUuidOrAnyone forAnyone(String organizationUuid) {
+    return new GroupUuidOrAnyone(organizationUuid, null);
   }
 }

@@ -110,11 +110,17 @@ message CurrentWsResponse {
   reserved 11; // showOnboardingTutorial removed
   optional string avatar = 12;
   optional Homepage homepage = 13;
-  reserved 15; // settings removed
+  // reserved 15; // settings removed
+  repeated OrganizationGroup orgGroups = 15;
   optional bool usingSonarLintConnectedMode = 16;
   reserved 17; // sonarLintAdSeen removed
   map<string,bool> dismissedNotices = 18;
 
+  message OrganizationGroup {
+    optional string organizationKey=1;
+    optional string organizationName=2;
+    optional string organizationGroups=3;
+  }
   message Permissions {
     repeated string global = 1;
   }

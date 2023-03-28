@@ -27,6 +27,7 @@ import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
 interface Props {
+  organization: string;
   onClose: () => void;
   onCreate: () => Promise<void>;
   router: Router;
@@ -44,14 +45,15 @@ export class CreateQualityGateForm extends React.PureComponent<Props, State> {
   };
 
   handleCreate = async () => {
+    const { organization } = this.props;
     const { name } = this.state;
 
     if (name) {
-      const qualityGate = await createQualityGate({ name });
+      const qualityGate = await createQualityGate({ name, organization });
 
       await this.props.onCreate();
 
-      this.props.router.push(getQualityGateUrl(String(qualityGate.id)));
+      this.props.router.push(getQualityGateUrl(organization, String(qualityGate.id)));
     }
   };
 

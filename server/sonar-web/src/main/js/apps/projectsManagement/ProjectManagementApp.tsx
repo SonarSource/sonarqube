@@ -32,15 +32,17 @@ import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
-import { Visibility } from '../../types/types';
+import { Organization, Visibility } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
 import Search from './Search';
+import { withOrganizationContext } from "../organizations/OrganizationContext";
 
 export interface Props {
   currentUser: LoggedInUser;
+  organization: Organization;
 }
 
 interface State {
@@ -99,7 +101,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   };
 
   handleDefaultProjectVisibilityChange = async (visibility: Visibility) => {
-    await changeProjectDefaultVisibility(visibility);
+    await changeProjectDefaultVisibility(this.props.organization.kee, visibility);
 
     if (this.mounted) {
       this.setState({ defaultProjectVisibility: visibility });
@@ -111,6 +113,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
     const parameters = {
       analyzedBefore: analyzedBefore && toShortNotSoISOString(analyzedBefore),
       onProvisionedOnly: this.state.provisioned || undefined,
+      organization: this.props.organization.kee,
       p: this.state.page !== 1 ? this.state.page : undefined,
       ps: PAGE_SIZE,
       q: this.state.query || undefined,
@@ -233,6 +236,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
           selection={this.state.selection}
           total={this.state.total}
           visibility={this.state.visibility}
+          organization={this.props.organization.kee}
         />
 
         <Projects
@@ -263,4 +267,4 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(ProjectManagementApp);
+export default withCurrentUserContext(withOrganizationContext(ProjectManagementApp));

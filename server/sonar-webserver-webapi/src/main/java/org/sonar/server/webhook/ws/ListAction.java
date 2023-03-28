@@ -21,6 +21,7 @@ package org.sonar.server.webhook.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -28,6 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
@@ -39,9 +41,12 @@ import org.sonarqube.ws.Webhooks.ListResponseElement;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
+import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -68,6 +73,12 @@ public class ListAction implements WebhooksWsAction {
       .setResponseExample(getClass().getResource("example-webhooks-list.json"))
       .setHandler(this);
 
+    action.createParam(ORGANIZATION_KEY_PARAM)
+            .setDescription("Organization key.")
+            .setInternal(true)
+            .setRequired(true)
+            .setExampleValue(KEY_ORG_EXAMPLE_001);
+
     action.createParam(PROJECT_KEY_PARAM)
       .setDescription("Project key")
       .setRequired(false)
@@ -78,12 +89,13 @@ public class ListAction implements WebhooksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    String organizationKey = request.mandatoryParam(ORGANIZATION_KEY_PARAM);
     String projectKey = request.param(PROJECT_KEY_PARAM);
 
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(true)) {
-      List<WebhookDto> webhookDtos = doHandle(dbSession, projectKey);
+      List<WebhookDto> webhookDtos = doHandle(dbSession, organizationKey, projectKey);
       Map<String, WebhookDeliveryLiteDto> lastDeliveries = loadLastDeliveriesOf(dbSession, webhookDtos);
       writeResponse(request, response, webhookDtos, lastDeliveries);
     }
@@ -93,15 +105,19 @@ public class ListAction implements WebhooksWsAction {
     return dbClient.webhookDeliveryDao().selectLatestDeliveries(dbSession, webhookDtos);
   }
 
-  private List<WebhookDto> doHandle(DbSession dbSession, @Nullable String projectKey) {
+  private List<WebhookDto> doHandle(DbSession dbSession, String organizationKey, @Nullable String projectKey) {
+    Optional<OrganizationDto> dtoOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+    OrganizationDto organizationDto = checkFoundWithOptional(dtoOptional, "No organization with key '%s'", organizationKey);
+
     if (isNotBlank(projectKey)) {
       ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
       webhookSupport.checkPermission(projectDto);
+      webhookSupport.checkThatProjectBelongsToOrganization(projectDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
       webhookSupport.checkPermission(projectDto);
       return dbClient.webhookDao().selectByProject(dbSession, projectDto);
     } else {
-      webhookSupport.checkPermission();
-      return dbClient.webhookDao().selectGlobalWebhooks(dbSession);
+      webhookSupport.checkPermission(organizationDto);
+      return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
     }
   }
 

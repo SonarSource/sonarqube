@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDto;
 import org.sonar.db.user.GroupDto;
@@ -36,6 +37,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class AddGroupAction implements QProfileWsAction {
@@ -87,9 +89,10 @@ public class AddGroupAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QProfileDto profile = wsSupport.getProfile(dbSession, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
-      wsSupport.checkCanEdit(dbSession, profile);
-      GroupDto user = wsSupport.getGroup(dbSession, request.mandatoryParam(PARAM_GROUP));
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
+      wsSupport.checkCanEdit(dbSession, organization, profile);
+      GroupDto user = wsSupport.getGroup(dbSession, organization, request.mandatoryParam(PARAM_GROUP));
       addGroup(dbSession, profile, user);
     }
     response.noContent();

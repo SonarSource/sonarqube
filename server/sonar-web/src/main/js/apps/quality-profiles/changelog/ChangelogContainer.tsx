@@ -34,6 +34,7 @@ interface Props {
   profile: Profile;
   location: Location;
   router: Router;
+  organization: string;
 }
 
 interface State {
@@ -116,7 +117,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   }
 
   handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
-    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, {
+    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, this.props.organization, {
       since: from && toShortNotSoISOString(from),
       to: to && toShortNotSoISOString(to),
     });
@@ -124,7 +125,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   };
 
   handleReset = () => {
-    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language);
+    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, this.props.organization);
     this.props.router.push(path);
   };
 

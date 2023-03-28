@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
@@ -76,6 +77,8 @@ public class RemoveProjectAction implements QProfileWsAction {
       .setDescription("Project key")
       .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    QProfileWsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -85,7 +88,11 @@ public class RemoveProjectAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
-      checkPermissions(profile, project);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      checkPermissions(profile, organization, project);
+      if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
+        throw new IllegalArgumentException("Project and Quality profile must have the same organization");
+      }
 
       dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
@@ -93,7 +100,7 @@ public class RemoveProjectAction implements QProfileWsAction {
       QProfileDto activatedProfile = null;
 
       // publish change for rules in the default quality profile
-      QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage());
+      QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, profile.getLanguage());
       if (defaultProfile != null) {
         activatedProfile = defaultProfile;
       }
@@ -109,7 +116,11 @@ public class RemoveProjectAction implements QProfileWsAction {
     return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
-  private void checkPermissions(QProfileDto profile, ProjectDto project) {
+  private void checkPermissions(QProfileDto profile, OrganizationDto organization, ProjectDto project) {
+    if (!profile.getOrganizationUuid().equals(organization.getUuid())) {
+      throw new IllegalArgumentException("Quality profile must have the same organization");
+    }
+
     if (wsSupport.canAdministrate(profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
       return;
     }
