@@ -130,7 +130,7 @@ public class DefaultHttpDownloaderIT {
     String url = "http://10.255.255.1";
 
     assertThatThrownBy(() -> {
-      DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings().asConfig(), 10, 50000);
+      DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings().asConfig(), 10, 10);
       downloader.openStream(new URI(url));
     })
       .isInstanceOf(SonarException.class)
