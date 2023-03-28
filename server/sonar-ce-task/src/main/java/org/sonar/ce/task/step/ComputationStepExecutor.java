@@ -21,6 +21,7 @@ package org.sonar.ce.task.step;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.MDC;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTaskInterrupter;
@@ -33,6 +34,7 @@ import static java.util.Objects.requireNonNull;
 
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
+  private static final String MDC_CODESCAN_JOB_ID = "jobId";
 
   private final ComputationSteps steps;
   private final CeTaskInterrupter taskInterrupter;
@@ -60,6 +62,7 @@ public final class ComputationStepExecutor {
       if (listener != null) {
         executeListener(allStepsExecuted);
       }
+      MDC.remove(MDC_CODESCAN_JOB_ID);
     }
   }
 
