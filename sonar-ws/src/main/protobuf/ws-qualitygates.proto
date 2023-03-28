@@ -33,7 +33,7 @@ message ProjectStatusResponse {
   message ProjectStatus {
     optional Status status = 1;
     repeated Condition conditions = 2;
-    repeated Period periods = 3;
+    reserved 3; //drop periods
     optional bool ignoredConditions = 4;
     optional NewCodePeriod period = 5;
     optional string caycStatus = 6;
@@ -54,13 +54,6 @@ message ProjectStatusResponse {
       optional string date = 2;
       optional string parameter = 3;
     }
-
-  message Period {
-    optional int32 index = 1;
-    optional string mode = 2;
-    optional string date = 3;
-    optional string parameter = 4;
-  }
 
   enum Status {
     OK = 1;

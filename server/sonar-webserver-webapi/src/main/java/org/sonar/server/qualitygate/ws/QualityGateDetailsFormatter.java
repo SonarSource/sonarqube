@@ -31,7 +31,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.NewCodePeriod;
-import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Period;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -81,7 +80,6 @@ public class QualityGateDetailsFormatter {
       return;
     }
 
-    Period.Builder periodsBuilder = Period.newBuilder();
     NewCodePeriod.Builder periodBuilder = NewCodePeriod.newBuilder();
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
@@ -89,21 +87,19 @@ public class QualityGateDetailsFormatter {
     if (isNullOrEmpty(snapshot.getPeriodMode())) {
       return;
     }
-    periodsBuilder.setIndex(1);
-    periodsBuilder.setMode(snapshot.getPeriodMode());
+
     periodBuilder.setMode(snapshot.getPeriodMode());
     Long periodDate = snapshot.getPeriodDate();
     if (periodDate != null) {
       String formattedDateTime = formatDateTime(periodDate);
-      periodsBuilder.setDate(formattedDateTime);
       periodBuilder.setDate(formattedDateTime);
     }
     String periodModeParameter = snapshot.getPeriodModeParameter();
     if (!isNullOrEmpty(periodModeParameter)) {
-      periodsBuilder.setParameter(periodModeParameter);
+
       periodBuilder.setParameter(periodModeParameter);
     }
-    projectStatusBuilder.addPeriods(periodsBuilder);
+
     projectStatusBuilder.setPeriod(periodBuilder);
   }
 

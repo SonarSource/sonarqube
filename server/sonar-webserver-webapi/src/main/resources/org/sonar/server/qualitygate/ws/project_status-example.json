@@ -58,14 +58,6 @@
         "actualValue": "0"
       }
     ],
-    "periods": [
-      {
-        "index": 1,
-        "mode": "last_version",
-        "date": "2000-04-27T00:45:23+0200",
-        "parameter": "2015-12-07"
-      }
-    ],
     "period": {
         "mode": "last_version",
         "date": "2000-04-27T00:45:23+0200",

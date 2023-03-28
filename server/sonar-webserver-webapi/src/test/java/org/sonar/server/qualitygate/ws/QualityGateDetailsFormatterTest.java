@@ -39,7 +39,7 @@ public class QualityGateDetailsFormatterTest {
   private QualityGateDetailsFormatter underTest;
 
   @Test
-  public void map_level_conditions_and_periods() throws IOException {
+  public void map_level_conditions_and_period() throws IOException {
     String measureData = IOUtils.toString(getClass().getResource("QualityGateDetailsFormatterTest/quality_gate_details.json"));
     SnapshotDto snapshot = new SnapshotDto()
       .setPeriodMode("last_version")
@@ -68,13 +68,11 @@ public class QualityGateDetailsFormatterTest {
     assertThat(conditions).extracting("errorThreshold").containsOnly("85", "0", "0");
     assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452", "1", "0");
 
-    // check periods
-    assertThat(result.getPeriodsCount()).isOne();
-    List<ProjectStatusResponse.Period> periods = result.getPeriodsList();
-    assertThat(periods).extracting("index").containsExactly(1);
-    assertThat(periods).extracting("mode").containsExactly("last_version");
-    assertThat(periods).extracting("parameter").containsExactly("2015-12-07");
-    assertThat(periods.get(0).getDate()).isEqualTo(formatDateTime(snapshot.getPeriodDate()));
+    // check period
+    ProjectStatusResponse.NewCodePeriod period = result.getPeriod();
+    assertThat(period).extracting("mode").isEqualTo("last_version");
+    assertThat(period).extracting("parameter").isEqualTo("2015-12-07");
+    assertThat(period.getDate()).isEqualTo(formatDateTime(snapshot.getPeriodDate()));
   }
 
   @Test
