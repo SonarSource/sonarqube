@@ -25,6 +25,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import { translate } from '../../../helpers/l10n';
+import { IssueResolution } from '../../../types/issues';
 import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
@@ -38,7 +39,13 @@ interface Props {
   stats: Dict<number> | undefined;
 }
 
-const RESOLUTIONS = ['', 'FALSE-POSITIVE', 'FIXED', 'REMOVED', 'WONTFIX'];
+const RESOLUTIONS = [
+  IssueResolution.Unresolved,
+  IssueResolution.FalsePositive,
+  IssueResolution.Fixed,
+  IssueResolution.Removed,
+  IssueResolution.WontFix,
+];
 
 export default class ResolutionFacet extends React.PureComponent<Props> {
   property = 'resolutions';

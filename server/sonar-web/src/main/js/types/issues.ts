@@ -29,9 +29,25 @@ export enum IssueType {
   SecurityHotspot = 'SECURITY_HOTSPOT',
 }
 
+export enum IssueSeverity {
+  Blocker = 'BLOCKER',
+  Minor = 'MINOR',
+  Critical = 'CRITICAL',
+  Info = 'INFO',
+  Major = 'MAJOR',
+}
+
 export enum IssueScope {
   Main = 'MAIN',
   Test = 'TEST',
+}
+
+export enum IssueResolution {
+  Unresolved = '',
+  FalsePositive = 'FALSE-POSITIVE',
+  Fixed = 'FIXED',
+  Removed = 'REMOVED',
+  WontFix = 'WONTFIX',
 }
 
 export enum IssueStatus {
@@ -76,6 +92,7 @@ export interface RawIssue {
   assignee?: string;
   author?: string;
   comments?: Array<Comment>;
+  creationDate: string;
   component: string;
   flows?: Array<{
     type?: string;
@@ -93,6 +110,7 @@ export interface RawIssue {
   status: string;
   textRange?: TextRange;
   type: IssueType;
+  scope: string;
   ruleDescriptionContextKey?: string;
   ruleStatus?: string;
   quickFixAvailable?: boolean;

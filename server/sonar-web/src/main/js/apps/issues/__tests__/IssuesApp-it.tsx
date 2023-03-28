@@ -64,7 +64,37 @@ const ui = {
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
 
+  clearIssueTypeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.types' }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
+  vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
+  clearSeverityFacet: byRole('button', { name: 'clear_x_filter.issues.facet.severities' }),
+  majorSeverityFilter: byRole('checkbox', { name: 'severity.MAJOR' }),
+  scopeFacet: byRole('button', { name: 'issues.facet.scopes' }),
+  clearScopeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.scopes' }),
+  mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
+  resolutionFacet: byRole('button', { name: 'issues.facet.resolutions' }),
+  clearResolutionFacet: byRole('button', { name: 'clear_x_filter.issues.facet.resolutions' }),
+  fixedResolutionFilter: byRole('checkbox', { name: 'issue.resolution.FIXED' }),
+  statusFacet: byRole('button', { name: 'issues.facet.statuses' }),
+  creationDateFacet: byRole('button', { name: 'issues.facet.createdAt' }),
+  clearCreationDateFacet: byRole('button', { name: 'clear_x_filter.issues.facet.createdAt' }),
+  clearStatusFacet: byRole('button', { name: 'clear_x_filter.issues.facet.statuses' }),
+  openStatusFilter: byRole('checkbox', { name: 'issue.status.OPEN' }),
+  confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),
+  ruleFacet: byRole('button', { name: 'issues.facet.rules' }),
+  clearRuleFacet: byRole('button', { name: 'clear_x_filter.issues.facet.rules' }),
+  tagFacet: byRole('button', { name: 'issues.facet.tags' }),
+  clearTagFacet: byRole('button', { name: 'clear_x_filter.issues.facet.tags' }),
+  projectFacet: byRole('button', { name: 'issues.facet.projects' }),
+  clearProjectFacet: byRole('button', { name: 'clear_x_filter.issues.facet.projects' }),
+  assigneeFacet: byRole('button', { name: 'issues.facet.assignees' }),
+  clearAssigneeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.assignees' }),
+  authorFacet: byRole('button', { name: 'issues.facet.authors' }),
+  clearAuthorFacet: byRole('button', { name: 'clear_x_filter.issues.facet.authors' }),
+
+  dateInputMonthSelect: byRole('combobox', { name: 'Month:' }),
+  dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
+
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
 };
 
@@ -305,45 +335,170 @@ describe('issues app', () => {
     });
   });
   describe('filtering', () => {
-    it('should allow to reset all facets', async () => {
-      const user = userEvent.setup();
-      renderIssueApp();
-
-      await user.click(ui.codeSmellIssueTypeFilter.get());
-      expect(ui.codeSmellIssueTypeFilter.get()).toBeChecked();
-      expect(ui.issueItem4.query()).not.toBeInTheDocument();
-
-      await user.click(ui.clearAllFilters.get());
-      expect(ui.codeSmellIssueTypeFilter.get()).not.toBeChecked();
-      expect(ui.issueItem4.get()).toBeInTheDocument();
-    });
-
     it('should handle filtering from a specific issue properly', async () => {
       const user = userEvent.setup();
       renderIssueApp();
-
-      // Get first issue list item
-      const issueItem = await ui.issueItem2.find();
+      await waitOnDataLoaded();
 
       // Ensure issue type filter is unchecked
       expect(ui.codeSmellIssueTypeFilter.get()).not.toBeChecked();
+      expect(ui.vulnerabilityIssueTypeFilter.get()).not.toBeChecked();
+      expect(ui.issueItem1.get()).toBeInTheDocument();
+      expect(ui.issueItem2.get()).toBeInTheDocument();
+
+      // Open filter similar issue dropdown for issue 2 (Code smell)
+      await user.click(
+        await within(ui.issueItem2.get()).findByRole('button', {
+          name: 'issue.filter_similar_issues',
+        })
+      );
+      await user.click(
+        await within(ui.issueItem2.get()).findByRole('button', {
+          name: 'issue.type.CODE_SMELL',
+        })
+      );
+
+      expect(ui.codeSmellIssueTypeFilter.get()).toBeChecked();
+      expect(ui.vulnerabilityIssueTypeFilter.get()).not.toBeChecked();
+      expect(ui.issueItem1.query()).not.toBeInTheDocument();
+      expect(ui.issueItem2.get()).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'issues.facet.owaspTop10_2021' })
+      ).not.toBeInTheDocument();
+
+      // Clear filters
+      await user.click(ui.clearAllFilters.get());
+
+      // Open filter similar issue dropdown for issue 3 (Vulnerability)
+      await user.click(
+        await within(await ui.issueItem1.find()).findByRole('button', {
+          name: 'issue.filter_similar_issues',
+        })
+      );
+      await user.click(
+        await within(await ui.issueItem1.find()).findByRole('button', {
+          name: 'issue.type.VULNERABILITY',
+        })
+      );
+
+      expect(ui.codeSmellIssueTypeFilter.get()).not.toBeChecked();
+      expect(ui.vulnerabilityIssueTypeFilter.get()).toBeChecked();
+      expect(ui.issueItem1.get()).toBeInTheDocument();
+      expect(ui.issueItem2.query()).not.toBeInTheDocument();
+      // Standards should now be expanded and Owasp should be visible
+      expect(screen.getByRole('button', { name: 'issues.facet.owaspTop10_2021' })).toBeVisible();
+    });
+
+    it('should combine sidebar filters properly', async () => {
+      const user = userEvent.setup();
+      renderIssueApp();
+      await waitOnDataLoaded();
+
+      // Select only code smells (should make the first issue disappear)
+      await user.click(ui.codeSmellIssueTypeFilter.get());
+
+      // Select code smells + major severity
+      await user.click(ui.majorSeverityFilter.get());
+
+      // Expand scope and set code smells + major severity + main scope
+      await user.click(ui.scopeFacet.get());
+      await user.click(ui.mainScopeFilter.get());
+
+      // Resolution
+      await user.click(ui.resolutionFacet.get());
+      await user.click(ui.fixedResolutionFilter.get());
+
+      // Stop to check that filters were applied as expected
+      expect(ui.issueItem1.query()).not.toBeInTheDocument();
+      expect(ui.issueItem2.query()).not.toBeInTheDocument();
+      expect(ui.issueItem3.query()).not.toBeInTheDocument();
+      expect(ui.issueItem4.query()).not.toBeInTheDocument();
+      expect(ui.issueItem5.query()).not.toBeInTheDocument();
+      expect(ui.issueItem6.get()).toBeInTheDocument();
+      expect(ui.issueItem7.query()).not.toBeInTheDocument();
+
+      // Status
+      await user.click(ui.statusFacet.get());
+      await user.click(ui.openStatusFilter.get());
+      expect(ui.issueItem6.query()).not.toBeInTheDocument(); // Issue 6 should vanish
+
+      // Ctrl+click on confirmed status
+      await user.keyboard('{Control>}');
+      await user.click(ui.confirmedStatusFilter.get());
+      await user.keyboard('{/Control}');
+      expect(ui.issueItem6.get()).toBeInTheDocument(); // Issue 6 should come back
+
+      // Clear resolution filter
+      await user.click(ui.clearResolutionFacet.get());
+
+      // Rule
+      await user.click(ui.ruleFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: 'other' }));
+
+      // Tag
+      await user.click(ui.tagFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: 'unused' }));
+
+      // Project
+      await user.click(ui.projectFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: 'org.project2' }));
+
+      // Assignee
+      await user.click(ui.assigneeFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: 'email2@sonarsource.com' }));
+      await user.click(screen.getByRole('checkbox', { name: 'email1@sonarsource.com' })); // Change assignee
+
+      // Author
+      await user.click(ui.authorFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: 'email4@sonarsource.com' }));
+      await user.click(screen.getByRole('checkbox', { name: 'email3@sonarsource.com' })); // Change author
+      expect(ui.issueItem1.query()).not.toBeInTheDocument();
+      expect(ui.issueItem2.query()).not.toBeInTheDocument();
+      expect(ui.issueItem3.query()).not.toBeInTheDocument();
+      expect(ui.issueItem4.query()).not.toBeInTheDocument();
+      expect(ui.issueItem5.query()).not.toBeInTheDocument();
+      expect(ui.issueItem6.query()).not.toBeInTheDocument();
+      expect(ui.issueItem7.get()).toBeInTheDocument();
+
+      // Clear filters one by one
+      await user.click(ui.clearIssueTypeFacet.get());
+      await user.click(ui.clearSeverityFacet.get());
+      await user.click(ui.clearScopeFacet.get());
+      await user.click(ui.clearStatusFacet.get());
+      await user.click(ui.clearRuleFacet.get());
+      await user.click(ui.clearTagFacet.get());
+      await user.click(ui.clearProjectFacet.get());
+      await user.click(ui.clearAssigneeFacet.get());
+      await user.click(ui.clearAuthorFacet.get());
+      expect(ui.issueItem1.get()).toBeInTheDocument();
       expect(ui.issueItem2.get()).toBeInTheDocument();
       expect(ui.issueItem3.get()).toBeInTheDocument();
+      expect(ui.issueItem4.get()).toBeInTheDocument();
+      expect(ui.issueItem5.get()).toBeInTheDocument();
+      expect(ui.issueItem6.get()).toBeInTheDocument();
+      expect(ui.issueItem7.get()).toBeInTheDocument();
+    });
 
-      // Open filter similar issue dropdown
-      await user.click(
-        await within(issueItem).findByRole('button', { name: 'issue.filter_similar_issues' })
-      );
+    it('should allow to set creation date', async () => {
+      const user = userEvent.setup();
+      renderIssueApp(mockLoggedInUser());
+      await waitOnDataLoaded();
 
-      // Select type
-      await user.click(
-        await within(issueItem).findByRole('button', { name: 'issue.type.CODE_SMELL' })
-      );
+      // Select a specific date range such that only one issue matches
+      await user.click(ui.creationDateFacet.get());
+      await user.click(screen.getByPlaceholderText('start_date'));
+      await user.selectOptions(ui.dateInputMonthSelect.get(), 'January');
+      await user.selectOptions(ui.dateInputYearSelect.get(), '2023');
+      await user.click(screen.getByText('1'));
+      await user.click(screen.getByText('10'));
 
-      // Ensure issue type filter is now checked
-      expect(ui.codeSmellIssueTypeFilter.get()).toBeChecked();
-      expect(ui.issueItem2.get()).toBeInTheDocument();
+      expect(ui.issueItem1.get()).toBeInTheDocument();
+      expect(ui.issueItem2.query()).not.toBeInTheDocument();
       expect(ui.issueItem3.query()).not.toBeInTheDocument();
+      expect(ui.issueItem4.query()).not.toBeInTheDocument();
+      expect(ui.issueItem5.query()).not.toBeInTheDocument();
+      expect(ui.issueItem6.query()).not.toBeInTheDocument();
+      expect(ui.issueItem7.query()).not.toBeInTheDocument();
     });
 
     it('should allow to only show my issues', async () => {
@@ -449,7 +604,7 @@ describe('issues item', () => {
     issuesHandler.setIsAdmin(true);
     renderIssueApp();
 
-    // Get 'Fix that' issue list item
+    // Get a specific issue list item
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
 
     // Change issue type

@@ -31,6 +31,10 @@ import {
 } from '../../helpers/testMocks';
 import {
   ASSIGNEE_ME,
+  IssueResolution,
+  IssueScope,
+  IssueSeverity,
+  IssueStatus,
   IssueType,
   RawFacet,
   RawIssue,
@@ -103,6 +107,7 @@ export default class IssuesServiceMock {
         issue: mockRawIssue(false, {
           key: 'issue101',
           component: 'foo:test1.js',
+          creationDate: '2023-01-05T09:36:01+0100',
           message: 'Issue with no location message',
           type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
@@ -140,6 +145,9 @@ export default class IssuesServiceMock {
               ],
             },
           ],
+          resolution: IssueResolution.WontFix,
+          scope: IssueScope.Main,
+          tags: ['tag0', 'tag1'],
         }),
         snippets: keyBy(
           [
@@ -163,6 +171,7 @@ export default class IssuesServiceMock {
           component: 'foo:test1.js',
           message: 'FlowIssue',
           type: IssueType.CodeSmell,
+          severity: IssueSeverity.Minor,
           rule: 'simpleRuleId',
           textRange: {
             startLine: 10,
@@ -233,6 +242,7 @@ export default class IssuesServiceMock {
               ],
             },
           ],
+          tags: ['tag1'],
         }),
         snippets: keyBy(
           [
@@ -256,10 +266,11 @@ export default class IssuesServiceMock {
           component: 'foo:test1.js',
           message: 'Issue on file',
           assignee: mockLoggedInUser().login,
-          type: IssueType.Vulnerability,
+          type: IssueType.CodeSmell,
           rule: 'simpleRuleId',
           textRange: undefined,
           line: undefined,
+          scope: IssueScope.Test,
         }),
         snippets: {},
       },
@@ -338,6 +349,8 @@ export default class IssuesServiceMock {
             endOffset: 1,
           },
           ruleDescriptionContextKey: 'spring',
+          resolution: IssueResolution.Unresolved,
+          status: IssueStatus.Open,
         }),
         snippets: keyBy(
           [
@@ -362,6 +375,8 @@ export default class IssuesServiceMock {
             startOffset: 0,
             endOffset: 1,
           },
+          resolution: IssueResolution.Fixed,
+          status: IssueStatus.Confirmed,
         }),
         snippets: keyBy(
           [
@@ -381,7 +396,7 @@ export default class IssuesServiceMock {
           key: 'issue4',
           component: 'foo:test2.js',
           message: 'Issue with tags',
-          rule: 'external_eslint_repo:no-div-regex',
+          rule: 'other',
           textRange: {
             startLine: 25,
             endLine: 25,
@@ -391,6 +406,10 @@ export default class IssuesServiceMock {
           ruleDescriptionContextKey: 'spring',
           ruleStatus: 'DEPRECATED',
           quickFixAvailable: true,
+          tags: ['unused'],
+          project: 'org.project2',
+          assignee: 'email1@sonarsource.com',
+          author: 'email3@sonarsource.com',
         }),
         snippets: keyBy(
           [
@@ -536,10 +555,62 @@ export default class IssuesServiceMock {
     });
   };
 
-  handleSearchIssues = (query: RequestData): Promise<RawIssuesResponse> => {
-    const facets = (query.facets ?? '').split(',').map((name: string) => {
+  mockFacetDetailResponse = (facetsQuery: string): RawFacet[] => {
+    return facetsQuery.split(',').map((name: string): RawFacet => {
       if (name === 'owaspTop10-2021') {
         return this.owasp2021FacetList();
+      }
+      if (name === 'tags') {
+        return {
+          property: name,
+          values: [
+            {
+              val: 'unused',
+              count: 12842,
+            },
+            {
+              val: 'confusing',
+              count: 124,
+            },
+          ],
+        };
+      }
+      if (name === 'projects') {
+        return {
+          property: name,
+          values: [
+            { val: 'org.project1', count: 14685 },
+            { val: 'org.project2', count: 3890 },
+          ],
+        };
+      }
+      if (name === 'assignees') {
+        return {
+          property: name,
+          values: [
+            { val: 'email1@sonarsource.com', count: 675 },
+            { val: 'email2@sonarsource.com', count: 531 },
+          ],
+        };
+      }
+      if (name === 'author') {
+        return {
+          property: name,
+          values: [
+            { val: 'email3@sonarsource.com', count: 421 },
+            { val: 'email4@sonarsource.com', count: 123 },
+          ],
+        };
+      }
+      if (name === 'rules') {
+        return {
+          property: name,
+          values: [
+            { val: 'simpleRuleId', count: 8816 },
+            { val: 'advancedRuleId', count: 2060 },
+            { val: 'other', count: 1324 },
+          ],
+        };
       }
       if (name === 'languages') {
         return {
@@ -561,6 +632,10 @@ export default class IssuesServiceMock {
         values: [],
       };
     });
+  };
+
+  handleSearchIssues = (query: RequestData): Promise<RawIssuesResponse> => {
+    const facets = this.mockFacetDetailResponse((query.facets ?? '') as string);
 
     // Filter list (only supports assignee, type and severity)
     const filteredList = this.list
@@ -573,9 +648,33 @@ export default class IssuesServiceMock {
         }
         return query.assignees.split(',').includes(item.issue.assignee);
       })
+      .filter((item) => {
+        if (!query.tags) {
+          return true;
+        }
+        if (!item.issue.tags) {
+          return false;
+        }
+        return item.issue.tags.some((tag) => query.tags?.split(',').includes(tag));
+      })
+      .filter(
+        (item) =>
+          !query.createdBefore || new Date(item.issue.creationDate) <= new Date(query.createdBefore)
+      )
+      .filter(
+        (item) =>
+          !query.createdAfter || new Date(item.issue.creationDate) >= new Date(query.createdAfter)
+      )
       .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
       .filter(
         (item) => !query.severities || query.severities.split(',').includes(item.issue.severity)
+      )
+      .filter((item) => !query.scopes || query.scopes.split(',').includes(item.issue.scope))
+      .filter((item) => !query.statuses || query.statuses.split(',').includes(item.issue.status))
+      .filter((item) => !query.projects || query.projects.split(',').includes(item.issue.project))
+      .filter((item) => !query.rules || query.rules.split(',').includes(item.issue.rule))
+      .filter(
+        (item) => !query.resolutions || query.resolutions.split(',').includes(item.issue.resolution)
       );
 
     // Splice list items according to paging using a fixed page size
@@ -589,12 +688,17 @@ export default class IssuesServiceMock {
       effortTotal: 199629,
       facets,
       issues: listItems.map((line) => line.issue),
-      languages: [],
+      languages: [{ name: 'java' }, { name: 'python' }, { name: 'ts' }],
       paging: mockPaging({
         pageIndex,
         pageSize,
         total: filteredList.length,
       }),
+      users: [
+        { login: 'login0' },
+        { login: 'login1', name: 'Login 1' },
+        { login: 'login2', name: 'Login 2' },
+      ],
     });
   };
 
@@ -638,8 +742,8 @@ export default class IssuesServiceMock {
     };
 
     const resolutionMap: Dict<string> = {
-      wontfix: 'WONTFIX',
-      falsepositive: 'FALSE-POSITIVE',
+      wontfix: IssueResolution.WontFix,
+      falsepositive: IssueResolution.FalsePositive,
     };
 
     return this.getActionsResponse(

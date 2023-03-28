@@ -25,6 +25,7 @@ exports[`should render correctly: default 1`] = `
         "projectName": "Foo",
         "rule": "javascript:S1067",
         "ruleName": "foo",
+        "scope": "MAIN",
         "secondaryLocations": [],
         "severity": "MAJOR",
         "status": "OPEN",
@@ -71,6 +72,7 @@ exports[`should render correctly: default 1`] = `
               "projectName": "Foo",
               "rule": "javascript:S1067",
               "ruleName": "foo",
+              "scope": "MAIN",
               "secondaryLocations": [],
               "severity": "MAJOR",
               "status": "OPEN",
@@ -146,6 +148,7 @@ exports[`should render correctly: with filter 1`] = `
         "projectName": "Foo",
         "rule": "javascript:S1067",
         "ruleName": "foo",
+        "scope": "MAIN",
         "secondaryLocations": [],
         "severity": "MAJOR",
         "status": "OPEN",
@@ -192,6 +195,7 @@ exports[`should render correctly: with filter 1`] = `
               "projectName": "Foo",
               "rule": "javascript:S1067",
               "ruleName": "foo",
+              "scope": "MAIN",
               "secondaryLocations": [],
               "severity": "MAJOR",
               "status": "OPEN",
@@ -262,6 +266,7 @@ exports[`should render correctly: with filter 1`] = `
               "projectName": "Foo",
               "rule": "javascript:S1067",
               "ruleName": "foo",
+              "scope": "MAIN",
               "secondaryLocations": [],
               "severity": "MAJOR",
               "status": "OPEN",
@@ -358,6 +363,7 @@ exports[`should render correctly: with multi locations 1`] = `
         "projectName": "Foo",
         "rule": "javascript:S1067",
         "ruleName": "foo",
+        "scope": "MAIN",
         "secondaryLocations": [
           {
             "component": "main.js",
@@ -472,6 +478,7 @@ exports[`should render correctly: with multi locations 1`] = `
               "projectName": "Foo",
               "rule": "javascript:S1067",
               "ruleName": "foo",
+              "scope": "MAIN",
               "secondaryLocations": [
                 {
                   "component": "main.js",
@@ -634,6 +641,7 @@ exports[`should render correctly: with multi locations and link 1`] = `
         "projectName": "Foo",
         "rule": "javascript:S1067",
         "ruleName": "foo",
+        "scope": "MAIN",
         "secondaryLocations": [
           {
             "component": "main.js",
@@ -748,6 +756,7 @@ exports[`should render correctly: with multi locations and link 1`] = `
               "projectName": "Foo",
               "rule": "javascript:S1067",
               "ruleName": "foo",
+              "scope": "MAIN",
               "secondaryLocations": [
                 {
                   "component": "main.js",

@@ -33,6 +33,7 @@ exports[`should render issues 1`] = `
         "projectName": "Foo",
         "rule": "javascript:S1067",
         "ruleName": "foo",
+        "scope": "MAIN",
         "secondaryLocations": [],
         "severity": "MAJOR",
         "status": "OPEN",

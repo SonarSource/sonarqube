@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Query } from '../../apps/issues/utils';
 import { ReferencedRule } from '../../types/issues';
 import { IssueChangelog } from '../../types/types';
 
@@ -41,6 +42,42 @@ export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): Iss
         oldValue: 'luke.skywalker',
       },
     ],
+    ...overrides,
+  };
+}
+
+export function mockQuery(overrides: Partial<Query> = {}): Query {
+  return {
+    assigned: false,
+    assignees: [],
+    author: [],
+    createdAfter: undefined,
+    createdAt: '',
+    createdBefore: undefined,
+    createdInLast: '',
+    cwe: [],
+    directories: [],
+    files: [],
+    issues: [],
+    languages: [],
+    owaspTop10: [],
+    'owaspTop10-2021': [],
+    'pciDss-3.2': [],
+    'pciDss-4.0': [],
+    'owaspAsvs-4.0': [],
+    owaspAsvsLevel: '',
+    projects: [],
+    resolutions: [],
+    resolved: false,
+    rules: [],
+    scopes: [],
+    severities: [],
+    inNewCodePeriod: false,
+    sonarsourceSecurity: [],
+    sort: '',
+    statuses: [],
+    tags: [],
+    types: [],
     ...overrides,
   };
 }

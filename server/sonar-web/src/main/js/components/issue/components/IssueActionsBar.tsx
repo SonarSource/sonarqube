@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResponse } from '../../../types/issues';
+import { IssueResolution, IssueResponse, IssueType as IssueTypeEnum } from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
@@ -81,8 +81,8 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   handleTransition = (issue: Issue) => {
     this.props.onChange(issue);
     if (
-      issue.resolution === 'FALSE-POSITIVE' ||
-      (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
+      issue.resolution === IssueResolution.FalsePositive ||
+      (issue.resolution === IssueResolution.WontFix && issue.type !== IssueTypeEnum.SecurityHotspot)
     ) {
       this.toggleComment(true, translate('issue.comment.explain_why'), true);
     }
@@ -96,7 +96,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     const canSetType = issue.actions.includes('set_type');
     const canSetTags = issue.actions.includes('set_tags');
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
-    const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
+    const isSecurityHotspot = issue.type === IssueTypeEnum.SecurityHotspot;
 
     return (
       <div className={classNames(className, 'issue-actions')}>

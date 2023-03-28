@@ -25,7 +25,7 @@ import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
-import { IssueType, RawIssue } from '../types/issues';
+import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
@@ -286,13 +286,15 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     actions: [],
     component: 'main.js',
     key: 'AVsae-CQS-9G3txfbFN2',
+    creationDate: '2023-01-15T09:36:01+0100',
     line: 25,
     project: 'myproject',
     rule: 'javascript:S1067',
-    severity: 'MAJOR',
-    status: 'OPEN',
+    severity: IssueSeverity.Major,
+    status: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
+    scope: IssueScope.Main,
     ...overrides,
   };
 
@@ -334,9 +336,10 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     projectName: 'Foo',
     rule: 'javascript:S1067',
     ruleName: 'foo',
+    scope: IssueScope.Main,
     secondaryLocations: [],
-    severity: 'MAJOR',
-    status: 'OPEN',
+    severity: IssueSeverity.Major,
+    status: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
     type: 'BUG',
