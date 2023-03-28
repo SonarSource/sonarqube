@@ -59,7 +59,7 @@ export function MenuItemList(props: MenuItemListProps) {
   );
 
   return (
-    <ul className="item-list sw-overflow-scroll">
+    <ul className="item-list sw-overflow-y-auto sw-overflow-x-hidden">
       {!hasResults && (
         <div className="sw-px-3 sw-py-2">
           <span>{translate('no_results')}</span>

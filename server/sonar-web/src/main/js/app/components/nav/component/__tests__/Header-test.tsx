@@ -29,6 +29,7 @@ import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
+import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { BranchStatusContext } from '../../../branch-status/BranchStatusContext';
 import { Header, HeaderProps } from '../Header';
@@ -74,7 +75,7 @@ it('should show manage branch and pull request button for admin', async () => {
     currentUser: mockLoggedInUser(),
     component: mockComponent({
       configuration: { showSettings: true },
-      breadcrumbs: [{ name: 'project', key: 'project', qualifier: 'TRK' }],
+      breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
     }),
   });
   await user.click(screen.getByRole('button', { name: 'branch-1 overview.quality_gate_x.OK' }));
@@ -131,7 +132,7 @@ it('should show the correct help tooltip for applications', () => {
     currentUser: mockLoggedInUser(),
     component: mockComponent({
       configuration: { showSettings: true },
-      breadcrumbs: [{ name: 'project', key: 'project', qualifier: 'APP' }],
+      breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Application }],
       qualifier: 'APP',
     }),
     branchLikes: [mockMainBranch()],
@@ -182,7 +183,7 @@ function renderHeader(props?: Partial<HeaderProps>, featureList = [Feature.Branc
       <Header
         branchLikes={branchLikes}
         component={mockComponent({
-          breadcrumbs: [{ name: 'project', key: 'project', qualifier: 'TRK' }],
+          breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
         })}
         currentBranchLike={branchLikes[0]}
         currentUser={mockCurrentUser()}

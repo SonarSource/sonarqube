@@ -24,6 +24,7 @@ import { getBranchStatusByBranchLike } from '../../../../../helpers/branch-like'
 import { translateWithParameters } from '../../../../../helpers/l10n';
 import { formatMeasure } from '../../../../../helpers/measures';
 import { BranchLike } from '../../../../../types/branch-like';
+import { MetricType } from '../../../../../types/metrics';
 import { Component } from '../../../../../types/types';
 import { BranchStatusContext } from '../../../branch-status/BranchStatusContext';
 
@@ -52,7 +53,7 @@ export default function QualityGateStatus({
     return null;
   }
   const { status } = branchStatus;
-  const formatted = formatMeasure(status, 'LEVEL');
+  const formatted = formatMeasure(status, MetricType.Level);
   const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
     <div className={classNames(className, `it__level-${status}`)}>
