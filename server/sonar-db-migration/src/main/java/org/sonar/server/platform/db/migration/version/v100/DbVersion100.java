@@ -56,6 +56,8 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_012, "Log a warning message if 'sonar.scim.enabled' is used", LogMessageIfSonarScimEnabledPresentProperty.class)
       .add(10_0_013, "Drop 'sonar.scim.enabled' property", DropSonarScimEnabledProperty.class)
       .add(10_0_014, "Drop any SCIM User provisioning, turning all users local", DropScimUserProvisioning.class)
+      .add(10_0_015, "Add ncloc to 'Projects' table", AddNclocToProjects.class)
+      .add(10_0_016, "Populate ncloc in 'Projects' table", PopulateNclocForForProjects.class)
     ;
   }
 }

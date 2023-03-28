@@ -94,14 +94,8 @@ public class LiveMeasureDao implements Dao {
     mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
   }
 
-  /**
-   * Example:
-   * If Main Branch = 0 LOCs (provisioned but never analyzed) and the "largest branch" is 120 LOCs, I'm expecting to consider the value 120.
-   * If Main Branch = 100 LOCs and the "largest branch" is 120 LOCs, I'm expecting to consider the value 120.
-   * If Main Branch = 100 LOCs and the "largest branch" is 80 LOCs, I'm expecting to consider the value 100.
-   */
-  public long sumNclocOfBiggestBranch(DbSession dbSession, SumNclocDbQuery dbQuery) {
-    Long ncloc = mapper(dbSession).sumNclocOfBiggestBranch(NCLOC_KEY, dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
+  public long sumNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid){
+    Long ncloc = mapper(dbSession).sumNclocOfBiggestBranchForProject(projectUuid, NCLOC_KEY);
     return ncloc == null ? 0L : ncloc;
   }
 

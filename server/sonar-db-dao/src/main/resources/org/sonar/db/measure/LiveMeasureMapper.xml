@@ -61,8 +61,8 @@
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="sumNclocOfBiggestBranch" parameterType="map" resultType="long">
-    select sum(sumncloc.maxncloc) from (
+  <select id="sumNclocOfBiggestBranchForProject" parameterType="map" resultType="long">
+    select sumncloc.maxncloc from (
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid
@@ -70,12 +70,7 @@
       inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
       <where>
         m.name = #{ncloc, jdbcType=VARCHAR}
-        <if test="private">
-          and p.private=${_true}
-        </if>
-        <if test="projectUuidToExclude != null">
-          and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
-        </if>
+        and b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       </where>
       group by b.project_uuid
     ) sumncloc

@@ -21,7 +21,7 @@ package org.sonar.db.measure;
 
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 
@@ -57,10 +57,8 @@ public interface LiveMeasureMapper {
     @Param("baseUuidPath") String baseUuidPath,
     ResultHandler<LiveMeasureDto> resultHandler);
 
-  Long sumNclocOfBiggestBranch(
-    @Param("ncloc") String nclocKey,
-    @Param("private") Boolean privateProject,
-    @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
+  @CheckForNull
+  Long sumNclocOfBiggestBranchForProject(@Param("projectUuid") String projectUuid, @Param("ncloc") String nclocKey);
 
   List<LargestBranchNclocDto> getLargestBranchNclocPerProject(@Param("nclocUuid") String nclocUuid);
 

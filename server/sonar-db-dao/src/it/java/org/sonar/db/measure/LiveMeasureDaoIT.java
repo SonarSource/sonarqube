@@ -365,12 +365,9 @@ public class LiveMeasureDaoIT {
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
-    SumNclocDbQuery query = SumNclocDbQuery.builder()
-      .setOnlyPrivateProjects(false)
-      .build();
-    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
-
-    assertThat(result).isEqualTo(10L + 200L);
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), simpleProject.uuid())).isEqualTo(10L);
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithBiggerBranch.uuid())).isEqualTo(200L);
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithLinesButNoLoc.uuid())).isZero();
   }
 
   @Test
@@ -411,38 +408,9 @@ public class LiveMeasureDaoIT {
   public void countNcloc_empty() {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
-    SumNclocDbQuery query = SumNclocDbQuery.builder()
-      .setOnlyPrivateProjects(false)
-      .build();
-    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
+    long result = underTest.sumNclocOfBiggestBranchForProject(db.getSession(), "non-existing-project-uuid");
 
     assertThat(result).isZero();
-  }
-
-  @Test
-  public void countNcloc_and_exclude_project() {
-    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
-
-    ComponentDto simpleProject = db.components().insertPublicProject();
-    db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
-
-    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject();
-    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
-    db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
-
-    ComponentDto projectToExclude = db.components().insertPublicProject();
-    ComponentDto projectToExcludeBranch = db.components().insertProjectBranch(projectToExclude, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(projectToExclude, ncloc, m -> m.setValue(300d));
-    db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));
-
-    SumNclocDbQuery query = SumNclocDbQuery.builder()
-      .setProjectUuidToExclude(projectToExclude.uuid())
-      .setOnlyPrivateProjects(false)
-      .build();
-    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
-
-    assertThat(result).isEqualTo(10L + 200L);
   }
 
   @Test

@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -40,8 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
@@ -120,7 +117,7 @@ public class MarketplaceActionIT {
 
   private void setNcloc(double ncloc) {
     ComponentDto project = db.components().insertPublicProject();
-    MetricDto nclocMetric = db.measures().insertMetric(m -> m.setValueType(INT.toString()).setKey(NCLOC_KEY));
-    db.measures().insertLiveMeasure(project, nclocMetric, m -> m.setValue(ncloc));
+    db.getDbClient().projectDao().updateNcloc(db.getSession(), project.uuid(), (long) ncloc);
+    db.commit();
   }
 }
