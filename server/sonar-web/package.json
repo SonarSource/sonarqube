@@ -100,7 +100,7 @@
     "postcss-custom-properties": "12.1.11",
     "prettier": "2.8.3",
     "react-select-event": "5.5.1",
-    "tailwindcss": "2.2.19",
+    "tailwindcss": "3.2.7",
     "testing-library-selector": "0.2.1",
     "turbo": "1.7.4",
     "typescript": "4.9.4",

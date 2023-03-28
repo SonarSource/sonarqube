@@ -129,7 +129,6 @@ module.exports = {
       },
     },
   },
-  variants: {},
   corePlugins: {
     // Please respect the alphabetical order in the below plugins
     alignItems: true, // .sw-items-x classes
@@ -183,13 +182,8 @@ module.exports = {
     zIndex: true, // .sw-z-x classes
   },
   plugins: [utilities],
-  // PurgeCss will look into those files to find unused tailwind classes and drop them
-  purge: {
-    content: [
-      path.resolve(__dirname, './src/**/!(__tests__|@types|api|pages|marketing)/*.{ts,tsx}'),
-    ],
-    options: {
-      safelist: [],
-    },
-  },
+  content: [
+    path.resolve(__dirname, './src/**/!(__tests__|@types|api)/*.{ts,tsx}'),
+    path.resolve(__dirname, './design-system/src/**/!(__tests__|@types|theme|helpers)/*.{ts,tsx}'),
+  ],
 };
