@@ -29,6 +29,7 @@ const ui = {
   body: byRole('body'),
   beforeLink: byRole('link', { name: 'Interactive element before' }),
   helpIcon: byTestId('help-tooltip-activator'),
+  helpLink: byRole('link', { name: 'Icon' }),
   linkInTooltip: byRole('link', { name: 'Label' }),
   linkInTooltip2: byRole('link', { name: 'opens_in_new_window Label2' }),
   afterLink: byRole('link', { name: 'Interactive element after' }),
@@ -43,19 +44,19 @@ it('should correctly navigate through TAB', async () => {
   await user.tab();
   expect(ui.helpIcon.get()).toHaveFocus();
   await user.tab();
-  expect(ui.linkInTooltip.getAll().at(1)).toHaveFocus();
+  expect(ui.linkInTooltip.get()).toHaveFocus();
   await user.tab();
-  expect(ui.linkInTooltip2.getAll().at(1)).toHaveFocus();
+  expect(ui.linkInTooltip2.get()).toHaveFocus();
   // Looks like RTL tab event ignores any custom focuses during the events phase,
   // unless preventDefault is specified
   await user.tab();
+  expect(ui.helpIcon.get()).toHaveFocus();
   await user.tab({ shift: true });
-  expect(await ui.afterLink.find()).toHaveFocus();
   await user.tab({ shift: true });
   await user.tab();
   await user.tab();
   await user.tab({ shift: true });
-  expect(await ui.afterLink.find()).toHaveFocus();
+  expect(await ui.beforeLink.find()).toHaveFocus();
 });
 
 function renderDocumentationTooltip(props: Partial<DocumentationTooltipProps> = {}) {
@@ -81,7 +82,11 @@ function renderDocumentationTooltip(props: Partial<DocumentationTooltipProps> = 
           },
         ]}
         {...props}
-      />
+      >
+        <Link to="/" target="_blank">
+          Icon
+        </Link>
+      </DocumentationTooltip>
       <Link to="/" target="_blank">
         Interactive element after
       </Link>

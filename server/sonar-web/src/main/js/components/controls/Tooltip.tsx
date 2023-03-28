@@ -430,7 +430,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           // can mess up buttons that need a tooltip).
           'aria-describedby': this.id,
         })}
-        {!isVisible && this.renderOverlay()}
+        {!isVisible && <TooltipPortal>{this.renderOverlay()}</TooltipPortal>}
         {isVisible && (
           <EscKeydownHandler onKeydown={this.closeTooltip}>
             <TooltipPortal>

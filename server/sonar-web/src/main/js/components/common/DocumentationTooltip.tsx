@@ -56,6 +56,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
         return;
       }
       if (event.target === last(linksRef.current)) {
+        event.preventDefault();
         nextSelectableNode.current?.focus();
         return;
       }

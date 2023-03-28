@@ -22,16 +22,18 @@ exports[`should render 1`] = `
     onPointerEnter={[Function]}
     onPointerLeave={[Function]}
   />
-  <div
-    aria-hidden={true}
-    className="tooltip-inner sw-font-sans hidden"
-    id="tooltip-1"
-    role="tooltip"
-  >
-    <span
-      id="overlay"
-    />
-  </div>
+  <TooltipPortal>
+    <div
+      aria-hidden={true}
+      className="tooltip-inner sw-font-sans hidden"
+      id="tooltip-1"
+      role="tooltip"
+    >
+      <span
+        id="overlay"
+      />
+    </div>
+  </TooltipPortal>
 </Fragment>
 `;
 

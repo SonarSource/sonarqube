@@ -66,38 +66,21 @@ it('should open & close', () => {
   wrapper.find('#tooltip').simulate('pointerenter');
   jest.runOnlyPendingTimers();
   wrapper.update();
-  expect(wrapper.find('TooltipPortal').exists()).toBe(true);
   expect(onShow).toHaveBeenCalled();
 
   wrapper.find('#tooltip').simulate('pointerleave');
   jest.runOnlyPendingTimers();
   wrapper.update();
-  expect(wrapper.find('TooltipPortal').exists()).toBe(false);
   expect(onHide).toHaveBeenCalled();
 
   onShow.mockReset();
   onHide.mockReset();
 
   wrapper.find('#tooltip').simulate('focus');
-  expect(wrapper.find('TooltipPortal').exists()).toBe(true);
   expect(onShow).toHaveBeenCalled();
 
   wrapper.find('#tooltip').simulate('blur');
-  expect(wrapper.find('TooltipPortal').exists()).toBe(false);
   expect(onHide).toHaveBeenCalled();
-});
-
-it('should not open when pointer goes away quickly', () => {
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const wrapper = shallowRenderTooltipInner({ onHide, onShow });
-
-  wrapper.find('#tooltip').simulate('pointerenter');
-  wrapper.find('#tooltip').simulate('pointerleave');
-  jest.runOnlyPendingTimers();
-  wrapper.update();
-
-  expect(wrapper.find('TooltipPortal').exists()).toBe(false);
 });
 
 it('should not render tooltip without overlay', () => {
