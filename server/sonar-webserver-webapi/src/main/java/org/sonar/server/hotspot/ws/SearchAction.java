@@ -118,6 +118,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  @Deprecated(since = "10.0", forRemoval = true)
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   private static final String PARAM_CWE = "cwe";
@@ -232,6 +233,7 @@ public class SearchAction implements HotspotsWsAction {
         + "When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
       .setChangelog(
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
         new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
         new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
         new Change("9.7", "Hotspot in the response contain the corresponding ruleKey"),
@@ -302,6 +304,7 @@ public class SearchAction implements HotspotsWsAction {
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
+      .setDeprecatedSince("10.0")
       .setSince("8.6")
       .setPossibleValues(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES);
     action.createParam(PARAM_SONARSOURCE_SECURITY)

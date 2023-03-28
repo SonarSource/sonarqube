@@ -130,6 +130,7 @@ public class RuleWsSupport {
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
 
     action.createParam(PARAM_SANS_TOP_25)
+      .setDeprecatedSince("10.0")
       .setDescription("Comma-separated list of SANS Top 25 categories.")
       .setSince("7.3")
       .setPossibleValues(SecurityStandards.CWES_BY_SANS_TOP_25.keySet());

@@ -128,6 +128,7 @@ public class RuleIndex {
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
   public static final String FACET_CWE = "cwe";
+  @Deprecated(since = "10.0", forRemoval = true)
   public static final String FACET_SANS_TOP_25 = "sansTop25";
   public static final String FACET_OWASP_TOP_10 = "owaspTop10";
   public static final String FACET_OWASP_TOP_10_2021 = "owaspTop10-2021";

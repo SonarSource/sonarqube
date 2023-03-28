@@ -193,6 +193,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
+        new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
         new Change("10.0", format("Deprecated value 'ASSIGNEE' in parameter '%s' is dropped", Param.SORT)),
         new Change("10.0", format("Parameter 'sinceLeakPeriod' is removed, please use '%s' instead", PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.8", "Add message formatting to issue and locations response"),
@@ -299,6 +301,7 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
+      .setDeprecatedSince("10.0")
       .setSince("7.3")
       .setPossibleValues(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES);
     action.createParam(PARAM_CWE)

@@ -35,6 +35,7 @@ public class RulesWsParameters {
   public static final String PARAM_CWE = "cwe";
   public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
   public static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  @Deprecated(since = "10.0", forRemoval = true)
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String PARAM_INHERITANCE = "inheritance";

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -64,6 +65,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
         "</ul>")
       .setPost(true)
       .setSince("4.4")
+      .setChangelog(new Change("10.0", "Parameter 'sansTop25' is deprecated"))
       .setHandler(this);
 
     defineGenericRuleSearchParameters(deactivate);

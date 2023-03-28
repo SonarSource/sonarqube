@@ -137,8 +137,6 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
-        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
-        new Change("9.8", "The field 'paging' has been added to the response"),
         new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
         new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),
         new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated, use 'defaultRemFnGapMultiplier' instead"),
@@ -155,6 +153,8 @@ public class SearchAction implements RulesWsAction {
         new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
         new Change("9.6", "'descriptionSections' can optionally embed a context field"),
         new Change("9.6", "The field 'educationPrinciples' has been added to the 'f' parameter"),
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
+        new Change("9.8", "The field 'paging' has been added to the response"),
         new Change("10.0", "The deprecated field 'effortToFixDescription' has been removed, use 'gapDescription' instead."),
         new Change("10.0", "The deprecated field 'debtRemFnCoeff' has been removed, use 'remFnGapMultiplier' instead."),
         new Change("10.0", "The deprecated field 'defaultDebtRemFnCoeff' has been removed, use 'defaultRemFnGapMultiplier' instead."),
@@ -164,7 +164,9 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
         new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead"),
         new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
-        new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead")
+        new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
+        new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
+        new Change("10.0", "Parameter 'sansTop25' is deprecated")
       );
 
     action.createParam(FACETS)
@@ -615,10 +617,12 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
+    @Deprecated(since = "10.0", forRemoval = true)
     public List<String> getSansTop25() {
       return sansTop25;
     }
 
+    @Deprecated(since = "10.0", forRemoval = true)
     public SearchRequest setSansTop25(@Nullable List<String> sansTop25) {
       this.sansTop25 = sansTop25;
       return this;
