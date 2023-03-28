@@ -17,22 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.ce.task.projectanalysis.step;
 
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
-public class StatisticsSupport {
+public class ProjectNclocComputationStep implements ComputationStep {
 
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
 
-  public StatisticsSupport(DbClient dbClient) {
+  public ProjectNclocComputationStep(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
   }
 
-  public long getLinesOfCode(){
+  @Override
+  public void execute(Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.projectDao().getNclocSum(dbSession);
+      String projectUuid = analysisMetadataHolder.getProject().getUuid();
+      long maxncloc = dbClient.liveMeasureDao().sumNclocOfBiggestBranchForProject(dbSession, projectUuid);
+      dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
+      dbSession.commit();
     }
+  }
+
+  @Override
+  public String getDescription() {
+    return "Compute total Project ncloc";
   }
 }

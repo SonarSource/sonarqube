@@ -179,4 +179,19 @@
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
+
+  <update id="updateNcloc">
+    update projects set
+    ncloc = #{ncloc,jdbcType=BIGINT}
+    where
+    uuid = #{projectUuid,jdbcType=VARCHAR}
+  </update>
+
+  <select id="getNclocSum" parameterType="string" resultType="long">
+    select sum(ncloc) from projects where qualifier = 'TRK'
+    <if test="projectUuidToExclude != null">
+      and uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
+    </if>
+  </select>
+
 </mapper>

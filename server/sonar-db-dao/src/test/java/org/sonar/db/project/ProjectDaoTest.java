@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -279,6 +280,31 @@ public class ProjectDaoTest {
       .containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
   }
 
+  @Test
+  public void update_ncloc_should_update_project() {
+    ComponentDto project = db.components().insertPublicProject();
+
+    projectDao.updateNcloc(db.getSession(), project.uuid(), 10L);
+
+    Assertions.assertThat(projectDao.getNclocSum(db.getSession())).isEqualTo(10L);
+  }
+
+  @Test
+  public void getNcloc_sum_compute_correctly_sum_of_projects() {
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().uuid(), 1L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().uuid(), 20L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().uuid(), 100L);
+    Assertions.assertThat(projectDao.getNclocSum(db.getSession())).isEqualTo(121L);
+  }
+
+  @Test
+  public void getNcloc_sum_compute_correctly_sum_of_projects_while_excluding_project() {
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().uuid(), 1L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().uuid(), 20L);
+    ComponentDto project3 = db.components().insertPublicProject();
+    projectDao.updateNcloc(db.getSession(), project3.uuid(), 100L);
+    Assertions.assertThat(projectDao.getNclocSum(db.getSession(), project3.uuid())).isEqualTo(21L);
+  }
   @Test
   public void selectAllProjectUuids_shouldOnlyReturnProjectWithTRKQualifier() {
     ComponentDto application = db.components().insertPrivateApplication();
