@@ -45,6 +45,7 @@ import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
+import org.sonar.ce.configuration.WorkerCountProviderImpl;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
@@ -304,6 +305,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // batch
       new BatchWsModule(),
+
+      // CE worker provider
+      WorkerCountProviderImpl.class,
 
       // update center
       new UpdateCenterModule(),
