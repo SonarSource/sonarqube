@@ -40,5 +40,4 @@ export * from './popups';
 export { default as QualityGateIndicator } from './QualityGateIndicator';
 export * from './SonarQubeLogo';
 export * from './Text';
-export { default as Tooltip } from './Tooltip';
 export { TopBar } from './TopBar';

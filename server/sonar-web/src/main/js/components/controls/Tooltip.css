@@ -50,10 +50,10 @@
 }
 
 .tooltip-inner {
-  max-width: 300px;
+  max-width: 22rem;
   text-align: left;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
   word-break: break-word;
   padding: 12px 17px;

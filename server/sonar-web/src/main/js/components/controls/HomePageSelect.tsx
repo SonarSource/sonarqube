@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon, Tooltip } from 'design-system';
+import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
 import * as React from 'react';
 import { setHomePage } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
@@ -26,6 +26,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import { translate } from '../../helpers/l10n';
 import { isSameHomePage } from '../../helpers/users';
 import { HomePage, isLoggedIn } from '../../types/users';
+import Tooltip from './Tooltip';
 
 interface Props
   extends Pick<CurrentUserContextInterface, 'currentUser' | 'updateCurrentUserHomepage'> {

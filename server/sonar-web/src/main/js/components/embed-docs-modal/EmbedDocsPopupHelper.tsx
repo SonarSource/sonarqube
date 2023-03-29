@@ -23,10 +23,10 @@ import {
   MenuHelpIcon,
   PopupPlacement,
   PopupZLevel,
-  Tooltip,
 } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import Tooltip from '../controls/Tooltip';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
 
 export default function EmbedDocsPopupHelper() {

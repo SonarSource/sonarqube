@@ -24,9 +24,9 @@ import {
   Dropdown,
   PopupPlacement,
   PopupZLevel,
-  Tooltip,
 } from 'design-system';
 import * as React from 'react';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { GlobalSettingKeys } from '../../../../types/settings';

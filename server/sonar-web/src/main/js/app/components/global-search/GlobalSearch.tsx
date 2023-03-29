@@ -27,12 +27,12 @@ import {
   PopupZLevel,
   PortalPopup,
   TextMuted,
-  Tooltip,
 } from 'design-system';
 import { debounce, uniqBy } from 'lodash';
 import * as React from 'react';
 import { getSuggestions } from '../../../api/components';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
+import Tooltip from '../../../components/controls/Tooltip';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';

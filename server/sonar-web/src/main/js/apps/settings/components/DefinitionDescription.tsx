@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Tooltip } from 'design-system/lib';
 import * as React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { ExtendedSettingDefinition } from '../../../types/settings';

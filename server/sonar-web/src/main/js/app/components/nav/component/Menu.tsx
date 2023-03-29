@@ -24,9 +24,9 @@ import {
   Link,
   NavBarTabLink,
   NavBarTabs,
-  Tooltip,
 } from 'design-system';
 import * as React from 'react';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
