@@ -29,6 +29,9 @@ import {
   SettingValue,
 } from '../../types/settings';
 import {
+  checkSecretKey,
+  encryptValue,
+  generateSecretKey,
   getAllValues,
   getDefinitions,
   getValue,
@@ -113,6 +116,8 @@ export default class SettingsServiceMock {
 
   #definitions: ExtendedSettingDefinition[] = cloneDeep(DEFAULT_DEFINITIONS_MOCK);
 
+  #secretKeyAvailable: boolean = false;
+
   constructor() {
     jest.mocked(getDefinitions).mockImplementation(this.handleGetDefinitions);
     jest.mocked(getValue).mockImplementation(this.handleGetValue);
@@ -120,6 +125,9 @@ export default class SettingsServiceMock {
     jest.mocked(getAllValues).mockImplementation(this.handleGetAllValues);
     jest.mocked(setSettingValue).mockImplementation(this.handleSetSettingValue);
     jest.mocked(resetSettingValue).mockImplementation(this.handleResetSettingValue);
+    jest.mocked(checkSecretKey).mockImplementation(this.handleCheckSecretKey);
+    jest.mocked(generateSecretKey).mockImplementation(this.handleGenerateSecretKey);
+    jest.mocked(encryptValue).mockImplementation(this.handleEcnryptValue);
   }
 
   handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
@@ -193,9 +201,26 @@ export default class SettingsServiceMock {
     this.#definitions.push(definition);
   };
 
+  handleCheckSecretKey = () => {
+    return this.reply({ secretKeyAvailable: this.#secretKeyAvailable });
+  };
+
+  handleGenerateSecretKey = () => {
+    return this.reply({ secretKey: 'secretKey' });
+  };
+
+  handleEcnryptValue = () => {
+    return this.reply({ encryptedValue: 'encryptedValue' });
+  };
+
+  setSecretKeyAvailable = (val = false) => {
+    this.#secretKeyAvailable = val;
+  };
+
   reset = () => {
     this.#settingValues = cloneDeep(this.#defaultValues);
     this.#definitions = cloneDeep(DEFAULT_DEFINITIONS_MOCK);
+    this.#secretKeyAvailable = false;
     return this;
   };
 

@@ -107,7 +107,9 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
 
         {encryptedValue && (
           <div>
-            <span className="little-spacer-right">{translate('encryption.encrypted_value')}</span>
+            <label className="little-spacer-right" htmlFor="encrypted-value">
+              {translate('encryption.encrypted_value')}
+            </label>
             <input
               className="input-clear input-code input-super-large"
               id="encrypted-value"

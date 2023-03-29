@@ -47,7 +47,7 @@ import { Dict } from '../../../../types/types';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
-interface Props {
+export interface AlmBindingDefinitionFormProps {
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
   onCancel: () => void;
@@ -121,9 +121,12 @@ const BINDING_PER_ALM: {
   },
 };
 
-export default class AlmBindingDefinitionForm extends React.PureComponent<Props, State> {
+export default class AlmBindingDefinitionForm extends React.PureComponent<
+  AlmBindingDefinitionFormProps,
+  State
+> {
   mounted = false;
-  constructor(props: Props) {
+  constructor(props: AlmBindingDefinitionFormProps) {
     super(props);
 
     let bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud | undefined = undefined;

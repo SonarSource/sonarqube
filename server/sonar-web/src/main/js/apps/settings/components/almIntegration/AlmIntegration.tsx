@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import {
-  countBindedProjects,
+  countBoundProjects,
   deleteConfiguration,
   getAlmDefinitions,
   validateAlmSettings,
@@ -159,7 +159,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   handleDelete = (definitionKey: string) => {
     this.setState({ loadingProjectCount: true });
-    return countBindedProjects(definitionKey)
+    return countBoundProjects(definitionKey)
       .then((projectCount) => {
         if (this.mounted) {
           this.setState({
@@ -212,7 +212,6 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { hasFeature } = this.props;
     const {
       currentAlmTab,
       definitionKeyForDeletion,
@@ -226,7 +225,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     return (
       <AlmIntegrationRenderer
         branchesEnabled={this.props.hasFeature(Feature.BranchSupport)}
-        multipleAlmEnabled={hasFeature(Feature.MultipleAlm)}
+        multipleAlmEnabled={this.props.hasFeature(Feature.MultipleAlm)}
         onCancelDelete={this.handleCancelDelete}
         onConfirmDelete={this.handleConfirmDelete}
         onCheckConfiguration={this.handleCheck}

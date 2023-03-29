@@ -26,7 +26,7 @@ import ValidationInput, {
 } from '../../../../components/controls/ValidationInput';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
 import '../../styles.css';
 
@@ -79,6 +79,10 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
           <div>
             <p>{translate('settings.almintegration.form.secret.field')}</p>
             <ButtonLink
+              aria-label={translateWithParameters(
+                'settings.almintegration.form.secret.update_field_x',
+                translate('settings.almintegration.form', id)
+              )}
               onClick={() => {
                 props.onFieldChange(propKey, '');
                 setShowField(true);

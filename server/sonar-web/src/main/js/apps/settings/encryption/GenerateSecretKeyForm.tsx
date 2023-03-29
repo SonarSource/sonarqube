@@ -66,8 +66,11 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
         {secretKey ? (
           <>
             <div className="big-spacer-bottom">
-              <h3 className="spacer-bottom">{translate('encryption.secret_key')}</h3>
+              <h3 className="spacer-bottom" id="secret-key-title">
+                {translate('encryption.secret_key')}
+              </h3>
               <input
+                aria-labelledby="secret-key-title"
                 className="input-clear input-code input-large"
                 id="secret-key"
                 readOnly={true}

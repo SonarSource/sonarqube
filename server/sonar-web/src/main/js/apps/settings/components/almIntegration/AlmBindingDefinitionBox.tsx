@@ -30,7 +30,7 @@ import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinitionBase,
   AlmKeys,
@@ -144,11 +144,28 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
   return (
     <div className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition">
       <div className="actions pull-right">
-        <Button onClick={() => props.onEdit(definition.key)}>
+        <Button
+          aria-label={translateWithParameters(
+            'settings.almintegration.edit_configuration',
+            definition.key
+          )}
+          onClick={() => {
+            props.onEdit(definition.key);
+          }}
+        >
           <EditIcon className="spacer-right" />
           {translate('edit')}
         </Button>
-        <Button className="button-red spacer-left" onClick={() => props.onDelete(definition.key)}>
+        <Button
+          aria-label={translateWithParameters(
+            'settings.almintegration.delete_configuration',
+            definition.key
+          )}
+          className="button-red spacer-left"
+          onClick={() => {
+            props.onDelete(definition.key);
+          }}
+        >
           <DeleteIcon className="spacer-right" />
           {translate('delete')}
         </Button>
@@ -228,7 +245,14 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
             )}
           </div>
 
-          <Button className="big-spacer-top" onClick={() => props.onCheck(definition.key)}>
+          <Button
+            aria-label={translateWithParameters(
+              'settings.almintegration.check_configuration_x',
+              definition.key
+            )}
+            className="big-spacer-top"
+            onClick={() => props.onCheck(definition.key)}
+          >
             {translate('settings.almintegration.check_configuration')}
           </Button>
         </>

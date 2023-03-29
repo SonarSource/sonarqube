@@ -37,7 +37,7 @@ import BitbucketForm from './BitbucketForm';
 import GithubForm from './GithubForm';
 import GitlabForm from './GitlabForm';
 
-export interface AlmBindingDefinitionFormProps {
+export interface Props {
   alm: AlmKeys;
   isUpdate: boolean;
   canSubmit: boolean;
@@ -53,7 +53,7 @@ export interface AlmBindingDefinitionFormProps {
   validationError?: string;
 }
 
-export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<AlmBindingDefinitionFormProps> {
+export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<Props> {
   renderForm = () => {
     const { alm, formData, isUpdate, bitbucketVariant } = this.props;
 

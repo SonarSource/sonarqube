@@ -110,7 +110,7 @@ export function deleteConfiguration(key: string) {
   return post('/api/alm_settings/delete', { key }).catch(throwGlobalError);
 }
 
-export function countBindedProjects(almSetting: string) {
+export function countBoundProjects(almSetting: string) {
   return getJSON('/api/alm_settings/count_binding', { almSetting })
     .then(({ projects }) => projects)
     .catch(throwGlobalError);

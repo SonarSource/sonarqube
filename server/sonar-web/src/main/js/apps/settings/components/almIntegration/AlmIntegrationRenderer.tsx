@@ -60,7 +60,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/github.svg`}
         />
-        GitHub
+        {translate('settings.almintegration.tab.github')}
       </>
     ),
   },
@@ -74,7 +74,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
         />
-        Bitbucket
+        {translate('settings.almintegration.tab.bitbucket')}
       </>
     ),
   },
@@ -88,7 +88,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/azure.svg`}
         />
-        Azure DevOps
+        {translate('settings.almintegration.tab.azure')}
       </>
     ),
   },
@@ -102,7 +102,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/gitlab.svg`}
         />
-        GitLab
+        {translate('settings.almintegration.tab.gitlab')}
       </>
     ),
   },

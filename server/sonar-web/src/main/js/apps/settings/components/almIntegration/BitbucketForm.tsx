@@ -53,10 +53,10 @@ export default function BitbucketForm(props: BitbucketFormProps) {
               onCheck={props.onVariantChange}
               options={[
                 {
-                  label: 'Bitbucket Server',
+                  label: translate('alm.bitbucket.long'),
                   value: AlmKeys.BitbucketServer,
                 },
-                { label: 'Bitbucket Cloud', value: AlmKeys.BitbucketCloud },
+                { label: translate('alm.bitbucketcloud.long'), value: AlmKeys.BitbucketCloud },
               ]}
               value={variant}
             />
