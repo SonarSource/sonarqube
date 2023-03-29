@@ -1,5 +1,5 @@
 {
-  "extends": ["sonarqube", "./.eslintrc-typescript"],
+  "extends": "sonarqube",
   "plugins": ["eslint-plugin-local-rules"],
   "ignorePatterns": ["eslint-local-rules/**/*"],
   "rules": {

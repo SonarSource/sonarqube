@@ -1,5 +1,5 @@
 {
-  "extends": ["sonarqube", "../.eslintrc-typescript"],
+  "extends": ["sonarqube", "./.eslintrc-typescript"],
   "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
   "rules": {
     // Custom SonarCloud config that differs from eslint-config-sonarqube
