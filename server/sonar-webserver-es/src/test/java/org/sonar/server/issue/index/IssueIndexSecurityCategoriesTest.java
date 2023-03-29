@@ -31,6 +31,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
 public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
 
@@ -39,9 +40,9 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss32(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -55,11 +56,11 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss32(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -73,9 +74,9 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss40(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "1.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -89,11 +90,11 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project).setPciDss40(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setPciDss40(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 
@@ -107,11 +108,11 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setPciDss32(List.of("2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss40(asList("1.2.0", "3.4.5")).setPciDss32(List.of("2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss40(asList("3.3.2", "2.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setPciDss32(asList("4.1", "5.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR)
     );
 

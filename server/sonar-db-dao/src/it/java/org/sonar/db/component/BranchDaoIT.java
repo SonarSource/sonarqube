@@ -142,7 +142,7 @@ public class BranchDaoIT {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""}
     };
@@ -152,7 +152,7 @@ public class BranchDaoIT {
   public static Object[][] oldAndNewValuesCombinations() {
     String value1 = randomAlphabetic(10);
     String value2 = randomAlphabetic(20);
-    return new Object[][] {
+    return new Object[][]{
       {null, value1},
       {"", value1},
       {value1, null},
@@ -319,7 +319,8 @@ public class BranchDaoIT {
     assertThat(loadedPullRequestData).isNotNull();
     assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
     assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
-    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
+    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
+    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
   }
 
   @Test
@@ -454,8 +455,8 @@ public class BranchDaoIT {
 
     assertThat(branches).hasSize(2);
 
-    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey,BranchDto::isMain, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
-      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(),mainBranch.isMain(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
+    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::isMain, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
+      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.isMain(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
         tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(), featureBranch.getBranchType(), featureBranch.getMergeBranchUuid()));
   }
 
@@ -624,7 +625,7 @@ public class BranchDaoIT {
 
     assertThat(underTest.selectProjectUuidsWithIssuesNeedSync(db.getSession(),
       Sets.newHashSet(project1Dto.getUuid(), project2Dto.getUuid(), project3Dto.getUuid(), project4Dto.getUuid())))
-        .containsOnly(project1.uuid());
+      .containsOnly(project1.uuid());
   }
 
   @Test
@@ -807,7 +808,7 @@ public class BranchDaoIT {
 
   @DataProvider
   public static Object[][] booleanValues() {
-    return new Object[][] {
+    return new Object[][]{
       {true},
       {false}
     };
@@ -825,5 +826,32 @@ public class BranchDaoIT {
   @Test
   public void isBranchNeedIssueSync_whenNoBranch_shouldReturnFalse() {
     assertThat(underTest.isBranchNeedIssueSync(dbSession, "unknown")).isFalse();
+  }
+
+  @Test
+  public void selectMainBranchByProjectUuid_whenMainBranch_shouldReturnMainBranch() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U1");
+    dto.setIsMain(true);
+    dto.setBranchType(BranchType.BRANCH);
+    dto.setKey("feature");
+    underTest.insert(dbSession, dto);
+
+    assertThat(underTest.selectMainBranchByProjectUuid(dbSession, "U1")).get()
+      .extracting(e -> e.getUuid()).isEqualTo("U1");
+  }
+
+  @Test
+  public void selectMainBranchByProjectUuid_whenNonMainBranch_shouldReturnEmpty() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U2");
+    dto.setIsMain(false);
+    dto.setBranchType(BranchType.BRANCH);
+    dto.setKey("feature");
+    underTest.insert(dbSession, dto);
+
+    assertThat(underTest.selectMainBranchByProjectUuid(dbSession, "U1")).isEmpty();
   }
 }

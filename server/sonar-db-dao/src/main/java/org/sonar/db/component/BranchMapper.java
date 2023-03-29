@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -73,4 +74,5 @@ public interface BranchMapper {
 
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
+  Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
 }

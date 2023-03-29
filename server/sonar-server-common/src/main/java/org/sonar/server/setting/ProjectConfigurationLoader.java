@@ -21,6 +21,7 @@ package org.sonar.server.setting;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
 public interface ProjectConfigurationLoader {
@@ -32,5 +33,5 @@ public interface ProjectConfigurationLoader {
    * <p>
    * Any component is accepted but SQ only supports specific properties for projects and branches.
    */
-  Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project);
+  Configuration loadProjectConfiguration(DbSession dbSession, BranchDto branch);
 }

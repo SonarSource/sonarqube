@@ -19,31 +19,30 @@
  */
 package org.sonar.server.setting;
 
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectConfigurationLoaderImplIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final String globalPropKey = randomAlphanumeric(9);
-  private final String globalPropValue = randomAlphanumeric(10);
-  private final String mainBranchPropKey = randomAlphanumeric(7);
-  private final String mainBranchPropValue = randomAlphanumeric(8);
-  private final String branchPropKey = randomAlphanumeric(9);
-  private final String branchPropValue = randomAlphanumeric(10);
+  private final static String GLOBAL_PROP_KEY = "GLOBAL_PROP_KEY";
+  private final static String GLOBAL_PROP_VALUE = "GLOBAL_PROP_VALUE";
+  private final static String MAIN_BRANCH_PROP_KEY = "MAIN_BRANCH_PROP_KEY";
+  private final static String MAIN_BRANCH_PROP_VALUE = "MAIN_BRANCH_PROP_VALUE";
+  private final static String BRANCH_PROP_KEY = "BRANCH_PROP_KEY";
+  private final static String BRANCH_PROP_VALUE = "BRANCH_PROP_VALUE";
 
-  private final String mainBranchUuid = randomAlphanumeric(6);
-  private final String branchUuid = randomAlphanumeric(6);
+  private final static String MAIN_BRANCH_UUID = "MAIN_BRANCH_UUID";
+  private final static String BRANCH_UUID = "BRANCH_UUID";
   private final MapSettings globalSettings = new MapSettings();
   private ProjectConfigurationLoaderImpl underTest;
 
@@ -54,52 +53,59 @@ public class ProjectConfigurationLoaderImplIT {
 
   @Test
   public void return_configuration_with_just_global_settings_when_no_component_settings() {
-    globalSettings.setProperty(mainBranchPropKey, mainBranchPropValue);
-    ComponentDto component = newComponentDto(mainBranchUuid);
+    globalSettings.setProperty(MAIN_BRANCH_PROP_KEY, MAIN_BRANCH_PROP_VALUE);
 
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
+    BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), mainBranch);
 
-    assertThat(configuration.get(mainBranchPropKey)).contains(mainBranchPropValue);
+    assertThat(configuration.get(MAIN_BRANCH_PROP_KEY)).contains(MAIN_BRANCH_PROP_VALUE);
   }
 
   @Test
   public void return_configuration_with_global_settings_and_component_settings() {
-    String projectPropKey1 = randomAlphanumeric(7);
-    String projectPropValue1 = randomAlphanumeric(8);
-    String projectPropKey2 = randomAlphanumeric(9);
-    String projectPropValue2 = randomAlphanumeric(10);
-    globalSettings.setProperty(globalPropKey, globalPropValue);
-    db.properties().insertProperty(projectPropKey1, projectPropValue1, mainBranchUuid);
-    db.properties().insertProperty(projectPropKey2, projectPropValue2, mainBranchUuid);
-    ComponentDto component = newComponentDto(mainBranchUuid);
+    String projectPropKey1 = "prop_key_1";
+    String projectPropValue1 = "prop_key_value_1";
+    String projectPropKey2 = "prop_key_2";
+    String projectPropValue2 = "prop_key_value_2";
+    globalSettings.setProperty(GLOBAL_PROP_KEY, GLOBAL_PROP_VALUE);
+    db.properties().insertProperty(projectPropKey1, projectPropValue1, MAIN_BRANCH_UUID);
+    db.properties().insertProperty(projectPropKey2, projectPropValue2, MAIN_BRANCH_UUID);
+    BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
 
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
 
-    assertThat(configuration.get(globalPropKey)).contains(globalPropValue);
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), mainBranch);
+
+    assertThat(configuration.get(GLOBAL_PROP_KEY)).contains(GLOBAL_PROP_VALUE);
     assertThat(configuration.get(projectPropKey1)).contains(projectPropValue1);
     assertThat(configuration.get(projectPropKey2)).contains(projectPropValue2);
   }
 
   @Test
   public void return_configuration_with_global_settings_main_branch_settings_and_branch_settings() {
-    globalSettings.setProperty(globalPropKey, globalPropValue);
+    globalSettings.setProperty(GLOBAL_PROP_KEY, GLOBAL_PROP_VALUE);
 
-    db.properties().insertProperty(mainBranchPropKey, mainBranchPropValue, mainBranchUuid);
-    db.properties().insertProperty(branchPropKey, branchPropValue, branchUuid);
+    db.properties().insertProperty(MAIN_BRANCH_PROP_KEY, MAIN_BRANCH_PROP_VALUE, MAIN_BRANCH_UUID);
+    db.properties().insertProperty(BRANCH_PROP_KEY, BRANCH_PROP_VALUE, BRANCH_UUID);
 
-    ComponentDto component = newComponentDto(branchUuid, mainBranchUuid);
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
+    BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
+    BranchDto branch = insertBranch(BRANCH_UUID, MAIN_BRANCH_UUID, false);
 
-    assertThat(configuration.get(globalPropKey)).contains(globalPropValue);
-    assertThat(configuration.get(mainBranchPropKey)).contains(mainBranchPropValue);
-    assertThat(configuration.get(branchPropKey)).contains(branchPropValue);
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), branch);
+
+    assertThat(configuration.get(GLOBAL_PROP_KEY)).contains(GLOBAL_PROP_VALUE);
+    assertThat(configuration.get(MAIN_BRANCH_PROP_KEY)).contains(MAIN_BRANCH_PROP_VALUE);
+    assertThat(configuration.get(BRANCH_PROP_KEY)).contains(BRANCH_PROP_VALUE);
   }
 
-  private ComponentDto newComponentDto(String uuid) {
-    return newComponentDto(uuid, null);
+  public BranchDto insertBranch(String uuid, String projectUuid, boolean isMain){
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid(projectUuid);
+    dto.setUuid(uuid);
+    dto.setIsMain(isMain);
+    dto.setBranchType(BranchType.BRANCH);
+    dto.setKey("key_"+uuid);
+    db.getDbClient().branchDao().insert(db.getSession(), dto);
+    return dto;
   }
 
-  private ComponentDto newComponentDto(String uuid, @Nullable String mainBranchUuid) {
-    return new ComponentDto().setUuid(uuid).setBranchUuid(uuid).setMainBranchProjectUuid(mainBranchUuid);
-  }
 }

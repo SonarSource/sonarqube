@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.es.EsQueueDto;
@@ -480,6 +481,7 @@ public class IssueIndexerIT {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid()).orElseThrow();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1"));
     IssueDto issue = db.issues().insert(rule, branch, file);
@@ -489,7 +491,7 @@ public class IssueIndexerIT {
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
-    assertThat(doc.projectUuid()).isEqualTo(branch.getMainBranchProjectUuid());
+    assertThat(doc.projectUuid()).isEqualTo(branchDto.getProjectUuid());
     assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
     assertThat(doc.isMainBranch()).isFalse();
     assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);

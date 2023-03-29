@@ -37,20 +37,35 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 
 public class IssueDocTesting {
 
-  public static IssueDoc newDoc(ComponentDto componentDto) {
-    return newDoc(Uuids.createFast(), componentDto);
+  public static IssueDoc newDoc(ComponentDto componentDto, String projectUuid) {
+    return newDoc(Uuids.createFast(), projectUuid, componentDto);
   }
 
-  public static IssueDoc newDoc(String key, ComponentDto componentDto) {
-    String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
+  public static IssueDoc newDocForProject(ComponentDto project) {
+    return newDocForProject(Uuids.createFast(), project);
+  }
+
+  public static IssueDoc newDoc(String key, String projectUuid, ComponentDto componentDto) {
     return newDoc()
       .setKey(key)
       .setBranchUuid(componentDto.branchUuid())
       .setComponentUuid(componentDto.uuid())
-      .setProjectUuid(mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid)
+      .setProjectUuid(projectUuid)
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
-      .setIsMainBranch(mainBranchProjectUuid == null)
+      .setIsMainBranch(componentDto.branchUuid().equals(projectUuid))
+      .setFuncCreationDate(Date.from(LocalDateTime.of(1970, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)));
+  }
+
+  public static IssueDoc newDocForProject(String key, ComponentDto project) {
+    return newDoc()
+      .setKey(key)
+      .setBranchUuid(project.branchUuid())
+      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.branchUuid())
+      // File path make no sens on modules and projects
+      .setFilePath(!project.scope().equals(Scopes.PROJECT) ? project.path() : null)
+      .setIsMainBranch(true)
       .setFuncCreationDate(Date.from(LocalDateTime.of(1970, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)));
   }
 

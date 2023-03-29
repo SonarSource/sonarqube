@@ -45,6 +45,7 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 
 public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
@@ -54,10 +55,10 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto another = newPrivateProjectDto();
 
-    IssueDoc openVulDoc = newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR);
+    IssueDoc openVulDoc = newDocForProject("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR);
     openVulDoc.setOwaspTop10For2021(singletonList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR);
 
-    IssueDoc otherProjectDoc = newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL);
+    IssueDoc otherProjectDoc = newDocForProject("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL);
     otherProjectDoc.setOwaspTop10For2021(singletonList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL);
 
     indexIssues(openVulDoc, otherProjectDoc);
@@ -82,11 +83,11 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   public void getOwaspTop10Report_dont_count_closed_vulnerabilities() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul1", project).setOwaspTop10(List.of("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
-      newDoc("openvul12021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
-      newDoc("notopenvul", project).setOwaspTop10(List.of("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
+      newDocForProject("openvul1", project).setOwaspTop10(List.of("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
+      newDocForProject("openvul12021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
+      newDocForProject("notopenvul", project).setOwaspTop10(List.of("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER),
-      newDoc("notopenvul2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
+      newDocForProject("notopenvul2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
@@ -109,7 +110,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       // Previous vulnerabilities in projects that are not reanalyzed will have no owasp nor cwe attributes (not even 'unknown')
-      newDoc("openvulNotReindexed", project).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
+      newDocForProject("openvulNotReindexed", project).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
@@ -131,10 +132,10 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto another = newPrivateProjectDto();
     indexIssues(
-      newDoc("openhotspot1", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("openhotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("anotherProject", another).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("anotherProject2021", another).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("openhotspot1", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("openhotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("anotherProject", another).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("anotherProject2021", another).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
@@ -153,11 +154,11 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   public void getOwaspTop10Report_dont_count_closed_hotspots() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openhotspot1", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("openhotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("closedHotspot", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
+      newDocForProject("openhotspot1", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("openhotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("closedHotspot", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("closedHotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
+      newDocForProject("closedHotspot2021", project).setOwaspTop10For2021(List.of("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
@@ -246,15 +247,15 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
       .collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getChildren));
 
     assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-      SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
     assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-      SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
@@ -287,17 +288,17 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setOwaspTop10(asList("a3", "a6")).setCwe(List.of("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setOwaspTop10(asList("a3", "a6")).setCwe(List.of("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notowaspvul", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setOwaspTop10(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notowaspvul", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project).setOwaspTop10(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setOwaspTop10(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project).setOwaspTop10(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project).setOwaspTop10(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project).setOwaspTop10(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowasphotspot", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notowasphotspot", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe, Y2017);
     assertThat(owaspTop10Report)
@@ -321,19 +322,19 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertPciDss32Report() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notpcidssvul", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notpcidssvul", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notpcidsshotspot", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notpcidsshotspot", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> pciDssReport = underTest.getPciDssReport(project.uuid(), false, PciDssVersion.V3_2).stream()
       .sorted(comparing(s -> parseInt(s.getCategory())))
@@ -375,7 +376,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
         tuple("3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */, 4),
         tuple("4", 0L, OptionalInt.empty(), 0L, 0L, 1),
         tuple("5", 0L, OptionalInt.empty(), 0L, 0L, 1),
-        tuple("6", 2L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 0L , 0L, 1),
+        tuple("6", 2L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 0L, 0L, 1),
         tuple("7", 0L /* openvul2 */, OptionalInt.empty() /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
         tuple("8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
         tuple("9", 0L, OptionalInt.empty(), 0L, 0L, 1),
@@ -418,36 +419,36 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   private ComponentDto getProjectWithOwaspAsvsIssuesIndexed() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul1", project).setOwaspAsvs40(asList("2.4.1", "3.2.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setOwaspAsvs40(asList("2.4.1", "3.2.4")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setOwaspAsvs40(asList("3.4.5", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setOwaspAsvs40(asList("3.4.5", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project).setOwaspAsvs40(asList("10.2.4", "6.2.8")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project).setOwaspAsvs40(asList("10.2.4", "6.2.8")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notowaspasvsvul", project).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setOwaspAsvs40(asList("2.2.5", "3.2.4")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notowaspasvsvul", project).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project).setOwaspAsvs40(asList("2.2.5", "3.2.4")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setOwaspAsvs40(asList("3.6.1", "7.1.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project).setOwaspAsvs40(asList("3.3.3", "8.3.7")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project).setOwaspAsvs40(asList("3.6.1", "7.1.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project).setOwaspAsvs40(asList("3.3.3", "8.3.7")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowaspasvshotspot", project).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notowaspasvshotspot", project).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
     return project;
   }
 
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwasp2021Report(boolean includeCwe) {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setOwaspTop10For2021(asList("a3", "a6")).setCwe(List.of("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project).setOwaspTop10For2021(asList("a3", "a6")).setCwe(List.of("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notowaspvul", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notowaspvul", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setOwaspTop10For2021(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project).setOwaspTop10For2021(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project).setOwaspTop10For2021(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project).setOwaspTop10For2021(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowasphotspot", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notowasphotspot", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe, Y2021);
     assertThat(owaspTop10Report)
@@ -476,19 +477,19 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project2 = db.components().insertPrivateProject();
 
     indexIssues(
-      newDoc("openvul1", project1).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project1).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project2).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project2).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project1).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project1).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notpcidssvul", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project2).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notpcidssvul", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project2).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project1).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project2).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project1).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project2).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notpcidsshotspot", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notpcidsshotspot", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     indexView(portfolio1.uuid(), singletonList(project1.uuid()));
     indexView(portfolio2.uuid(), singletonList(project2.uuid()));
@@ -523,19 +524,19 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project2 = db.components().insertPrivateProject();
 
     indexIssues(
-      newDoc("openvul1", project1).setOwaspAsvs40(asList("2.1.1", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project1).setOwaspAsvs40(asList("2.1.1", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project2).setOwaspAsvs40(asList("3.3.2", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project2).setOwaspAsvs40(asList("3.3.2", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("openvul3", project1).setOwaspAsvs40(asList("10.3.2", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul3", project1).setOwaspAsvs40(asList("10.3.2", "6.2.1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("notowaspasvsvul", project1).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project2).setOwaspAsvs40(asList("2.1.3", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("notowaspasvsvul", project1).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project2).setOwaspAsvs40(asList("2.1.3", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project1).setOwaspAsvs40(asList("3.4.4", "6.2.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project2).setOwaspAsvs40(asList("3.1.1", "8.3.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+      newDocForProject("toreviewhotspot2", project1).setOwaspAsvs40(asList("3.4.4", "6.2.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project2).setOwaspAsvs40(asList("3.1.1", "8.3.1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
         .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowaspasvshotspot", project1).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDocForProject("notowaspasvshotspot", project1).setOwaspAsvs40(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     indexView(portfolio1.uuid(), singletonList(project1.uuid()));
     indexView(portfolio2.uuid(), singletonList(project2.uuid()));
@@ -568,16 +569,16 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   public void getCWETop25Report_aggregation() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDoc("openvul", project).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul", project).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("notopenvul", project).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
+      newDocForProject("notopenvul", project).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER),
-      newDoc("toreviewhotspot", project).setCwe(List.of("89")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("toreviewhotspot", project).setCwe(List.of("89")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("only2020", project).setCwe(List.of("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("only2020", project).setCwe(List.of("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("unknown", project).setCwe(List.of("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("unknown", project).setCwe(List.of("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR));
 
     List<SecurityStandardCategoryStatistics> cweTop25Reports = underTest.getCweTop25Reports(project.uuid(), false);
@@ -651,15 +652,15 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     ComponentDto project2 = db.components().insertPrivateProject();
 
     indexIssues(
-      newDoc("openvul1", project1).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+      newDocForProject("openvul1", project1).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project2).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("openvul2", project2).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("toreviewhotspot", project1).setCwe(List.of("89")).setType(RuleType.SECURITY_HOTSPOT)
+      newDocForProject("toreviewhotspot", project1).setCwe(List.of("89")).setType(RuleType.SECURITY_HOTSPOT)
         .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("only2020", project2).setCwe(List.of("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("only2020", project2).setCwe(List.of("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR),
-      newDoc("unknown", project2).setCwe(List.of("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+      newDocForProject("unknown", project2).setCwe(List.of("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
         .setSeverity(Severity.MINOR));
 
     indexView(application.uuid(), asList(project1.uuid(), project2.uuid()));

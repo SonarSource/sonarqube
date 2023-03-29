@@ -39,9 +39,9 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setStatus(Issue.STATUS_OPEN),
-      newDoc("I2", file).setStatus(Issue.STATUS_CLOSED),
-      newDoc("I3", file).setStatus(Issue.STATUS_REOPENED));
+      newDoc("I1", project.uuid(), file).setStatus(Issue.STATUS_OPEN),
+      newDoc("I2", project.uuid(), file).setStatus(Issue.STATUS_CLOSED),
+      newDoc("I3", project.uuid(), file).setStatus(Issue.STATUS_REOPENED));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
     assertThatSearchReturnsOnly(query, "I2", "I1", "I3");
@@ -56,11 +56,11 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setSeverity(Severity.BLOCKER),
-      newDoc("I2", file).setSeverity(Severity.INFO),
-      newDoc("I3", file).setSeverity(Severity.MINOR),
-      newDoc("I4", file).setSeverity(Severity.CRITICAL),
-      newDoc("I5", file).setSeverity(Severity.MAJOR));
+      newDoc("I1", project.uuid(), file).setSeverity(Severity.BLOCKER),
+      newDoc("I2", project.uuid(), file).setSeverity(Severity.INFO),
+      newDoc("I3", project.uuid(), file).setSeverity(Severity.MINOR),
+      newDoc("I4", project.uuid(), file).setSeverity(Severity.CRITICAL),
+      newDoc("I5", project.uuid(), file).setSeverity(Severity.MAJOR));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
     assertThatSearchReturnsOnly(query, "I2", "I3", "I5", "I4", "I1");
@@ -75,8 +75,8 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("I2", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     SearchResponse result = underTest.search(query.build(), new SearchOptions());
@@ -92,8 +92,8 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("I1", project.uuid(), file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("I2", project.uuid(), file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     SearchResponse result = underTest.search(query.build(), new SearchOptions());
@@ -109,9 +109,9 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
-      newDoc("I3", file).setFuncCloseDate(null));
+      newDoc("I1", project.uuid(), file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("I2", project.uuid(), file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      newDoc("I3", project.uuid(), file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     SearchResponse result = underTest.search(query.build(), new SearchOptions());
@@ -129,15 +129,15 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
 
     indexIssues(
       // file F1
-      newDoc("F1_2", file1).setLine(20),
-      newDoc("F1_1", file1).setLine(null),
-      newDoc("F1_3", file1).setLine(25),
+      newDoc("F1_2", project.uuid(), file1).setLine(20),
+      newDoc("F1_1", project.uuid(), file1).setLine(null),
+      newDoc("F1_3", project.uuid(), file1).setLine(25),
 
       // file F2
-      newDoc("F2_1", file2).setLine(9),
-      newDoc("F2_2", file2).setLine(109),
+      newDoc("F2_1", project.uuid(), file2).setLine(9),
+      newDoc("F2_2", project.uuid(), file2).setLine(109),
       // two issues on the same line -> sort by key
-      newDoc("F2_3", file2).setLine(109));
+      newDoc("F2_3", project.uuid(), file2).setLine(109));
 
     // ascending sort -> F1 then F2. Line "0" first.
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
@@ -159,19 +159,19 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
 
     indexIssues(
       // file F1 from project P1
-      newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_1", project1.uuid(), file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_2", project1.uuid(), file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_3", project1.uuid(), file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
 
       // file F2 from project P1
-      newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_1", project1.uuid(), file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_2", project1.uuid(), file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
       // two issues on the same line -> sort by key
-      newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_3", project1.uuid(), file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
 
       // file F3 from project P2
-      newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
-      newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+      newDoc("F3_1", project2.uuid(), file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      newDoc("F3_2", project2.uuid(), file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
 
     assertThatSearchReturnsOnly(IssueQuery.builder(), "F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
   }

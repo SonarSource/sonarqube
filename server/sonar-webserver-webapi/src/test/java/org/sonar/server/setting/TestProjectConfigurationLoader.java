@@ -21,6 +21,7 @@ package org.sonar.server.setting;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
 public class TestProjectConfigurationLoader implements ProjectConfigurationLoader {
@@ -32,7 +33,7 @@ public class TestProjectConfigurationLoader implements ProjectConfigurationLoade
   }
 
   @Override
-  public Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project) {
+  public Configuration loadProjectConfiguration(DbSession dbSession, BranchDto branch) {
     return config;
   }
 }

@@ -319,7 +319,7 @@ public class SetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest()));
+    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {
@@ -353,33 +353,12 @@ public class SetAction implements SettingsWsAction {
 
   private static class SetRequest {
 
-    private String branch;
     private String pullRequest;
     private String component;
     private List<String> fieldValues;
     private String key;
     private String value;
     private List<String> values;
-
-    public SetRequest setBranch(@Nullable String branch) {
-      this.branch = branch;
-      return this;
-    }
-
-    @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    public SetRequest setPullRequest(@Nullable String pullRequest) {
-      this.pullRequest = pullRequest;
-      return this;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
-    }
 
     public SetRequest setComponent(@Nullable String component) {
       this.component = component;

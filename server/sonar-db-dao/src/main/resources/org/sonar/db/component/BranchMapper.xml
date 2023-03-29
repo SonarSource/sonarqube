@@ -107,6 +107,14 @@
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectMainBranchByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    where
+    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    and is_main = ${_true}
+  </select>
+
   <select id="countPrBranchAnalyzedLanguageByProjectUuid" resultType="org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto">
     select pb.project_uuid as projectUuid,
       sum(case when pb.branch_type = 'PULL_REQUEST' then 1 else 0 end) as pullRequest,

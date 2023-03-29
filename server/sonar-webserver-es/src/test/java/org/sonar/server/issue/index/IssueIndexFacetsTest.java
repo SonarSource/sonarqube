@@ -62,6 +62,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
 public class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
@@ -71,9 +72,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto project2 = newPrivateProjectDto("EFGH");
 
     indexIssues(
-      newDoc("I1", newFileDto(project, null)),
-      newDoc("I2", newFileDto(project, null)),
-      newDoc("I3", newFileDto(project2, null)));
+      newDoc("I1", project.uuid(), newFileDto(project, null)),
+      newDoc("I2", project.uuid(), newFileDto(project, null)),
+      newDoc("I3", project2.uuid(), newFileDto(project2, null)));
 
     assertThatFacetHasExactly(IssueQuery.builder(), "projects", entry("ABCD", 2L), entry("EFGH", 1L));
   }
@@ -81,9 +82,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_projectUuids_return_100_entries_plus_selected_values() {
 
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newPrivateProjectDto("a" + i))).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newPrivateProjectDto("project1"));
-    IssueDoc issue2 = newDoc(newPrivateProjectDto("project2"));
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDocForProject(newPrivateProjectDto("a" + i))).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDocForProject(newPrivateProjectDto("project1"));
+    IssueDoc issue2 = newDocForProject(newPrivateProjectDto("project2"));
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "projects", 100);
@@ -99,11 +100,11 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file3 = newFileDto(project, dir, "CDEF");
 
     indexIssues(
-      newDoc("I1", project),
-      newDoc("I2", file1),
-      newDoc("I3", file2),
-      newDoc("I4", file2),
-      newDoc("I5", file3));
+      newDocForProject("I1", project),
+      newDoc("I2", project.uuid(), file1),
+      newDoc("I3", project.uuid(), file2),
+      newDoc("I4", project.uuid(), file2),
+      newDoc("I5", project.uuid(), file3));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "files", entry("src/NAME_ABCD", 1L), entry("src/NAME_BCDE", 2L), entry("src/NAME_CDEF", 1L));
   }
@@ -111,9 +112,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_files_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null, "a" + i))).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null, "file1"));
-    IssueDoc issue2 = newDoc(newFileDto(project, null, "file2"));
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null, "a" + i), project.uuid())).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project, null, "file1"), project.uuid());
+    IssueDoc issue2 = newDoc(newFileDto(project, null, "file2"), project.uuid());
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "files", 100);
@@ -127,8 +128,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
     indexIssues(
-      newDoc("I1", file1).setDirectoryPath("/src/main/xoo"),
-      newDoc("I2", file2).setDirectoryPath("/"));
+      newDoc("I1", project.uuid(), file1).setDirectoryPath("/src/main/xoo"),
+      newDoc("I2", project.uuid(), file2).setDirectoryPath("/"));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "directories", entry("/src/main/xoo", 1L), entry("/", 1L));
   }
@@ -136,9 +137,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_directories_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i))).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, newDirectory(project, "path1"))).setDirectoryPath("directory1");
-    IssueDoc issue2 = newDoc(newFileDto(project, newDirectory(project, "path2"))).setDirectoryPath("directory2");
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i)), project.uuid()).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project, newDirectory(project, "path1")), project.uuid()).setDirectoryPath("directory1");
+    IssueDoc issue2 = newDoc(newFileDto(project, newDirectory(project, "path2")), project.uuid()).setDirectoryPath("directory2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "directories", 100);
@@ -151,9 +152,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setCwe(asList("943")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(asList("943")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "cwe",
       entry("943", 2L),
@@ -168,9 +169,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setPciDss32(asList("1", "2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setPciDss32(singletonList("3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss32(asList("1", "2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss32(singletonList("3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), V3_2.prefix(),
       entry("1", 1L),
@@ -184,9 +185,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setPciDss40(asList("1", "2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setPciDss40(singletonList("3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss40(asList("1", "2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss40(singletonList("3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), V4_0.prefix(),
       entry("1", 1L),
@@ -200,9 +201,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1", "2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(singletonList("3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1", "2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(singletonList("3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), OwaspAsvsVersion.V4_0.prefix(),
       entry("1", 1L),
@@ -216,9 +217,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10(singletonList("a3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10(singletonList("a3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), Y2017.prefix(),
       entry("a1", 1L),
@@ -232,9 +233,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasExactly(IssueQuery.builder(), Y2021.prefix(),
       entry("a1", 1L),
@@ -248,9 +249,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasExactly(IssueQuery.builder().owaspTop10For2021(Collections.singletonList("a3")), Y2021.prefix(),
       entry("a1", 1L),
@@ -264,9 +265,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSansTop25(singletonList("porous-defenses")),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(singletonList("porous-defenses")),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "sansTop25",
       entry("insecure-interaction", 1L),
@@ -280,9 +281,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
-      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.DOS),
-      newDoc("I3", file));
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.DOS),
+      newDoc("I3", project.uuid(), file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "sonarsourceSecurity",
       entry("buffer-overflow", 1L),
@@ -295,9 +296,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setSeverity(INFO),
-      newDoc("I2", file).setSeverity(INFO),
-      newDoc("I3", file).setSeverity(MAJOR));
+      newDoc("I1", project.uuid(), file).setSeverity(INFO),
+      newDoc("I2", project.uuid(), file).setSeverity(INFO),
+      newDoc("I3", project.uuid(), file).setSeverity(MAJOR));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "severities", entry("INFO", 2L), entry("MAJOR", 1L));
   }
@@ -308,12 +309,12 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I2", file).setSeverity(INFO),
-      newDoc("I1", file).setSeverity(MINOR),
-      newDoc("I3", file).setSeverity(MAJOR),
-      newDoc("I4", file).setSeverity(CRITICAL),
-      newDoc("I5", file).setSeverity(BLOCKER),
-      newDoc("I6", file).setSeverity(MAJOR));
+      newDoc("I2", project.uuid(), file).setSeverity(INFO),
+      newDoc("I1", project.uuid(), file).setSeverity(MINOR),
+      newDoc("I3", project.uuid(), file).setSeverity(MAJOR),
+      newDoc("I4", project.uuid(), file).setSeverity(CRITICAL),
+      newDoc("I5", project.uuid(), file).setSeverity(BLOCKER),
+      newDoc("I6", project.uuid(), file).setSeverity(MAJOR));
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "severities", 5);
   }
@@ -324,9 +325,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setStatus(STATUS_CLOSED),
-      newDoc("I2", file).setStatus(STATUS_CLOSED),
-      newDoc("I3", file).setStatus(STATUS_OPEN));
+      newDoc("I1", project.uuid(), file).setStatus(STATUS_CLOSED),
+      newDoc("I2", project.uuid(), file).setStatus(STATUS_CLOSED),
+      newDoc("I3", project.uuid(), file).setStatus(STATUS_OPEN));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "statuses", entry("CLOSED", 2L), entry("OPEN", 1L));
   }
@@ -337,12 +338,12 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setStatus(STATUS_OPEN),
-      newDoc("I2", file).setStatus(STATUS_CONFIRMED),
-      newDoc("I3", file).setStatus(STATUS_REOPENED),
-      newDoc("I4", file).setStatus(STATUS_RESOLVED),
-      newDoc("I5", file).setStatus(STATUS_CLOSED),
-      newDoc("I6", file).setStatus(STATUS_OPEN));
+      newDoc("I1", project.uuid(), file).setStatus(STATUS_OPEN),
+      newDoc("I2", project.uuid(), file).setStatus(STATUS_CONFIRMED),
+      newDoc("I3", project.uuid(), file).setStatus(STATUS_REOPENED),
+      newDoc("I4", project.uuid(), file).setStatus(STATUS_RESOLVED),
+      newDoc("I5", project.uuid(), file).setStatus(STATUS_CLOSED),
+      newDoc("I6", project.uuid(), file).setStatus(STATUS_OPEN));
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "statuses", 5);
   }
@@ -353,9 +354,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setResolution(RESOLUTION_FALSE_POSITIVE),
-      newDoc("I2", file).setResolution(RESOLUTION_FALSE_POSITIVE),
-      newDoc("I3", file).setResolution(RESOLUTION_FIXED));
+      newDoc("I1", project.uuid(), file).setResolution(RESOLUTION_FALSE_POSITIVE),
+      newDoc("I2", project.uuid(), file).setResolution(RESOLUTION_FALSE_POSITIVE),
+      newDoc("I3", project.uuid(), file).setResolution(RESOLUTION_FIXED));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "resolutions", entry("FALSE-POSITIVE", 2L), entry("FIXED", 1L));
   }
@@ -366,11 +367,11 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setResolution(RESOLUTION_FIXED),
-      newDoc("I2", file).setResolution(RESOLUTION_FALSE_POSITIVE),
-      newDoc("I3", file).setResolution(RESOLUTION_REMOVED),
-      newDoc("I4", file).setResolution(RESOLUTION_WONT_FIX),
-      newDoc("I5", file).setResolution(null));
+      newDoc("I1", project.uuid(), file).setResolution(RESOLUTION_FIXED),
+      newDoc("I2", project.uuid(), file).setResolution(RESOLUTION_FALSE_POSITIVE),
+      newDoc("I3", project.uuid(), file).setResolution(RESOLUTION_REMOVED),
+      newDoc("I4", project.uuid(), file).setResolution(RESOLUTION_WONT_FIX),
+      newDoc("I5", project.uuid(), file).setResolution(null));
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "resolutions", 5);
   }
@@ -382,7 +383,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));
+    indexIssues(newDoc("I1", project.uuid(), file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "languages", entry("xoo", 1L));
   }
@@ -390,9 +391,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_languages_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project, null)).setLanguage("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null)).setLanguage("language1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null)).setLanguage("language2");
+    indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setLanguage("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setLanguage("language1");
+    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setLanguage("language2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "languages", 100);
@@ -405,10 +406,10 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
-      newDoc("I2", file).setAssigneeUuid("marcel-uuid"),
-      newDoc("I3", file).setAssigneeUuid("marcel-uuid"),
-      newDoc("I4", file).setAssigneeUuid(null));
+      newDoc("I1", project.uuid(), file).setAssigneeUuid("steph-uuid"),
+      newDoc("I2", project.uuid(), file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I3", project.uuid(), file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I4", project.uuid(), file).setAssigneeUuid(null));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "assignees", entry("steph-uuid", 1L), entry("marcel-uuid", 2L), entry("", 1L));
   }
@@ -416,9 +417,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_assignees_return_only_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null)).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null)).setAssigneeUuid("user1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null)).setAssigneeUuid("user2");
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("user1");
+    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("user2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "assignees", 100);
@@ -431,10 +432,10 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssigneeUuid("j-b-uuid"),
-      newDoc("I2", file).setAssigneeUuid("marcel-uuid"),
-      newDoc("I3", file).setAssigneeUuid("marcel-uuid"),
-      newDoc("I4", file).setAssigneeUuid(null));
+      newDoc("I1", project.uuid(), file).setAssigneeUuid("j-b-uuid"),
+      newDoc("I2", project.uuid(), file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I3", project.uuid(), file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I4", project.uuid(), file).setAssigneeUuid(null));
 
     assertThatFacetHasOnly(IssueQuery.builder().assigneeUuids(singletonList("j-b")),
       "assignees", entry("j-b-uuid", 1L), entry("marcel-uuid", 2L), entry("", 1L));
@@ -446,10 +447,10 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAuthorLogin("steph"),
-      newDoc("I2", file).setAuthorLogin("marcel"),
-      newDoc("I3", file).setAuthorLogin("marcel"),
-      newDoc("I4", file).setAuthorLogin(null));
+      newDoc("I1", project.uuid(), file).setAuthorLogin("steph"),
+      newDoc("I2", project.uuid(), file).setAuthorLogin("marcel"),
+      newDoc("I3", project.uuid(), file).setAuthorLogin("marcel"),
+      newDoc("I4", project.uuid(), file).setAuthorLogin(null));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "author", entry("steph", 1L), entry("marcel", 2L));
   }
@@ -457,9 +458,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_authors_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null)).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null)).setAuthorLogin("user1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null)).setAuthorLogin("user2");
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("user1");
+    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("user2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "author", 100);
@@ -647,13 +648,13 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
-    IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
-    IssueDoc issue1 = newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-01T10:34:56+0000"));
-    IssueDoc issue2 = newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-01T22:46:00+0000"));
-    IssueDoc issue3 = newDoc("I3", file).setFuncCreationDate(parseDateTime("2014-09-02T11:34:56+0000"));
-    IssueDoc issue4 = newDoc("I4", file).setFuncCreationDate(parseDateTime("2014-09-05T11:34:56+0000"));
-    IssueDoc issue5 = newDoc("I5", file).setFuncCreationDate(parseDateTime("2014-09-20T11:34:56+0000"));
-    IssueDoc issue6 = newDoc("I6", file).setFuncCreationDate(parseDateTime("2015-01-18T11:34:56+0000"));
+    IssueDoc issue0 = newDoc("ISSUE0", project.uuid(), file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
+    IssueDoc issue1 = newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-01T10:34:56+0000"));
+    IssueDoc issue2 = newDoc("I2", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-01T22:46:00+0000"));
+    IssueDoc issue3 = newDoc("I3", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-02T11:34:56+0000"));
+    IssueDoc issue4 = newDoc("I4", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-05T11:34:56+0000"));
+    IssueDoc issue5 = newDoc("I5", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-20T11:34:56+0000"));
+    IssueDoc issue6 = newDoc("I6", project.uuid(), file).setFuncCreationDate(parseDateTime("2015-01-18T11:34:56+0000"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 

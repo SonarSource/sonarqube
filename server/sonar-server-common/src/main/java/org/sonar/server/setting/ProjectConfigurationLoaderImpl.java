@@ -24,7 +24,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.property.PropertyDto;
 
 public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoader {
@@ -37,20 +37,21 @@ public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoade
   }
 
   @Override
-  public Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto projectOrBranch) {
-    boolean isMainBranch = projectOrBranch.getMainBranchProjectUuid() == null;
-    String mainBranchUuid = isMainBranch ? projectOrBranch.branchUuid() : projectOrBranch.getMainBranchProjectUuid();
-    ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, mainBranchUuid);
-
-    if (isMainBranch) {
+  public Configuration loadProjectConfiguration(DbSession dbSession, BranchDto branchDto) {
+    if (branchDto.isMain()) {
+      ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, branchDto.getUuid());
       return mainBranchSettings.asConfiguration();
-    }
+    } else {
+      BranchDto mainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, branchDto.getProjectUuid())
+        .orElseThrow(() -> new IllegalStateException("Main branch not found for project: " + branchDto.getProjectUuid()));
 
-    ChildSettings settings = new ChildSettings(mainBranchSettings);
-    dbClient.propertiesDao()
-      .selectComponentProperties(dbSession, projectOrBranch.uuid())
-      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
-    return settings.asConfiguration();
+      ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, mainBranch.getUuid());
+      ChildSettings settings = new ChildSettings(mainBranchSettings);
+      dbClient.propertiesDao()
+        .selectComponentProperties(dbSession, branchDto.getUuid())
+        .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+      return settings.asConfiguration();
+    }
   }
 
   private ChildSettings loadMainBranchConfiguration(DbSession dbSession, String uuid) {
