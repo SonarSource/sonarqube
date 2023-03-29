@@ -59,7 +59,7 @@ export default function PRLink({
     component.alm?.key ||
     (isPullRequest(currentBranchLike) && getPRUrlAlmKey(currentBranchLike.url));
   return (
-    <div>
+    <>
       {currentBranchLike.url !== undefined && (
         <Link
           icon={
@@ -78,6 +78,6 @@ export default function PRLink({
           {!almKey && translate('branches.see_the_pr')}
         </Link>
       )}
-    </div>
+    </>
   );
 }

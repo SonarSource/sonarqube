@@ -69,7 +69,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   };
 
   return (
-    <div className="sw-flex sw-items-center sw-ml-2 it__branch-like-navigation-toggler-container">
+    <div className="sw-flex sw-items-center it__branch-like-navigation-toggler-container">
       <Popup
         allowResizing={true}
         overlay={
@@ -95,7 +95,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
         zLevel={PopupZLevel.Global}
       >
         <ButtonSecondary
-          className="sw-max-w-abs-350"
+          className="sw-max-w-abs-350 sw-px-3"
           onClick={() => {
             setIsMenuOpen(!isMenuOpen);
           }}

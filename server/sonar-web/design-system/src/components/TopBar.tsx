@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { LAYOUT_GLOBAL_NAV_HEIGHT, LAYOUT_VIEWPORT_MIN_WIDTH } from '../helpers';
-import { themeColor, themeContrast } from '../helpers/theme';
+import { themeColor, themeContrast, themeShadow } from '../helpers/theme';
 
 export const TopBar = styled.nav`
   ${tw`sw-sticky sw-top-0`}
@@ -36,4 +36,5 @@ export const TopBar = styled.nav`
 
   background-color: ${themeColor('navbar')};
   color: ${themeContrast('navbar')};
+  box-shadow: ${themeShadow('lg')};
 `;

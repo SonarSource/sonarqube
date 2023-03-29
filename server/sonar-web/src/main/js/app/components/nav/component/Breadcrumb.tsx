@@ -57,7 +57,7 @@ export function Breadcrumb(props: BreadcrumbProps) {
             >
               <TextMuted text={breadcrumbElement.name} />
             </HoverLink>
-            {isNotLast && <span className="slash-separator sw-mx-2.5" />}
+            {isNotLast && <span className="slash-separator sw-mx-2" />}
           </div>
         );
       })}

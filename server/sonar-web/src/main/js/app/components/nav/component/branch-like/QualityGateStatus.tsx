@@ -56,8 +56,8 @@ export default function QualityGateStatus({
   const formatted = formatMeasure(status, MetricType.Level);
   const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
-    <div className={classNames(className, `it__level-${status}`)}>
-      <QualityGateIndicator status={status} className="sw-mr-2" ariaLabel={ariaLabel} />
+    <div className={classNames(`it__level-${status}`, className)}>
+      <QualityGateIndicator status={status} className="sw-mr-2" ariaLabel={ariaLabel} size="sm" />
       {showStatusText && <span>{formatted}</span>}
     </div>
   );

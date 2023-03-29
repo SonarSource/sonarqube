@@ -159,7 +159,7 @@ export class Menu extends React.PureComponent<Props, State> {
 
     return (
       <DropdownMenu
-        className="sw-overflow-y-auto sw-overflow-x-hidden it__branch-like-navigation-menu"
+        className="sw-overflow-y-auto sw-overflow-x-hidden sw-min-w-abs-350 it__branch-like-navigation-menu"
         maxHeight="38rem"
         size="auto"
       >

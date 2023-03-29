@@ -74,7 +74,11 @@ export default function QualityGateIndicator(props: Props) {
       StatusComponent = <QGFailed {...iconProps} />;
       break;
   }
-  return <div aria-label={ariaLabel}>{StatusComponent}</div>;
+  return (
+    <div aria-label={ariaLabel} className="sw-flex sw-justify-center sw-items-center">
+      {StatusComponent}
+    </div>
+  );
 }
 
 const COMMON_PROPS = {

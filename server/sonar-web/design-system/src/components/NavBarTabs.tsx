@@ -35,7 +35,7 @@ interface Props extends React.HTMLAttributes<HTMLUListElement> {
 
 export function NavBarTabs({ children, className, ...other }: Props) {
   return (
-    <ul className={`sw-flex sw-items-end sw-gap-6 ${className ?? ''}`} {...other}>
+    <ul className={`sw-flex sw-items-end sw-gap-8 ${className ?? ''}`} {...other}>
       {children}
     </ul>
   );
