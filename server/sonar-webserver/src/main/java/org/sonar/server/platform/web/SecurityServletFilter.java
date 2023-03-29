@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet filter sets response headers that enable browser protection against several classes if Web attacks.
+ * This servlet filter sets response headers that enable browser protection against several classes if Web attacks. Check https://owasp.org/www-project-secure-headers/ for more details.
  */
 public class SecurityServletFilter implements Filter {
 
@@ -84,6 +84,18 @@ public class SecurityServletFilter implements Filter {
     // MIME-sniffing
     // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
     httpResponse.setHeader("X-Content-Type-Options", "nosniff");
+
+    // Man-in-the-middle attacks
+    httpResponse.addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+
+    // Cross site referrer information leakage protection
+    httpResponse.addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    // Restrict unauthorized access to web resources
+    httpResponse.addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+
+    // Cross-site scripting
+    httpResponse.addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   @Override

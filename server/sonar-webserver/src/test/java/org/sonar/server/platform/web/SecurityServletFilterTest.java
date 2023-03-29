@@ -106,6 +106,9 @@ public class SecurityServletFilterTest {
     verify(response).setHeader("X-XSS-Protection", "1; mode=block");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains;");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   @Test
@@ -117,6 +120,10 @@ public class SecurityServletFilterTest {
     verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
     verify(response).setHeader("X-XSS-Protection", "1; mode=block");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
+    verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   @Test
@@ -131,6 +138,10 @@ public class SecurityServletFilterTest {
     verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
     verify(response).setHeader("X-XSS-Protection", "1; mode=block");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
+    verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   private static HttpServletRequest newRequest(String httpMethod, String path) {
