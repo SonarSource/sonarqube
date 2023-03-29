@@ -110,7 +110,7 @@ export class BadgeParams extends React.PureComponent<Props> {
           </label>
           <Select
             className="input-medium it__metric-badge-select"
-            name="badge-metric"
+            inputId="badge-metric"
             isSearchable={false}
             onChange={this.handleMetricChange}
             options={metricOptions}
@@ -139,7 +139,7 @@ export class BadgeParams extends React.PureComponent<Props> {
         </label>
         <Select
           className="input-medium"
-          name="badge-format"
+          inputId="badge-format"
           isSearchable={false}
           onChange={this.handleFormatChange}
           options={formatOptions}

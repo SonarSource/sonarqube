@@ -27,6 +27,7 @@ import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
 import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
+import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
 import {
@@ -410,6 +411,16 @@ export function mockMeasureEnhanced(overrides: Partial<MeasureEnhanced> = {}): M
       value: '1.0',
     },
     value: '1.0',
+    ...overrides,
+  };
+}
+
+export function mockNotification(overrides: Partial<Notification> = {}): Notification {
+  return {
+    channel: 'channel1',
+    type: 'type-global',
+    project: 'foo',
+    projectName: 'Foo',
     ...overrides,
   };
 }

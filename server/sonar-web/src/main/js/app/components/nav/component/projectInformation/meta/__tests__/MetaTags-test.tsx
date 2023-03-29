@@ -17,27 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { setApplicationTags, setProjectTags } from '../../../../../../../api/components';
+import {
+  searchProjectTags,
+  setApplicationTags,
+  setProjectTags,
+} from '../../../../../../../api/components';
 import { mockComponent } from '../../../../../../../helpers/mocks/component';
+import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../../../types/component';
 import MetaTags from '../MetaTags';
 
 jest.mock('../../../../../../../api/components', () => ({
   setApplicationTags: jest.fn().mockResolvedValue(true),
   setProjectTags: jest.fn().mockResolvedValue(true),
+  searchProjectTags: jest.fn(),
 }));
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should render without tags and admin rights', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render without tags and admin rights', async () => {
+  renderMetaTags();
+
+  expect(await screen.findByText('no_tags')).toBeInTheDocument();
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
-it('should render with tags and admin rights', () => {
+it('should allow to edit tags for a project', async () => {
+  const user = userEvent.setup();
+  jest.mocked(searchProjectTags).mockResolvedValue({ tags: ['best', 'useless'] });
+
+  const onComponentChange = jest.fn();
   const component = mockComponent({
     key: 'my-second-project',
     tags: ['foo', 'bar'],
@@ -47,37 +61,58 @@ it('should render with tags and admin rights', () => {
     name: 'MySecondProject',
   });
 
-  expect(shallowRender({ component })).toMatchSnapshot();
-});
+  renderMetaTags({ component, onComponentChange });
 
-it('should set tags for a project', () => {
-  const wrapper = shallowRender();
+  expect(await screen.findByText('foo, bar')).toBeInTheDocument();
+  expect(screen.getByRole('button')).toBeInTheDocument();
 
-  wrapper.instance().handleSetProjectTags(['tag1', 'tag2']);
+  await user.click(screen.getByRole('button', { name: 'tags_list_x.foo, bar' }));
+
+  expect(await screen.findByText('best')).toBeInTheDocument();
+
+  await user.click(screen.getByText('best'));
+  expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo', 'bar', 'best'] });
+
+  onComponentChange.mockClear();
+
+  /*
+   * Since we're not actually updating the tags, we're back to having the foo, bar only
+   */
+  await user.click(screen.getByText('bar'));
+  expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo'] });
 
   expect(setProjectTags).toHaveBeenCalled();
   expect(setApplicationTags).not.toHaveBeenCalled();
 });
 
-it('should set tags for an app', () => {
-  const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Application }),
+it('should set tags for an app', async () => {
+  const user = userEvent.setup();
+
+  renderMetaTags({
+    component: mockComponent({
+      configuration: {
+        showSettings: true,
+      },
+      qualifier: ComponentQualifier.Application,
+    }),
   });
 
-  wrapper.instance().handleSetProjectTags(['tag1', 'tag2']);
+  await user.click(screen.getByRole('button', { name: 'tags_list_x.no_tags' }));
+
+  await user.click(screen.getByText('best'));
 
   expect(setProjectTags).not.toHaveBeenCalled();
   expect(setApplicationTags).toHaveBeenCalled();
 });
 
-function shallowRender(overrides: Partial<MetaTags['props']> = {}) {
+function renderMetaTags(overrides: Partial<MetaTags['props']> = {}) {
   const component = mockComponent({
     configuration: {
       showSettings: false,
     },
   });
 
-  return shallow<MetaTags>(
+  return renderComponent(
     <MetaTags component={component} onComponentChange={jest.fn()} {...overrides} />
   );
 }

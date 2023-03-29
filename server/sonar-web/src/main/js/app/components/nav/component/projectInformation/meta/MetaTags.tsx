@@ -34,19 +34,10 @@ interface Props {
 }
 
 export default class MetaTags extends React.PureComponent<Props> {
-  card?: HTMLDivElement | null;
-  tagsList?: HTMLElement | null;
-  tagsSelector?: HTMLDivElement | null;
-
   canUpdateTags = () => {
     const { configuration } = this.props.component;
     return configuration && configuration.showSettings;
   };
-
-  getPopupPos = (eltPos: ClientRect, containerPos: ClientRect) => ({
-    top: eltPos.height,
-    right: containerPos.width - eltPos.width,
-  });
 
   setTags = (values: string[]) => {
     const { component } = this.props;
@@ -56,12 +47,12 @@ export default class MetaTags extends React.PureComponent<Props> {
         application: component.key,
         tags: values.join(','),
       });
-    } else {
-      return setProjectTags({
-        project: component.key,
-        tags: values.join(','),
-      });
     }
+
+    return setProjectTags({
+      project: component.key,
+      tags: values.join(','),
+    });
   };
 
   handleSetProjectTags = (values: string[]) => {
@@ -74,33 +65,29 @@ export default class MetaTags extends React.PureComponent<Props> {
   render() {
     const tags = this.props.component.tags || [];
 
-    if (this.canUpdateTags()) {
-      return (
-        <div className="big-spacer-top project-info-tags" ref={(card) => (this.card = card)}>
-          <Dropdown
-            closeOnClick={false}
-            closeOnClickOutside={true}
-            overlay={
-              <MetaTagsSelector selectedTags={tags} setProjectTags={this.handleSetProjectTags} />
-            }
-            overlayPlacement={PopupPlacement.BottomLeft}
-          >
-            <ButtonLink innerRef={(tagsList) => (this.tagsList = tagsList)} stopPropagation={true}>
-              <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
-            </ButtonLink>
-          </Dropdown>
-        </div>
-      );
-    } else {
-      return (
-        <div className="big-spacer-top project-info-tags">
-          <TagsList
-            allowUpdate={false}
-            className="note"
-            tags={tags.length ? tags : [translate('no_tags')]}
-          />
-        </div>
-      );
-    }
+    return this.canUpdateTags() ? (
+      <div className="big-spacer-top project-info-tags">
+        <Dropdown
+          closeOnClick={false}
+          closeOnClickOutside={true}
+          overlay={
+            <MetaTagsSelector selectedTags={tags} setProjectTags={this.handleSetProjectTags} />
+          }
+          overlayPlacement={PopupPlacement.BottomLeft}
+        >
+          <ButtonLink stopPropagation={true}>
+            <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
+          </ButtonLink>
+        </Dropdown>
+      </div>
+    ) : (
+      <div className="big-spacer-top project-info-tags">
+        <TagsList
+          allowUpdate={false}
+          className="note"
+          tags={tags.length ? tags : [translate('no_tags')]}
+        />
+      </div>
+    );
   }
 }

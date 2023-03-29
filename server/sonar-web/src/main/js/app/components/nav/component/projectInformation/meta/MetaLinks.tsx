@@ -71,16 +71,14 @@ export default class MetaLinks extends React.PureComponent<Props, State> {
     const orderedLinks = orderLinks(links);
 
     return (
-      <>
-        <div className="big-padded bordered-bottom">
-          <h3>{translate('overview.external_links')}</h3>
-          <ul className="project-info-list">
-            {orderedLinks.map((link) => (
-              <MetaLink key={link.id} link={link} />
-            ))}
-          </ul>
-        </div>
-      </>
+      <div className="big-padded bordered-bottom">
+        <h3>{translate('overview.external_links')}</h3>
+        <ul className="project-info-list">
+          {orderedLinks.map((link) => (
+            <MetaLink key={link.id} link={link} />
+          ))}
+        </ul>
+      </div>
     );
   }
 }

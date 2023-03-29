@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { searchRules } from '../../../../../../../api/rules';
 import { mockLanguage, mockQualityProfile } from '../../../../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../../../../helpers/testUtils';
+import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
+import { SearchRulesResponse } from '../../../../../../../types/coding-rules';
+import { Dict } from '../../../../../../../types/types';
 import { MetaQualityProfiles } from '../MetaQualityProfiles';
 
 jest.mock('../../../../../../../api/rules', () => {
@@ -33,28 +35,39 @@ jest.mock('../../../../../../../api/rules', () => {
 });
 
 it('should render correctly', async () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  const totals: Dict<number> = {
+    js: 0,
+    ts: 10,
+    css: 0,
+  };
+  jest.mocked(searchRules).mockImplementation(({ qprofile }: { qprofile: string }) => {
+    return Promise.resolve({ total: totals[qprofile] } as SearchRulesResponse);
+  });
 
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('.project-info-deprecated-rules').exists()).toBe(true);
-  expect(wrapper.find('.project-info-deleted-profile').exists()).toBe(true);
-  expect(searchRules).toHaveBeenCalled();
+  renderMetaQualityprofiles();
+
+  expect(await screen.findByText('overview.deleted_profile.javascript')).toBeInTheDocument();
+  expect(screen.getByText('overview.deprecated_profile.10')).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<MetaQualityProfiles['props']> = {}) {
-  return shallow(
+function renderMetaQualityprofiles(overrides: Partial<MetaQualityProfiles['props']> = {}) {
+  return renderComponent(
     <MetaQualityProfiles
       languages={{ css: mockLanguage() }}
       profiles={[
-        { ...mockQualityProfile({ key: 'js' }), deleted: true },
+        { ...mockQualityProfile({ key: 'js', name: 'javascript' }), deleted: true },
+        { ...mockQualityProfile({ key: 'ts', name: 'typescript' }), deleted: false },
         {
-          ...mockQualityProfile({ key: 'css', language: 'css', languageName: 'CSS' }),
+          ...mockQualityProfile({
+            key: 'css',
+            name: 'style',
+            language: 'css',
+            languageName: 'CSS',
+          }),
           deleted: false,
         },
       ]}
-      {...props}
+      {...overrides}
     />
   );
 }

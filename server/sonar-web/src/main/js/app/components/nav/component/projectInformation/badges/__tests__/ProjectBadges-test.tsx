@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import selectEvent from 'react-select-event';
 import { getProjectBadgesToken } from '../../../../../../../api/project-badges';
-import CodeSnippet from '../../../../../../../components/common/CodeSnippet';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../../helpers/mocks/component';
-import { waitAndUpdate } from '../../../../../../../helpers/testUtils';
+import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../../../../types/component';
-import BadgeButton from '../BadgeButton';
+import { MetricKey } from '../../../../../../../types/metrics';
 import ProjectBadges from '../ProjectBadges';
+import { BadgeType } from '../utils';
 
 jest.mock('../../../../../../../helpers/urls', () => ({
   getHostUrl: () => 'host',
@@ -40,51 +42,90 @@ jest.mock('../../../../../../../api/project-badges', () => ({
   renewProjectBadgesToken: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock('react', () => {
-  return {
-    ...jest.requireActual('react'),
-    createRef: jest.fn().mockReturnValue({ current: document.createElement('h3') }),
-  };
-});
-
-it('should display correctly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
+jest.mock('../../../../../../../api/web-api', () => ({
+  fetchWebApi: () =>
+    Promise.resolve([
+      {
+        path: 'api/project_badges',
+        actions: [
+          {
+            key: 'measure',
+            // eslint-disable-next-line local-rules/use-metrickey-enum
+            params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }],
+          },
+        ],
+      },
+    ]),
+}));
 
 it('should renew token', async () => {
-  (getProjectBadgesToken as jest.Mock).mockResolvedValueOnce('foo').mockResolvedValueOnce('bar');
-  const wrapper = shallowRender({
+  const user = userEvent.setup();
+  jest.mocked(getProjectBadgesToken).mockResolvedValueOnce('foo').mockResolvedValueOnce('bar');
+  renderProjectBadges({
     component: mockComponent({ configuration: { showSettings: true } }),
   });
-  await waitAndUpdate(wrapper);
-  wrapper.find('.it__project-info-renew-badge').simulate('click');
 
-  // it shoud be loading
-  expect(wrapper.find('.it__project-info-renew-badge').props().disabled).toBe(true);
+  expect(
+    await screen.findByText(`overview.badges.get_badge.${ComponentQualifier.Project}`)
+  ).toHaveFocus();
 
-  await waitAndUpdate(wrapper);
-  const buttons = wrapper.find(BadgeButton);
-  expect(buttons.at(0).props().url).toMatch('token=bar');
-  expect(buttons.at(1).props().url).toMatch('token=bar');
-  expect(wrapper.find(CodeSnippet).props().snippet).toMatch('token=bar');
+  expect(screen.getByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)).toHaveAttribute(
+    'src',
+    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo'
+  );
 
-  // let's check that the loading has correclty ends.
-  expect(wrapper.find('.it__project-info-renew-badge').props().disabled).toBe(false);
+  expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
+    'src',
+    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo'
+  );
+
+  await user.click(screen.getByText('overview.badges.renew'));
+
+  expect(
+    await screen.findByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)
+  ).toHaveAttribute(
+    'src',
+    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=bar'
+  );
+
+  expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
+    'src',
+    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=bar'
+  );
 });
 
-it('should set focus on the heading when rendered', async () => {
-  const fakeElement = document.createElement('h3');
-  const focus = jest.fn();
-  (React.createRef as jest.Mock).mockReturnValueOnce({ current: { ...fakeElement, focus } });
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(focus).toHaveBeenCalled();
+it('should update params', async () => {
+  renderProjectBadges({
+    component: mockComponent({ configuration: { showSettings: true } }),
+  });
+
+  expect(
+    await screen.findByText(
+      '[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo)](/dashboard)'
+    )
+  ).toBeInTheDocument();
+
+  await selectEvent.select(screen.getByLabelText('format:'), [
+    'overview.badges.options.formats.url',
+  ]);
+
+  expect(
+    screen.getByText(
+      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo'
+    )
+  ).toBeInTheDocument();
+
+  await selectEvent.select(screen.getByLabelText('overview.badges.metric:'), MetricKey.coverage);
+
+  expect(
+    screen.getByText(
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`
+    )
+  ).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<ProjectBadges['props']> = {}) {
-  return shallow<ProjectBadges>(
+function renderProjectBadges(props: Partial<ProjectBadges['props']> = {}) {
+  return renderComponent(
     <ProjectBadges
       branchLike={mockBranch()}
       component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
