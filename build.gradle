@@ -200,7 +200,7 @@ subprojects {
       dependency 'com.sonarsource.security:sonar-security-js-frontend-plugin:10.0.0.20234'
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.12.0.4259'
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.8.0.5759'
-      dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.7.0.5449'
+      dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.8.0.5601'
       dependency 'org.sonarsource.config:sonar-config-plugin:1.2.0.267'
       dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.55.0.65544'
       dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.55.0.65544'
