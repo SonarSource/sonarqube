@@ -15,7 +15,6 @@
       "startedAt": "2015-08-13T23:35:00+0200",
       "executedAt": "2015-08-13T23:35:10+0200",
       "executionTimeMs": 10000,
-      "logs": false,
       "hasErrorStacktrace": false,
       "hasScannerContext": true
     },
@@ -32,7 +31,6 @@
       "startedAt": "2015-09-17T23:35:00+0200",
       "executedAt": "2015-08-13T23:37:00+0200",
       "executionTimeMs": 120000,
-      "logs": false,
       "errorMessage": "Failed to unzip analysis report",
       "hasErrorStacktrace": true,
       "hasScannerContext": true

@@ -68,6 +68,7 @@ public class ComponentAction implements CeWsAction {
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
         new Change("7.6", format("The use of module keys in parameter \"%s\" is deprecated", PARAM_COMPONENT)),
+        new Change("8.8", "field \"logs\" is dropped"),
         new Change("8.8", "Deprecated parameter 'componentId' has been removed."),
         new Change("8.8", "Parameter 'component' is now required."))
       .setHandler(this);
