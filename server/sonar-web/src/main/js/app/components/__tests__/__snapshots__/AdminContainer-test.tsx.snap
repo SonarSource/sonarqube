@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div>
+<Fragment>
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
@@ -43,5 +43,5 @@ exports[`should render correctly 1`] = `
       }
     />
   </ContextProvider>
-</div>
+</Fragment>
 `;

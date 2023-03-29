@@ -25,19 +25,14 @@ import {
   LAYOUT_LOGO_MARGIN_RIGHT,
   LAYOUT_LOGO_MAX_HEIGHT,
   LAYOUT_LOGO_MAX_WIDTH,
+  LAYOUT_VIEWPORT_MIN_WIDTH,
 } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 
-const MainAppBarContainerDiv = styled.div`
-  height: ${LAYOUT_GLOBAL_NAV_HEIGHT}px;
-`;
-
 const MainAppBarDiv = styled.div`
-  ${tw`sw-fixed`}
+  ${tw`sw-sticky sw-top-0`}
   ${tw`sw-flex`};
   ${tw`sw-items-center`};
-  ${tw`sw-left-0`};
-  ${tw`sw-right-0`};
   ${tw`sw-px-6`};
   ${tw`sw-w-full`};
   ${tw`sw-box-border`};
@@ -47,6 +42,7 @@ const MainAppBarDiv = styled.div`
   border-bottom: ${themeBorder('default')};
   color: ${themeContrast('mainBar')};
   height: ${LAYOUT_GLOBAL_NAV_HEIGHT}px;
+  min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
 `;
 
 const MainAppBarNavLogoDiv = styled.div`
@@ -75,15 +71,13 @@ export function MainAppBar({
   Logo,
 }: React.PropsWithChildren<{ Logo: React.ElementType }>) {
   return (
-    <MainAppBarContainerDiv>
-      <MainAppBarDiv>
-        <MainAppBarNavLogoDiv>
-          <MainAppBarNavLogoLink href="/">
-            <Logo />
-          </MainAppBarNavLogoLink>
-        </MainAppBarNavLogoDiv>
-        <MainAppBarNavRightDiv>{children}</MainAppBarNavRightDiv>
-      </MainAppBarDiv>
-    </MainAppBarContainerDiv>
+    <MainAppBarDiv>
+      <MainAppBarNavLogoDiv>
+        <MainAppBarNavLogoLink href="/">
+          <Logo />
+        </MainAppBarNavLogoLink>
+      </MainAppBarNavLogoDiv>
+      <MainAppBarNavRightDiv>{children}</MainAppBarNavRightDiv>
+    </MainAppBarDiv>
   );
 }

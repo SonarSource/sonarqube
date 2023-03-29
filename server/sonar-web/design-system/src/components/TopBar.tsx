@@ -18,32 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { DetailedHTMLProps, HTMLAttributes, PropsWithChildren } from 'react';
 import tw from 'twin.macro';
-import { LAYOUT_GLOBAL_NAV_HEIGHT } from '../helpers';
+import { LAYOUT_GLOBAL_NAV_HEIGHT, LAYOUT_VIEWPORT_MIN_WIDTH } from '../helpers';
 import { themeColor, themeContrast } from '../helpers/theme';
 
-interface Props {
-  id?: string;
-}
-
-export function TopBar({
-  children,
-  ...props
-}: PropsWithChildren<Props> & DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {
-  return (
-    <BaseStyle style={{ top: LAYOUT_GLOBAL_NAV_HEIGHT }} {...props}>
-      {children}
-    </BaseStyle>
-  );
-}
-
-const BaseStyle = styled.nav`
-  ${tw`sw-sticky`}
+export const TopBar = styled.nav`
+  ${tw`sw-sticky sw-top-0`}
   ${tw`sw-z-top-navbar`}
   ${tw`sw-px-6 sw-pt-4`}
+  ${tw`sw-box-border`};
+  ${tw`sw-w-full`};
   ${tw`sw-font-sans`}
   ${tw`sw-text-sm`}
+
+  min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT}px;
 
   background-color: ${themeColor('navbar')};
   color: ${themeContrast('navbar')};
