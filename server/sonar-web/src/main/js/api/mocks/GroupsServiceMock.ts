@@ -26,7 +26,13 @@ import {
   mockPaging,
   mockUser,
 } from '../../helpers/testMocks';
-import { Group, IdentityProvider, Paging, SysInfoCluster, UserSelected } from '../../types/types';
+import {
+  Group,
+  IdentityProvider,
+  Paging,
+  SysInfoCluster,
+  UserGroupMember,
+} from '../../types/types';
 import { getSystemInfo } from '../system';
 import { getIdentityProviders } from '../users';
 import {
@@ -117,19 +123,25 @@ export default class GroupsServiceMock {
     return this.reply({});
   };
 
-  handlegetUsersInGroup = (): Promise<Paging & { users: UserSelected[] }> => {
+  handlegetUsersInGroup = (data: {
+    name?: string;
+    p?: number;
+    ps?: number;
+    q?: string;
+    selected?: string;
+  }): Promise<Paging & { users: UserGroupMember[] }> => {
     return this.reply({
       ...this.paging,
       users: [
         {
           ...mockUser({ name: 'alice' }),
           selected: true,
-        } as UserSelected,
+        } as UserGroupMember,
         {
           ...mockUser({ name: 'bob' }),
           selected: false,
-        } as UserSelected,
-      ],
+        } as UserGroupMember,
+      ].filter((u) => u.name.includes(data.q ?? '')),
     });
   };
 

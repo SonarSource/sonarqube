@@ -54,10 +54,17 @@ const ui = {
   editGroupDialogButton: byRole('button', { name: 'groups.create_group' }),
 
   createGroupDialog: byRole('dialog', { name: 'groups.create_group' }),
+  membersViewDialog: byRole('dialog', { name: 'users.list' }),
   membersDialog: byRole('dialog', { name: 'users.update' }),
 
   managedGroupRow: byRole('row', { name: 'managed-group 1' }),
   managedGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.managed-group' }),
+  managedGroupViewMembersButton: byRole('button', { name: 'groups.users.view.managed-group' }),
+
+  memberAliceUser: byText('alice'),
+  memberBobUser: byText('bob'),
+  memberSearchInput: byRole('searchbox', { name: 'search_verb' }),
+
   managedEditButton: byRole('button', { name: 'groups.edit.managed-group' }),
 
   localGroupRow: byRole('row', { name: 'local-group 1' }),
@@ -236,6 +243,17 @@ describe('in manage mode', () => {
     expect(ui.managedEditButton.query()).not.toBeInTheDocument();
 
     expect(ui.managedGroupEditMembersButton.query()).not.toBeInTheDocument();
+
+    await userEvent.click(ui.managedGroupViewMembersButton.get());
+    expect(await ui.membersViewDialog.find()).toBeInTheDocument();
+
+    expect(ui.memberAliceUser.get()).toBeInTheDocument();
+    expect(ui.memberBobUser.get()).toBeInTheDocument();
+
+    await userEvent.type(ui.memberSearchInput.get(), 'b');
+
+    expect(await ui.memberBobUser.find()).toBeInTheDocument();
+    expect(ui.memberAliceUser.query()).not.toBeInTheDocument();
   });
 
   it('should render list of all groups', async () => {

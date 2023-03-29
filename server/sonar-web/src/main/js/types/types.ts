@@ -772,6 +772,13 @@ export interface UserSelected extends UserActive {
   selected: boolean;
 }
 
+export interface UserGroupMember {
+  selected: boolean;
+  login: string;
+  name: string;
+  managed: boolean;
+}
+
 export namespace WebApi {
   export interface Action {
     key: string;

@@ -2,6 +2,7 @@
 
 exports[`should render modal properly 1`] = `
 <Modal
+  className="group-menbers-modal"
   contentLabel="users.update"
   onRequestClose={[MockFunction]}
 >

@@ -21,3 +21,19 @@
 #groups-page .group-members {
   padding-right: 50%;
 }
+
+.group-menbers-modal .modal-container > :last-child {
+  margin-bottom: 0;
+}
+
+.group-menbers-modal .select-list-list-container {
+  height: 350px;
+}
+
+.group-menbers-modal .modal-body {
+  padding: 12px 32px;
+}
+
+.group-members-modal .view-search-box.search-box {
+  max-width: 100%;
+}

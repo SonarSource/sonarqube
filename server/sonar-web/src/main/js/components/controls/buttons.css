@@ -219,12 +219,12 @@
 }
 
 .button-icon:hover,
-.button-icon:focus {
+.button-icon:focus-visible {
   background-color: currentColor;
 }
 
 .button-icon:not(.disabled):hover svg,
-.button-icon:not(.disabled):focus svg {
+.button-icon:not(.disabled):focus-visible svg {
   color: var(--white);
 }
 

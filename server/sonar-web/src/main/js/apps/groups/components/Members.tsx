@@ -23,8 +23,10 @@ import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
 import EditMembersModal from './EditMembersModal';
+import ViewMembersModal from './ViewMembersModal';
 
 interface Props {
+  isManaged: boolean;
   group: Group;
   onEdit: () => void;
 }
@@ -33,8 +35,7 @@ interface State {
   modal: boolean;
 }
 
-export default class EditMembers extends React.PureComponent<Props, State> {
-  container?: HTMLElement | null;
+export default class Members extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { modal: false };
 
@@ -51,26 +52,36 @@ export default class EditMembers extends React.PureComponent<Props, State> {
   };
 
   handleModalClose = () => {
+    const { isManaged, group } = this.props;
     if (this.mounted) {
       this.setState({ modal: false });
-      this.props.onEdit();
+      if (!isManaged && !group.default) {
+        this.props.onEdit();
+      }
     }
   };
 
   render() {
+    const { isManaged, group } = this.props;
     return (
       <>
         <ButtonIcon
-          aria-label={translateWithParameters('groups.users.edit', this.props.group.name)}
+          aria-label={translateWithParameters(
+            isManaged || group.default ? 'groups.users.view' : 'groups.users.edit',
+            group.name
+          )}
           className="button-small little-spacer-left little-padded"
           onClick={this.handleMembersClick}
-          title={translateWithParameters('groups.users.edit', this.props.group.name)}
+          title={translateWithParameters('groups.users.edit', group.name)}
         >
           <BulletListIcon />
         </ButtonIcon>
-        {this.state.modal && (
-          <EditMembersModal group={this.props.group} onClose={this.handleModalClose} />
-        )}
+        {this.state.modal &&
+          (isManaged || group.default ? (
+            <ViewMembersModal isManaged={isManaged} group={group} onClose={this.handleModalClose} />
+          ) : (
+            <EditMembersModal group={group} onClose={this.handleModalClose} />
+          ))}
       </>
     );
   }

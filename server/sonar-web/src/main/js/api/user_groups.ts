@@ -19,7 +19,7 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
-import { Group, Paging, UserSelected } from '../types/types';
+import { Group, Paging, UserGroupMember } from '../types/types';
 
 export function searchUsersGroups(data: {
   f?: string;
@@ -37,7 +37,11 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<Paging & { users: UserSelected[] }> {
+}): Promise<
+  Paging & {
+    users: UserGroupMember[];
+  }
+> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 
