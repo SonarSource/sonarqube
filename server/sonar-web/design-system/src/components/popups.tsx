@@ -28,7 +28,7 @@ import { PopupPlacement, popupPositioning, PopupZLevel } from '../helpers/positi
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
 import ClickEventBoundary from './ClickEventBoundary';
 
-interface PopupProps {
+interface PopupBaseProps {
   'aria-labelledby'?: string;
   children?: React.ReactNode;
   className?: string;
@@ -39,7 +39,7 @@ interface PopupProps {
   zLevel?: PopupZLevel;
 }
 
-function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
+function PopupBase(props: PopupBaseProps, ref: React.Ref<HTMLDivElement>) {
   const {
     children,
     className,
@@ -66,11 +66,10 @@ function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
 const PopupWithRef = React.forwardRef(PopupBase);
 PopupWithRef.displayName = 'Popup';
 
-export const Popup = PopupWithRef;
-
-interface PortalPopupProps extends Omit<PopupProps, 'style'> {
+interface PopupProps extends Omit<PopupBaseProps, 'style'> {
   allowResizing?: boolean;
   children: React.ReactNode;
+  isPortal?: boolean;
   overlay: React.ReactNode;
 }
 
@@ -87,12 +86,12 @@ function isMeasured(state: State): state is Measurements {
   return state.height !== undefined;
 }
 
-export class PortalPopup extends React.PureComponent<PortalPopupProps, State> {
+export class Popup extends React.PureComponent<PopupProps, State> {
   mounted = false;
   popupNode = React.createRef<HTMLDivElement>();
   throttledPositionTooltip: () => void;
 
-  constructor(props: PortalPopupProps) {
+  constructor(props: PopupProps) {
     super(props);
     this.state = {};
     this.throttledPositionTooltip = throttle(this.positionPopup, THROTTLE_SCROLL_DELAY);
@@ -104,7 +103,7 @@ export class PortalPopup extends React.PureComponent<PortalPopupProps, State> {
     this.mounted = true;
   }
 
-  componentDidUpdate(prevProps: PortalPopupProps) {
+  componentDidUpdate(prevProps: PopupProps) {
     if (this.props.placement !== prevProps.placement || this.props.overlay !== prevProps.overlay) {
       this.positionPopup();
     }
@@ -179,13 +178,23 @@ export class PortalPopup extends React.PureComponent<PortalPopupProps, State> {
     return (
       <>
         {this.props.children}
-        {this.props.overlay && (
-          <PortalWrapper>
-            <Popup placement={placement} ref={this.popupNode} style={style} {...popupProps}>
+        {this.props.overlay &&
+          (this.props.isPortal ? (
+            <PortalWrapper>
+              <PopupWithRef
+                placement={placement}
+                ref={this.popupNode}
+                style={style}
+                {...popupProps}
+              >
+                {overlay}
+              </PopupWithRef>
+            </PortalWrapper>
+          ) : (
+            <PopupWithRef placement={placement} ref={this.popupNode} style={style} {...popupProps}>
               {overlay}
-            </Popup>
-          </PortalWrapper>
-        )}
+            </PopupWithRef>
+          ))}
       </>
     );
   }

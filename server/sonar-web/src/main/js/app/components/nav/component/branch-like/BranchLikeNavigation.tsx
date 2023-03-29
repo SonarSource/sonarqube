@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, PopupPlacement, PopupZLevel, PortalPopup } from 'design-system';
+import { ButtonSecondary, Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
@@ -75,7 +75,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
             setIsMenuOpen(false);
           }}
         >
-          <PortalPopup
+          <Popup
             allowResizing={true}
             overlay={
               isMenuOpen && (
@@ -104,7 +104,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
             >
               {currentBranchLikeElement}
             </ButtonSecondary>
-          </PortalPopup>
+          </Popup>
         </OutsideClickHandler>
       </EscKeydownHandler>
 

@@ -24,6 +24,7 @@ import {
   Link,
   NavBarTabLink,
   NavBarTabs,
+  PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../../components/controls/Tooltip';
@@ -292,6 +293,7 @@ export class Menu extends React.PureComponent<Props> {
         data-test="administration"
         id="component-navigation-admin"
         size="auto"
+        zLevel={PopupZLevel.Global}
         overlay={adminLinks}
       >
         {({ onToggleClick, open, a11yAttrs }) => (
@@ -594,6 +596,7 @@ export class Menu extends React.PureComponent<Props> {
         data-test="extensions"
         id="component-navigation-more"
         size="auto"
+        zLevel={PopupZLevel.Global}
         overlay={withoutSecurityExtension.map((e) => this.renderExtension(e, false, query))}
       >
         {({ onToggleClick, open, a11yAttrs }) => (

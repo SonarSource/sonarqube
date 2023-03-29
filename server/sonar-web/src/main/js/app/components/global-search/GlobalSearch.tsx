@@ -24,8 +24,8 @@ import {
   InteractiveIcon,
   INTERACTIVE_TOOLTIP_DELAY,
   MenuSearchIcon,
+  Popup,
   PopupZLevel,
-  PortalPopup,
   TextMuted,
 } from 'design-system';
 import { debounce, uniqBy } from 'lodash';
@@ -376,7 +376,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
 
     const search = (
       <div role="search" className="sw-min-w-abs-200 sw-max-w-abs-350 sw-w-full">
-        <PortalPopup
+        <Popup
           allowResizing={true}
           overlay={
             open && (
@@ -424,7 +424,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
             searchInputAriaLabel={translate('search_verb')}
             clearIconAriaLabel={translate('clear')}
           />
-        </PortalPopup>
+        </Popup>
       </div>
     );
 

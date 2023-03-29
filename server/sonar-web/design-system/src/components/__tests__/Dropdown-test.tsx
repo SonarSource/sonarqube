@@ -22,6 +22,33 @@ import { renderWithRouter } from '../../helpers/testUtils';
 import { ButtonSecondary } from '../buttons';
 import Dropdown, { ActionsDropdown } from '../Dropdown';
 
+describe('Dropdown with Portal Wrapper', () => {
+  it('renders', async () => {
+    const { user } = setupWithChildren();
+    expect(screen.getByRole('button')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  it('toggles with render prop', async () => {
+    const { user } = setupWithChildren(({ onToggleClick }) => (
+      <ButtonSecondary onClick={onToggleClick} />
+    ));
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeVisible();
+  });
+
+  function setupWithChildren(children?: Dropdown['props']['children']) {
+    return renderWithRouter(
+      <Dropdown id="test-menu" isPortal={true} overlay={<div id="overlay" />}>
+        {children ?? <ButtonSecondary />}
+      </Dropdown>
+    );
+  }
+});
+
 describe('Dropdown', () => {
   it('renders', async () => {
     const { user } = setupWithChildren();

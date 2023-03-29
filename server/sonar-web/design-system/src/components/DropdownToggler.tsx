@@ -19,9 +19,9 @@
  */
 import EscKeydownHandler from './EscKeydownHandler';
 import OutsideClickHandler from './OutsideClickHandler';
-import { PortalPopup } from './popups';
+import { Popup } from './popups';
 
-type PopupProps = PortalPopup['props'];
+type PopupProps = Popup['props'];
 
 interface Props extends PopupProps {
   onRequestClose: VoidFunction;
@@ -32,7 +32,7 @@ export default function DropdownToggler(props: Props) {
   const { children, open, onRequestClose, overlay, ...popupProps } = props;
 
   return (
-    <PortalPopup
+    <Popup
       overlay={
         open ? (
           <OutsideClickHandler onClickOutside={onRequestClose}>
@@ -43,6 +43,6 @@ export default function DropdownToggler(props: Props) {
       {...popupProps}
     >
       {children}
-    </PortalPopup>
+    </Popup>
   );
 }

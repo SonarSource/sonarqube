@@ -46,6 +46,7 @@ interface Props {
   className?: string;
   closeOnClick?: boolean;
   id: string;
+  isPortal?: boolean;
   onOpen?: VoidFunction;
   overlay: React.ReactNode;
   placement?: PopupPlacement;
@@ -80,7 +81,15 @@ export default class Dropdown extends React.PureComponent<Props, State> {
 
   render() {
     const { open } = this.state;
-    const { allowResizing, className, closeOnClick = true, id, size = 'full', zLevel } = this.props;
+    const {
+      allowResizing,
+      className,
+      closeOnClick = true,
+      id,
+      isPortal,
+      size = 'full',
+      zLevel,
+    } = this.props;
     const a11yAttrs: A11yAttrs = {
       'aria-controls': `${id}-dropdown`,
       'aria-expanded': open,
@@ -104,6 +113,7 @@ export default class Dropdown extends React.PureComponent<Props, State> {
         aria-labelledby={`${id}-trigger`}
         className={className}
         id={`${id}-dropdown`}
+        isPortal={isPortal}
         onRequestClose={this.handleClose}
         open={open}
         overlay={
