@@ -28,6 +28,7 @@ import SelectList, {
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Group, UserSelected } from '../../../types/types';
+import { FormattedMessage } from 'react-intl';
 
 interface Props {
   group: Group;
@@ -143,11 +144,19 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   };
 
   render() {
-    const modalHeader = translate('users.update');
+    const modalHeader = translate('users.group.update');
     return (
       <Modal contentLabel={modalHeader} onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>{modalHeader}</h2>
+          <h2>
+            <FormattedMessage
+                 defaultMessage={modalHeader}
+                 id="users.group.update"
+                 values={{
+                 group: this.props.group.name
+                 }}
+            />
+          </h2>
         </header>
 
         <div className="modal-body modal-container">
