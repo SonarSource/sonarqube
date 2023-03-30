@@ -360,7 +360,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
               {this.renderStatusField()}
             </div>
             {this.renderDescriptionField()}
-            {params.map(this.renderParameterField)}
+            {params.sort((a, b) => a.key.localeCompare(b.key)).map(this.renderParameterField)}
           </div>
 
           <div className="modal-foot">
