@@ -24,7 +24,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { Issue, RawQuery } from '../../../types/types';
 
 // maximum possible value
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 50;
 // Maximum issues return 20*500 for the API.
 const PAGE_MAX = 20;
 

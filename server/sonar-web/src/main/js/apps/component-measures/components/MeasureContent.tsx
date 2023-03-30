@@ -210,7 +210,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const opts: RequestData = {
       ...getBranchLikeQuery(this.props.branchLike),
       additionalFields: 'metrics',
-      ps: 500,
+      ps: 50,
     };
 
     const setMetricSort = () => {

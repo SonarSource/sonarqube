@@ -44,7 +44,7 @@ import {
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
-export const BUBBLES_FETCH_LIMIT = 500;
+export const BUBBLES_FETCH_LIMIT = 50;
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW: MeasurePageView = 'tree';
 export const DEFAULT_METRIC = PROJECT_OVERVEW;

@@ -75,7 +75,7 @@ import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 25;
 const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 

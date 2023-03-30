@@ -452,7 +452,7 @@ export class App extends React.PureComponent<Props, State> {
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
-      ps: '100',
+      ps: '25',
       facets,
       ...additional,
     };

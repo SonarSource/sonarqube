@@ -84,7 +84,7 @@ export const VIEWS = [
   { value: 'leak', label: 'new_code' },
 ];
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 10;
 
 export const METRICS = [
   MetricKey.alert_status,
