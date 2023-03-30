@@ -41,6 +41,15 @@ public class SecurityServletFilterTest {
   private FilterChain chain = mock(FilterChain.class);
 
   @Test
+  public void ifRequestUriIsNull_returnBadRequest() throws ServletException, IOException {
+    HttpServletRequest request = newRequest("GET", "/");
+    when(request.getRequestURI()).thenReturn(null);
+
+    underTest.doFilter(request, response, chain);
+    verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+  }
+
+  @Test
   public void allow_GET_method() throws IOException, ServletException {
     assertThatMethodIsAllowed("GET");
   }

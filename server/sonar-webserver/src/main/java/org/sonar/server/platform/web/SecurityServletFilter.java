@@ -64,6 +64,11 @@ public class SecurityServletFilter implements Filter {
    * Adds security HTTP headers in the response. The headers are added using {@code setHeader()}, which overwrites existing headers.
    */
   public static void addSecurityHeaders(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    if (httpRequest.getRequestURI() == null) {
+      httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
+
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
     // The protection is disabled on purpose for integration in external systems like Github (/integration/github).
