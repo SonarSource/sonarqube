@@ -96,7 +96,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
-        new Change("10.0", "The field 'periods' in the response is removed"),
+        new Change("10.0", "The fields 'periods' and 'periodIndex' in the response are removed"),
         new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("9.5", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("8.5", "The field 'periods' in the response is deprecated. Use 'period' instead"),

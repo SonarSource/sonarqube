@@ -63,7 +63,6 @@ public class QualityGateDetailsFormatterTest {
       ProjectStatusResponse.Comparator.LT,
       ProjectStatusResponse.Comparator.GT,
       ProjectStatusResponse.Comparator.GT);
-    assertThat(conditions).extracting("periodIndex").containsExactly(1, 1, 1);
     assertThat(conditions).extracting("warningThreshold").containsOnly("80", "");
     assertThat(conditions).extracting("errorThreshold").containsOnly("85", "0", "0");
     assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452", "1", "0");
@@ -92,7 +91,6 @@ public class QualityGateDetailsFormatterTest {
     assertThat(conditions).extracting("status").containsExactly(ProjectStatusResponse.Status.ERROR);
     assertThat(conditions).extracting("metricKey").containsExactly("new_coverage");
     assertThat(conditions).extracting("comparator").containsExactly(ProjectStatusResponse.Comparator.LT);
-    assertThat(conditions).extracting("periodIndex").containsExactly(1);
     assertThat(conditions).extracting("errorThreshold").containsOnly("85");
     assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452");
   }

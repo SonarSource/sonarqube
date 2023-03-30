@@ -120,7 +120,6 @@ public class QualityGateDetailsFormatter {
     formatConditionLevel(conditionBuilder, jsonCondition);
     formatConditionMetric(conditionBuilder, jsonCondition);
     formatConditionOperation(conditionBuilder, jsonCondition);
-    formatConditionPeriod(conditionBuilder, jsonCondition);
     formatConditionWarningThreshold(conditionBuilder, jsonCondition);
     formatConditionErrorThreshold(conditionBuilder, jsonCondition);
     formatConditionActual(conditionBuilder, jsonCondition);
@@ -147,14 +146,6 @@ public class QualityGateDetailsFormatter {
     if (warning != null && !isNullOrEmpty(warning.getAsString())) {
       conditionBuilder.setWarningThreshold(warning.getAsString());
     }
-  }
-
-  private static void formatConditionPeriod(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
-    JsonElement periodIndex = jsonCondition.get("period");
-    if (periodIndex == null) {
-      return;
-    }
-    conditionBuilder.setPeriodIndex(periodIndex.getAsInt());
   }
 
   private static void formatConditionOperation(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {

@@ -43,7 +43,7 @@ message ProjectStatusResponse {
     optional Status status = 1;
     optional string metricKey = 2;
     optional Comparator comparator = 3;
-    optional int32 periodIndex = 4;
+    reserved 4; //drop periodIndex
     optional string warningThreshold = 5;
     optional string errorThreshold = 6;
     optional string actualValue = 7;
