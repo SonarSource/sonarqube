@@ -45,7 +45,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.user.index.UserIndexer;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -397,9 +396,8 @@ public class RecoveryIndexerTest {
   }
 
   private RecoveryIndexer newRecoveryIndexer() {
-    UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
     RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-    return newRecoveryIndexer(userIndexer, ruleIndexer);
+    return newRecoveryIndexer(ruleIndexer);
   }
 
   private RecoveryIndexer newRecoveryIndexer(ResilientIndexer... indexers) {

@@ -29,7 +29,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -38,7 +37,6 @@ import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -63,20 +61,17 @@ public class UpdateIdentityProviderActionIT {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   private final WsActionTester underTest = new WsActionTester(new UpdateIdentityProviderAction(dbClient, identityProviderRepository,
-    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
     userSession, managedInstanceChecker));
 
   @Test
@@ -261,7 +256,7 @@ public class UpdateIdentityProviderActionIT {
       .setExternalLogin(externalLogin)
       .setExternalIdentityProvider(externalIdentityProvider);
     dbClient.userDao().insert(dbSession, userDto);
-    userIndexer.commitAndIndex(dbSession, userDto);
+    dbSession.commit();
   }
 
 }

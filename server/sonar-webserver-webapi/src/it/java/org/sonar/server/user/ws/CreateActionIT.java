@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import java.util.List;
 import java.util.Optional;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,8 +33,6 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -43,8 +40,6 @@ import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CreateAction.CreateRequest;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -57,17 +52,11 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
 
 public class CreateActionIT {
 
@@ -77,17 +66,14 @@ public class CreateActionIT {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroup;
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester tester = new WsActionTester(new CreateAction(db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class),
-    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), userSessionRule, managedInstanceChecker));
+    db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), userSessionRule, managedInstanceChecker));
 
   @Before
   public void setUp() {
@@ -109,16 +95,6 @@ public class CreateActionIT {
     assertThat(response.getUser())
       .extracting(User::getLogin, User::getName, User::getEmail, User::getScmAccountsList, User::getLocal)
       .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
-
-    // exists in index
-    assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-      .source(new SearchSourceBuilder()
-        .query(boolQuery()
-          .must(termQuery(FIELD_LOGIN, "john"))
-          .must(termQuery(FIELD_NAME, "John"))
-          .must(termQuery(FIELD_EMAIL, "john@email.com"))
-          .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
-      .getHits().getHits()).hasSize(1);
 
     // exists in db
     Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
@@ -229,7 +205,6 @@ public class CreateActionIT {
     logInAsSystemAdministrator();
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false));
-    userIndexer.indexAll();
 
     call(CreateRequest.builder()
       .setLogin("john")

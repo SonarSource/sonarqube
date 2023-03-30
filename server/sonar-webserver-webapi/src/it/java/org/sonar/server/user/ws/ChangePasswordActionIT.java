@@ -40,14 +40,11 @@ import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.ServletFilterHandler;
 
@@ -74,8 +71,6 @@ public class ChangePasswordActionIT {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.createCustom(UserIndexDefinition.createForTest());
-  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private final ArgumentCaptor<UserDto> userDtoCaptor = ArgumentCaptor.forClass(UserDto.class);
@@ -88,7 +83,7 @@ public class ChangePasswordActionIT {
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(),
-    new UserIndexer(db.getDbClient(), es.client()), new DefaultGroupFinder(db.getDbClient()),
+    new DefaultGroupFinder(db.getDbClient()),
     new MapSettings().asConfig(), new NoOpAuditPersister(), localAuthentication);
 
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

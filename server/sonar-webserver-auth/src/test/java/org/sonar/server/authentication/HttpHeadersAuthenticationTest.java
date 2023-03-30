@@ -44,7 +44,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
@@ -93,11 +92,9 @@ public class HttpHeadersAuthenticationTest {
   private final System2 system2 = mock(System2.class);
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
-  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-
   private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
   private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultGroupFinder, settings.asConfig(), mock(AuditPersister.class), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), defaultGroupFinder, settings.asConfig(), mock(AuditPersister.class), localAuthentication),
     defaultGroupFinder, mock(ManagedInstanceService.class));
   private final HttpServletResponse response = mock(HttpServletResponse.class);
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

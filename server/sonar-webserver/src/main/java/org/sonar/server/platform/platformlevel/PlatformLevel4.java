@@ -246,9 +246,6 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserSessionFactoryImpl;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.UsersWsModule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
@@ -397,9 +394,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UserSessionFactoryImpl.class,
       SecurityRealmFactory.class,
       NewUserNotifier.class,
-      UserIndexDefinition.class,
-      UserIndexer.class,
-      UserIndex.class,
       UserUpdater.class,
       new UsersWsModule(),
       new UserTokenModule(),

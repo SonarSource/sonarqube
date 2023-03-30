@@ -96,7 +96,6 @@ import org.sonar.server.es.newindex.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -152,7 +151,6 @@ public class EsTester extends ExternalResource {
         IssueIndexDefinition.createForTest(),
         ProjectMeasuresIndexDefinition.createForTest(),
         RuleIndexDefinition.createForTest(),
-        UserIndexDefinition.createForTest(),
         ViewIndexDefinition.createForTest());
 
       CORE_INDICES_CREATED.set(true);

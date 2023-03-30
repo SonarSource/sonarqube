@@ -27,7 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndexer;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
@@ -35,14 +34,12 @@ public class AnonymizeAction implements UsersWsAction {
   private static final String PARAM_LOGIN = "login";
 
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
   private final UserSession userSession;
   private final UserAnonymizer userAnonymizer;
 
-  public AnonymizeAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserAnonymizer userAnonymizer) {
+  public AnonymizeAction(DbClient dbClient, UserSession userSession, UserAnonymizer userAnonymizer) {
     this.userAnonymizer = userAnonymizer;
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
     this.userSession = userSession;
   }
 
@@ -74,7 +71,7 @@ public class AnonymizeAction implements UsersWsAction {
 
       userAnonymizer.anonymize(dbSession, user);
       dbClient.userDao().update(dbSession, user);
-      userIndexer.commitAndIndex(dbSession, user);
+      dbSession.commit();
     }
 
     response.noContent();

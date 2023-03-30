@@ -34,8 +34,6 @@ import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
@@ -53,18 +51,15 @@ public class UserUpdaterReactivateTest {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final DbSession session = db.getSession();
-  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final AuditPersister auditPersister = mock(AuditPersister.class);
-  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
+  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient,
     new DefaultGroupFinder(dbClient),
     settings.asConfig(), auditPersister, localAuthentication);
 

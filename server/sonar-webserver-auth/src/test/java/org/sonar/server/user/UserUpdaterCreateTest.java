@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,8 +42,6 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.asList;
@@ -52,7 +49,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -76,10 +72,9 @@ public class UserUpdaterCreateTest {
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
   private final DbSession session = db.getSession();
-  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
-  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
+  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient,
     new DefaultGroupFinder(dbClient), settings.asConfig(), null, localAuthentication);
 
   @Test
@@ -111,13 +106,6 @@ public class UserUpdaterCreateTest {
       .isEqualTo(dto.getUpdatedAt());
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getUuid()).isEqualTo(dto.getUuid());
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
-    assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSourceAsMap())
-      .contains(
-        entry("login", "user"),
-        entry("name", "User"),
-        entry("email", "user@mail.com"));
   }
 
   @Test
@@ -272,22 +260,6 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void create_user_and_index_other_user() {
-    createDefaultGroup();
-    UserDto otherUser = db.users().insertUser();
-
-    UserDto created = underTest.createAndCommit(session, NewUser.builder()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("PASSWORD")
-      .build(), u -> {
-    }, otherUser);
-
-    assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
-  }
-
-  @Test
   @UseDataProvider("loginWithAuthorizedSuffix")
   public void createAndCommit_should_createUserWithoutException_when_loginHasAuthorizedSuffix(String login) {
     createDefaultGroup();
@@ -302,7 +274,7 @@ public class UserUpdaterCreateTest {
 
   @DataProvider
   public static Object[][] loginWithAuthorizedSuffix() {
-    return new Object[][]{
+    return new Object[][] {
       {"1Login"},
       {"AnotherLogin"},
       {"alogin"},
@@ -354,7 +326,7 @@ public class UserUpdaterCreateTest {
 
   @DataProvider
   public static Object[][] loginWithUnauthorizedSuffix() {
-    return new Object[][]{
+    return new Object[][] {
       {".Toto"},
       {"@Toto"},
       {"-Tutu"},

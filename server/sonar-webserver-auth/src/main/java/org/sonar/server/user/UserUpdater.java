@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang.math.RandomUtils;
@@ -42,7 +41,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
 
@@ -50,9 +48,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Stream.concat;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -77,17 +73,15 @@ public class UserUpdater {
 
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
   private final DefaultGroupFinder defaultGroupFinder;
   private final AuditPersister auditPersister;
   private final CredentialsLocalAuthentication localAuthentication;
 
   @Inject
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, DefaultGroupFinder defaultGroupFinder, Configuration config,
     AuditPersister auditPersister, CredentialsLocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
     this.defaultGroupFinder = defaultGroupFinder;
     this.auditPersister = auditPersister;
     this.localAuthentication = localAuthentication;
@@ -138,7 +132,7 @@ public class UserUpdater {
 
   private UserDto commitUser(DbSession dbSession, UserDto userDto, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
     beforeCommit.accept(userDto);
-    userIndexer.commitAndIndex(dbSession, concat(Stream.of(userDto), stream(otherUsersToIndex)).collect(toList()));
+    dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), userDto.getEmail());
     return userDto;
   }

@@ -42,7 +42,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
@@ -86,12 +85,11 @@ public class UserRegistrarImplTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
-  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, groupFinder, settings.asConfig(), auditPersister, localAuthentication);
+  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), groupFinder, settings.asConfig(), auditPersister, localAuthentication);
 
   private final UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder, managedInstanceService);
   private GroupDto defaultGroup;

@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -35,7 +34,6 @@ import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -56,13 +54,11 @@ public class UpdateLoginActionIT {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null, null), managedInstanceChecker));
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), null, null, null, null), managedInstanceChecker));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {

@@ -20,9 +20,7 @@
 package org.sonar.server.user;
 
 import com.google.common.collect.Multimap;
-import java.util.List;
 import java.util.function.Consumer;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -38,10 +36,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.asList;
@@ -49,7 +44,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -69,18 +63,15 @@ public class UserUpdaterUpdateTest {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final DbSession session = db.getSession();
-  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final AuditPersister auditPersister = mock(AuditPersister.class);
-  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
+  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient,
     new DefaultGroupFinder(dbClient), settings.asConfig(), auditPersister, localAuthentication);
 
   @Test
@@ -88,7 +79,6 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
-    userIndexer.indexAll();
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2")
@@ -104,13 +94,6 @@ public class UserUpdaterUpdateTest {
     assertThat(updatedUser.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(updatedUser.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
 
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
-    assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSourceAsMap())
-      .contains(
-        entry("login", DEFAULT_LOGIN),
-        entry("name", "Marius2"),
-        entry("email", "marius2@mail.com"));
     verify(auditPersister, never()).updateUserPassword(any(), any());
   }
 
@@ -219,22 +202,6 @@ public class UserUpdaterUpdateTest {
   }
 
   @Test
-  public void update_index_when_updating_user_login() {
-    UserDto oldUser = db.users().insertUser();
-    createDefaultGroup();
-    userIndexer.indexAll();
-
-    underTest.updateAndCommit(session, oldUser, new UpdateUser()
-      .setLogin("new_login"), u -> {
-    });
-
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
-    assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSourceAsMap())
-      .contains(entry("login", "new_login"));
-  }
-
-  @Test
   public void update_default_assignee_when_updating_login() {
     createDefaultGroup();
     UserDto oldUser = db.users().insertUser();
@@ -248,7 +215,6 @@ public class UserUpdaterUpdateTest {
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()));
     db.properties().insertProperties(oldUser.getLogin(), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
-    userIndexer.indexAll();
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {
@@ -483,23 +449,6 @@ public class UserUpdaterUpdateTest {
     });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
-  }
-
-  @Test
-  public void update_user_and_index_other_user() {
-    createDefaultGroup();
-    UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
-      .setScmAccounts(asList("ma", "marius33")));
-    UserDto otherUser = db.users().insertUser();
-
-    underTest.updateAndCommit(session, user, new UpdateUser()
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .setScmAccounts(asList("ma2")), u -> {
-    }, otherUser);
-
-    assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(user.getUuid(), otherUser.getUuid());
   }
 
   @Test

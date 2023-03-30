@@ -22,8 +22,6 @@ package org.sonar.server.user.ws;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -32,17 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
-import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndexDefinition;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -50,11 +42,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
-import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 
 public class AnonymizeActionIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
@@ -62,14 +50,11 @@ public class AnonymizeActionIT {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = EsTester.create();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final DbClient dbClient = db.getDbClient();
-  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient());
-  private final WsActionTester ws = new WsActionTester(new AnonymizeAction(dbClient, userIndexer, userSession, userAnonymizer));
+  private final WsActionTester ws = new WsActionTester(new AnonymizeAction(dbClient, userSession, userAnonymizer));
 
   @Test
   public void anonymize_user() {
@@ -87,7 +72,6 @@ public class AnonymizeActionIT {
     TestResponse response = anonymize(user.getLogin());
 
     verifyThatUserIsAnonymized(user.getUuid());
-    verifyThatUserIsAnonymizedOnEs(user.getUuid());
     assertThat(response.getInput()).isEmpty();
   }
 
@@ -172,19 +156,6 @@ public class AnonymizeActionIT {
       .setMethod("POST");
     Optional.ofNullable(login).ifPresent(t -> request.setParam("login", login));
     return request.execute();
-  }
-
-  private void verifyThatUserIsAnonymizedOnEs(String uuid) {
-    SearchHits hits = es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-        .source(new SearchSourceBuilder()
-          .query(boolQuery()
-            .must(termQuery(FIELD_UUID, uuid))
-            .must(termQuery(FIELD_ACTIVE, "false")))))
-      .getHits();
-    List<UserDoc> userDocs = EsUtils.convertToDocs(hits, UserDoc::new);
-    assertThat(userDocs).hasSize(1);
-    assertThat(userDocs.get(0).login()).startsWith("sq-removed-");
-    assertThat(userDocs.get(0).name()).startsWith("sq-removed-");
   }
 
   private void verifyThatUserIsAnonymized(String uuid) {
