@@ -22,6 +22,7 @@ export interface CurrentUser {
   permissions?: { global: string[] };
   usingSonarLintConnectedMode?: boolean;
   dismissedNotices: { [key: string]: boolean };
+  groups:string[];
 }
 
 export interface Notice {

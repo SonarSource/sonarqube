@@ -23,12 +23,14 @@ import SimpleSessionsContainer from '../../app/components/SimpleSessionsContaine
 import LoginContainer from './components/LoginContainer';
 import Logout from './components/Logout';
 import Unauthorized from './components/Unauthorized';
+import SamlLogin from './components/SamlLogin'
 
 const routes = () => (
   <Route path="sessions" element={<SimpleSessionsContainer />}>
     <Route path="new" element={<LoginContainer />} />
     <Route path="logout" element={<Logout />} />
     <Route path="unauthorized" element={<Unauthorized />} />
+    <Route path="sso" element={<SamlLogin />}>
   </Route>
 );
 

@@ -29,10 +29,15 @@ export interface LandingProps {
 
 export function Landing({ currentUser }: LandingProps) {
   let redirectUrl: To;
-  if (isLoggedIn(currentUser) && currentUser.homepage) {
-    redirectUrl = getHomePageUrl(currentUser.homepage);
-  } else {
-    redirectUrl = '/projects';
+    if(isLoggedIn(currentUser)) {
+      if (currentUser.homepage) {
+          redirectUrl = getHomePageUrl(currentUser.homepage);
+        } else {
+          redirectUrl = '/projects';
+        }
+    } else {
+      redirectUrl = '/sessions/new';
+    }
   }
 
   return <Navigate to={redirectUrl} replace={true} />;

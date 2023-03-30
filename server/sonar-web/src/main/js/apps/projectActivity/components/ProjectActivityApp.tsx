@@ -75,7 +75,7 @@ export interface State {
 export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
 const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
-const ACTIVITY_PAGE_SIZE = 500;
+const ACTIVITY_PAGE_SIZE = 50;
 
 export class ProjectActivityApp extends React.PureComponent<Props, State> {
   mounted = false;

@@ -86,7 +86,7 @@ export default class Form extends React.PureComponent<Props, State> {
                 <input
                   autoFocus={true}
                   id="create-group-name"
-                  maxLength={255}
+                  maxLength={20}
                   name="name"
                   onChange={this.handleNameChange}
                   required={true}
@@ -99,6 +99,7 @@ export default class Form extends React.PureComponent<Props, State> {
                 <label htmlFor="create-group-description">{translate('description')}</label>
                 <textarea
                   id="create-group-description"
+                  maxLength={200}
                   name="description"
                   onChange={this.handleDescriptionChange}
                   value={this.state.description}

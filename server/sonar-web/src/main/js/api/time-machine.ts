@@ -53,7 +53,7 @@ export function getAllTimeMachineData(
   } & BranchParameters,
   prev?: TimeMachineResponse
 ): Promise<TimeMachineResponse> {
-  return getTimeMachineData({ ...data, ps: 1000 }).then((r) => {
+  return getTimeMachineData({ ...data, ps: 100 }).then((r) => {
     const result = prev
       ? {
           measures: prev.measures.map((measure, idx) => ({

@@ -124,7 +124,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministrationLink() {
-    if (!this.props.appState.canAdmin) {
+    const isSonarAdminGroupAvailable:boolean = this.props.currentUser.groups.includes('sonar-administrators');
+    if (!this.props.appState.canAdmin || !isSonarAdminGroupAvailable) {
       return null;
     }
 
