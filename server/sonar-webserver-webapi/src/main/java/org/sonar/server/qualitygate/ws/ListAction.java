@@ -34,7 +34,6 @@ import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
-import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -59,6 +58,7 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
+        new Change("10.0", "Field 'default' in the response has been removed"),
         new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("9.9", "'caycStatus' field is added on quality gate"),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
@@ -92,7 +92,6 @@ public class ListAction implements QualityGatesWsAction {
           .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
           .build())
         .collect(toList()));
-    ofNullable(defaultUuid).ifPresent(builder::setDefault);
     return builder.build();
   }
 

@@ -31,7 +31,6 @@
       }
     }
   ],
-  "default": 8,
   "actions": {
     "create": true
   }

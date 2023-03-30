@@ -125,17 +125,6 @@ public class ListActionIT {
   }
 
   @Test
-  public void test_deprecated_default_field() {
-    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate();
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
-
-    ListWsResponse response = ws.newRequest()
-      .executeProtobuf(ListWsResponse.class);
-
-    assertThat(response.getDefault()).isEqualTo(defaultQualityGate.getUuid());
-  }
-
-  @Test
   public void no_default_quality_gate() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 

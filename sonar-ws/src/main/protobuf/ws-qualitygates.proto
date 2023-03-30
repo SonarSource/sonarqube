@@ -150,8 +150,7 @@ message SearchResponse {
 // GET api/qualitygates/list
 message ListWsResponse {
   repeated QualityGate qualitygates = 1;
-  // Deprecated since 7.0
-  optional string default = 2;
+  reserved 2; //drop default
   optional RootActions actions = 3;
 
   message QualityGate {
