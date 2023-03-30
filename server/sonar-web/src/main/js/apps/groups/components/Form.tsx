@@ -99,6 +99,7 @@ export default class Form extends React.PureComponent<Props, State> {
                 <label htmlFor="create-group-description">{translate('description')}</label>
                 <textarea
                   id="create-group-description"
+                  maxLength={200}
                   name="description"
                   onChange={this.handleDescriptionChange}
                   value={this.state.description}
