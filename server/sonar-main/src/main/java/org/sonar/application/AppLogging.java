@@ -119,6 +119,9 @@ public class AppLogging {
   private static final String CONSOLE_PLAIN_APPENDER = "CONSOLE";
   private static final String APP_CONSOLE_APPENDER = "APP_CONSOLE";
   private static final String GOBBLER_PLAIN_CONSOLE = "GOBBLER_CONSOLE";
+  private static final RootLoggerConfig APP_ROOT_LOGGER_CONFIG = newRootLoggerConfigBuilder()
+          .setProcessId(ProcessId.APP)
+          .build();
 
   private final RootLoggerConfig rootLoggerConfig;
   private final LogbackHelper helper = new LogbackHelper();
@@ -127,15 +130,15 @@ public class AppLogging {
   public AppLogging(AppSettings appSettings) {
     this.appSettings = appSettings;
     rootLoggerConfig = newRootLoggerConfigBuilder()
-      .setNodeNameField(getNodeNameWhenCluster(appSettings.getProps()))
-      .setProcessId(ProcessId.APP)
-      .build();
+            .setNodeNameField(getNodeNameWhenCluster(appSettings.getProps()))
+            .setProcessId(ProcessId.APP)
+            .build();
   }
 
   @CheckForNull
   private static String getNodeNameWhenCluster(Props props) {
     boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(),
-      Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
+            Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
     return clusterEnabled ? props.value(CLUSTER_NODE_NAME.getKey(), CLUSTER_NODE_NAME.getDefaultValue()) : null;
   }
 
@@ -145,16 +148,14 @@ public class AppLogging {
 
     helper.enableJulChangePropagation(ctx);
 
-    configureConsole(ctx);
-    configureWithLogbackWritingToFile(ctx);
+    configureConsole(appSettings.getProps(), ctx);
+    configureWithLogbackWritingToFile(appSettings.getProps(), ctx);
 
-    helper.apply(
-      LogLevelConfig.newBuilder(helper.getRootLoggerName())
-        .rootLevelFor(ProcessId.APP)
-        .immutableLevel("com.hazelcast",
-          Level.toLevel("WARN"))
-        .build(),
-      appSettings.getProps());
+    helper.apply(LogLevelConfig.newBuilder(helper.getRootLoggerName())
+                    .rootLevelFor(ProcessId.APP)
+                    .immutableLevel("com.hazelcast", Level.toLevel("WARN"))
+                    .build(),
+            appSettings.getProps());
 
     return ctx;
   }
@@ -164,8 +165,8 @@ public class AppLogging {
    *
    * It creates a dedicated appender to the System.out which applies no formatting the logs it receives.
    */
-  private void configureConsole(LoggerContext loggerContext) {
-    Encoder<ILoggingEvent> encoder = createGobblerEncoder(loggerContext);
+  private void configureConsole(Props props, LoggerContext loggerContext) {
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, APP_ROOT_LOGGER_CONFIG, loggerContext);
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_PLAIN_APPENDER, encoder);
 
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
@@ -178,14 +179,14 @@ public class AppLogging {
    * Therefor, APP's System.out (and System.err) are <strong>not</strong> copied to sonar.log by the wrapper and
    * printing to sonar.log must be done at logback level.
    */
-  private void configureWithLogbackWritingToFile(LoggerContext ctx) {
+  private void configureWithLogbackWritingToFile(Props props,LoggerContext ctx) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
-    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), rootLoggerConfig, encoder);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, rootLoggerConfig, ctx);
+    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, props, rootLoggerConfig, encoder);
     rootLogger.addAppender(fileAppender);
     rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
 
-    configureGobbler(ctx);
+    configureGobbler(props,ctx);
 
     configureStartupLogger(ctx, fileAppender, encoder);
   }
@@ -207,10 +208,10 @@ public class AppLogging {
    *   <li>write exclusively to App's System.out</li>
    * </ol>
    */
-  private void configureGobbler(LoggerContext ctx) {
+  private void configureGobbler(Props props, LoggerContext ctx) {
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     gobblerLogger.setAdditive(false);
-    Encoder<ILoggingEvent> encoder = createGobblerEncoder(ctx);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, APP_ROOT_LOGGER_CONFIG, ctx);
     gobblerLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, encoder));
   }
 
@@ -218,14 +219,4 @@ public class AppLogging {
     return helper.newConsoleAppender(ctx, APP_CONSOLE_APPENDER, encoder);
   }
 
-  /**
-   * Simply displays the message received as input.
-   */
-  private static Encoder<ILoggingEvent> createGobblerEncoder(LoggerContext context) {
-    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setContext(context);
-    encoder.setPattern("%msg%n");
-    encoder.start();
-    return encoder;
-  }
 }

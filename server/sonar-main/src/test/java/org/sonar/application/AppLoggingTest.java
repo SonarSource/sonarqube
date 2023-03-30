@@ -292,7 +292,7 @@ public class AppLoggingTest {
     assertThat(appender).isInstanceOf(ConsoleAppender.class);
     ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) appender;
     assertThat(consoleAppender.getTarget()).isEqualTo(ConsoleTarget.SystemOut.getName());
-    verifyFormattedLogEncoder(consoleAppender.getEncoder(), "%msg%n");
+    verifyFormattedLogEncoder(consoleAppender.getEncoder(), "%d{yyyy.MM.dd HH:mm:ss} %-5level app[][%logger{20}] %msg%n");
   }
 
   private void verifyFormattedLogEncoder(Encoder<ILoggingEvent> encoder, String logPattern) {
