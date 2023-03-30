@@ -38,7 +38,6 @@ export function Landing({ currentUser }: LandingProps) {
     } else {
       redirectUrl = '/sessions/new';
     }
-  }
 
   return <Navigate to={redirectUrl} replace={true} />;
 }
