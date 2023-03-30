@@ -31,6 +31,7 @@ import {
 import { debounce, uniqBy } from 'lodash';
 import * as React from 'react';
 import { getSuggestions } from '../../../api/components';
+import FocusOutHandler from '../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
@@ -39,6 +40,7 @@ import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
@@ -277,7 +279,12 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
       const node = this.nodes[this.state.selected];
 
       if (node && this.node) {
-        node.scrollIntoView();
+        // using scrollIntoView here is creating some weird scroll behaviour when scrolling
+        scrollToElement(node, {
+          topOffset: 30,
+          bottomOffset: 30,
+          parent: this.node,
+        });
       }
     }
   };
@@ -357,25 +364,10 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
   render() {
     const { open, query, results, more, loadingMore, selected, loading } = this.state;
 
-    if (!open && !query) {
-      return (
-        <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} overlay={translate('search_verb')}>
-          <InteractiveIcon
-            className="it__search-icon"
-            Icon={MenuSearchIcon}
-            aria-label={translate('search_verb')}
-            currentColor={true}
-            onClick={this.handleFocus}
-            size="medium"
-          />
-        </Tooltip>
-      );
-    }
-
     const list = this.getPlainComponentsList(results, more);
 
     const search = (
-      <div role="search" className="sw-min-w-abs-200 sw-max-w-abs-350 sw-w-full">
+      <div className="sw-min-w-abs-200 sw-max-w-abs-350 sw-w-full">
         <Popup
           allowResizing={true}
           overlay={
@@ -385,6 +377,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
                 maxHeight="38rem"
                 innerRef={(node: HTMLUListElement | null) => (this.node = node)}
                 size="auto"
+                aria-owns="global-search-input"
               >
                 <GlobalSearchResults
                   query={query}
@@ -409,6 +402,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
           zLevel={PopupZLevel.Global}
         >
           <InputSearch
+            id="global-search-input"
             className="sw-w-full"
             autoFocus={open}
             innerRef={this.searchInputRef}
@@ -428,10 +422,27 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
       </div>
     );
 
-    return open ? (
-      <OutsideClickHandler onClickOutside={this.handleClickOutside}>{search}</OutsideClickHandler>
-    ) : (
-      search
+    return (
+      <form role="search">
+        {!open && !query ? (
+          <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} overlay={translate('search_verb')}>
+            <InteractiveIcon
+              className="it__search-icon"
+              Icon={MenuSearchIcon}
+              aria-label={translate('search_verb')}
+              currentColor={true}
+              onClick={this.handleFocus}
+              size="medium"
+            />
+          </Tooltip>
+        ) : (
+          <FocusOutHandler onFocusOut={this.handleClickOutside}>
+            <OutsideClickHandler onClickOutside={this.handleClickOutside}>
+              {search}
+            </OutsideClickHandler>
+          </FocusOutHandler>
+        )}
+      </form>
     );
   }
 }

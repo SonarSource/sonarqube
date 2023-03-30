@@ -20,6 +20,7 @@
 import { ButtonSecondary, Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
+import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
@@ -63,50 +64,48 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     <CurrentBranchLike component={component} currentBranchLike={currentBranchLike} />
   );
 
+  const handleOutsideClick = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className="sw-flex sw-items-center sw-ml-2 it__branch-like-navigation-toggler-container">
-      <EscKeydownHandler
-        onKeydown={() => {
-          setIsMenuOpen(false);
-        }}
+      <Popup
+        allowResizing={true}
+        overlay={
+          isMenuOpen && (
+            <FocusOutHandler onFocusOut={handleOutsideClick}>
+              <EscKeydownHandler onKeydown={handleOutsideClick}>
+                <OutsideClickHandler onClickOutside={handleOutsideClick}>
+                  <Menu
+                    branchLikes={branchLikes}
+                    canAdminComponent={canAdminComponent}
+                    component={component}
+                    currentBranchLike={currentBranchLike}
+                    onClose={() => {
+                      setIsMenuOpen(false);
+                    }}
+                  />
+                </OutsideClickHandler>
+              </EscKeydownHandler>
+            </FocusOutHandler>
+          )
+        }
+        placement={PopupPlacement.BottomLeft}
+        zLevel={PopupZLevel.Global}
       >
-        <OutsideClickHandler
-          onClickOutside={() => {
-            setIsMenuOpen(false);
+        <ButtonSecondary
+          className="sw-max-w-abs-350"
+          onClick={() => {
+            setIsMenuOpen(!isMenuOpen);
           }}
+          disabled={!isMenuEnabled}
+          aria-expanded={isMenuOpen}
+          aria-haspopup="menu"
         >
-          <Popup
-            allowResizing={true}
-            overlay={
-              isMenuOpen && (
-                <Menu
-                  branchLikes={branchLikes}
-                  canAdminComponent={canAdminComponent}
-                  component={component}
-                  currentBranchLike={currentBranchLike}
-                  onClose={() => {
-                    setIsMenuOpen(false);
-                  }}
-                />
-              )
-            }
-            placement={PopupPlacement.BottomLeft}
-            zLevel={PopupZLevel.Global}
-          >
-            <ButtonSecondary
-              className="sw-max-w-abs-350"
-              onClick={() => {
-                setIsMenuOpen(!isMenuOpen);
-              }}
-              disabled={!isMenuEnabled}
-              aria-expanded={isMenuOpen}
-              aria-haspopup="menu"
-            >
-              {currentBranchLikeElement}
-            </ButtonSecondary>
-          </Popup>
-        </OutsideClickHandler>
-      </EscKeydownHandler>
+          {currentBranchLikeElement}
+        </ButtonSecondary>
+      </Popup>
 
       <div className="sw-ml-2">
         <BranchHelpTooltip
