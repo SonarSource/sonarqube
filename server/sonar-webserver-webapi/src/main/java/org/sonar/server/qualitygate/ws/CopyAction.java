@@ -55,7 +55,7 @@ public class CopyAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("copy")
       .setDescription("Copy a Quality Gate.<br>" +
-        "Either 'sourceName' or 'id' must be provided. Requires the 'Administer Quality Gates' permission.")
+        "'sourceName' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setChangelog(
         new Change("10.0", "Field 'id' in the response is deprecated"),

@@ -49,7 +49,7 @@ public class RenameAction implements QualityGatesWsAction {
     WebService.NewAction action = controller.createAction("rename")
       .setPost(true)
       .setDescription("Rename a Quality Gate.<br>" +
-        "Either 'id' or 'currentName' must be specified. Requires the 'Administer Quality Gates' permission.")
+        "'currentName' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
         new Change("10.0", "Field 'id' in the response is deprecated"),
