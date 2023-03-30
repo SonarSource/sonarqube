@@ -128,6 +128,9 @@ public class RuleIndex {
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
   public static final String FACET_CWE = "cwe";
+  /**
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+   */
   @Deprecated(since = "10.0", forRemoval = true)
   public static final String FACET_SANS_TOP_25 = "sansTop25";
   public static final String FACET_OWASP_TOP_10 = "owaspTop10";

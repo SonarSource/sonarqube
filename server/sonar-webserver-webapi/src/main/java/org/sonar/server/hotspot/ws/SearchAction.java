@@ -118,6 +118,9 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  /**
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+   */
   @Deprecated(since = "10.0", forRemoval = true)
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";

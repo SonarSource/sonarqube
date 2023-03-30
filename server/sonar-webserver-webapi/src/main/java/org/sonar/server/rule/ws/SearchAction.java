@@ -617,6 +617,9 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
+    /**
+     * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+     */
     @Deprecated(since = "10.0", forRemoval = true)
     public List<String> getSansTop25() {
       return sansTop25;

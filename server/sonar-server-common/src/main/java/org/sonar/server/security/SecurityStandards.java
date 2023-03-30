@@ -52,6 +52,10 @@ import static org.sonar.server.security.SecurityStandards.VulnerabilityProbabili
 public final class SecurityStandards {
 
   public static final String UNKNOWN_STANDARD = "unknown";
+
+  /**
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+   */
   @Deprecated(since = "10.0", forRemoval = true)
   public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
   @Deprecated(since = "10.0", forRemoval = true)
@@ -67,6 +71,9 @@ public final class SecurityStandards {
   private static final String CWE_PREFIX = "cwe:";
   // See https://www.sans.org/top25-software-errors
 
+  /**
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
+   */
   @Deprecated(since = "10.0", forRemoval = true)
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
   @Deprecated(since = "10.0", forRemoval = true)
@@ -75,7 +82,7 @@ public final class SecurityStandards {
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
 
   /**
-   * @deprecated SansTop25 report is outdated and will be removed from version 11.0
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated
   public static final Map<String, Set<String>> CWES_BY_SANS_TOP_25 = ImmutableMap.of(
@@ -306,7 +313,7 @@ public final class SecurityStandards {
   }
 
   /**
-   * @deprecated SansTop25 report is outdated and will be removed from version 11.0
+   * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated
   public Set<String> getSansTop25() {
