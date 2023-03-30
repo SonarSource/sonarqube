@@ -58,6 +58,7 @@ public class CopyAction implements QualityGatesWsAction {
         "Either 'sourceName' or 'id' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response is deprecated"),
         new Change("10.0", "Parameter 'id' is removed. Use 'sourceName' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'sourceName' instead."),
         new Change("8.4", "Parameter 'sourceName' added"))

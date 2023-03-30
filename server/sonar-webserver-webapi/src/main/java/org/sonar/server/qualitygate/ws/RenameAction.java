@@ -52,6 +52,7 @@ public class RenameAction implements QualityGatesWsAction {
         "Either 'id' or 'currentName' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response is deprecated"),
         new Change("10.0", "Parameter 'id' is removed. Use 'currentName' instead."),
         new Change("8.4", "Parameter 'currentName' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'currentName' instead."))
