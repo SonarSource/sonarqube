@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -284,14 +285,23 @@ public class IssueQueryFactory {
 
     List<String> projectKeys = request.getProjects();
     if (projectKeys != null) {
-      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
-      builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
-      setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest(), session);
+      List<ComponentDto> branchComponents = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
+      Set<String> projectUuids = retrieveProjectUuidsFromComponents(session, branchComponents);
+      builder.projectUuids(projectUuids);
+      setBranch(builder, branchComponents.get(0), request.getBranch(), request.getPullRequest(), session);
     }
     builder.directories(request.getDirectories());
     builder.files(request.getFiles());
 
     addComponentsBasedOnQualifier(builder, session, components, request);
+  }
+
+  @NotNull
+  private Set<String> retrieveProjectUuidsFromComponents(DbSession session, List<ComponentDto> branchComponents) {
+    Set<String> branchUuids = branchComponents.stream().map(ComponentDto::branchUuid).collect(Collectors.toSet());
+    return dbClient.branchDao().selectByUuids(session, branchUuids).stream()
+      .map(BranchDto::getProjectUuid)
+      .collect(Collectors.toSet());
   }
 
   private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components, SearchRequest request) {
@@ -317,7 +327,7 @@ public class IssueQueryFactory {
         addProjectUuidsForApplication(builder, dbSession, request);
         break;
       case Qualifiers.PROJECT:
-        builder.projectUuids(components.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
+        builder.projectUuids(retrieveProjectUuidsFromComponents(dbSession, components));
         break;
       case Qualifiers.DIRECTORY:
         addDirectories(builder, components);
@@ -423,11 +433,6 @@ public class IssueQueryFactory {
       return dbClient.ruleDao().selectByKeys(dbSession, transform(rules, RuleKey::parse));
     }
     return Collections.emptyList();
-  }
-
-  private static String toProjectUuid(ComponentDto componentDto) {
-    String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
-    return mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid;
   }
 
   private void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest,
