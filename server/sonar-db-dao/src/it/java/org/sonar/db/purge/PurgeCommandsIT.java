@@ -152,7 +152,7 @@ public class PurgeCommandsIT {
 
   @Test
   @UseDataProvider("projects")
-  public void deleteComponentsByMainBranchProjectUuid_deletes_all_branches_of_a_project(ComponentDto project) {
+  public void deleteNonMainBranchComponentsByProjectUuid_shouldDeletesAllBranchesOfAProjectExceptMainBranch(ComponentDto project) {
     dbTester.components().insertComponent(project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     Stream.of(project, branch).forEach(prj -> {
@@ -163,7 +163,7 @@ public class PurgeCommandsIT {
       dbTester.components().insertComponent(newFileDto(directory2));
     });
 
-    underTest.deleteComponentsByMainBranchProjectUuid(project.uuid());
+    underTest.deleteNonMainBranchComponentsByProjectUuid(project.uuid());
 
     assertThat(countComponentOfRoot(project)).isEqualTo(6);
     assertThat(countComponentOfRoot(branch)).isZero();

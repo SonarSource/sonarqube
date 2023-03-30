@@ -223,11 +223,12 @@
     where
       branch_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
-
-    <delete id="deleteComponentsByMainBranchProjectUuid" parameterType="map">
+  <delete id="deleteNonMainBranchComponentsByProjectUuid" parameterType="map">
     delete from components
     where
-      main_branch_project_uuid = #{uuid,jdbcType=VARCHAR}
+      branch_uuid IN (SELECT pb.uuid from project_branches pb
+                      where
+                        pb.is_main = ${_false} and pb.project_uuid = #{uuid,jdbcType=VARCHAR})
   </delete>
 
   <delete id="deleteProjectsByProjectUuid" parameterType="map">
