@@ -39,6 +39,14 @@ export default class BranchesServiceMock {
     return Promise.resolve(this.branchLikes);
   };
 
+  emptyBranches = () => {
+    this.branchLikes = [];
+  };
+
+  addBranch = (branch: BranchLike) => {
+    this.branchLikes.push(branch);
+  };
+
   resetBranches = () => {
     this.branchLikes = cloneDeep(this.defaultBranchLikes);
   };

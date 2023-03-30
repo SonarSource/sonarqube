@@ -24,12 +24,12 @@ import { FormattedMessage } from 'react-intl';
 import { getBranches } from '../../../../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../../../../api/regulatory-report';
 import DocLink from '../../../../../../components/common/DocLink';
-import { ButtonLink } from '../../../../../../components/controls/buttons';
 import Select, { LabelValueSelectOption } from '../../../../../../components/controls/Select';
+import { ButtonLink } from '../../../../../../components/controls/buttons';
 import { Alert } from '../../../../../../components/ui/Alert';
 import {
   getBranchLikeDisplayName,
-  isBranch,
+  getBranchLikeKey,
   isMainBranch,
 } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
@@ -45,7 +45,7 @@ interface Props {
 interface State {
   downloadStarted: boolean;
   selectedBranch: string;
-  branchLikesOptions: LabelValueSelectOption[];
+  branchOptions: LabelValueSelectOption[];
 }
 
 export default class RegulatoryReport extends React.PureComponent<Props, State> {
@@ -54,7 +54,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
     this.state = {
       downloadStarted: false,
       selectedBranch: '',
-      branchLikesOptions: [],
+      branchOptions: [],
     };
   }
 
@@ -62,31 +62,35 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
     const { component, branchLike } = this.props;
     getBranches(component.key)
       .then((data) => {
-        const mainBranch = data.find(isMainBranch);
+        const availableBranches = data.filter(
+          (br) => br.analysisDate && (isMainBranch(br) || br.excludedFromPurge)
+        );
+        const mainBranch = availableBranches.find(isMainBranch);
         const otherBranchSorted = orderBy(
-          data.filter(isBranch).filter((b) => !isMainBranch(b)),
+          availableBranches.filter((b) => !isMainBranch(b)),
           (b) => b.name
         );
         const sortedBranch = mainBranch ? [mainBranch, ...otherBranchSorted] : otherBranchSorted;
-        const options = sortedBranch
-          .filter((br) => br.excludedFromPurge)
-          .map((br) => {
-            return {
-              value: getBranchLikeDisplayName(br),
-              label: getBranchLikeDisplayName(br),
-            };
-          });
+        const options = sortedBranch.map((br) => {
+          return {
+            value: getBranchLikeDisplayName(br),
+            label: getBranchLikeDisplayName(br),
+          };
+        });
 
         let selectedBranch = '';
-        if (branchLike && isBranch(branchLike) && branchLike.excludedFromPurge) {
+        if (
+          branchLike &&
+          availableBranches.find((br) => getBranchLikeKey(br) === getBranchLikeKey(branchLike))
+        ) {
           selectedBranch = getBranchLikeDisplayName(branchLike);
         } else if (mainBranch) {
           selectedBranch = getBranchLikeDisplayName(mainBranch);
         }
-        this.setState({ selectedBranch, branchLikesOptions: options });
+        this.setState({ selectedBranch, branchOptions: options });
       })
       .catch(() => {
-        this.setState({ branchLikesOptions: [] });
+        this.setState({ branchOptions: [] });
       });
   }
 
@@ -96,7 +100,8 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
 
   render() {
     const { component, onClose } = this.props;
-    const { downloadStarted, selectedBranch, branchLikesOptions } = this.state;
+    const { downloadStarted, selectedBranch, branchOptions } = this.state;
+    const isDownloadButtonDisabled = downloadStarted || !selectedBranch;
 
     return (
       <>
@@ -113,37 +118,47 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
             </ul>
           </div>
           <p>{translate('regulatory_report.description2')}</p>
-          <div className="modal-field big-spacer-top">
-            <label htmlFor="regulatory-report-branch-select">
-              {translate('regulatory_page.select_branch')}
-            </label>
-            <Select
-              className="width-100"
-              inputId="regulatory-report-branch-select"
-              id="regulatory-report-branch-select-input"
-              onChange={this.onBranchSelect}
-              options={branchLikesOptions}
-              value={branchLikesOptions.find((o) => o.value === selectedBranch)}
-            />
-          </div>
-          <Alert variant="info">
-            <div>
-              {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
+          {branchOptions.length > 0 ? (
+            <>
+              <div className="modal-field big-spacer-top">
+                <label htmlFor="regulatory-report-branch-select">
+                  {translate('regulatory_page.select_branch')}
+                </label>
+                <Select
+                  className="width-100"
+                  inputId="regulatory-report-branch-select"
+                  id="regulatory-report-branch-select-input"
+                  onChange={this.onBranchSelect}
+                  options={branchOptions}
+                  value={branchOptions.find((o) => o.value === selectedBranch)}
+                />
+              </div>
+              <Alert variant="info">
+                <div>
+                  {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
+                </div>
+                <div>
+                  <FormattedMessage
+                    id="regulatory_page.available_branches_info.more_info"
+                    defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
+                    values={{
+                      doc_link: (
+                        <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                          {translate('regulatory_page.available_branches_info.more_info.doc_link')}
+                        </DocLink>
+                      ),
+                    }}
+                  />
+                </div>
+              </Alert>
+            </>
+          ) : (
+            <div className="big-spacer-top">
+              <Alert variant="warning">
+                <div>{translate('regulatory_page.no_available_branch')}</div>
+              </Alert>
             </div>
-            <div>
-              <FormattedMessage
-                id="regulatory_page.available_branches_info.more_info"
-                defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
-                values={{
-                  doc_link: (
-                    <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
-                      {translate('regulatory_page.available_branches_info.more_info.doc_link')}
-                    </DocLink>
-                  ),
-                }}
-              />
-            </div>
-          </Alert>
+          )}
           <div className="modal-field big-spacer-top">
             {downloadStarted && (
               <div>
@@ -155,7 +170,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
         <div className="modal-foot">
           <a
             className={classNames('button button-primary big-spacer-right', {
-              disabled: downloadStarted,
+              disabled: isDownloadButtonDisabled,
             })}
             download={[component.name, selectedBranch, 'regulatory report.zip']
               .filter((s) => !!s)
@@ -164,6 +179,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
             href={getRegulatoryReportUrl(component.key, selectedBranch)}
             target="_blank"
             rel="noopener noreferrer"
+            aria-disabled={isDownloadButtonDisabled}
           >
             {translate('download_verb')}
           </a>
