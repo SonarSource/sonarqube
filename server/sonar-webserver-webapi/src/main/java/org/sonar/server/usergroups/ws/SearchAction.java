@@ -125,7 +125,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   private GroupQuery buildGroupQuery(Request request) {
     String textQuery = request.param(Param.TEXT_QUERY);
-    Optional<Boolean> managed = Optional.ofNullable(request.paramAsBoolean(MANAGED_PARAM));
+    Boolean managed = request.paramAsBoolean(MANAGED_PARAM);
 
     GroupQuery.GroupQueryBuilder queryBuilder = GroupQuery.builder()
       .searchText(textQuery);
@@ -133,7 +133,7 @@ public class SearchAction implements UserGroupsWsAction {
     if (managedInstanceService.isInstanceExternallyManaged()) {
       String managedInstanceSql = getManagedInstanceSql(managed);
       queryBuilder.isManagedClause(managedInstanceSql);
-    } else if (managed.isPresent()) {
+    } else if (TRUE.equals(managed)) {
       throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
     }
     return queryBuilder.build();
@@ -141,8 +141,8 @@ public class SearchAction implements UserGroupsWsAction {
   }
 
   @Nullable
-  private String getManagedInstanceSql(Optional<Boolean> managed) {
-    return managed
+  private String getManagedInstanceSql(@Nullable Boolean managed) {
+    return Optional.ofNullable(managed)
       .map(managedInstanceService::getManagedGroupsSqlFilter)
       .orElse(null);
   }
