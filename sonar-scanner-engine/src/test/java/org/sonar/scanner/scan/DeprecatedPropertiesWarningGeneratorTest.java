@@ -29,12 +29,15 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.LOGIN_WARN_MESSAGE;
 import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.PASSWORD_WARN_MESSAGE;
+import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.SCANNER_DOTNET_WARN_MESSAGE;
 
 public class DeprecatedPropertiesWarningGeneratorTest {
 
@@ -44,13 +47,15 @@ public class DeprecatedPropertiesWarningGeneratorTest {
   private final MapSettings settings = new MapSettings();
 
   private final AnalysisWarnings analysisWarnings = Mockito.spy(AnalysisWarnings.class);
+  private final EnvironmentInformation environmentInformation = Mockito.mock(EnvironmentInformation.class);
   private final DeprecatedPropertiesWarningGenerator underTest = new DeprecatedPropertiesWarningGenerator(settings.asConfig(),
-    analysisWarnings);
+    analysisWarnings, environmentInformation);
 
   @Before
   public void setUp() throws Exception {
     settings.removeProperty(CoreProperties.LOGIN);
     settings.removeProperty(CoreProperties.PASSWORD);
+    when(environmentInformation.getKey()).thenReturn("ScannerCLI");
   }
 
   @Test
@@ -72,6 +77,29 @@ public class DeprecatedPropertiesWarningGeneratorTest {
 
     verify(analysisWarnings, times(1)).addUnique(PASSWORD_WARN_MESSAGE);
     Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(PASSWORD_WARN_MESSAGE);
+  }
+
+  @Test
+  public void execute_whenUsingLoginAndDotNetScanner_shouldAddWarning() {
+    settings.setProperty(CoreProperties.LOGIN, "test");
+    when(environmentInformation.getKey()).thenReturn("ScannerMSBuild");
+
+    underTest.execute();
+
+    verify(analysisWarnings, times(1)).addUnique(LOGIN_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(LOGIN_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
+  }
+
+  @Test
+  public void execute_whenUsingPasswordAndDotNetScanner_shouldAddWarning() {
+    settings.setProperty(CoreProperties.LOGIN, "test");
+    settings.setProperty(CoreProperties.PASSWORD, "winner winner chicken dinner");
+    when(environmentInformation.getKey()).thenReturn("ScannerMSBuild");
+
+    underTest.execute();
+
+    verify(analysisWarnings, times(1)).addUnique(PASSWORD_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(PASSWORD_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
   }
 
   @Test
