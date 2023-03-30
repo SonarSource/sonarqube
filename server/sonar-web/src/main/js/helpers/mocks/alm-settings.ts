@@ -121,6 +121,7 @@ export function mockProjectAlmBindingResponse(
   return {
     alm: AlmKeys.GitHub,
     key: 'foo',
+    repository: 'repo',
     monorepo: false,
     ...overrides,
   };

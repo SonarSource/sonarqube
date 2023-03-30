@@ -20,6 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { mockProjectAlmBindingResponse } from '../../../../../helpers/mocks/alm-settings';
 import {
   mockMainBranch,
   mockPullRequest,
@@ -145,7 +146,11 @@ it('should show the correct help tooltip when branch support is not enabled', ()
   renderHeader(
     {
       currentUser: mockLoggedInUser(),
-      projectBinding: { alm: AlmKeys.GitLab, key: 'key', monorepo: true },
+      projectBinding: mockProjectAlmBindingResponse({
+        alm: AlmKeys.GitLab,
+        key: 'key',
+        monorepo: true,
+      }),
     },
     []
   );

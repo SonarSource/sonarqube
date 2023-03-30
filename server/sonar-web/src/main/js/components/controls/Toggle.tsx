@@ -24,6 +24,7 @@ import { Button } from './buttons';
 import './Toggle.css';
 
 interface Props {
+  id?: string;
   ariaLabel?: string;
   disabled?: boolean;
   name?: string;
@@ -49,12 +50,13 @@ export default class Toggle extends React.PureComponent<Props> {
   };
 
   render() {
-    const { ariaLabel, disabled, name } = this.props;
+    const { ariaLabel, disabled, name, id } = this.props;
     const value = this.getValue();
     const className = classNames('boolean-toggle', { 'boolean-toggle-on': value });
 
     return (
       <Button
+        id={id}
         className={className}
         disabled={disabled}
         aria-label={ariaLabel}

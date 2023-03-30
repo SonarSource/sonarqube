@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import {
   deleteProjectAlmBinding,
@@ -75,10 +76,12 @@ const REQUIRED_FIELDS_BY_ALM: {
   [AlmKeys.GitLab]: ['repository'],
 };
 
+const INITIAL_FORM_DATA = { key: '', repository: '', monorepo: false };
+
 export class PRDecorationBinding extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    formData: { key: '', monorepo: false },
+    formData: cloneDeep(INITIAL_FORM_DATA),
     instances: [],
     isChanged: false,
     isConfigured: false,
@@ -169,23 +172,14 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
   submitProjectAlmBinding(
     alm: AlmKeys,
     key: string,
-    almSpecificFields?: Omit<FormData, 'key'>
+    almSpecificFields: Omit<FormData, 'key'>
   ): Promise<void> {
     const almSetting = key;
+    const { repository, slug = '', monorepo = false } = almSpecificFields;
     const project = this.props.component.key;
-    const repository = almSpecificFields?.repository;
-    const slug = almSpecificFields?.slug;
-    const monorepo = almSpecificFields?.monorepo ?? false;
-
-    if (!repository) {
-      return Promise.reject();
-    }
 
     switch (alm) {
       case AlmKeys.Azure: {
-        if (!slug) {
-          return Promise.reject();
-        }
         return setProjectAzureBinding({
           almSetting,
           project,
@@ -195,9 +189,6 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
         });
       }
       case AlmKeys.BitbucketServer: {
-        if (!slug) {
-          return Promise.reject();
-        }
         return setProjectBitbucketBinding({
           almSetting,
           project,
@@ -314,7 +305,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
-        isChanged: !this.isDataSame(newFormData, originalData || { key: '', monorepo: false }),
+        isChanged: !this.isDataSame(newFormData, originalData || cloneDeep(INITIAL_FORM_DATA)),
         successfullyUpdated: false,
       };
     });

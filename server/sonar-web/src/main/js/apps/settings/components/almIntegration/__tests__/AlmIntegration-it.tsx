@@ -40,41 +40,15 @@ afterEach(() => {
   almSettings.reset();
 });
 
-const ui = {
-  almHeading: byRole('heading', { name: 'settings.almintegration.title' }),
-  emptyIntro: (almKey: AlmKeys) => byText(`settings.almintegration.empty.${almKey}`),
-  createConfigurationButton: byRole('button', { name: 'settings.almintegration.create' }),
-  tab: (almKey: AlmKeys) =>
-    byRole('tab', { name: `${almKey} settings.almintegration.tab.${almKey}` }),
-  bitbucketConfiguration: (almKey: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer) =>
-    byRole('button', { name: `alm.${almKey}.long` }),
-  configurationInput: (id: string) =>
-    byRole('textbox', { name: `settings.almintegration.form.${id}` }),
-  updateSecretValueButton: (key: string) =>
-    byRole('button', {
-      name: `settings.almintegration.form.secret.update_field_x.settings.almintegration.form.${key}`,
-    }),
-  saveConfigurationButton: byRole('button', { name: 'settings.almintegration.form.save' }),
-  editConfigurationButton: (key: string) =>
-    byRole('button', { name: `settings.almintegration.edit_configuration.${key}` }),
-  deleteConfigurationButton: (key: string) =>
-    byRole('button', { name: `settings.almintegration.delete_configuration.${key}` }),
-  cancelButton: byRole('button', { name: 'cancel' }),
-  confirmDelete: byRole('button', { name: 'delete' }),
-  checkConfigurationButton: (key: string) =>
-    byRole('button', { name: `settings.almintegration.check_configuration_x.${key}` }),
-  validationErrorMessage: byRole('alert'),
-  validationSuccessMessage: byRole('status'),
-};
-
 describe('github tab', () => {
   it('can create/edit/delete new configuration', async () => {
+    const { ui } = getPageObjects();
     const { rerender } = renderAlmIntegration();
     expect(await ui.almHeading.find()).toBeInTheDocument();
     expect(ui.emptyIntro(AlmKeys.GitHub).get()).toBeInTheDocument();
 
     // Create new configuration
-    await createConfiguration('Name', {
+    await ui.createConfiguration('Name', {
       'name.github': 'Name',
       'url.github': 'https://api.github.com',
       app_id: 'Github App ID',
@@ -83,14 +57,14 @@ describe('github tab', () => {
       private_key: 'Key',
     });
 
-    await editConfiguration('New Name', 'Name', 'client_secret.github', AlmKeys.GitHub);
+    await ui.editConfiguration('New Name', 'Name', 'client_secret.github', AlmKeys.GitHub);
 
-    await checkConfiguration('New Name');
+    await ui.checkConfiguration('New Name');
 
     rerender(<AlmIntegration />);
     expect(await screen.findByRole('heading', { name: 'New Name' })).toBeInTheDocument();
 
-    await deleteConfiguration('New Name');
+    await ui.deleteConfiguration('New Name');
     expect(ui.emptyIntro(AlmKeys.GitHub).get()).toBeInTheDocument();
   });
 });
@@ -99,6 +73,8 @@ describe.each([AlmKeys.GitLab, AlmKeys.Azure])(
   '%s tab',
   (almKey: AlmKeys.Azure | AlmKeys.GitLab) => {
     it('can create/edit/delete new configuration', async () => {
+      const { ui } = getPageObjects();
+
       renderAlmIntegration();
       expect(await ui.almHeading.find()).toBeInTheDocument();
 
@@ -106,7 +82,7 @@ describe.each([AlmKeys.GitLab, AlmKeys.Azure])(
       expect(ui.emptyIntro(almKey).get()).toBeInTheDocument();
 
       // Create new configuration
-      await createConfiguration('Name', {
+      await ui.createConfiguration('Name', {
         [`name.${almKey}`]: 'Name',
         [`url.${almKey}`]: 'https://api.alm.com',
         personal_access_token: 'Access Token',
@@ -115,11 +91,11 @@ describe.each([AlmKeys.GitLab, AlmKeys.Azure])(
       // Cannot create another configuration without Multiple Alm feature
       expect(ui.createConfigurationButton.get()).toBeDisabled();
 
-      await editConfiguration('New Name', 'Name', 'personal_access_token', almKey);
+      await ui.editConfiguration('New Name', 'Name', 'personal_access_token', almKey);
 
-      await checkConfiguration('New Name');
+      await ui.checkConfiguration('New Name');
 
-      await deleteConfiguration('New Name');
+      await ui.deleteConfiguration('New Name');
       expect(ui.emptyIntro(almKey).get()).toBeInTheDocument();
     });
   }
@@ -127,6 +103,7 @@ describe.each([AlmKeys.GitLab, AlmKeys.Azure])(
 
 describe('bitbucket tab', () => {
   it('can create/edit/delete new configuration', async () => {
+    const { ui } = getPageObjects();
     renderAlmIntegration([Feature.MultipleAlm]);
     expect(await ui.almHeading.find()).toBeInTheDocument();
 
@@ -134,7 +111,7 @@ describe('bitbucket tab', () => {
     expect(ui.emptyIntro(AlmKeys.BitbucketServer).get()).toBeInTheDocument();
 
     // Create new Bitbucket Server configuration
-    await createConfiguration(
+    await ui.createConfiguration(
       'Name',
       {
         'name.bitbucket': 'Name',
@@ -145,7 +122,7 @@ describe('bitbucket tab', () => {
     );
 
     // Create new Bitbucket Cloud configuration
-    await createConfiguration(
+    await ui.createConfiguration(
       'Name Cloud',
       {
         'name.bitbucket': 'Name Cloud',
@@ -157,77 +134,124 @@ describe('bitbucket tab', () => {
     );
 
     // Edit, check delete Bitbucket Server configuration
-    await editConfiguration('New Name', 'Name', 'personal_access_token', AlmKeys.BitbucketServer);
+    await ui.editConfiguration(
+      'New Name',
+      'Name',
+      'personal_access_token',
+      AlmKeys.BitbucketServer
+    );
 
-    await checkConfiguration('New Name');
+    await ui.checkConfiguration('New Name');
 
-    await deleteConfiguration('New Name');
+    await ui.deleteConfiguration('New Name');
 
     // Cloud configuration still exists
     expect(screen.getByRole('heading', { name: 'Name Cloud' })).toBeInTheDocument();
   });
 });
 
-async function createConfiguration(
-  name: string,
-  params: { [key: string]: string },
-  almKey?: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer
-) {
-  await userEvent.click(ui.createConfigurationButton.get());
-  expect(ui.saveConfigurationButton.get()).toBeDisabled();
+function getPageObjects() {
+  const user = userEvent.setup();
 
-  if (almKey) {
-    await userEvent.click(ui.bitbucketConfiguration(almKey).get());
+  const ui = {
+    almHeading: byRole('heading', { name: 'settings.almintegration.title' }),
+    emptyIntro: (almKey: AlmKeys) => byText(`settings.almintegration.empty.${almKey}`),
+    createConfigurationButton: byRole('button', { name: 'settings.almintegration.create' }),
+    tab: (almKey: AlmKeys) =>
+      byRole('tab', { name: `${almKey} settings.almintegration.tab.${almKey}` }),
+    bitbucketConfiguration: (almKey: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer) =>
+      byRole('button', { name: `alm.${almKey}.long` }),
+    configurationInput: (id: string) =>
+      byRole('textbox', { name: `settings.almintegration.form.${id}` }),
+    updateSecretValueButton: (key: string) =>
+      byRole('button', {
+        name: `settings.almintegration.form.secret.update_field_x.settings.almintegration.form.${key}`,
+      }),
+    saveConfigurationButton: byRole('button', { name: 'settings.almintegration.form.save' }),
+    editConfigurationButton: (key: string) =>
+      byRole('button', { name: `settings.almintegration.edit_configuration.${key}` }),
+    deleteConfigurationButton: (key: string) =>
+      byRole('button', { name: `settings.almintegration.delete_configuration.${key}` }),
+    cancelButton: byRole('button', { name: 'cancel' }),
+    confirmDelete: byRole('button', { name: 'delete' }),
+    checkConfigurationButton: (key: string) =>
+      byRole('button', { name: `settings.almintegration.check_configuration_x.${key}` }),
+    validationErrorMessage: byRole('alert'),
+    validationSuccessMessage: byRole('status'),
+  };
+
+  async function createConfiguration(
+    name: string,
+    params: { [key: string]: string },
+    almKey?: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer
+  ) {
+    await userEvent.click(ui.createConfigurationButton.get());
+    expect(ui.saveConfigurationButton.get()).toBeDisabled();
+
+    if (almKey) {
+      await userEvent.click(ui.bitbucketConfiguration(almKey).get());
+    }
+
+    for (const [key, value] of Object.entries(params)) {
+      // eslint-disable-next-line no-await-in-loop
+      await userEvent.type(ui.configurationInput(key).get(), value);
+    }
+    expect(ui.saveConfigurationButton.get()).toBeEnabled();
+    await userEvent.click(ui.saveConfigurationButton.get());
+
+    // New configuration is created
+    expect(screen.getByRole('heading', { name })).toBeInTheDocument();
   }
 
-  for (const [key, value] of Object.entries(params)) {
-    // eslint-disable-next-line no-await-in-loop
-    await userEvent.type(ui.configurationInput(key).get(), value);
+  async function editConfiguration(
+    newName: string,
+    currentName: string,
+    secretId: string,
+    almKey: AlmKeys
+  ) {
+    almSettings.setDefinitionErrorMessage('Something is wrong');
+    await userEvent.click(ui.editConfigurationButton(currentName).get());
+    expect(ui.configurationInput(secretId).query()).not.toBeInTheDocument();
+    await userEvent.click(ui.updateSecretValueButton(secretId).get());
+    await userEvent.type(ui.configurationInput(secretId).get(), 'New Secret Value');
+    await userEvent.clear(ui.configurationInput(`name.${almKey}`).get());
+    await userEvent.type(ui.configurationInput(`name.${almKey}`).get(), newName);
+    await userEvent.click(ui.saveConfigurationButton.get());
+
+    // Existing configuration is edited
+    expect(screen.queryByRole('heading', { name: currentName })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: newName })).toBeInTheDocument();
+    expect(ui.validationErrorMessage.get()).toHaveTextContent('Something is wrong');
   }
-  expect(ui.saveConfigurationButton.get()).toBeEnabled();
-  await userEvent.click(ui.saveConfigurationButton.get());
 
-  // New configuration is created
-  expect(screen.getByRole('heading', { name })).toBeInTheDocument();
-}
+  async function checkConfiguration(name: string) {
+    almSettings.setDefinitionErrorMessage('');
+    await userEvent.click(ui.checkConfigurationButton(name).get());
+    expect(ui.validationSuccessMessage.getAll()[0]).toHaveTextContent(
+      'alert.tooltip.successsettings.almintegration.configuration_valid'
+    );
+  }
 
-async function editConfiguration(
-  newName: string,
-  currentName: string,
-  secretId: string,
-  almKey: AlmKeys
-) {
-  almSettings.setDefinitionErrorMessage('Something is wrong');
-  await userEvent.click(ui.editConfigurationButton(currentName).get());
-  expect(ui.configurationInput(secretId).query()).not.toBeInTheDocument();
-  await userEvent.click(ui.updateSecretValueButton(secretId).get());
-  await userEvent.type(ui.configurationInput(secretId).get(), 'New Secret Value');
-  await userEvent.clear(ui.configurationInput(`name.${almKey}`).get());
-  await userEvent.type(ui.configurationInput(`name.${almKey}`).get(), newName);
-  await userEvent.click(ui.saveConfigurationButton.get());
+  async function deleteConfiguration(name: string) {
+    await userEvent.click(ui.deleteConfigurationButton(name).get());
+    await userEvent.click(ui.cancelButton.get());
+    expect(screen.getByRole('heading', { name })).toBeInTheDocument();
 
-  // Existing configuration is edited
-  expect(screen.queryByRole('heading', { name: currentName })).not.toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: newName })).toBeInTheDocument();
-  expect(ui.validationErrorMessage.get()).toHaveTextContent('Something is wrong');
-}
+    await userEvent.click(ui.deleteConfigurationButton(name).get());
+    await userEvent.click(ui.confirmDelete.get());
+    expect(screen.queryByRole('heading', { name })).not.toBeInTheDocument();
+  }
 
-async function checkConfiguration(name: string) {
-  almSettings.setDefinitionErrorMessage('');
-  await userEvent.click(ui.checkConfigurationButton(name).get());
-  expect(ui.validationSuccessMessage.getAll()[0]).toHaveTextContent(
-    'alert.tooltip.successsettings.almintegration.configuration_valid'
-  );
-}
-
-async function deleteConfiguration(name: string) {
-  await userEvent.click(ui.deleteConfigurationButton(name).get());
-  await userEvent.click(ui.cancelButton.get());
-  expect(screen.getByRole('heading', { name })).toBeInTheDocument();
-
-  await userEvent.click(ui.deleteConfigurationButton(name).get());
-  await userEvent.click(ui.confirmDelete.get());
-  expect(screen.queryByRole('heading', { name })).not.toBeInTheDocument();
+  return {
+    ui: {
+      ...ui,
+      createConfiguration,
+      editConfiguration,
+      deleteConfiguration,
+      checkConfiguration,
+    },
+    user,
+  };
 }
 
 function renderAlmIntegration(features: Feature[] = []) {

@@ -71,7 +71,7 @@ export default function AlmSettingsInstanceSelector(props: Props) {
       }}
       placeholder={translate('alm.configuration.selector.placeholder')}
       getOptionValue={(opt) => opt.key}
-      value={instances.find((inst) => inst.key === initialValue)}
+      value={instances.find((inst) => inst.key === initialValue) ?? null}
     />
   );
 }

@@ -73,7 +73,7 @@ function renderFieldWrapper(
   );
 }
 
-function renderHelp({ help, helpExample, helpParams, id }: CommonFieldProps) {
+function renderHelp({ help, helpExample, helpParams = {}, id }: CommonFieldProps) {
   return (
     help && (
       <>
@@ -113,7 +113,7 @@ function renderBooleanField(
     renderLabel({ ...props, optional: true }),
     <div className="display-flex-center big-spacer-top">
       <div className="display-inline-block text-top">
-        <Toggle name={id} onChange={(v) => onFieldChange(propKey, v)} value={value} />
+        <Toggle id={id} name={id} onChange={(v) => onFieldChange(propKey, v)} value={value} />
         {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
       </div>
       {inputExtra}

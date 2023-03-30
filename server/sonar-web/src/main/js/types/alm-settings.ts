@@ -70,38 +70,34 @@ export interface GitlabBindingDefinition extends AlmBindingDefinitionBase {
 export interface ProjectAlmBindingResponse {
   alm: AlmKeys;
   key: string;
-  repository?: string;
+  repository: string;
   slug?: string;
+  url?: string;
   summaryCommentEnabled?: boolean;
   monorepo: boolean;
 }
 
 export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.Azure;
-  repository: string;
   slug: string;
   url: string;
 }
 
 export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.BitbucketServer;
-  repository: string;
   slug: string;
 }
 
 export interface ProjectBitbucketCloudBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.BitbucketCloud;
-  repository: string;
 }
 
 export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitHub;
-  repository: string;
 }
 
 export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitLab;
-  repository: string;
   url: string;
 }
 

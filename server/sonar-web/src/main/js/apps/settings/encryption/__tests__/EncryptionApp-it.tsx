@@ -47,24 +47,26 @@ const ui = {
 };
 
 it('should be able to generate new key', async () => {
+  const user = userEvent.setup();
   renderEncryptionApp();
 
   expect(await ui.appHeading.find()).toBeInTheDocument();
-  await userEvent.click(ui.generateSecretButton.get());
+  await user.click(ui.generateSecretButton.get());
   expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'secretKey');
 });
 
 it('should be able to encrypt property value when secret is registered', async () => {
+  const user = userEvent.setup();
   settingsMock.setSecretKeyAvailable(true);
   renderEncryptionApp();
 
   expect(await ui.appHeading.find()).toBeInTheDocument();
-  await userEvent.type(ui.encryptTextarea.get(), 'sonar.announcement.message');
-  await userEvent.click(ui.encryptButton.get());
+  await user.type(ui.encryptTextarea.get(), 'sonar.announcement.message');
+  await user.click(ui.encryptButton.get());
   expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'encryptedValue');
 
   // can generate new secret in view
-  await userEvent.click(ui.generateNewSecretButton.get());
+  await user.click(ui.generateNewSecretButton.get());
   expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'secretKey');
 });
 
