@@ -67,6 +67,7 @@ public class ProjectsAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
+      new Change("10.0", "deprecated 'more' response field has been removed"),
       new Change("8.8", "deprecated 'id' response field has been removed"),
       new Change("8.8", "deprecated 'uuid' response field has been removed"),
       new Change("7.2", "'more' response field is deprecated"),
@@ -156,8 +157,6 @@ public class ProjectsAction implements QProfileWsAction {
       .prop("pageSize", paging.pageSize())
       .prop("total", paging.total())
       .endObject();
-    // more is deprecated since 7.2
-    json.prop("more", paging.hasNextPage());
     json.endObject();
     json.close();
   }
