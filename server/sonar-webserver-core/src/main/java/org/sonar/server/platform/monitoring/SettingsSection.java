@@ -91,7 +91,7 @@ public class SettingsSection implements SystemInfoSection, Global {
     return protobuf.build();
   }
 
-  private void includeSetting(Builder protobuf, PropertyDefinitions definitions, Entry<String, String> prop) {
+  private static void includeSetting(Builder protobuf, PropertyDefinitions definitions, Entry<String, String> prop) {
     String key = prop.getKey();
     String value = obfuscateValue(definitions, key, prop.getValue());
     setAttribute(protobuf, key, value);

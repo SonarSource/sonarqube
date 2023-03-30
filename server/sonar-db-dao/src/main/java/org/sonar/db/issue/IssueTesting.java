@@ -24,8 +24,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;

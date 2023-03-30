@@ -153,8 +153,9 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.PROVISION_PROJECTS);
     loginAsAdmin();
 
+    String administerPermission = GlobalPermission.ADMINISTER.getKey();
     assertThatThrownBy(() -> {
-      executeRequest(aGroup, GlobalPermission.ADMINISTER.getKey());
+      executeRequest(aGroup, administerPermission);
     })
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Last group with permission 'admin'. Permission cannot be removed.");
