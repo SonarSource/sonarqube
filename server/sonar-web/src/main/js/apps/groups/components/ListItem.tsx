@@ -53,7 +53,7 @@ export default function ListItem(props: ListItemProps) {
         <span className="js-group-description">{group.description}</span>
       </td>
 
-      <td className="thin nowrap text-right">
+      <td className="thin text-right">
         {!group.default && (
           <ActionsDropdown>
             <ActionsDropdownItem className="js-group-update" onClick={() => props.onEdit(group)}>

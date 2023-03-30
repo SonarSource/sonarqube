@@ -54,7 +54,7 @@ export default class PermissionCell extends React.PureComponent<Props> {
 
     if (isPermissionDefinitionGroup(permission)) {
       return (
-        <td className="text-middle">
+        <td className="text-middle nowrap">
           {permission.permissions.map((permissionDefinition) => {
             const isChecked = permissionItem.permissions.includes(permissionDefinition.key);
             const isDisabled = disabled || loading.includes(permissionDefinition.key);
