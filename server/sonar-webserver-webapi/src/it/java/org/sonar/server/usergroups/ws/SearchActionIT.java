@@ -83,6 +83,7 @@ public class SearchActionIT {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(5);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Field 'id' in the response has been removed"),
       tuple("10.0", "New parameter 'managed' to optionally search by managed status"),
       tuple("10.0", "Response includes 'managed' field."),
       tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
@@ -246,23 +247,23 @@ public class SearchActionIT {
     loginAsAdmin();
 
     assertThat(call(ws.newRequest()).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, true, true, true, true));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, true, true, true));
     assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, true, true, true, true));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, true, true, true));
     assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, true, false, false, false));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, false, false, false));
     assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, false, true, false, false));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(false, true, false, false));
     assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, false, false, true, false));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(false, false, true, false));
     assertThat(call(ws.newRequest().setParam(FIELDS, "managed")).getGroupsList())
-      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
-      .containsOnly(tuple(true, false, false, false, true));
+      .extracting(Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(false, false, false, true));
   }
 
   @Test

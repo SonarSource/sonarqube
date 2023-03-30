@@ -68,6 +68,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."),
@@ -109,7 +110,6 @@ public class ShowAction implements QualityGatesWsAction {
   private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
     Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
     return ShowWsResponse.newBuilder()
-      .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
       .setCaycStatus(caycStatus.toString())

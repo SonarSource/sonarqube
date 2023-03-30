@@ -85,7 +85,6 @@ public class ShowActionIT {
       .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getId()).isEqualTo(qualityGate.getUuid());
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
     assertThat(response.getIsBuiltIn()).isFalse();
     assertThat(response.getConditionsList()).hasSize(2);
@@ -122,7 +121,7 @@ public class ShowActionIT {
   }
 
   @Test
-  public void show_by_id() {
+  public void show_by_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
@@ -130,7 +129,6 @@ public class ShowActionIT {
       .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getId()).isEqualTo(qualityGate.getUuid());
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
   }
 
@@ -143,7 +141,6 @@ public class ShowActionIT {
       .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getId()).isEqualTo(qualityGate.getUuid());
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
     assertThat(response.getConditionsList()).isEmpty();
   }

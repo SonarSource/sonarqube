@@ -80,10 +80,10 @@ public class ListActionIT {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getQualitygatesList())
-      .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
+      .extracting(QualityGate::getName, QualityGate::getIsDefault)
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getUuid(), defaultQualityGate.getName(), true),
-        tuple(otherQualityGate.getUuid(), otherQualityGate.getName(), false));
+        tuple(defaultQualityGate.getName(), true),
+        tuple(otherQualityGate.getName(), false));
   }
 
   @Test
@@ -96,10 +96,10 @@ public class ListActionIT {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getQualitygatesList())
-      .extracting(QualityGate::getId, QualityGate::getIsBuiltIn)
+      .extracting(QualityGate::getName, QualityGate::getIsBuiltIn)
       .containsExactlyInAnyOrder(
-        tuple(qualityGate1.getUuid(), true),
-        tuple(qualityGate2.getUuid(), false));
+        tuple(qualityGate1.getName(), true),
+        tuple(qualityGate2.getName(), false));
   }
 
   @Test
@@ -117,11 +117,11 @@ public class ListActionIT {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getQualitygatesList())
-      .extracting(QualityGate::getId, QualityGate::getCaycStatus)
+      .extracting(QualityGate::getName, QualityGate::getCaycStatus)
       .containsExactlyInAnyOrder(
-        tuple(qualityGate1.getUuid(), COMPLIANT.toString()),
-        tuple(qualityGate2.getUuid(), NON_COMPLIANT.toString()),
-        tuple(qualityGate3.getUuid(), OVER_COMPLIANT.toString()));
+        tuple(qualityGate1.getName(), COMPLIANT.toString()),
+        tuple(qualityGate2.getName(), NON_COMPLIANT.toString()),
+        tuple(qualityGate3.getName(), OVER_COMPLIANT.toString()));
   }
 
   @Test

@@ -38,7 +38,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -97,7 +96,6 @@ public class GetByProjectActionIT {
       .executeProtobuf(GetByProjectResponse.class);
 
     Qualitygates.QualityGate qualityGate = result.getQualityGate();
-    assertThat(qualityGate.getId()).isEqualTo(dbQualityGate.getUuid());
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
     assertThat(qualityGate.getDefault()).isTrue();
   }

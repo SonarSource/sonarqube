@@ -59,6 +59,7 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("9.9", "'caycStatus' field is added on quality gate"),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("7.0", "'isDefault' field is added on quality gate"),
@@ -84,7 +85,6 @@ public class ListAction implements QualityGatesWsAction {
       .setActions(ListWsResponse.RootActions.newBuilder().setCreate(wsSupport.isQualityGateAdmin()))
       .addAllQualitygates(qualityGates.stream()
         .map(qualityGate -> QualityGate.newBuilder()
-          .setId(qualityGate.getUuid())
           .setName(qualityGate.getName())
           .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
           .setIsBuiltIn(qualityGate.isBuiltIn())

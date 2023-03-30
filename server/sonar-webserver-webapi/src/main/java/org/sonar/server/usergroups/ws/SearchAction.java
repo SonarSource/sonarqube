@@ -85,6 +85,7 @@ public class SearchAction implements UserGroupsWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .addSearchQuery("sonar-users", "names")
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("10.0", "New parameter 'managed' to optionally search by managed status"),
         new Change("10.0", "Response includes 'managed' field."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
@@ -176,7 +177,6 @@ public class SearchAction implements UserGroupsWsAction {
 
   private static Group toWsGroup(GroupDto group, Integer memberCount, Boolean isManaged, Set<String> fields, boolean isDefault) {
     Group.Builder groupBuilder = Group.newBuilder()
-      .setId(group.getUuid())
       .setDefault(isDefault);
     if (fields.contains(FIELD_NAME)) {
       groupBuilder.setName(group.getName());
