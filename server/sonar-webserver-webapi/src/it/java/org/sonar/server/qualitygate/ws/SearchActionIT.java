@@ -245,11 +245,11 @@ public class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response)
-      .extracting(SearchResponse::getMore,
+      .extracting(
         searchResponse -> searchResponse.getPaging().getPageIndex(),
         searchResponse -> searchResponse.getPaging().getPageSize(),
         searchResponse -> searchResponse.getPaging().getTotal())
-      .contains(true, 2, 5, 20);
+      .contains(2, 5, 20);
   }
 
   @Test
@@ -268,11 +268,11 @@ public class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response)
-      .extracting(SearchResponse::getMore,
+      .extracting(
         searchResponse -> searchResponse.getPaging().getPageIndex(),
         searchResponse -> searchResponse.getPaging().getPageSize(),
         searchResponse -> searchResponse.getPaging().getTotal())
-      .contains(false, 1, 100, 20);
+      .contains(1, 100, 20);
   }
 
   @Test

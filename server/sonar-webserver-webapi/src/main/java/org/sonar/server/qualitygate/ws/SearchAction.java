@@ -67,6 +67,7 @@ public class SearchAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "search-example.json"))
       .setChangelog(
+        new Change("10.0", "deprecated 'more' response field has been removed"),
         new Change("10.0", "Parameter 'gateId' is removed. Use 'gateName' instead."),
         new Change("8.4", "Parameter 'gateName' added"),
         new Change("8.4", "Parameter 'gateId' is deprecated. Format changes from integer to string. Use 'gateName' instead."),
@@ -123,7 +124,7 @@ public class SearchAction implements QualityGatesWsAction {
         .andTotal(authorizedProjects.size());
       List<ProjectQgateAssociationDto> paginatedProjects = getPaginatedProjects(authorizedProjects, paging);
 
-      Qualitygates.SearchResponse.Builder createResponse = Qualitygates.SearchResponse.newBuilder().setMore(paging.hasNextPage());
+      Qualitygates.SearchResponse.Builder createResponse = Qualitygates.SearchResponse.newBuilder();
       createResponse.getPagingBuilder()
         .setPageIndex(paging.pageIndex())
         .setPageSize(paging.pageSize())

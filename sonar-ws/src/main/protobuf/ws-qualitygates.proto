@@ -136,8 +136,7 @@ message ShowWsResponse {
 
 // GET api/qualitygates/search
 message SearchResponse {
-  // Deprecated since 7.9
-  optional bool more = 1;
+  reserved 1; // drop more
   repeated Result results = 2;
   optional sonarqube.ws.commons.Paging paging = 3;
 
