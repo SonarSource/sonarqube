@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
@@ -27,10 +27,10 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.TABLE_NAME;
 
-public class CreateIndexForScmAccountOnScmAccountsTable extends DdlChange {
+class CreateIndexForScmAccountOnScmAccountsTable extends DdlChange {
 
   @VisibleForTesting
   static final String INDEX_NAME = "scm_accounts_scm_account";

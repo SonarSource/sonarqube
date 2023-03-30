@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v100.CreateIndexForEmailOnUsersTable.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v100.CreateIndexForEmailOnUsersTable.INDEX_NAME;
-import static org.sonar.server.platform.db.migration.version.v100.CreateIndexForEmailOnUsersTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateIndexForEmailOnUsersTable.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateIndexForEmailOnUsersTable.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateIndexForEmailOnUsersTable.TABLE_NAME;
 
 public class CreateIndexForEmailOnUsersTableTest {
   @Rule

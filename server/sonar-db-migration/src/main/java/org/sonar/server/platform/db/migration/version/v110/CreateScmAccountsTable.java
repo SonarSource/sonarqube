@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ import org.sonar.server.platform.db.migration.step.CreateTableChange;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateScmAccountsTable extends CreateTableChange {
+class CreateScmAccountsTable extends CreateTableChange {
   static final String TABLE_NAME = "scm_accounts";
   static final String USER_UUID_COLUMN_NAME = "user_uuid";
   static final String SCM_ACCOUNT_COLUMN_NAME = "scm_account";

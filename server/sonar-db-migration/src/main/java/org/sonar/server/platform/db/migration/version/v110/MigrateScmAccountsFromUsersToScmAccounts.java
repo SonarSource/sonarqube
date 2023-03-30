@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassRowSplitter;
 import org.sonar.server.platform.db.migration.step.Select;
@@ -32,7 +33,7 @@ import org.sonar.server.platform.db.migration.step.Select;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-public class MigrateScmAccountsFromUsersToScmAccounts extends DataChange {
+class MigrateScmAccountsFromUsersToScmAccounts extends DataChange {
 
   @VisibleForTesting
   static final char SCM_ACCOUNTS_SEPARATOR_CHAR = '\n';
@@ -43,6 +44,19 @@ public class MigrateScmAccountsFromUsersToScmAccounts extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    if (isScmColumnDropped()) {
+      return;
+    }
+    migrateData(context);
+  }
+
+  private boolean isScmColumnDropped() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return !DatabaseUtils.tableColumnExists(connection, DropScmAccountsInUsers.TABLE_NAME, DropScmAccountsInUsers.COLUMN_NAME);
+    }
+  }
+
+  private static void migrateData(Context context) throws SQLException {
     MassRowSplitter<ScmAccountRow> massRowSplitter = context.prepareMassRowSplitter();
 
     massRowSplitter.select("select u.uuid, lower(u.scm_accounts) from users u where u.active=? and not exists (select 1 from scm_accounts sa where sa.user_uuid = u.uuid)")

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -31,12 +31,13 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.version.v100.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
+import org.sonar.server.platform.db.migration.version.v110.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.v100.MigrateScmAccountsFromUsersToScmAccounts.SCM_ACCOUNTS_SEPARATOR_CHAR;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.sonar.server.platform.db.migration.version.v110.MigrateScmAccountsFromUsersToScmAccounts.SCM_ACCOUNTS_SEPARATOR_CHAR;
 
 public class MigrateScmAccountsFromUsersToScmAccountsTest {
 
@@ -143,6 +144,13 @@ public class MigrateScmAccountsFromUsersToScmAccountsTest {
 
     Set<ScmAccountRow> scmAccounts = findAllScmAccounts();
     assertThat(scmAccounts).containsExactly(new ScmAccountRow(userUuid, SCM_ACCOUNT1));
+  }
+
+  @Test
+  public void migration_should_be_reentrant_if_scm_account_column_dropped() {
+    db.executeDdl("alter table users drop column scm_accounts");
+
+    assertThatNoException().isThrownBy(migrateScmAccountsFromUsersToScmAccounts::execute);
   }
 
 

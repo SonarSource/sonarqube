@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -25,12 +25,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.SCM_ACCOUNT_SIZE;
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v100.CreateScmAccountsTable.USER_UUID_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.SCM_ACCOUNT_SIZE;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.USER_UUID_COLUMN_NAME;
 
 public class CreateScmAccountsTableTest {
   @Rule

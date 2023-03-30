@@ -152,7 +152,6 @@
         u.name,
         u.email,
         u.active,
-        u.scm_accounts,
         u.salt,
         u.crypted_password,
         u.hash_method,
@@ -233,7 +232,6 @@
     <sql id="deactivateUserUpdatedFields">
         active = ${_false},
         email = null,
-        scm_accounts = null,
         salt = null,
         crypted_password = null,
         last_connection_date = null,

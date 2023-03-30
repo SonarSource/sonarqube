@@ -58,10 +58,6 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_014, "Drop any SCIM User provisioning, turning all users local", DropScimUserProvisioning.class)
       .add(10_0_015, "Add ncloc to 'Projects' table", AddNclocToProjects.class)
       .add(10_0_016, "Populate ncloc in 'Projects' table", PopulateNclocForForProjects.class)
-      .add(10_0_015, "Add 'scm_accounts' table", CreateScmAccountsTable.class)
-      .add(10_0_016, "Migrate scm accounts from 'users' to 'scm_accounts' table", MigrateScmAccountsFromUsersToScmAccounts.class)
-      .add(10_0_017, "Add index on 'scm_accounts.scm_account'", CreateIndexForScmAccountOnScmAccountsTable.class)
-      .add(10_0_018, "Add index on 'users.email'", CreateIndexForEmailOnUsersTable.class)
     ;
   }
 }

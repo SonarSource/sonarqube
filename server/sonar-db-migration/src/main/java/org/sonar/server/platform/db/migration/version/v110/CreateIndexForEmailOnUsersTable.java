@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v100;
+package org.sonar.server.platform.db.migration.version.v110;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
@@ -27,7 +27,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class CreateIndexForEmailOnUsersTable extends DdlChange {
+class CreateIndexForEmailOnUsersTable extends DdlChange {
 
   @VisibleForTesting
   static final String INDEX_NAME = "users_email";
