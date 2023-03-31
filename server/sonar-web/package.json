@@ -112,6 +112,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
+    "start:force": "node scripts/start.js --force-build-design-system",
     "build": "node scripts/build.js",
     "build-release": "yarn install --immutable && node scripts/build.js release",
     "test": "jest",

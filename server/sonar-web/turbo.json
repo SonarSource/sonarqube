@@ -3,6 +3,9 @@
   "pipeline": {
     "design-system#build": {
       "outputs": ["lib/**"]
+    },
+    "design-system#build:no-checks": {
+      "outputs": ["lib/**"]
     }
   }
 }

@@ -23,10 +23,15 @@ process.env.NODE_ENV = 'development';
 const chalk = require('chalk');
 const { spawn } = require('child_process');
 
-function buildDesignSystem(callback) {
+function buildDesignSystem({ callback, force } = {}) {
   process.chdir(`${__dirname}/..`);
 
-  const build = spawn('npx', ['turbo', 'run', 'design-system#build']);
+  const build = spawn('npx', [
+    'turbo',
+    'run',
+    ...(force ? ['--force'] : []),
+    'design-system#build:no-checks',
+  ]);
 
   build.stdout.on('data', (data) => {
     console.log(chalk.green.bold(data.toString()));

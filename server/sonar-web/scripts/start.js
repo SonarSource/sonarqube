@@ -65,6 +65,8 @@ function handleStaticFileRequest(req, res) {
   });
 }
 
+const forceBuildDesignSystem = process.argv.includes('--force-build-design-system');
+
 async function run() {
   console.log('starting...');
   const esbuildContext = await esbuild.context(config);
@@ -122,11 +124,11 @@ async function run() {
     .catch((e) => console.error(e));
 }
 
-buildDesignSystem(run);
+buildDesignSystem({ callback: run, force: forceBuildDesignSystem });
 
 chokidar
   .watch('./design-system/src', {
     ignored: /(^|[/\\])\../, // ignore dotfiles
     persistent: true,
   })
-  .on('change', () => buildDesignSystem());
+  .on('change', () => buildDesignSystem({ force: true }));
