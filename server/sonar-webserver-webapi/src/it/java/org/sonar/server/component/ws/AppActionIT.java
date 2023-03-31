@@ -255,7 +255,7 @@ public class AppActionIT {
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
 
@@ -297,7 +297,7 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -327,7 +327,7 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, project);
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -356,7 +356,7 @@ public class AppActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     TestRequest request = ws.newRequest()
       .setParam("component", file.getKey())
@@ -382,7 +382,7 @@ public class AppActionIT {
   public void fail_when_branch_not_found() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     TestRequest request = ws.newRequest()
       .setParam("component", file.getKey())

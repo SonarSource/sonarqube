@@ -72,9 +72,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     ComponentDto project2 = newPrivateProjectDto("EFGH");
 
     indexIssues(
-      newDoc("I1", project.uuid(), newFileDto(project, null)),
-      newDoc("I2", project.uuid(), newFileDto(project, null)),
-      newDoc("I3", project2.uuid(), newFileDto(project2, null)));
+      newDoc("I1", project.uuid(), newFileDto(project)),
+      newDoc("I2", project.uuid(), newFileDto(project)),
+      newDoc("I3", project2.uuid(), newFileDto(project2)));
 
     assertThatFacetHasExactly(IssueQuery.builder(), "projects", entry("ABCD", 2L), entry("EFGH", 1L));
   }
@@ -124,8 +124,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_directories() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
-    ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
+    ComponentDto file1 = newFileDto(project).setPath("src/main/xoo/F1.xoo");
+    ComponentDto file2 = newFileDto(project).setPath("F2.xoo");
 
     indexIssues(
       newDoc("I1", project.uuid(), file1).setDirectoryPath("/src/main/xoo"),
@@ -149,7 +149,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_cwe() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
@@ -166,7 +166,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_pciDss32() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss32(asList("1", "2")),
@@ -182,7 +182,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_pciDss40() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setPciDss40(asList("1", "2")),
@@ -198,7 +198,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_owaspAsvs40() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1", "2")),
@@ -214,7 +214,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_owaspTop10() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
@@ -230,7 +230,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_owaspTop10_2021() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
@@ -246,7 +246,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_owaspTop10_2021_stay_ordered() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
@@ -262,7 +262,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_sansTop25() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
@@ -278,7 +278,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_sonarSourceSecurity() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
@@ -293,7 +293,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_severities() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setSeverity(INFO),
@@ -306,7 +306,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_severities_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I2", project.uuid(), file).setSeverity(INFO),
@@ -322,7 +322,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_statuses() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setStatus(STATUS_CLOSED),
@@ -335,7 +335,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_statuses_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setStatus(STATUS_OPEN),
@@ -351,7 +351,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_resolutions() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setResolution(RESOLUTION_FALSE_POSITIVE),
@@ -364,7 +364,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_resolutions_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setResolution(RESOLUTION_FIXED),
@@ -379,7 +379,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_languages() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
@@ -391,9 +391,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_languages_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setLanguage("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setLanguage("language1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setLanguage("language2");
+    indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setLanguage("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setLanguage("language1");
+    IssueDoc issue2 = newDoc(newFileDto(project), project.uuid()).setLanguage("language2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "languages", 100);
@@ -403,7 +403,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_assignees() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAssigneeUuid("steph-uuid"),
@@ -417,9 +417,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_assignees_return_only_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("user1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setAssigneeUuid("user2");
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setAssigneeUuid("user1");
+    IssueDoc issue2 = newDoc(newFileDto(project), project.uuid()).setAssigneeUuid("user2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "assignees", 100);
@@ -429,7 +429,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_assignees_supports_dashes() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAssigneeUuid("j-b-uuid"),
@@ -444,7 +444,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_author() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAuthorLogin("steph"),
@@ -458,9 +458,9 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_authors_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("user1");
-    IssueDoc issue2 = newDoc(newFileDto(project, null), project.uuid()).setAuthorLogin("user2");
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setAuthorLogin("user1");
+    IssueDoc issue2 = newDoc(newFileDto(project), project.uuid()).setAuthorLogin("user2");
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "author", 100);
@@ -646,7 +646,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
   private SearchOptions fixtureForCreatedAtFacet() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     IssueDoc issue0 = newDoc("ISSUE0", project.uuid(), file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
     IssueDoc issue1 = newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-01T10:34:56+0000"));

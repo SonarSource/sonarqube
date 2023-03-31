@@ -720,7 +720,7 @@ public class ServerUserSessionTest {
     UserDto user = db.users().insertUser();
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(privateProject, b -> b.setKey("feature/foo"));
-    ComponentDto fileInBranch = db.components().insertComponent(newChildComponent("fileUuid", branch, branch));
+    ComponentDto fileInBranch = db.components().insertComponent(newChildComponent("fileUuid", branch, branch).setMainBranchProjectUuid(privateProject.uuid()));
 
     // permissions are defined on the project, not on the branch
     db.users().insertProjectPermissionOnUser(user, "p1", privateProject);

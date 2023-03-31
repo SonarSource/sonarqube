@@ -917,7 +917,7 @@ public class ShowActionIT {
     ComponentDto project = dbTester.components().insertPublicProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, branch, file,

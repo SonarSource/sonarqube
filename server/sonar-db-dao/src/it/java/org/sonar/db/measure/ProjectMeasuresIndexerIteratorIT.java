@@ -314,7 +314,7 @@ public class ProjectMeasuresIndexerIteratorIT {
     Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     componentDtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
-    dbClient.componentDao().insert(dbSession, component);
+    dbClient.componentDao().insert(dbSession, component, true);
 
     ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
     projectDtoPopulator.accept(projectDto);

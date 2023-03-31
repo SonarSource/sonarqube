@@ -123,7 +123,7 @@ public class LinesActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid(branch.uuid())
@@ -147,7 +147,7 @@ public class LinesActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid(branch.uuid())
@@ -398,7 +398,7 @@ public class LinesActionIT {
 
   private ComponentDto insertFile(ComponentDto project) {
     ComponentDto file = newFileDto(project);
-    componentDao.insert(db.getSession(), file);
+    componentDao.insertOnMainBranch(db.getSession(), file);
     db.getSession().commit();
     return file;
   }

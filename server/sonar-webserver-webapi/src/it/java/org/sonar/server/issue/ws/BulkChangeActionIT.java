@@ -388,7 +388,7 @@ public class BulkChangeActionIT {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.BRANCH));
-    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
+    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch, project.uuid()));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)
@@ -425,7 +425,7 @@ public class BulkChangeActionIT {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(branchType));
-    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
+    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch, project.uuid()));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)

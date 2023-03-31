@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import com.google.common.collect.Ordering;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -319,23 +318,23 @@ public class ComponentDao implements Dao {
   /*
     INSERT / UPDATE
    */
-  public void insert(DbSession session, ComponentDto item) {
+  public void insert(DbSession session, ComponentDto item, boolean isMainBranch) {
     mapper(session).insert(item);
-    if (!isBranchOrPullRequest(item)) {
+    if (isMainBranch) {
       auditPersister.addComponent(session, new ComponentNewValue(item));
     }
   }
 
-  public void insert(DbSession session, Collection<ComponentDto> items) {
-    insert(session, items.stream());
+  public void insertOnMainBranch(DbSession session, ComponentDto item) {
+    insert(session, item, true);
   }
 
-  private void insert(DbSession session, Stream<ComponentDto> items) {
-    items.forEach(item -> insert(session, item));
+  public void insert(DbSession session, Collection<ComponentDto> items, boolean isMainBranch) {
+    insert(session, items.stream(), isMainBranch);
   }
 
-  public void insert(DbSession session, ComponentDto item, ComponentDto... others) {
-    insert(session, Stream.concat(Stream.of(item), Arrays.stream(others)));
+  private void insert(DbSession session, Stream<ComponentDto> items, boolean isMainBranch) {
+    items.forEach(item -> insert(session, item, isMainBranch));
   }
 
   public void update(DbSession session, ComponentUpdateDto component, String qualifier) {
@@ -376,10 +375,6 @@ public class ComponentDao implements Dao {
   private static void checkThatNotTooManyComponents(ComponentQuery query) {
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");
-  }
-
-  private static boolean isBranchOrPullRequest(ComponentDto item) {
-    return item.getMainBranchProjectUuid() != null;
   }
 
 }

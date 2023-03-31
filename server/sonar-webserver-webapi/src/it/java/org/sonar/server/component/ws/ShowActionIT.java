@@ -52,6 +52,7 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -250,8 +251,8 @@ public class ShowActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
@@ -289,8 +290,8 @@ public class ShowActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequest = "pr-1234";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
-    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
@@ -317,8 +318,8 @@ public class ShowActionIT {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1)
       .setNeedIssueSync(true));
-    ComponentDto directory = db.components().insertComponent(newDirectory(branch1, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch1, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch1, "dir", project1.uuid()));
+    ComponentDto file = db.components().insertComponent(newFileDto(project1.uuid(), branch1, directory));
 
     ComponentDto project2 = db.components().insertPrivateProject();
     String branchName2 = randomAlphanumeric(248);
@@ -329,8 +330,8 @@ public class ShowActionIT {
     ComponentDto project3 = db.components().insertPrivateProject();
     String pullRequestKey4 = randomAlphanumeric(100);
     ComponentDto branch4 = db.components().insertProjectBranch(project3, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey4).setNeedIssueSync(false));
-    ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectory(branch4, "dir"));
-    ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(branch4, directoryOfBranch4));
+    ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectoryOnBranch(branch4, "dir", project3.uuid()));
+    ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(project3.uuid(), branch4, directoryOfBranch4));
     String branchName5 = randomAlphanumeric(248);
     ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName5));
 

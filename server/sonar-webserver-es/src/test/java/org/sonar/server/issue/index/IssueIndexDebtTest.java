@@ -46,9 +46,9 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto("EFGH");
 
     indexIssues(
-      IssueDocTesting.newDoc("I1", project.uuid(), ComponentTesting.newFileDto(project, null)).setEffort(10L),
-      IssueDocTesting.newDoc("I2", project.uuid(), ComponentTesting.newFileDto(project, null)).setEffort(10L),
-      IssueDocTesting.newDoc("I3", project2.uuid(), ComponentTesting.newFileDto(project2, null)).setEffort(10L));
+      IssueDocTesting.newDoc("I1", project.uuid(), ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueDocTesting.newDoc("I2", project.uuid(), ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueDocTesting.newDoc("I3", project2.uuid(), ComponentTesting.newFileDto(project2)).setEffort(10L));
 
     Facets facets = search("projects");
     assertThat(facets.getNames()).containsOnly("projects", FACET_MODE_EFFORT);
@@ -80,8 +80,8 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_directories() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setPath("F2.xoo");
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file1).setDirectoryPath("/src/main/xoo").setEffort(10L),
@@ -96,7 +96,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_severities() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file).setSeverity(Severity.INFO).setEffort(10L),
@@ -112,7 +112,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_statuses() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file).setStatus(STATUS_CLOSED).setEffort(10L),
@@ -128,7 +128,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_resolutions() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setEffort(10L),
@@ -144,7 +144,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_languages() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(IssueDocTesting.newDoc("I1", project.uuid(), file).setLanguage("xoo").setEffort(10L));
 
@@ -157,7 +157,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_assignees() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file).setAssigneeUuid("uuid-steph").setEffort(10L),
@@ -174,7 +174,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   @Test
   public void facets_on_author() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
       IssueDocTesting.newDoc("I1", project.uuid(), file).setAuthorLogin("steph").setEffort(10L),
@@ -204,7 +204,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
 
   private SearchOptions fixtureForCreatedAtFacet() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = ComponentTesting.newFileDto(project);
 
     IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", project.uuid(), file).setEffort(10L).setFuncCreationDate(parseDateTime("2011-04-25T01:05:13+0100"));
     IssueDoc issue1 = IssueDocTesting.newDoc("I1", project.uuid(), file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));

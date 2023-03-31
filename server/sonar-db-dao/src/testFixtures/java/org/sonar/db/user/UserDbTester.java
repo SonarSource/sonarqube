@@ -33,6 +33,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -236,7 +237,9 @@ public class UserDbTester {
     checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
     checkArgument(!PUBLIC_PERMISSIONS.contains(permission),
       "permission %s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid() == null, PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES);
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid());
+    // I don't know if this check is worth it
+    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
@@ -256,7 +259,9 @@ public class UserDbTester {
   public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid() == null, PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES);
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid());
+    // I don't know if this check is worth it
+    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
@@ -318,7 +323,9 @@ public class UserDbTester {
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid() == null, PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES);
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid());
+    // I don't know if this check is worth it
+    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto, project, user, null);
     db.commit();

@@ -79,7 +79,7 @@ public class RawActionIT {
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
         .addLines(Line.newBuilder().setLine(1).setSource("public class HelloWorld {").build())
@@ -108,7 +108,7 @@ public class RawActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -124,7 +124,7 @@ public class RawActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file);
 
     assertThatThrownBy(() -> ws.newRequest()

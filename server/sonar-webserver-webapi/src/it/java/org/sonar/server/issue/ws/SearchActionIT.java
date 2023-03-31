@@ -555,7 +555,7 @@ public class SearchActionIT {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY"));
     indexPermissions();
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, null).setUuid("REMOVED_FILE_ID")
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
       .setEnabled(false));
 
@@ -740,7 +740,7 @@ public class SearchActionIT {
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(pr, null, "FILE_ID").setKey("FILE_KEY"));
+    ComponentDto file = db.components().insertComponent(newFileDto(pr, null, "FILE_ID", project.uuid()).setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
     IssueDto issue1 = newIssue(rule, pr, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
@@ -861,7 +861,7 @@ public class SearchActionIT {
   @Test
   public void search_by_author() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("leia"));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("luke"));

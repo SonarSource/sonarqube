@@ -34,9 +34,10 @@
     SELECT
       <include refid="componentColumns"/>
     FROM components p
+    inner join project_branches pb on pb.uuid = p.branch_uuid
     where
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
-      and p.main_branch_project_uuid is null
+      and pb.is_main = ${_true}
   </select>
 
   <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">

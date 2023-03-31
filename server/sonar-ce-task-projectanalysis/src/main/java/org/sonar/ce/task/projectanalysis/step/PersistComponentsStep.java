@@ -110,10 +110,6 @@ public class PersistComponentsStep implements ComputationStep {
     }
   }
 
-  /**
-   * See {@link ComponentDto#mainBranchProjectUuid} : value is null on main branches, otherwise it is
-   * the uuid of the main branch.
-   */
   @CheckForNull
   private String loadProjectUuidOfMainBranch() {
     if (!analysisMetadataHolder.getBranch().isMain()) {
@@ -225,7 +221,7 @@ public class PersistComponentsStep implements ComputationStep {
     private ComponentDto persistComponent(ComponentDto componentDto) {
       ComponentDto existingComponent = existingComponentDtosByUuids.remove(componentDto.uuid());
       if (existingComponent == null) {
-        dbClient.componentDao().insert(dbSession, componentDto);
+        dbClient.componentDao().insert(dbSession, componentDto, analysisMetadataHolder.getBranch().isMain());
         return componentDto;
       }
       Optional<ComponentUpdateDto> update = compareForUpdate(existingComponent, componentDto);

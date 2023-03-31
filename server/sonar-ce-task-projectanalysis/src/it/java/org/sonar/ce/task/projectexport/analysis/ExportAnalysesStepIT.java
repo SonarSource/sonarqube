@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -108,7 +109,7 @@ public class ExportAnalysesStepIT {
   public void setUp() {
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
     componentRepository.register(1, projectDto.uuid(), false);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), DIR, FILE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), Set.of(DIR, FILE), true);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
   }

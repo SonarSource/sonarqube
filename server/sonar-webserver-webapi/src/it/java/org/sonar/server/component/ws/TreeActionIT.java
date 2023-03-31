@@ -65,6 +65,7 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectBranchCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -297,7 +298,7 @@ public class TreeActionIT {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setKey(applicationBranch.getKey() + project.getKey()));
+      .setKey(applicationBranch.getKey() + project.getKey()).setMainBranchProjectUuid(application.uuid()));
     logInWithBrowsePermission(application);
 
     TreeWsResponse result = ws.newRequest()
@@ -354,8 +355,8 @@ public class TreeActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getKey())
@@ -391,8 +392,8 @@ public class TreeActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestId = "pr-123";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
-    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, directory.getKey())

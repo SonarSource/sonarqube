@@ -319,7 +319,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
-    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(branch, dirDto)
+    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(project.uuid(), branch, dirDto)
       .setUuid("abcd")
       .setName("Main.xoo"));
 

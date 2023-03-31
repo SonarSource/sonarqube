@@ -155,13 +155,20 @@ public class PurgeCommandsIT {
   public void deleteNonMainBranchComponentsByProjectUuid_shouldDeletesAllBranchesOfAProjectExceptMainBranch(ComponentDto project) {
     dbTester.components().insertComponent(project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    Stream.of(project, branch).forEach(prj -> {
-      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "a"));
-      ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "b"));
-      dbTester.components().insertComponent(newFileDto(prj));
-      dbTester.components().insertComponent(newFileDto(directory1));
-      dbTester.components().insertComponent(newFileDto(directory2));
-    });
+
+    ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "a"));
+    ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "b"));
+    dbTester.components().insertComponent(newFileDto(project));
+    dbTester.components().insertComponent(newFileDto(directory1));
+    dbTester.components().insertComponent(newFileDto(directory2));
+
+    directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "a")
+      .setMainBranchProjectUuid(project.uuid()));
+    directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "b")
+      .setMainBranchProjectUuid(project.uuid()));
+    dbTester.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
+    dbTester.components().insertComponent(newFileDto(directory1).setMainBranchProjectUuid(project.uuid()));
+    dbTester.components().insertComponent(newFileDto(directory2).setMainBranchProjectUuid(project.uuid()));
 
     underTest.deleteNonMainBranchComponentsByProjectUuid(project.uuid());
 
@@ -580,11 +587,11 @@ public class PurgeCommandsIT {
 
   @Test
   public void deletePermissions_deletes_permissions_of_view() {
-    ComponentDto project = dbTester.components().insertPublicPortfolio();
-    addPermissions(project);
+    ComponentDto portfolio = dbTester.components().insertPublicPortfolio();
+    addPermissions(portfolio);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.uuid());
+    purgeCommands.deletePermissions(portfolio.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isOne();

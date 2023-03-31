@@ -64,8 +64,8 @@ public class ComponentServiceUpdateKeyIT {
   @Test
   public void update_project_key() {
     ComponentDto project = insertSampleProject();
-    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 

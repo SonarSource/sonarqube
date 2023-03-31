@@ -228,7 +228,7 @@ public class ComponentDaoIT {
   public void select_by_key_and_branch() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BRANCH));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), DEFAULT_MAIN_BRANCH_NAME).get().uuid()).isEqualTo(project.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, branch.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
@@ -305,8 +305,8 @@ public class ComponentDaoIT {
     String branchKey = "my_branch";
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     ComponentDto anotherBranch = db.components().insertProjectBranch(project, b -> b.setKey("another_branch"));
     ComponentDto fileOnAnotherBranch = db.components().insertComponent(newFileDto(anotherBranch));
 
@@ -1117,7 +1117,7 @@ public class ComponentDaoIT {
     ComponentDto dto1 = newPrivateProjectDto("U1");
     ComponentDto dto2 = newPrivateProjectDto("U2");
     ComponentDto dto3 = newPrivateProjectDto("U3");
-    underTest.insert(dbSession, dto1, dto2, dto3);
+    underTest.insert(dbSession, List.of(dto1, dto2, dto3), true);
 
     underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
     dbSession.commit();
@@ -1789,7 +1789,7 @@ public class ComponentDaoIT {
   public void insert_auditPersisterIsCalled() {
     ComponentDto app = ComponentTesting.newApplication();
 
-    underTestWithAuditPersister.insert(dbSession, app);
+    underTestWithAuditPersister.insert(dbSession, app, true);
 
     verify(auditPersister).addComponent(any(DbSession.class), any(ComponentNewValue.class));
   }
@@ -1800,7 +1800,7 @@ public class ComponentDaoIT {
     BranchDto branch = newBranchDto(project);
     ComponentDto branchComponent = newBranchComponent(project, branch);
 
-    underTestWithAuditPersister.insert(dbSession, branchComponent);
+    underTestWithAuditPersister.insert(dbSession, branchComponent, false);
 
     verifyNoInteractions(auditPersister);
   }

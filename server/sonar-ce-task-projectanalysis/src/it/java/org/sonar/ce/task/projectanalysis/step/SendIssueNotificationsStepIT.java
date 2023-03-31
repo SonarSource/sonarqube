@@ -104,6 +104,7 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newMainBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -568,7 +569,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
   private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey(BRANCH_NAME));
-    ComponentDto file = newFileDto(branch);
+    ComponentDto file = newFileDto(branch, project.uuid());
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());
     analysisMetadataHolder.setProject(Project.from(project));
@@ -700,8 +701,13 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
   }
 
   private ComponentDto setUpBranch(ComponentDto project, BranchType branchType) {
-    ComponentDto branch = newBranchComponent(project, newBranchDto(project, branchType).setKey(BRANCH_NAME));
-    ComponentDto file = newFileDto(branch);
+    ComponentDto branch = null;
+    if(branchType == PULL_REQUEST) {
+      branch = newBranchComponent(project, newBranchDto(project, PULL_REQUEST, project.uuid()));
+    } else {
+      branch = newBranchComponent(project, newMainBranchDto(project).setKey(BRANCH_NAME));
+    }
+    ComponentDto file = newFileDto(branch, project.uuid());
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());
     return branch;

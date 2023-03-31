@@ -329,7 +329,7 @@ public class SearchActionComponentsIT {
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(appBranch2));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1, b -> b.setKey(proj1branch1));
-    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1, project1.uuid()));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1, b -> b.setKey(proj1branch2));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
@@ -531,7 +531,7 @@ public class SearchActionComponentsIT {
 
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
@@ -568,7 +568,7 @@ public class SearchActionComponentsIT {
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
@@ -594,7 +594,7 @@ public class SearchActionComponentsIT {
 
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     IssueDto pullRequestIssue = db.issues().insertIssue(rule, pullRequest, pullRequestFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
@@ -645,7 +645,7 @@ public class SearchActionComponentsIT {
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();

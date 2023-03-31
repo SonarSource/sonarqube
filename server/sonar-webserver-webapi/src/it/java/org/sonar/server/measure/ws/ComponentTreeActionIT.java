@@ -122,14 +122,14 @@ public class ComponentTreeActionIT {
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null)
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
       .setName("ElementImpl.java")
       .setLanguage("java")
       .setQualifier(FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null)
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
       .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
@@ -269,7 +269,7 @@ public class ComponentTreeActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
     userSession.anonymous().addProjectPermission(USER, project);
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     db.components().insertComponent(file);
 
     MetricDto matchingBestValue = db.measures().insertMetric(m -> m
@@ -506,7 +506,7 @@ public class ComponentTreeActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project);
-    db.components().insertComponent(newFileDto(project, null));
+    db.components().insertComponent(newFileDto(project));
     insertNclocMetric();
 
     ComponentTreeWsResponse result = ws.newRequest()
@@ -526,7 +526,7 @@ public class ComponentTreeActionIT {
     String branchName = "my-branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
@@ -563,9 +563,9 @@ public class ComponentTreeActionIT {
   @Test
   public void show_branch_on_empty_response_if_not_main_branch() {
     ComponentDto mainProjectBranch = db.components().insertPrivateProject();
-    ComponentDto project = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
+    ComponentDto branch = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
     userSession.addProjectPermission(USER, mainProjectBranch);
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainProjectBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
 
     ComponentTreeWsResponse response = ws.newRequest()
@@ -584,7 +584,7 @@ public class ComponentTreeActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
@@ -607,7 +607,7 @@ public class ComponentTreeActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.BUGS_KEY));
     MetricDto newBug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.NEW_BUGS_KEY));
 
@@ -636,7 +636,7 @@ public class ComponentTreeActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(pr);
-    ComponentDto file = db.components().insertComponent(newFileDto(pr));
+    ComponentDto file = db.components().insertComponent(newFileDto(pr, project.uuid()));
     MetricDto bug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.BUGS_KEY));
     MetricDto newBug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.NEW_BUGS_KEY));
 

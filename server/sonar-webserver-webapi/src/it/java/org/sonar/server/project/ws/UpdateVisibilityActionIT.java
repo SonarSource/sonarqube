@@ -678,7 +678,8 @@ public class UpdateVisibilityActionIT {
   private void insertCeQueueDto(ComponentDto project, CeQueueDto.Status status) {
     dbClient.ceQueueDao().insert(dbTester.getSession(), new CeQueueDto()
       .setUuid("pending" + counter++)
-      .setComponent(project)
+      .setComponentUuid(project.uuid())
+      .setMainComponentUuid(project.uuid())
       .setTaskType("foo")
       .setStatus(status));
     dbTester.commit();

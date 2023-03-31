@@ -156,7 +156,7 @@ public class BranchPersisterImplIT {
     ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setKey(MAIN.getKey()).setUuid(MAIN.getUuid()));
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component, false);
     dbTester.commit();
 
     underTest.persist(dbTester.getSession());
@@ -174,7 +174,7 @@ public class BranchPersisterImplIT {
     ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setKey(MAIN.getKey()).setUuid(MAIN.getUuid()));
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component, false);
     settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
     dbTester.commit();
 
@@ -193,7 +193,7 @@ public class BranchPersisterImplIT {
     ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setKey(MAIN.getKey()).setUuid(MAIN.getUuid()));
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component, false);
     settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "abc.*");
 
     dbTester.commit();
@@ -220,7 +220,7 @@ public class BranchPersisterImplIT {
       .setProjectUuid(MAIN.getUuid())
       .setBranchType(PULL_REQUEST)
       .setMergeBranchUuid(MAIN.getUuid()));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component, false);
     dbTester.commit();
 
     underTest.persist(dbTester.getSession());
@@ -239,7 +239,7 @@ public class BranchPersisterImplIT {
     ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setKey(MAIN.getKey()).setUuid(MAIN.getUuid()));
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component, false);
     dbTester.commit();
 
     underTest.persist(dbTester.getSession());

@@ -50,7 +50,7 @@ public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_security_hotspots_type() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(BUG),
@@ -68,7 +68,7 @@ public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_severities_ignore_hotspots() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setSeverity(Severity.INFO).setType(BUG),
@@ -86,7 +86,7 @@ public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_severities_ignore_hotspots() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setSeverity(INFO).setType(BUG),

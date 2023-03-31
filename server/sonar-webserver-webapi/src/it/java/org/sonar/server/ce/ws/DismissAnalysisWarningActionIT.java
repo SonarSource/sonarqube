@@ -192,7 +192,8 @@ public class DismissAnalysisWarningActionIT {
   private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis, String taskType) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(taskType);
-    queueDto.setComponent(component);
+    queueDto.setComponentUuid(component.uuid());
+    queueDto.setComponentUuid(component.uuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

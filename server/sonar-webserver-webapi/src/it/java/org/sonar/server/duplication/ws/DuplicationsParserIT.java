@@ -211,9 +211,9 @@ public class DuplicationsParserIT {
   public void compare_duplications() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto currentFile = db.components().insertComponent(newFileDto(project1, null));
-    ComponentDto fileOnSameProject = db.components().insertComponent(newFileDto(project1, null));
-    ComponentDto fileOnDifferentProject = db.components().insertComponent(newFileDto(project2, null));
+    ComponentDto currentFile = db.components().insertComponent(newFileDto(project1));
+    ComponentDto fileOnSameProject = db.components().insertComponent(newFileDto(project1));
+    ComponentDto fileOnDifferentProject = db.components().insertComponent(newFileDto(project2));
 
     DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.branchUuid());
 
@@ -252,8 +252,8 @@ public class DuplicationsParserIT {
     ComponentDto project = db.components().insertPublicProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branchName, null,
       format("<duplications>\n" +
         "  <g>\n" +

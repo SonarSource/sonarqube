@@ -54,7 +54,7 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertPortfolioAndSnapshot(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
+    dbClient.componentDao().insert(dbSession, component, true);
     return insertSnapshot(component);
   }
 
@@ -402,7 +402,7 @@ public class ComponentDbTester {
     projectDtoPopulator.accept(projectDto);
     dbClient.projectDao().insert(dbSession, projectDto);
 
-    BranchDto branchDto = ComponentTesting.newBranchDto(component, BRANCH);
+    BranchDto branchDto = ComponentTesting.newMainBranchDto(component);
     branchDto.setExcludeFromPurge(true);
     branchPopulator.accept(branchDto);
     branchDto.setIsMain(true);
@@ -449,14 +449,14 @@ public class ComponentDbTester {
   private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto> dtoPopulator) {
     dtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
-    dbClient.componentDao().insert(dbSession, component);
+    dbClient.componentDao().insert(dbSession, component, true);
     db.commit();
 
     return component;
   }
 
   public void insertComponents(ComponentDto... components) {
-    dbClient.componentDao().insert(dbSession, asList(components));
+    dbClient.componentDao().insert(dbSession, asList(components), true);
     db.commit();
   }
 
@@ -503,8 +503,7 @@ public class ComponentDbTester {
 
   @SafeVarargs
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
-    // MainBranchProjectUuid will be null if it's a main branch
-    BranchDto branchDto = ComponentTesting.newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.branchUuid()), BRANCH);
+    BranchDto branchDto = ComponentTesting.newBranchDto(project.uuid(), BRANCH);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
     return insertProjectBranch(project, branchDto);
   }
@@ -527,8 +526,6 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertProjectBranch(ComponentDto project, BranchDto branchDto) {
-    // MainBranchProjectUuid will be null if it's a main branch
-    checkArgument(branchDto.getProjectUuid().equals(firstNonNull(project.getMainBranchProjectUuid(), project.branchUuid())));
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
     insertComponent(branch);
     dbClient.branchDao().insert(dbSession, branchDto);

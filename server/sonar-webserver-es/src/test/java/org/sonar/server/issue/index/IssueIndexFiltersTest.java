@@ -56,8 +56,8 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
-      newDoc("I1", project.uuid(), newFileDto(project, null)),
-      newDoc("I2", project.uuid(), newFileDto(project, null)));
+      newDoc("I1", project.uuid(), newFileDto(project)),
+      newDoc("I2", project.uuid(), newFileDto(project)));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(asList("I1", "I2")), "I1", "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(singletonList("I1")), "I1");
@@ -70,7 +70,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     indexIssues(
       newDocForProject("I1", project),
-      newDoc("I2", project.uuid(), newFileDto(project, null)));
+      newDoc("I2", project.uuid(), newFileDto(project)));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2");
     assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList("unknown")));
@@ -79,7 +79,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_components_on_contextualized_search() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project, null);
+    ComponentDto file1 = newFileDto(project);
     String view = "ABCD";
     indexView(view, singletonList(project.uuid()));
 
@@ -115,8 +115,8 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_directories() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
-    ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
+    ComponentDto file1 = newFileDto(project).setPath("src/main/xoo/F1.xoo");
+    ComponentDto file2 = newFileDto(project).setPath("F2.xoo");
 
     indexIssues(
       newDoc("I1", project.uuid(), file1).setDirectoryPath("/src/main/xoo"),
@@ -155,7 +155,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_portfolios_not_having_projects() {
     ComponentDto project1 = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project1, null);
+    ComponentDto file1 = newFileDto(project1);
     indexIssues(newDoc("I2", project1.uuid(), file1));
     String view1 = "ABCD";
     indexView(view1, emptyList());
@@ -209,7 +209,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid())).setMainBranchProjectUuid(project.uuid());
 
     indexIssues(
       newDocForProject("I1", project),
@@ -308,7 +308,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
-    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1)).setMainBranchProjectUuid(project1.uuid());
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     indexView(applicationBranch1.uuid(), asList(project1Branch1.uuid(), project2.uuid()));
@@ -471,7 +471,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_severities() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setSeverity(Severity.INFO),
@@ -485,7 +485,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_statuses() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setStatus(Issue.STATUS_CLOSED),
@@ -499,7 +499,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_resolutions() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
@@ -513,7 +513,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_resolved() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
@@ -528,7 +528,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_rules() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
@@ -541,7 +541,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_languages() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
@@ -554,7 +554,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_assignees() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAssigneeUuid("steph-uuid"),
@@ -569,7 +569,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_assigned() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAssigneeUuid("steph-uuid"),
@@ -584,7 +584,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_authors() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setAuthorLogin("steph"),
@@ -599,7 +599,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_created_after() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDate("2014-09-20")),
@@ -615,7 +615,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_created_before() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDate("2014-09-20")),
@@ -631,7 +631,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_created_after_and_before() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDate("2014-09-20")),
@@ -671,7 +671,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_created_after_and_before_take_into_account_timezone() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+0100")),
@@ -715,7 +715,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_created_at() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDate("2014-09-20")));
 
@@ -726,7 +726,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_new_code_reference() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(newDoc("I1", project.uuid(), file).setIsNewCodeReference(true),
       newDoc("I2", project.uuid(), file).setIsNewCodeReference(false));
@@ -737,7 +737,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_cwe() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
@@ -750,7 +750,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_owaspAsvs40_category() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
@@ -765,7 +765,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_owaspAsvs40_specific_requirement() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
@@ -780,7 +780,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_owaspAsvs40_level() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("2.1.1", "1.1.1", "1.11.3")),
@@ -802,7 +802,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_owaspTop10() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
@@ -815,7 +815,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_sansTop25() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
@@ -828,7 +828,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   @Test
   public void filter_by_sonarSecurity() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),

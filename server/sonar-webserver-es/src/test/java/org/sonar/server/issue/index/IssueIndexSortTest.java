@@ -36,7 +36,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   @Test
   public void sort_by_status() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setStatus(Issue.STATUS_OPEN),
@@ -53,7 +53,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   @Test
   public void sort_by_severity() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setSeverity(Severity.BLOCKER),
@@ -72,7 +72,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   @Test
   public void sort_by_creation_date() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
@@ -89,7 +89,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   @Test
   public void sort_by_update_date() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
@@ -106,7 +106,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   @Test
   public void sort_by_close_date() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),

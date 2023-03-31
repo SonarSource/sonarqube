@@ -109,7 +109,7 @@ public class ShowActionIT {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
@@ -162,7 +162,7 @@ public class ShowActionIT {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +

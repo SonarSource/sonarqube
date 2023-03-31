@@ -91,7 +91,7 @@ public class ProjectDataLoaderIT {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     // File on branch
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
     dbSession.commit();
 
@@ -128,7 +128,7 @@ public class ProjectDataLoaderIT {
   public void fails_with_BRE_if_component_is_not_root() {
     String uuid = "uuid";
     String key = "key";
-    dbClient.componentDao().insert(dbSession, new ComponentDto()
+    dbClient.componentDao().insertOnMainBranch(dbSession, new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
       .setBranchUuid("branchUuid")

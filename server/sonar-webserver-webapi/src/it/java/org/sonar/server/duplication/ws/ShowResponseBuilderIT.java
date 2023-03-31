@@ -206,8 +206,8 @@ public class ShowResponseBuilderIT {
     ComponentDto project = db.components().insertPublicProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       Duplication.newComponent(file1, 57, 12),

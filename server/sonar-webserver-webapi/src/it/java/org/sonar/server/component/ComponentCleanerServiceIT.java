@@ -183,8 +183,8 @@ public class ComponentCleanerServiceIT {
     mockResourceTypeAsValidProject();
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     db.components().insertComponent(project);
-    ComponentDto file = newFileDto(project, null);
-    dbClient.componentDao().insert(dbSession, file);
+    ComponentDto file = newFileDto(project);
+    dbClient.componentDao().insertOnMainBranch(dbSession, file);
     dbSession.commit();
 
     assertThatThrownBy(() -> underTest.delete(dbSession, file))

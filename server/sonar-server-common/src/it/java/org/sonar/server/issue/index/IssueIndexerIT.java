@@ -483,7 +483,7 @@ public class IssueIndexerIT {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid()).orElseThrow();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1").setMainBranchProjectUuid(project.uuid()));
     IssueDto issue = db.issues().insert(rule, branch, file);
 
     underTest.indexAllIssues();

@@ -75,6 +75,7 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newMainBranchDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.ADDED;
 import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE;
@@ -145,7 +146,7 @@ public class SearchActionIT {
       .setKey(CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI)
       .setValue("Jenkins")
       .setCreatedAt(1L));
-    BranchDto branchDto = newBranchDto(project, BRANCH);
+    BranchDto branchDto = newMainBranchDto(project);
     db.getDbClient().branchDao().insert(db.getSession(), branchDto);
     db.newCodePeriods().insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())

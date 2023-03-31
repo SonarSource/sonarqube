@@ -125,7 +125,7 @@ public class ComponentActionIT {
     String branchName = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
@@ -165,7 +165,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
@@ -188,7 +188,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setValueType("INT"));
     MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setValueType("INT"));
     MetricDto violations = db.measures().insertMetric(m1 -> m1.setKey("violations").setValueType("INT"));
@@ -225,7 +225,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setOptimizedBestValue(false).setValueType("INT"));
     MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setOptimizedBestValue(false).setValueType("INT"));
 

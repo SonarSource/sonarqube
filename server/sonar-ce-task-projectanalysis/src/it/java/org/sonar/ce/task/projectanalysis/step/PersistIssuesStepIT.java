@@ -121,7 +121,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-1";
 
@@ -185,7 +185,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-2";
 
@@ -231,7 +231,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-3";
 
@@ -290,7 +290,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
         .setResolution(null)
@@ -325,7 +325,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     session.commit();
     String issueKey = "ISSUE-4";
 
@@ -397,7 +397,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-5";
 
@@ -450,7 +450,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-6";
 
@@ -499,7 +499,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-7";
 

@@ -164,7 +164,7 @@ public class IssueUpdaterIT {
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BRANCH));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file,
       t -> t.setSeverity(MAJOR)).toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
@@ -192,7 +192,7 @@ public class IssueUpdaterIT {
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file, t -> t.setSeverity(MAJOR)).toDefaultIssue();
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);

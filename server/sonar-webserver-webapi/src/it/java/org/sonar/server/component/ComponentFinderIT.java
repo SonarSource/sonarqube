@@ -152,7 +152,7 @@ public class ComponentFinderIT {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "my_branch").uuid()).isEqualTo(branch.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, file.getKey(), "my_branch").uuid()).isEqualTo(file.uuid());
@@ -164,7 +164,7 @@ public class ComponentFinderIT {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, "pr-123").uuid()).isEqualTo(branch.uuid());
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, "pr-123").uuid()).isEqualTo(file.uuid());
@@ -176,7 +176,7 @@ public class ComponentFinderIT {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null)).isPresent();
     assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null).get().uuid())
@@ -219,7 +219,7 @@ public class ComponentFinderIT {
   public void fail_to_get_by_key_and_branch_when_branch_does_not_exist() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     String fileKey = file.getKey();
     assertThatThrownBy(() -> underTest.getByKeyAndBranch(dbSession, fileKey, "other_branch"))

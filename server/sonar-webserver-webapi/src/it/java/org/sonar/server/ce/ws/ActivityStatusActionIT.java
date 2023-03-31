@@ -172,8 +172,11 @@ public class ActivityStatusActionIT {
 
   private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto, @Nullable Long createdAt) {
     CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast())
-      .setStatus(status)
-      .setComponent(componentDto);
+      .setStatus(status);
+    if(componentDto != null) {
+      ceQueueDto.setComponentUuid(componentDto.uuid())
+        .setMainComponentUuid(componentDto.uuid());
+    }
     if (createdAt != null) {
       ceQueueDto.setCreatedAt(createdAt);
     }
@@ -183,7 +186,8 @@ public class ActivityStatusActionIT {
 
   private void insertActivity(CeActivityDto.Status status, @Nullable ComponentDto dto) {
     CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast());
-    ceQueueDto.setComponent(dto);
+    ceQueueDto.setComponentUuid(dto.uuid());
+    ceQueueDto.setMainComponentUuid(dto.uuid());
     dbClient.ceActivityDao().insert(dbSession, new CeActivityDto(ceQueueDto)
       .setStatus(status));
     db.commit();

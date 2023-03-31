@@ -70,21 +70,6 @@ public class CeQueueDto {
     return this;
   }
 
-  /**
-   * Helper methods which sets both {@link #componentUuid} and {@link #mainComponentUuid} from the specified
-   * {@link ComponentDto}.
-   */
-  public CeQueueDto setComponent(@Nullable ComponentDto component) {
-    if (component == null) {
-      this.componentUuid = null;
-      this.mainComponentUuid = null;
-    } else {
-      this.componentUuid = requireNonNull(component.uuid());
-      this.mainComponentUuid = firstNonNull(component.getMainBranchProjectUuid(), component.uuid());
-    }
-    return this;
-  }
-
   @CheckForNull
   public String getComponentUuid() {
     return componentUuid;

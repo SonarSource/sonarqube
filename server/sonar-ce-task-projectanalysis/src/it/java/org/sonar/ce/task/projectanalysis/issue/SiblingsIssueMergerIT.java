@@ -115,9 +115,9 @@ public class SiblingsIssueMergerIT {
     branch3Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch3")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
-    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setKey(FILE_1_KEY));
-    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setKey(FILE_1_KEY));
-    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setKey(FILE_1_KEY));
+    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto, projectDto.uuid()).setKey(FILE_1_KEY));
+    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto, projectDto.uuid()).setKey(FILE_1_KEY));
+    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto, projectDto.uuid()).setKey(FILE_1_KEY));
     rule = db.rules().insert();
     when(branch.getReferenceBranchUuid()).thenReturn(projectDto.uuid());
     metadataHolder.setBranch(branch);

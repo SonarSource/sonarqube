@@ -94,11 +94,11 @@ public class BranchDao implements Dao {
    * Returns collection of branches that are in the same project as the component
    */
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
-    String projectUuid = component.getMainBranchProjectUuid();
-    if (projectUuid == null) {
-      projectUuid = component.branchUuid();
+    BranchDto branchDto = mapper(dbSession).selectByUuid(component.branchUuid());
+    if(branchDto == null) {
+      return List.of();
     }
-    return mapper(dbSession).selectByProjectUuid(projectUuid);
+    return mapper(dbSession).selectByProjectUuid(branchDto.getProjectUuid());
   }
 
   public Collection<BranchDto> selectByProject(DbSession dbSession, ProjectDto project) {

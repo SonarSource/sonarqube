@@ -98,8 +98,8 @@ public class ComponentKeyUpdaterDaoIT {
     ComponentDto project = db.components().insertPublicProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    db.components().insertComponent(newFileDto(branch));
-    db.components().insertComponent(newFileDto(branch));
+    db.components().insertComponent(newFileDto(branch, project.uuid()));
+    db.components().insertComponent(newFileDto(branch, project.uuid()));
     int prComponentCount = 3;
 
     String oldProjectKey = project.getKey();
@@ -159,7 +159,7 @@ public class ComponentKeyUpdaterDaoIT {
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
     ComponentDto project = newPrivateProjectDto("project-uuid").setKey("old-project-key");
     db.components().insertComponent(project);
-    db.components().insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
+    db.components().insertComponent(newFileDto(project).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
 
     assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), newLongProjectKey))

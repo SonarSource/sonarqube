@@ -36,14 +36,26 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
 public class ComponentTesting {
 
   public static ComponentDto newFileDto(ComponentDto project) {
-    return newFileDto(project, null);
+    return newFileDto(project, (ComponentDto) null);
   }
 
   public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory) {
     return newFileDto(project, directory, Uuids.createFast());
   }
 
+  public static ComponentDto newFileDto(ComponentDto branch, String mainBranchUuid) {
+    return newFileDto(mainBranchUuid, branch, null);
+  }
+
+  public static ComponentDto newFileDto(String mainBranchUuid, ComponentDto projectOrBranch, @Nullable ComponentDto directory) {
+    return newFileDto(projectOrBranch, directory, Uuids.createFast(), mainBranchUuid);
+  }
+
   public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory, String fileUuid) {
+    return newFileDto(project, directory, fileUuid, null);
+  }
+
+  public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory, String fileUuid, @Nullable String mainBranchUuid) {
     String filename = "NAME_" + fileUuid;
     String path = directory != null ? directory.path() + "/" + filename : project.path() + "/" + filename;
     return newChildComponent(fileUuid, project, directory == null ? project : directory)
@@ -52,6 +64,7 @@ public class ComponentTesting {
       .setLongName(path)
       .setScope(Scopes.FILE)
       .setBranchUuid(project.branchUuid())
+      .setMainBranchProjectUuid(mainBranchUuid)
       .setQualifier(Qualifiers.FILE)
       .setPath(path)
       .setCreatedAt(new Date())
@@ -62,16 +75,25 @@ public class ComponentTesting {
     return newDirectory(project, Uuids.createFast(), path);
   }
 
-  public static ComponentDto newDirectory(ComponentDto project, String uuid, String path) {
+  public static ComponentDto newDirectoryOnBranch(ComponentDto project, String path, String mainBranchUuid) {
+    return newDirectory(project, Uuids.createFast(), path, mainBranchUuid);
+  }
+
+  private static ComponentDto newDirectory(ComponentDto project, String uuid, String path, String mainBranchUuid) {
     String key = !path.equals("/") ? project.getKey() + ":" + path : project.getKey() + ":/";
     return newChildComponent(uuid, project, project)
       .setKey(key)
       .setName(path)
       .setLongName(path)
       .setBranchUuid(project.branchUuid())
+      .setMainBranchProjectUuid(mainBranchUuid)
       .setPath(path)
       .setScope(Scopes.DIRECTORY)
       .setQualifier(Qualifiers.DIRECTORY);
+  }
+
+  public static ComponentDto newDirectory(ComponentDto project, String uuid, String path) {
+    return newDirectory(project, uuid, path, null);
   }
 
   public static ComponentDto newSubPortfolio(ComponentDto portfolioOrSubPortfolio, String uuid, String key) {
@@ -175,7 +197,6 @@ public class ComponentTesting {
       .setUuidPath(formatUuidPathFromParent(parent))
       .setKey(uuid)
       .setBranchUuid(project.branchUuid())
-      .setMainBranchProjectUuid(project.getMainBranchProjectUuid())
       .setCreatedAt(new Date())
       .setEnabled(true)
       .setPrivate(project.isPrivate());
@@ -183,12 +204,11 @@ public class ComponentTesting {
 
 
   public static BranchDto newBranchDto(@Nullable String projectUuid, BranchType branchType) {
-    String key = projectUuid == null ? null : "branch_" + randomAlphanumeric(248);
+    String key = "branch_" + randomAlphanumeric(248);
     return new BranchDto()
       .setKey(key)
       .setUuid(Uuids.createFast())
       .setIsMain(false)
-      // MainBranchProjectUuid will be null if it's a main branch
       .setProjectUuid(projectUuid)
       .setBranchType(branchType);
   }
@@ -201,17 +221,24 @@ public class ComponentTesting {
     return newBranchDto(project.branchUuid(), BranchType.BRANCH);
   }
 
-  public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
-    boolean isMain = branchComponent.getMainBranchProjectUuid() == null;
-    String projectUuid = isMain ? branchComponent.uuid() : branchComponent.getMainBranchProjectUuid();
-    String key = isMain ? DEFAULT_MAIN_BRANCH_NAME : "branch_" + randomAlphanumeric(248);
+  public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType, String projectUuid) {
+    String key = "branch_" + randomAlphanumeric(248);
 
     return new BranchDto()
       .setKey(key)
-      .setIsMain(isMain)
+      .setIsMain(false)
       .setUuid(branchComponent.uuid())
       .setProjectUuid(projectUuid)
       .setBranchType(branchType);
+  }
+
+  public static BranchDto newMainBranchDto(ComponentDto branchComponent) {
+    return new BranchDto()
+      .setKey(DEFAULT_MAIN_BRANCH_NAME)
+      .setIsMain(true)
+      .setUuid(branchComponent.uuid())
+      .setProjectUuid(branchComponent.uuid())
+      .setBranchType(BranchType.BRANCH);
   }
 
   public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {
@@ -235,7 +262,6 @@ public class ComponentTesting {
 
   public static ComponentDto newBranchComponent(ComponentDto project, BranchDto branchDto) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));
-    checkArgument(project.getMainBranchProjectUuid() == null);
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)

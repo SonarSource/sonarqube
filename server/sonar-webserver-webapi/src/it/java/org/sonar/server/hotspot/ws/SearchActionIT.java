@@ -108,6 +108,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
@@ -690,8 +691,8 @@ public class SearchActionIT {
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("branch"));
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST).setKey("prKey"));
     ComponentDto fileProject = dbTester.components().insertComponent(newFileDto(project));
-    ComponentDto fileBranch = dbTester.components().insertComponent(newFileDto(branch));
-    ComponentDto filePR = dbTester.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto fileBranch = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto filePR = dbTester.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     IssueDto[] hotspotProject = IntStream.range(0, 1 + RANDOM.nextInt(10))
       .mapToObj(i -> {
         RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -1094,8 +1095,8 @@ public class SearchActionIT {
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.registerComponents(project, branch);
     indexPermissions();
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(branch, "donut/acme"));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    ComponentDto directory = dbTester.components().insertComponent(newDirectoryOnBranch(branch, "donut/acme", project.uuid()));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto fileHotspot = insertHotspot(branch, file, rule);
     IssueDto dirHotspot = insertHotspot(branch, directory, rule);
@@ -1131,8 +1132,8 @@ public class SearchActionIT {
       .setKey(pullRequestKey));
     userSessionRule.registerComponents(project, pullRequest);
     indexPermissions();
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(pullRequest, "donut/acme"));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto directory = dbTester.components().insertComponent(newDirectoryOnBranch(pullRequest, "donut/acme", project.uuid()));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto fileHotspot = insertHotspot(pullRequest, file, rule);
     IssueDto dirHotspot = insertHotspot(pullRequest, directory, rule);
@@ -1795,7 +1796,7 @@ public class SearchActionIT {
     ComponentDto pr = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     userSessionRule.registerComponents(project);
     indexPermissions();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(pr));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(pr, project.uuid()));
     dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(referenceDate).setLast(true));
     dbTester.components().insertSnapshot(pr, t -> t.setPeriodDate(null).setLast(true));
     RuleDto rule = newRule(SECURITY_HOTSPOT);

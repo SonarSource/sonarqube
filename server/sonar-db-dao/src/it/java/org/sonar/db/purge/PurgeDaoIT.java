@@ -366,7 +366,7 @@ public class PurgeDaoIT {
   @Test
   public void deleteAnalyses_deletes_rows_in_events_and_event_component_changes() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project, true);
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
     SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
     SnapshotDto projectAnalysis3 = db.components().insertSnapshot(project);
@@ -685,8 +685,7 @@ public class PurgeDaoIT {
   public void delete_row_in_ce_activity_when_deleting_project() {
     ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto();
     ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
-
+    insertComponents(List.of(anotherLivingProject), List.of(projectToBeDeleted));
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
     CeActivityDto toBeDeletedActivity = insertCeActivity(projectToBeDeleted);
     CeActivityDto notDeletedActivity = insertCeActivity(anotherLivingProject);
@@ -706,7 +705,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeActivityDto projectTask = insertCeActivity(project);
     insertCeTaskInput(projectTask.getUuid());
@@ -738,7 +738,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeActivityDto projectTask = insertCeActivity(project);
     insertCeScannerContext(projectTask.getUuid());
@@ -770,7 +771,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeActivityDto projectTask = insertCeActivity(project);
     insertCeTaskCharacteristics(projectTask.getUuid(), 3);
@@ -802,7 +804,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeActivityDto projectTask = insertCeActivity(project);
     insertCeTaskMessages(projectTask.getUuid(), 3);
@@ -872,7 +875,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskInput(projectTask.getUuid());
@@ -904,7 +908,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeScannerContext(projectTask.getUuid());
@@ -931,13 +936,19 @@ public class PurgeDaoIT {
     assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
+  private void insertComponents(List<ComponentDto> componentsOnMainBranch, List<ComponentDto> componentsNotOnMainBranch) {
+    componentsOnMainBranch.forEach(c -> dbClient.componentDao().insert(dbSession, c, true));
+    componentsNotOnMainBranch.forEach(c -> dbClient.componentDao().insert(dbSession, c, false));
+  }
+
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_queue_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskCharacteristics(projectTask.getUuid(), 3);
@@ -970,7 +981,8 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskMessages(projectTask.getUuid(), 3);
@@ -1003,7 +1015,9 @@ public class PurgeDaoIT {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
-    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
+
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
     SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
     EventDto projectEvent1 = db.events().insertEvent(projectAnalysis1);

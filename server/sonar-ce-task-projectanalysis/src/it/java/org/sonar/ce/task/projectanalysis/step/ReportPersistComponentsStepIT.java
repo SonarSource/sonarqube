@@ -21,7 +21,9 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.junit.Before;
@@ -248,7 +250,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
     ComponentDto directory = ComponentTesting.newDirectory(project, "src").setUuid("CDEF").setKey("PROJECT_KEY:src");
     ComponentDto file = ComponentTesting.newFileDto(project, directory, "DEFG").setPath("src/foo").setName("foo")
       .setKey("PROJECT_KEY:src/foo");
-    dbClient.componentDao().insert(db.getSession(), directory, file);
+    dbClient.componentDao().insert(db.getSession(), Set.of(directory, file), true);
     db.getSession().commit();
 
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":src/foo").get().scope()).isEqualTo("FIL");
@@ -326,7 +328,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
     ComponentDto directory = ComponentTesting.newDirectory(project, "src/main/java/dir").setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir");
     ComponentDto file = ComponentTesting.newFileDto(project, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
       .setKey("PROJECT_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(db.getSession(), directory, file);
+    dbClient.componentDao().insert(db.getSession(), Set.of(directory, file), true);
     db.getSession().commit();
 
     treeRootHolder.setRoot(
@@ -399,7 +401,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
       .setName("Foo.java")
       .setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
       .setEnabled(false);
-    dbClient.componentDao().insert(db.getSession(), removedDirectory, removedFile);
+    dbClient.componentDao().insert(db.getSession(), Set.of(removedDirectory, removedFile), true);
     db.getSession().commit();
 
     treeRootHolder.setRoot(

@@ -603,7 +603,10 @@ public class ActivityActionIT {
   private CeQueueDto insertQueue(String taskUuid, @Nullable ComponentDto project, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponent(project);
+    if (project != null ) {
+      queueDto.setComponentUuid(project.uuid());
+      queueDto.setMainComponentUuid(project.uuid());
+    }
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
     db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
@@ -618,7 +621,8 @@ public class ActivityActionIT {
   private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponent(project);
+    queueDto.setComponentUuid(project.uuid());
+    queueDto.setMainComponentUuid(project.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setCreatedAt(EXECUTED_AT);
     CeActivityDto activityDto = new CeActivityDto(queueDto);

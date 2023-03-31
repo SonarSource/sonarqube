@@ -465,7 +465,7 @@ public class IssueQueryFactoryTest {
     ComponentDto project = db.components().insertPrivateProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(file.getKey()))
@@ -493,7 +493,7 @@ public class IssueQueryFactoryTest {
     ComponentDto project = db.components().insertPrivateProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(file.getKey()))
@@ -546,7 +546,7 @@ public class IssueQueryFactoryTest {
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(branchName2));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
-    db.components().insertComponent(newFileDto(project1Branch1));
+    db.components().insertComponent(newFileDto(project1Branch1, project1.uuid()));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));

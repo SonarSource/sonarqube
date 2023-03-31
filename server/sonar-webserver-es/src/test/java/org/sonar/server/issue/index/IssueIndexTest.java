@@ -53,7 +53,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   @Test
   public void paging() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     for (int i = 0; i < 12; i++) {
       indexIssues(newDoc("I" + i, project.uuid(), file));
     }
@@ -76,7 +76,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   @Test
   public void search_with_max_limit() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
     for (int i = 0; i < 500; i++) {
       String key = "I" + i;
@@ -93,7 +93,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   @Test
   public void search_exceeding_default_index_max_window() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
     for (int i = 0; i < 11_000; i++) {
       String key = "I" + i;
@@ -111,7 +111,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   @Test
   public void search_nine_issues_with_same_creation_date_sorted_by_creation_date_order_is_sorted_also_by_key() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
     // we are adding issues in reverse order to see if the sort is actually doing anything
     for (int i = 9; i >= 1; i--) {
@@ -132,7 +132,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   @Test
   public void search_nine_issues_5_times_with_same_creation_date_sorted_by_creation_date_returned_issues_same_order() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
     // we are adding issues in reverse order to see if the sort is actually doing anything
     for (int i = 9; i >= 1; i--) {
@@ -160,9 +160,9 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project1, null);
-    ComponentDto file2 = newFileDto(project2, null);
-    ComponentDto file3 = newFileDto(project3, null);
+    ComponentDto file1 = newFileDto(project1);
+    ComponentDto file2 = newFileDto(project2);
+    ComponentDto file3 = newFileDto(project3);
     GroupDto group1 = newGroupDto();
     GroupDto group2 = newGroupDto();
 
@@ -197,9 +197,9 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project1, null);
-    ComponentDto file2 = newFileDto(project2, null);
-    ComponentDto file3 = newFileDto(project3, null);
+    ComponentDto file1 = newFileDto(project1);
+    ComponentDto file2 = newFileDto(project2);
+    ComponentDto file3 = newFileDto(project3);
     UserDto user1 = newUserDto();
     UserDto user2 = newUserDto();
 
@@ -228,7 +228,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     RuleDto r2 = db.rules().insert();
     ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getUuid(), r2.getUuid()));
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
+    ComponentDto file = newFileDto(project);
     indexIssues(
       newDoc("I42", project.uuid(), file).setRuleUuid(r1.getUuid()).setTags(of("another")),
       newDoc("I1", project.uuid(), file).setRuleUuid(r1.getUuid()).setTags(of("convention", "java8", "bug")),

@@ -55,7 +55,7 @@ public class ShowActionIT {
   private DbSession session = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
   private ComponentDto project = ComponentTesting.newPrivateProjectDto();
-  private ComponentDto file = ComponentTesting.newFileDto(project, null);
+  private ComponentDto file = ComponentTesting.newFileDto(project);
   private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
     new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)));
   private WsActionTester tester = new WsActionTester(underTest);

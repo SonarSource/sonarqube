@@ -220,7 +220,7 @@ public class AssignActionIT {
   public void assign_hotspot_to_someone_for_private_project_branch() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
@@ -254,7 +254,7 @@ public class AssignActionIT {
   public void fail_if_assignee_does_not_have_access_for_private_project_branch() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
