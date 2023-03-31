@@ -37,6 +37,10 @@ notifications:
     secure: PCekbN71ZmuOt82JUFmlhzxlx3wrXucSIpvxxWdZn9lfsPYQAtXCoOESaHjIVIpggsC5HSAic3HiedsWbuDk/XojmPrDCrfjgYG2wiuSuQlAa60WvzTPqXdRmUXyMQgItaAQbRfZP7kN9No/v8TZDfg5kT3i9ewy0bsfExpjAuo=
   on_start: always
 
+after_success:
+  - "[[ $TRAVIS_TEST_RESULT = 0 ]] && echo passed"
+
 after_failure:
+  - "[[ $TRAVIS_TEST_RESULT = 1 ]] && echo failed"
   - source ./.travis/setup_environment.sh
   - notify_burgr "build" "build" "$TRAVIS_JOB_WEB_URL" "$(cat /tmp/build_start_time)" "$(date --utc +%FT%TZ)" "failed" || true
