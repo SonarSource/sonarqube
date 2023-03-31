@@ -53,7 +53,6 @@
   "components": [
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
-      "uuid": "AVfTIlxMwczdZ2UaLhnt",
       "enabled": true,
       "qualifier": "FIL",
       "name": "ServerIssueUpdater.java",
@@ -62,7 +61,6 @@
     },
     {
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
-      "uuid": "8b745480-b598-4e34-af4a-cb2de1808e50",
       "enabled": true,
       "qualifier": "TRK",
       "name": "SonarLint for IntelliJ IDEA",
