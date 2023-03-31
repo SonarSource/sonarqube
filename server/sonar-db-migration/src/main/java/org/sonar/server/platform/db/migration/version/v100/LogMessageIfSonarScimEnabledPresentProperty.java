@@ -29,6 +29,7 @@ public class LogMessageIfSonarScimEnabledPresentProperty extends DataChange {
 
   private static final Logger LOG = Loggers.get(LogMessageIfSonarScimEnabledPresentProperty.class);
   public static final String SONAR_SCIM_ENABLED = "sonar.scim.enabled";
+  private static final String SCIM_DOC_URL = "https://docs.sonarqube.org/10.1/instance-administration/authentication/saml/scim/overview/";
 
   public LogMessageIfSonarScimEnabledPresentProperty(Database db) {
     super(db);
@@ -40,6 +41,7 @@ public class LogMessageIfSonarScimEnabledPresentProperty extends DataChange {
       .setString(1, SONAR_SCIM_ENABLED)
       .scroll(row -> LOG.warn("'{}' property is defined but not read anymore." +
         " Please read the upgrade notes for the instruction to upgrade. User provisioning is deactivated until reactivated" +
-        " from the SonarQube Administration Interface (\"General->Authentication\").", SONAR_SCIM_ENABLED));
+        " from the SonarQube Administration Interface (\"General->Authentication\"). See documentation: {}", SONAR_SCIM_ENABLED,
+        SCIM_DOC_URL));
   }
 }

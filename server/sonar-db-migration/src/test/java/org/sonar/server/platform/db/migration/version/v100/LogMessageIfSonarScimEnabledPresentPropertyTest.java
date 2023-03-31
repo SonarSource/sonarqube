@@ -61,7 +61,8 @@ public class LogMessageIfSonarScimEnabledPresentPropertyTest {
       .hasSize(1)
       .containsExactly("'" + SONAR_SCIM_ENABLED + "' property is defined but not read anymore. Please read the upgrade notes" +
         " for the instruction to upgrade. User provisioning is deactivated until reactivated from the SonarQube" +
-        " Administration Interface (\"General->Authentication\").");
+        " Administration Interface (\"General->Authentication\"). "
+        + "See documentation: https://docs.sonarqube.org/10.1/instance-administration/authentication/saml/scim/overview/");
   }
 
   @Test
