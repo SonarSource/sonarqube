@@ -38,7 +38,7 @@ import static java.nio.file.Files.newBufferedReader;
 @ComputeEngineSide
 public class SarifSerializerImpl implements SarifSerializer {
   private static final String SARIF_REPORT_ERROR = "Failed to read SARIF report at '%s'";
-  private static final String SARIF_JSON_SYNTAX_ERROR = SARIF_REPORT_ERROR + ": invalid JSON syntax";
+  private static final String SARIF_JSON_SYNTAX_ERROR = SARIF_REPORT_ERROR + ": invalid JSON syntax or file is not UTF-8 encoded";
 
   private final Gson gson;
 

@@ -79,7 +79,17 @@ public class SarifSerializerTest {
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax", sarif));
+      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax or file is not UTF-8 encoded", sarif));
+  }
+
+  @Test
+  public void deserialize_whenFileIsNotUtf8encoded_shouldFail() throws URISyntaxException {
+    URL sarifResource = requireNonNull(getClass().getResource("sarif210-nonUtf8.json"));
+    Path sarif = Paths.get(sarifResource.toURI());
+
+    assertThatThrownBy(() -> serializer.deserialize(sarif))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax or file is not UTF-8 encoded", sarif));
   }
 
   @Test
