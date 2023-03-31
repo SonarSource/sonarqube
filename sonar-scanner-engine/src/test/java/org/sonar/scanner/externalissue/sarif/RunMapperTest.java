@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
@@ -74,9 +75,18 @@ public class RunMapperTest {
 
       List<NewExternalIssue> newExternalIssues = runMapper.mapRun(run);
 
-      assertThat(newExternalIssues)
-        .containsOnly(externalIssue1, externalIssue2);
+      assertThat(newExternalIssues).containsOnly(externalIssue1, externalIssue2);
+      assertThat(logTester.logs()).isEmpty();
     }
+  }
+
+  @Test
+  public void mapRun_ifRunIsEmpty_returnsEmptyList() {
+    when(run.getResults()).thenReturn(emptySet());
+
+    List<NewExternalIssue> newExternalIssues = runMapper.mapRun(run);
+
+    assertThat(newExternalIssues).isEmpty();
   }
 
   @Test

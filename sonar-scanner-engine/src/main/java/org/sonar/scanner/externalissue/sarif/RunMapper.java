@@ -32,6 +32,7 @@ import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Tool;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
@@ -46,6 +47,9 @@ public class RunMapper {
   }
 
   List<NewExternalIssue> mapRun(Run run) {
+    if (run.getResults().isEmpty()) {
+      return emptyList();
+    }
     String driverName = getToolDriverName(run);
     Map<String, String> ruleSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, driverName);
 
