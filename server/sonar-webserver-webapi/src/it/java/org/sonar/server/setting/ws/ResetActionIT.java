@@ -72,22 +72,21 @@ public class ResetActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private I18nRule i18n = new I18nRule();
-  private PropertyDbTester propertyDb = new PropertyDbTester(db);
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
-  private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  private SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
+  private final I18nRule i18n = new I18nRule();
+  private final PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final ComponentFinder componentFinder = TestComponentFinder.from(db);
+  private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
+  private final SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
+  private final SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
   private ComponentDto project;
-  private ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidations);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidations);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
+    project = db.components().insertPrivateProject();
   }
 
   @Test

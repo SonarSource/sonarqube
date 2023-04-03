@@ -21,10 +21,13 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -41,15 +44,18 @@ import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
+import org.sonar.ce.task.projectanalysis.component.VisitException;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -114,7 +120,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(1);
+    assertRowsCountInTableComponents(1);
 
     ComponentDto projectDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(projectDto);
@@ -129,7 +135,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(1);
+    assertRowsCountInTableComponents(1);
 
     assertDtoNotUpdated(VIEW_KEY);
   }
@@ -146,7 +152,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(3);
+    assertRowsCountInTableComponents(3);
 
     ComponentDto viewDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(viewDto);
@@ -155,25 +161,21 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertDtoIsProjectView1(pv1Dto, viewDto, viewDto, project);
   }
 
+  /**
+   * Assumption under test here is that application should always exists in the projects table.
+   * We should never have a state where application exists in Components table but not in Projects table
+   */
   @Test
-  public void persist_application_with_projectView() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    persistComponents(project);
+  public void execute_whenApplicationDoesNotExistsAndTryingToInsertItInComponentsTable_throwException() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
 
     treeRootHolder.setRoot(
       createViewBuilder(APPLICATION)
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
-    underTest.execute(new TestComputationStepContext());
-
-    assertRowsCountInTableProjects(3);
-
-    ComponentDto applicationDto = getComponentFromDb(VIEW_KEY);
-    assertDtoIsApplication(applicationDto);
-
-    ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
-    assertDtoIsProjectView1(pv1Dto, applicationDto, applicationDto, project);
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(VisitException.class);
   }
 
   @Test
@@ -186,7 +188,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(2);
+    assertRowsCountInTableComponents(2);
 
     ComponentDto viewDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(viewDto);
@@ -205,7 +207,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(2);
+    assertRowsCountInTableComponents(2);
 
     ComponentDto subView = getComponentFromDb(SUBVIEW_1_KEY);
     assertThat(subView.getCopyComponentUuid()).isEqualTo("ORIGINAL_UUID");
@@ -225,7 +227,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(2);
+    assertRowsCountInTableComponents(2);
 
     assertDtoNotUpdated(VIEW_KEY);
     assertDtoNotUpdated(SUBVIEW_1_KEY);
@@ -243,7 +245,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(2);
+    assertRowsCountInTableComponents(2);
 
     assertDtoNotUpdated(VIEW_KEY);
     assertDtoIsSubView1(getComponentFromDb(VIEW_KEY), getComponentFromDb(SUBVIEW_1_KEY));
@@ -265,7 +267,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertRowsCountInTableProjects(4);
+    assertRowsCountInTableComponents(4);
 
     ComponentDto viewDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(viewDto);
@@ -288,7 +290,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), viewDto.uuid());
     dbTester.commit();
 
-    assertRowsCountInTableProjects(1);
+    assertRowsCountInTableComponents(1);
     ComponentDto newViewDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(newViewDto);
   }
@@ -303,19 +305,16 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
       .setName("Old name")
       .setCreatedAt(now);
     persistComponents(projectView);
-
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
-
     underTest.execute(new TestComputationStepContext());
-
     // commit functional transaction -> copies B-fields to A-fields
     dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), view.uuid());
     dbTester.commit();
 
-    assertRowsCountInTableProjects(3);
+    assertRowsCountInTableComponents(3);
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
     assertDtoIsProjectView1(pv1Dto, view, view, project);
   }
@@ -471,7 +470,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     return dbClient.componentDao().selectByKey(dbTester.getSession(), componentKey).get();
   }
 
-  private void assertRowsCountInTableProjects(int rowCount) {
+  private void assertRowsCountInTableComponents(int rowCount) {
     assertThat(dbTester.countRowsOfTable("components")).isEqualTo(rowCount);
   }
 

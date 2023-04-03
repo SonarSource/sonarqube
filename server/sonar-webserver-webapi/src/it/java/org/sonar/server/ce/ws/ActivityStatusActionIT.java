@@ -91,10 +91,8 @@ public class ActivityStatusActionIT {
   public void status_for_a_project_as_project_admin() {
     String projectKey = "project-key";
     String anotherProjectKey = "another-project-key";
-    ComponentDto project = newPrivateProjectDto().setKey(projectKey);
-    ComponentDto anotherProject = newPrivateProjectDto().setKey(anotherProjectKey);
-    db.components().insertComponent(project);
-    db.components().insertComponent(newPrivateProjectDto().setKey(anotherProjectKey));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
+    ComponentDto anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -119,8 +117,7 @@ public class ActivityStatusActionIT {
   @Test
   public void add_pending_time() {
     String projectKey = "project-key";
-    ComponentDto project = newPrivateProjectDto().setKey(projectKey);
-    db.components().insertComponent(project);
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(system2.now()).thenReturn(2000L);

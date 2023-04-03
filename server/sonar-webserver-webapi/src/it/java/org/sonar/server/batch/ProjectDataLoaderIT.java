@@ -51,10 +51,10 @@ public class ProjectDataLoaderIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
@@ -138,8 +138,8 @@ public class ProjectDataLoaderIT {
 
     ProjectDataQuery query = ProjectDataQuery.create().setProjectKey(key);
     assertThatThrownBy(() -> underTest.load(query))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Key '" + key + "' belongs to a component which is not a Project");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '" + key + "' not found");
   }
 
   @Test

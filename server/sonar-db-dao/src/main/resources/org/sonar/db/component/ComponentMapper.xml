@@ -78,10 +78,8 @@
           p.private as isPrivate,
           p.created_at as createdAt
     from components p
-    left join projects pr on p.main_branch_project_uuid = pr.uuid
-    <if test="branch != null || pullRequest != null">
-      inner join project_branches pb on pb.uuid = p.branch_uuid
-    </if>
+    left join project_branches pb on pb.uuid = p.branch_uuid
+    left join projects pr on pb.project_uuid = pr.uuid
     where
       p.kee=#{key,jdbcType=VARCHAR}
     <choose>
@@ -94,7 +92,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND p.main_branch_project_uuid is NULL
+        AND (pb.is_main = ${_true} OR p.qualifier IN ('VW', 'SVW') OR (p.qualifier = 'TRK' AND p.scope = 'FIL'))
       </otherwise>
     </choose>
   </select>

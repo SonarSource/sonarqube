@@ -117,7 +117,7 @@ public class RemoveActionIT {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY));
+    return db.components().insertPrivateProject(PROJECT_UUID, c -> c.setKey(PROJECT_KEY));
   }
 
   private ComponentDto insertProjectAndPermissions() {

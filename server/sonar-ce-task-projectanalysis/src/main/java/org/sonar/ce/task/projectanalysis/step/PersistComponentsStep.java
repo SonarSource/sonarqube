@@ -221,6 +221,9 @@ public class PersistComponentsStep implements ComputationStep {
     private ComponentDto persistComponent(ComponentDto componentDto) {
       ComponentDto existingComponent = existingComponentDtosByUuids.remove(componentDto.uuid());
       if (existingComponent == null) {
+        if (componentDto.qualifier().equals("APP") && componentDto.scope().equals("PRJ")) {
+          throw new IllegalStateException("Application should already exists: " + componentDto);
+        }
         dbClient.componentDao().insert(dbSession, componentDto, analysisMetadataHolder.getBranch().isMain());
         return componentDto;
       }

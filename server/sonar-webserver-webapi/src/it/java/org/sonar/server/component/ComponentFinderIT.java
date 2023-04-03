@@ -140,7 +140,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(newPrivateProjectDto().setKey("project-key"));
+    db.components().insertPrivateProject(c -> c.setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 

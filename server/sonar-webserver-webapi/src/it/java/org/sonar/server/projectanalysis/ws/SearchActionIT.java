@@ -203,7 +203,7 @@ public class SearchActionIT {
 
   @Test
   public void return_only_processed_analyses() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
@@ -216,7 +216,7 @@ public class SearchActionIT {
 
   @Test
   public void return_events() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto()).setUuid("A42"));
@@ -452,7 +452,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
@@ -473,7 +473,7 @@ public class SearchActionIT {
 
   @Test
   public void paginate_with_filter_on_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));

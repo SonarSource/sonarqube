@@ -409,7 +409,7 @@ public class TreeActionIT {
 
   @Test
   public void fail_when_not_enough_privileges() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject("project-uuid");
     userSession.logIn()
       .addProjectPermission(UserRole.CODEVIEWER, project);
     db.commit();

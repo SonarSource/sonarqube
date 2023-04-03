@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ExportActionIT {
@@ -66,7 +65,7 @@ public class ExportActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertComponent(newPrivateProjectDto(PROJECT_ID).setKey(PROJECT_KEY).setName(PROJECT_NAME));
+    project = db.components().insertPrivateProject(PROJECT_ID, p -> p.setKey(PROJECT_KEY).setName(PROJECT_NAME));
   }
 
   @Test

@@ -123,7 +123,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject(A_PROJECT_UUID, c -> c.setKey(A_PROJECT_KEY));
     loginAsAdmin();
 
     newRequest()

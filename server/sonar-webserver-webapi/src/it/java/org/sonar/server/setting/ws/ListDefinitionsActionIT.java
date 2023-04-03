@@ -73,17 +73,17 @@ public class ListDefinitionsActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private final DbClient dbClient = db.getDbClient();
+  private final ComponentDbTester componentDb = new ComponentDbTester(db);
   private ComponentDto project;
-  private PropertyDefinitions propertyDefinitions = new PropertyDefinitions(System2.INSTANCE);
-  private SettingsWsSupport support = new SettingsWsSupport(userSession);
-  private WsActionTester ws = new WsActionTester(
+  private final PropertyDefinitions propertyDefinitions = new PropertyDefinitions(System2.INSTANCE);
+  private final SettingsWsSupport support = new SettingsWsSupport(userSession);
+  private final WsActionTester ws = new WsActionTester(
     new ListDefinitionsAction(dbClient, TestComponentFinder.from(db), userSession, propertyDefinitions, support));
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
+    project = db.components().insertPrivateProject();
   }
 
   @Test
