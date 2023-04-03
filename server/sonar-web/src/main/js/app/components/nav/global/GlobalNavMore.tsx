@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Dropdown, ItemNavLink, MainMenuItem, PopupPlacement } from 'design-system';
+import { Dropdown, ItemNavLink, MainMenuItem, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { AppState } from '../../../../types/appstate';
@@ -45,6 +45,7 @@ function GlobalNavMore({ appState: { globalPages = [] } }: { appState: AppState 
       id="moreMenuDropdown"
       overlay={<ul>{withoutPortfolios.map(renderGlobalPageLink)}</ul>}
       placement={PopupPlacement.BottomLeft}
+      zLevel={PopupZLevel.Global}
     >
       {({ onToggleClick, open }) => (
         <ul>
