@@ -110,7 +110,7 @@ public class ReportSubmitter {
       }
 
       checkScanPermission(branchComponent);
-      return submitReport(dbSession, reportInput, branchComponent, characteristics);
+      return submitReport(dbSession, reportInput, branchComponent, mainBranch, characteristics);
     }
   }
 
@@ -175,15 +175,14 @@ public class ReportSubmitter {
     return projectDefaultVisibility.get(dbSession);
   }
 
-  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristics) {
+  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto branch, BranchDto mainBranch, Map<String, String> characteristics) {
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
 
     // the report file must be saved before submitting the task
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
     dbSession.commit();
-
     submit.setType(CeTaskTypes.REPORT);
-    submit.setComponent(CeTaskSubmit.Component.fromDto(project));
+    submit.setComponent(CeTaskSubmit.Component.fromDto(branch.uuid(), mainBranch.getUuid()));
     submit.setSubmitterUuid(userSession.getUuid());
     submit.setCharacteristics(characteristics);
     return queue.submit(submit.build());

@@ -178,13 +178,13 @@ public class CancelActionIT {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto createTaskSubmit(@Nullable ComponentDto componentDto) {
+  private CeQueueDto createTaskSubmit(@Nullable ComponentDto mainBranchComponent) {
     CeTaskSubmit.Builder submission = queue.prepareSubmit()
       .setType(CeTaskTypes.REPORT)
       .setSubmitterUuid(null)
       .setCharacteristics(emptyMap());
-    if (componentDto != null) {
-      submission.setComponent(CeTaskSubmit.Component.fromDto(componentDto));
+    if (mainBranchComponent != null) {
+      submission.setComponent(CeTaskSubmit.Component.fromDto(mainBranchComponent.uuid(), mainBranchComponent.uuid()));
     }
     CeTask task = queue.submit(submission.build());
     return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();

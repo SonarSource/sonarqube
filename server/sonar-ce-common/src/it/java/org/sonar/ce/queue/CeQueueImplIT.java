@@ -92,7 +92,7 @@ public class CeQueueImplIT {
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
     ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto), null);
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto.uuid(), componentDto.uuid()), null);
 
     CeTask task = underTest.submit(taskSubmit);
 
@@ -227,7 +227,7 @@ public class CeQueueImplIT {
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_project_exists() {
     ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto1), null);
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto1.uuid(), componentDto1.uuid()), null);
     CeTaskSubmit taskSubmit2 = createTaskSubmit("something", newComponent(randomAlphabetic(12)), null);
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
@@ -242,8 +242,8 @@ public class CeQueueImplIT {
     ComponentDto project = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(branch1), null);
-    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", Component.fromDto(branch2), null);
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(branch1.uuid(), project.uuid()), null);
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", Component.fromDto(branch2.uuid(), project.uuid()), null);
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 

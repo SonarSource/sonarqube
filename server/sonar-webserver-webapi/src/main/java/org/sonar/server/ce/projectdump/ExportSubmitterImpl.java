@@ -48,11 +48,11 @@ public class ExportSubmitterImpl implements ExportSubmitter {
     requireNonNull(projectKey, "Project key can not be null");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> project = dbClient.componentDao().selectByKey(dbSession, projectKey);
-      checkArgument(project.isPresent(), "Project with key [%s] does not exist", projectKey);
+      Optional<ComponentDto> mainBranch = dbClient.componentDao().selectByKey(dbSession, projectKey);
+      checkArgument(mainBranch.isPresent(), "Project with key [%s] does not exist", projectKey);
 
       CeTaskSubmit submit = ceQueue.prepareSubmit()
-        .setComponent(fromDto(project.get()))
+        .setComponent(fromDto(mainBranch.get().uuid(), mainBranch.get().uuid()))
         .setType(CeTaskTypes.PROJECT_EXPORT)
         .setSubmitterUuid(submitterUuid)
         .setCharacteristics(emptyMap())

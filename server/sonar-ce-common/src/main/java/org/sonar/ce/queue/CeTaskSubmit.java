@@ -126,9 +126,8 @@ public final class CeTaskSubmit {
       this.mainComponentUuid = requireNonNull(nullToEmpty(mainComponentUuid), "mainComponentUuid can't be null");
     }
 
-    public static Component fromDto(ComponentDto dto) {
-      String uuid = dto.uuid();
-      return new Component(uuid, firstNonNull(dto.getMainBranchProjectUuid(), uuid));
+    public static Component fromDto(String componentUuid, String mainComponentUuid) {
+      return new Component(componentUuid, mainComponentUuid);
     }
 
     public static Component fromDto(ProjectDto dto) {

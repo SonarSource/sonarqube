@@ -96,7 +96,8 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"), "rob");
+    ComponentDto project1 = newProjectDto("PROJECT_1");
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, project1, project1, "rob");
     CeTask task = underTest.submit(taskSubmit);
     UserDto userDto = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit.getSubmitterUuid());
     verifyCeTask(taskSubmit, task, null, userDto);
@@ -106,7 +107,7 @@ public class InternalCeQueueImplIT {
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
     ComponentDto componentDto = insertComponent(newProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto, null);
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto, componentDto, null);
 
     CeTask task = underTest.submit(taskSubmit);
 
@@ -124,7 +125,8 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"), "rob");
+    ComponentDto project1 = newProjectDto("PROJECT_1");
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, project1, project1, "rob");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
@@ -140,8 +142,9 @@ public class InternalCeQueueImplIT {
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
     ComponentDto componentDto1 = insertComponent(newProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1, null);
-    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", newProjectDto("non existing component uuid"), null);
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1, componentDto1, null);
+    ComponentDto nonExistingComponent = newProjectDto("non existing component uuid");
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", nonExistingComponent, nonExistingComponent, null);
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
@@ -384,7 +387,7 @@ public class InternalCeQueueImplIT {
   public void peek_populates_name_and_key_for_existing_component_and_main_component() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    CeTask task = submit(CeTaskTypes.REPORT, branch);
+    CeTask task = submit(CeTaskTypes.REPORT, project, branch);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek).isPresent();
@@ -686,21 +689,26 @@ public class InternalCeQueueImplIT {
     return ComponentTesting.newPublicProjectDto(uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
-  private CeTask submit(String reportType, ComponentDto componentDto) {
-    return underTest.submit(createTaskSubmit(reportType, componentDto, null));
+  private CeTask submit(String reportType, ComponentDto mainBranchComponent) {
+    return underTest.submit(createTaskSubmit(reportType, mainBranchComponent, mainBranchComponent, null));
+  }
+
+  private CeTask submit(String reportType, ComponentDto mainBranchComponent, ComponentDto branchComponent) {
+    return underTest.submit(createTaskSubmit(reportType, mainBranchComponent, branchComponent, null));
   }
 
   private CeTaskSubmit createTaskSubmit(String type) {
-    return createTaskSubmit(type, null, null);
+    return createTaskSubmit(type, null, null, null);
   }
 
-  private CeTaskSubmit createTaskSubmit(String type, @Nullable ComponentDto componentDto, @Nullable String submitterUuid) {
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable ComponentDto mainBranchComponentDto, @Nullable ComponentDto componentDto,
+    @Nullable String submitterUuid) {
     CeTaskSubmit.Builder builder = underTest.prepareSubmit()
       .setType(type)
       .setSubmitterUuid(submitterUuid)
       .setCharacteristics(emptyMap());
-    if (componentDto != null) {
-      builder.setComponent(CeTaskSubmit.Component.fromDto(componentDto));
+    if (componentDto != null && mainBranchComponentDto != null) {
+      builder.setComponent(CeTaskSubmit.Component.fromDto(componentDto.uuid(), mainBranchComponentDto.uuid()));
     }
     return builder.build();
   }
