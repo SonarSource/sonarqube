@@ -50,7 +50,7 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("set_as_default")
       .setDescription("Set a quality gate as the default quality gate.<br>" +
-        "Either 'id' or 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
+        "Parameter 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),

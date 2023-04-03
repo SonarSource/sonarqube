@@ -47,11 +47,11 @@ public class DestroyAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("destroy")
       .setDescription("Delete a Quality Gate.<br>" +
-        "Either 'id' or 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
+        "Parameter 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setPost(true)
       .setChangelog(
-        new Change("10.0", "Parameter 'name' is removed. Use 'name' instead."),
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'name' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."))
       .setHandler(this);

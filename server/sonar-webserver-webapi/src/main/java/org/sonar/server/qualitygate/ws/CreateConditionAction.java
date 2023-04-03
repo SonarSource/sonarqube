@@ -55,7 +55,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
     WebService.NewAction createCondition = controller.createAction(ACTION_CREATE_CONDITION)
       .setPost(true)
       .setDescription("Add a new condition to a quality gate.<br>" +
-        "Either 'gateId' or 'gateName' must be provided. Requires the 'Administer Quality Gates' permission.")
+        "Parameter 'gateName' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setResponseExample(getClass().getResource("create-condition-example.json"))
       .setChangelog(
