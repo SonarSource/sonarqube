@@ -3929,10 +3929,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-hierarchy@npm:3.1.1":
-  version: 3.1.1
-  resolution: "@types/d3-hierarchy@npm:3.1.1"
-  checksum: 92b46ae0de5e149e16c869c4b9c0b6779d636d794c14e910c5263dd4f15fa4701d44139ffcfb9bf83d6bd0a207ba012e9aad15eaefbab219cae3fd24d9112e10
+"@types/d3-hierarchy@npm:3.1.2":
+  version: 3.1.2
+  resolution: "@types/d3-hierarchy@npm:3.1.2"
+  checksum: fc423b25843fb54a411e4e119eaa5a092c6da65cf17855c56fcd4807dcc897145aed78578d9af7dd9b924204c34588b1d8c9b973c27474512048e9486439b2d4
   languageName: node
   linkType: hard
 
@@ -3968,10 +3968,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-selection@npm:3.0.4":
-  version: 3.0.4
-  resolution: "@types/d3-selection@npm:3.0.4"
-  checksum: b1e486db7f020610c854996a96b2f59a43b89d48bc7ac2ef9479f6f6e6324d3b21d7dfc8031a0b6d049a84b769b14eca65d73fc42613ab0044ef67973a9fe6ca
+"@types/d3-selection@npm:3.0.5":
+  version: 3.0.5
+  resolution: "@types/d3-selection@npm:3.0.5"
+  checksum: 77ea35c92273cd2d736355ab5a4cf6477086b064a1f608489a6fef4198ee6bc1d5440e5dfd880099265ac96c4f4b4fda659d89fbaaef37ba03708663196ba8ad
   languageName: node
   linkType: hard
 
@@ -4588,9 +4588,9 @@ __metadata:
     "@types/cheerio": 0.22.31
     "@types/classnames": 2.3.1
     "@types/d3-array": 3.0.4
-    "@types/d3-hierarchy": 3.1.1
+    "@types/d3-hierarchy": 3.1.2
     "@types/d3-scale": 4.0.3
-    "@types/d3-selection": 3.0.4
+    "@types/d3-selection": 3.0.5
     "@types/d3-shape": 3.1.1
     "@types/d3-zoom": 3.0.2
     "@types/diff": 5.0.2
@@ -4613,7 +4613,7 @@ __metadata:
     classnames: 2.3.2
     clipboard: 2.0.11
     core-js: 3.27.2
-    d3-array: 3.2.2
+    d3-array: 3.2.3
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
     d3-selection: 3.0.0
@@ -5963,12 +5963,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-array@npm:3.2.2":
-  version: 3.2.2
-  resolution: "d3-array@npm:3.2.2"
+"d3-array@npm:3.2.3":
+  version: 3.2.3
+  resolution: "d3-array@npm:3.2.3"
   dependencies:
     internmap: 1 - 2
-  checksum: 98af3db792685ceca5d9c3721efba0c567520da5532b2c7a590fd83627a598ea225d11c2cecbad404dc154120feb5ea6df0ded38f82ddf342c714cfd0c6143d1
+  checksum: 41d6a4989b73e0d2649a880b2f29a7e7cc059db0eba36cd29a79e0118ebdf6b78922a84cde0733cd54cb4072f3442ec44f3563902e00ea42892442d60e99f961
   languageName: node
   linkType: hard
 
