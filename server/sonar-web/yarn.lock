@@ -2094,7 +2094,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/babel-plugin@npm:11.10.6":
+"@emotion/babel-plugin@npm:11.10.6, @emotion/babel-plugin@npm:^11.10.6":
   version: 11.10.6
   resolution: "@emotion/babel-plugin@npm:11.10.6"
   dependencies:
@@ -2222,7 +2222,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:11.10.5, @emotion/react@npm:^11.8.1":
+"@emotion/react@npm:11.10.6":
+  version: 11.10.6
+  resolution: "@emotion/react@npm:11.10.6"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    "@emotion/babel-plugin": ^11.10.6
+    "@emotion/cache": ^11.10.5
+    "@emotion/serialize": ^1.1.1
+    "@emotion/use-insertion-effect-with-fallbacks": ^1.0.0
+    "@emotion/utils": ^1.2.0
+    "@emotion/weak-memoize": ^0.3.0
+    hoist-non-react-statics: ^3.3.1
+  peerDependencies:
+    react: ">=16.8.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 4762042e39126ffaffe76052dc65c9bb0ba6b8893013687ba3cc13ed4dd834c31597f1230684c3c078e90aecc13ab6cd0e3cde0dec8b7761affd2571f4d80019
+  languageName: node
+  linkType: hard
+
+"@emotion/react@npm:^11.8.1":
   version: 11.10.5
   resolution: "@emotion/react@npm:11.10.5"
   dependencies:
@@ -2273,26 +2294,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/styled@npm:11.10.5":
-  version: 11.10.5
-  resolution: "@emotion/styled@npm:11.10.5"
+"@emotion/styled@npm:11.10.6":
+  version: 11.10.6
+  resolution: "@emotion/styled@npm:11.10.6"
   dependencies:
     "@babel/runtime": ^7.18.3
-    "@emotion/babel-plugin": ^11.10.5
+    "@emotion/babel-plugin": ^11.10.6
     "@emotion/is-prop-valid": ^1.2.0
     "@emotion/serialize": ^1.1.1
     "@emotion/use-insertion-effect-with-fallbacks": ^1.0.0
     "@emotion/utils": ^1.2.0
   peerDependencies:
-    "@babel/core": ^7.0.0
     "@emotion/react": ^11.0.0-rc.0
     react: ">=16.8.0"
   peerDependenciesMeta:
-    "@babel/core":
-      optional: true
     "@types/react":
       optional: true
-  checksum: 1cec5f6aeb227a7255141031e8594f38ad83902413472aae0a46c27e5f9769c01e23c1ad39adee408d8a2168a697464314d1a0c4f50b31a5d25ea506b2d7bbc8
+  checksum: ed0ee4bec3b63ee9c5eb8216b22646313ff1ada06c5183f128d25b73252126e9fde625e81c868be7ccd666b686a73076f923ce188dac25e93d5062ddffdad46f
   languageName: node
   linkType: hard
 
@@ -4446,8 +4464,8 @@ __metadata:
   resolution: "SonarQube@workspace:."
   dependencies:
     "@emotion/jest": 11.10.5
-    "@emotion/react": 11.10.5
-    "@emotion/styled": 11.10.5
+    "@emotion/react": 11.10.6
+    "@emotion/styled": 11.10.6
     "@primer/octicons-react": 17.11.1
     "@swc/core": 1.3.28
     "@swc/jest": 0.2.24
@@ -6220,8 +6238,8 @@ __metadata:
     vite-plugin-dts: 2.0.2
     whatwg-fetch: 3.6.2
   peerDependencies:
-    "@emotion/react": 11.10.5
-    "@emotion/styled": 11.10.5
+    "@emotion/react": 11.10.6
+    "@emotion/styled": 11.10.6
     "@primer/octicons-react": 17.11.1
     classnames: 2.3.2
     clipboard: 2.0.11

@@ -8,8 +8,8 @@
     "design-system"
   ],
   "dependencies": {
-    "@emotion/react": "11.10.5",
-    "@emotion/styled": "11.10.5",
+    "@emotion/react": "11.10.6",
+    "@emotion/styled": "11.10.6",
     "@primer/octicons-react": "17.11.1",
     "classnames": "2.3.2",
     "clipboard": "2.0.11",
