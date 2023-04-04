@@ -31,10 +31,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -70,6 +71,7 @@ public class BranchMediumIT {
 
   @Before
   public void prepare() throws IOException {
+    logTester.setLevel(Level.DEBUG);
     baseDir = temp.newFolder();
     Path filepath = baseDir.toPath().resolve(FILE_PATH);
     Files.write(filepath, FILE_CONTENT.getBytes());

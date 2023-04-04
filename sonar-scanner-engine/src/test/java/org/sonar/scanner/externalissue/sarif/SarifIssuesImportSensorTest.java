@@ -22,19 +22,18 @@ package org.sonar.scanner.externalissue.sarif;
 import com.google.common.collect.MoreCollectors;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.math.RandomUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
@@ -80,7 +79,7 @@ public class SarifIssuesImportSensorTest {
 
     verify(sarifImporter).importSarif(reportAndResults.getSarifReport());
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).hasSize(1);
+    assertThat(logTester.logs(Level.INFO)).hasSize(1);
     assertSummaryIsCorrectlyDisplayed(FILE_1, reportAndResults.getSarifImportResults());
   }
 
@@ -115,7 +114,7 @@ public class SarifIssuesImportSensorTest {
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults2.getSarifReport());
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'import failed'");
+    assertThat(logTester.logs(Level.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'import failed'");
     assertSummaryIsCorrectlyDisplayed(FILE_2, reportAndResults2.getSarifImportResults());
   }
 
@@ -130,7 +129,7 @@ public class SarifIssuesImportSensorTest {
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults2.getSarifReport());
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'deserialization failed'");
+    assertThat(logTester.logs(Level.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'deserialization failed'");
     assertSummaryIsCorrectlyDisplayed(FILE_2, reportAndResults2.getSarifImportResults());
   }
 

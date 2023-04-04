@@ -27,13 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -227,7 +227,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized");
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
+    assertThat(logTester.logs(Level.WARN)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
     verifyDeleteAuthCookie();
   }
 
@@ -244,17 +244,17 @@ public class InitFilterTest {
   }
 
   private void assertOAuth2InitCalled() {
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isInitCalled()).isTrue();
   }
 
   private void assertBasicInitCalled() {
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
     assertThat(baseIdentityProvider.isInitCalled()).isTrue();
   }
 
   private void assertError(String expectedError) throws Exception {
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expectedError);
+    assertThat(logTester.logs(Level.WARN)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }

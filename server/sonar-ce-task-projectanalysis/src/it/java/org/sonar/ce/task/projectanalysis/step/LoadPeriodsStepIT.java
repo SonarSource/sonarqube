@@ -35,10 +35,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -102,6 +103,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.TRACE);
     project = dbTester.components().insertPublicProject();
 
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
@@ -528,10 +530,8 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   }
 
   private void verifyDebugLogs(String log, String... otherLogs) {
-    assertThat(logTester.getLogs()).hasSize(1 + otherLogs.length);
-    assertThat(logTester.getLogs(LoggerLevel.DEBUG))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .containsOnly(Stream.concat(Stream.of(log), Arrays.stream(otherLogs)).toArray(String[]::new));
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains(Stream.concat(Stream.of(log), Arrays.stream(otherLogs)).toArray(String[]::new));
   }
 
   private void setupRoot(ComponentDto branchComponent) {

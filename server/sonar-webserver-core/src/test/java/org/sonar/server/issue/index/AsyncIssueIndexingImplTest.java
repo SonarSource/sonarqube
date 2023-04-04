@@ -30,9 +30,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -98,7 +98,7 @@ public class AsyncIssueIndexingImplTest {
     assertThat(branch.get().isNeedIssueSync()).isTrue();
     verify(ceQueue, times(1)).prepareSubmit();
     verify(ceQueue, times(1)).massSubmit(anyCollection());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("1 branch found in need of issue sync.");
   }
 
@@ -120,7 +120,7 @@ public class AsyncIssueIndexingImplTest {
     assertThat(branch.get().isNeedIssueSync()).isTrue();
     verify(ceQueue, times(2)).prepareSubmit();
     verify(ceQueue, times(1)).massSubmit(anyCollection());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("2 branch(es) found in need of issue sync for project.");
   }
 
@@ -128,13 +128,13 @@ public class AsyncIssueIndexingImplTest {
   public void triggerOnIndexCreation_no_branch() {
     underTest.triggerOnIndexCreation();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 branch found in need of issue sync.");
+    assertThat(logTester.logs(Level.INFO)).contains("0 branch found in need of issue sync.");
   }
 
   @Test
   public void triggerForProject_no_branch() {
     underTest.triggerForProject("some-random-uuid");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 branch(es) found in need of issue sync for project.");
+    assertThat(logTester.logs(Level.INFO)).contains("0 branch(es) found in need of issue sync for project.");
   }
 
   @Test
@@ -157,7 +157,7 @@ public class AsyncIssueIndexingImplTest {
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
     assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "1 pending indexation task found to be deleted...",
         "1 completed indexation task found to be deleted...",
@@ -203,7 +203,7 @@ public class AsyncIssueIndexingImplTest {
       .extracting(CeActivityDto::getMainComponentUuid)
       .containsExactly(anotherProjectDto.getUuid());
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "2 pending indexation task found to be deleted...",
         "2 completed indexation task found to be deleted...",
@@ -251,7 +251,7 @@ public class AsyncIssueIndexingImplTest {
       .extracting(p -> p.getComponent().get().getUuid())
       .containsExactly("branch_uuid2", "branch_uuid1");
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("2 projects found in need of issue sync.");
   }
 

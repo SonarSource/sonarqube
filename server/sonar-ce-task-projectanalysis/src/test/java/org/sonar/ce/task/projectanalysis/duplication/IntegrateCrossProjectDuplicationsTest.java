@@ -25,10 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -296,7 +296,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+    assertThat(logTester.logs(Level.WARN)).containsOnly(
       "Too many duplication references on file " + ORIGIN_FILE_KEY + " for block at line 30. Keeping only the first 100 references.");
     Iterable<Duplication> duplications = duplicationRepository.getDuplications(ORIGIN_FILE);
     assertThat(duplications).hasSize(1);
@@ -331,7 +331,7 @@ public class IntegrateCrossProjectDuplicationsTest {
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE)).hasSize(100);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
+    assertThat(logTester.logs(Level.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
   }
 
   @Test

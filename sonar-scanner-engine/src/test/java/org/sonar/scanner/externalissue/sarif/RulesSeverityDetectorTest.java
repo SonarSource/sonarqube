@@ -24,8 +24,9 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.sarif.DefaultConfiguration;
 import org.sonar.core.sarif.Driver;
@@ -153,7 +154,7 @@ public class RulesSeverityDetectorTest {
 
   private void assertWarningLog(String driverName, Severity defaultSeverity) {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .containsOnly(format(UNSUPPORTED_RULE_SEVERITIES_WARNING, driverName, defaultSeverity));
   }
 

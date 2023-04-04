@@ -38,6 +38,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
@@ -45,7 +46,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
@@ -82,6 +83,7 @@ public class FileSystemMediumIT {
 
   @Before
   public void prepare() throws IOException {
+    logTester.setLevel(Level.DEBUG);
     baseDir = temp.newFolder().getCanonicalFile();
 
     builder = ImmutableMap.<String, String>builder()
@@ -576,7 +578,7 @@ public class FileSystemMediumIT {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(fileB).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Specifying module-relative paths at project level in the property 'sonar.exclusions' is deprecated. " +
         "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
@@ -673,7 +675,7 @@ public class FileSystemMediumIT {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(fileB).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Specifying module-relative paths at project level in the property 'sonar.exclusions' is deprecated. " +
         "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
@@ -813,7 +815,7 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Deprecated Global Sensor: module_a/module_a1/src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
       "Deprecated Global Sensor: module_a/module_a2/src/main/xoo/com/sonar/it/samples/modules/a2/HelloA2.xoo",
       "Deprecated Global Sensor: module_b/module_b1/src/main/xoo/com/sonar/it/samples/modules/b1/HelloB1.xoo",
@@ -829,7 +831,7 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Global Sensor: module_a/module_a1/src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
       "Global Sensor: module_a/module_a2/src/main/xoo/com/sonar/it/samples/modules/a2/HelloA2.xoo",
       "Global Sensor: module_b/module_b1/src/main/xoo/com/sonar/it/samples/modules/b1/HelloB1.xoo",
@@ -945,7 +947,7 @@ public class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsSequence("Project configuration:",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
@@ -955,7 +957,6 @@ public class FileSystemMediumIT {
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleA'",
         "  Base dir: " + baseDirModuleA.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
-        "  Source paths: src",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",
@@ -964,7 +965,6 @@ public class FileSystemMediumIT {
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleB'",
         "  Base dir: " + baseDirModuleB.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
-        "  Source paths: src",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",
@@ -998,7 +998,7 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
+    assertThat(logTester.logs(Level.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
   }
 
   @Test
@@ -1020,7 +1020,7 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
+    assertThat(logTester.logs(Level.WARN)).doesNotContain("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
   }
 
   @Test
@@ -1039,7 +1039,7 @@ public class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
   }
 

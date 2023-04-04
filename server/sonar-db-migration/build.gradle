@@ -28,6 +28,7 @@ dependencies {
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.xmlunit:xmlunit-core'
   testImplementation 'org.xmlunit:xmlunit-matchers'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-scanner-protocol')
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-db-core'))

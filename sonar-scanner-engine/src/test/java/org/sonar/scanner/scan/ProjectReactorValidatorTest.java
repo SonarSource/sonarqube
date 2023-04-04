@@ -33,7 +33,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;

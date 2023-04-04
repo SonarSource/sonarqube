@@ -27,7 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.Constants.Severity;
@@ -105,6 +106,7 @@ public class ExternalIssuesMediumIT {
 
   @Test
   public void testLoadIssuesFromJsonReport() throws URISyntaxException, IOException {
+    logs.setLevel(Level.DEBUG);
     File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);

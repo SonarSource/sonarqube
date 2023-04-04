@@ -27,15 +27,15 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -89,6 +89,7 @@ public class ExportAdHocRulesStepIT {
 
   @Before
   public void setup() {
+    logTester.setLevel(Level.DEBUG);
     ProjectDto project = createProject();
     when(projectHolder.projectDto()).thenReturn(project);
   }
@@ -99,7 +100,7 @@ public class ExportAdHocRulesStepIT {
 
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 ad-hoc rules exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 ad-hoc rules exported");
   }
 
   @Test
@@ -116,7 +117,7 @@ public class ExportAdHocRulesStepIT {
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
     assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test
@@ -133,7 +134,7 @@ public class ExportAdHocRulesStepIT {
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
     assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule3);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test
@@ -151,7 +152,7 @@ public class ExportAdHocRulesStepIT {
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
     assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test

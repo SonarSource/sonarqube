@@ -36,8 +36,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Oracle;
@@ -253,7 +253,7 @@ public class DatabaseUtilsIT {
 
     getDriver(connection);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Fail to determine database driver.");
+    assertThat(logTester.logs(Level.WARN)).contains("Fail to determine database driver.");
   }
 
   @Test
@@ -394,7 +394,7 @@ public class DatabaseUtilsIT {
 
     log(Loggers.get(getClass()), root);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("SQL error: 456. Message: this is next");
+    assertThat(logTester.logs(Level.ERROR)).contains("SQL error: 456. Message: this is next");
   }
 
   @Test

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

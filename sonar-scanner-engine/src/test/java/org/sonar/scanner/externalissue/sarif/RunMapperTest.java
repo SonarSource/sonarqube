@@ -30,9 +30,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
 
@@ -106,7 +106,7 @@ public class RunMapperTest {
 
       assertThat(newExternalIssues)
         .containsExactly(externalIssue2);
-      assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Failed to import an issue raised by tool Test driver, error: test");
+      assertThat(logTester.logs(Level.WARN)).containsOnly("Failed to import an issue raised by tool Test driver, error: test");
     }
   }
 

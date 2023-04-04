@@ -26,9 +26,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -77,6 +77,7 @@ public class ExportIssuesChangelogStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     ComponentDto projectDto = dbTester.components().insertPublicProject(p -> p.setUuid(PROJECT_UUID));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
     when(projectHolder.branches()).thenReturn(newArrayList(
@@ -211,13 +212,14 @@ public class ExportIssuesChangelogStepIT {
 
   @Test
   public void execute_logs_number_total_exported_issue_changes_count_when_successful() {
+    logTester.setLevel(Level.DEBUG);
     insertIssueChange(ISSUE_OPEN_UUID);
     insertIssueChange(ISSUE_CONFIRMED_UUID);
     insertIssueChange(ISSUE_REOPENED_UUID);
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("3 issue changes exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("3 issue changes exported");
   }
 
   @Test

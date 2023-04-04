@@ -37,8 +37,8 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.Math.abs;
@@ -484,7 +484,7 @@ public class DBSessionsImplTest {
 
     underTest.disableCaching();
 
-    List<String> errorLogs = logTester.logs(LoggerLevel.ERROR);
+    List<String> errorLogs = logTester.logs(Level.ERROR);
     assertThat(errorLogs)
       .hasSize(1)
       .containsOnly("Failed to close " + (batchOrRegular ? "batch" : "regular") + " connection in " + Thread.currentThread());

@@ -22,8 +22,8 @@ package org.sonar.ce.taskprocessor;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.configuration.CeConfigurationRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -166,7 +166,7 @@ public class CeWorkerControllerImplTest {
 
   private void verifyInfoLog(int workerCount) {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsOnly("Compute Engine will use " + workerCount + " concurrent workers to process tasks");
   }
 }

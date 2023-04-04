@@ -24,9 +24,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
@@ -107,6 +107,7 @@ public class ExportMeasuresStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     String projectUuid = dbTester.components().insertPublicProject(PROJECT).uuid();
     componentRepository.register(1, projectUuid, false);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), List.of(FILE, ANOTHER_PROJECT), true);
@@ -121,7 +122,7 @@ public class ExportMeasuresStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.MEASURES)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 measures exported");
     assertThat(metricRepository.getRefByUuid()).isEmpty();
   }
 
@@ -141,7 +142,7 @@ public class ExportMeasuresStepIT {
     assertThat(exportedMeasures).hasSize(2);
     assertThat(exportedMeasures).extracting(ProjectDump.Measure::getAnalysisUuid).containsOnly(firstAnalysis.getUuid(), secondAnalysis.getUuid());
     assertThat(exportedMeasures).extracting(ProjectDump.Measure::getMetricRef).containsOnly(0);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 measures exported");
     assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(NCLOC.getUuid());
   }
 

@@ -36,10 +36,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.slf4j.event.Level;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -144,7 +144,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     assertThat(allValues.get(0)).isSameAs(allValues.get(1));
 
     assertThat(logTester.logs()).hasSize(2);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
     assertThat(logs.get(1)).matches("^PT2 \\| status=SUCCESS \\| time=\\d+ms$");
@@ -390,7 +390,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
 
     assertThat(logTester.logs()).hasSize(1);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(1);
     StringBuilder expectedLog = new StringBuilder("^PT1 ");
     stats.forEach((k, v) -> expectedLog.append("\\| " + k + "=" + v + " "));
@@ -424,7 +424,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     inOrder.verifyNoMoreInteractions();
 
     assertThat(logTester.logs()).hasSize(4);
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(3);
     assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
     assertThat(logs.get(1)).matches("^PT2 \\| status=FAILED \\| time=\\d+ms$");

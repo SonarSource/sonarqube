@@ -27,12 +27,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
@@ -96,6 +97,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void log_when_disabled() {
+    logTester.setLevel(Level.DEBUG);
     when(settings.getBoolean(CoreProperties.SCM_DISABLED_KEY)).thenReturn(Optional.of(true));
 
     underTest.start();

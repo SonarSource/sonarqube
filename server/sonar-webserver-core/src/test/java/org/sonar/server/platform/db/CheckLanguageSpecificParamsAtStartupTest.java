@@ -23,11 +23,12 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 
@@ -64,7 +65,7 @@ public class CheckLanguageSpecificParamsAtStartupTest {
     settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY, CoreMetrics.COMPLEXITY_KEY);
 
     underTest.start();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("The development cost used for calculating the technical debt is currently configured with 2 language specific parameters [Key: languageSpecificParameters]. " +
       "Please be aware that this functionality is deprecated, and will be removed in a future version.");
   }
@@ -72,7 +73,7 @@ public class CheckLanguageSpecificParamsAtStartupTest {
   @Test
   public void log_does_not_show_when_language_specific_params_used() {
     underTest.start();
-    boolean noneMatch = logTester.logs(LoggerLevel.WARN).stream()
+    boolean noneMatch = logTester.logs(Level.WARN).stream()
       .noneMatch(s -> s.startsWith("The development cost used for calculating the technical debt is currently configured with"));
     assertThat(noneMatch).isTrue();
   }

@@ -33,12 +33,13 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.Response;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.lang.String.format;
@@ -110,7 +111,7 @@ public class GithubApplicationHttpClientImplTest {
 
     GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isNotEmpty();
+    assertThat(logTester.logs(Level.WARN)).isNotEmpty();
     assertThat(response.getContent()).isEmpty();
 
   }

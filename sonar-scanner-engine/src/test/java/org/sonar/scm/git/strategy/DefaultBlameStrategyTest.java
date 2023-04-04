@@ -22,9 +22,9 @@ package org.sonar.scm.git.strategy;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -75,8 +75,7 @@ public class DefaultBlameStrategyTest {
     assertThat(underTest.getBlameAlgorithm(1, 10)).isEqualTo(GIT_NATIVE_BLAME);
     assertThat(underTest.getBlameAlgorithm(1, 11)).isEqualTo(GIT_FILES_BLAME);
 
-
     assertThat(underTest.getBlameAlgorithm(0, 10)).isEqualTo(GIT_NATIVE_BLAME);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Available processors are 0. Falling back to native git blame");
+    assertThat(logTester.logs(Level.WARN)).contains("Available processors are 0. Falling back to native git blame");
   }
 }

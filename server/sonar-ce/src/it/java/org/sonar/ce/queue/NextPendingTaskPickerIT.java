@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.config.ComputeEngineProperties;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;

@@ -41,6 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -49,11 +50,10 @@ import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scm.git.strategy.BlameStrategy;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
@@ -95,6 +95,7 @@ public class CompositeBlameCommandTest {
 
   @Test
   public void use_jgit_if_native_git_disabled() throws IOException {
+    logTester.setLevel(Level.DEBUG);
     NativeGitBlameCommand gitCmd = new NativeGitBlameCommand("invalidcommandnotfound", System2.INSTANCE, processWrapperFactory);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, (p, f) -> GIT_NATIVE_BLAME);
     File projectDir = createNewTempFolder();
@@ -105,7 +106,7 @@ public class CompositeBlameCommandTest {
     TestBlameOutput output = new TestBlameOutput();
     blameCmd.blame(input, output);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
   }
@@ -129,6 +130,7 @@ public class CompositeBlameCommandTest {
 
   @Test
   public void fallback_to_jgit_if_native_git_fails() throws Exception {
+    logTester.setLevel(Level.DEBUG);
     NativeGitBlameCommand gitCmd = mock(NativeGitBlameCommand.class);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, (p, f) -> GIT_NATIVE_BLAME);
     File projectDir = createNewTempFolder();
@@ -141,7 +143,7 @@ public class CompositeBlameCommandTest {
     TestBlameOutput output = new TestBlameOutput();
     blameCmd.blame(input, output);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Using GIT_NATIVE_BLAME strategy to blame files");
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
 
@@ -190,7 +192,7 @@ public class CompositeBlameCommandTest {
     assertThat(output.blame).isEmpty();
     verifyNoInteractions(jgit);
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Could not find HEAD commit");
   }
 
@@ -282,7 +284,7 @@ public class CompositeBlameCommandTest {
     blameCommand.blame(input, output);
 
     assertThat(logTester.logs())
-      .haveAtLeastOne(new Condition<>(s-> s.startsWith("This git repository references another local repository which is not well supported"),
+      .haveAtLeastOne(new Condition<>(s -> s.startsWith("This git repository references another local repository which is not well supported"),
         "log for reference detected"));
 
     // contains commits referenced from the old clone and commits in the new clone

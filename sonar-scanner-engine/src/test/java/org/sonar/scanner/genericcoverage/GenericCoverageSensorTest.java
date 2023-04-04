@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.scan.ProjectConfiguration;
 

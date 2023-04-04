@@ -26,12 +26,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +49,7 @@ public class GenericCoverageReportParserTest {
 
   @Before
   public void before() {
+    logs.setLevel(Level.DEBUG);
     context = SensorContextTester.create(new File(""));
     fileWithBranches = setupFile("src/main/java/com/example/ClassWithBranches.java");
     fileWithoutBranch = setupFile("src/main/java/com/example/ClassWithoutBranch.java");

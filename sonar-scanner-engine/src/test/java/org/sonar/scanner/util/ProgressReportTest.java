@@ -26,7 +26,8 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,10 +57,12 @@ public class ProgressReportTest {
   }
 
   @Test
-  public void do_log() {
+  public void do_log() throws InterruptedException {
+    logTester.setLevel(Level.DEBUG);
     underTest.start("start");
     underTest.message("Some message");
     boolean logged = false;
+    Thread.sleep(1000);
     while (!logged) {
       logged = logTester.logs().contains("Some message");
     }

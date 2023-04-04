@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -85,7 +85,7 @@ public class AutoDbMigrationTest {
     underTest.start();
 
     verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).isEmpty();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class AutoDbMigrationTest {
     underTest.start();
 
     verify(migrationEngine).execute();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Automatically perform DB migration, as automatic database upgrade is enabled");
+    assertThat(logTester.logs(Level.INFO)).contains("Automatically perform DB migration, as automatic database upgrade is enabled");
   }
 
   @Test
@@ -109,7 +109,7 @@ public class AutoDbMigrationTest {
     underTest.start();
 
     verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).isEmpty();
   }
 
   @Test
@@ -127,7 +127,7 @@ public class AutoDbMigrationTest {
 
   private void verifyInfoLog() {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly("Automatically perform DB migration on fresh install");
+    assertThat(logTester.logs(Level.INFO)).containsExactly("Automatically perform DB migration on fresh install");
   }
 
 }

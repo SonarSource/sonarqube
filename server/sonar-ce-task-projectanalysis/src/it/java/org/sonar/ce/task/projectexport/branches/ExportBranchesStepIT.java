@@ -29,11 +29,11 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -107,6 +107,7 @@ public class ExportBranchesStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).setCreatedAt(createdAt);
     for (BranchDto branch : branches) {
@@ -121,7 +122,7 @@ public class ExportBranchesStepIT {
   public void export_branches() {
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("3 branches exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("3 branches exported");
     Map<String, ProjectDump.Branch> branches = dumpWriter.getWrittenMessagesOf(DumpElement.BRANCHES)
       .stream()
       .collect(toMap(ProjectDump.Branch::getUuid, Function.identity()));

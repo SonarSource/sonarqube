@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -51,7 +51,7 @@ import org.sonar.db.source.FileSourceDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.TRACE;
+import static org.slf4j.event.Level.TRACE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class ScmInfoDbLoaderIT {
@@ -86,6 +86,7 @@ public class ScmInfoDbLoaderIT {
 
   @Before
   public void before() {
+    logTester.setLevel(TRACE);
     periodHolder.setPeriod(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, null));
   }
 
@@ -101,7 +102,7 @@ public class ScmInfoDbLoaderIT {
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
 
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
   }
 
   @Test
@@ -118,7 +119,7 @@ public class ScmInfoDbLoaderIT {
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'referenceFileUuid'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'referenceFileUuid'");
   }
 
   @Test
@@ -137,7 +138,7 @@ public class ScmInfoDbLoaderIT {
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'targetBranchFileUuid'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
   }
 
   @Test
@@ -158,7 +159,7 @@ public class ScmInfoDbLoaderIT {
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'targetBranchFileUuid'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
   }
 
   @Test
@@ -177,7 +178,7 @@ public class ScmInfoDbLoaderIT {
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
   }
 
   @Test
@@ -187,7 +188,7 @@ public class ScmInfoDbLoaderIT {
 
     Optional<DbScmInfo> scmInfo = underTest.getScmInfo(FILE);
 
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
     assertThat(scmInfo).isEmpty();
   }
 

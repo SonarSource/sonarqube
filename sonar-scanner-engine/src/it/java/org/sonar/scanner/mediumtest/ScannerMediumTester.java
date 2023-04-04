@@ -296,7 +296,7 @@ public class ScannerMediumTester extends ExternalResource {
       props.putAll(tester.globalProperties);
       props.putAll(taskProperties);
 
-      Batch.builder()
+      Batch.Builder builder = Batch.builder()
         .setGlobalProperties(props)
         .setEnableLoggingConfiguration(true)
         .addComponents(new EnvironmentInformation("mediumTest", "1.0"),
@@ -313,9 +313,13 @@ public class ScannerMediumTester extends ExternalResource {
           tester.analysisCacheLoader,
           tester.sonarRuntime,
           tester.reportMetadataHolder,
-          result)
-        .setLogOutput(tester.logOutput)
-        .build().execute();
+          result);
+      if (tester.logOutput != null) {
+        builder.setLogOutput(tester.logOutput);
+      } else {
+        builder.setEnableLoggingConfiguration(false);
+      }
+      builder.build().execute();
 
       return result;
     }

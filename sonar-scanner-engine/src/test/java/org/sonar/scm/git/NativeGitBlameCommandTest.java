@@ -37,10 +37,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scm.git.ProcessWrapperFactory.ProcessWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -319,6 +320,7 @@ public class NativeGitBlameCommandTest {
 
   @Test
   public void execution_on_windows_should_fallback_to_full_path() {
+    logTester.setLevel(Level.DEBUG);
     System2 system2 = mock(System2.class);
     when(system2.isOsWindows()).thenReturn(true);
 

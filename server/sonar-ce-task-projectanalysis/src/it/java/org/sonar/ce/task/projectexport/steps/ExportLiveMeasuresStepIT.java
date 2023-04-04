@@ -21,11 +21,12 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
@@ -54,6 +55,11 @@ public class ExportLiveMeasuresStepIT {
   private FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private ExportLiveMeasuresStep underTest = new ExportLiveMeasuresStep(dbTester.getDbClient(), projectHolder, componentRepository, metricRepository, dumpWriter);
 
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
+
   @Test
   public void export_zero_measures() {
     when(projectHolder.branches()).thenReturn(newArrayList());
@@ -62,7 +68,7 @@ public class ExportLiveMeasuresStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.LIVE_MEASURES)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 live measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 live measures exported");
     assertThat(metricRepository.getRefByUuid()).isEmpty();
   }
 
@@ -85,7 +91,7 @@ public class ExportLiveMeasuresStepIT {
     assertThat(exportedMeasures)
       .extracting(ProjectDump.LiveMeasure::getMetricRef, m -> m.getDoubleValue().getValue(), ProjectDump.LiveMeasure::hasVariation)
       .containsOnly(tuple(0, 4711.0d, false));
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
     assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
@@ -157,7 +163,7 @@ public class ExportLiveMeasuresStepIT {
         0.0d,
         "test",
         7.0d));
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
     assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
@@ -187,7 +193,7 @@ public class ExportLiveMeasuresStepIT {
         false,
         "",
         false));
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
     assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 

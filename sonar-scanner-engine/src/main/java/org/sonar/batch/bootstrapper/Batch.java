@@ -77,7 +77,7 @@ public final class Batch {
   }
 
   private RuntimeException handleException(RuntimeException t) {
-    if (loggingConfig.isVerbose()) {
+    if (loggingConfig != null && loggingConfig.isVerbose()) {
       return t;
     }
 

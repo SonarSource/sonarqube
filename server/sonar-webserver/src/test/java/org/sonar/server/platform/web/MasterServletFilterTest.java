@@ -33,8 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.api.web.ServletFilter.UrlPattern;
 
@@ -153,7 +153,7 @@ public class MasterServletFilterTest {
 
     master.init(config, singletonList(filter));
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Initializing servlet filter PatternFilter [pattern=UrlPattern{inclusions=[/api/issues], exclusions=[/batch/projects]}]");
+    assertThat(logTester.logs(Level.INFO)).containsOnly("Initializing servlet filter PatternFilter [pattern=UrlPattern{inclusions=[/api/issues], exclusions=[/batch/projects]}]");
   }
 
   private static ServletFilter createMockFilter() {

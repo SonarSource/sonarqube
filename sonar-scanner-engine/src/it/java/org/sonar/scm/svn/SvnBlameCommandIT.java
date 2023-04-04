@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -48,8 +49,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameCommand.BlameInput;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNURL;
@@ -321,7 +321,7 @@ public class SvnBlameCommandIT {
 
     assertThrows(IllegalStateException.class, () -> {
       svnBlameCommand.blame(clientManager, inputFile, output);
-      assertThat(logTester.logs(LoggerLevel.WARN)).contains("Authentication to SVN server is required but no " +
+      assertThat(logTester.logs(Level.WARN)).contains("Authentication to SVN server is required but no " +
         "authentication data was passed to the scanner");
     });
 
@@ -350,11 +350,8 @@ public class SvnBlameCommandIT {
       any(SVNRevision.class), any(SVNRevision.class), anyBoolean(), anyBoolean(), any(AnnotationHandler.class),
       eq(null));
 
-    assertThrows(IllegalStateException.class, () -> {
-      svnBlameCommand.blame(clientManager, inputFile, output);
-      assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
-    });
-
+    assertThrows(IllegalStateException.class, () -> svnBlameCommand.blame(clientManager, inputFile, output));
+    assertThat(logTester.logs(Level.WARN)).contains("Authentication to SVN server is required but no authentication data was passed to the scanner");
   }
 
   private static void javaUnzip(File zip, File toDir) {

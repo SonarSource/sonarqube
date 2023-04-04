@@ -29,16 +29,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -50,9 +52,9 @@ import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
-import static org.sonar.api.utils.log.LoggerLevel.INFO;
-import static org.sonar.api.utils.log.LoggerLevel.TRACE;
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.INFO;
+import static org.slf4j.event.Level.TRACE;
 
 public class RecoveryIndexerTest {
 
@@ -73,6 +75,11 @@ public class RecoveryIndexerTest {
 
   private RecoveryIndexer underTest;
 
+  @Before
+  public void before() {
+    logTester.setLevel(TRACE);
+  }
+
   @After
   public void tearDown() {
     if (underTest != null) {
@@ -87,7 +94,7 @@ public class RecoveryIndexerTest {
     underTest.start();
     underTest.stop();
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(
+    assertThat(logTester.logs(Level.DEBUG)).contains(
       "Elasticsearch recovery - sonar.search.recovery.delayInMs=300000",
       "Elasticsearch recovery - sonar.search.recovery.minAgeInMs=300000");
   }
@@ -379,15 +386,15 @@ public class RecoveryIndexerTest {
     system2.setNow(system2.now() + 100_000_000L);
   }
 
-  private void assertThatLogsContain(LoggerLevel loggerLevel, String message) {
+  private void assertThatLogsContain(Level loggerLevel, String message) {
     assertThat(logTester.logs(loggerLevel)).filteredOn(m -> m.contains(message)).isNotEmpty();
   }
 
-  private void assertThatLogsDoNotContain(LoggerLevel loggerLevel, String message) {
+  private void assertThatLogsDoNotContain(Level loggerLevel, String message) {
     assertThat(logTester.logs(loggerLevel)).filteredOn(m -> m.contains(message)).isEmpty();
   }
 
-  private void assertThatNoLogsFromRecovery(LoggerLevel loggerLevel) {
+  private void assertThatNoLogsFromRecovery(Level loggerLevel) {
     assertThat(logTester.logs(loggerLevel)).filteredOn(m -> m.contains("Elasticsearch recovery - ")).isEmpty();
   }
 

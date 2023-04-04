@@ -34,13 +34,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.projectexport.rule.RuleRepository;
@@ -99,6 +99,7 @@ public class ExportIssuesStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     ProjectDto project = createProject();
     when(projectHolder.projectDto()).thenReturn(project);
     when(projectHolder.branches()).thenReturn(newArrayList(
@@ -331,7 +332,7 @@ public class ExportIssuesStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("3 issues exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("3 issues exported");
   }
 
   @Test

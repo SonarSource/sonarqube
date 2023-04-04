@@ -30,11 +30,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
@@ -107,6 +107,7 @@ public class ExportAnalysesStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
     componentRepository.register(1, projectDto.uuid(), false);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), Set.of(DIR, FILE), true);
@@ -130,7 +131,7 @@ public class ExportAnalysesStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("3 analyses exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("3 analyses exported");
     List<ProjectDump.Analysis> analyses = dumpWriter.getWrittenMessagesOf(DumpElement.ANALYSES);
     assertThat(analyses).hasSize(3);
     assertAnalysis(analyses.get(0), PROJECT, firstAnalysis);
@@ -175,7 +176,7 @@ public class ExportAnalysesStepIT {
 
     List<ProjectDump.Analysis> analyses = dumpWriter.getWrittenMessagesOf(DumpElement.ANALYSES);
     assertThat(analyses).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 analyses exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 analyses exported");
   }
 
   @Test

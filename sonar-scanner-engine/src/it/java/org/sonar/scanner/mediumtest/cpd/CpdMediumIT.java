@@ -29,9 +29,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -61,6 +61,7 @@ public class CpdMediumIT {
 
   @Before
   public void prepare() {
+    logTester.setLevel(Level.DEBUG);
     baseDir = temp.getRoot();
 
     builder = ImmutableMap.<String, String>builder()
@@ -345,7 +346,7 @@ public class CpdMediumIT {
     List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.cpd.exclusions' is deprecated. " +
+    assertThat(logTester.logs(Level.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.cpd.exclusions' is deprecated. " +
       "To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
   }
 

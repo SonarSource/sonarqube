@@ -21,8 +21,8 @@ package org.sonar.server.async;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,7 +47,7 @@ public class AsyncExecutionImplTest {
     });
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Asynchronous task failed");
+    assertThat(logTester.logs(Level.ERROR)).containsOnly("Asynchronous task failed");
   }
 
   @Test

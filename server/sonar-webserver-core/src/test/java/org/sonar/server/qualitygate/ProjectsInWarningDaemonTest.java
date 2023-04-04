@@ -23,11 +23,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -90,7 +91,7 @@ public class ProjectsInWarningDaemonTest {
     underTest.notifyStart();
 
     assertProjectsInWarningValue(2L);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Counting number of projects in warning is enabled.");
+    assertThat(logger.logs(Level.INFO)).contains("Counting number of projects in warning is enabled.");
   }
 
   @Test
@@ -107,7 +108,7 @@ public class ProjectsInWarningDaemonTest {
     insertProjectInWarning(qualityGateStatus);
 
     assertProjectsInWarningValue(3L);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Counting number of projects in warning is enabled.");
+    assertThat(logger.logs(Level.INFO)).contains("Counting number of projects in warning is enabled.");
   }
 
   @Test
@@ -125,7 +126,7 @@ public class ProjectsInWarningDaemonTest {
     projectMeasuresIndexer.indexOnAnalysis(project.uuid());
 
     assertProjectsInWarningValue(0L);
-    assertThat(logger.logs(LoggerLevel.INFO))
+    assertThat(logger.logs(Level.INFO))
       .contains(
         "Counting number of projects in warning is enabled.",
         "Counting number of projects in warning will be disabled as there are no more projects in warning.");
@@ -144,7 +145,7 @@ public class ProjectsInWarningDaemonTest {
     underTest.notifyStart();
 
     assertProjectsInWarningValue(2L);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Counting number of projects in warning is enabled.");
+    assertThat(logger.logs(Level.INFO)).contains("Counting number of projects in warning is enabled.");
   }
 
   @Test
@@ -155,7 +156,7 @@ public class ProjectsInWarningDaemonTest {
     underTest.notifyStart();
 
     assertProjectsInWarningValue(0L);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Counting number of projects in warning is enabled.");
+    assertThat(logger.logs(Level.INFO)).contains("Counting number of projects in warning is enabled.");
   }
 
   @Test
@@ -170,7 +171,7 @@ public class ProjectsInWarningDaemonTest {
     underTest.notifyStart();
 
     assertProjectsInWarningValue(0L);
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Counting number of projects in warning is not started as there are no projects in this situation.");
+    assertThat(logger.logs(Level.INFO)).contains("Counting number of projects in warning is not started as there are no projects in this situation.");
   }
 
   @Test

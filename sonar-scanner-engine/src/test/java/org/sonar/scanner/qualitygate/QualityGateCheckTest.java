@@ -28,8 +28,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
@@ -64,6 +65,7 @@ public class QualityGateCheckTest {
 
   @Before
   public void before() {
+    logTester.setLevel(Level.DEBUG);
     when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
     when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
   }

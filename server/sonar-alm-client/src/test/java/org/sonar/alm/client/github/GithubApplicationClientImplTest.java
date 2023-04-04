@@ -34,7 +34,7 @@ import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;

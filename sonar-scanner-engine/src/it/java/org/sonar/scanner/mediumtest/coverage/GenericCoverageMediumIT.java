@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
@@ -32,8 +33,9 @@ import org.sonar.xoo.XooPlugin;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericCoverageMediumIT {
-  private final List<String> logs = new ArrayList<>();
-  
+  @Rule
+  public LogTester logTester = new LogTester();
+
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
@@ -45,7 +47,6 @@ public class GenericCoverageMediumIT {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
     AnalysisResult result = tester
-      .setLogOutput((msg, level) -> logs.add(msg))
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml")
       .execute();
@@ -62,7 +63,7 @@ public class GenericCoverageMediumIT {
     assertThat(result.coverageFor(withConditions, 3).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isOne();
 
-    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
+    assertThat(logTester.logs()).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
 
   }
 
@@ -72,7 +73,6 @@ public class GenericCoverageMediumIT {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
     AnalysisResult result = tester
-      .setLogOutput((msg, level) -> logs.add(msg))
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml,coverage2.xml")
       .execute();
@@ -89,7 +89,7 @@ public class GenericCoverageMediumIT {
     assertThat(result.coverageFor(withConditions, 3).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isEqualTo(2);
 
-    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
+    assertThat(logTester.logs()).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
   }
   
 }

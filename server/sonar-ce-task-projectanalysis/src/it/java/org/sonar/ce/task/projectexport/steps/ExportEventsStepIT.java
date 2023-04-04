@@ -24,11 +24,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
@@ -70,6 +70,7 @@ public class ExportEventsStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
     componentRepository.register(1, projectDto.uuid(), false);
     projectHolder.setProjectDto(dbTester.components().getProjectDto(projectDto));
@@ -79,7 +80,7 @@ public class ExportEventsStepIT {
   public void export_zero_events() {
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 events exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 events exported");
     List<ProjectDump.Event> events = dumpWriter.getWrittenMessagesOf(DumpElement.EVENTS);
     assertThat(events).isEmpty();
   }
@@ -92,7 +93,7 @@ public class ExportEventsStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 events exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 events exported");
     List<ProjectDump.Event> events = dumpWriter.getWrittenMessagesOf(DumpElement.EVENTS);
     assertThat(events).hasSize(2);
     assertThat(events).extracting(ProjectDump.Event::getUuid).containsOnly("E1", "E2");

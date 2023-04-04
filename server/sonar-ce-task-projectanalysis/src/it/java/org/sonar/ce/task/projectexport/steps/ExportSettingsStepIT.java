@@ -25,10 +25,10 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -66,6 +66,7 @@ public class ExportSettingsStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     dbTester.components().insertPublicProject(PROJECT);
     dbTester.components().insertPublicProject(ANOTHER_PROJECT);
     dbTester.commit();
@@ -78,7 +79,7 @@ public class ExportSettingsStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.SETTINGS)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 settings exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 settings exported");
   }
 
   @Test
@@ -97,7 +98,7 @@ public class ExportSettingsStepIT {
     List<ProjectDump.Setting> exportedProps = dumpWriter.getWrittenMessagesOf(DumpElement.SETTINGS);
     assertThat(exportedProps).hasSize(2);
     assertThat(exportedProps).extracting(ProjectDump.Setting::getKey).containsOnly("p1", "p2");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 settings exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 settings exported");
   }
 
   @Test
@@ -107,7 +108,7 @@ public class ExportSettingsStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.SETTINGS)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 settings exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 settings exported");
   }
 
   @Test

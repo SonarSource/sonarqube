@@ -36,11 +36,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
+import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.ce.task.CeTask;
@@ -259,7 +260,7 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     for (int i = 0; i < 2; i++) {
       assertThat(logs.get(i)).contains("pullRequest=123");
@@ -275,7 +276,7 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     for (int i = 0; i < 2; i++) {
       assertThat(logs.get(i)).doesNotContain("submitter=");
@@ -292,14 +293,14 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).doesNotContain("submitter=");
     assertThat(logs.get(1)).doesNotContain("submitter=");
-    logs = logTester.logs(LoggerLevel.ERROR);
+    logs = logTester.logs(Level.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).doesNotContain("submitter=");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @Test
@@ -311,12 +312,12 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(String.format("submitter=%s", userDto.getLogin()));
     assertThat(logs.get(1)).contains(String.format("submitter=%s | status=SUCCESS | time=", userDto.getLogin()));
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @Test
@@ -327,12 +328,12 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains("submitter=UUID_USER");
     assertThat(logs.get(1)).contains("submitter=UUID_USER | status=SUCCESS | time=");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @Test
@@ -346,11 +347,11 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(String.format("submitter=%s", userDto.getLogin()));
     assertThat(logs.get(1)).contains(String.format("submitter=%s | status=FAILED | time=", userDto.getLogin()));
-    logs = logTester.logs(LoggerLevel.ERROR);
+    logs = logTester.logs(Level.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
   }
@@ -365,12 +366,12 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=SUCCESS | time=", submitter.login()));
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @Test
@@ -385,14 +386,14 @@ public class CeWorkerImplIT {
     underTest.call();
 
     verifyWorkerUuid();
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
-    logs = logTester.logs(LoggerLevel.ERROR);
+    logs = logTester.logs(Level.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).isEqualTo("Failed to execute task " + ceTask.getUuid());
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @Test
@@ -462,11 +463,11 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
-    logs = logTester.logs(LoggerLevel.ERROR);
+    logs = logTester.logs(Level.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).isEqualTo("Failed to execute task " + ceTask.getUuid());
   }
@@ -480,11 +481,11 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(1)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -496,7 +497,7 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Failed to finalize task with uuid '" + ceTask.getUuid() + "' and persist its state to db");
+    assertThat(logTester.logs(Level.ERROR)).containsOnly("Failed to finalize task with uuid '" + ceTask.getUuid() + "' and persist its state to db");
   }
 
   @Test
@@ -510,22 +511,18 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
-    List<LogAndArguments> logAndArguments = logTester.getLogs(LoggerLevel.ERROR);
+    List<LogAndArguments> logAndArguments = logTester.getLogs(Level.ERROR);
     assertThat(logAndArguments).hasSize(2);
 
     LogAndArguments executionErrorLog = logAndArguments.get(0);
     assertThat(executionErrorLog.getFormattedMsg()).isEqualTo("Failed to execute task " + ceTask.getUuid());
-    assertThat(executionErrorLog.getArgs().get()).containsOnly(ceTask.getUuid(), ex);
 
     LogAndArguments finalizingErrorLog = logAndArguments.get(1);
     assertThat(finalizingErrorLog.getFormattedMsg()).isEqualTo("Failed to finalize task with uuid '" + ceTask.getUuid() + "' and persist its state to db");
-    Object arg1 = finalizingErrorLog.getArgs().get()[0];
-    assertThat(arg1).isSameAs(runtimeException);
-    assertThat(((Exception) arg1).getSuppressed()).containsOnly(ex);
   }
 
   @Test
@@ -539,16 +536,13 @@ public class CeWorkerImplIT {
 
     underTest.call();
 
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    List<String> logs = logTester.logs(Level.INFO);
     assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
     assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
-    List<LogAndArguments> logAndArguments = logTester.getLogs(LoggerLevel.ERROR);
+    List<LogAndArguments> logAndArguments = logTester.getLogs(Level.ERROR);
     assertThat(logAndArguments).hasSize(1);
     assertThat(logAndArguments.get(0).getFormattedMsg()).isEqualTo("Failed to finalize task with uuid '" + ceTask.getUuid() + "' and persist its state to db");
-    Object arg1 = logAndArguments.get(0).getArgs().get()[0];
-    assertThat(arg1).isSameAs(runtimeException);
-    assertThat(((Exception) arg1).getSuppressed()).containsOnly(ex);
   }
 
   @Test

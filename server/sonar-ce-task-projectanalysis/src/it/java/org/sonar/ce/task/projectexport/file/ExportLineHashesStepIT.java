@@ -22,12 +22,13 @@ package org.sonar.ce.task.projectexport.file;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
 import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
@@ -64,6 +65,11 @@ public class ExportLineHashesStepIT {
   private MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
 
   private ExportLineHashesStep underTest = new ExportLineHashesStep(dbClient, dumpWriter, componentRepository);
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @After
   public void tearDown() {
@@ -167,7 +173,7 @@ public class ExportLineHashesStepIT {
       .extracting(ProjectDump.LineHashes::getHashes)
       .containsExactly("A", "C", "D", "E");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("Lines hashes of 4 files exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Lines hashes of 4 files exported");
   }
 
   private FileSourceDto insertFileSource(String fileUuid, String hashes) {

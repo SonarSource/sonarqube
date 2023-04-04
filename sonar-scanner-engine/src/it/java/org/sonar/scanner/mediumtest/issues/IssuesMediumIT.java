@@ -25,13 +25,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
@@ -60,6 +61,11 @@ public class IssuesMediumIT {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
+
+  @Before
+  public void setUp() throws Exception {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void testOneIssuePerLine() throws Exception {
@@ -243,7 +249,7 @@ public class IssuesMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+    assertThat(logTester.logs(Level.WARN)).contains(
       "Specifying module-relative paths at project level in property 'sonar.issue.ignore.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
@@ -281,7 +287,7 @@ public class IssuesMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
 
     result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -296,7 +302,7 @@ public class IssuesMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+    assertThat(logTester.logs(Level.WARN)).containsOnly(
       "Specifying issue exclusions at module level is not supported anymore. Configure the property 'sonar.issue.ignore.multicriteria' and any other issue exclusions at project level.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
@@ -323,7 +329,7 @@ public class IssuesMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
@@ -388,7 +394,7 @@ public class IssuesMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+    assertThat(logTester.logs(Level.WARN)).contains(
       "Specifying module-relative paths at project level in property 'sonar.issue.enforce.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));

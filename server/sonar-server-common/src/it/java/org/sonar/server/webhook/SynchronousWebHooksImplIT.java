@@ -21,10 +21,12 @@ package org.sonar.server.webhook;
 
 import java.io.IOException;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -40,7 +42,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.slf4j.event.Level.DEBUG;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 import static org.sonar.db.webhook.WebhookTesting.newWebhook;
@@ -64,6 +66,11 @@ public class SynchronousWebHooksImplIT {
   private final AsyncExecution synchronousAsyncExecution = Runnable::run;
   private final PostProjectAnalysisTask.LogStatistics taskStatistics = mock(PostProjectAnalysisTask.LogStatistics.class);
   private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage, synchronousAsyncExecution, dbClient);
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void isEnabled_returns_false_if_no_webhooks() {
@@ -94,7 +101,7 @@ public class SynchronousWebHooksImplIT {
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isZero();
-    assertThat(logTester.logs(DEBUG)).isEmpty();
+    assertNoWebhookLogs();
     verifyNoInteractions(deliveryStorage);
   }
 
@@ -105,7 +112,7 @@ public class SynchronousWebHooksImplIT {
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
 
     assertThat(caller.countSent()).isZero();
-    assertThat(logTester.logs(DEBUG)).isEmpty();
+    assertNoWebhookLogs();
     verifyNoInteractions(deliveryStorage);
     verifyLogStatistics(0, 0);
   }
@@ -126,6 +133,12 @@ public class SynchronousWebHooksImplIT {
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge(componentDto.uuid());
     verifyLogStatistics(2, 0);
+  }
+
+  private void assertNoWebhookLogs() {
+    assertThat(logTester.logs(DEBUG))
+      .noneMatch(s -> s.contains("Sent webhook"))
+      .noneMatch(s -> s.contains("Failed to send webhook"));
   }
 
   @Test

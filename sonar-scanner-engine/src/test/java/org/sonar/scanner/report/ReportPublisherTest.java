@@ -23,22 +23,21 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
@@ -89,6 +88,7 @@ public class ReportPublisherTest {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     root = new DefaultInputModule(
       ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(reportTempFolder.newDir()).setWorkDir(reportTempFolder.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
@@ -245,7 +245,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("ANALYSIS SUCCESSFUL")
       .doesNotContain("dashboard/index");
 
@@ -264,9 +264,9 @@ public class ReportPublisherTest {
     underTest.execute();
 
     assertThat(properties.metadataFilePath()).exists();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Report metadata written to " + properties.metadataFilePath());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("ANALYSIS SUCCESSFUL, you can find the results at: https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
   }
@@ -276,7 +276,7 @@ public class ReportPublisherTest {
     underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(properties.metadataFilePath()).exists();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
   }
 
   @Test
@@ -385,7 +385,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
 
     verifyNoInteractions(analysisWarnings);
   }
@@ -397,7 +397,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
+    assertThat(logTester.logs(Level.WARN)).containsOnly(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
     verify(analysisWarnings).addUnique(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
   }
 

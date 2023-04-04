@@ -29,11 +29,11 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Language;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -91,7 +91,7 @@ public class RegisterQualityProfilesIT {
 
     assertThat(insert.callLogs).containsExactly(builtInQProfile);
     assertThat(update.callLogs).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Register profile foo/Sonar way");
+    assertThat(logTester.logs(Level.INFO)).contains("Register profile foo/Sonar way");
   }
 
   @Test
@@ -119,7 +119,7 @@ public class RegisterQualityProfilesIT {
     underTest.start();
 
     assertThat(selectPersistedName(outdatedProfile)).isEqualTo("Sonar way (outdated copy)");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)]");
+    assertThat(logTester.logs(Level.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)]");
   }
 
   @Test
@@ -135,7 +135,7 @@ public class RegisterQualityProfilesIT {
 
     assertThat(insert.callLogs).isEmpty();
     assertThat(update.callLogs).containsExactly(builtIn);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Update profile foo/Sonar way");
+    assertThat(logTester.logs(Level.INFO)).contains("Update profile foo/Sonar way");
   }
 
   @Test
@@ -167,7 +167,7 @@ public class RegisterQualityProfilesIT {
 
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsAnyOf(
+    assertThat(logTester.logs(Level.INFO)).containsAnyOf(
       format("Default built-in quality profile for language [foo] has been updated from [%s] to [%s] since previous default does not have active rules.",
         qProfileWithoutRule.getName(), qProfileWithOneRule.getName()));
 
@@ -228,7 +228,7 @@ public class RegisterQualityProfilesIT {
 
     var expectedSuffix = " (outdated copy since " + formatter.format(Instant.ofEpochMilli(system2.now())) + ")";
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
         + "since it does not have any active rules.",
         qProfileWithoutRule.getName(), qProfileWithoutRule.getLanguage(), qProfileWithoutRule.getName() + expectedSuffix),

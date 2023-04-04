@@ -28,6 +28,7 @@ dependencies {
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.postgresql:postgresql'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
 
   testImplementation project(':sonar-testing-harness')
 

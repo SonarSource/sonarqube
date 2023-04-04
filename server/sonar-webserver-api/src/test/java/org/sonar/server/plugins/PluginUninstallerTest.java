@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
 import org.sonar.server.platform.ServerFileSystem;

@@ -32,9 +32,9 @@ import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -127,7 +127,7 @@ public class IndexCreatorTest {
 
     run(new FakeIndexDefinition());
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .doesNotContain(LOG_DB_VENDOR_CHANGED)
       .doesNotContain(LOG_DB_SCHEMA_CHANGED)
       .contains("Create mapping fakes")
@@ -177,7 +177,7 @@ public class IndexCreatorTest {
 
   private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {
     run(new FakeIndexDefinition());
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .doesNotContain(expectedLog)
       .contains("Create mapping fakes")
       .contains("Create mapping metadatas");
@@ -188,7 +188,7 @@ public class IndexCreatorTest {
     logTester.clear();
     run(new FakeIndexDefinition());
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(expectedLog)
       .contains("Create mapping fakes")
       // keep existing metadata

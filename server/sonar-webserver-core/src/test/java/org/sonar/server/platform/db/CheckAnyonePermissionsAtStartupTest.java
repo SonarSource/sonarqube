@@ -24,9 +24,10 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -165,7 +166,7 @@ public class CheckAnyonePermissionsAtStartupTest {
   }
 
   private void assertProjectLevelAnyonePermissionWarningNotInLogs() {
-    boolean noneMatch = logTester.logs(LoggerLevel.WARN).stream()
+    boolean noneMatch = logTester.logs(Level.WARN).stream()
       .noneMatch(s -> s.startsWith("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose"));
     assertThat(noneMatch).isTrue();
   }
@@ -174,11 +175,11 @@ public class CheckAnyonePermissionsAtStartupTest {
     String expected = String.format("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose %d " +
       "public project(s) to security risks, including: %s. Unauthenticated visitors have permissions on these project(s).",
       expectedProjectCount, String.join(", ", expectedListedProjects));
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
+    assertThat(logTester.logs(Level.WARN)).contains(expected);
   }
 
   private void assertGlobalLevelAnyonePermissionWarningNotInLogs() {
-    boolean noneMatch = !logTester.logs(LoggerLevel.WARN).contains(
+    boolean noneMatch = !logTester.logs(Level.WARN).contains(
       "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally expose the " +
         "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
     assertThat(noneMatch).isTrue();
@@ -187,7 +188,7 @@ public class CheckAnyonePermissionsAtStartupTest {
   private void assertGlobalLevelAnyonePermissionWarningInLogs() {
     String expected = "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally " +
       "expose the instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.";
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
+    assertThat(logTester.logs(Level.WARN)).contains(expected);
   }
 
 }

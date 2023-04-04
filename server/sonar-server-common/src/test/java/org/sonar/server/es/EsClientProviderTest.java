@@ -26,9 +26,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +71,7 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9000);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
+    assertThat(logTester.logs(Level.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
   }
 
   @Test
@@ -92,7 +92,7 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":8080, http://" + localhostHostname + ":8081]"), ""));
   }
 
@@ -137,7 +137,7 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":9001, http://" + localhostHostname + ":8081]"), ""));
   }
 }

@@ -21,9 +21,11 @@ package org.sonar.ce.task.projectanalysis.metric;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.metric.ScannerMetrics;
 
@@ -41,6 +43,11 @@ public class ReportMetricValidatorImplTest {
   static final String METRIC_KEY = "metric_key";
 
   ScannerMetrics scannerMetrics = mock(ScannerMetrics.class);
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void validate_metric() {

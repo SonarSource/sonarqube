@@ -22,9 +22,9 @@ package org.sonar.scanner.ci.vendors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.ci.CiVendor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +66,7 @@ public class GithubActionsTest {
     setEnvVariable("GITHUB_ACTION", "build");
 
     assertThat(underTest.loadConfiguration().getScmRevision()).isEmpty();
-    assertThat(logs.logs(LoggerLevel.WARN)).contains("Missing environment variable GITHUB_SHA");
+    assertThat(logs.logs(Level.WARN)).contains("Missing environment variable GITHUB_SHA");
   }
 
   private void setEnvVariable(String key, @Nullable String value) {

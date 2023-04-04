@@ -29,10 +29,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -457,7 +457,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.checkReadPermission(gitlabUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab read permission. Got an unexpected answer.");
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects") + "] " +
         "failed with error message : [Failed to connect to " + server.getHostName());
   }
@@ -469,7 +469,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.checkToken(gitlabUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab token. Got an unexpected answer.");
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("user") + "] " +
         "failed with error message : [Failed to connect to " + server.getHostName());
   }
@@ -481,7 +481,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.checkWritePermission(gitlabUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab write permission. Got an unexpected answer.");
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/markdown") + "] " +
         "failed with error message : [Failed to connect to " + server.getHostName());
   }
@@ -493,7 +493,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.getProject(gitlabUrl, "token", 0L))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Failed to connect to");
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects/0") + "] " +
         "failed with error message : [Failed to connect to " + server.getHostName());
   }
@@ -505,7 +505,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.getBranches(gitlabUrl, "token", 0L))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Failed to connect to " + server.getHostName());
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects/0/repository/branches") + "] " +
         "failed with error message : [Failed to connect to " + server.getHostName());
   }
@@ -517,7 +517,7 @@ public class GitlabHttpClientTest {
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "token", null, 1, 1))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Failed to connect to");
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0))
+    assertThat(logTester.logs(Level.INFO).get(0))
       .contains(
         "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=&page=1&per_page=1")
           + "] " +

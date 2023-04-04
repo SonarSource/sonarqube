@@ -26,6 +26,7 @@ dependencies {
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
 
   testFixturesApi project(':sonar-testing-harness')
 

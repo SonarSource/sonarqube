@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.PluginManifest;

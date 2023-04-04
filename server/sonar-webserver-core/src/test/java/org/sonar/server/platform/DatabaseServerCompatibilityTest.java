@@ -22,10 +22,9 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +67,7 @@ public class DatabaseServerCompatibilityTest {
     new DatabaseServerCompatibility(version).start();
 
     assertThat(logTester.logs()).hasSize(4);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+    assertThat(logTester.logs(Level.WARN)).contains(
       "The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
       "################################################################################",

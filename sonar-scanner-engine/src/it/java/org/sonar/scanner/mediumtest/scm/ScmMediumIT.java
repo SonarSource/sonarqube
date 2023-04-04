@@ -31,8 +31,9 @@ import org.assertj.core.util.Files;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -150,7 +151,7 @@ public class ScmMediumIT {
 
   @Test
   public void log_files_with_missing_blame() throws IOException, URISyntaxException {
-
+    logTester.setLevel(Level.DEBUG);
     File baseDir = prepareProject();
     File xooFileWithoutBlame = new File(baseDir, "src/sample_no_blame.xoo");
     FileUtils.write(xooFileWithoutBlame, "Sample xoo\ncontent\n3\n4\n5", StandardCharsets.UTF_8);
@@ -183,7 +184,7 @@ public class ScmMediumIT {
   // SONAR-6397
   @Test
   public void optimize_blame() throws IOException, URISyntaxException {
-
+    logTester.setLevel(Level.DEBUG);
     File baseDir = prepareProject();
     File changedContentScmOnServer = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO);
     FileUtils.write(changedContentScmOnServer, SAMPLE_XOO_CONTENT + "\nchanged", StandardCharsets.UTF_8);

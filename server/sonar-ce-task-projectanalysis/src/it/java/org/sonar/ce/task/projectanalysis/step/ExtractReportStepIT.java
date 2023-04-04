@@ -26,11 +26,12 @@ import java.net.URL;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.JUnitTempFolder;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
@@ -89,7 +90,7 @@ public class ExtractReportStepIT {
     assertThat(unzippedDir.listFiles()).hasSize(1);
     assertThat(new File(unzippedDir, "metadata.pb")).hasContent("{metadata}");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).anyMatch(log -> log.matches("Analysis report is \\d+ bytes uncompressed"));
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(log -> log.matches("Analysis report is \\d+ bytes uncompressed"));
   }
 
   @Test

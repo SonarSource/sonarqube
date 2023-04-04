@@ -23,6 +23,7 @@ dependencies {
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens

@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
@@ -34,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericTestExecutionMediumIT {
-  private final List<String> logs = new ArrayList<>();
-
+  @Rule
+  public LogTester logTester = new LogTester();
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
@@ -47,7 +48,6 @@ public class GenericTestExecutionMediumIT {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
     AnalysisResult result = tester
-      .setLogOutput((msg, level) -> logs.add(msg))
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml")
       .execute();
@@ -61,7 +61,7 @@ public class GenericTestExecutionMediumIT {
         tuple(CoreMetrics.TEST_EXECUTION_TIME_KEY, 0, 1105L),
         tuple(CoreMetrics.TEST_FAILURES_KEY, 1, 0L));
 
-    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
+    assertThat(logTester.logs()).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
   }
 
   @Test
@@ -70,7 +70,6 @@ public class GenericTestExecutionMediumIT {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
     AnalysisResult result = tester
-      .setLogOutput((msg, level) -> logs.add(msg))
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml,unittest2.xml")
       .execute();
@@ -84,7 +83,7 @@ public class GenericTestExecutionMediumIT {
         tuple(CoreMetrics.TEST_EXECUTION_TIME_KEY, 0, 1610L),
         tuple(CoreMetrics.TEST_FAILURES_KEY, 1, 0L));
 
-    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
+    assertThat(logTester.logs()).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
   }
 
 }

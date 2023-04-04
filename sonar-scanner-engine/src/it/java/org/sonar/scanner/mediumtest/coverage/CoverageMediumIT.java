@@ -24,12 +24,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -50,6 +51,11 @@ public class CoverageMediumIT {
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way");
+
+  @Before
+  public void prepare() throws IOException {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void singleReport() throws IOException {
@@ -168,7 +174,7 @@ public class CoverageMediumIT {
     InputFile fileB = result.inputFile("moduleB/src/sampleB.xoo");
     assertThat(result.coverageFor(fileB, 2)).isNotNull();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
+    assertThat(logTester.logs(Level.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
       "To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
@@ -249,7 +255,7 @@ public class CoverageMediumIT {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(result.coverageFor(fileB, 2)).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
+    assertThat(logTester.logs(Level.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
       "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
 

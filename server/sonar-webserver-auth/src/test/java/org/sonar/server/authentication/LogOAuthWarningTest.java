@@ -21,10 +21,10 @@ package org.sonar.server.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,7 +47,7 @@ public class LogOAuthWarningTest {
 
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to a HTTPS URL.");
+    assertThat(logTester.logs(Level.WARN)).containsOnly("For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to a HTTPS URL.");
 
     underTest.stop();
   }
@@ -60,7 +60,7 @@ public class LogOAuthWarningTest {
 
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
 
     underTest.stop();
   }
@@ -73,7 +73,7 @@ public class LogOAuthWarningTest {
 
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
 
     underTest.stop();
   }

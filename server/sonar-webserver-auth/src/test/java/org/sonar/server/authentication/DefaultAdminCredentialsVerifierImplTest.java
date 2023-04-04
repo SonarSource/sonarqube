@@ -21,10 +21,10 @@ package org.sonar.server.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.notification.NotificationManager;
@@ -74,7 +74,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     underTest.runAtStart();
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isTrue();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
+    assertThat(logTester.logs(Level.WARN)).contains("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
     assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL)).contains("true");
     verify(notificationManager).scheduleForSending(any(Notification.class));
   }

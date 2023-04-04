@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
@@ -57,7 +57,7 @@ public class LogMessageIfSonarScimEnabledPresentPropertyTest {
 
     underTest.execute();
 
-    assertThat(logger.logs(LoggerLevel.WARN))
+    assertThat(logger.logs(Level.WARN))
       .hasSize(1)
       .containsExactly("'" + SONAR_SCIM_ENABLED + "' property is defined but not read anymore. Please read the upgrade notes" +
         " for the instruction to upgrade. User provisioning is deactivated until reactivated from the SonarQube" +
@@ -70,7 +70,7 @@ public class LogMessageIfSonarScimEnabledPresentPropertyTest {
 
     underTest.execute();
 
-    assertThat(logger.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logger.logs(Level.WARN)).isEmpty();
   }
 
   @Test
@@ -86,6 +86,6 @@ public class LogMessageIfSonarScimEnabledPresentPropertyTest {
     underTest.execute();
     underTest.execute();
 
-    assertThat(logger.logs(LoggerLevel.WARN)).hasSize(2);
+    assertThat(logger.logs(Level.WARN)).hasSize(2);
   }
 }

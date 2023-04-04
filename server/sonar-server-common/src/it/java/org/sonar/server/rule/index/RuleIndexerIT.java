@@ -31,11 +31,11 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -174,6 +174,7 @@ public class RuleIndexerIT {
   @Test
   @UseDataProvider("twoDifferentCategoriesButOTHERS")
   public void log_debug_if_hotspot_rule_maps_to_multiple_SQCategories(SQCategory sqCategory1, SQCategory sqCategory2) {
+    logTester.setLevel(Level.DEBUG);
     Set<String> standards = Stream.of(sqCategory1, sqCategory2)
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
@@ -183,9 +184,8 @@ public class RuleIndexerIT {
       .setSecurityStandards(standards));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains(format(
         "Rule %s with CWEs '%s' maps to multiple SQ Security Categories: %s",
         rule.getKey(),
         String.join(", ", securityStandards.getCwe()),

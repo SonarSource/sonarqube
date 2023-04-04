@@ -35,6 +35,7 @@ dependencies {
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation project(':sonar-testing-harness')
 

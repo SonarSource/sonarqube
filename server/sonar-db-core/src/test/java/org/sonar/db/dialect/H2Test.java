@@ -22,8 +22,8 @@ package org.sonar.db.dialect;
 import java.sql.DatabaseMetaData;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -73,7 +73,7 @@ public class H2Test {
   public void init_logs_warning() {
     underTest.init(mock(DatabaseMetaData.class));
 
-    assertThat(logs.logs(LoggerLevel.WARN)).contains("H2 database should be used for evaluation purpose only.");
+    assertThat(logs.logs(Level.WARN)).contains("H2 database should be used for evaluation purpose only.");
   }
 
   @Test

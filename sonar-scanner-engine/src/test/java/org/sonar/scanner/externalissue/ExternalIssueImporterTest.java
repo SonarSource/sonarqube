@@ -26,14 +26,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.issue.ExternalIssue;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -72,7 +72,7 @@ public class ExternalIssueImporterTest {
 
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logs.logs(LoggerLevel.INFO)).contains("Imported 0 issues in 0 files");
+    assertThat(logs.logs(Level.INFO)).contains("Imported 0 issues in 0 files");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class ExternalIssueImporterTest {
     assertThat(output.ruleId()).isEqualTo(input.ruleId);
     assertThat(output.severity()).isEqualTo(Severity.valueOf(input.severity));
     assertThat(output.remediationEffort()).isNull();
-    assertThat(logs.logs(LoggerLevel.INFO)).contains("Imported 1 issue in 1 file");
+    assertThat(logs.logs(Level.INFO)).contains("Imported 1 issue in 1 file");
   }
 
   @Test

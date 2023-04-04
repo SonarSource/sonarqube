@@ -25,13 +25,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure;
@@ -42,10 +44,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 
 public class MeasuresMediumIT {
-
   @Rule
   public LogTester logTester = new LogTester();
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -150,7 +150,7 @@ public class MeasuresMediumIT {
       .execute();
 
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
+    assertThat(logTester.logs(Level.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
   }
 
   @Test
@@ -176,7 +176,7 @@ public class MeasuresMediumIT {
       .execute();
 
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
+    assertThat(logTester.logs(Level.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
   }
 
 }

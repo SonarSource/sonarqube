@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
@@ -53,7 +53,7 @@ public class MigrationStepsExecutorImplTest {
     underTest.execute(Collections.emptyList());
 
     assertThat(logTester.logs()).hasSize(2);
-    assertLogLevel(LoggerLevel.INFO, "Executing DB migrations...", "Executed DB migrations: success | time=");
+    assertLogLevel(Level.INFO, "Executing DB migrations...", "Executed DB migrations: success | time=");
   }
 
   @Test
@@ -68,12 +68,12 @@ public class MigrationStepsExecutorImplTest {
       assertThat(e).hasMessage("Unable to load component " + MigrationStep1.class);
     } finally {
       assertThat(logTester.logs()).hasSize(2);
-      assertLogLevel(LoggerLevel.INFO, "Executing DB migrations...");
-      assertLogLevel(LoggerLevel.ERROR, "Executed DB migrations: failure | time=");
+      assertLogLevel(Level.INFO, "Executing DB migrations...");
+      assertLogLevel(Level.ERROR, "Executed DB migrations: failure | time=");
     }
   }
 
-  private void assertLogLevel(LoggerLevel level, String... expected) {
+  private void assertLogLevel(Level level, String... expected) {
     List<String> logs = logTester.logs(level);
     assertThat(logs).hasSize(expected.length);
     Iterator<String> iterator = logs.iterator();
@@ -99,7 +99,7 @@ public class MigrationStepsExecutorImplTest {
     assertThat(SingleCallCheckerMigrationStep.calledSteps)
       .containsExactly(MigrationStep2.class, MigrationStep1.class, MigrationStep3.class);
     assertThat(logTester.logs()).hasSize(8);
-    assertLogLevel(LoggerLevel.INFO,
+    assertLogLevel(Level.INFO,
       "Executing DB migrations...",
       "#1 '1-MigrationStep2'...",
       "#1 '1-MigrationStep2': success | time=",
@@ -131,12 +131,12 @@ public class MigrationStepsExecutorImplTest {
       assertThat(e).hasCause(SqlExceptionFailingMigrationStep.THROWN_EXCEPTION);
     } finally {
       assertThat(logTester.logs()).hasSize(6);
-      assertLogLevel(LoggerLevel.INFO,
+      assertLogLevel(Level.INFO,
         "Executing DB migrations...",
         "#1 '1-MigrationStep2'...",
         "#1 '1-MigrationStep2': success | time=",
         "#2 '2-SqlExceptionFailingMigrationStep'...");
-      assertLogLevel(LoggerLevel.ERROR,
+      assertLogLevel(Level.ERROR,
         "#2 '2-SqlExceptionFailingMigrationStep': failure | time=",
         "Executed DB migrations: failure | time=");
     }

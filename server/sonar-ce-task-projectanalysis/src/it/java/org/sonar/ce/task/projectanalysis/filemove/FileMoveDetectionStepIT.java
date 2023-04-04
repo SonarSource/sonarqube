@@ -34,9 +34,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -60,7 +60,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
-import static org.sonar.db.component.BranchType.*;
+import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class FileMoveDetectionStepIT {
 
@@ -236,6 +237,7 @@ public class FileMoveDetectionStepIT {
 
   @Before
   public void setUp() throws Exception {
+    logTester.setLevel(Level.DEBUG);
     project = dbTester.components().insertPrivateProject();
     treeRootHolder.setRoot(builder(Component.Type.PROJECT, ROOT_REF).setUuid(project.uuid()).build());
   }
@@ -418,7 +420,7 @@ public class FileMoveDetectionStepIT {
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
     assertThat(addedFileRepository.getComponents()).contains(file2);
     verifyStatistics(context, 1, 1, 1, 0);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("max score in matrix is less than min required score (85). Do nothing.");
+    assertThat(logTester.logs(Level.DEBUG)).contains("max score in matrix is less than min required score (85). Do nothing.");
   }
 
   @Test

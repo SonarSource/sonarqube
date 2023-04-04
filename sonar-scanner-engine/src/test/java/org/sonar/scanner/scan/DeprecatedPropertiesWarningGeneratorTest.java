@@ -24,11 +24,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.mockito.Mockito.times;
@@ -65,7 +65,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     underTest.execute();
 
     verify(analysisWarnings, times(1)).addUnique(LOGIN_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(LOGIN_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(Level.WARN)).contains(LOGIN_WARN_MESSAGE);
   }
 
   @Test
@@ -76,7 +76,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     underTest.execute();
 
     verify(analysisWarnings, times(1)).addUnique(PASSWORD_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(PASSWORD_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(Level.WARN)).contains(PASSWORD_WARN_MESSAGE);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     underTest.execute();
 
     verify(analysisWarnings, times(1)).addUnique(LOGIN_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(LOGIN_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(Level.WARN)).contains(LOGIN_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     underTest.execute();
 
     verify(analysisWarnings, times(1)).addUnique(PASSWORD_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(PASSWORD_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(Level.WARN)).contains(PASSWORD_WARN_MESSAGE + SCANNER_DOTNET_WARN_MESSAGE);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     underTest.execute();
 
     verifyNoInteractions(analysisWarnings);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).isEmpty();
+    Assertions.assertThat(logger.logs(Level.WARN)).isEmpty();
   }
 
 }

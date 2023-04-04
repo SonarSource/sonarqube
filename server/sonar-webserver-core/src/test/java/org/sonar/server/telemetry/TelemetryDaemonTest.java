@@ -24,9 +24,10 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.property.InternalProperties;
@@ -176,7 +177,7 @@ public class TelemetryDaemonTest {
 
     verify(client, after(2_000).never()).upload(anyString());
     verify(client, timeout(2_000).times(1)).optOut(anyString());
-    assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is disabled.");
+    assertThat(logger.logs(Level.INFO)).contains("Sharing of SonarQube statistics is disabled.");
   }
 
   @Test

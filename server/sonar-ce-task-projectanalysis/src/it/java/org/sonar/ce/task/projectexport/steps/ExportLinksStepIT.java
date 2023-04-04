@@ -23,11 +23,11 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump.Link;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
@@ -71,6 +71,7 @@ public class ExportLinksStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     ComponentDto project = db.components().insertPublicProject(PROJECT);
     when(projectHolder.projectDto()).thenReturn(db.components().getProjectDto(project));
     when(componentRepository.getRef(PROJECT_UUID)).thenReturn(1L);
@@ -80,7 +81,7 @@ public class ExportLinksStepIT {
   public void export_zero_links() {
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 links exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 links exported");
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.LINKS)).isEmpty();
   }
 
@@ -92,7 +93,7 @@ public class ExportLinksStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 links exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 links exported");
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.LINKS))
       .extracting(Link::getUuid, Link::getName, Link::getType, Link::getHref)
       .containsExactlyInAnyOrder(

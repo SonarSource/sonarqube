@@ -28,9 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Sarif210;
 
@@ -95,7 +95,7 @@ public class DefaultSarif210ImporterTest extends TestCase {
     assertThat(sarifImportResults.getSuccessFullyImportedIssues()).isOne();
     assertThat(sarifImportResults.getSuccessFullyImportedRuns()).isOne();
     assertThat(sarifImportResults.getFailedRuns()).isOne();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Failed to import a sarif run, error: " + testException.getMessage());
+    assertThat(logTester.logs(Level.WARN)).containsOnly("Failed to import a sarif run, error: " + testException.getMessage());
     verify(issue1run2).save();
   }
 

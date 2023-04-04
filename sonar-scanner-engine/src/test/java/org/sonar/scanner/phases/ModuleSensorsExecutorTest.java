@@ -37,7 +37,7 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;

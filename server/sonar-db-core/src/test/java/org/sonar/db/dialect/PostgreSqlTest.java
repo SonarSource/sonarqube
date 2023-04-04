@@ -24,9 +24,9 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,7 +95,7 @@ public class PostgreSqlTest {
     underTest.init(metadata);
 
     assertThat(underTest.supportsUpsert()).isFalse();
-    assertThat(logs.logs(LoggerLevel.WARN)).contains("Upgrading PostgreSQL to 9.5 or greater is recommended for better performances");
+    assertThat(logs.logs(Level.WARN)).contains("Upgrading PostgreSQL to 9.5 or greater is recommended for better performances");
   }
 
   @Test
@@ -104,7 +104,7 @@ public class PostgreSqlTest {
     underTest.init(metadata);
 
     assertThat(underTest.supportsUpsert()).isTrue();
-    assertThat(logs.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logs.logs(Level.WARN)).isEmpty();
   }
 
   @Test

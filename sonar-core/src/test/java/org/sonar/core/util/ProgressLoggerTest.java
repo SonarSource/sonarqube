@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.Loggers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ public class ProgressLoggerTest {
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()));
     progress.setPeriodMs(1L);
     progress.start();
-    while (logTester.logs(LoggerLevel.INFO).size()<2) {
+    while (logTester.logs(Level.INFO).size()<2) {
       Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MILLISECONDS);
     }
     progress.stop();
@@ -69,6 +69,6 @@ public class ProgressLoggerTest {
   }
 
   private boolean hasInfoLog(String expectedLog) {
-    return logTester.logs(LoggerLevel.INFO).stream().anyMatch(s -> s.startsWith(expectedLog));
+    return logTester.logs(Level.INFO).stream().anyMatch(s -> s.startsWith(expectedLog));
   }
 }

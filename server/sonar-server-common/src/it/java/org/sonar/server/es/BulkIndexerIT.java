@@ -33,8 +33,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.BulkIndexer.Size;
@@ -175,7 +176,7 @@ public class BulkIndexerIT {
     indexer.add(newIndexRequestWithDocId("bar"));
     indexer.stop();
 
-    assertThat(logTester.logs(LoggerLevel.TRACE)
+    assertThat(logTester.logs(Level.TRACE)
       .stream()
       .filter(log -> log.contains("Bulk[2 index requests on fakes/_doc, 1 delete requests on fakes/_doc]"))
       .count()).isNotZero();

@@ -31,9 +31,9 @@ import org.assertj.core.api.Assertions;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -361,7 +361,7 @@ public class IssueIndexerIT {
 
     recover();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .filteredOn(l -> l.contains("Unsupported es_queue.doc_id_type for issues. Manual fix is required: "))
       .hasSize(1);
     assertThatEsQueueTableHasSize(1);

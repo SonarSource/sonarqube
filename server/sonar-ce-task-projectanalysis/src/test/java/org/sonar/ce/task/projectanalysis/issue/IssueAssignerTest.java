@@ -21,10 +21,11 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -58,6 +59,11 @@ public class IssueAssignerTest {
   private ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
   private DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
   private IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
+
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void do_not_set_author_if_no_changeset() {
@@ -101,7 +107,7 @@ public class IssueAssignerTest {
     assertThat(issue.authorLogin()).isNull();
     assertThat(issue.assignee()).isEqualTo("John C");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("SCM account '" + scmAuthor + "' is too long to be stored as issue author");
+    assertThat(logTester.logs(Level.DEBUG)).contains("SCM account '" + scmAuthor + "' is too long to be stored as issue author");
   }
 
   @Test

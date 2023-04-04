@@ -30,7 +30,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;

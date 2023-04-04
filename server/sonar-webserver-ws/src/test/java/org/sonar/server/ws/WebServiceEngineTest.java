@@ -25,16 +25,17 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.function.Consumer;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
@@ -54,6 +55,11 @@ public class WebServiceEngineTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Before
+  public void setup() {
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void load_ws_definitions_at_startup() {
@@ -266,7 +272,7 @@ public class WebServiceEngineTest {
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"An error has occurred. Please contact your administrator\"}]}");
     assertThat(response.status()).isEqualTo(500);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request api/foo")).isNotEmpty();
+    assertThat(logTester.logs(Level.ERROR)).filteredOn(l -> l.contains("Fail to process request api/foo")).isNotEmpty();
   }
 
   @Test
@@ -281,7 +287,7 @@ public class WebServiceEngineTest {
       "{\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -299,7 +305,7 @@ public class WebServiceEngineTest {
       + "]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -314,7 +320,7 @@ public class WebServiceEngineTest {
       "{\"scope\":\"PROJECT\",\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -349,7 +355,7 @@ public class WebServiceEngineTest {
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
@@ -360,7 +366,7 @@ public class WebServiceEngineTest {
     run(request, response, newClientAbortWs());
 
     verify(response.stream()).setStatus(299);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
@@ -372,7 +378,7 @@ public class WebServiceEngineTest {
 
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request api/foo");
   }
 
   @Test
@@ -383,7 +389,7 @@ public class WebServiceEngineTest {
     run(request, response, newFailWs());
 
     verify(response.stream()).setStatus(500);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request api/foo");
   }
 
   @Test
@@ -395,7 +401,7 @@ public class WebServiceEngineTest {
 
     underTest.execute(request, response);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/ping");
+    assertThat(logTester.logs(Level.ERROR)).contains("Fail to process request /api/ping");
   }
 
   private static WebService newWs(String path, Consumer<WebService.NewAction> consumer) {

@@ -27,11 +27,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -199,7 +199,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized");
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to callback authentication with 'failing'");
+    assertThat(logTester.logs(Level.WARN)).containsExactlyInAnyOrder("Fail to callback authentication with 'failing'");
     verify(oAuthRedirection).delete(request, response);
   }
 
@@ -226,12 +226,12 @@ public class OAuth2CallbackFilterTest {
   }
 
   private void assertCallbackCalled(FakeOAuth2IdentityProvider oAuth2IdentityProvider) {
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isCallbackCalled()).isTrue();
   }
 
   private void assertError(String expectedError) throws Exception {
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expectedError);
+    assertThat(logTester.logs(Level.WARN)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }

@@ -37,7 +37,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;

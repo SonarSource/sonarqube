@@ -24,7 +24,8 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,12 +41,13 @@ public class ProcessWrapperFactoryTest {
 
   @Test
   public void should_log_error_output_in_debug_mode() throws IOException {
+    logTester.setLevel(Level.DEBUG);
     var root = temp.newFolder().toPath();
     var processWrapper = underTest.create(root, v -> {}, "git", "blame");
     assertThatThrownBy(() -> processWrapper.execute())
       .isInstanceOf(IllegalStateException.class);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains("fatal: not a git repository");
+    assertThat(logTester.logs(Level.DEBUG).get(0)).contains("fatal: not a git repository");
   }
 
 }

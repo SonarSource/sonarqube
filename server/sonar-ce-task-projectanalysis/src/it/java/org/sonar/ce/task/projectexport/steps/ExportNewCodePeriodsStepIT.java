@@ -27,10 +27,10 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -87,6 +87,7 @@ public class ExportNewCodePeriodsStepIT {
 
   @Before
   public void setUp() {
+    logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
     PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectDto, branch).setCreatedAt(createdAt));
@@ -103,7 +104,7 @@ public class ExportNewCodePeriodsStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.NEW_CODE_PERIODS)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("0 new code periods exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("0 new code periods exported");
   }
 
   @Test
@@ -121,7 +122,7 @@ public class ExportNewCodePeriodsStepIT {
     List<ProjectDump.NewCodePeriod> exportedProps = dumpWriter.getWrittenMessagesOf(DumpElement.NEW_CODE_PERIODS);
     assertThat(exportedProps).hasSize(2);
     assertThat(exportedProps).extracting(ProjectDump.NewCodePeriod::getUuid).containsOnly("uuid1", "uuid2");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 new code periods exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 new code periods exported");
   }
 
   @Test

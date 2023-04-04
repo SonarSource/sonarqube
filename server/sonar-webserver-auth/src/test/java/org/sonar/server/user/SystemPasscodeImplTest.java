@@ -26,10 +26,10 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.ws.SimpleGetRequest;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,14 +52,14 @@ public class SystemPasscodeImplTest {
     configurePasscode("foo");
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is enabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is enabled");
   }
 
   @Test
   public void startup_logs_show_that_feature_is_disabled() {
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is disabled");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class SystemPasscodeImplTest {
     configurePasscode("");
     underTest.start();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
+    assertThat(logTester.logs(Level.INFO)).contains("System authentication by passcode is disabled");
   }
 
   @DataProvider

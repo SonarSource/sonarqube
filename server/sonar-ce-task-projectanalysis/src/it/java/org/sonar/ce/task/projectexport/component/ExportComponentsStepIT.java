@@ -24,13 +24,14 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -86,6 +87,11 @@ public class ExportComponentsStepIT {
   private final MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
   private final ExportComponentsStep underTest = new ExportComponentsStep(dbTester.getDbClient(), projectHolder, componentRepository, dumpWriter);
 
+  @Before
+  public void before() {
+    logTester.setLevel(Level.DEBUG);
+  }
+
   @After
   public void tearDown() {
     dbTester.getSession().close();
@@ -100,7 +106,7 @@ public class ExportComponentsStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 components exported");
+    assertThat(logTester.logs(Level.DEBUG)).contains("2 components exported");
     List<ProjectDump.Component> components = dumpWriter.getWrittenMessagesOf(DumpElement.COMPONENTS);
     assertThat(components).extracting(ProjectDump.Component::getQualifier, ProjectDump.Component::getUuid, ProjectDump.Component::getUuidPath)
       .containsExactlyInAnyOrder(

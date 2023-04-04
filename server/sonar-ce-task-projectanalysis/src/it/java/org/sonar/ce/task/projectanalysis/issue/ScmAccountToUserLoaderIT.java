@@ -21,8 +21,8 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -60,7 +60,7 @@ public class ScmAccountToUserLoaderIT {
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(db.getDbClient());
 
     assertThat(underTest.load("charlie")).isNull();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': another.charlie, charlie");
+    assertThat(logTester.logs(Level.WARN)).contains("Multiple users share the SCM account 'charlie': another.charlie, charlie");
   }
 
   @Test

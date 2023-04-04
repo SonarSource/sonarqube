@@ -28,9 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -69,7 +70,7 @@ public class DefaultScannerWsClientTest {
     assertThat(result).isSameAs(response);
 
     // check logs
-    List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(1);
     assertThat(debugLogs.get(0)).contains("GET 200 https://local/api/issues/search | time=");
   }
@@ -149,7 +150,7 @@ public class DefaultScannerWsClientTest {
     underTest.call(request);
 
     // check logs
-    List<String> warningLogs = logTester.logs(LoggerLevel.WARN);
+    List<String> warningLogs = logTester.logs(Level.WARN);
     assertThat(warningLogs).hasSize(2);
     assertThat(warningLogs.get(0)).contains("The token used for this analysis will expire on: " + fiveDaysLatter.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")));
     assertThat(warningLogs.get(1)).contains("Analysis executed with this token will fail after the expiration date.");

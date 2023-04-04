@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 import org.sonar.scanner.protocol.internal.SensorCacheData;
