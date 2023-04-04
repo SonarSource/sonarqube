@@ -98,7 +98,7 @@
     "postcss": "8.4.21",
     "postcss-calc": "8.2.4",
     "postcss-custom-properties": "12.1.11",
-    "prettier": "2.8.3",
+    "prettier": "2.8.7",
     "react-select-event": "5.5.1",
     "tailwindcss": "3.3.1",
     "testing-library-selector": "0.2.1",
