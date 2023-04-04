@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 
@@ -54,21 +56,20 @@ const defaultGetFacetValueForOption = (facet: Facet, option: string | number) =>
 export default class Filter extends React.PureComponent<Props> {
   isSelected(option: Option): boolean {
     const { value } = this.props;
+
     return Array.isArray(value) ? value.includes(option) : String(option) === String(value);
   }
 
-  highlightUnder(option?: Option): boolean {
+  highlightUnder(option?: number): boolean {
     return (
-      this.props.highlightUnder != null &&
-      option != null &&
+      this.props.highlightUnder !== undefined &&
+      option !== undefined &&
       option > this.props.highlightUnder &&
       (this.props.highlightUnderMax == null || option < this.props.highlightUnderMax)
     );
   }
 
-  getUrlOptionForSingleValue = (option: string) => {
-    return this.isSelected(option) ? null : option;
-  };
+  getUrlOptionForSingleValue = (option: string) => (this.isSelected(option) ? null : option);
 
   getUrlOptionForMultiValue = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -105,6 +106,7 @@ export default class Filter extends React.PureComponent<Props> {
     if (facetValue === undefined || !this.props.maxFacetValue) {
       return null;
     }
+
     return (
       <div className="projects-facet-bar">
         <div
@@ -118,6 +120,7 @@ export default class Filter extends React.PureComponent<Props> {
   renderOption(option: Option, highlightable = false, lastHighlightable = false) {
     const { facet, getFacetValueForOption = defaultGetFacetValueForOption, value } = this.props;
     const active = this.isSelected(option);
+
     const className = classNames(
       'facet',
       'search-navigator-facet',
@@ -163,7 +166,7 @@ export default class Filter extends React.PureComponent<Props> {
           </span>
           {facetValue != null && (
             <span className="facet-stat">
-              {formatMeasure(facetValue, 'SHORT_INT')}
+              {formatMeasure(facetValue, MetricType.ShortInteger)}
               {this.renderOptionBar(facetValue)}
             </span>
           )}
@@ -174,12 +177,14 @@ export default class Filter extends React.PureComponent<Props> {
 
   renderOptions = () => {
     const { options, highlightUnder } = this.props;
+
     if (options && options.length > 0) {
       if (highlightUnder != null) {
         const max = this.props.highlightUnderMax || options.length;
         const beforeHighlight = options.slice(0, highlightUnder);
         const insideHighlight = options.slice(highlightUnder, max);
         const afterHighlight = options.slice(max);
+
         return (
           <ul className="search-navigator-facet-list projects-facet-list">
             {beforeHighlight.map((option) => this.renderOption(option))}
@@ -190,12 +195,14 @@ export default class Filter extends React.PureComponent<Props> {
           </ul>
         );
       }
+
       return (
         <ul className="search-navigator-facet-list projects-facet-list">
           {options.map((option) => this.renderOption(option))}
         </ul>
       );
     }
+
     return (
       <div className="search-navigator-facet-empty">
         <em>{translate('projects.facets.no_available_filters_clear_others')}</em>

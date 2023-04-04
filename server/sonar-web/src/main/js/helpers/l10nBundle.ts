@@ -19,10 +19,11 @@
  */
 import { fetchL10nBundle } from '../api/l10n';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10nBundle';
+import { Dict } from '../types/types';
 import { toNotSoISOString } from './dates';
 
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_MESSAGES = {
+const DEFAULT_MESSAGES: Dict<string> = {
   // eslint-disable-next-line camelcase
   default_error_message: 'The request cannot be processed. Try again later.',
 };

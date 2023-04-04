@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { getMessages } from './l10nBundle';
 
 export function hasMessage(...keys: string[]): boolean {
   const messageKey = keys.join('.');
-  return getMessages()[messageKey] != null;
+
+  return getMessages()[messageKey] !== undefined;
 }
 
 export function translate(...keys: string[]): string {
   const messageKey = keys.join('.');
   const l10nMessages = getMessages();
+
   if (process.env.NODE_ENV === 'development' && !l10nMessages[messageKey]) {
     // eslint-disable-next-line no-console
     console.error(`No message for: ${messageKey}`);
   }
+
   return l10nMessages[messageKey] || messageKey;
 }
 
@@ -39,15 +43,18 @@ export function translateWithParameters(
   ...parameters: Array<string | number>
 ): string {
   const message = getMessages()[messageKey];
+
   if (message) {
     return parameters
       .map((parameter) => String(parameter))
       .reduce((acc, parameter, index) => acc.replaceAll(`{${index}}`, () => parameter), message);
   }
+
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console
     console.error(`No message for: ${messageKey}`);
   }
+
   return `${messageKey}.${parameters.join('.')}`;
 }
 
@@ -56,21 +63,25 @@ export function getLocalizedMetricName(
   short = false
 ): string {
   const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
+
   if (hasMessage(bundleKey)) {
     return translate(bundleKey);
   } else if (short) {
     return getLocalizedMetricName(metric);
   }
+
   return metric.name || metric.key;
 }
 
 export function getLocalizedCategoryMetricName(metric: { key: string; name?: string }) {
   const bundleKey = `metric.${metric.key}.extra_short_name`;
+
   return hasMessage(bundleKey) ? translate(bundleKey) : getLocalizedMetricName(metric, true);
 }
 
 export function getLocalizedMetricDomain(domainName: string) {
   const bundleKey = `metric_domain.${domainName}`;
+
   return hasMessage(bundleKey) ? translate(bundleKey) : domainName;
 }
 
@@ -89,6 +100,7 @@ export function getMonthName(index: number) {
     'November',
     'December',
   ];
+
   return translate(months[index]);
 }
 
@@ -107,15 +119,18 @@ export function getShortMonthName(index: number) {
     'Nov',
     'Dec',
   ];
+
   return translate(months[index]);
 }
 
 export function getWeekDayName(index: number) {
   const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
   return weekdays[index] ? translate(weekdays[index]) : '';
 }
 
 export function getShortWeekDayName(index: number) {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
   return weekdays[index] ? translate(weekdays[index]) : '';
 }
