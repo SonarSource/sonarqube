@@ -36,7 +36,7 @@ export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeI
 
   return (
     <span
-      className="sw-overflow-ellipsis sw-whitespace-nowrap sw-overflow-hidden sw-mx-1 sw-flex-shrink sw-min-w-0"
+      className="sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden sw-mx-1 sw-flex-shrink sw-min-w-0"
       title={translateWithParameters(
         'branch_like_navigation.for_merge_into_x_from_y.title',
         currentBranchLike.target,

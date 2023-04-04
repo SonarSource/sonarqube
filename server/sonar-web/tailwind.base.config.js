@@ -172,7 +172,7 @@ module.exports = {
     position: true, // position classes .sw-relative .sw-absolute
     preflight: false, // disable preflight
     textAlign: true, // .sw-text-x classes
-    textOverflow: true, // .sw-overflow-ellipsis, .sw-truncate
+    textOverflow: true, // .sw-text-ellipsis, .sw-truncate
     textTransform: true, // sw-uppercase, .sw-capitalize
     userSelect: true, // .sw-select-none classes
     verticalAlign: true, // .sw-align-x classes
