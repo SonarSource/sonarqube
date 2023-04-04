@@ -33,8 +33,8 @@
     "react-helmet-async": "1.3.0",
     "react-intl": "6.2.5",
     "react-modal": "3.16.1",
-    "react-router-dom": "6.7.0",
-    "react-select": "5.7.0",
+    "react-router-dom": "6.10.0",
+    "react-select": "5.7.2",
     "react-virtualized": "9.22.3",
     "regenerator-runtime": "0.13.11",
     "valid-url": "1.0.9"
