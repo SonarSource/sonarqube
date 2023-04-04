@@ -56,7 +56,7 @@ module.exports = (release) => {
   return {
     entryPoints: ['src/main/js/app/index.ts'],
     tsconfig: './tsconfig.json',
-    external: ['/images/*'],
+    external: ['/images/*', '/fonts/*'],
     loader: {
       '.png': 'dataurl',
       '.md': 'text',

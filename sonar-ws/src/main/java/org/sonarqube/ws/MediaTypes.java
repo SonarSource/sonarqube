@@ -56,6 +56,7 @@ public final class MediaTypes {
   private static final String TIFF = "image/tiff";
   private static final String TGZ = "application/tgz";
   private static final String TSV = "text/tab-separated-values";
+  private static final String WOFF2 = "application/font-woff2";
   private static final String XLS = "application/vnd.ms-excel";
   private static final String XSLT = "application/xslt+xml";
 
@@ -90,6 +91,7 @@ public final class MediaTypes {
     MAP.put("html", HTML);
     MAP.put("css", CSS);
     MAP.put("tsv", TSV);
+    MAP.put("woff2", WOFF2);
   }
 
   private MediaTypes() {
