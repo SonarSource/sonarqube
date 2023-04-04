@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import Enzyme from 'enzyme';
-import EZAdapter from 'enzyme-adapter-react-16';
-
-const Adapter = EZAdapter as () => void;
 
 Enzyme.configure({ adapter: new Adapter() });
