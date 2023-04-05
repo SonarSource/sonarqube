@@ -8,7 +8,6 @@ exports[`should render correctly: can subscribe, not subscribed 1`] = `
     >
       <li>
         <a
-          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -48,7 +47,6 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
     >
       <li>
         <a
-          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -82,7 +80,6 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
 
 exports[`should render correctly: cannot subscribe 1`] = `
 <a
-  data-test="overview__download-pdf-report-button"
   download="MyProject - PDF Report.pdf"
   href="/api/governance_reports/download?componentKey=my-project"
   rel="noopener noreferrer"
@@ -100,7 +97,6 @@ exports[`should render correctly: current user without email 1`] = `
     >
       <li>
         <a
-          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -138,7 +134,6 @@ exports[`should render correctly: not a portfolio 1`] = `
     >
       <li>
         <a
-          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getReportUrl } from '../../api/component-report';
-import { Button } from '../../components/controls/buttons';
 import Dropdown from '../../components/controls/Dropdown';
+import { Button } from '../../components/controls/buttons';
 import DropdownIcon from '../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Branch } from '../../types/branch-like';
@@ -46,7 +46,6 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
         download={[component.name, branch?.name, 'PDF Report.pdf'].filter((s) => !!s).join(' - ')}
         href={getReportUrl(component.key, branch?.name)}
         target="_blank"
-        data-test="overview__download-pdf-report-button"
         rel="noopener noreferrer"
       >
         {simple
