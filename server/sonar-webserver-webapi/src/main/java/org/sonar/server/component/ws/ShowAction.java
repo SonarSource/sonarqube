@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +26,7 @@ import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -55,8 +55,8 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 
 public class ShowAction implements ComponentsWsAction {
-  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
-  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = ImmutableSet.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = Set.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -144,7 +144,7 @@ public class ShowAction implements ComponentsWsAction {
     Request request) {
 
     // project or application
-    if (isProjectOrApp(component)) {
+    if (isMainBranchOfProjectOrApp(component, dbSession)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
       boolean needIssueSync = needIssueSync(dbSession, component, project);
@@ -176,8 +176,12 @@ public class ShowAction implements ComponentsWsAction {
     }
   }
 
-  private static boolean isProjectOrApp(ComponentDto component) {
-    return component.getMainBranchProjectUuid() == null && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier());
+  private boolean isMainBranchOfProjectOrApp(ComponentDto component, DbSession dbSession) {
+    if (!PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
+      return false;
+    }
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid());
+    return branchDto.isPresent() && branchDto.get().isMain();
   }
 
   private boolean needIssueSync(DbSession dbSession, ComponentDto component, @Nullable ProjectDto projectDto) {
