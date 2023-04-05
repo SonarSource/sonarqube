@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from '../../../../components/controls/buttons';
 import Modal from '../../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../../components/controls/buttons';
 import { hasMessage, translate } from '../../../../helpers/l10n';
 import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
@@ -62,9 +62,7 @@ export function AnalysisErrorModal(props: Props) {
       </div>
 
       <footer className="modal-foot">
-        <ButtonLink className="js-modal-close" onClick={props.onClose}>
-          {translate('close')}
-        </ButtonLink>
+        <ResetButtonLink onClick={props.onClose}>{translate('close')}</ResetButtonLink>
       </footer>
     </Modal>
   );

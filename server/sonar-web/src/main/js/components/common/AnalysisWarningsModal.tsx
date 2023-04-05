@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { ButtonLink } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
+import { ButtonLink, ResetButtonLink } from '../../components/controls/buttons';
 import WarningIcon from '../../components/icons/WarningIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
@@ -162,9 +162,7 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
         </div>
 
         <footer className="modal-foot">
-          <ButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('close')}
-          </ButtonLink>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
         </footer>
       </Modal>
     );

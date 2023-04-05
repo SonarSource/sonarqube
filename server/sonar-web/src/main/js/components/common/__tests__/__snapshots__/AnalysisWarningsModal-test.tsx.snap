@@ -82,12 +82,11 @@ secondline
   <footer
     className="modal-foot"
   >
-    <ButtonLink
-      className="js-modal-close"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </ButtonLink>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -153,12 +152,11 @@ exports[`should render correctly: default 1`] = `
   <footer
     className="modal-foot"
   >
-    <ButtonLink
-      className="js-modal-close"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </ButtonLink>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -205,12 +203,11 @@ exports[`should render correctly: do not show dismissable links for anonymous 1`
   <footer
     className="modal-foot"
   >
-    <ButtonLink
-      className="js-modal-close"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </ButtonLink>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -267,12 +264,11 @@ exports[`should render correctly: with dismissable warnings 1`] = `
   <footer
     className="modal-foot"
   >
-    <ButtonLink
-      className="js-modal-close"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </ButtonLink>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
