@@ -38,7 +38,7 @@ notifications:
   on_start: always
 
 # This is a temporary change as Travis is currently executing this body even
-# when TRAVIS_TEST_RESULT=0 (support ticket #44617).
+# when the job run successfully (support ticket #44617).
 # The changes should be reverted once we have a proper solution.
 after_failure:
   - "[[ $TRAVIS_TEST_RESULT = 1 ]] && source ./.travis/setup_environment.sh && notify_burgr \"build\" \"build\" \"$TRAVIS_JOB_WEB_URL\" \"$(cat /tmp/build_start_time)\" \"$(date --utc +%FT%TZ)\" \"failed\" || true"
