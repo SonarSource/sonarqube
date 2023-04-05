@@ -3338,12 +3338,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primer/octicons-react@npm:17.11.1":
-  version: 17.11.1
-  resolution: "@primer/octicons-react@npm:17.11.1"
+"@primer/octicons-react@npm:18.3.0":
+  version: 18.3.0
+  resolution: "@primer/octicons-react@npm:18.3.0"
   peerDependencies:
     react: ">=15"
-  checksum: 21d99a0f4d86b27977a9845cca34c75d23cd3d057d3ab39e8b308bd45a35c4c8656a82c464d9b960e151dc05c0a2a40f2a9df5047f264da91b6bc7cbe0f70b33
+  checksum: 12d9578bf637ba1abb9ef7b2a74611aa6f94bd56b6a711ef51413b045bae80755de8bbd510d45d8431e07df8ff405a5774ec84528d57f5a9c1696ad290f1a06f
   languageName: node
   linkType: hard
 
@@ -4495,7 +4495,7 @@ __metadata:
     "@emotion/jest": 11.10.5
     "@emotion/react": 11.10.6
     "@emotion/styled": 11.10.6
-    "@primer/octicons-react": 17.11.1
+    "@primer/octicons-react": 18.3.0
     "@swc/core": 1.3.44
     "@swc/jest": 0.2.24
     "@testing-library/dom": 8.20.0
@@ -4540,7 +4540,7 @@ __metadata:
     date-fns: 2.29.3
     design-system: 1.0.0
     diff: 5.1.0
-    dompurify: 2.4.3
+    dompurify: 3.0.1
     enzyme: 3.11.0
     enzyme-to-json: 3.6.2
     esbuild: 0.17.15
@@ -6146,7 +6146,7 @@ __metadata:
   peerDependencies:
     "@emotion/react": 11.10.6
     "@emotion/styled": 11.10.6
-    "@primer/octicons-react": 17.11.1
+    "@primer/octicons-react": 18.3.0
     classnames: 2.3.2
     clipboard: 2.0.11
     lodash: 4.17.21
@@ -6294,10 +6294,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:2.4.3":
-  version: 2.4.3
-  resolution: "dompurify@npm:2.4.3"
-  checksum: b440981f2a38cada2085759cc3d1e2f94571afc34343d011a8a6aa1ad91ae6abf651adbfa4994b0e2283f0ce81f7891cdb04b67d0b234c8d190cb70e9691f026
+"dompurify@npm:3.0.1":
+  version: 3.0.1
+  resolution: "dompurify@npm:3.0.1"
+  checksum: 19447e6d96415a8ad3a67bc9c76ffe671eb31cf7c1e0a538cbe5037c8b8b03afe144d64cf96c6e0f7fe63b83721a33b5b913394d20a85e96550e42e31f7c086b
   languageName: node
   linkType: hard
 
