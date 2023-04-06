@@ -221,6 +221,23 @@ public class SnapshotDaoIT {
   }
 
   @Test
+  public void selectLastAnalysisDateByProjects_returns_all_existing_projects_and_portfolios_with_a_snapshot() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project1).setLast(true).setCreatedAt(1L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(portfolio).setLast(true).setCreatedAt(2L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(3L));
+
+    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjects(dbSession,
+      List.of(project1.uuid(), portfolio.uuid()));
+
+    assertThat(lastAnalysisByProject).extracting(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate)
+      .containsOnly(tuple(project1.uuid(), 3L), tuple(portfolio.uuid(), 2L));
+  }
+
+  @Test
   public void selectAnalysesByQuery_all() {
     Random random = new Random();
     List<SnapshotDto> snapshots = IntStream.range(0, 1 + random.nextInt(5))

@@ -105,13 +105,11 @@
       p.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByKeysAndBranchOrPr" parameterType="String" resultType="Component">
+    <select id="selectByKeysAndBranchOrPr" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM components p
-    <if test="branch != null || pullRequest != null">
-      INNER JOIN project_branches pb on pb.uuid = p.branch_uuid
-    </if>
+    LEFT JOIN project_branches pb on pb.uuid = p.branch_uuid
     WHERE
     p.enabled=${_true}
     AND p.kee IN
@@ -128,7 +126,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND p.main_branch_project_uuid IS NULL
+        AND (pb.uuid is null or pb.is_main = ${_true})
       </otherwise>
     </choose>
   </select>
@@ -226,9 +224,10 @@
       inner join snapshots sa on sa.component_uuid=p.uuid
         and sa.status='P' and sa.islast=${_true} and sa.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
     </if>
+    left join project_branches pb on pb.uuid = p.branch_uuid
     where
       p.enabled=${_true}
-      AND p.main_branch_project_uuid is null
+      AND (pb.uuid is null or pb.is_main=${_true})
       AND p.copy_component_uuid is null
       <if test="query.qualifiers!=null">
         and p.qualifier in
@@ -453,45 +452,43 @@
       p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectUuidsByKeyFromProjectKeyAndBranchOrPr" parameterType="string" resultType="KeyWithUuid">
+    <select id="selectUuidsByKeyFromProjectKeyAndBranchOrPr" parameterType="string" resultType="KeyWithUuid">
     SELECT
      p.kee, p.uuid
     FROM
       components p
     INNER JOIN
       components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
-    <if test="branch != null || pullRequest != null">
-      INNER JOIN project_branches pb ON pb.uuid = root.uuid
-    </if>
-
+    LEFT JOIN project_branches pb ON pb.uuid = root.uuid
+    WHERE
     <choose>
       <when test="branch != null">
-        AND pb.kee = #{branch,jdbcType=VARCHAR}
+        pb.kee = #{branch,jdbcType=VARCHAR}
         AND pb.branch_type = 'BRANCH'
       </when>
       <when test="pullRequest != null">
-        AND pb.kee=#{pullRequest,jdbcType=VARCHAR}
+        pb.kee=#{pullRequest,jdbcType=VARCHAR}
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND root.main_branch_project_uuid is NULL
+        (pb.uuid is null or pb.is_main = ${_true})
       </otherwise>
     </choose>
-
   </select>
 
   <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="componentColumns"/>
     from components p
+    LEFT JOIN project_branches pb ON pb.uuid = p.branch_uuid
     where
       p.enabled=${_true}
       and p.copy_component_uuid is null
-      and p.main_branch_project_uuid is null
+      and (pb.uuid is null or pb.is_main = ${_true})
       and p.scope = 'PRJ'
       and p.qualifier in ('TRK','VW','SVW','APP')
-      <if test="projectUuid != null">
-        and p.branch_uuid = #{projectUuid,jdbcType=VARCHAR}
+      <if test="branchUuid != null">
+        and p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
       </if>
   </select>
 

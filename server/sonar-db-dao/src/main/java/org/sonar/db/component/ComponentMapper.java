@@ -92,7 +92,7 @@ public interface ComponentMapper {
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("rootViewUuid") String rootViewUuid);
 
-  void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
+  void scrollForIndexing(@Param("branchUuid") @Nullable String branchUuid, ResultHandler<ComponentDto> handler);
 
   void scrollAllFilesForFileMove(@Param("branchUuid") String branchUuid, ResultHandler<FileMoveRowDto> handler);
 

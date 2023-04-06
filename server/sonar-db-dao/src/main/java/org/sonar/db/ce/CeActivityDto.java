@@ -50,7 +50,7 @@ public class CeActivityDto {
    * at the same time as {@link #componentUuid}.
    * <p>
    * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
-   * project UUID of the main branch of that project ({@link ComponentDto#getMainBranchProjectUuid()}).
+   * project UUID of the main branch of that project
    */
   private String mainComponentUuid;
   private String analysisUuid;

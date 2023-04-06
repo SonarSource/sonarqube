@@ -48,9 +48,10 @@
     select max(s.created_at)
     from snapshots s
     inner join components p on s.component_uuid = p.branch_uuid
+    left join project_branches pb on pb.uuid = p.branch_uuid
     where
       s.islast=${_true}
-      and coalesce(p.main_branch_project_uuid, p.branch_uuid) = #{projectUuid,jdbcType=VARCHAR}
+      and coalesce(pb.project_uuid, p.branch_uuid) = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectLastAnalysisDateByProjects" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
@@ -60,41 +61,30 @@
     from
       (
       select
-        c.main_branch_project_uuid as project_uuid,
-        max(s.created_at) as last_analysis_date
+        coalesce(pb.project_uuid, c.branch_uuid) as project_uuid,
+        s.created_at as last_analysis_date
       from
         snapshots s
-      inner join components c on
-        s.component_uuid = c.branch_uuid
+      inner join components c on s.component_uuid = c.branch_uuid
+      left join project_branches pb on pb.uuid = c.branch_uuid
       where
         s.islast = ${_true}
-        and c.main_branch_project_uuid in
-      <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
-        #{projectUuid,jdbcType=VARCHAR}
-      </foreach>
-      group by
-        c.main_branch_project_uuid
-    union
-      select
-        c.branch_uuid as project_uuid,
-        max(s.created_at) as last_analysis_date
-      from
-        snapshots s
-      inner join components c on
-        s.component_uuid = c.branch_uuid
-      where
-        s.islast = ${_true}
-        and c.main_branch_project_uuid is null
-        and c.branch_uuid in
-      <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
-        #{projectUuid,jdbcType=VARCHAR}
-      </foreach>
-      group by
-        c.branch_uuid
+        and (
+          <!-- case of an analysis of a project or app, with entries in project_branches -->
+          (pb.uuid is not null and pb.project_uuid in
+            <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+              #{projectUuid,jdbcType=VARCHAR}
+            </foreach>)
+          or
+          <!-- case of an analysis of a portfolio, where there are no branches -->
+          (pb.uuid is null and c.branch_uuid in
+            <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+              #{projectUuid,jdbcType=VARCHAR}
+            </foreach>)
+        )
     ) result_with_duplicates
     group by
       result_with_duplicates.project_uuid
-
   </select>
 
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
