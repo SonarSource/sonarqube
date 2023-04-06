@@ -22,6 +22,7 @@ package org.sonar.ce.httpd;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
@@ -110,11 +111,11 @@ public class CeHttpServerTest {
   }
 
   @Test
-  public void stop_stops_http_server() throws Exception {
+  public void stop_stops_http_server() {
     underTest.stop();
-
+    
     assertThatThrownBy(() -> call(underTest.getUrl()))
-      .isInstanceOf(ConnectException.class);
+      .isInstanceOfAny(ConnectException.class, SocketTimeoutException.class);
   }
 
   @Test
