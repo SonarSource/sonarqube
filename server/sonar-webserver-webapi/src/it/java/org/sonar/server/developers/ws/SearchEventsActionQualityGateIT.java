@@ -41,7 +41,6 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -62,6 +61,8 @@ public class SearchEventsActionQualityGateIT {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
+
+  private static final long ANY_TIMESTAMP = 1666666666L;
 
   private Server server = mock(Server.class);
   private IssueIndex issueIndex = new IssueIndex(es.client(), null, userSession, null);
@@ -102,7 +103,7 @@ public class SearchEventsActionQualityGateIT {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     insertSuccessfulActivity(project, 1_500_000_000_000L);
     SnapshotDto branchAnalysis = insertSuccessfulActivity(branch, 1_500_000_000_000L);
-    insertActivity(branch, branchAnalysis, CeActivityDto.Status.SUCCESS);
+    insertActivity(project.uuid(), branchAnalysis, CeActivityDto.Status.SUCCESS);
     db.events().insertEvent(newQualityGateEvent(branchAnalysis).setDate(branchAnalysis.getCreatedAt()).setName("Failed"));
 
     SearchEventsWsResponse result = ws.newRequest()
@@ -126,7 +127,7 @@ public class SearchEventsActionQualityGateIT {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     SnapshotDto prAnalysis = insertSuccessfulActivity(pr, 1_500_000_000_000L);
-    insertActivity(pr, prAnalysis, CeActivityDto.Status.SUCCESS);
+    insertActivity(project.uuid(), prAnalysis, CeActivityDto.Status.SUCCESS);
     db.events().insertEvent(newQualityGateEvent(prAnalysis).setDate(prAnalysis.getCreatedAt()).setName("Failed"));
 
     SearchEventsWsResponse result = ws.newRequest()
@@ -270,21 +271,20 @@ public class SearchEventsActionQualityGateIT {
 
   private SnapshotDto insertSuccessfulActivity(ComponentDto project, long analysisDate) {
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setCreatedAt(analysisDate));
-    insertActivity(project, analysis, CeActivityDto.Status.SUCCESS);
+    insertActivity(project.uuid(), analysis, CeActivityDto.Status.SUCCESS);
     return analysis;
   }
 
-  private CeActivityDto insertActivity(ComponentDto project, SnapshotDto analysis, CeActivityDto.Status status) {
+  private CeActivityDto insertActivity(String mainBranchUuid, SnapshotDto analysis, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    String mainBranchProjectUuid = project.getMainBranchProjectUuid();
-    queueDto.setComponentUuid(mainBranchProjectUuid == null ? project.uuid() : mainBranchProjectUuid);
+    queueDto.setComponentUuid(mainBranchUuid);
     queueDto.setUuid(randomAlphanumeric(40));
-    queueDto.setCreatedAt(nextLong());
+    queueDto.setCreatedAt(ANY_TIMESTAMP);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
-    activityDto.setExecutionTimeMs(nextLong());
-    activityDto.setExecutedAt(nextLong());
+    activityDto.setExecutionTimeMs(1000L);
+    activityDto.setExecutedAt(ANY_TIMESTAMP);
     activityDto.setAnalysisUuid(analysis.getUuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.commit();

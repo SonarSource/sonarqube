@@ -114,8 +114,8 @@ public class CreateActionIT {
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
     ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
     assertThat(component)
-      .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate, ComponentDto::getMainBranchProjectUuid)
-      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false, null);
+      .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate)
+      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false);
 
     assertThat(db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).get())
       .extracting(BranchDto::getKey)

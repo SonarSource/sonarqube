@@ -175,12 +175,12 @@ public class SearchEventsActionNewIssuesIT {
     userSession.addProjectPermission(USER, project);
     String branchName1 = "branch1";
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName1));
-    SnapshotDto branch1Analysis = insertAnalysis(branch1, 1_500_000_000_000L);
+    SnapshotDto branch1Analysis = insertAnalysis(branch1, project.uuid(), 1_500_000_000_000L);
     insertIssue(branch1, branch1Analysis);
     insertIssue(branch1, branch1Analysis);
     String branchName2 = "branch2";
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setKey(branchName2));
-    SnapshotDto branch2Analysis = insertAnalysis(branch2, 1_300_000_000_000L);
+    SnapshotDto branch2Analysis = insertAnalysis(branch2, project.uuid(), 1_300_000_000_000L);
     insertIssue(branch2, branch2Analysis);
     issueIndexer.indexAllIssues();
 
@@ -211,12 +211,12 @@ public class SearchEventsActionNewIssuesIT {
     userSession.addProjectPermission(USER, project);
     String nonMainBranchName = "nonMain";
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(nonMainBranchName));
-    SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, 1_500_000_000_000L);
+    SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, project.uuid(), 1_500_000_000_000L);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
     String pullRequestKey = "42";
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
-    SnapshotDto pullRequestAnalysis = insertAnalysis(pullRequest, 1_300_000_000_000L);
+    SnapshotDto pullRequestAnalysis = insertAnalysis(pullRequest, project.uuid(), 1_300_000_000_000L);
     insertIssue(pullRequest, pullRequestAnalysis);
     issueIndexer.indexAllIssues();
 
@@ -285,17 +285,23 @@ public class SearchEventsActionNewIssuesIT {
         .setType(RuleType.SECURITY_HOTSPOT));
   }
 
+
   private SnapshotDto insertAnalysis(ComponentDto project, long analysisDate) {
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setCreatedAt(analysisDate));
-    insertActivity(project, analysis, CeActivityDto.Status.SUCCESS);
+    insertActivity(project.uuid(), analysis, CeActivityDto.Status.SUCCESS);
     return analysis;
   }
 
-  private CeActivityDto insertActivity(ComponentDto project, SnapshotDto analysis, CeActivityDto.Status status) {
+  private SnapshotDto insertAnalysis(ComponentDto branch, String mainBranchUuid, long analysisDate) {
+    SnapshotDto analysis = db.components().insertSnapshot(branch, s -> s.setCreatedAt(analysisDate));
+    insertActivity(mainBranchUuid, analysis, CeActivityDto.Status.SUCCESS);
+    return analysis;
+  }
+
+  private CeActivityDto insertActivity(String mainBranchUuid, SnapshotDto analysis, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    String mainBranchProjectUuid = project.getMainBranchProjectUuid();
-    queueDto.setComponentUuid(mainBranchProjectUuid == null ? project.uuid() : mainBranchProjectUuid);
+    queueDto.setComponentUuid(mainBranchUuid);
     queueDto.setUuid(randomAlphanumeric(40));
     queueDto.setCreatedAt(nextLong());
     CeActivityDto activityDto = new CeActivityDto(queueDto);

@@ -60,7 +60,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -313,7 +312,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_exist_in_DB() {
     ComponentDto project = dbTester.components().insertPublicProject();
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
-    setupRoot(project);
+    setupRoot(project, project.uuid(), "any-string");
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)
@@ -535,21 +534,25 @@ public class LoadPeriodsStepIT extends BaseStepTest {
       .containsOnly(Stream.concat(Stream.of(log), Arrays.stream(otherLogs)).toArray(String[]::new));
   }
 
-  private void setupRoot(ComponentDto project) {
-    setupRoot(project, randomAlphanumeric(3));
+  private void setupRoot(ComponentDto branchComponent) {
+    setupRoot(branchComponent, "any-string");
   }
 
-  private void setupRoot(ComponentDto projectDto, String version) {
+  private void setupRoot(ComponentDto branchComponent, String projectUuid, String version) {
     treeRootHolder.setRoot(ReportComponent
       .builder(Component.Type.PROJECT, 1)
-      .setUuid(projectDto.uuid())
-      .setKey(projectDto.getKey())
+      .setUuid(branchComponent.uuid())
+      .setKey(branchComponent.getKey())
       .setProjectVersion(version)
       .build());
 
     Project project = mock(Project.class);
-    when(project.getUuid()).thenReturn(projectDto.getMainBranchProjectUuid() != null ? projectDto.getMainBranchProjectUuid() : projectDto.uuid());
+    when(project.getUuid()).thenReturn(projectUuid);
     when(analysisMetadataHolder.getProject()).thenReturn(project);
+  }
+
+  private void setupRoot(ComponentDto branchComponent, String version) {
+    setupRoot(branchComponent, project.uuid(), version);
   }
 
   private static void verifyInvalidValueMessage(MessageException e, String propertyValue) {

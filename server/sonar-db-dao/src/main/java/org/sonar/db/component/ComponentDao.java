@@ -226,18 +226,6 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Returns all projects (Scope {@link Scopes#PROJECT} and qualifier
-   * {@link Qualifiers#PROJECT}) which are enabled.
-   * <p>
-   * Branches are not returned.
-   * <p>
-   * Used by Views.
-   */
-  public List<ComponentDto> selectProjects(DbSession session) {
-    return mapper(session).selectProjects();
-  }
-
-  /**
    * Used by Governance
    */
   public Set<String> selectViewKeysWithEnabledCopyOfProject(DbSession session, Set<String> projectUuids) {

@@ -134,7 +134,7 @@ public class SearchEventsActionIT {
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Passed"));
     insertIssue(project, projectAnalysis);
     insertIssue(project, projectAnalysis);
-    SnapshotDto branchAnalysis = insertAnalysis(branch, 1_501_000_000_000L);
+    SnapshotDto branchAnalysis = insertAnalysis(branch, project.uuid(), 1_501_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(branchAnalysis).setDate(branchAnalysis.getCreatedAt()).setName("Failed"));
     insertIssue(branch, branchAnalysis);
     issueIndexer.indexAllIssues();
@@ -259,11 +259,10 @@ public class SearchEventsActionIT {
     return newEvent(analysis).setCategory(EventCategory.QUALITY_GATE.getLabel());
   }
 
-  private CeActivityDto insertActivity(ComponentDto project, SnapshotDto analysis, CeActivityDto.Status status) {
+  private CeActivityDto insertActivity(String mainBranchUuid, SnapshotDto analysis, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    String mainBranchProjectUuid = project.getMainBranchProjectUuid();
-    queueDto.setComponentUuid(mainBranchProjectUuid == null ? project.uuid() : mainBranchProjectUuid);
+    queueDto.setComponentUuid(mainBranchUuid);
     queueDto.setUuid(randomAlphanumeric(40));
     queueDto.setCreatedAt(nextLong());
     CeActivityDto activityDto = new CeActivityDto(queueDto);
@@ -283,9 +282,15 @@ public class SearchEventsActionIT {
         .setType(randomRuleTypeExceptHotspot()));
   }
 
+  private SnapshotDto insertAnalysis(ComponentDto branch, String mainBranchUuid, long analysisDate) {
+    SnapshotDto analysis = db.components().insertSnapshot(branch, s -> s.setCreatedAt(analysisDate));
+    insertActivity(mainBranchUuid, analysis, CeActivityDto.Status.SUCCESS);
+    return analysis;
+  }
+
   private SnapshotDto insertAnalysis(ComponentDto project, long analysisDate) {
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setCreatedAt(analysisDate));
-    insertActivity(project, analysis, CeActivityDto.Status.SUCCESS);
+    insertActivity(project.uuid(), analysis, CeActivityDto.Status.SUCCESS);
     return analysis;
   }
 

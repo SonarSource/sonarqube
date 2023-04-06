@@ -65,7 +65,7 @@ public class TargetBranchComponentUuidsIT {
     ComponentDto pr1branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(PR_KEY)
       .setBranchType(BranchType.PULL_REQUEST)
       .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setTarget(BRANCH_KEY).build())
-      .setMergeBranchUuid(projectDto.getMainBranchProjectUuid()));
+      .setMergeBranchUuid(projectDto.uuid()));
     branch1File = ComponentTesting.newFileDto(branch1, null, "file").setUuid("branch1File");
     pr1File = ComponentTesting.newFileDto(pr1branch, null, "file").setUuid("file1");
     db.components().insertComponents(branch1File, pr1File);

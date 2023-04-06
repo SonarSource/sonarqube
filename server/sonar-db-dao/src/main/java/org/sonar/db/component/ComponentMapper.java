@@ -63,13 +63,6 @@ public interface ComponentMapper {
   List<ComponentDto> selectChildren(@Param("branchUuid") String branchUuid, @Param("uuidPaths") Set<String> uuidPaths);
 
   /**
-   * Returns all enabled projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
-   * {@link org.sonar.api.resources.Qualifiers#PROJECT}) no matter if they are ghost project, provisioned projects or
-   * regular ones.
-   */
-  List<ComponentDto> selectProjects();
-
-  /**
    * Return all descendant views (including itself) from a given root view
    */
   List<ComponentDto> selectEnabledViewsFromRootView(@Param("rootViewUuid") String rootViewUuid);

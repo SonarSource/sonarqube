@@ -85,7 +85,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
@@ -253,7 +252,7 @@ public class PurgeDaoIT {
     insertPropertyFor(branch3, branch1);
 
     // analysing branch1
-    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), branch1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     // branch1 wasn't deleted since it was being analyzed!
@@ -687,8 +686,8 @@ public class PurgeDaoIT {
     ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto();
     insertComponents(List.of(anotherLivingProject), List.of(projectToBeDeleted));
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeletedActivity = insertCeActivity(projectToBeDeleted);
-    CeActivityDto notDeletedActivity = insertCeActivity(anotherLivingProject);
+    CeActivityDto toBeDeletedActivity = insertCeActivity(projectToBeDeleted, projectToBeDeleted.uuid());
+    CeActivityDto notDeletedActivity = insertCeActivity(anotherLivingProject, anotherLivingProject.uuid());
     dbSession.commit();
 
     underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
@@ -708,13 +707,13 @@ public class PurgeDaoIT {
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project);
+    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
     insertCeTaskInput(projectTask.getUuid());
-    CeActivityDto branchTask = insertCeActivity(branch);
+    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
     insertCeTaskInput(branchTask.getUuid());
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
     insertCeTaskInput(anotherBranchTask.getUuid());
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
     insertCeTaskInput(anotherProjectTask.getUuid());
     insertCeTaskInput("non existing task");
     dbSession.commit();
@@ -741,13 +740,13 @@ public class PurgeDaoIT {
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project);
+    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
     insertCeScannerContext(projectTask.getUuid());
-    CeActivityDto branchTask = insertCeActivity(branch);
+    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
     insertCeScannerContext(branchTask.getUuid());
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
     insertCeScannerContext(anotherBranchTask.getUuid());
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
     insertCeScannerContext(anotherProjectTask.getUuid());
     insertCeScannerContext("non existing task");
     dbSession.commit();
@@ -774,13 +773,13 @@ public class PurgeDaoIT {
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project);
+    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
     insertCeTaskCharacteristics(projectTask.getUuid(), 3);
-    CeActivityDto branchTask = insertCeActivity(branch);
+    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
     insertCeTaskCharacteristics(branchTask.getUuid(), 2);
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
     insertCeTaskCharacteristics(anotherBranchTask.getUuid(), 6);
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
     insertCeTaskCharacteristics(anotherProjectTask.getUuid(), 2);
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
@@ -807,13 +806,13 @@ public class PurgeDaoIT {
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project);
+    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
     insertCeTaskMessages(projectTask.getUuid(), 3);
-    CeActivityDto branchTask = insertCeActivity(branch);
+    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
     insertCeTaskMessages(branchTask.getUuid(), 2);
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
     insertCeTaskMessages(anotherBranchTask.getUuid(), 6);
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
     insertCeTaskMessages(anotherProjectTask.getUuid(), 2);
     insertCeTaskMessages("non existing task", 5);
     dbSession.commit();
@@ -857,9 +856,9 @@ public class PurgeDaoIT {
 
     // Insert 3 rows in CE_QUEUE: two for the project that will be deleted (in order to check that status
     // is not involved in deletion), and one on another project
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, Status.PENDING));
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, Status.IN_PROGRESS));
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, projectToBeDeleted.uuid(), Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, projectToBeDeleted.uuid(), Status.IN_PROGRESS));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, anotherLivingProject.uuid(), Status.PENDING));
     dbSession.commit();
 
     underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
@@ -880,9 +879,9 @@ public class PurgeDaoIT {
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskInput(projectTask.getUuid());
-    CeQueueDto branchTask = insertCeQueue(branch);
+    CeQueueDto branchTask = insertCeQueue(branch, project.uuid());
     insertCeTaskInput(branchTask.getUuid());
-    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch, project.uuid());
     insertCeTaskInput(anotherBranchTask.getUuid());
     CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
     insertCeTaskInput(anotherProjectTask.getUuid());
@@ -913,9 +912,9 @@ public class PurgeDaoIT {
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeScannerContext(projectTask.getUuid());
-    CeQueueDto branchTask = insertCeQueue(branch);
+    CeQueueDto branchTask = insertCeQueue(branch, project.uuid());
     insertCeScannerContext(branchTask.getUuid());
-    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch, project.uuid());
     insertCeScannerContext(anotherBranchTask.getUuid());
     CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
     insertCeScannerContext(anotherProjectTask.getUuid());
@@ -952,9 +951,9 @@ public class PurgeDaoIT {
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskCharacteristics(projectTask.getUuid(), 3);
-    CeQueueDto branchTask = insertCeQueue(branch);
+    CeQueueDto branchTask = insertCeQueue(branch, project.uuid());
     insertCeTaskCharacteristics(branchTask.getUuid(), 1);
-    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch, project.uuid());
     insertCeTaskCharacteristics(anotherBranchTask.getUuid(), 5);
     CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
     insertCeTaskCharacteristics(anotherProjectTask.getUuid(), 2);
@@ -986,9 +985,9 @@ public class PurgeDaoIT {
 
     CeQueueDto projectTask = insertCeQueue(project);
     insertCeTaskMessages(projectTask.getUuid(), 3);
-    CeQueueDto branchTask = insertCeQueue(branch);
+    CeQueueDto branchTask = insertCeQueue(branch, project.uuid());
     insertCeTaskMessages(branchTask.getUuid(), 1);
-    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch, project.uuid());
     insertCeTaskMessages(anotherBranchTask.getUuid(), 5);
     CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
     insertCeTaskMessages(anotherProjectTask.getUuid(), 2);
@@ -1797,21 +1796,21 @@ public class PurgeDaoIT {
     dbSession.commit();
   }
 
-  private CeQueueDto createCeQueue(ComponentDto component, Status status) {
+  private CeQueueDto createCeQueue(ComponentDto component, String mainBranch, Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setMainComponentUuid(firstNonNull(component.getMainBranchProjectUuid(), component.uuid()));
+    queueDto.setMainComponentUuid(mainBranch);
     queueDto.setSubmitterUuid("submitter uuid");
     queueDto.setCreatedAt(1_300_000_000_000L);
     queueDto.setStatus(status);
     return queueDto;
   }
 
-  private CeActivityDto insertCeActivity(ComponentDto component) {
+  private CeActivityDto insertCeActivity(ComponentDto component, String mainBranch) {
     Status unusedStatus = Status.values()[RandomUtils.nextInt(Status.values().length)];
-    CeQueueDto queueDto = createCeQueue(component, unusedStatus);
+    CeQueueDto queueDto = createCeQueue(component, mainBranch, unusedStatus);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
@@ -1822,18 +1821,22 @@ public class PurgeDaoIT {
     return dto;
   }
 
-  private CeQueueDto insertCeQueue(ComponentDto component) {
+  private CeQueueDto insertCeQueue(ComponentDto component, String mainBranch) {
     CeQueueDto res = new CeQueueDto()
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskType("foo")
       .setComponentUuid(component.uuid())
-      .setMainComponentUuid(firstNonNull(component.getMainBranchProjectUuid(), component.uuid()))
+      .setMainComponentUuid(mainBranch)
       .setStatus(Status.PENDING)
       .setCreatedAt(1_2323_222L)
       .setUpdatedAt(1_2323_222L);
     dbClient.ceQueueDao().insert(dbSession, res);
     dbSession.commit();
     return res;
+  }
+
+  private CeQueueDto insertCeQueue(ComponentDto component) {
+    return insertCeQueue(component, component.uuid());
   }
 
   private void insertCeScannerContext(String uuid) {

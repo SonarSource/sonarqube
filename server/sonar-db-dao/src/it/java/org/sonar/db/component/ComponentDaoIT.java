@@ -867,29 +867,6 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_projects() {
-    ComponentDto provisionedProject = db.components().insertPrivateProject();
-    ComponentDto provisionedView = db.components().insertPrivatePortfolio();
-    String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto()).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto().setEnabled(false)).getComponentUuid();
-    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio()).getComponentUuid();
-
-    assertThat(underTest.selectProjects(dbSession))
-      .extracting(ComponentDto::uuid)
-      .containsOnly(provisionedProject.uuid(), projectUuid);
-  }
-
-  @Test
-  public void select_projects_does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThat(underTest.selectProjects(dbSession))
-      .extracting(ComponentDto::uuid)
-      .containsOnly(project.uuid());
-  }
-
-  @Test
   public void selectByQuery_provisioned() {
     ComponentDto provisionedProject = db.components()
       .insertPrivateProject(p -> p.setKey("provisioned.project").setName("Provisioned Project"));
