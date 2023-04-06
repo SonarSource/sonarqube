@@ -11,7 +11,7 @@ plugins {
   id 'com.jfrog.artifactory' version '4.31.8'
   id "de.undercouch.download" version "5.4.0" apply false
   id 'io.spring.dependency-management' version '1.1.0'
-  id "org.cyclonedx.bom" version "1.7.3" apply false
+  id "org.cyclonedx.bom" version "1.7.4" apply false
   id 'org.sonarqube' version '4.0.0.2929'
 }
 
