@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDbTester;
@@ -209,6 +208,7 @@ public class ResetActionIT {
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(null, branch.name(), null, null, newComponentPropertyDto(branch).setKey("foo").setValue("value"));
     userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.addProjectBranchMapping(project.uuid(), branch);
 
     ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -478,9 +478,9 @@ public class ResetActionIT {
 
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey(key)
-        .setUserUuid(user.getUuid())
-        .build(),
+      .setKey(key)
+      .setUserUuid(user.getUuid())
+      .build(),
       dbSession)).isNotEmpty();
   }
 

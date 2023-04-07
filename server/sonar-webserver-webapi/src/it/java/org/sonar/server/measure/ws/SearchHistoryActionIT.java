@@ -296,6 +296,7 @@ public class SearchHistoryActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
@@ -319,6 +320,7 @@ public class SearchHistoryActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
@@ -404,8 +406,8 @@ public class SearchHistoryActionIT {
       .setParam(PARAM_COMPONENT, "file-key")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Component key 'file-key' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Component key 'file-key' not found");
   }
 
   @Test
@@ -420,8 +422,8 @@ public class SearchHistoryActionIT {
       .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test

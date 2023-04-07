@@ -917,6 +917,7 @@ public class ShowActionIT {
     ComponentDto project = dbTester.components().insertPublicProject();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -939,6 +940,7 @@ public class ShowActionIT {
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project,
       t -> t.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
+    userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);

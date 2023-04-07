@@ -88,9 +88,13 @@ public abstract class AbstractUserSession implements UserSession {
   protected abstract boolean hasPermissionImpl(GlobalPermission permission);
 
   @Override
-  public final boolean hasComponentPermission(String permission, ComponentDto component) {
-    String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
-    return hasProjectUuidPermission(permission, projectUuid);
+  public boolean hasComponentPermission(String permission, ComponentDto component) {
+
+    Optional<String> projectUuid1 = componentUuidToProjectUuid(component.uuid());
+
+    return projectUuid1
+      .map(projectUuid -> hasProjectUuidPermission(permission, projectUuid))
+      .orElse(false);
   }
 
   @Override

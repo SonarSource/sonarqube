@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -195,6 +196,16 @@ public class UserSessionRule implements TestRule, UserSession {
 
   public UserSessionRule addProjectPermission(String projectPermission, ComponentDto... components) {
     ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
+    return this;
+  }
+
+  public UserSessionRule addProjectBranchMapping(String projectUuid, ComponentDto... branchComponents) {
+    ensureAbstractMockUserSession().addProjectBranchMapping(projectUuid, branchComponents);
+    return this;
+  }
+
+  public UserSession registerBranches(BranchDto ...branchDtos){
+    ensureAbstractMockUserSession().registerBranches(branchDtos);
     return this;
   }
 

@@ -109,6 +109,7 @@ public class ShowActionIT {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
@@ -125,34 +126,34 @@ public class ShowActionIT {
 
     assertJson(result).isSimilarTo(
       format("{\n" +
-          "  \"duplications\": [\n" +
-          "    {\n" +
-          "      \"blocks\": [\n" +
-          "        {\n" +
-          "          \"from\": 20,\n" +
-          "          \"size\": 5,\n" +
-          "          \"_ref\": \"1\"\n" +
-          "        },\n" +
-          "        {\n" +
-          "          \"from\": 31,\n" +
-          "          \"size\": 5,\n" +
-          "          \"_ref\": \"1\"\n" +
-          "        }\n" +
-          "      ]\n" +
-          "    }\n" +
-          "  ],\n" +
-          "  \"files\": {\n" +
-          "    \"1\": {\n" +
-          "      \"key\": \"%s\",\n" +
-          "      \"name\": \"%s\",\n" +
-          "      \"uuid\": \"%s\",\n" +
-          "      \"project\": \"%s\",\n" +
-          "      \"projectUuid\": \"%s\",\n" +
-          "      \"projectName\": \"%s\"\n" +
-          "      \"branch\": \"%s\"\n" +
-          "    }\n" +
-          "  }\n" +
-          "}",
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 20,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 31,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"%s\",\n" +
+        "      \"name\": \"%s\",\n" +
+        "      \"uuid\": \"%s\",\n" +
+        "      \"project\": \"%s\",\n" +
+        "      \"projectUuid\": \"%s\",\n" +
+        "      \"projectName\": \"%s\"\n" +
+        "      \"branch\": \"%s\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
         file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), branchName));
   }
 
@@ -162,6 +163,7 @@ public class ShowActionIT {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
+    userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
@@ -178,34 +180,34 @@ public class ShowActionIT {
 
     assertJson(result).isSimilarTo(
       format("{\n" +
-          "  \"duplications\": [\n" +
-          "    {\n" +
-          "      \"blocks\": [\n" +
-          "        {\n" +
-          "          \"from\": 20,\n" +
-          "          \"size\": 5,\n" +
-          "          \"_ref\": \"1\"\n" +
-          "        },\n" +
-          "        {\n" +
-          "          \"from\": 31,\n" +
-          "          \"size\": 5,\n" +
-          "          \"_ref\": \"1\"\n" +
-          "        }\n" +
-          "      ]\n" +
-          "    }\n" +
-          "  ],\n" +
-          "  \"files\": {\n" +
-          "    \"1\": {\n" +
-          "      \"key\": \"%s\",\n" +
-          "      \"name\": \"%s\",\n" +
-          "      \"uuid\": \"%s\",\n" +
-          "      \"project\": \"%s\",\n" +
-          "      \"projectUuid\": \"%s\",\n" +
-          "      \"projectName\": \"%s\"\n" +
-          "      \"pullRequest\": \"%s\"\n" +
-          "    }\n" +
-          "  }\n" +
-          "}",
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 20,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 31,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"%s\",\n" +
+        "      \"name\": \"%s\",\n" +
+        "      \"uuid\": \"%s\",\n" +
+        "      \"project\": \"%s\",\n" +
+        "      \"projectUuid\": \"%s\",\n" +
+        "      \"projectName\": \"%s\"\n" +
+        "      \"pullRequest\": \"%s\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
         file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), pullRequestKey));
   }
 

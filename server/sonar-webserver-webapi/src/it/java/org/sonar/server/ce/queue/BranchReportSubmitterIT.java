@@ -121,7 +121,7 @@ public class BranchReportSubmitterIT {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project).addProjectBranchMapping(project.uuid(), branch);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(project.getKey(), "branch1");
     when(branchSupportDelegate.createComponentKey(project.getKey(), randomCharacteristics)).thenReturn(componentKey);
@@ -147,6 +147,7 @@ public class BranchReportSubmitterIT {
     userSession.logIn(user).addProjectPermission(SCAN.getKey(), existingProject);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     ComponentDto createdBranch = createButDoNotInsertBranch(existingProject);
+    userSession.addProjectBranchMapping(existingProject.uuid(), createdBranch);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(existingProject.getKey(), "branch1");
     when(branchSupportDelegate.createComponentKey(existingProject.getKey(), randomCharacteristics)).thenReturn(componentKey);
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(existingProject), eq(exitingProjectMainBranch))).thenReturn(createdBranch);

@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 
@@ -108,6 +109,11 @@ public final class DoPrivileged {
 
       @Override
       protected boolean hasPermissionImpl(GlobalPermission permission) {
+        return true;
+      }
+
+      @Override
+      public boolean hasComponentPermission(String permission, ComponentDto component) {
         return true;
       }
 

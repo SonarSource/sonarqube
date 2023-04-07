@@ -37,6 +37,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
@@ -49,13 +50,17 @@ import static java.util.Collections.singleton;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 
 /**
  * Implementation of {@link UserSession} used in web server
  */
 public class ServerUserSession extends AbstractUserSession {
+
+  private static final Set<String> QUALIFIERS = Set.of(VIEW, SUBVIEW);
+
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
@@ -153,7 +158,7 @@ public class ServerUserSession extends AbstractUserSession {
       }
       // if component is part of a branch, then permissions must be
       // checked on the project (represented by its main branch)
-      projectUuid = defaultIfEmpty(component.get().getMainBranchProjectUuid(), component.get().branchUuid());
+      projectUuid = getMainProjectUuid(dbSession, component.get());
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return of(projectUuid);
     }
@@ -204,16 +209,49 @@ public class ServerUserSession extends AbstractUserSession {
       .collect(toSet());
   }
 
-  private Set<String> findProjectUuids(Set<String> branchesComponents) {
+  private Set<String> findProjectUuids(Set<String> branchesComponentsUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.componentDao().selectByUuids(dbSession, branchesComponents).stream()
-        .map(ServerUserSession::getProjectId)
-        .collect(toSet());
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, branchesComponentsUuid);
+      return getMainProjectUuids(dbSession, componentDtos);
     }
   }
 
-  private static String getProjectId(ComponentDto branchComponent) {
-    return Optional.ofNullable(branchComponent.getMainBranchProjectUuid()).orElse(branchComponent.uuid());
+  private String getMainProjectUuid(DbSession dbSession, ComponentDto componentDto) {
+    // Portfolio & subPortfolio don't have branch, so branchUuid represents the portfolio uuid.
+    // technical project store root portfolio uuid in branchUuid
+    if (isPortfolioOrSubPortfolio(componentDto) || isTechnicalProject(componentDto)) {
+      return componentDto.branchUuid();
+    }
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, componentDto.branchUuid());
+    return branchDto.map(BranchDto::getProjectUuid).orElseThrow(() -> new IllegalStateException("No branch found for component : " + componentDto));
+  }
+
+  private Set<String> getMainProjectUuids(DbSession dbSession, Collection<ComponentDto> components) {
+    Set<String> mainProjectUuids = new HashSet<>();
+
+    // the result of following stream could be project or application
+    Collection<String> componentsWithBranch = components.stream()
+      .filter(c -> !(isTechnicalProject(c) || isPortfolioOrSubPortfolio(c)))
+      .map(ComponentDto::branchUuid)
+      .toList();
+
+    dbClient.branchDao().selectByUuids(dbSession, componentsWithBranch).stream()
+      .map(BranchDto::getProjectUuid).forEach(mainProjectUuids::add);
+
+    components.stream()
+      .filter(c -> isTechnicalProject(c) || isPortfolioOrSubPortfolio(c))
+      .map(ComponentDto::branchUuid)
+      .forEach(mainProjectUuids::add);
+
+    return mainProjectUuids;
+  }
+
+  private static boolean isTechnicalProject(ComponentDto componentDto) {
+    return Qualifiers.PROJECT.equals(componentDto.qualifier()) && Scopes.FILE.equals(componentDto.scope());
+  }
+
+  private static boolean isPortfolioOrSubPortfolio(ComponentDto componentDto) {
+    return !Objects.isNull(componentDto.qualifier()) && QUALIFIERS.contains(componentDto.qualifier());
   }
 
   private boolean hasPermission(String permission, String projectUuid) {
@@ -311,16 +349,12 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> projectUuids = components.stream()
-        .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.branchUuid()))
-        .collect(MoreCollectors.toSet(components.size()));
+      Set<String> projectUuids = getMainProjectUuids(dbSession, components);
 
       Map<String, ComponentDto> originalComponents = findComponentsByCopyComponentUuid(components,
-          dbSession);
+        dbSession);
 
-      Set<String> originalComponentsProjectUuids = originalComponents.values().stream()
-          .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.branchUuid()))
-          .collect(MoreCollectors.toSet(components.size()));
+      Set<String> originalComponentsProjectUuids = getMainProjectUuids(dbSession, originalComponents.values());
 
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
@@ -331,11 +365,11 @@ public class ServerUserSession extends AbstractUserSession {
         .filter(c -> {
           if (c.getCopyComponentUuid() != null) {
             var componentDto = originalComponents.get(c.getCopyComponentUuid());
-            return componentDto != null && authorizedProjectUuids.contains(defaultIfEmpty(componentDto.getMainBranchProjectUuid(), componentDto.branchUuid()));
+            return componentDto != null && authorizedProjectUuids.contains(getMainProjectUuid(dbSession, componentDto));
           }
 
           return authorizedProjectUuids.contains(c.branchUuid()) || authorizedProjectUuids.contains(
-              c.getMainBranchProjectUuid());
+            getMainProjectUuid(dbSession, c));
         })
         .collect(MoreCollectors.toList(components.size()));
     }
@@ -343,11 +377,11 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Map<String, ComponentDto> findComponentsByCopyComponentUuid(Collection<ComponentDto> components, DbSession dbSession) {
     Set<String> copyComponentsUuid = components.stream()
-        .map(ComponentDto::getCopyComponentUuid)
-        .filter(Objects::nonNull)
-        .collect(MoreCollectors.toSet(components.size()));
+      .map(ComponentDto::getCopyComponentUuid)
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toSet(components.size()));
     return dbClient.componentDao().selectByUuids(dbSession, copyComponentsUuid).stream()
-        .collect(Collectors.toMap(ComponentDto::uuid, componentDto -> componentDto));
+      .collect(Collectors.toMap(ComponentDto::uuid, componentDto -> componentDto));
   }
 
   @Override

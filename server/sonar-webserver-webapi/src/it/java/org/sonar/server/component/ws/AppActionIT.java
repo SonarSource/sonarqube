@@ -24,8 +24,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -254,6 +256,7 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
@@ -297,6 +300,7 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     String result = ws.newRequest()
@@ -327,6 +331,7 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, project);
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     String result = ws.newRequest()

@@ -67,6 +67,11 @@ public class ComponentDbTester {
       defaults(), defaults(), defaults());
   }
 
+  public BranchDto getBranchDto(ComponentDto branch) {
+    return db.getDbClient().branchDao().selectByUuid(dbSession, branch.uuid())
+      .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
+  }
+
   public ProjectDto getProjectDto(ComponentDto project) {
     return db.getDbClient().projectDao().selectByUuid(dbSession, project.uuid())
       .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
@@ -97,7 +102,6 @@ public class ComponentDbTester {
   public ComponentDto insertPublicProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false, defaults(), dtoPopulator);
   }
-
 
   public ComponentDto insertPublicProject(ComponentDto componentDto) {
     return insertComponentAndBranchAndProject(componentDto, false);
@@ -424,6 +428,13 @@ public class ComponentDbTester {
       dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
     }
     db.commit();
+  }
+
+  public void addProjectBranchToApplicationBranch(ComponentDto applicationBranchComponent, ComponentDto... projectBranchesComponent) {
+    BranchDto applicationBranch = getBranchDto(applicationBranchComponent);
+    BranchDto[] componentDtos = Arrays.stream(projectBranchesComponent).map(this::getBranchDto).toArray(BranchDto[]::new);
+
+    addProjectBranchToApplicationBranch(applicationBranch, componentDtos);
   }
 
   public void addProjectBranchToApplicationBranch(BranchDto applicationBranch, BranchDto... projectBranches) {

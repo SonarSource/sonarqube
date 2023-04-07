@@ -175,6 +175,16 @@ public class IssueDbTester {
     return insertHotspot(issue);
   }
 
+  public final IssueDto insertHotspot(ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+    RuleDto rule = db.rules().insertHotspotRule();
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT)
+      .setStatus(Issue.STATUS_TO_REVIEW)
+      .setResolution(null);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
+  }
+
   /**
    * Inserts a Security Hotspot.
    *

@@ -71,7 +71,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -585,6 +584,7 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
     EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(QUALITY_GATE.getLabel()));
 

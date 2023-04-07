@@ -20,9 +20,11 @@
 package org.sonar.db.measure;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -70,6 +72,15 @@ public class MeasureTesting {
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.branchUuid())
+      .setData(String.valueOf(cursor++))
+      .setValue((double) cursor++);
+  }
+
+  public static LiveMeasureDto newLiveMeasure(BranchDto branchDto, MetricDto metric) {
+    return new LiveMeasureDto()
+      .setMetricUuid(metric.getUuid())
+      .setComponentUuid(branchDto.getUuid())
+      .setProjectUuid(branchDto.getProjectUuid())
       .setData(String.valueOf(cursor++))
       .setValue((double) cursor++);
   }

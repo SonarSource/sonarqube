@@ -21,7 +21,6 @@ package org.sonar.server.measure.ws;
 
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -48,7 +47,6 @@ import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.core.api.InstanceOfAssertFactories.OPTIONAL;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -124,6 +122,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, project);
     String branchName = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
@@ -164,6 +163,7 @@ public class ComponentActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
@@ -187,6 +187,7 @@ public class ComponentActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setValueType("INT"));
@@ -224,6 +225,7 @@ public class ComponentActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setOptimizedBestValue(false).setValueType("INT"));

@@ -291,15 +291,19 @@ public class TreeActionIT {
 
   @Test
   public void project_branch_reference_from_application_branch() {
-    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
     String appBranchName = "app-branch";
     String projectBranchName = "project-branch";
+
+    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(appBranchName));
+
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + project.getKey()).setMainBranchProjectUuid(application.uuid()));
+
     logInWithBrowsePermission(application);
+    userSession.addProjectBranchMapping(application.uuid(), applicationBranch);
 
     TreeWsResponse result = ws.newRequest()
       .setParam(MeasuresWsParameters.PARAM_COMPONENT, applicationBranch.getKey())
@@ -355,6 +359,7 @@ public class TreeActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
 
@@ -392,6 +397,7 @@ public class TreeActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestId = "pr-123";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
 
@@ -527,10 +533,10 @@ public class TreeActionIT {
 
   private ComponentDto initJsonExampleComponents() throws IOException {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("MY_PROJECT_ID")
-        .setDescription("MY_PROJECT_DESCRIPTION")
-        .setKey("MY_PROJECT_KEY")
-        .setName("Project Name")
-        .setBranchUuid("MY_PROJECT_ID"),
+      .setDescription("MY_PROJECT_DESCRIPTION")
+      .setKey("MY_PROJECT_KEY")
+      .setName("Project Name")
+      .setBranchUuid("MY_PROJECT_ID"),
       p -> p.setTagsString("abc,def"));
     db.components().insertSnapshot(project);
 

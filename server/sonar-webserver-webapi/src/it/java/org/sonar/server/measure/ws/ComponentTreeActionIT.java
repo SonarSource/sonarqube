@@ -53,7 +53,6 @@ import org.sonarqube.ws.Measures.PeriodValue;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -525,6 +524,7 @@ public class ComponentTreeActionIT {
     userSession.addProjectPermission(USER, project);
     String branchName = "my-branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
@@ -563,8 +563,10 @@ public class ComponentTreeActionIT {
   @Test
   public void show_branch_on_empty_response_if_not_main_branch() {
     ComponentDto mainProjectBranch = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
     userSession.addProjectPermission(USER, mainProjectBranch);
+    ComponentDto branch = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
+    userSession.addProjectBranchMapping(mainProjectBranch.uuid(), branch);
+
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainProjectBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
 
@@ -583,6 +585,7 @@ public class ComponentTreeActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
@@ -606,6 +609,7 @@ public class ComponentTreeActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     MetricDto bug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.BUGS_KEY));
@@ -635,6 +639,7 @@ public class ComponentTreeActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), pr);
     SnapshotDto analysis = db.components().insertSnapshot(pr);
     ComponentDto file = db.components().insertComponent(newFileDto(pr, project.uuid()));
     MetricDto bug = db.measures().insertMetric(m -> m.setValueType(INT.name()).setKey(CoreMetrics.BUGS_KEY));
@@ -749,10 +754,14 @@ public class ComponentTreeActionIT {
     userSession.registerApplication(application);
     String branchName = "app-branch";
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(branchName), a -> a.setUuid("custom-uuid"));
+    userSession.addProjectBranchMapping(application.uuid(), applicationBranch);
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
+
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
+    userSession.addProjectBranchMapping(project.uuid(), projectBranch);
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + branchName + projectBranch.getKey()));
+
     SnapshotDto applicationBranchAnalysis = db.components().insertSnapshot(applicationBranch);
     db.measures().insertLiveMeasure(applicationBranch, ncloc, m -> m.setValue(5d));
     db.measures().insertLiveMeasure(techProjectBranch, ncloc, m -> m.setValue(1d));

@@ -80,7 +80,7 @@ public class LinesActionIT {
   public void show_source() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     TestResponse response = tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -93,7 +93,7 @@ public class LinesActionIT {
   public void fail_to_show_source_if_no_source_found() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFile(privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     TestRequest request = tester.newRequest()
       .setParam("uuid", file.uuid());
@@ -106,7 +106,7 @@ public class LinesActionIT {
   public void show_paginated_lines() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     tester
       .newRequest()
@@ -120,7 +120,7 @@ public class LinesActionIT {
   @Test
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -132,6 +132,8 @@ public class LinesActionIT {
     db.commit();
 
     userSession.logIn("login")
+      .addProjectPermission(UserRole.USER, project)
+      .addProjectBranchMapping(project.uuid(), branch)
       .addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     tester.newRequest()
@@ -144,7 +146,6 @@ public class LinesActionIT {
   @Test
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -156,7 +157,9 @@ public class LinesActionIT {
     db.commit();
 
     userSession.logIn("login")
-      .addProjectPermission(UserRole.CODEVIEWER, project, file);
+      .addProjectPermission(UserRole.USER, project)
+      .addProjectPermission(UserRole.CODEVIEWER, project, file)
+      .registerComponents(branch);
 
     tester.newRequest()
       .setParam("key", file.getKey())
@@ -191,7 +194,7 @@ public class LinesActionIT {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = newFileDto(privateProject).setKey("file-key").setEnabled(false);
     db.components().insertComponents(file);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     assertThatThrownBy(() -> tester.newRequest().setParam("key", "file-key").execute())
       .isInstanceOf(NotFoundException.class)
@@ -217,7 +220,7 @@ public class LinesActionIT {
   public void display_deprecated_fields() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -235,7 +238,7 @@ public class LinesActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     insertPeriod(project, 2000L);
     ComponentDto file = insertFileWithData(dataBuilder.build(), project);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, project);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -257,7 +260,7 @@ public class LinesActionIT {
       .setDeprecatedItLineHits(1)
       .setDeprecatedItConditions(2)
       .setDeprecatedItCoveredConditions(3)).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -276,7 +279,7 @@ public class LinesActionIT {
       .setDeprecatedItLineHits(1)
       .setDeprecatedItConditions(2)
       .setDeprecatedItCoveredConditions(3)).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -292,7 +295,7 @@ public class LinesActionIT {
       .setDeprecatedItLineHits(1)
       .setDeprecatedItConditions(2)
       .setDeprecatedItCoveredConditions(3)).build(), privateProject);
-    setUserWithValidPermission(file);
+    setUserWithValidPermission(file, privateProject);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -311,8 +314,8 @@ public class LinesActionIT {
       .setParam("key", file.getKey())
       .setParam("branch", "another_branch")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -326,8 +329,8 @@ public class LinesActionIT {
       .setParam("uuid", file.uuid())
       .setParam("branch", "another_branch")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
   }
 
   @Test
@@ -339,8 +342,8 @@ public class LinesActionIT {
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("uuid", branch.uuid())
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component id '%s' not found", branch.uuid()));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(format("Component id '%s' not found", branch.uuid()));
   }
 
   @Test
@@ -390,8 +393,7 @@ public class LinesActionIT {
     return file;
   }
 
-  private void setUserWithValidPermission(ComponentDto file) {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+  private void setUserWithValidPermission(ComponentDto file, ComponentDto privateProject) {
     userSession.logIn("login")
       .addProjectPermission(UserRole.CODEVIEWER, privateProject, file);
   }

@@ -168,11 +168,12 @@ public class ComponentActionIT {
   public void return_favourite_for_branch() {
     ComponentDto project = insertProject();
     String branchName = "feature1";
-    componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName).setUuid("xyz"));
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName).setUuid("xyz"));
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(user.getUuid()),
       project.getKey(), project.name(), project.qualifier(), user.getLogin());
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project)
+      .addProjectBranchMapping(project.uuid(), branch);
     init();
 
     String json = ws.newRequest()
@@ -202,7 +203,8 @@ public class ComponentActionIT {
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(subportfolio.uuid()).setUserUuid(user.getUuid()),
       subportfolio.getKey(), subportfolio.name(), subportfolio.qualifier(), user.getLogin());
 
-    userSession.logIn(user).addProjectPermission(UserRole.USER, subportfolio);
+    userSession.logIn(user).addProjectPermission(UserRole.USER, portfolio)
+      .addProjectPermission(UserRole.USER, subportfolio);
     init();
 
     String json = ws.newRequest()
@@ -317,6 +319,7 @@ public class ComponentActionIT {
     String branchName = "feature1";
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName));
     userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     init();
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
     ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(project.uuid(), branch, dirDto)
@@ -400,7 +403,8 @@ public class ComponentActionIT {
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, project)
+      .addProjectBranchMapping(project.getUuid(), db.components().getComponentDto(branch));
     init();
 
     String json = ws.newRequest()

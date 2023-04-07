@@ -170,7 +170,7 @@ public class ServerUserSessionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto application = db.components().insertPrivateApplication();
     db.components().addApplicationProject(application, project);
-    //add computed project
+    // add computed project
     db.components().insertComponent(newProjectCopy(project, application));
 
     UserSession underTest = newUserSession(user);
@@ -653,10 +653,27 @@ public class ServerUserSessionTest {
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio);
 
     assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).isEmpty();
-    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project4, project5);
-
+    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2,
+      project4, project5);
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(copyProject1, copyProject2, copyProject3, copyProject4, copyProject5, copyProject6)))
-        .containsExactly(copyProject1, copyProject2, copyProject4, copyProject5);
+      .containsExactly(copyProject1, copyProject2, copyProject4, copyProject5);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_filters__files_with_granted_permissions_for_logged_in_user() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    UserDto user = db.users().insertUser();
+    UserSession underTest = newUserSession(user);
+
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
+    ComponentDto file1Project1 = db.components().insertFile(db.components().getProjectDto(project1));
+    ComponentDto file2Project1 = db.components().insertFile(db.components().getProjectDto(project1));
+
+    ComponentDto file1Project2 = db.components().insertFile(db.components().getProjectDto(project2));
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, List.of(file1Project1, file2Project1, file1Project2))).containsExactly(file1Project1, file2Project1);
   }
 
   @Test
@@ -733,8 +750,8 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndNoUser(){
-    ComponentDto publicProject  = db.components().insertPublicProject();
+  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndNoUser() {
+    ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
@@ -744,9 +761,9 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndAnUser(){
+  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndAnUser() {
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
@@ -756,12 +773,12 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedProjects_shouldAcceptsOnlyPrivateProject_whenCalledWithGoodPermissionAndAnUser(){
+  public void keepAuthorizedProjects_shouldAcceptsOnlyPrivateProject_whenCalledWithGoodPermissionAndAnUser() {
     String permission = "aNewPermission";
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnUser(userDto, permission,privateProject);
+    db.users().insertProjectPermissionOnUser(userDto, permission, privateProject);
     ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
@@ -771,12 +788,12 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedProjects_shouldRejectPrivateAndPublicProject_whenCalledWithWrongPermissionAndNoUser(){
+  public void keepAuthorizedProjects_shouldRejectPrivateAndPublicProject_whenCalledWithWrongPermissionAndNoUser() {
     String permission = "aNewPermission";
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnUser(userDto, permission,privateProject);
+    db.users().insertProjectPermissionOnUser(userDto, permission, privateProject);
     ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
@@ -788,7 +805,6 @@ public class ServerUserSessionTest {
   private ProjectDto getProjectDto(ComponentDto publicProject) {
     return db.components().getProjectDto(publicProject);
   }
-
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {
     return new ServerUserSession(dbClient, userDto);

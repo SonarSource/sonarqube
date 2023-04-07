@@ -220,6 +220,7 @@ public class SearchActionIT {
   public void return_measures_on_sub_view() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertComponent(newSubPortfolio(view));
+    userSession.addProjectPermission(UserRole.USER, view);
     userSession.addProjectPermission(UserRole.USER, subView);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(subView, metric, m -> m.setValue(15.5d));
@@ -265,7 +266,7 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    assertThatThrownBy(() ->  call(singletonList(project.uuid()), null))
+    assertThatThrownBy(() -> call(singletonList(project.uuid()), null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'metricKeys' parameter is missing");
   }
@@ -286,7 +287,7 @@ public class SearchActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    assertThatThrownBy(() ->  call(singletonList(project.getKey()), newArrayList("violations", metric.getKey(), "ncloc")))
+    assertThatThrownBy(() -> call(singletonList(project.getKey()), newArrayList("violations", metric.getKey(), "ncloc")))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The following metrics are not found: ncloc, violations");
   }

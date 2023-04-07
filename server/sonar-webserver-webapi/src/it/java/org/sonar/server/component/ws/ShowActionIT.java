@@ -251,6 +251,7 @@ public class ShowActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
     ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
@@ -290,6 +291,7 @@ public class ShowActionIT {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequest = "pr-1234";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
     ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
@@ -320,12 +322,15 @@ public class ShowActionIT {
       .setNeedIssueSync(true));
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch1, "dir", project1.uuid()));
     ComponentDto file = db.components().insertComponent(newFileDto(project1.uuid(), branch1, directory));
+    userSession.addProjectBranchMapping(project1.uuid(), branch1);
 
     ComponentDto project2 = db.components().insertPrivateProject();
     String branchName2 = randomAlphanumeric(248);
     ComponentDto branch2 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(true).setKey(branchName2));
     String branchName3 = randomAlphanumeric(248);
     ComponentDto branch3 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName3));
+    userSession.addProjectBranchMapping(project2.uuid(), branch2);
+    userSession.addProjectBranchMapping(project2.uuid(), branch3);
 
     ComponentDto project3 = db.components().insertPrivateProject();
     String pullRequestKey4 = randomAlphanumeric(100);
@@ -334,6 +339,8 @@ public class ShowActionIT {
     ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(project3.uuid(), branch4, directoryOfBranch4));
     String branchName5 = randomAlphanumeric(248);
     ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName5));
+    userSession.addProjectBranchMapping(project3.uuid(), branch4);
+    userSession.addProjectBranchMapping(project3.uuid(), branch5);
 
     userSession.addProjectPermission(UserRole.USER, project1, project2, project3);
     userSession.registerComponents(portfolio1, portfolio2, subview, project1, project2, project3);
@@ -430,11 +437,11 @@ public class ShowActionIT {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
-        .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
-        .setKey("com.sonarsource:java-markdown")
-        .setName("Java Markdown")
-        .setDescription("Java Markdown Project")
-        .setQualifier(Qualifiers.PROJECT),
+      .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
+      .setKey("com.sonarsource:java-markdown")
+      .setName("Java Markdown")
+      .setDescription("Java Markdown Project")
+      .setQualifier(Qualifiers.PROJECT),
       p -> p.setTagsString("language, plugin"));
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project, snapshot -> snapshot

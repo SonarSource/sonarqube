@@ -79,6 +79,7 @@ public class RawActionIT {
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
@@ -99,8 +100,8 @@ public class RawActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Component key 'unknown' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Component key 'unknown' not found");
   }
 
   @Test
@@ -115,8 +116,8 @@ public class RawActionIT {
       .setParam("key", file.getKey())
       .setParam("branch", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component '%s' on branch 'unknown' not found", file.getKey()));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(format("Component '%s' on branch 'unknown' not found", file.getKey()));
   }
 
   @Test
@@ -130,8 +131,8 @@ public class RawActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", file.getKey())
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", file.getKey()));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(format("Component key '%s' not found", file.getKey()));
   }
 
   @Test
@@ -143,6 +144,6 @@ public class RawActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", file.getKey())
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 }

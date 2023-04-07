@@ -224,6 +224,7 @@ public class AssignActionIT {
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
@@ -258,6 +259,7 @@ public class AssignActionIT {
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);

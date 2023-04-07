@@ -109,7 +109,8 @@ public class GetActionIT {
     dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
     dao.insert(dbTester.getSession(), branch.getUuid(), stringToCompressedInputStream("test data2"));
 
-    userSession.logIn().addProjectPermission(SCAN, project1);
+    userSession.logIn().addProjectPermission(SCAN, project1)
+      .registerBranches(branch);
     TestResponse response = wsTester.newRequest()
       .setParam("project", project1.getKey())
       .setParam("branch", branch.getKey())
