@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -33,10 +34,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.sonar.api.platform.Server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -47,6 +51,8 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class SamlValidationRedirectionFilterTest {
 
+  public static final List<String> CSP_HEADERS = List.of("Content-Security-Policy", "X-Content-Security-Policy", "X-WebKit-CSP");
+
   SamlValidationRedirectionFilter underTest;
 
   @Before
@@ -56,6 +62,7 @@ public class SamlValidationRedirectionFilterTest {
     underTest = new SamlValidationRedirectionFilter(server);
     underTest.init(mock(FilterConfig.class));
   }
+
 
   @Test
   public void do_get_pattern() {
@@ -82,7 +89,7 @@ public class SamlValidationRedirectionFilterTest {
 
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
-    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
+    CSP_HEADERS.forEach(h -> verify(servletResponse).setHeader(eq(h), anyString()));
     assertThat(htmlProduced.getValue()).contains(validSample);
     assertThat(htmlProduced.getValue()).contains("action=\"contextPath/saml/validation\"");
     assertThat(htmlProduced.getValue()).contains("value=\"CSRF_TOKEN\"");
@@ -107,7 +114,7 @@ public class SamlValidationRedirectionFilterTest {
 
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
-    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
+    CSP_HEADERS.forEach(h -> verify(servletResponse).setHeader(eq(h), anyString()));
     assertThat(htmlProduced.getValue()).contains(validSample);
     assertThat(htmlProduced.getValue()).doesNotContain("<script>/*Malicious Token*/</script>");
 
@@ -129,9 +136,8 @@ public class SamlValidationRedirectionFilterTest {
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
-
     verify(pw).print(htmlProduced.capture());
-    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
+    CSP_HEADERS.forEach(h -> verify(servletResponse).setHeader(eq(h), anyString()));
     assertThat(htmlProduced.getValue()).doesNotContain("<script>/*hack website*/</script>");
     assertThat(htmlProduced.getValue()).contains("action=\"contextPath/saml/validation\"");
   }
@@ -142,8 +148,8 @@ public class SamlValidationRedirectionFilterTest {
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
-
     doReturn(relayStateValue).when(servletRequest).getParameter("RelayState");
+
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verifyNoInteractions(servletResponse);
@@ -158,12 +164,4 @@ public class SamlValidationRedirectionFilterTest {
   public static Object[] invalidRelayStateValues() {
     return new Object[]{"random_query", "validation-query", null};
   }
-
-  private static void verifyResponseContentTypeAndCSPHeaders(HttpServletResponse servletResponse, String hash) {
-    verify(servletResponse).setContentType("text/html");
-    verify(servletResponse).setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-    verify(servletResponse).setHeader("X-Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-    verify(servletResponse).setHeader("X-WebKit-CSP", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-  }
-
 }

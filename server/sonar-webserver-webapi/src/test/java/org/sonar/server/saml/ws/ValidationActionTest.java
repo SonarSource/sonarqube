@@ -22,6 +22,7 @@ package org.sonar.server.saml.ws;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
+import org.sonar.server.authentication.SamlValidationCspHeaders;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -40,23 +42,23 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.server.authentication.SamlValidationCspHeaders.getHashForInlineScript;
 
 public class ValidationActionTest {
 
   private ValidationAction underTest;
   private SamlAuthenticator samlAuthenticator;
   private ThreadLocalUserSession userSession;
-
   private OAuthCsrfVerifier oAuthCsrfVerifier;
-
   private SamlIdentityProvider samlIdentityProvider;
+  public static final List<String> CSP_HEADERS = List.of("Content-Security-Policy", "X-Content-Security-Policy", "X-WebKit-CSP");
 
   @Before
   public void setup() {
@@ -67,6 +69,7 @@ public class ValidationActionTest {
     var oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
     underTest = new ValidationAction(userSession, samlAuthenticator, oAuth2ContextFactory, samlIdentityProvider, oAuthCsrfVerifier);
   }
+
 
   @Test
   public void do_get_pattern() {
@@ -87,14 +90,15 @@ public class ValidationActionTest {
 
     doReturn(true).when(userSession).hasSession();
     doReturn(true).when(userSession).isSystemAdministrator();
-    doReturn(getBasicHtmlWithScript()).when(samlAuthenticator).getAuthenticationStatusPage(any(), any());
+    final String mockedHtmlContent = "mocked html content";
+    doReturn(mockedHtmlContent).when(samlAuthenticator).getAuthenticationStatusPage(any(), any());
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verify(samlAuthenticator).getAuthenticationStatusPage(any(), any());
     verify(servletResponse).getWriter();
-    verifyResponseTypeAndCSPHeaders(servletResponse, getHashForInlineScript(getBasicHtmlWithScript()));
-    assertEquals(stringWriter.toString(), getBasicHtmlWithScript());
+    CSP_HEADERS.forEach(h -> verify(servletResponse).setHeader(eq(h), anyString()));
+    assertEquals(mockedHtmlContent, stringWriter.toString());
   }
 
   @Test
@@ -147,59 +151,5 @@ public class ValidationActionTest {
     assertThat(validationInitAction).isNotNull();
     assertThat(validationInitAction.description()).isNotEmpty();
     assertThat(validationInitAction.handler()).isNotNull();
-  }
-
-  private static void verifyResponseTypeAndCSPHeaders(HttpServletResponse servletResponse, String hash) {
-    verify(servletResponse).setContentType("text/html");
-    verify(servletResponse).setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-    verify(servletResponse).setHeader("X-Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-    verify(servletResponse).setHeader("X-WebKit-CSP", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
-  }
-
-  private String getBasicHtmlWithScript() {
-    return """
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
-          <link rel="icon" type="image/x-icon" href="%WEB_CONTEXT%/favicon.ico" />
-          <meta name="application-name" content="SonarQube" />
-          <meta name="msapplication-TileColor" content="#FFFFFF" />
-          <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
-          <title>SAML Authentication Test</title>
-            
-          <style>
-            .error {
-              background-color: #d02f3a;
-            }
-            
-            .success {
-              background-color: #008a25;
-            }
-          </style>
-        </head>
-            
-        <body>
-          <div id="content">
-            <h1>SAML Authentication Test</h1>
-            <div class="box">
-              <div id="status"></div>
-            </div>
-            <div id="response" data-response="%SAML_AUTHENTICATION_STATUS%"></div>
-          </div>
-            
-          <script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-            
-            function createBox() {
-              const box = document.createElement("div");
-              box.className = "box";
-              return box;
-            }
-            });
-          </script>
-        </body>
-      </html>
-      """;
   }
 }

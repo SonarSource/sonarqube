@@ -19,25 +19,21 @@
  */
 package org.sonar.auth.saml;
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.saml.SamlAuthStatusPageGenerator.getSamlAuthStatusHtml;
 
 public class SamlAuthStatusPageGeneratorTest {
-  private static final String EMPTY_HTML_TEMPLATE_NAME = "samlAuthResultEmpty.html";
+  private static final String EMPTY_DATA_RESPONSE = "eyJ3YXJuaW5ncyI6W10sImF2YWlsYWJsZUF0dHJpYnV0ZXMiOnt9LCJlcnJvcnMiOltdLCJtYXBwZWRBdHRyaWJ1dGVzIjp7fX0=";
 
   @Test
-  public void test_full_html_generation_with_empty_values() {
+  public void getSamlAuthStatusHtml_whenCalled_shouldGeneratePageWithData() {
     SamlAuthenticationStatus samlAuthenticationStatus = mock(SamlAuthenticationStatus.class);
     HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -49,19 +45,7 @@ public class SamlAuthStatusPageGeneratorTest {
     when(httpServletRequest.getContextPath()).thenReturn("context");
 
     String completeHtmlTemplate = getSamlAuthStatusHtml(httpServletRequest, samlAuthenticationStatus);
-    String expectedTemplate = loadTemplateFromResources(EMPTY_HTML_TEMPLATE_NAME);
 
-    assertEquals(expectedTemplate, completeHtmlTemplate);
-
+    assertThat(completeHtmlTemplate).contains(EMPTY_DATA_RESPONSE);
   }
-
-  private String loadTemplateFromResources(String templateName) {
-    URL url = Resources.getResource(templateName);
-    try {
-      return Resources.toString(url, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
 }

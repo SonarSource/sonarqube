@@ -36,13 +36,12 @@ import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
+import org.sonar.server.authentication.SamlValidationCspHeaders;
 import org.sonar.server.authentication.SamlValidationRedirectionFilter;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
-import static org.sonar.server.authentication.SamlValidationCspHeaders.addCspHeadersToResponse;
-import static org.sonar.server.authentication.SamlValidationCspHeaders.getHashForInlineScript;
 import static org.sonar.server.saml.ws.SamlValidationWs.SAML_VALIDATION_CONTROLLER;
 
 public class ValidationAction extends ServletFilter implements SamlAction {
@@ -96,7 +95,8 @@ public class ValidationAction extends ServletFilter implements SamlAction {
     httpResponse.setContentType("text/html");
 
     String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(httpRequest, httpResponse);
-    addCspHeadersToResponse(httpResponse, getHashForInlineScript(htmlResponse));
+    String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(httpResponse);
+    htmlResponse = htmlResponse.replace("%NONCE%", nonce);
     httpResponse.getWriter().print(htmlResponse);
   }
 

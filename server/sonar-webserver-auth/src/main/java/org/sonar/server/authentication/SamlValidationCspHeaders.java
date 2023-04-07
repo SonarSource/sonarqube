@@ -19,47 +19,38 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Base64;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class SamlValidationCspHeaders {
-
-  private static final Pattern SCRIPT_PATTERN = Pattern.compile("(?<=<script>)(?s).*(?=</script>)");
 
   private SamlValidationCspHeaders() {
     throw new IllegalStateException("Utility class, cannot be instantiated");
   }
 
-  public static void addCspHeadersToResponse(HttpServletResponse httpResponse, String hash) {
+  public static String addCspHeadersWithNonceToResponse(HttpServletResponse httpResponse) {
+    final String nonce = getNonce();
+
     List<String> cspPolicies = List.of(
       "default-src 'self'",
       "base-uri 'none'",
       "connect-src 'self' http: https:",
       "img-src * data: blob:",
       "object-src 'none'",
-      "script-src 'self' '" + hash + "'",
+      "script-src 'nonce-" + nonce + "'",
       "style-src 'self' 'unsafe-inline'",
       "worker-src 'none'");
     String policies = String.join("; ", cspPolicies).trim();
 
     List<String> cspHeaders = List.of("Content-Security-Policy", "X-Content-Security-Policy", "X-WebKit-CSP");
     cspHeaders.forEach(header -> httpResponse.setHeader(header, policies));
+    return nonce;
   }
 
-  public static String getHashForInlineScript(String html) {
-    Matcher matcher = SCRIPT_PATTERN.matcher(html);
-    if (matcher.find()) {
-      return getBase64Sha256(matcher.group(0));
-    }
-    return "";
+  private static String getNonce() {
+    // this code is the same as in org.sonar.server.authentication.JwtCsrfVerifier.generateState
+    return new BigInteger(130, new SecureRandom()).toString(32);
   }
-
-  private static String getBase64Sha256(String string) {
-    return "sha256-" + Base64.getEncoder().encodeToString(DigestUtils.sha256(string));
-  }
-
 }
