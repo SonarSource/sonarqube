@@ -52,7 +52,7 @@ public class DoPrivilegedTest {
     assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
     assertThat(catcher.userSession.shouldResetPassword()).isFalse();
     assertThat(catcher.userSession.isActive()).isTrue();
-    assertThat(catcher.userSession.hasChildProjectsPermission(USER, new ComponentDto())).isTrue();
+    assertThat(catcher.userSession.hasChildProjectsPermission(USER, new ComponentDto().setUuid("uuid"))).isTrue();
     assertThat(catcher.userSession.hasPortfolioChildProjectsPermission(USER, new ComponentDto())).isTrue();
 
     // verify session in place after task is done

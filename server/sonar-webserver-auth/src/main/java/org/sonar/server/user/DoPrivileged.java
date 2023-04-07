@@ -119,8 +119,8 @@ public final class DoPrivileged {
 
       @Override
       protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
-        // always root so unused
-        throw new UnsupportedOperationException();
+        // always root
+        return Optional.of(componentUuid);
       }
 
       @Override

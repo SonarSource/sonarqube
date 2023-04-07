@@ -74,9 +74,10 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "c.path",
     "c.scope",
     "c.branch_uuid",
-    "c.main_branch_project_uuid",
+    "pb.is_main",
+    "pb.project_uuid",
 
-    // column 21
+    // column 22
     "i.tags",
     "i.issue_type",
     "r.security_standards",
@@ -86,7 +87,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
     "inner join rules r on r.uuid = i.rule_uuid " +
-    "inner join components c on c.uuid = i.component_uuid ";
+    "inner join components c on c.uuid = i.component_uuid " +
+    "inner join project_branches pb on c.branch_uuid = pb.uuid ";
 
   private static final String SQL_NEW_CODE_JOIN = "left join new_code_reference_issues n on n.issue_key = i.kee ";
 
@@ -214,20 +216,16 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
       String branchUuid = rs.getString(17);
-      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 18);
+      boolean isMainBranch = rs.getBoolean( 18);
+      String projectUuid = rs.getString(19);
       doc.setBranchUuid(branchUuid);
-      if (mainBranchProjectUuid == null) {
-        doc.setProjectUuid(branchUuid);
-        doc.setIsMainBranch(true);
-      } else {
-        doc.setProjectUuid(mainBranchProjectUuid);
-        doc.setIsMainBranch(false);
-      }
-      String tags = rs.getString(19);
+      doc.setIsMainBranch(isMainBranch);
+      doc.setProjectUuid(projectUuid);
+      String tags = rs.getString(20);
       doc.setTags(IssueIteratorForSingleChunk.TAGS_SPLITTER.splitToList(tags == null ? "" : tags));
-      doc.setType(RuleType.valueOf(rs.getInt(20)));
+      doc.setType(RuleType.valueOf(rs.getInt(21)));
 
-      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(21)));
+      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(22)));
       SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
       doc.setOwaspTop10(securityStandards.getOwaspTop10());
       doc.setOwaspTop10For2021(securityStandards.getOwaspTop10For2021());
@@ -239,8 +237,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setSonarSourceSecurityCategory(sqCategory);
       doc.setVulnerabilityProbability(sqCategory.getVulnerability());
 
-      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(22)) ? IssueScope.TEST : IssueScope.MAIN);
-      doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(23)));
+      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
+      doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
       return doc;
     }
 

@@ -61,6 +61,7 @@ public class ExportBranchesStep implements ComputationStep {
             .setUuid(branch.getUuid())
             .setProjectUuid(branch.getProjectUuid())
             .setKee(branch.getKey())
+            .setIsMain(branch.isMain())
             .setBranchType(branch.getBranchType().name())
             .setMergeBranchUuid(defaultString(branch.getMergeBranchUuid()));
           output.write(builder.build());

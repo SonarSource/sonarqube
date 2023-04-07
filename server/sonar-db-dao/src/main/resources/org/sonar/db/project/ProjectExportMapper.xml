@@ -7,6 +7,7 @@
         pb.uuid,
         pb.project_uuid as "projectUuid",
         pb.kee,
+        pb.is_main as "isMain",
         pb.branch_type as "branchType",
         pb.merge_branch_uuid as "mergeBranchUuid"
         from project_branches pb

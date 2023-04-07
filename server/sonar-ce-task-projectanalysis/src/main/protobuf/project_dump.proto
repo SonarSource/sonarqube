@@ -44,6 +44,7 @@ message Branch {
   string kee = 4;
   string branch_type = 5;
   string merge_branch_uuid = 6;
+  bool is_main = 7;
 }
 
 // Stream of analyses stored in file analyses.pb, including project.

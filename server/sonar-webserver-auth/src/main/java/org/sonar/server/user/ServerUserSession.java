@@ -156,9 +156,8 @@ public class ServerUserSession extends AbstractUserSession {
       if (component.isEmpty()) {
         return Optional.empty();
       }
-      // if component is part of a branch, then permissions must be
-      // checked on the project (represented by its main branch)
-      projectUuid = getMainProjectUuid(dbSession, component.get());
+      // permissions must be checked on the project
+      projectUuid = getProjectUuid(dbSession, component.get());
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return of(projectUuid);
     }
@@ -212,11 +211,11 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<String> findProjectUuids(Set<String> branchesComponentsUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, branchesComponentsUuid);
-      return getMainProjectUuids(dbSession, componentDtos);
+      return getProjectUuids(dbSession, componentDtos);
     }
   }
 
-  private String getMainProjectUuid(DbSession dbSession, ComponentDto componentDto) {
+  private String getProjectUuid(DbSession dbSession, ComponentDto componentDto) {
     // Portfolio & subPortfolio don't have branch, so branchUuid represents the portfolio uuid.
     // technical project store root portfolio uuid in branchUuid
     if (isPortfolioOrSubPortfolio(componentDto) || isTechnicalProject(componentDto)) {
@@ -226,7 +225,7 @@ public class ServerUserSession extends AbstractUserSession {
     return branchDto.map(BranchDto::getProjectUuid).orElseThrow(() -> new IllegalStateException("No branch found for component : " + componentDto));
   }
 
-  private Set<String> getMainProjectUuids(DbSession dbSession, Collection<ComponentDto> components) {
+  private Set<String> getProjectUuids(DbSession dbSession, Collection<ComponentDto> components) {
     Set<String> mainProjectUuids = new HashSet<>();
 
     // the result of following stream could be project or application
@@ -349,12 +348,12 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> projectUuids = getMainProjectUuids(dbSession, components);
+      Set<String> projectUuids = getProjectUuids(dbSession, components);
 
       Map<String, ComponentDto> originalComponents = findComponentsByCopyComponentUuid(components,
         dbSession);
 
-      Set<String> originalComponentsProjectUuids = getMainProjectUuids(dbSession, originalComponents.values());
+      Set<String> originalComponentsProjectUuids = getProjectUuids(dbSession, originalComponents.values());
 
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
@@ -365,11 +364,11 @@ public class ServerUserSession extends AbstractUserSession {
         .filter(c -> {
           if (c.getCopyComponentUuid() != null) {
             var componentDto = originalComponents.get(c.getCopyComponentUuid());
-            return componentDto != null && authorizedProjectUuids.contains(getMainProjectUuid(dbSession, componentDto));
+            return componentDto != null && authorizedProjectUuids.contains(getProjectUuid(dbSession, componentDto));
           }
 
           return authorizedProjectUuids.contains(c.branchUuid()) || authorizedProjectUuids.contains(
-            getMainProjectUuid(dbSession, c));
+            getProjectUuid(dbSession, c));
         })
         .collect(MoreCollectors.toList(components.size()));
     }

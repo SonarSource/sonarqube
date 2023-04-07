@@ -34,7 +34,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
@@ -109,8 +108,8 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
-    String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
-    return hasChildProjectsPermission(permission, applicationUuid);
+    return componentUuidToProjectUuid(component.uuid())
+      .map(applicationUuid -> hasChildProjectsPermission(permission, applicationUuid)).orElse(false);
   }
 
   @Override
