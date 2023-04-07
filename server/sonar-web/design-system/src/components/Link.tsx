@@ -133,6 +133,19 @@ const StyledBaseLink = styled(BaseLink)`
     `};
 `;
 
+export const DrilldownLink = styled(StyledBaseLink)`
+  ${tw`sw-heading-lg`}
+  ${tw`sw-tracking-tight`}
+  ${tw`sw-whitespace-nowrap`}
+
+  --active: ${themeColor('linkActive')};
+  --border: ${themeBorder('default', 'drilldownBorder')};
+  --borderActive: ${themeBorder('default', 'linkActive')};
+  --color: ${themeColor('drilldown')};
+`;
+
+DrilldownLink.displayName = 'DrilldownLink';
+
 export const HoverLink = styled(StyledBaseLink)`
   text-decoration: none;
 

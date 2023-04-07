@@ -21,6 +21,7 @@
 export { BranchIcon } from './BranchIcon';
 export { BugIcon } from './BugIcon';
 export { ChevronDownIcon } from './ChevronDownIcon';
+export { ChevronRightIcon } from './ChevronRightIcon';
 export { ClockIcon } from './ClockIcon';
 export { CodeSmellIcon } from './CodeSmellIcon';
 export { FlagErrorIcon } from './FlagErrorIcon';
