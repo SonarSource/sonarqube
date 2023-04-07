@@ -21,6 +21,7 @@ package org.sonar.api.config.internal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,7 @@ public class MultivalueProperty {
       }
       processRecords(result, records, valueProcessor);
       return result.toArray(new String[result.size()]);
-    } catch (IOException e) {
+    } catch (IOException | UncheckedIOException e) {
       throw new IllegalStateException("Property: '" + key + "' doesn't contain a valid CSV value: '" + value + "'", e);
     }
   }
