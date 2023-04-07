@@ -65,6 +65,8 @@ public class BatchIndex implements Startable {
           }
         }
       }
+    } else {
+      throw new NotFoundException("lib/scanner folder not found");
     }
     this.index = sb.toString();
   }
