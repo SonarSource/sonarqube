@@ -157,7 +157,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.21.12'
+    protobufVersion = '3.22.2'
     springVersion = '5.3.26'
   }
 
