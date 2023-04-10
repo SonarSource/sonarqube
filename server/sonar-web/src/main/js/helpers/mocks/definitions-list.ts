@@ -1751,7 +1751,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.dbcleaner.auditHousekeeping',
     name: 'Audit Logs Housekeeping Frequency',
     description:
-      'Define the frequency that will be used to delete security-related audit logs.<br>Setting your housekeeping policy to keep your audit logs for a long period of time (for example, only deleting logs yearly) can increase your database size and the amount of time it takes to download audit logs.<ul><li>"Weekly" => Audit logs older than a week will be deleted</li><li>"Monthly" => Audit logs older than a month will be deleted</li><li>"Trimestrial" => AAudit logs older than 3 months will be deleted</li><li>"Yearly" => Audit logs older than a year will be deleted</li></ul>',
+      'Define the frequency that will be used to delete security-related audit logs.<br>Setting your housekeeping policy to keep your audit logs for a long period of time (for example, only deleting logs yearly) can increase your database size and the amount of time it takes to download audit logs.<ul><li>"Weekly" => Audit logs older than a week will be deleted</li><li>"Monthly" => Audit logs older than a month will be deleted</li><li>"Trimestrial" => Audit logs older than 3 months will be deleted</li><li>"Yearly" => Audit logs older than a year will be deleted</li></ul>',
     type: SettingType.SINGLE_SELECT_LIST,
     category: 'housekeeping',
     subCategory: 'auditLogs',
