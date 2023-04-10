@@ -21,8 +21,6 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Set;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;

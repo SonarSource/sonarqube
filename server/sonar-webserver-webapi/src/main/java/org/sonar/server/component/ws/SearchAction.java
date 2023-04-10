@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;

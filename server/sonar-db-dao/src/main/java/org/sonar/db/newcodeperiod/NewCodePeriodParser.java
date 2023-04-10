@@ -19,8 +19,6 @@
  */
 package org.sonar.db.newcodeperiod;
 
-import java.time.LocalDate;
-
 public class NewCodePeriodParser {
   private NewCodePeriodParser() {
     // static only

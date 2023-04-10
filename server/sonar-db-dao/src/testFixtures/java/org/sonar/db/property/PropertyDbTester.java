@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 

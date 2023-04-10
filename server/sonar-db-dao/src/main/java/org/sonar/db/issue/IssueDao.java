@@ -29,7 +29,6 @@ import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 
-import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.stream.DoubleStream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.measure.DebtRatingGrid;

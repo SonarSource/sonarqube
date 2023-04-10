@@ -35,12 +35,10 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;

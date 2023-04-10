@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import java.util.HashMap;
 import java.util.Map;

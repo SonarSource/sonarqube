@@ -22,7 +22,6 @@ package org.sonar.db.rule;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 

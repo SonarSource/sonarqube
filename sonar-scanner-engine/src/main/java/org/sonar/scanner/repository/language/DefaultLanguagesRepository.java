@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository.language;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
