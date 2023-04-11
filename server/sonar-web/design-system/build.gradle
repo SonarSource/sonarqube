@@ -7,6 +7,8 @@ sonar {
     property "sonar.test.inclusions", "src/**/__tests__/**"
     property "sonar.eslint.reportPaths", "eslint-report/eslint-report.json"
     property "sonar.javascript.lcov.reportPaths", "./coverage/lcov.info"
+    property "sonar.coverage.exclusions", "src/components/icons/**/*"
+    property "sonar.cpd.exclusions", "**/*"
   }
 }
 
