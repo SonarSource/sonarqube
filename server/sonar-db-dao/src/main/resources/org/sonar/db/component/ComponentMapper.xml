@@ -126,7 +126,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND (pb.uuid is null or pb.is_main = ${_true})
+        AND (pb.is_main = ${_true} OR p.qualifier IN ('VW', 'SVW') OR (p.qualifier = 'TRK' AND p.scope = 'FIL'))
       </otherwise>
     </choose>
   </select>
