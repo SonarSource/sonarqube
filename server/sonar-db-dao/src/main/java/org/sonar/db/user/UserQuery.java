@@ -19,6 +19,8 @@
  */
 package org.sonar.db.user;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -27,11 +29,37 @@ public class UserQuery {
   private final String searchText;
   private final Boolean isActive;
   private final String isManagedSqlClause;
+  private final Long lastConnectionDateFrom;
+  private final Long lastConnectionDateTo;
+  private final Long sonarLintLastConnectionDateFrom;
+  private final Long sonarLintLastConnectionDateTo;
 
-  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause) {
+  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
+    @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,
+    @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
+    this.lastConnectionDateFrom = parseDateToLong(lastConnectionDateFrom);
+    this.lastConnectionDateTo = formatDateToInput(lastConnectionDateTo);
+    this.sonarLintLastConnectionDateFrom = parseDateToLong(sonarLintLastConnectionDateFrom);
+    this.sonarLintLastConnectionDateTo = formatDateToInput(sonarLintLastConnectionDateTo);
+  }
+
+  private static Long formatDateToInput(@Nullable OffsetDateTime dateTo) {
+    if(dateTo == null) {
+      return null;
+    } else {
+      // add 1 second to include all timestamp at the second precision.
+      return dateTo.toInstant().plus(1, ChronoUnit.SECONDS).toEpochMilli();
+    }
+  }
+  private static Long parseDateToLong(@Nullable OffsetDateTime date) {
+    if(date == null) {
+      return null;
+    } else {
+      return date.toInstant().toEpochMilli();
+    }
   }
 
   private static String searchTextToSearchTextSql(@Nullable String text) {
@@ -59,6 +87,24 @@ public class UserQuery {
     return isManagedSqlClause;
   }
 
+  @CheckForNull
+  public Long getLastConnectionDateFrom() {
+    return lastConnectionDateFrom;
+  }
+
+  @CheckForNull
+  public Long getLastConnectionDateTo() {
+    return lastConnectionDateTo;
+  }
+  @CheckForNull
+  public Long getSonarLintLastConnectionDateFrom() {
+    return sonarLintLastConnectionDateFrom;
+  }
+  @CheckForNull
+  public Long getSonarLintLastConnectionDateTo() {
+    return sonarLintLastConnectionDateTo;
+  }
+
   public static UserQueryBuilder builder() {
     return new UserQueryBuilder();
   }
@@ -67,6 +113,11 @@ public class UserQuery {
     private String searchText = null;
     private Boolean isActive = null;
     private String isManagedSqlClause = null;
+    private OffsetDateTime lastConnectionDateFrom = null;
+    private OffsetDateTime lastConnectionDateTo = null;
+    private OffsetDateTime sonarLintLastConnectionDateFrom = null;
+    private OffsetDateTime sonarLintLastConnectionDateTo = null;
+
 
     private UserQueryBuilder() {
     }
@@ -86,8 +137,30 @@ public class UserQuery {
       return this;
     }
 
+    public UserQueryBuilder lastConnectionDateFrom(@Nullable OffsetDateTime lastConnectionDateFrom) {
+      this.lastConnectionDateFrom = lastConnectionDateFrom;
+      return this;
+    }
+
+    public UserQueryBuilder lastConnectionDateTo(@Nullable OffsetDateTime lastConnectionDateTo) {
+      this.lastConnectionDateTo = lastConnectionDateTo;
+      return this;
+    }
+
+    public UserQueryBuilder sonarLintLastConnectionDateFrom(@Nullable OffsetDateTime sonarLintLastConnectionDateFrom) {
+      this.sonarLintLastConnectionDateFrom = sonarLintLastConnectionDateFrom;
+      return this;
+    }
+
+    public UserQueryBuilder sonarLintLastConnectionDateTo(@Nullable OffsetDateTime sonarLintLastConnectionDateTo) {
+      this.sonarLintLastConnectionDateTo = sonarLintLastConnectionDateTo;
+      return this;
+    }
+
     public UserQuery build() {
-      return new UserQuery(searchText, isActive, isManagedSqlClause);
+      return new UserQuery(
+        searchText, isActive, isManagedSqlClause, lastConnectionDateFrom, lastConnectionDateTo,
+        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo);
     }
   }
 }

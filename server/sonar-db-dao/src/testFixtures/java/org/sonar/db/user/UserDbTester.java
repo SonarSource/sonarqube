@@ -115,6 +115,12 @@ public class UserDbTester {
     return user;
   }
 
+  public UserDto updateSonarLintLastConnectionDate(UserDto user, long sonarLintLastConnectionDate) {
+    db.getDbClient().userDao().update(db.getSession(), user.setLastSonarlintConnectionDate(sonarLintLastConnectionDate));
+    db.getSession().commit();
+    return user;
+  }
+
   public Optional<UserDto> selectUserByLogin(String login) {
     return Optional.ofNullable(dbClient.userDao().selectByLogin(db.getSession(), login));
   }

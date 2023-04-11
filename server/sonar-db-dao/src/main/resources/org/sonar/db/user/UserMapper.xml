@@ -184,6 +184,18 @@
             <if test="query.isManagedSqlClause != null">
                 AND ${query.isManagedSqlClause}
             </if>
+            <if test="query.lastConnectionDateFrom != null">
+                AND u.last_connection_date &gt;= #{query.lastConnectionDateFrom, jdbcType=BIGINT}
+            </if>
+            <if test="query.lastConnectionDateTo != null">
+                AND u.last_connection_date &lt; #{query.lastConnectionDateTo, jdbcType=BIGINT}
+            </if>
+            <if test="query.sonarLintLastConnectionDateFrom != null">
+                AND u.last_sonarlint_connection &gt;= #{query.sonarLintLastConnectionDateFrom, jdbcType=BIGINT}
+            </if>
+            <if test="query.sonarLintLastConnectionDateTo != null">
+                AND u.last_sonarlint_connection &lt; #{query.sonarLintLastConnectionDateTo, jdbcType=BIGINT}
+            </if>
         </where>
     </sql>
 

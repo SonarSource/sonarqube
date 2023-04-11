@@ -19,12 +19,15 @@
  */
 package org.sonar.server.user.ws;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.scim.ScimUserDao;
@@ -452,11 +455,15 @@ public class SearchActionIT {
       .setScmAccounts(emptyList())
       .setExternalLogin("fmallet")
       .setExternalIdentityProvider("sonarqube"));
+    long lastConnection = DateUtils.parseOffsetDateTime("2019-03-27T09:51:50+0100").toInstant().toEpochMilli();
+    fmallet = db.users().updateLastConnectionDate(fmallet, lastConnection);
+    fmallet = db.users().updateSonarLintLastConnectionDate(fmallet, lastConnection);
     UserDto simon = db.users().insertUser(u -> u.setLogin("sbrandhof").setName("Simon").setEmail("s.brandhof@company.tld")
       .setLocal(false)
       .setExternalLogin("sbrandhof@ldap.com")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(asList("simon.brandhof", "s.brandhof@company.tld")));
+
     mockUsersAsManaged(simon.getUuid());
 
     GroupDto sonarUsers = db.users().insertGroup("sonar-users");
@@ -481,7 +488,54 @@ public class SearchActionIT {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(9);
+  }
+
+  @Test
+  public void search_whenFilteringConnectionDate_shouldApplyFilter() {
+    userSession.logIn().setSystemAdministrator();
+    final Instant lastConnection = Instant.now();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("user-%_%-login")
+      .setName("user-name")
+      .setEmail("user@mail.com")
+      .setLocal(true)
+      .setScmAccounts(singletonList("user1")));
+    user = db.users().updateLastConnectionDate(user, lastConnection.toEpochMilli());
+    user = db.users().updateSonarLintLastConnectionDate(user, lastConnection.toEpochMilli());
+
+    assertThat(ws.newRequest()
+      .setParam("q", "user-%_%-")
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getLogin)
+      .containsExactlyInAnyOrder(user.getLogin());
+
+    assertUserWithFilter("lastConnectedAfter", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter("lastConnectedAfter", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter("lastConnectedBefore", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter("lastConnectedBefore", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
+
+    assertUserWithFilter("slLastConnectedAfter", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter("slLastConnectedAfter", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter("slLastConnectedBefore", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter("slLastConnectedBefore", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
+
+    assertUserWithFilter("slLastConnectedAfter", lastConnection, user.getLogin(), true);
+    assertUserWithFilter("slLastConnectedBefore", lastConnection, user.getLogin(), true);
+  }
+
+  private void assertUserWithFilter(String field, Instant filterValue, String userLogin, boolean isExpectedToBeThere) {
+    var assertion = assertThat(ws.newRequest()
+      .setParam("q", "user-%_%-")
+      .setParam(field, DateUtils.formatDateTime(filterValue.toEpochMilli()))
+      .executeProtobuf(SearchWsResponse.class).getUsersList());
+    if (isExpectedToBeThere) {
+      assertion
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(userLogin);
+    } else {
+      assertion.isEmpty();
+    }
   }
 
   private void mockUsersAsManaged(String... userUuids) {
