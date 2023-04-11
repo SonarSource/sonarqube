@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from 'testing-library-selector';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -38,17 +39,39 @@ const ui = {
   allFilter: byRole('button', { name: 'all' }),
   managedFilter: byRole('button', { name: 'managed' }),
   localFilter: byRole('button', { name: 'local' }),
+  searchInput: byRole('searchbox', { name: 'search.search_by_login_or_name' }),
+  activityFilter: byRole('combobox', { name: 'users.activity_filter.label' }),
+  userRows: byRole('row', {
+    name: (accessibleName) => /^[A-Z]+ /.test(accessibleName),
+  }),
   showMore: byRole('button', { name: 'show_more' }),
-  aliceRow: byRole('row', { name: 'AM Alice Merveille alice.merveille never never' }),
+  aliceRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('AM Alice Merveille alice.merveille '),
+  }),
   aliceRowWithLocalBadge: byRole('row', {
-    name: 'AM Alice Merveille alice.merveille local never never',
+    name: (accessibleName) =>
+      accessibleName.startsWith('AM Alice Merveille alice.merveille local '),
   }),
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
   aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),
   alicedDeactivateButton: byRole('button', { name: 'users.deactivate' }),
   bobUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.bob.marley' }),
   bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
-  bobRow: byRole('row', { name: 'BM Bob Marley bob.marley never never' }),
+  bobRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('BM Bob Marley bob.marley '),
+  }),
+  charlieRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('CC Charlie Cox charlie.cox local '),
+  }),
+  denisRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('DV Denis Villeneuve denis.villeneuve '),
+  }),
+  evaRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('EG Eva Green eva.green '),
+  }),
+  franckRow: byRole('row', {
+    name: (accessibleName) => accessibleName.startsWith('FG Franck Grillo franck.grillo local '),
+  }),
   loginInput: byRole('textbox', { name: /login/ }),
   userNameInput: byRole('textbox', { name: /name/ }),
   passwordInput: byLabelText(/password/),
@@ -64,13 +87,100 @@ const ui = {
   jackRow: byRole('row', { name: /Jack/ }),
 };
 
-afterAll(() => {
-  handler.reset();
+describe('different filters combinations', () => {
+  beforeAll(() => {
+    jest.useFakeTimers({
+      advanceTimers: true,
+      now: new Date('2023-07-05T07:08:59Z'),
+    });
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
+  it('should display all users with default filters', async () => {
+    renderUsersApp();
+
+    expect(await ui.userRows.findAll()).toHaveLength(6);
+  });
+
+  it('should display users filtered with text search', async () => {
+    renderUsersApp();
+
+    await userEvent.type(await ui.searchInput.find(), 'ar');
+
+    expect(await ui.userRows.findAll()).toHaveLength(2);
+    expect(ui.bobRow.get()).toBeInTheDocument();
+    expect(ui.charlieRow.get()).toBeInTheDocument();
+  });
+
+  it('should display local active SonarLint users', async () => {
+    renderUsersApp();
+
+    await userEvent.click(await ui.localFilter.find());
+    await act(async () => {
+      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
+        return (
+          // eslint-disable-next-line jest/no-conditional-in-test
+          content === 'users.activity_filter.active_sonarlint_users' &&
+          element?.tagName === 'DIV' &&
+          element?.className.split(' ').includes('react-select__option')
+        );
+      });
+    });
+
+    expect(await ui.userRows.findAll()).toHaveLength(1);
+    expect(ui.charlieRow.get()).toBeInTheDocument();
+  });
+
+  it('should display managed active SonarQube users', async () => {
+    renderUsersApp();
+
+    await userEvent.click(await ui.managedFilter.find());
+    await act(async () => {
+      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
+        return (
+          // eslint-disable-next-line jest/no-conditional-in-test
+          content === 'users.activity_filter.active_sonarqube_users' &&
+          element?.tagName === 'DIV' &&
+          element?.className.split(' ').includes('react-select__option')
+        );
+      });
+    });
+
+    expect(await ui.userRows.findAll()).toHaveLength(1);
+    expect(ui.denisRow.get()).toBeInTheDocument();
+  });
+
+  it('should display all inactive users', async () => {
+    renderUsersApp();
+
+    await userEvent.click(await ui.allFilter.find());
+    await act(async () => {
+      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
+        return (
+          // eslint-disable-next-line jest/no-conditional-in-test
+          content === 'users.activity_filter.inactive_users' &&
+          element?.tagName === 'DIV' &&
+          element?.className.split(' ').includes('react-select__option')
+        );
+      });
+    });
+
+    expect(await ui.userRows.findAll()).toHaveLength(2);
+    expect(ui.evaRow.get()).toBeInTheDocument();
+    expect(ui.franckRow.get()).toBeInTheDocument();
+  });
 });
 
 describe('in non managed mode', () => {
   beforeEach(() => {
     handler.setIsManaged(false);
+  });
+
+  afterAll(() => {
+    handler.reset();
   });
 
   it('should allow the creation of user', async () => {
@@ -125,13 +235,13 @@ describe('in non managed mode', () => {
 
     expect(await ui.aliceRow.find()).toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(4);
+    expect(ui.userRows.getAll()).toHaveLength(7);
 
     await act(async () => {
       await user.click(await ui.showMore.find());
     });
 
-    expect(screen.getAllByRole('row')).toHaveLength(6);
+    expect(ui.userRows.getAll()).toHaveLength(9);
   });
 });
 

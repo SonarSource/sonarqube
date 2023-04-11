@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { useCallback, useEffect, useState } from 'react';
+import { subDays, subSeconds } from 'date-fns';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
 import { getIdentityProviders, searchUsers } from '../../api/users';
+import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
+import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { useManageProvider } from '../../components/hooks/useManageProvider';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { now, toNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider, Paging } from '../../types/types';
 import { User } from '../../types/users';
 import Header from './Header';
 import UsersList from './UsersList';
+import { USERS_ACTIVITY_OPTIONS, USER_INACTIVITY_DAYS_THRESHOLD } from './constants';
+import { UserActivity } from './types';
 
 export default function UsersApp() {
   const [identityProviders, setIdentityProviders] = useState<IdentityProvider[]>([]);
@@ -40,20 +47,49 @@ export default function UsersApp() {
   const [users, setUsers] = useState<User[]>([]);
 
   const [search, setSearch] = useState('');
+  const [usersActivity, setUsersActivity] = useState<UserActivity>(UserActivity.AnyActivity);
   const [managed, setManaged] = useState<boolean | undefined>(undefined);
 
   const manageProvider = useManageProvider();
 
+  const usersActivityParams = useMemo(() => {
+    const nowDate = now();
+    const nowDateMinus30Days = subDays(nowDate, USER_INACTIVITY_DAYS_THRESHOLD);
+    const nowDateMinus30DaysAnd1Second = subSeconds(nowDateMinus30Days, 1);
+
+    switch (usersActivity) {
+      case UserActivity.ActiveSonarLintUser:
+        return {
+          slLastConnectedAfter: toNotSoISOString(nowDateMinus30Days),
+        };
+      case UserActivity.ActiveSonarQubeUser:
+        return {
+          lastConnectedAfter: toNotSoISOString(nowDateMinus30Days),
+          slLastConnectedBefore: toNotSoISOString(nowDateMinus30DaysAnd1Second),
+        };
+      case UserActivity.InactiveUser:
+        return {
+          lastConnectedBefore: toNotSoISOString(nowDateMinus30DaysAnd1Second),
+        };
+      default:
+        return {};
+    }
+  }, [usersActivity]);
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const { paging, users } = await searchUsers({ q: search, managed });
+      const { paging, users } = await searchUsers({
+        q: search,
+        managed,
+        ...usersActivityParams,
+      });
       setPaging(paging);
       setUsers(users);
     } finally {
       setLoading(false);
     }
-  }, [search, managed]);
+  }, [search, managed, usersActivityParams]);
 
   const fetchMoreUsers = useCallback(async () => {
     if (!paging) {
@@ -64,6 +100,7 @@ export default function UsersApp() {
       const { paging: nextPage, users: nextUsers } = await searchUsers({
         q: search,
         managed,
+        ...usersActivityParams,
         p: paging.pageIndex + 1,
       });
       setPaging(nextPage);
@@ -71,7 +108,7 @@ export default function UsersApp() {
     } finally {
       setLoading(false);
     }
-  }, [search, managed, paging, users]);
+  }, [search, managed, usersActivityParams, paging, users]);
 
   useEffect(() => {
     (async () => {
@@ -82,7 +119,7 @@ export default function UsersApp() {
 
   useEffect(() => {
     fetchUsers();
-  }, [search, managed]);
+  }, [fetchUsers]);
 
   return (
     <main className="page page-limited" id="users-page">
@@ -103,6 +140,83 @@ export default function UsersApp() {
           placeholder={translate('search.search_by_login_or_name')}
           value={search}
         />
+        <div className="sw-ml-4">
+          <Select
+            id="users-activity-filter"
+            className="input-large"
+            isDisabled={loading}
+            onChange={(userActivity: LabelValueSelectOption<UserActivity>) => {
+              setUsersActivity(userActivity.value);
+            }}
+            options={USERS_ACTIVITY_OPTIONS}
+            isSearchable={false}
+            placeholder={translate('users.activity_filter.placeholder')}
+            aria-label={translate('users.activity_filter.label')}
+            value={USERS_ACTIVITY_OPTIONS.find((option) => option.value === usersActivity) ?? null}
+          />
+          <HelpTooltip
+            className="sw-ml-1"
+            overlay={
+              <>
+                <p>{translate('users.activity_filter.helptext')}</p>
+                <ul className="spacer-top">
+                  <li>
+                    <FormattedMessage
+                      defaultMessage={translate('users.activity_filter.helptext.all_users')}
+                      id="users.activity_filter.helptext.all_users"
+                      values={{
+                        allUsersLabel: (
+                          <strong>{translate('users.activity_filter.all_users')}</strong>
+                        ),
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <FormattedMessage
+                      defaultMessage={translate(
+                        'users.activity_filter.helptext.active_sonarlint_users'
+                      )}
+                      id="users.activity_filter.helptext.active_sonarlint_users"
+                      values={{
+                        activeSonarLintUsersLabel: (
+                          <strong>
+                            {translate('users.activity_filter.active_sonarlint_users')}
+                          </strong>
+                        ),
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <FormattedMessage
+                      defaultMessage={translate(
+                        'users.activity_filter.helptext.active_sonarqube_users'
+                      )}
+                      id="users.activity_filter.helptext.active_sonarqube_users"
+                      values={{
+                        activeSonarQubeUsersLabel: (
+                          <strong>
+                            {translate('users.activity_filter.active_sonarqube_users')}
+                          </strong>
+                        ),
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <FormattedMessage
+                      defaultMessage={translate('users.activity_filter.helptext.inactive_users')}
+                      id="users.activity_filter.helptext.inactive_users"
+                      values={{
+                        inactiveUsersLabel: (
+                          <strong>{translate('users.activity_filter.inactive_users')}</strong>
+                        ),
+                      }}
+                    />
+                  </li>
+                </ul>
+              </>
+            }
+          />
+        </div>
       </div>
       <DeferredSpinner loading={loading}>
         <UsersList
