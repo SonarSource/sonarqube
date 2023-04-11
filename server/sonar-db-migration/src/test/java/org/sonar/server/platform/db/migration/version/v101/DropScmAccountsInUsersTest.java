@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v110;
+package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.v110.DropScmAccountsInUsers.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v110.DropScmAccountsInUsers.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.DropScmAccountsInUsers.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.DropScmAccountsInUsers.TABLE_NAME;
 
 public class DropScmAccountsInUsersTest {
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v110;
+package org.sonar.server.platform.db.migration.version.v101;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
@@ -27,7 +27,7 @@ import org.sonar.server.platform.db.migration.version.v100.UpdateIsMainColumnInP
 
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
-public class DbVersion110 implements DbVersion {
+public class DbVersion101 implements DbVersion {
 
   /**
    * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.

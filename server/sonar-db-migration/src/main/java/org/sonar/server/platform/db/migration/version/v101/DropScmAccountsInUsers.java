@@ -17,24 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v110;
+package org.sonar.server.platform.db.migration.version.v101;
 
-import org.junit.Test;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+class DropScmAccountsInUsers extends DropColumnChange {
+  static final String TABLE_NAME = "users";
+  static final String COLUMN_NAME = "scm_accounts";
 
-public class DbVersion110Test {
-  private final DbVersion110 underTest = new DbVersion110();
-
-  @Test
-  public void migrationNumber_starts_at_10_1_000() {
-    verifyMinimumMigrationNumber(underTest, 10_1_000);
+  public DropScmAccountsInUsers(Database db) {
+    super(db, TABLE_NAME, COLUMN_NAME);
   }
-
-  @Test
-  public void verify_migration_is_not_empty() {
-    verifyMigrationNotEmpty(underTest);
-  }
-
 }

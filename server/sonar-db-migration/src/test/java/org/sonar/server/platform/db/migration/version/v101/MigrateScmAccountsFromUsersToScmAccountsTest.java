@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v110;
+package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -31,13 +31,13 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.version.v110.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
+import org.sonar.server.platform.db.migration.version.v101.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.sonar.server.platform.db.migration.version.v110.MigrateScmAccountsFromUsersToScmAccounts.SCM_ACCOUNTS_SEPARATOR_CHAR;
+import static org.sonar.server.platform.db.migration.version.v101.MigrateScmAccountsFromUsersToScmAccounts.SCM_ACCOUNTS_SEPARATOR_CHAR;
 
 public class MigrateScmAccountsFromUsersToScmAccountsTest {
 

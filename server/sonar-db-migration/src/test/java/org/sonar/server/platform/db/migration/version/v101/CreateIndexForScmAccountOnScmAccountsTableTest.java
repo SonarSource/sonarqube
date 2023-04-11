@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v110;
+package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v110.CreateIndexForScmAccountOnScmAccountsTable.INDEX_NAME;
-import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v110.CreateScmAccountsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForScmAccountOnScmAccountsTable.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.TABLE_NAME;
 
 public class CreateIndexForScmAccountOnScmAccountsTableTest {
   @Rule
