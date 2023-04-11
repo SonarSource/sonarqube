@@ -17,19 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { default as BranchIcon } from './BranchIcon';
+
+export { BranchIcon } from './BranchIcon';
+export { BugIcon } from './BugIcon';
 export { ChevronDownIcon } from './ChevronDownIcon';
-export { default as ClockIcon } from './ClockIcon';
+export { ClockIcon } from './ClockIcon';
+export { CodeSmellIcon } from './CodeSmellIcon';
 export { FlagErrorIcon } from './FlagErrorIcon';
 export { FlagInfoIcon } from './FlagInfoIcon';
 export { FlagSuccessIcon } from './FlagSuccessIcon';
 export { FlagWarningIcon } from './FlagWarningIcon';
-export { default as HelperHintIcon } from './HelperHintIcon';
-export { default as HomeFillIcon } from './HomeFillIcon';
-export { default as HomeIcon } from './HomeIcon';
-export { default as MainBranchIcon } from './MainBranchIcon';
-export { default as MenuHelpIcon } from './MenuHelpIcon';
-export { default as MenuSearchIcon } from './MenuSearchIcon';
-export { default as OpenNewTabIcon } from './OpenNewTabIcon';
-export { default as PullRequestIcon } from './PullRequestIcon';
-export { default as StarIcon } from './StarIcon';
+export { HelperHintIcon } from './HelperHintIcon';
+export { HomeFillIcon } from './HomeFillIcon';
+export { HomeIcon } from './HomeIcon';
+export { MainBranchIcon } from './MainBranchIcon';
+export { MenuHelpIcon } from './MenuHelpIcon';
+export { MenuSearchIcon } from './MenuSearchIcon';
+export { OpenNewTabIcon } from './OpenNewTabIcon';
+export { OverviewQGNotComputedIcon } from './OverviewQGNotComputedIcon';
+export { OverviewQGPassedIcon } from './OverviewQGPassedIcon';
+export { PullRequestIcon } from './PullRequestIcon';
+export { SecurityHotspotIcon } from './SecurityHotspotIcon';
+export { StarIcon } from './StarIcon';
+export { VulnerabilityIcon } from './VulnerabilityIcon';

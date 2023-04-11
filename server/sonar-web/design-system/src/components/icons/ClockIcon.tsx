@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClockIcon } from '@primer/octicons-react';
+
+import { ClockIcon as OcticonClockIcon } from '@primer/octicons-react';
 import { OcticonHoc } from './Icon';
 
-export default OcticonHoc(ClockIcon);
+export const ClockIcon = OcticonHoc(OcticonClockIcon, 'ClockIcon');

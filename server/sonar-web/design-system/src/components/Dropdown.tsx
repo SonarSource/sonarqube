@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import React from 'react';
 import { translate } from '../helpers/l10n';
 import { PopupPlacement, PopupZLevel } from '../helpers/positioning';
 import { InputSizeKeys } from '../types/theme';
 import { DropdownMenu } from './DropdownMenu';
 import DropdownToggler from './DropdownToggler';
-import MenuIcon from './icons/MenuIcon';
+import { MenuIcon } from './icons/MenuIcon';
 import { InteractiveIcon } from './InteractiveIcon';
 
 type OnClickCallback = (event?: React.MouseEvent<HTMLElement>) => void;

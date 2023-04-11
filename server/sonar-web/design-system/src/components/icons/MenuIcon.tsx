@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { KebabHorizontalIcon } from '@primer/octicons-react';
 import { OcticonHoc } from './Icon';
 
-const MenuIcon = styled(OcticonHoc(KebabHorizontalIcon))`
+export const MenuIcon = styled(OcticonHoc(KebabHorizontalIcon, 'MenuIcon'))`
   transform: rotate(90deg);
 `;
-
-MenuIcon.displayName = 'MenuIcon';
-export default MenuIcon;

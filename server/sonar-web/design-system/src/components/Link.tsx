@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { HTMLAttributeAnchorTarget } from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import tw, { theme as twTheme } from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
-import OpenNewTabIcon from './icons/OpenNewTabIcon';
+import { OpenNewTabIcon } from './icons/OpenNewTabIcon';
 import { TooltipWrapperInner } from './Tooltip';
 
 export interface LinkProps extends RouterLinkProps {

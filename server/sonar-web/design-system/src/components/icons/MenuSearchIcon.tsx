@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import { themeColor } from '../../helpers/theme';
 import { CustomIcon, IconProps } from './Icon';
 
-export default function MenuSearchIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+export function MenuSearchIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
   const theme = useTheme();
 
   return (

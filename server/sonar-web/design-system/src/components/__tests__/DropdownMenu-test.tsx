@@ -32,7 +32,7 @@ import {
   ItemNavLink,
   ItemRadioButton,
 } from '../DropdownMenu';
-import MenuIcon from '../icons/MenuIcon';
+import { MenuIcon } from '../icons/MenuIcon';
 import Tooltip from '../Tooltip';
 
 beforeEach(() => {

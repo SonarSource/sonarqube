@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import Clipboard from 'clipboard';
 import React from 'react';
 import { INTERACTIVE_TOOLTIP_DELAY } from '../helpers/constants';
 import { translate } from '../helpers/l10n';
 import { ButtonSecondary } from './buttons';
-import CopyIcon from './icons/CopyIcon';
+import { CopyIcon } from './icons/CopyIcon';
 import { IconProps } from './icons/Icon';
 import { DiscreetInteractiveIcon, InteractiveIcon, InteractiveIconSize } from './InteractiveIcon';
 import Tooltip from './Tooltip';

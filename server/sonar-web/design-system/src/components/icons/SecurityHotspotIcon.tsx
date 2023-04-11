@@ -22,15 +22,14 @@ import { useTheme } from '@emotion/react';
 import { themeColor } from '../../helpers/theme';
 import { CustomIcon, IconProps } from './Icon';
 
-export function ChevronDownIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+export function SecurityHotspotIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
   const theme = useTheme();
+
   return (
     <CustomIcon {...iconProps}>
       <path
-        clipRule="evenodd"
-        d="M12.7236 5.83199c.1953.19527.1953.51185 0 .70711l-4.18499 4.185c-.19526.1953-.51184.1953-.7071 0l-4.18503-4.185c-.19527-.19526-.19527-.51184 0-.70711.19526-.19526.51184-.19526.7071 0l3.83148 3.83148 3.83144-3.83148c.1953-.19526.5119-.19526.7071 0Z"
+        d="M14.08 3.23a1 1 0 00-.67-.77L8.16 1a1.06 1.06 0 00-.5 0L2.41 2.46a.94.94 0 00-.67.77c-.08.57-.74 5.63 1.14 8.31A9 9 0 007.68 15a.85.85 0 00.23 0 .78.78 0 00.22 0 8.93 8.93 0 004.81-3.46c1.85-2.68 1.21-7.74 1.14-8.31zM12.21 8a6.15 6.15 0 01-.86 2.42A7.92 7.92 0 018 13V8zM8 3v5H3.59a24.29 24.29 0 010-3.82z"
         fill={themeColor(fill)({ theme })}
-        fillRule="evenodd"
       />
     </CustomIcon>
   );
