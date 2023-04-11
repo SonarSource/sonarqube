@@ -233,7 +233,7 @@ public class BuildComponentTreeStepIT {
   @Test
   public void return_existing_uuids() {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
     ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
     insertComponent(directory.setKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
     insertComponent(newFileDto(project, directory, "DEFG")
@@ -359,7 +359,7 @@ public class BuildComponentTreeStepIT {
   @Test
   public void set_base_project_snapshot_when_last_snapshot_exist() {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setLast(true));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -382,7 +382,7 @@ public class BuildComponentTreeStepIT {
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_projectVersion_to_previous_analysis_when_not_set(@Nullable String previousAnalysisProjectVersion) {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 

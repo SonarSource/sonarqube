@@ -390,7 +390,8 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newSubPortfolio(view), view.isPrivate(), defaults(), dtoPopulator);
+    ComponentDto subViewComponent = ComponentTesting.newSubPortfolio(view);
+    return insertComponentAndPortfolio(subViewComponent, view.isPrivate(), dtoPopulator, p -> p.setParentUuid(view.uuid()));
   }
 
   public void addPortfolioApplicationBranch(String portfolioUuid, String applicationUuid, String branchUuid) {
@@ -542,10 +543,6 @@ public class ComponentDbTester {
     dbClient.branchDao().insert(dbSession, branchDto);
     db.commit();
     return branch;
-  }
-
-  private static <T> T firstNonNull(@Nullable T first, T second) {
-    return (first != null) ? first : second;
   }
 
   // TODO temporary constructor to quickly create project from previous project component.

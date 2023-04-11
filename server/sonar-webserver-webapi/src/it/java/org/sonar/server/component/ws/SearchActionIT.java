@@ -21,7 +21,6 @@ package org.sonar.server.component.ws;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.index.ComponentIndex;
@@ -63,7 +61,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -123,10 +120,10 @@ public class SearchActionIT {
 
   @Test
   public void search_by_key_query() {
-    insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto().setKey("project-_%-key"),
-      ComponentTesting.newPrivateProjectDto().setKey("project-key-without-escaped-characters"));
+    ComponentDto p1 = db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
+    ComponentDto p2 = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
 
+    insertProjectsAuthorizedForUser(List.of(p1, p2));
     SearchWsResponse response = call(new SearchRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("project-_%-key");
@@ -136,9 +133,10 @@ public class SearchActionIT {
   public void search_with_pagination() {
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newPrivateProjectDto("project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
+      int j = i;
+      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + j, p -> p.setKey("project-key-" + j).setName("Project Name " + j)));
     }
-    insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
+    insertProjectsAuthorizedForUser(componentDtoList);
 
     SearchWsResponse response = call(new SearchRequest().setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
 
@@ -147,12 +145,11 @@ public class SearchActionIT {
 
   @Test
   public void return_only_projects_on_which_user_has_browse_permission() {
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto();
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto();
-    ComponentDto portfolio = ComponentTesting.newPortfolio();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
 
-    db.components().insertComponents(project1, project2, portfolio);
-    setBrowsePermissionOnUserAndIndex(project1);
+    setBrowsePermissionOnUserAndIndex(List.of(project1));
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(singletonList(PROJECT)));
 
@@ -163,12 +160,12 @@ public class SearchActionIT {
 
   @Test
   public void return_project_key() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto dir1 = newDirectory(project, "dir1").setKey("dir1");
     ComponentDto dir2 = newDirectory(project, "dir2").setKey("dir2");
     ComponentDto dir3 = newDirectory(project, "dir3").setKey("dir3");
-    db.components().insertComponents(project, dir1, dir2, dir3);
-    setBrowsePermissionOnUserAndIndex(project);
+    db.components().insertComponents(dir1, dir2, dir3);
+    setBrowsePermissionOnUserAndIndex(List.of(project));
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, APP)));
 
@@ -180,7 +177,7 @@ public class SearchActionIT {
   public void does_not_return_branches() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    setBrowsePermissionOnUserAndIndex(project, branch);
+    setBrowsePermissionOnUserAndIndex(List.of(project, branch));
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT)));
 
@@ -207,11 +204,11 @@ public class SearchActionIT {
   @Test
   public void test_json_example() {
     db.components().insertComponent(newPortfolio());
-    ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setKey("project-key");
+    ComponentDto project = db.components().insertPrivateProject("project-uuid", p -> p.setName("Project Name").setKey("project-key"));
     ComponentDto directory = newDirectory(project, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     ComponentDto view = newPortfolio();
-    db.components().insertComponents(project, directory, view);
-    setBrowsePermissionOnUserAndIndex(project);
+    db.components().insertComponents(directory, view);
+    setBrowsePermissionOnUserAndIndex(List.of(project));
 
     String response = underTest.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -220,15 +217,14 @@ public class SearchActionIT {
     assertJson(response).isSimilarTo(underTest.getDef().responseExampleAsString());
   }
 
-  private void insertProjectsAuthorizedForUser(ComponentDto... projects) {
-    db.components().insertComponents(projects);
+  private void insertProjectsAuthorizedForUser(List<ComponentDto> projects) {
     setBrowsePermissionOnUserAndIndex(projects);
     db.commit();
   }
 
-  private void setBrowsePermissionOnUserAndIndex(ComponentDto... projects) {
+  private void setBrowsePermissionOnUserAndIndex(List<ComponentDto> projects) {
     index();
-    Arrays.stream(projects).forEach(project -> authorizationIndexerTester.allowOnlyUser(project, user));
+    projects.forEach(project -> authorizationIndexerTester.allowOnlyUser(project, user));
   }
 
   private SearchWsResponse call(SearchRequest wsRequest) {

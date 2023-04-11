@@ -161,8 +161,8 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
   public void apply_template_by_qualifiers() {
     ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertComponent(newPortfolio());
-    ComponentDto application = db.components().insertComponent(newApplication());
+    ComponentDto view = db.components().insertPrivatePortfolio();
+    ComponentDto application = db.components().insertPublicApplication();
     loginAsAdmin();
 
     newRequest()

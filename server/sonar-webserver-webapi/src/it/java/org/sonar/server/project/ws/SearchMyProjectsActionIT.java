@@ -34,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -117,7 +116,7 @@ public class SearchMyProjectsActionIT {
   @Test
   public void return_only_first_1000_projects() {
     IntStream.range(0, 1_010).forEach(i -> {
-      ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
+      ComponentDto project = db.components().insertPrivateProject();
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     });
 
@@ -128,9 +127,9 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void sort_projects_by_name() {
-    ComponentDto b_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("B_project_name"));
-    ComponentDto c_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("c_project_name"));
-    ComponentDto a_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("A_project_name"));
+    ComponentDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name"));
+    ComponentDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name"));
+    ComponentDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name"));
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
@@ -144,7 +143,8 @@ public class SearchMyProjectsActionIT {
   @Test
   public void paginate_projects() {
     for (int i = 0; i < 10; i++) {
-      ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("project-" + i));
+      int j = i;
+      ComponentDto project = db.components().insertPrivateProject(p -> p.setName("project-" + j));
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
@@ -247,13 +247,13 @@ public class SearchMyProjectsActionIT {
   }
 
   private ComponentDto insertClang() {
-    return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_01)
+    return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_01, p -> p
       .setName("Clang")
       .setKey("clang"));
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_02)
+    return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_02, p -> p
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));

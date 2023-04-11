@@ -276,7 +276,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_keys() {
+  public void selectByKeys_whenPassingKeys_shouldReturnComponentsInMainBranch() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -293,7 +293,63 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_keys_throws_ISE_if_both_branch_and_pr_are_passed() {
+  public void selectByKeys_whenAppWithMultipleBranches_shouldReturnMainBranch() {
+    ProjectDto proj = db.components().insertPrivateProjectDto();
+    BranchDto projBranch = db.components().insertProjectBranch(proj);
+
+    ProjectDto app = db.components().insertPrivateApplicationDto();
+    BranchDto appBranch = db.components().insertProjectBranch(app);
+
+    db.components().addApplicationProject(app, proj);
+    db.components().addProjectBranchToApplicationBranch(appBranch, projBranch);
+
+    ComponentDto projInApp = db.components().insertComponent(newProjectCopy(db.components().getComponentDto(proj), db.components().getComponentDto(app)));
+    db.components().insertComponent(ComponentTesting.newProjectCopy(db.components().getComponentDto(projBranch), db.components().getComponentDto(appBranch)));
+
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(projInApp.getKey()));
+
+    assertThat(results)
+      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .containsOnly(tuple(projInApp.uuid(), projInApp.getKey()));
+  }
+
+  @Test
+  public void selectByKeys_whenBranchMissingDueToCorruption_shouldNotReturnComponents() {
+    // this will create an entry in the components table, but not in the project_branches table
+    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPublicProjectDto());
+
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getKey()));
+
+    assertThat(results)
+      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+        .isEmpty();
+  }
+
+  @Test
+  public void selectByKeys_whenPortfolio_shouldReturnIt() {
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(portfolio.getKey()));
+
+    assertThat(results)
+      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .containsExactlyInAnyOrder(tuple(portfolio.uuid(), portfolio.getKey()));
+  }
+
+  @Test
+  public void selectByKeys_whenSubPortfolio_shouldReturnIt() {
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto subPortfolio = db.components().insertSubView(portfolio);
+
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(subPortfolio.getKey()));
+
+    assertThat(results)
+      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .containsExactlyInAnyOrder(tuple(subPortfolio.uuid(), subPortfolio.getKey()));
+  }
+
+  @Test
+  public void selectByKeys_whenBothBranchAndPrPassed_shouldThrowISE() {
     DbSession session = db.getSession();
     List<String> keys = List.of("key");
     assertThatThrownBy(() -> underTest.selectByKeys(session, keys, "branch", "pr"))
@@ -301,7 +357,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_keys_with_branch() {
+  public void selectByKeys_whenSpecifyingBranch_shouldReturnComponentsInIt() {
     String branchKey = "my_branch";
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -321,7 +377,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_keys_with_pr() {
+  public void selectByKeys_whenSpecifyingPR_shouldReturnComponentsInIt() {
     String prKey = "my_branch";
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(PULL_REQUEST));
@@ -1382,8 +1438,8 @@ public class ComponentDaoIT {
 
   @Test
   public void selectByQuery_filter_on_visibility() {
-    db.components().insertComponent(newPrivateProjectDto().setKey("private-key"));
-    db.components().insertComponent(ComponentTesting.newPublicProjectDto().setKey("public-key"));
+    db.components().insertPrivateProject(p -> p.setKey("private-key"));
+    db.components().insertPublicProject(p -> p.setKey("public-key"));
 
     ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(PROJECT).build();
     ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
@@ -1408,9 +1464,9 @@ public class ComponentDaoIT {
 
   @Test
   public void selectByQuery_on_component_keys() {
-    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto());
-    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto());
-    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto());
+    ComponentDto sonarqube = db.components().insertPrivateProject();
+    ComponentDto jdk8 = db.components().insertPrivateProject();
+    ComponentDto cLang = db.components().insertPrivateProject();
     ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentKeys(newHashSet(sonarqube.getKey(), jdk8.getKey())).build();
 
@@ -1435,9 +1491,9 @@ public class ComponentDaoIT {
 
   @Test
   public void selectByQuery_on_component_uuids() {
-    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto());
-    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto());
-    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto());
+    ComponentDto sonarqube = db.components().insertPrivateProject();
+    ComponentDto jdk8 = db.components().insertPrivateProject();
+    ComponentDto cLang = db.components().insertPrivateProject();
     ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentUuids(newHashSet(sonarqube.uuid(), jdk8.uuid())).build();
 

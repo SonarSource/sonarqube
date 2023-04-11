@@ -85,10 +85,9 @@ public class SearchActionIT {
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey("project-_%-key"),
-      ComponentTesting.newPrivateProjectDto().setKey("PROJECT-_%-KEY"),
-      ComponentTesting.newPrivateProjectDto().setKey("project-key-without-escaped-characters"));
+    db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
+    db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY"));
+    db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQuery("JeCt-_%-k").build());
 
@@ -98,9 +97,8 @@ public class SearchActionIT {
   @Test
   public void search_private_projects() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey("private-key"),
-      ComponentTesting.newPublicProjectDto().setKey("public-key"));
+    db.components().insertPrivateProject(p -> p.setKey("private-key"));
+    db.components().insertPublicProject(p -> p.setKey("public-key"));
 
     SearchWsResponse response = call(SearchRequest.builder().setVisibility("private").build());
 
@@ -110,9 +108,8 @@ public class SearchActionIT {
   @Test
   public void search_public_projects() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey("private-key"),
-      ComponentTesting.newPublicProjectDto().setKey("public-key"));
+    db.components().insertPrivateProject(p -> p.setKey("private-key"));
+    db.components().insertPublicProject(p -> p.setKey("public-key"));
 
     SearchWsResponse response = call(SearchRequest.builder().setVisibility("public").build());
 
@@ -122,9 +119,8 @@ public class SearchActionIT {
   @Test
   public void search_projects_when_no_qualifier_set() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1),
-      newPortfolio());
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPublicPortfolio();
 
     SearchWsResponse response = call(SearchRequest.builder().build());
 
@@ -134,13 +130,13 @@ public class SearchActionIT {
   @Test
   public void search_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1);
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
+    db.components().insertPublicPortfolio();
+
     ComponentDto directory = newDirectory(project, "dir");
     ComponentDto file = newFileDto(directory);
-    db.components().insertComponents(
-      project, directory, file,
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_2),
-      newPortfolio());
+    db.components().insertComponents(directory, file);
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("TRK")).build());
 
@@ -150,9 +146,8 @@ public class SearchActionIT {
   @Test
   public void search_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1),
-      newPortfolio().setKey("view1"));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("VW")).build());
 
@@ -162,9 +157,8 @@ public class SearchActionIT {
   @Test
   public void search_projects_and_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1),
-      newPortfolio().setKey("view1"));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(asList("TRK", "VW")).build());
 
@@ -174,11 +168,9 @@ public class SearchActionIT {
   @Test
   public void search_all() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertComponents(
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1),
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_2),
-      ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_3));
-
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_3));
     SearchWsResponse response = call(SearchRequest.builder().build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY_1, PROJECT_KEY_2, PROJECT_KEY_3);
@@ -233,12 +225,11 @@ public class SearchActionIT {
     userSession.addPermission(ADMINISTER);
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newPrivateProjectDto("project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
+      int j = i;
+      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + i, p -> p.setKey("project-key-" + j).setName("Project Name " + j)));
     }
-    db.components().insertComponents(componentDtoList.toArray(new ComponentDto[] {}));
 
     SearchWsResponse response = call(SearchRequest.builder().setPage(2).setPageSize(3).build());
-
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly("project-key-4", "project-key-5", "project-key-6");
   }
 
@@ -356,11 +347,8 @@ public class SearchActionIT {
   @Test
   public void json_example() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto publicProject = newPrivateProjectDto("project-uuid-1").setName("Project Name 1").setKey("project-key-1").setPrivate(false);
-    ComponentDto privateProject = newPrivateProjectDto("project-uuid-2").setName("Project Name 1").setKey("project-key-2");
-    db.components().insertComponents(
-      publicProject,
-      privateProject);
+    ComponentDto publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false));
+    ComponentDto privateProject = db.components().insertPrivateProject("project-uuid-2", p->p.setName("Project Name 1").setKey("project-key-2"));
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject)
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime())
       .setRevision("cfb82f55c6ef32e61828c4cb3db2da12795fd767"));

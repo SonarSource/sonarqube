@@ -21,6 +21,10 @@
     p.created_at as createdAt
   </sql>
 
+  <sql id="mainBranchOrPortfolio">
+    (pb.is_main = ${_true} OR (pb.uuid is NULL AND (p.qualifier IN ('VW', 'SVW') OR (p.qualifier = 'TRK' AND p.scope = 'FIL'))))
+  </sql>
+
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT
       <include refid="componentColumns"/>
@@ -28,7 +32,8 @@
     left outer join project_branches pb on pb.uuid = p.branch_uuid
     where
       p.kee=#{key,jdbcType=VARCHAR}
-      and (pb.is_main = null or pb.is_main = ${_true}) </select>
+      and <include refid="mainBranchOrPortfolio"/>
+  </select>
 
   <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component">
     SELECT
@@ -37,7 +42,7 @@
     inner join project_branches pb on pb.uuid = p.branch_uuid
     where
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
-      and pb.is_main = ${_true}
+      and <include refid="mainBranchOrPortfolio"/>
   </select>
 
   <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">
@@ -92,7 +97,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND (pb.is_main = ${_true} OR p.qualifier IN ('VW', 'SVW') OR (p.qualifier = 'TRK' AND p.scope = 'FIL'))
+        AND <include refid="mainBranchOrPortfolio"/>
       </otherwise>
     </choose>
   </select>
@@ -126,7 +131,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        AND (pb.is_main = ${_true} OR p.qualifier IN ('VW', 'SVW') OR (p.qualifier = 'TRK' AND p.scope = 'FIL'))
+        AND <include refid="mainBranchOrPortfolio"/>
       </otherwise>
     </choose>
   </select>
@@ -227,7 +232,7 @@
     left join project_branches pb on pb.uuid = p.branch_uuid
     where
       p.enabled=${_true}
-      AND (pb.uuid is null or pb.is_main=${_true})
+      AND <include refid="mainBranchOrPortfolio"/>
       AND p.copy_component_uuid is null
       <if test="query.qualifiers!=null">
         and p.qualifier in
@@ -471,7 +476,7 @@
         AND pb.branch_type = 'PULL_REQUEST'
       </when>
       <otherwise>
-        (pb.uuid is null or pb.is_main = ${_true})
+        <include refid="mainBranchOrPortfolio"/>
       </otherwise>
     </choose>
   </select>
@@ -484,7 +489,7 @@
     where
       p.enabled=${_true}
       and p.copy_component_uuid is null
-      and (pb.uuid is null or pb.is_main = ${_true})
+      and <include refid="mainBranchOrPortfolio"/>
       and p.scope = 'PRJ'
       and p.qualifier in ('TRK','VW','SVW','APP')
       <if test="branchUuid != null">
