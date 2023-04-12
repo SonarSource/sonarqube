@@ -13,6 +13,7 @@
     "testing-library/no-node-access": ["error", { "allowContainerFirstChild": true }],
     "no-implicit-coercion": [2, { "boolean": true, "number": true, "string": true }],
     "jest/no-large-snapshots": ["warn", { "maxSize": 200 }],
+    "import/no-default-export": "warn",
 
     // Local rules
     "local-rules/use-componentqualifier-enum": "warn",

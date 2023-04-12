@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
-import Badge from '../Badge';
+import { Badge } from '../Badge';
 
 it('renders badge correctly', () => {
   render(<Badge>foo</Badge>);

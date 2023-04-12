@@ -22,7 +22,7 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { render } from '../../helpers/testUtils';
-import Link, { DiscreetLink } from '../Link';
+import { DiscreetLink, StandoutLink as Link } from '../Link';
 
 beforeAll(() => {
   const { location } = window;

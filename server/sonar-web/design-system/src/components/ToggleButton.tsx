@@ -21,7 +21,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
-import Badge from './Badge';
+import { Badge } from './Badge';
 import { ButtonSecondary } from './buttons';
 
 type ToggleButtonValueType = string | number | boolean;

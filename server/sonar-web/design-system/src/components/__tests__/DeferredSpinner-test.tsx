@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render, screen } from '@testing-library/react';
-// @ts-expect-error React is needed for <></> fragments
-import React from 'react';
-import DeferredSpinner from '../DeferredSpinner';
+import { DeferredSpinner } from '../DeferredSpinner';
 
 beforeAll(() => {
   jest.useFakeTimers();

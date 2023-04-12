@@ -40,7 +40,7 @@ interface State {
 
 const DEFAULT_TIMEOUT = 100;
 
-export default class DeferredSpinner extends React.PureComponent<Props, State> {
+export class DeferredSpinner extends React.PureComponent<Props, State> {
   timer?: number;
 
   state: State = { showSpinner: false };

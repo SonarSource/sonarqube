@@ -43,7 +43,7 @@ interface Props {
 const RX_4 = 4;
 const RX_2 = 2;
 
-export default function QualityGateIndicator(props: Props) {
+export function QualityGateIndicator(props: Props) {
   const {
     className,
     size = 'md',

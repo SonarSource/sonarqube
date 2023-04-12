@@ -28,10 +28,10 @@ import { Key } from '../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import { InputSizeKeys } from '../types/theme';
-import DeferredSpinner from './DeferredSpinner';
+import { DeferredSpinner } from './DeferredSpinner';
+import { InteractiveIcon } from './InteractiveIcon';
 import { CloseIcon } from './icons/CloseIcon';
 import { SearchIcon } from './icons/SearchIcon';
-import { InteractiveIcon } from './InteractiveIcon';
 
 interface Props {
   autoFocus?: boolean;
@@ -56,7 +56,7 @@ interface Props {
 
 const DEFAULT_MAX_LENGTH = 100;
 
-export default function InputSearch({
+export function InputSearch({
   autoFocus,
   id,
   className,

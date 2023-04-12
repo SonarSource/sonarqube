@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import QualityGateIndicator from '../QualityGateIndicator';
+import { QualityGateIndicator } from '../QualityGateIndicator';
 
 const SIZE_VS_WIDTH = {
   sm: '1rem',

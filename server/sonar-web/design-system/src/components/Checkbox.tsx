@@ -22,7 +22,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
-import DeferredSpinner from './DeferredSpinner';
+import { DeferredSpinner } from './DeferredSpinner';
 import { CheckIcon } from './icons/CheckIcon';
 import { CustomIcon } from './icons/Icon';
 

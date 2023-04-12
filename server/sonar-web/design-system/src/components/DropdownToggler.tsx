@@ -28,7 +28,7 @@ interface Props extends PopupProps {
   open: boolean;
 }
 
-export default function DropdownToggler(props: Props) {
+export function DropdownToggler(props: Props) {
   const { children, open, onRequestClose, overlay, ...popupProps } = props;
 
   return (

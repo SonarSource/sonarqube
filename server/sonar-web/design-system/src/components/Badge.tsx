@@ -38,7 +38,7 @@ interface BadgeProps {
   variant?: BadgeVariant;
 }
 
-export default function Badge({ className, children, title, variant = 'default' }: BadgeProps) {
+export function Badge({ className, children, title, variant = 'default' }: BadgeProps) {
   const commonProps = {
     'aria-label': title ?? children.toString(),
     className,

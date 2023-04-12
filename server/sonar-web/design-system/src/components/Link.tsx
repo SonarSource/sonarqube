@@ -24,8 +24,8 @@ import React, { HTMLAttributeAnchorTarget } from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import tw, { theme as twTheme } from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
-import { OpenNewTabIcon } from './icons/OpenNewTabIcon';
 import { TooltipWrapperInner } from './Tooltip';
+import { OpenNewTabIcon } from './icons/OpenNewTabIcon';
 
 export interface LinkProps extends RouterLinkProps {
   blurAfterClick?: boolean;
@@ -166,7 +166,7 @@ export const DiscreetLink = styled(HoverLink)`
 `;
 DiscreetLink.displayName = 'DiscreetLink';
 
-const StandoutLink = styled(StyledBaseLink)`
+export const StandoutLink = styled(StyledBaseLink)`
   ${tw`sw-font-semibold`}
   ${tw`sw-no-underline`}
 
@@ -183,5 +183,3 @@ const StandoutLink = styled(StyledBaseLink)`
   }
 `;
 StandoutLink.displayName = 'StandoutLink';
-
-export default StandoutLink;

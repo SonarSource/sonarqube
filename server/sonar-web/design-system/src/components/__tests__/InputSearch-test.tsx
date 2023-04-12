@@ -20,7 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import InputSearch from '../InputSearch';
+import { InputSearch } from '../InputSearch';
 
 it('should warn when input is too short', async () => {
   const { user } = setupWithProps({ value: 'f' });

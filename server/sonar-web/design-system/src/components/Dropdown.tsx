@@ -23,9 +23,9 @@ import { translate } from '../helpers/l10n';
 import { PopupPlacement, PopupZLevel } from '../helpers/positioning';
 import { InputSizeKeys } from '../types/theme';
 import { DropdownMenu } from './DropdownMenu';
-import DropdownToggler from './DropdownToggler';
-import { MenuIcon } from './icons/MenuIcon';
+import { DropdownToggler } from './DropdownToggler';
 import { InteractiveIcon } from './InteractiveIcon';
+import { MenuIcon } from './icons/MenuIcon';
 
 type OnClickCallback = (event?: React.MouseEvent<HTMLElement>) => void;
 type A11yAttrs = Pick<React.AriaAttributes, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'> & {
@@ -59,7 +59,7 @@ interface State {
   open: boolean;
 }
 
-export default class Dropdown extends React.PureComponent<Props, State> {
+export class Dropdown extends React.PureComponent<Props, State> {
   state: State = { open: false };
 
   componentDidUpdate(_: Props, prevState: State) {

@@ -19,8 +19,8 @@
  */
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../helpers/testUtils';
+import { ActionsDropdown, Dropdown } from '../Dropdown';
 import { ButtonSecondary } from '../buttons';
-import Dropdown, { ActionsDropdown } from '../Dropdown';
 
 describe('Dropdown with Portal Wrapper', () => {
   it('renders', async () => {
