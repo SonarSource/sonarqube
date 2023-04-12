@@ -29,7 +29,7 @@ import { BaseLink, LinkProps } from './Link';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
-  'aria-label' | 'autoFocus' | 'id' | 'name' | 'style' | 'title' | 'type'
+  'aria-label' | 'autoFocus' | 'id' | 'name' | 'role' | 'style' | 'title' | 'type'
 >;
 
 export interface ButtonProps extends AllowedButtonAttributes {
@@ -51,8 +51,6 @@ class Button extends React.PureComponent<ButtonProps> {
   handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     const { disabled, onClick, stopPropagation = false, type } = this.props;
     const { preventDefault = type !== 'submit' } = this.props;
-
-    event.currentTarget.blur();
 
     if (preventDefault || disabled) {
       event.preventDefault();

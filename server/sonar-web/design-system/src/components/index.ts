@@ -39,6 +39,7 @@ export * from './NavBarTabs';
 export { default as QualityGateIndicator } from './QualityGateIndicator';
 export * from './SonarQubeLogo';
 export * from './Text';
+export { ToggleButton } from './ToggleButton';
 export { TopBar } from './TopBar';
 export * from './buttons';
 export * from './icons';
