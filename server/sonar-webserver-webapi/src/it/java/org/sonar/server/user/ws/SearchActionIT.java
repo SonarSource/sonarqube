@@ -20,9 +20,12 @@
 package org.sonar.server.user.ws;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +37,7 @@ import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -50,6 +54,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -510,18 +515,35 @@ public class SearchActionIT {
       .extracting(User::getLogin)
       .containsExactlyInAnyOrder(user.getLogin());
 
-    assertUserWithFilter("lastConnectedAfter", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
-    assertUserWithFilter("lastConnectedAfter", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
-    assertUserWithFilter("lastConnectedBefore", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
-    assertUserWithFilter("lastConnectedBefore", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_FROM, lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_FROM, lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_TO, lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_TO, lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
 
-    assertUserWithFilter("slLastConnectedAfter", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
-    assertUserWithFilter("slLastConnectedAfter", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
-    assertUserWithFilter("slLastConnectedBefore", lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
-    assertUserWithFilter("slLastConnectedBefore", lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), false);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), true);
 
-    assertUserWithFilter("slLastConnectedAfter", lastConnection, user.getLogin(), true);
-    assertUserWithFilter("slLastConnectedBefore", lastConnection, user.getLogin(), true);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, lastConnection, user.getLogin(), true);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection, user.getLogin(), true);
+  }
+
+  @Test
+  public void search_whenNotAdmin_shouldThrowForbidden() {
+    userSession.logIn();
+
+    Stream.of(SearchAction.LAST_CONNECTION_DATE_FROM, SearchAction.LAST_CONNECTION_DATE_TO,
+        SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO)
+      .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.now())))
+      .forEach(SearchActionIT::assertForbiddenException);
+  }
+
+  private static void assertForbiddenException(TestRequest testRequest) {
+    assertThatThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
+      .asInstanceOf(InstanceOfAssertFactories.type(ServerException.class))
+      .extracting(ServerException::httpCode)
+      .isEqualTo(403);
   }
 
   private void assertUserWithFilter(String field, Instant filterValue, String userLogin, boolean isExpectedToBeThere) {
