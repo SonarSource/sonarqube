@@ -20,7 +20,7 @@
 import { map } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import { HealthType, SysInfoValue } from '../../../../types/types';
+import { HealthTypes, SysInfoValue } from '../../../../types/types';
 import { HEALTH_FIELD, STATE_FIELD } from '../../utils';
 import HealthItem from './HealthItem';
 
@@ -31,7 +31,7 @@ export interface Props {
 
 export default function SysInfoItem({ name, value }: Props) {
   if (name === HEALTH_FIELD || name === STATE_FIELD) {
-    return <HealthItem className="no-margin" health={value as HealthType} />;
+    return <HealthItem className="no-margin" health={value as HealthTypes} />;
   }
   if (value instanceof Array) {
     return <code>{JSON.stringify(value)}</code>;

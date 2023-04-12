@@ -50,7 +50,7 @@ interface State {
   sysInfoData?: SysInfoCluster | SysInfoStandalone;
 }
 
-export class SystemApp extends React.PureComponent<Props, State> {
+class SystemApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -136,7 +136,6 @@ export class SystemApp extends React.PureComponent<Props, State> {
             logLevel={getSystemLogsLevel(sysInfoData)}
             onLogLevelChange={this.fetchSysInfo}
             serverId={getServerId(sysInfoData)}
-            showActions={sysInfoData !== undefined}
             version={
               isCluster(sysInfoData) ? getClusterVersion(sysInfoData) : getVersion(sysInfoData)
             }

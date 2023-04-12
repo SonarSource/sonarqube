@@ -36,8 +36,14 @@ export interface Query {
   expandedCards: string[];
 }
 
-export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
-const DEFAULT_LOG_LEVEL = LOGS_LEVELS[0];
+export enum LogsLevels {
+  INFO = 'INFO',
+  DEBUG = 'DEBUG',
+  TRACE = 'TRACE',
+}
+
+export const LOGS_LEVELS = Object.values(LogsLevels);
+const DEFAULT_LOG_LEVEL = LogsLevels.INFO;
 
 export const APP_NODES_FIELD = 'Application Nodes';
 export const ALMS_FIELD = 'ALMs';
@@ -84,17 +90,17 @@ export function getHealthCauses(sysInfoObject: SysInfoBase) {
   return sysInfoObject[HEALTH_CAUSES_FIELD];
 }
 
-export function getLogsLevel(sysInfoObject?: SysInfoValueObject): string {
+export function getLogsLevel(sysInfoObject?: SysInfoValueObject): LogsLevels {
   if (sysInfoObject !== undefined) {
     if (isLogInfoBlock(sysInfoObject)) {
-      return sysInfoObject[LOGS_LEVEL_FIELD];
+      return sysInfoObject[LOGS_LEVEL_FIELD] as LogsLevels;
     } else if (hasLoggingInfo(sysInfoObject)) {
       return sortBy(
         [
           getLogsLevel(sysInfoObject[WEB_LOGGING_FIELD]),
           getLogsLevel(sysInfoObject[CE_LOGGING_FIELD]),
         ],
-        (logLevel) => LOGS_LEVELS.indexOf(logLevel)
+        (logLevel: LogsLevels) => LOGS_LEVELS.indexOf(logLevel)
       )[1];
     }
   }
@@ -140,13 +146,13 @@ export function getClusterVersion(sysInfoData: SysInfoCluster): string | undefin
 
 export function getSystemLogsLevel(sysInfoData: SysInfoCluster | SysInfoStandalone): string {
   if (isCluster(sysInfoData)) {
-    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), (logLevel) =>
+    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), (logLevel: LogsLevels) =>
       LOGS_LEVELS.indexOf(logLevel)
     );
     return logLevels.length > 0 ? logLevels[logLevels.length - 1] : DEFAULT_LOG_LEVEL;
-  } else {
-    return getLogsLevel(sysInfoData);
   }
+
+  return getLogsLevel(sysInfoData);
 }
 
 export function getNodeName(nodeInfo: SysInfoAppNode | SysInfoSearchNode): string {

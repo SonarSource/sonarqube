@@ -22,26 +22,27 @@ import * as React from 'react';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translateWithParameters } from '../../../../helpers/l10n';
-import { HealthType } from '../../../../types/types';
+import { HealthTypes } from '../../../../types/types';
 import HealthCauseItem from './HealthCauseItem';
 
 interface Props {
   biggerHealth?: boolean;
   name?: string;
   className?: string;
-  health: HealthType;
+  health: HealthTypes;
   healthCauses?: string[];
 }
 
 export default function HealthItem({ biggerHealth, className, name, health, healthCauses }: Props) {
-  const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== 'GREEN';
+  const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== HealthTypes.GREEN;
+
   const statusIndicator = (
     <StatusIndicator color={health.toLowerCase()} size={biggerHealth ? 'big' : undefined} />
   );
   return (
     <div className={classNames('system-info-health-info', className)}>
       {hasHealthCauses &&
-        healthCauses!.map((cause, idx) => (
+        healthCauses.map((cause, idx) => (
           <HealthCauseItem className="spacer-right" health={health} healthCause={cause} key={idx} />
         ))}
       {name ? (

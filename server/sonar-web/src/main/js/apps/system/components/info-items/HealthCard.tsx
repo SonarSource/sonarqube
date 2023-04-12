@@ -22,14 +22,14 @@ import * as React from 'react';
 import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
-import { HealthType, SysInfoValueObject } from '../../../../types/types';
-import { getLogsLevel, groupSections, LOGS_LEVELS } from '../../utils';
+import { HealthTypes, SysInfoValueObject } from '../../../../types/types';
+import { getLogsLevel, groupSections, LogsLevels } from '../../utils';
 import HealthItem from './HealthItem';
 import Section from './Section';
 
 interface Props {
   biggerHealth?: boolean;
-  health?: HealthType;
+  health?: HealthTypes;
   healthCauses?: string[];
   onClick: (toggledCard: string) => void;
   open: boolean;
@@ -50,7 +50,7 @@ export default function HealthCard({
   const showFields = open && mainSection && Object.keys(mainSection).length > 0;
   const showSections = open && sections;
   const logLevel = getLogsLevel(sysInfoData);
-  const showLogLevelWarning = logLevel && logLevel !== LOGS_LEVELS[0];
+  const showLogLevelWarning = logLevel && logLevel !== LogsLevels.INFO;
   return (
     <BoxedGroupAccordion
       data={name}

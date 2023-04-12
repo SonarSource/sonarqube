@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
+import { mockClusterSysInfo, mockLogs, mockStandaloneSysInfo } from '../../../helpers/testMocks';
 import { SysInfoBase, SysInfoStandalone } from '../../../types/types';
 import * as u from '../utils';
 
@@ -46,11 +46,11 @@ describe('groupSections', () => {
 
 describe('getSystemLogsLevel', () => {
   it('should correctly return the worst log level for standalone mode', () => {
-    expect(u.getSystemLogsLevel(mockStandaloneSysInfo())).toBe('DEBUG');
+    expect(u.getSystemLogsLevel(mockStandaloneSysInfo())).toBe(u.LogsLevels.INFO);
   });
 
   it('should return the worst log level for cluster mode', () => {
-    expect(u.getSystemLogsLevel(mockClusterSysInfo())).toBe('DEBUG');
+    expect(u.getSystemLogsLevel(mockClusterSysInfo())).toBe(u.LogsLevels.DEBUG);
   });
 
   it('should not fail if the log informations are not there yet', () => {
@@ -60,15 +60,15 @@ describe('getSystemLogsLevel', () => {
           'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }],
         })
       )
-    ).toBe('INFO');
+    ).toBe(u.LogsLevels.INFO);
     expect(
       u.getSystemLogsLevel(
         mockClusterSysInfo({
           'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }],
         })
       )
-    ).toBe('INFO');
-    expect(u.getSystemLogsLevel({} as SysInfoStandalone)).toBe('INFO');
+    ).toBe(u.LogsLevels.INFO);
+    expect(u.getSystemLogsLevel({} as SysInfoStandalone)).toBe(u.LogsLevels.INFO);
   });
 });
 
@@ -189,14 +189,14 @@ describe('getLogsLevel', () => {
   it('should return the worst level', () => {
     expect(
       u.getLogsLevel({
-        'Web Logging': { 'Logs Level': 'DEBUG' },
-        'Compute Engine Logging': { 'Logs Level': 'TRACE' },
+        'Web Logging': mockLogs(u.LogsLevels.DEBUG),
+        'Compute Engine Logging': mockLogs(u.LogsLevels.TRACE),
       })
-    ).toEqual('TRACE');
+    ).toEqual(u.LogsLevels.TRACE);
   });
 
   it('should return the default level if no information is provided', () => {
-    expect(u.getLogsLevel()).toEqual('INFO');
+    expect(u.getLogsLevel()).toEqual(u.LogsLevels.INFO);
   });
 });
 

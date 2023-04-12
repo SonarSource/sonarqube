@@ -222,7 +222,11 @@ export interface Group {
   managed: boolean;
 }
 
-export type HealthType = 'RED' | 'YELLOW' | 'GREEN';
+export enum HealthTypes {
+  RED = 'RED',
+  YELLOW = 'YELLOW',
+  GREEN = 'GREEN',
+}
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -680,7 +684,7 @@ export interface SysInfoAppNode extends SysInfoBase {
 }
 
 export interface SysInfoBase extends SysInfoValueObject {
-  Health: HealthType;
+  Health: HealthTypes;
   'Health Causes': string[];
   Plugins?: Dict<string>;
   System: {
@@ -732,7 +736,7 @@ export type SysInfoValue =
   | string
   | number
   | undefined
-  | HealthType
+  | HealthTypes
   | SysInfoValueObject
   | SysInfoValueArray;
 

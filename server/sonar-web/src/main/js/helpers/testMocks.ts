@@ -21,6 +21,7 @@ import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { LogsLevels } from '../apps/system/utils';
 import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
@@ -35,7 +36,7 @@ import {
   Condition,
   FlowLocation,
   Group,
-  HealthType,
+  HealthTypes,
   IdentityProvider,
   Issue,
   Measure,
@@ -50,6 +51,7 @@ import {
   RuleParameter,
   SysInfoBase,
   SysInfoCluster,
+  SysInfoLogging,
   SysInfoStandalone,
 } from '../types/types';
 import { CurrentUser, LoggedInUser, User } from '../types/users';
@@ -78,7 +80,7 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
 
 export function mockBaseSysInfo(overrides: Partial<any> = {}): SysInfoBase {
   return {
-    Health: 'GREEN' as HealthType,
+    Health: HealthTypes.GREEN,
     'Health Causes': [],
     System: {
       Version: '7.8',
@@ -119,10 +121,10 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
     },
     'Application Nodes': [
       {
-        Name: 'server9.example.com',
+        Name: 'server1.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as HealthType,
-        'Health Causes': [],
+        Health: HealthTypes.RED,
+        'Health Causes': ['Something is wrong'],
         System: {
           Version: '7.8',
         },
@@ -162,10 +164,10 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server9.example.com',
+        Name: 'server2.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as HealthType,
-        'Health Causes': [],
+        Health: HealthTypes.YELLOW,
+        'Health Causes': ['Friendly warning'],
         System: {
           Version: '7.8',
         },
@@ -208,7 +210,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
     ],
     'Search Nodes': [
       {
-        Name: 'server.example.com',
+        Name: 'server1.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -216,7 +218,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server.example.com',
+        Name: 'server2.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -224,7 +226,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         },
       },
       {
-        Name: 'server.example.com',
+        Name: 'server3.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
@@ -608,6 +610,10 @@ export function mockRuleDetailsParameter(overrides: Partial<RuleParameter> = {})
   };
 }
 
+export function mockLogs(logsLevel: LogsLevels = LogsLevels.INFO): SysInfoLogging {
+  return { 'Logs Level': logsLevel, 'Logs Dir': '/logs' };
+}
+
 export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStandalone {
   const baseInfo = mockBaseSysInfo(overrides);
   return {
@@ -629,7 +635,7 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
       'Pool Active Connections': 0,
       'Pool Max Connections': 60,
     },
-    'Web Logging': { 'Logs Level': 'INFO', 'Logs Dir': '/logs' },
+    'Web Logging': mockLogs(),
     'Web JVM Properties': {
       'file.encoding': 'UTF-8',
       'file.separator': '/',
@@ -646,10 +652,7 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
       'Pool Initial Size': 0,
       'Pool Active Connections': 0,
     },
-    'Compute Engine Logging': {
-      'Logs Level': 'DEBUG',
-      'Logs Dir': '/logs',
-    },
+    'Compute Engine Logging': mockLogs(),
     'Compute Engine JVM Properties': {
       'file.encoding': 'UTF-8',
       'file.separator': '/',
