@@ -32,13 +32,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static java.net.HttpURLConnection.HTTP_NOT_IMPLEMENTED;
+import static org.sonar.server.v2.WebApiEndpoints.HEALTH_ENDPOINT;
 
 /*
 This controller does not support the cluster mode.
 This is not the final implementation, as we have to first define what are endpoint contracts.
 */
 @RestController
-@RequestMapping("/system/health")
+@RequestMapping(HEALTH_ENDPOINT)
 public class HealthController {
 
   private final HealthChecker healthChecker;

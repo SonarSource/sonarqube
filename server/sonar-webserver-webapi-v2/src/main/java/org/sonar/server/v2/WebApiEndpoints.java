@@ -20,7 +20,7 @@
 package org.sonar.server.v2;
 
 public class WebApiEndpoints {
-  private static final String SYSTEM_ENDPOINTS = "/system/";
+  private static final String SYSTEM_ENDPOINTS = "/system";
 
   public static final String LIVENESS_ENDPOINT = SYSTEM_ENDPOINTS + "/liveness";
 
@@ -28,5 +28,4 @@ public class WebApiEndpoints {
 
   private WebApiEndpoints() {
   }
-
 }
