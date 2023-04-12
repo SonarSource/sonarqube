@@ -290,6 +290,11 @@ public class ComponentDbTester {
     return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, portfolioPopulator);
   }
 
+  public final ComponentDto insertSubportfolio(ComponentDto parentPortfolio) {
+    ComponentDto subPortfolioComponent = ComponentTesting.newSubPortfolio(parentPortfolio);
+    return insertComponentAndPortfolio(subPortfolioComponent, true, defaults(), sp -> sp.setParentUuid(sp.getRootUuid()));
+  }
+
   public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
     for (String uuid : referencerUuids) {
       dbClient.portfolioDao().addReference(dbSession, portfolioUuid, uuid);

@@ -140,39 +140,6 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/define">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 9.2
-   */
-  @Deprecated
-  public void define(DefineRequest request) {
-    call(
-      new PostRequest(path("define"))
-        .setParam("def", request.getDef())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/definition">Further information about this action online (including a response example)</a>
-   * @since 2.0
-   * @deprecated since 9.2
-   */
-  @Deprecated
-  public String definition() {
-    return call(
-      new GetRequest(path("definition"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/delete">Further information about this action online (including a response example)</a>
    * @since 1.0
    */
@@ -473,4 +440,5 @@ public class ViewsService extends BaseService {
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
+
 }
