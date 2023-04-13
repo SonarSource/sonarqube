@@ -21,6 +21,7 @@
 export * from './Accordion';
 export * from './Avatar';
 export { Badge } from './Badge';
+export * from './Card';
 export { DeferredSpinner } from './DeferredSpinner';
 export { Dropdown } from './Dropdown';
 export * from './DropdownMenu';
