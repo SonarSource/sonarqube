@@ -20,11 +20,12 @@ exports[`should render correctly 1`] = `
         "managed": false,
         "name": "One",
         "scmAccounts": [],
+        "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
       }
     }
   />
   <td
-    className="thin nowrap text-middle"
+    className="thin text-middle"
   >
     <UserScmAccounts
       scmAccounts={[]}
@@ -35,6 +36,14 @@ exports[`should render correctly 1`] = `
   >
     <DateFromNow
       date="2019-01-18T15:06:33+0100"
+      hourPrecision={true}
+    />
+  </td>
+  <td
+    className="thin nowrap text-middle"
+  >
+    <DateFromNow
+      date="2019-01-16T15:06:33+0100"
       hourPrecision={true}
     />
   </td>
@@ -53,6 +62,7 @@ exports[`should render correctly 1`] = `
           "managed": false,
           "name": "One",
           "scmAccounts": [],
+          "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
         }
       }
     />
@@ -84,6 +94,7 @@ exports[`should render correctly 1`] = `
           "managed": false,
           "name": "One",
           "scmAccounts": [],
+          "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
         }
       }
     />
@@ -111,11 +122,12 @@ exports[`should render correctly without last connection date 1`] = `
         "managed": false,
         "name": "One",
         "scmAccounts": [],
+        "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
       }
     }
   />
   <td
-    className="thin nowrap text-middle"
+    className="thin text-middle"
   >
     <UserScmAccounts
       scmAccounts={[]}
@@ -126,6 +138,14 @@ exports[`should render correctly without last connection date 1`] = `
   >
     <DateFromNow
       date="2019-01-18T15:06:33+0100"
+      hourPrecision={true}
+    />
+  </td>
+  <td
+    className="thin nowrap text-middle"
+  >
+    <DateFromNow
+      date="2019-01-16T15:06:33+0100"
       hourPrecision={true}
     />
   </td>
@@ -144,6 +164,7 @@ exports[`should render correctly without last connection date 1`] = `
           "managed": false,
           "name": "One",
           "scmAccounts": [],
+          "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
         }
       }
     />
@@ -175,6 +196,7 @@ exports[`should render correctly without last connection date 1`] = `
           "managed": false,
           "name": "One",
           "scmAccounts": [],
+          "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
         }
       }
     />

@@ -62,11 +62,14 @@ export default function UserListItem(props: UserListItemProps) {
         user={user}
         manageProvider={manageProvider}
       />
-      <td className="thin nowrap text-middle">
+      <td className="thin text-middle">
         <UserScmAccounts scmAccounts={user.scmAccounts || []} />
       </td>
       <td className="thin nowrap text-middle">
         <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
+      </td>
+      <td className="thin nowrap text-middle">
+        <DateFromNow date={user.sonarLintLastConnectionDate} hourPrecision={true} />
       </td>
       <td className="thin nowrap text-middle">
         <UserGroups

@@ -29,6 +29,7 @@ jest.mock('../../../../components/intl/DateTimeFormatter');
 const user: User = {
   active: true,
   lastConnectionDate: '2019-01-18T15:06:33+0100',
+  sonarLintLastConnectionDate: '2019-01-16T15:06:33+0100',
   local: false,
   login: 'obi',
   name: 'One',

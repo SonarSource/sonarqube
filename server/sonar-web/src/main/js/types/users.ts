@@ -76,6 +76,7 @@ export interface User extends UserBase {
   externalProvider?: string;
   groups?: string[];
   lastConnectionDate?: string;
+  sonarLintLastConnectionDate?: string;
   local: boolean;
   managed: boolean;
   scmAccounts?: string[];

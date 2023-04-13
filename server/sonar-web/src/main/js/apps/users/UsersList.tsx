@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { CurrentUserContext } from '../../app/components/current-user/CurrentUserContext';
+import HelpTooltip from '../../components/controls/HelpTooltip';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider } from '../../types/types';
 import { isLoggedIn, User } from '../../types/users';
@@ -51,6 +52,13 @@ export default function UsersList({
             <th className="nowrap" />
             <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
             <th className="nowrap">{translate('users.last_connection')}</th>
+            <th className="nowrap">
+              {translate('users.last_sonarlint_connection')}
+              <HelpTooltip
+                className="sw-ml-1"
+                overlay={translate('users.last_sonarlint_connection.help_text')}
+              />
+            </th>
             <th className="nowrap">{translate('my_profile.groups')}</th>
             <th className="nowrap">{translate('users.tokens')}</th>
             {(manageProvider === undefined || users.some((u) => !u.managed)) && (
