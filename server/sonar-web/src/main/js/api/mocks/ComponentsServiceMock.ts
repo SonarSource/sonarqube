@@ -42,6 +42,7 @@ import {
   SourceViewerFile,
 } from '../../types/types';
 import {
+  changeKey,
   getChildren,
   getComponentData,
   getComponentForSourceViewer,
@@ -387,15 +388,16 @@ export default class ComponentsServiceMock {
     this.components = cloneDeep(this.defaultComponents);
     this.sourceFiles = cloneDeep(this.defaultSourceFiles);
 
-    (getComponentTree as jest.Mock).mockImplementation(this.handleGetComponentTree);
-    (getChildren as jest.Mock).mockImplementation(this.handleGetChildren);
-    (getTree as jest.Mock).mockImplementation(this.handleGetTree);
-    (getComponentData as jest.Mock).mockImplementation(this.handleGetComponentData);
-    (getComponentForSourceViewer as jest.Mock).mockImplementation(
-      this.handleGetComponentForSourceViewer
-    );
-    (getDuplications as jest.Mock).mockImplementation(this.handleGetDuplications);
-    (getSources as jest.Mock).mockImplementation(this.handleGetSources);
+    jest.mocked(getComponentTree).mockImplementation(this.handleGetComponentTree);
+    jest.mocked(getChildren).mockImplementation(this.handleGetChildren);
+    jest.mocked(getTree).mockImplementation(this.handleGetTree);
+    jest.mocked(getComponentData).mockImplementation(this.handleGetComponentData);
+    jest
+      .mocked(getComponentForSourceViewer)
+      .mockImplementation(this.handleGetComponentForSourceViewer);
+    jest.mocked(getDuplications).mockImplementation(this.handleGetDuplications);
+    jest.mocked(getSources).mockImplementation(this.handleGetSources);
+    jest.mocked(changeKey).mockImplementation(this.handleChangeKey);
   }
 
   findComponentTree = (key: string, from?: ComponentTree): ComponentTree | undefined => {
@@ -623,6 +625,15 @@ export default class ComponentsServiceMock {
     const from = data.from || 1;
     const to = data.to || lines.length;
     return this.reply(lines.slice(from - 1, to));
+  };
+
+  handleChangeKey = (data: { from: string; to: string }) => {
+    const treeItem = this.components.find(({ component }) => component.key === data.from);
+    if (treeItem) {
+      treeItem.component.key = data.to;
+      return this.reply(undefined);
+    }
+    return Promise.reject({ status: 404, message: 'Component not found' });
   };
 
   reply<T>(response: T): Promise<T> {

@@ -32,27 +32,24 @@ interface Props {
   router: Router;
 }
 
-export class Key extends React.PureComponent<Props> {
-  handleChangeKey = (newKey: string) => {
-    return changeKey({ from: this.props.component.key, to: newKey }).then(() => {
-      RecentHistory.remove(this.props.component.key);
-      this.props.router.replace({ pathname: '/project/key', query: { id: newKey } });
+function ProjectKeyApp({ component, router }: Props) {
+  const handleChangeKey = (newKey: string) => {
+    return changeKey({ from: component.key, to: newKey }).then(() => {
+      RecentHistory.remove(component.key);
+      router.replace({ pathname: '/project/key', query: { id: newKey } });
     });
   };
 
-  render() {
-    const { component } = this.props;
-    return (
-      <div className="page page-limited" id="project-key">
-        <Helmet defer={false} title={translate('update_key.page')} />
-        <header className="page-header">
-          <h1 className="page-title">{translate('update_key.page')}</h1>
-          <div className="page-description">{translate('update_key.page.description')}</div>
-        </header>
-        <UpdateForm component={component} onKeyChange={this.handleChangeKey} />
-      </div>
-    );
-  }
+  return (
+    <div className="page page-limited" id="project-key">
+      <Helmet defer={false} title={translate('update_key.page')} />
+      <header className="page-header">
+        <h1 className="page-title">{translate('update_key.page')}</h1>
+        <div className="page-description">{translate('update_key.page.description')}</div>
+      </header>
+      <UpdateForm component={component} onKeyChange={handleChangeKey} />
+    </div>
+  );
 }
 
-export default withComponentContext(withRouter(Key));
+export default withComponentContext(withRouter(ProjectKeyApp));
