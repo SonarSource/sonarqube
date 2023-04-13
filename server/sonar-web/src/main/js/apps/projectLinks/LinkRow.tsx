@@ -79,7 +79,11 @@ export default class LinkRow extends React.PureComponent<Props> {
         onConfirm={this.props.onDelete}
       >
         {({ onClick }) => (
-          <Button className="button-red js-delete-button" onClick={onClick}>
+          <Button
+            className="button-red js-delete-button"
+            aria-label={translateWithParameters('project_links.delete_x_link', link.name ?? '')}
+            onClick={onClick}
+          >
             {translate('delete')}
           </Button>
         )}

@@ -36,7 +36,7 @@ interface State {
   loading: boolean;
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class ProjectLinksApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -56,8 +56,12 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   fetchLinks = () => {
+    const {
+      component: { key },
+    } = this.props;
+
     this.setState({ loading: true });
-    getProjectLinks(this.props.component.key).then(
+    getProjectLinks(key).then(
       (links) => {
         if (this.mounted) {
           this.setState({ links, loading: false });
@@ -72,7 +76,11 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleCreateLink = (name: string, url: string) => {
-    return createLink({ name, projectKey: this.props.component.key, url }).then((link) => {
+    const {
+      component: { key },
+    } = this.props;
+
+    return createLink({ name, projectKey: key, url }).then((link) => {
       if (this.mounted) {
         this.setState(({ links = [] }) => ({
           links: [...links, link],
@@ -92,16 +100,17 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { loading, links } = this.state;
     return (
       <div className="page page-limited">
         <Helmet defer={false} title={translate('project_links.page')} />
         <Header onCreate={this.handleCreateLink} />
-        <DeferredSpinner loading={this.state.loading}>
-          {this.state.links && <Table links={this.state.links} onDelete={this.handleDeleteLink} />}
+        <DeferredSpinner loading={loading}>
+          {links && <Table links={links} onDelete={this.handleDeleteLink} />}
         </DeferredSpinner>
       </div>
     );
   }
 }
 
-export default withComponentContext(App);
+export default withComponentContext(ProjectLinksApp);
