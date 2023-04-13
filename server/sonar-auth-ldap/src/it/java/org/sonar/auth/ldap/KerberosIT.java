@@ -20,13 +20,13 @@
 package org.sonar.auth.ldap;
 
 import java.io.File;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,14 +54,14 @@ public class KerberosIT {
 
   @Test
   public void test_wrong_password() {
-    LdapAuthenticator.Context wrongPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "wrong_user_password", Mockito.mock(HttpServletRequest.class));
+    LdapAuthenticator.Context wrongPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "wrong_user_password", Mockito.mock(HttpRequest.class));
     assertThat(authenticator.doAuthenticate(wrongPasswordContext).isSuccess()).isFalse();
   }
 
   @Test
   public void test_correct_password() {
 
-    LdapAuthenticator.Context correctPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "user_password", Mockito.mock(HttpServletRequest.class));
+    LdapAuthenticator.Context correctPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "user_password", Mockito.mock(HttpRequest.class));
     assertThat(authenticator.doAuthenticate(correctPasswordContext).isSuccess()).isTrue();
 
   }
@@ -70,14 +70,14 @@ public class KerberosIT {
   public void test_default_realm() {
 
     // Using default realm from krb5.conf:
-    LdapAuthenticator.Context defaultRealmContext = new LdapAuthenticator.Context("Godin", "user_password", Mockito.mock(HttpServletRequest.class));
+    LdapAuthenticator.Context defaultRealmContext = new LdapAuthenticator.Context("Godin", "user_password", Mockito.mock(HttpRequest.class));
     assertThat(authenticator.doAuthenticate(defaultRealmContext).isSuccess()).isTrue();
   }
 
   @Test
   public void test_groups() {
     LdapGroupsProvider groupsProvider = ldapRealm.getGroupsProvider();
-    LdapGroupsProvider.Context groupsContext = new LdapGroupsProvider.Context("default", "godin", Mockito.mock(HttpServletRequest.class));
+    LdapGroupsProvider.Context groupsContext = new LdapGroupsProvider.Context("default", "godin", Mockito.mock(HttpRequest.class));
     assertThat(groupsProvider.doGetGroups(groupsContext))
       .containsOnly("sonar-users");
   }

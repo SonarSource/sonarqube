@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -122,7 +122,7 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
-    HttpServletRequest request = context.getRequest();
+    HttpRequest request = context.getHttpRequest();
     OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);

@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
 import org.sonar.auth.ldap.LdapRealm;
@@ -87,7 +87,7 @@ public class LdapCredentialsAuthenticationTest {
   private AuthenticationEvent authenticationEvent;
 
   @Mock
-  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpRequest request = mock(HttpRequest.class);
 
   @Mock
   private LdapAuthenticator ldapAuthenticator;

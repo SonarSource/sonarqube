@@ -19,14 +19,12 @@
  */
 package org.sonar.server.authentication.ws;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.Credentials;
 import org.sonar.server.authentication.CredentialsAuthentication;
@@ -46,7 +44,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
-public class LoginAction extends ServletFilter implements AuthenticationWsAction {
+public class LoginAction extends HttpFilter implements AuthenticationWsAction {
 
   private static final String LOGIN_ACTION = "login";
   public static final String LOGIN_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGIN_ACTION;
@@ -87,10 +85,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) {
     if (!request.getMethod().equals(POST.name())) {
       response.setStatus(HTTP_BAD_REQUEST);
       return;
@@ -108,7 +103,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
     }
   }
 
-  private UserDto authenticate(HttpServletRequest request) {
+  private UserDto authenticate(HttpRequest request) {
     String login = request.getParameter("login");
     String password = request.getParameter("password");
     if (isEmpty(login) || isEmpty(password)) {
@@ -122,7 +117,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 

@@ -22,8 +22,12 @@ package org.sonar.auth.saml;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,8 +36,8 @@ public class SamlAuthenticatorTest {
   @Test
   public void authentication_status_with_errors_returned_when_init_fails() {
     SamlAuthenticator samlAuthenticator = new SamlAuthenticator(mock(SamlSettings.class), mock(SamlMessageIdChecker.class));
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
+    HttpRequest request = new JavaxHttpRequest(mock(HttpServletRequest.class));
+    HttpResponse response = new JavaxHttpResponse(mock(HttpServletResponse.class));
     when(request.getContextPath()).thenReturn("context");
 
     String authenticationStatus = samlAuthenticator.getAuthenticationStatusPage(request, response);

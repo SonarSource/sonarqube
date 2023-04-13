@@ -22,13 +22,14 @@ package org.sonar.server.authentication;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Optional;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.server.http.JavaxHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,8 +43,8 @@ public class OAuth2AuthenticationParametersImplTest {
 
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
   private final ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
-  private final HttpServletResponse response = mock(HttpServletResponse.class);
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
+  private final HttpRequest request = mock(HttpRequest.class);
 
   private final OAuth2AuthenticationParameters underTest = new OAuth2AuthenticationParametersImpl();
 
@@ -65,7 +66,7 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isTrue();
     assertThat(cookie.getMaxAge()).isEqualTo(300);
-    assertThat(cookie.getSecure()).isFalse();
+    assertThat(cookie.isSecure()).isFalse();
   }
 
   @Test
@@ -105,7 +106,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -123,7 +124,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -132,7 +133,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     underTest.delete(request, response);
 
@@ -142,5 +143,9 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
     assertThat(updatedCookie.getMaxAge()).isZero();
+  }
+
+  private JavaxHttpRequest.JavaxCookie wrapCookie(String name, String value) {
+    return new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie(name, value));
   }
 }

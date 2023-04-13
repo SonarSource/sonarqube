@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpResponse;
 
 public class SamlValidationCspHeaders {
 
@@ -30,7 +31,7 @@ public class SamlValidationCspHeaders {
     throw new IllegalStateException("Utility class, cannot be instantiated");
   }
 
-  public static String addCspHeadersWithNonceToResponse(HttpServletResponse httpResponse) {
+  public static String addCspHeadersWithNonceToResponse(HttpResponse httpResponse) {
     final String nonce = getNonce();
 
     List<String> cspPolicies = List.of(

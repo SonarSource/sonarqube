@@ -23,20 +23,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
-import org.sonar.server.authentication.SamlValidationCspHeaders;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +72,6 @@ public class ValidationActionTest {
     underTest = new ValidationAction(userSession, samlAuthenticator, oAuth2ContextFactory, samlIdentityProvider, oAuthCsrfVerifier);
   }
 
-
   @Test
   public void do_get_pattern() {
     assertThat(underTest.doGetPattern().matches("/saml/validation")).isTrue();
@@ -81,8 +82,8 @@ public class ValidationActionTest {
   }
 
   @Test
-  public void do_filter_admin() throws ServletException, IOException {
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+  public void do_filter_admin() throws IOException {
+    HttpServletRequest servletRequest = spy(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     StringWriter stringWriter = new StringWriter();
     doReturn(new PrintWriter(stringWriter)).when(servletResponse).getWriter();
@@ -93,7 +94,7 @@ public class ValidationActionTest {
     final String mockedHtmlContent = "mocked html content";
     doReturn(mockedHtmlContent).when(samlAuthenticator).getAuthenticationStatusPage(any(), any());
 
-    underTest.doFilter(servletRequest, servletResponse, filterChain);
+    underTest.doFilter(new JavaxHttpRequest(servletRequest), new JavaxHttpResponse(servletResponse), filterChain);
 
     verify(samlAuthenticator).getAuthenticationStatusPage(any(), any());
     verify(servletResponse).getWriter();
@@ -102,9 +103,9 @@ public class ValidationActionTest {
   }
 
   @Test
-  public void do_filter_not_authorized() throws ServletException, IOException {
-    HttpServletRequest servletRequest = spy(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_not_authorized() throws IOException {
+    HttpRequest servletRequest = spy(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     StringWriter stringWriter = new StringWriter();
     doReturn(new PrintWriter(stringWriter)).when(servletResponse).getWriter();
     FilterChain filterChain = mock(FilterChain.class);
@@ -118,9 +119,9 @@ public class ValidationActionTest {
   }
 
   @Test
-  public void do_filter_failed_csrf_verification() throws ServletException, IOException {
-    HttpServletRequest servletRequest = spy(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_failed_csrf_verification() throws IOException {
+    HttpRequest servletRequest = spy(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     StringWriter stringWriter = new StringWriter();
     doReturn(new PrintWriter(stringWriter)).when(servletResponse).getWriter();
     FilterChain filterChain = mock(FilterChain.class);
@@ -128,7 +129,7 @@ public class ValidationActionTest {
     doReturn("IdentityProviderName").when(samlIdentityProvider).getName();
     doThrow(AuthenticationException.newBuilder()
       .setSource(AuthenticationEvent.Source.oauth2(samlIdentityProvider))
-      .setMessage("Cookie is missing").build()).when(oAuthCsrfVerifier).verifyState(any(),any(),any(), any());
+      .setMessage("Cookie is missing").build()).when(oAuthCsrfVerifier).verifyState(any(), any(), any(), any());
 
     doReturn(true).when(userSession).hasSession();
     doReturn(true).when(userSession).isSystemAdministrator();

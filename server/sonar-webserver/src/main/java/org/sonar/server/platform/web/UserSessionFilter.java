@@ -34,6 +34,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -77,7 +79,7 @@ public class UserSessionFilter implements Filter {
   private static void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
     @Nullable UserSessionInitializer userSessionInitializer) throws IOException, ServletException {
     try {
-      if (userSessionInitializer == null || userSessionInitializer.initUserSession(request, response)) {
+      if (userSessionInitializer == null || userSessionInitializer.initUserSession(new JavaxHttpRequest(request), new JavaxHttpResponse(response))) {
         chain.doFilter(request, response);
       }
     } finally {

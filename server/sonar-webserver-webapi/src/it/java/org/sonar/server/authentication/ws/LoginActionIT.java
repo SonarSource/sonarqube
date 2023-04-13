@@ -19,14 +19,14 @@
  */
 package org.sonar.server.authentication.ws;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.FilterChain;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -60,23 +60,23 @@ public class LoginActionIT {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private final DbClient dbClient = dbTester.getDbClient();
 
-  private DbSession dbSession = dbTester.getSession();
+  private final DbSession dbSession = dbTester.getSession();
 
-  private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private final ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
 
-  private CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
+  private final CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private final TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
 
-  private UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
-  private LoginAction underTest = new LoginAction(credentialsAuthentication, jwtHttpHandler, threadLocalUserSession, authenticationEvent, userSessionFactory);
+  private final UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
+  private final LoginAction underTest = new LoginAction(credentialsAuthentication, jwtHttpHandler, threadLocalUserSession, authenticationEvent, userSessionFactory);
 
   @Before
   public void setUp() {
@@ -131,7 +131,7 @@ public class LoginActionIT {
   }
 
   @Test
-  public void return_authorized_code_when_unauthorized_exception_is_thrown() throws Exception {
+  public void return_authorized_code_when_unauthorized_exception_is_thrown() {
     doThrow(new UnauthorizedException("error !")).when(credentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, FORM);
 
     executeRequest(LOGIN, PASSWORD);
@@ -142,28 +142,28 @@ public class LoginActionIT {
   }
 
   @Test
-  public void return_unauthorized_code_when_no_login() throws Exception {
+  public void return_unauthorized_code_when_no_login() {
     executeRequest(null, PASSWORD);
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
-  public void return_unauthorized_code_when_empty_login() throws Exception {
+  public void return_unauthorized_code_when_empty_login() {
     executeRequest("", PASSWORD);
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
-  public void return_unauthorized_code_when_no_password() throws Exception {
+  public void return_unauthorized_code_when_no_password() {
     executeRequest(LOGIN, null);
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
-  public void return_unauthorized_code_when_empty_password() throws Exception {
+  public void return_unauthorized_code_when_empty_password() {
     executeRequest(LOGIN, "");
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));

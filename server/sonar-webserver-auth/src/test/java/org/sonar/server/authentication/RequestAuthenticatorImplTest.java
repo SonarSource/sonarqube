@@ -20,10 +20,10 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.tester.AnonymousMockUserSession;
@@ -47,8 +47,8 @@ public class RequestAuthenticatorImplTest {
   private static final UserDto A_USER = newUserDto();
   private static final UserTokenDto A_USER_TOKEN = mockUserTokenDto(A_USER);
 
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
-  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private final BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
   private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);

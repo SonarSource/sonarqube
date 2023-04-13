@@ -24,11 +24,11 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -106,7 +106,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
     context.verifyCsrfState();
 
-    HttpServletRequest request = context.getRequest();
+    HttpRequest request = context.getHttpRequest();
     OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter("code");
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);

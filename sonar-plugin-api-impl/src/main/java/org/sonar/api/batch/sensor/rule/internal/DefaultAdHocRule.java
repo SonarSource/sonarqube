@@ -26,6 +26,7 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -94,6 +95,12 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
     return type;
   }
 
+  @CheckForNull
+  @Override
+  public CodeCharacteristic characteristic() {
+    throw new IllegalStateException("Not implemented yet");
+  }
+
   @Override
   public DefaultAdHocRule engineId(String engineId) {
     this.engineId = engineId;
@@ -122,6 +129,11 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   public DefaultAdHocRule type(RuleType type) {
     this.type = type;
     return this;
+  }
+
+  @Override
+  public NewAdHocRule characteristic(CodeCharacteristic characteristic) {
+    throw new IllegalStateException("Not implemented yet");
   }
 
 }

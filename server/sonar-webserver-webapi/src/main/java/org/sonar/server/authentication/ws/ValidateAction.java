@@ -22,16 +22,14 @@ package org.sonar.server.authentication.ws;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
@@ -43,7 +41,7 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VAL
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 
-public class ValidateAction extends ServletFilter implements AuthenticationWsAction {
+public class ValidateAction extends HttpFilter implements AuthenticationWsAction {
 
   private static final String VALIDATE_ACTION = "validate";
   public static final String VALIDATE_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + VALIDATE_ACTION;
@@ -73,10 +71,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain filterChain) throws IOException {
     boolean isAuthenticated = authenticate(request, response);
     response.setContentType(MediaTypes.JSON);
 
@@ -87,7 +82,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
     }
   }
 
-  private boolean authenticate(HttpServletRequest request, HttpServletResponse response) {
+  private boolean authenticate(HttpRequest request, HttpResponse response) {
     try {
       Optional<UserDto> user = jwtHttpHandler.validateToken(request, response);
       if (user.isPresent()) {
@@ -104,7 +99,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // Nothing to do
   }
 

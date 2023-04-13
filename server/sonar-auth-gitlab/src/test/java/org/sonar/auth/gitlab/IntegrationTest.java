@@ -19,7 +19,6 @@
  */
 package org.sonar.auth.gitlab;
 
-import javax.servlet.http.HttpServletRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
@@ -31,6 +30,7 @@ import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,9 +76,9 @@ public class IntegrationTest {
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-    when(httpServletRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
-    when(callbackContext.getRequest()).thenReturn(httpServletRequest);
+    HttpRequest httpRequest = Mockito.mock(HttpRequest.class);
+    when(httpRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
+    when(callbackContext.getHttpRequest()).thenReturn(httpRequest);
 
     gitlab.enqueue(new MockResponse().setBody(
       "{\n" + " \"access_token\": \"de6780bc506a0446309bd9362820ba8aed28aa506c71eedbe1c5c4f9dd350e54\",\n" + " \"token_type\": \"bearer\",\n" + " \"expires_in\": 7200,\n"
@@ -104,9 +104,9 @@ public class IntegrationTest {
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-    when(httpServletRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
-    when(callbackContext.getRequest()).thenReturn(httpServletRequest);
+    HttpRequest httpRequest = Mockito.mock(HttpRequest.class);
+    when(httpRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
+    when(callbackContext.getHttpRequest()).thenReturn(httpRequest);
 
     gitlab.enqueue(new MockResponse().setBody(
       "{\n" + " \"access_token\": \"de6780bc506a0446309bd9362820ba8aed28aa506c71eedbe1c5c4f9dd350e54\",\n" + " \"token_type\": \"bearer\",\n" + " \"expires_in\": 7200,\n"
@@ -133,9 +133,9 @@ public class IntegrationTest {
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-    when(httpServletRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
-    when(callbackContext.getRequest()).thenReturn(httpServletRequest);
+    HttpRequest httpRequest = Mockito.mock(HttpRequest.class);
+    when(httpRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
+    when(callbackContext.getHttpRequest()).thenReturn(httpRequest);
 
     gitlab.enqueue(new MockResponse().setBody(
       "{\n" + " \"access_token\": \"de6780bc506a0446309bd9362820ba8aed28aa506c71eedbe1c5c4f9dd350e54\",\n" + " \"token_type\": \"bearer\",\n" + " \"expires_in\": 7200,\n"
@@ -173,9 +173,9 @@ public class IntegrationTest {
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-    when(httpServletRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
-    when(callbackContext.getRequest()).thenReturn(httpServletRequest);
+    HttpRequest httpRequest = Mockito.mock(HttpRequest.class);
+    when(httpRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
+    when(callbackContext.getHttpRequest()).thenReturn(httpRequest);
 
     gitlab.enqueue(new MockResponse().setBody(
       "{\n" + " \"access_token\": \"de6780bc506a0446309bd9362820ba8aed28aa506c71eedbe1c5c4f9dd350e54\",\n" + " \"token_type\": \"bearer\",\n" + " \"expires_in\": 7200,\n"

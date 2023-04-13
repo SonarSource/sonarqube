@@ -19,12 +19,14 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
@@ -97,6 +99,12 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     return type;
   }
 
+  @CheckForNull
+  @Override
+  public CodeCharacteristic characteristic() {
+    throw new IllegalStateException("Not implemented yet");
+  }
+
   @Override
   public NewExternalIssue engineId(String engineId) {
     this.engineId = engineId;
@@ -128,6 +136,11 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   public DefaultExternalIssue type(RuleType type) {
     this.type = type;
     return this;
+  }
+
+  @Override
+  public NewExternalIssue characteristic(CodeCharacteristic characteristic) {
+    throw new IllegalStateException("Not implemented yet");
   }
 
 }

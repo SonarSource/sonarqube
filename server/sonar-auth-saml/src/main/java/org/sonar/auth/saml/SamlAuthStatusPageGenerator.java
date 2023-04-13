@@ -25,8 +25,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.json.JSONObject;
+import org.sonar.api.server.http.HttpRequest;
 
 public final class SamlAuthStatusPageGenerator {
 
@@ -38,7 +38,7 @@ public final class SamlAuthStatusPageGenerator {
     throw new IllegalStateException("This Utility class cannot be instantiated");
   }
 
-  public static String getSamlAuthStatusHtml(HttpServletRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
+  public static String getSamlAuthStatusHtml(HttpRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
     Map<String, String> substitutionsMap = getSubstitutionsMap(request, samlAuthenticationStatus);
     String htmlTemplate = getPlainTemplate();
 
@@ -48,7 +48,7 @@ public final class SamlAuthStatusPageGenerator {
       .reduce(htmlTemplate, (accumulator, pattern) -> accumulator.replace(pattern, substitutionsMap.get(pattern)));
   }
 
-  private static Map<String, String> getSubstitutionsMap(HttpServletRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
+  private static Map<String, String> getSubstitutionsMap(HttpRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
     return Map.of(
       WEB_CONTEXT, request.getContextPath(),
       SAML_AUTHENTICATION_STATUS, getBase64EncodedStatus(samlAuthenticationStatus));

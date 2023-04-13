@@ -19,12 +19,12 @@
  */
 package org.sonar.auth.ldap;
 
-import javax.servlet.http.HttpServletRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,12 +117,12 @@ public class LdapRealmIT {
     LdapGroupsProvider groupsProvider = realm.getGroupsProvider();
     assertThat(groupsProvider).isInstanceOf(LdapGroupsProvider.class).isInstanceOf(DefaultLdapGroupsProvider.class);
 
-    LdapUsersProvider.Context userContext = new DefaultLdapUsersProvider.Context("<default>", "tester", Mockito.mock(HttpServletRequest.class));
+    LdapUsersProvider.Context userContext = new DefaultLdapUsersProvider.Context("<default>", "tester", Mockito.mock(HttpRequest.class));
     assertThatThrownBy(() -> usersProvider.doGetUserDetails(userContext))
       .isInstanceOf(LdapException.class)
       .hasMessage("Unable to retrieve details for user tester and server key <default>: No user mapping found.");
 
-    LdapGroupsProvider.Context groupsContext = new DefaultLdapGroupsProvider.Context("default", "tester", Mockito.mock(HttpServletRequest.class));
+    LdapGroupsProvider.Context groupsContext = new DefaultLdapGroupsProvider.Context("default", "tester", Mockito.mock(HttpRequest.class));
     assertThatThrownBy(() -> groupsProvider.doGetGroups(groupsContext))
       .isInstanceOf(LdapException.class)
       .hasMessage("Unable to retrieve groups for user tester in server with key <default>");

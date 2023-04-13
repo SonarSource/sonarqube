@@ -22,15 +22,15 @@ package org.sonar.server.platform.web;
 import java.io.IOException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -48,7 +48,7 @@ public class SonarLintConnectionFilterIT {
   public DbTester dbTester = DbTester.create(system2);
 
   @Test
-  public void update() throws IOException, ServletException {
+  public void update() throws IOException {
     system2.setNow(10_000_000L);
     addUser(LOGIN, 1_000_000L);
 
@@ -57,7 +57,7 @@ public class SonarLintConnectionFilterIT {
   }
 
   @Test
-  public void update_first_time() throws IOException, ServletException {
+  public void update_first_time() throws IOException {
     system2.setNow(10_000_000L);
     addUser(LOGIN, null);
 
@@ -74,7 +74,7 @@ public class SonarLintConnectionFilterIT {
   }
 
   @Test
-  public void do_nothing_if_no_sonarlint_agent() throws IOException, ServletException {
+  public void do_nothing_if_no_sonarlint_agent() throws IOException {
     system2.setNow(10_000L);
     addUser(LOGIN, 1_000L);
 
@@ -84,7 +84,7 @@ public class SonarLintConnectionFilterIT {
   }
 
   @Test
-  public void do_nothing_if_not_logged_in() throws IOException, ServletException {
+  public void do_nothing_if_not_logged_in() throws IOException {
     system2.setNow(10_000_000L);
     addUser("invalid", 1_000_000L);
 
@@ -93,17 +93,17 @@ public class SonarLintConnectionFilterIT {
   }
 
   @Test
-  public void dont_fail_if_no_user_set() throws IOException, ServletException {
+  public void dont_fail_if_no_user_set() throws IOException {
     SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), new ThreadLocalUserSession(), system2);
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getHeader("User-Agent")).thenReturn("sonarlint");
+    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
+    when(httpRequest.getHeader("User-Agent")).thenReturn("sonarlint");
     FilterChain chain = mock(FilterChain.class);
-    underTest.doFilter(request, mock(ServletResponse.class), chain);
+    underTest.doFilter(new JavaxHttpRequest(httpRequest), mock(HttpResponse.class), chain);
     verify(chain).doFilter(any(), any());
   }
 
   @Test
-  public void only_update_if_not_updated_within_1h() throws IOException, ServletException {
+  public void only_update_if_not_updated_within_1h() throws IOException {
     system2.setNow(2_000_000L);
     addUser(LOGIN, 1_000_000L);
 
@@ -120,15 +120,15 @@ public class SonarLintConnectionFilterIT {
     return dbTester.getDbClient().userDao().selectByLogin(dbTester.getSession(), login).getLastSonarlintConnectionDate();
   }
 
-  private void runFilter(String loggedInUser, @Nullable String agent) throws IOException, ServletException {
+  private void runFilter(String loggedInUser, @Nullable String agent) throws IOException {
     UserDto user = dbTester.getDbClient().userDao().selectByLogin(dbTester.getSession(), loggedInUser);
     ThreadLocalUserSession session = new ThreadLocalUserSession();
     session.set(new ServerUserSession(dbTester.getDbClient(), user));
     SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), session, system2);
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getHeader("User-Agent")).thenReturn(agent);
+    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
+    when(httpRequest.getHeader("User-Agent")).thenReturn(agent);
     FilterChain chain = mock(FilterChain.class);
-    underTest.doFilter(request, mock(ServletResponse.class), chain);
+    underTest.doFilter(new JavaxHttpRequest(httpRequest), mock(HttpResponse.class), chain);
     verify(chain).doFilter(any(), any());
   }
 }

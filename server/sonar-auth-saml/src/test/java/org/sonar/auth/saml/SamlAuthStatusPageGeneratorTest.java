@@ -21,8 +21,8 @@ package org.sonar.auth.saml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,16 +35,16 @@ public class SamlAuthStatusPageGeneratorTest {
   @Test
   public void getSamlAuthStatusHtml_whenCalled_shouldGeneratePageWithData() {
     SamlAuthenticationStatus samlAuthenticationStatus = mock(SamlAuthenticationStatus.class);
-    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+    HttpRequest request = mock(HttpRequest.class);
 
     when(samlAuthenticationStatus.getStatus()).thenReturn(null);
     when(samlAuthenticationStatus.getErrors()).thenReturn(new ArrayList<>());
     when(samlAuthenticationStatus.getWarnings()).thenReturn(new ArrayList<>());
     when(samlAuthenticationStatus.getAvailableAttributes()).thenReturn(new HashMap<>());
     when(samlAuthenticationStatus.getMappedAttributes()).thenReturn(new HashMap<>());
-    when(httpServletRequest.getContextPath()).thenReturn("context");
+    when(request.getContextPath()).thenReturn("context");
 
-    String completeHtmlTemplate = getSamlAuthStatusHtml(httpServletRequest, samlAuthenticationStatus);
+    String completeHtmlTemplate = getSamlAuthStatusHtml(request, samlAuthenticationStatus);
 
     assertThat(completeHtmlTemplate).contains(EMPTY_DATA_RESPONSE);
   }

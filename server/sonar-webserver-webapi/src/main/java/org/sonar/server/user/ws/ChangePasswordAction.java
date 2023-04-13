@@ -25,16 +25,15 @@ import com.google.gson.stream.JsonWriter;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -61,7 +60,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASSWORD;
 
-public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAction {
+public class ChangePasswordAction extends HttpFilter implements BaseUsersWsAction {
 
   private static final Logger LOG = Loggers.get(ChangePasswordAction.class);
 
@@ -117,7 +116,7 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       String login = getParamOrThrow(request, PARAM_LOGIN);
@@ -148,7 +147,7 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     }
   }
 
-  private static String getParamOrThrow(ServletRequest request, String key) throws PasswordException {
+  private static String getParamOrThrow(HttpRequest request, String key) throws PasswordException {
     String value = request.getParameter(key);
     if (isNullOrEmpty(value)) {
       throw new PasswordException(format(MSG_PARAMETER_MISSING, key));
@@ -178,16 +177,14 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     return user;
   }
 
-  private void deleteTokensAndRefreshSession(ServletRequest request, ServletResponse response, DbSession dbSession, UserDto user) {
+  private void deleteTokensAndRefreshSession(HttpRequest request, HttpResponse response, DbSession dbSession, UserDto user) {
     dbClient.sessionTokensDao().deleteByUser(dbSession, user);
     refreshJwtToken(request, response, user);
   }
 
-  private void refreshJwtToken(ServletRequest request, ServletResponse response, UserDto user) {
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    jwtHttpHandler.removeToken(httpRequest, httpResponse);
-    jwtHttpHandler.generateToken(user, httpRequest, httpResponse);
+  private void refreshJwtToken(HttpRequest request, HttpResponse response, UserDto user) {
+    jwtHttpHandler.removeToken(request, response);
+    jwtHttpHandler.generateToken(user, request, response);
   }
 
   private void updatePassword(DbSession dbSession, UserDto user, String newPassword) {
@@ -196,14 +193,15 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     });
   }
 
-  private static void setResponseStatus(ServletResponse response, int newStatusCode) {
-    ((HttpServletResponse) response).setStatus(newStatusCode);
+  private static void setResponseStatus(HttpResponse response, int newStatusCode) {
+    response.setStatus(newStatusCode);
   }
 
-  private static void writeJsonResponse(String msg, ServletResponse response) {
+  private static void writeJsonResponse(String msg, HttpResponse response) {
     Gson gson = new GsonBuilder()
       .disableHtmlEscaping()
       .create();
+
     try (OutputStream output = response.getOutputStream();
          JsonWriter writer = gson.newJsonWriter(new OutputStreamWriter(output, UTF_8))) {
       response.setContentType(JSON);

@@ -25,21 +25,22 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.http.JavaxHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -77,8 +78,8 @@ public class JwtHttpHandlerTest {
   private DbSession dbSession = db.getSession();
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
   private ArgumentCaptor<JwtSerializer.JwtSession> jwtArgumentCaptor = ArgumentCaptor.forClass(JwtSerializer.JwtSession.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpRequest request = mock(HttpRequest.class);
+  private HttpResponse response = mock(HttpResponse.class);
   private HttpSession httpSession = mock(HttpSession.class);
   private System2 system2 = spy(System2.INSTANCE);
   private MapSettings settings = new MapSettings();
@@ -90,7 +91,6 @@ public class JwtHttpHandlerTest {
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
-    when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
     when(jwtCsrfVerifier.generateState(eq(request), eq(response), anyInt())).thenReturn(CSRF_STATE);
   }
@@ -274,7 +274,7 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token_does_nothing_when_empty_value_in_jwt_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("JWT-SESSION", "")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie("JWT-SESSION", ""))});
 
     underTest.validateToken(request, response);
 
@@ -401,7 +401,7 @@ public class JwtHttpHandlerTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isTrue();
     assertThat(cookie.getMaxAge()).isEqualTo(expiry);
-    assertThat(cookie.getSecure()).isFalse();
+    assertThat(cookie.isSecure()).isFalse();
     assertThat(cookie.getValue()).isEqualTo(value);
   }
 
@@ -425,7 +425,7 @@ public class JwtHttpHandlerTest {
   }
 
   private Cookie addJwtCookie() {
-    Cookie cookie = new Cookie("JWT-SESSION", JWT_TOKEN);
+    Cookie cookie = new JavaxHttpRequest.JavaxCookie(new javax.servlet.http.Cookie("JWT-SESSION", JWT_TOKEN));
     when(request.getCookies()).thenReturn(new Cookie[] {cookie});
     return cookie;
   }

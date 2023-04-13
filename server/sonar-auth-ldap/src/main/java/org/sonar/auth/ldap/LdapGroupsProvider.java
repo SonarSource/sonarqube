@@ -20,12 +20,12 @@
 package org.sonar.auth.ldap;
 
 import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 
 public interface LdapGroupsProvider {
 
   Collection<String> doGetGroups(Context context);
 
-  record Context(String serverKey, String username, HttpServletRequest request) {
+  record Context(String serverKey, String username, HttpRequest request) {
   }
 }

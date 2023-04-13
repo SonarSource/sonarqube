@@ -37,7 +37,10 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
+import org.sonar.server.http.JavaxHttpRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -404,13 +407,23 @@ public class IntegrationTest {
     }
 
     @Override
+    public HttpRequest getHttpRequest() {
+      return new JavaxHttpRequest(request);
+    }
+
+    @Override
+    public HttpResponse getHttpResponse() {
+      throw new UnsupportedOperationException("not used");
+    }
+
+    @Override
     public HttpServletRequest getRequest() {
-      return request;
+      throw new UnsupportedOperationException("deprecated");
     }
 
     @Override
     public HttpServletResponse getResponse() {
-      throw new UnsupportedOperationException("not used");
+      throw new UnsupportedOperationException("deprecated");
     }
   }
 
@@ -435,6 +448,16 @@ public class IntegrationTest {
     @Override
     public String getCallbackUrl() {
       return CALLBACK_URL;
+    }
+
+    @Override
+    public HttpRequest getHttpRequest() {
+      return null;
+    }
+
+    @Override
+    public HttpResponse getHttpResponse() {
+      return null;
     }
 
     @Override

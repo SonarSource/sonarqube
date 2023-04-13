@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -49,12 +50,12 @@ public class BasicAuthentication {
     this.userTokenAuthentication = userTokenAuthentication;
   }
 
-  public Optional<UserDto> authenticate(HttpServletRequest request) {
+  public Optional<UserDto> authenticate(HttpRequest request) {
     return extractCredentialsFromHeader(request)
       .flatMap(credentials -> Optional.ofNullable(authenticate(credentials, request)));
   }
 
-  public static Optional<Credentials> extractCredentialsFromHeader(HttpServletRequest request) {
+  public static Optional<Credentials> extractCredentialsFromHeader(HttpRequest request) {
     String authorizationHeader = request.getHeader("Authorization");
     if (authorizationHeader == null || !startsWithIgnoreCase(authorizationHeader, "BASIC")) {
       return Optional.empty();
@@ -86,7 +87,7 @@ public class BasicAuthentication {
     }
   }
 
-  private UserDto authenticate(Credentials credentials, HttpServletRequest request) {
+  private UserDto authenticate(Credentials credentials, HttpRequest request) {
     if (credentials.getPassword().isEmpty()) {
       Optional<UserAuthResult> userAuthResult = userTokenAuthentication.authenticate(request);
       if (userAuthResult.isPresent()) {

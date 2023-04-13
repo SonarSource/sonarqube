@@ -21,15 +21,15 @@ package org.sonar.server.authentication;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -60,8 +60,8 @@ public class UserSessionInitializerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private ThreadLocalUserSession threadLocalSession = mock(ThreadLocalUserSession.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpRequest request = mock(HttpRequest.class);
+  private HttpResponse response = mock(HttpResponse.class);
   private RequestAuthenticator authenticator = mock(RequestAuthenticator.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private MapSettings settings = new MapSettings();
@@ -187,7 +187,7 @@ public class UserSessionInitializerTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isFalse();
     assertThat(cookie.getMaxAge()).isEqualTo(300);
-    assertThat(cookie.getSecure()).isFalse();
+    assertThat(cookie.isSecure()).isFalse();
   }
 
   @Test

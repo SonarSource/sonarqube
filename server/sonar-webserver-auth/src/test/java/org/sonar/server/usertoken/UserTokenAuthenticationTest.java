@@ -26,11 +26,11 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -78,7 +78,7 @@ public class UserTokenAuthenticationTest {
   private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
   private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpRequest request = mock(HttpRequest.class);
   private final UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient(), userLastConnectionDatesUpdater, authenticationEvent);
 
   @Before

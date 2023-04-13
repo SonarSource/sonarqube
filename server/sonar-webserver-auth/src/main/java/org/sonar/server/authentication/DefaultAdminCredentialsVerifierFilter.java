@@ -21,21 +21,18 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+import static org.sonar.api.web.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
-public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
+public class DefaultAdminCredentialsVerifierFilter extends HttpFilter {
   private static final String RESET_PASSWORD_PATH = "/account/reset_password";
   private static final String CHANGE_ADMIN_PASSWORD_PATH = "/admin/change_admin_password";
   // This property is used by Orchestrator to disable this force redirect. It should never be used in production, which
@@ -67,14 +64,12 @@ public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init() {
     // nothing to do
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
     boolean forceRedirect = config
       .getBoolean(SONAR_FORCE_REDIRECT_DEFAULT_ADMIN_CREDENTIALS)
       .orElse(true);

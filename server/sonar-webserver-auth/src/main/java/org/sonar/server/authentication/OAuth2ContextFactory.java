@@ -28,8 +28,12 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
@@ -58,11 +62,11 @@ public class OAuth2ContextFactory {
     this.oAuthParameters = oAuthParameters;
   }
 
-  public OAuth2IdentityProvider.InitContext newContext(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
+  public OAuth2IdentityProvider.InitContext newContext(HttpRequest request, HttpResponse response, OAuth2IdentityProvider identityProvider) {
     return new OAuthContextImpl(request, response, identityProvider);
   }
 
-  public OAuth2IdentityProvider.CallbackContext newCallback(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
+  public OAuth2IdentityProvider.CallbackContext newCallback(HttpRequest request, HttpResponse response, OAuth2IdentityProvider identityProvider) {
     return new OAuthContextImpl(request, response, identityProvider);
   }
 
@@ -73,11 +77,11 @@ public class OAuth2ContextFactory {
 
   public class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2IdentityProvider.CallbackContext {
 
-    private final HttpServletRequest request;
-    private final HttpServletResponse response;
+    private final HttpRequest request;
+    private final HttpResponse response;
     private final OAuth2IdentityProvider identityProvider;
 
-    public OAuthContextImpl(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
+    public OAuthContextImpl(HttpRequest request, HttpResponse response, OAuth2IdentityProvider identityProvider) {
       this.request = request;
       this.response = response;
       this.identityProvider = identityProvider;
@@ -94,13 +98,23 @@ public class OAuth2ContextFactory {
     }
 
     @Override
-    public HttpServletRequest getRequest() {
+    public HttpRequest getHttpRequest() {
       return request;
     }
 
     @Override
-    public HttpServletResponse getResponse() {
+    public HttpResponse getHttpResponse() {
       return response;
+    }
+
+    @Override
+    public HttpServletRequest getRequest() {
+      return ((JavaxHttpRequest) request).getDelegate();
+    }
+
+    @Override
+    public HttpServletResponse getResponse() {
+      return ((JavaxHttpResponse) response).getDelegate();
     }
 
     @Override
@@ -127,7 +141,7 @@ public class OAuth2ContextFactory {
       try {
         Optional<String> redirectTo = oAuthParameters.getReturnTo(request);
         oAuthParameters.delete(request, response);
-        getResponse().sendRedirect(redirectTo.orElse(server.getContextPath() + "/"));
+        getHttpResponse().sendRedirect(redirectTo.orElse(server.getContextPath() + "/"));
       } catch (IOException e) {
         throw new IllegalStateException("Fail to redirect to requested page", e);
       }

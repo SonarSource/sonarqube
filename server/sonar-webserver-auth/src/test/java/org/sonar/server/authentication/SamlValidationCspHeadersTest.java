@@ -19,8 +19,8 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpResponse;
 
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +32,7 @@ public class SamlValidationCspHeadersTest {
 
   @Test
   public void addCspHeadersWithNonceToResponse_whenCalled_shouldAddNonceToCspHeaders() {
-    HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+    HttpResponse httpServletResponse = mock(HttpResponse.class);
 
     String nonce = addCspHeadersWithNonceToResponse(httpServletResponse);
 

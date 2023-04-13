@@ -38,8 +38,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
@@ -62,8 +66,8 @@ public class SamlAuthenticator {
     this.samlMessageIdChecker = samlMessageIdChecker;
   }
 
-  public UserIdentity buildUserIdentity(OAuth2IdentityProvider.CallbackContext context, HttpServletRequest processedRequest) {
-    Auth auth = this.initSamlAuth(processedRequest, context.getResponse());
+  public UserIdentity buildUserIdentity(OAuth2IdentityProvider.CallbackContext context, HttpRequest processedRequest) {
+    Auth auth = this.initSamlAuth(processedRequest, context.getHttpResponse());
     processResponse(auth);
     context.verifyCsrfState(STATE_REQUEST_PARAMETER);
 
@@ -83,18 +87,22 @@ public class SamlAuthenticator {
     return userIdentityBuilder.build();
   }
 
-  public void initLogin(String callbackUrl, String relayState, HttpServletRequest request, HttpServletResponse response) {
+  public void initLogin(String callbackUrl, String relayState, HttpRequest request, HttpResponse response) {
     Auth auth = this.initSamlAuth(callbackUrl, request, response);
     login(auth, relayState);
   }
 
-  private Auth initSamlAuth(HttpServletRequest request, HttpServletResponse response) {
+  private Auth initSamlAuth(HttpRequest request, HttpResponse response) {
     return initSamlAuth(null, request, response);
   }
 
-  private Auth initSamlAuth(@Nullable String callbackUrl, HttpServletRequest request, HttpServletResponse response) {
+  private Auth initSamlAuth(@Nullable String callbackUrl, HttpRequest request, HttpResponse response) {
     try {
-      return new Auth(initSettings(callbackUrl), request, response);
+      //no way around this as onelogin requires javax request/response
+      HttpServletRequest httpServletRequest = ((JavaxHttpRequest) request).getDelegate();
+      HttpServletResponse httpServletResponse = ((JavaxHttpResponse) response).getDelegate();
+
+      return new Auth(initSettings(callbackUrl), httpServletRequest, httpServletResponse);
     } catch (SettingsException e) {
       throw new IllegalStateException("Failed to create a SAML Auth", e);
     }
@@ -208,7 +216,7 @@ public class SamlAuthenticator {
     samlMessageIdChecker.check(auth);
   }
 
-  public String getAuthenticationStatusPage(HttpServletRequest request, HttpServletResponse response) {
+  public String getAuthenticationStatusPage(HttpRequest request, HttpResponse response) {
     try {
       Auth auth = initSamlAuth(request, response);
       return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(auth, samlSettings));
@@ -217,4 +225,3 @@ public class SamlAuthenticator {
     }
   }
 }
-

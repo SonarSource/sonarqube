@@ -19,10 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +27,11 @@ import org.slf4j.event.Level;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.web.FilterChain;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -56,8 +56,8 @@ public class OAuth2CallbackFilterTest {
 
   private OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpRequest request = mock(HttpRequest.class);
+  private HttpResponse response = mock(HttpResponse.class);
   private FilterChain chain = mock(FilterChain.class);
 
   private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new WellbehaveFakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true, LOGIN);
@@ -174,7 +174,7 @@ public class OAuth2CallbackFilterTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isFalse();
     assertThat(cookie.getMaxAge()).isEqualTo(300);
-    assertThat(cookie.getSecure()).isFalse();
+    assertThat(cookie.isSecure()).isFalse();
   }
 
   @Test

@@ -22,15 +22,14 @@ package org.sonar.server.saml.ws;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
@@ -39,12 +38,13 @@ import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.authentication.SamlValidationCspHeaders;
 import org.sonar.server.authentication.SamlValidationRedirectionFilter;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
 import static org.sonar.server.saml.ws.SamlValidationWs.SAML_VALIDATION_CONTROLLER;
 
-public class ValidationAction extends ServletFilter implements SamlAction {
+public class ValidationAction extends HttpFilter implements SamlAction {
 
   static final String VALIDATION_CALLBACK_KEY = SamlValidationRedirectionFilter.SAML_VALIDATION_KEY;
   private static final String URL_DELIMITER = "/";
@@ -69,35 +69,32 @@ public class ValidationAction extends ServletFilter implements SamlAction {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain filterChain) throws IOException {
     try {
-      oAuthCsrfVerifier.verifyState(httpRequest, httpResponse, samlIdentityProvider, "CSRFToken");
+      oAuthCsrfVerifier.verifyState(request, response, samlIdentityProvider, "CSRFToken");
     } catch (AuthenticationException exception) {
-      AuthenticationError.handleError(httpRequest, httpResponse, exception.getMessage());
+      AuthenticationError.handleError(request, response, exception.getMessage());
       return;
     }
 
     if (!userSession.hasSession() || !userSession.isSystemAdministrator()) {
-      AuthenticationError.handleError(httpRequest, httpResponse, "User needs to be logged in as system administrator to access this page.");
+      AuthenticationError.handleError(request, response, "User needs to be logged in as system administrator to access this page.");
       return;
     }
 
-    httpRequest = new HttpServletRequestWrapper(httpRequest) {
+    HttpServletRequest httpRequest = new HttpServletRequestWrapper(((JavaxHttpRequest) request).getDelegate()) {
       @Override
       public StringBuffer getRequestURL() {
         return new StringBuffer(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY));
       }
     };
 
-    httpResponse.setContentType("text/html");
+    response.setContentType("text/html");
 
-    String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(httpRequest, httpResponse);
-    String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(httpResponse);
+    String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(new JavaxHttpRequest(httpRequest), response);
+    String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(response);
     htmlResponse = htmlResponse.replace("%NONCE%", nonce);
-    httpResponse.getWriter().print(htmlResponse);
+    response.getWriter().print(htmlResponse);
   }
 
   @Override

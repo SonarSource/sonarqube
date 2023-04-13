@@ -19,9 +19,9 @@
  */
 package org.sonar.auth.ldap;
 
-import javax.servlet.http.HttpServletRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -163,7 +163,7 @@ public class DefaultLdapAuthenticatorIT {
   }
 
   private static LdapAuthenticator.Context createContext(String username, String password) {
-    return new LdapAuthenticator.Context(username, password, mock(HttpServletRequest.class));
+    return new LdapAuthenticator.Context(username, password, mock(HttpRequest.class));
   }
 
 }

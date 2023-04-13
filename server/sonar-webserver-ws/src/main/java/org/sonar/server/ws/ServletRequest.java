@@ -34,7 +34,9 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -51,8 +53,8 @@ public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
 
-  public ServletRequest(HttpServletRequest source) {
-    this.source = source;
+  public ServletRequest(HttpRequest source) {
+    this.source = ((JavaxHttpRequest) source).getDelegate();
   }
 
   @Override

@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -142,6 +143,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public RuleType type() {
     return type;
+  }
+
+  @CheckForNull
+  @Override
+  public CodeCharacteristic characteristic() {
+    throw new IllegalStateException("Not implemented yet");
   }
 
   public DefaultIssue setType(RuleType type) {

@@ -22,7 +22,7 @@ package org.sonar.server.authentication.event;
 import com.google.common.base.Joiner;
 import java.util.Collections;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -34,7 +34,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   private static final int FLOOD_THRESHOLD = 128;
 
   @Override
-  public void loginSuccess(HttpServletRequest request, @Nullable String login, Source source) {
+  public void loginSuccess(HttpRequest request, @Nullable String login, Source source) {
     checkRequest(request);
     requireNonNull(source, "source can't be null");
     if (!LOGGER.isDebugEnabled()) {
@@ -46,12 +46,12 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       preventLogFlood(emptyIfNull(login)));
   }
 
-  private static String getAllIps(HttpServletRequest request) {
+  private static String getAllIps(HttpRequest request) {
     return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(MoreCollectors.join(Joiner.on(",")));
   }
 
   @Override
-  public void loginFailure(HttpServletRequest request, AuthenticationException e) {
+  public void loginFailure(HttpRequest request, AuthenticationException e) {
     checkRequest(request);
     requireNonNull(e, "AuthenticationException can't be null");
     if (!LOGGER.isDebugEnabled()) {
@@ -66,7 +66,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   @Override
-  public void logoutSuccess(HttpServletRequest request, @Nullable String login) {
+  public void logoutSuccess(HttpRequest request, @Nullable String login) {
     checkRequest(request);
     if (!LOGGER.isDebugEnabled()) {
       return;
@@ -77,7 +77,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   @Override
-  public void logoutFailure(HttpServletRequest request, String errorMessage) {
+  public void logoutFailure(HttpRequest request, String errorMessage) {
     checkRequest(request);
     requireNonNull(errorMessage, "error message can't be null");
     if (!LOGGER.isDebugEnabled()) {
@@ -88,7 +88,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       request.getRemoteAddr(), getAllIps(request));
   }
 
-  private static void checkRequest(HttpServletRequest request) {
+  private static void checkRequest(HttpRequest request) {
     requireNonNull(request, "request can't be null");
   }
 

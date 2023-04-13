@@ -20,8 +20,8 @@
 package org.sonar.server.authentication;
 
 import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
@@ -64,7 +64,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   }
 
   @Override
-  public UserSession authenticate(HttpServletRequest request, HttpServletResponse response) {
+  public UserSession authenticate(HttpRequest request, HttpResponse response) {
     UserAuthResult userAuthResult = loadUser(request, response);
     if (nonNull(userAuthResult.getUserDto())) {
       if (TOKEN.equals(userAuthResult.getAuthType())) {
@@ -77,7 +77,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
     return userSessionFactory.createAnonymous();
   }
 
-  private UserAuthResult loadUser(HttpServletRequest request, HttpServletResponse response) {
+  private UserAuthResult loadUser(HttpRequest request, HttpResponse response) {
     Function<UserAuthResult.AuthType, Function<UserDto, UserAuthResult>> createUserAuthResult = type -> userDto -> new UserAuthResult(userDto, type);
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
     return httpHeadersAuthentication.authenticate(request, response).map(createUserAuthResult.apply(SSO))

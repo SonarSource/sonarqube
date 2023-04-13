@@ -22,4 +22,5 @@ dependencies {
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation project(path: ':server:sonar-webserver-api')
 }

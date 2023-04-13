@@ -25,13 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
@@ -96,7 +96,7 @@ public class HttpHeadersAuthenticationTest {
   private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), defaultGroupFinder, settings.asConfig(), mock(AuditPersister.class), localAuthentication),
     defaultGroupFinder, mock(ManagedInstanceService.class));
-  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final HttpResponse response = mock(HttpResponse.class);
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private final HttpHeadersAuthentication underTest = new HttpHeadersAuthentication(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler,
@@ -114,7 +114,7 @@ public class HttpHeadersAuthenticationTest {
   public void create_user_when_authenticating_new_user() {
     startWithSso();
     setNotUserInToken();
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS);
 
     underTest.authenticate(request, response);
 
@@ -128,7 +128,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     setNotUserInToken();
 
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, null, null, null);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, null, null, null);
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, sonarUsers);
@@ -141,7 +141,7 @@ public class HttpHeadersAuthenticationTest {
     setNotUserInToken();
     insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setName("old name").setEmail(DEFAULT_USER.getEmail()), group1);
     // Name, email and groups are different
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUP2);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -155,7 +155,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, "");
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, "");
 
     underTest.authenticate(request, response);
 
@@ -172,7 +172,7 @@ public class HttpHeadersAuthenticationTest {
     headerValuesByName.put("X-Forwarded-Login", DEFAULT_LOGIN);
     headerValuesByName.put("X-Forwarded-Email", DEFAULT_USER.getEmail());
     headerValuesByName.put("X-Forwarded-Groups", null);
-    HttpServletRequest request = createRequest(headerValuesByName);
+    HttpRequest request = createRequest(headerValuesByName);
 
     underTest.authenticate(request, response);
 
@@ -185,7 +185,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1, sonarUsers);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, null);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, null);
 
     underTest.authenticate(request, response);
 
@@ -198,7 +198,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     setUserInToken(user, CLOSE_REFRESH_TIME);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -214,7 +214,7 @@ public class HttpHeadersAuthenticationTest {
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => more than 5 minutes
     setUserInToken(user, NOW - 6 * 60 * 1000L);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -229,7 +229,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     setUserInToken(user, null);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -246,7 +246,7 @@ public class HttpHeadersAuthenticationTest {
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => less than 10 minutes ago so not updated
     setUserInToken(user, NOW - 6 * 60 * 1000L);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -261,7 +261,7 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     insertUser(DEFAULT_USER, group1);
     setUserInToken(DEFAULT_USER, CLOSE_REFRESH_TIME);
-    HttpServletRequest request = createRequest("AnotherLogin", "Another name", "Another email", GROUP2);
+    HttpRequest request = createRequest("AnotherLogin", "Another name", "Another email", GROUP2);
 
     underTest.authenticate(request, response);
 
@@ -278,7 +278,7 @@ public class HttpHeadersAuthenticationTest {
     settings.setProperty("sonar.web.sso.groupsHeader", "head-groups");
     startWithSso();
     setNotUserInToken();
-    HttpServletRequest request = createRequest(ImmutableMap.of("head-login", DEFAULT_LOGIN, "head-name", DEFAULT_NAME, "head-email", DEFAULT_EMAIL, "head-groups", GROUPS));
+    HttpRequest request = createRequest(ImmutableMap.of("head-login", DEFAULT_LOGIN, "head-name", DEFAULT_NAME, "head-email", DEFAULT_EMAIL, "head-groups", GROUPS));
 
     underTest.authenticate(request, response);
 
@@ -294,7 +294,7 @@ public class HttpHeadersAuthenticationTest {
     settings.setProperty("sonar.web.sso.groupsHeader", "Groups");
     startWithSso();
     setNotUserInToken();
-    HttpServletRequest request = createRequest(ImmutableMap.of("login", DEFAULT_LOGIN, "name", DEFAULT_NAME, "email", DEFAULT_EMAIL, "groups", GROUPS));
+    HttpRequest request = createRequest(ImmutableMap.of("login", DEFAULT_LOGIN, "name", DEFAULT_NAME, "email", DEFAULT_EMAIL, "groups", GROUPS));
 
     underTest.authenticate(request, response);
 
@@ -306,7 +306,7 @@ public class HttpHeadersAuthenticationTest {
   public void trim_groups() {
     startWithSso();
     setNotUserInToken();
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, null, null, "  dev ,    admin ");
+    HttpRequest request = createRequest(DEFAULT_LOGIN, null, null, "  dev ,    admin ");
 
     underTest.authenticate(request, response);
 
@@ -360,14 +360,14 @@ public class HttpHeadersAuthenticationTest {
   }
 
   private void setUserInToken(UserDto user, @Nullable Long lastRefreshTime) {
-    when(jwtHttpHandler.getToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
+    when(jwtHttpHandler.getToken(any(HttpRequest.class), any(HttpResponse.class)))
       .thenReturn(Optional.of(new JwtHttpHandler.Token(
         user,
         lastRefreshTime == null ? Collections.emptyMap() : ImmutableMap.of("ssoLastRefreshTime", lastRefreshTime))));
   }
 
   private void setNotUserInToken() {
-    when(jwtHttpHandler.getToken(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(Optional.empty());
+    when(jwtHttpHandler.getToken(any(HttpRequest.class), any(HttpResponse.class))).thenReturn(Optional.empty());
   }
 
   private UserDto insertUser(UserDto user, GroupDto... groups) {
@@ -377,13 +377,13 @@ public class HttpHeadersAuthenticationTest {
     return user;
   }
 
-  private static HttpServletRequest createRequest(Map<String, String> headerValuesByName) {
-    HttpServletRequest request = mock(HttpServletRequest.class);
+  private static HttpRequest createRequest(Map<String, String> headerValuesByName) {
+    HttpRequest request = mock(HttpRequest.class);
     setHeaders(request, headerValuesByName);
     return request;
   }
 
-  private static HttpServletRequest createRequest(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {
+  private static HttpRequest createRequest(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {
     Map<String, String> headerValuesByName = new HashMap<>();
     headerValuesByName.put("X-Forwarded-Login", login);
     if (name != null) {
@@ -395,12 +395,12 @@ public class HttpHeadersAuthenticationTest {
     if (groups != null) {
       headerValuesByName.put("X-Forwarded-Groups", groups);
     }
-    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpRequest request = mock(HttpRequest.class);
     setHeaders(request, headerValuesByName);
     return request;
   }
 
-  private static void setHeaders(HttpServletRequest request, Map<String, String> valuesByName) {
+  private static void setHeaders(HttpRequest request, Map<String, String> valuesByName) {
     valuesByName.forEach((key, value) -> when(request.getHeader(key)).thenReturn(value));
     when(request.getHeaderNames()).thenReturn(Collections.enumeration(valuesByName.keySet()));
   }
@@ -434,10 +434,10 @@ public class HttpHeadersAuthenticationTest {
   }
 
   private void verifyTokenIsUpdated(long refreshTime) {
-    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(ImmutableMap.of("ssoLastRefreshTime", refreshTime)), any(HttpServletRequest.class), any(HttpServletResponse.class));
+    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(ImmutableMap.of("ssoLastRefreshTime", refreshTime)), any(HttpRequest.class), any(HttpResponse.class));
   }
 
   private void verifyTokenIsNotUpdated() {
-    verify(jwtHttpHandler, never()).generateToken(any(UserDto.class), anyMap(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+    verify(jwtHttpHandler, never()).generateToken(any(UserDto.class), anyMap(), any(HttpRequest.class), any(HttpResponse.class));
   }
 }

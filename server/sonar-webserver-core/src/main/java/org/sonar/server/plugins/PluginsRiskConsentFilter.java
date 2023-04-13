@@ -21,25 +21,22 @@ package org.sonar.server.plugins;
 
 import java.io.IOException;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+import static org.sonar.api.web.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.REQUIRED;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
-public class PluginsRiskConsentFilter extends ServletFilter {
+public class PluginsRiskConsentFilter extends HttpFilter {
 
   private static final String PLUGINS_RISK_CONSENT_PATH = "/admin/plugin_risk_consent"; //NOSONAR this path will be the same in every environment
 
@@ -57,14 +54,12 @@ public class PluginsRiskConsentFilter extends ServletFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init() {
     //nothing to do
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException{
     PluginRiskConsent riskConsent = PluginRiskConsent.valueOf(config.get(PLUGINS_RISK_CONSENT).orElse(NOT_ACCEPTED.name()));
 
     if (userSession.hasSession() && userSession.isLoggedIn()

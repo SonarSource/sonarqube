@@ -20,10 +20,10 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -60,7 +60,7 @@ public class CredentialsAuthenticationTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpRequest request = mock(HttpRequest.class);
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", NUMBER_OF_PBKDF2_ITERATIONS);
   private final CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);

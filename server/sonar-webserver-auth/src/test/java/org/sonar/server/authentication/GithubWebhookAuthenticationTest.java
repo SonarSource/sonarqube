@@ -23,13 +23,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -88,7 +88,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withComputedSignatureMatchingGithubSignature_returnsAuthentication() {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
 
     Optional<UserAuthResult> authentication = githubWebhookAuthentication.authenticate(request);
     assertThat(authentication).isPresent();
@@ -104,7 +104,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withoutGithubSignatureHeader_throws() {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, null);
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, null);
 
     String expectedMessage = format(MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED, APP_ID);
     assertThatExceptionOfType(AuthenticationException.class)
@@ -115,7 +115,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withoutBody_throws() {
-    HttpServletRequest request = mockRequest(null, GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(null, GITHUB_SIGNATURE);
 
     assertThatExceptionOfType(AuthenticationException.class)
       .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
@@ -125,7 +125,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withExceptionWhileReadingBody_throws() throws IOException {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
     when(request.getReader()).thenThrow(new IOException());
 
     assertThatExceptionOfType(AuthenticationException.class)
@@ -136,7 +136,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withoutAppId_returnsEmpty() {
-    HttpServletRequest request = mockRequest(null, GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(null, GITHUB_SIGNATURE);
     when(request.getHeader(GITHUB_APP_ID_HEADER)).thenReturn(null);
 
     assertThat(githubWebhookAuthentication.authenticate(request)).isEmpty();
@@ -145,7 +145,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withWrongPayload_throws() {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD + "_", GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD + "_", GITHUB_SIGNATURE);
 
     assertThatExceptionOfType(AuthenticationException.class)
       .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
@@ -155,7 +155,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_withWrongSignature_throws() {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE + "_");
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE + "_");
 
     assertThatExceptionOfType(AuthenticationException.class)
       .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
@@ -165,7 +165,7 @@ public class GithubWebhookAuthenticationTest {
 
   @Test
   public void authenticate_whenNoWebhookSecret_throws() {
-    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
     db.getDbClient().almSettingDao().update(db.getSession(), almSettingDto.setWebhookSecret(null), true);
     db.commit();
 
@@ -176,8 +176,8 @@ public class GithubWebhookAuthenticationTest {
     assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(expectedMessage);
   }
 
-  private static HttpServletRequest mockRequest(@Nullable String payload, @Nullable String gitHubSignature) {
-    HttpServletRequest request = mock(HttpServletRequest.class, Mockito.RETURNS_DEEP_STUBS);
+  private static HttpRequest mockRequest(@Nullable String payload, @Nullable String gitHubSignature) {
+    HttpRequest request = mock(HttpRequest.class, Mockito.RETURNS_DEEP_STUBS);
     try {
       StringReader stringReader = new StringReader(requireNonNullElse(payload, ""));
       BufferedReader bufferedReader = new BufferedReader(stringReader);

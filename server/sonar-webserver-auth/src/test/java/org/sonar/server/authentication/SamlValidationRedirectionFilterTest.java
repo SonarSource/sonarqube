@@ -25,17 +25,15 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.web.FilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -60,7 +58,7 @@ public class SamlValidationRedirectionFilterTest {
     Server server = mock(Server.class);
     doReturn("contextPath").when(server).getContextPath();
     underTest = new SamlValidationRedirectionFilter(server);
-    underTest.init(mock(FilterConfig.class));
+    underTest.init();
   }
 
 
@@ -73,9 +71,9 @@ public class SamlValidationRedirectionFilterTest {
   }
 
   @Test
-  public void do_filter_validation_relay_state_with_csrfToken() throws ServletException, IOException {
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_validation_relay_state_with_csrfToken() throws IOException {
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
     String validSample = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -96,9 +94,9 @@ public class SamlValidationRedirectionFilterTest {
   }
 
   @Test
-  public void do_filter_validation_relay_state_with_malicious_csrfToken() throws ServletException, IOException {
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_validation_relay_state_with_malicious_csrfToken() throws IOException {
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
     String validSample = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -121,9 +119,9 @@ public class SamlValidationRedirectionFilterTest {
   }
 
   @Test
-  public void do_filter_validation_wrong_SAML_response() throws ServletException, IOException {
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_validation_wrong_SAML_response() throws IOException {
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
     String maliciousSaml = "test\"</input><script>/*hack website*/</script><input value=\"";
@@ -144,9 +142,9 @@ public class SamlValidationRedirectionFilterTest {
 
   @Test
   @UseDataProvider("invalidRelayStateValues")
-  public void do_filter_invalid_relayState_values(String relayStateValue) throws ServletException, IOException {
-    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+  public void do_filter_invalid_relayState_values(String relayStateValue) throws IOException {
+    HttpRequest servletRequest = mock(HttpRequest.class);
+    HttpResponse servletResponse = mock(HttpResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     doReturn(relayStateValue).when(servletRequest).getParameter("RelayState");
 

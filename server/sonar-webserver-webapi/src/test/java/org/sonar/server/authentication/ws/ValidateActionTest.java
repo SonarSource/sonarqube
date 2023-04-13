@@ -22,13 +22,13 @@ package org.sonar.server.authentication.ws;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
 import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -45,18 +45,18 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class ValidateActionTest {
 
-  StringWriter stringWriter = new StringWriter();
+  private final StringWriter stringWriter = new StringWriter();
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
 
-  BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
-  ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthentication, jwtHttpHandler);
+  private final ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthentication, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {

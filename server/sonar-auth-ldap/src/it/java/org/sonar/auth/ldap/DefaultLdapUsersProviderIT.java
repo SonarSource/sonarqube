@@ -19,10 +19,10 @@
  */
 package org.sonar.auth.ldap;
 
-import javax.servlet.http.HttpServletRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,6 +92,6 @@ public class DefaultLdapUsersProviderIT {
   }
 
   private static LdapUsersProvider.Context createContext(String serverKey, String username) {
-    return new LdapUsersProvider.Context(serverKey, username, mock(HttpServletRequest.class));
+    return new LdapUsersProvider.Context(serverKey, username, mock(HttpRequest.class));
   }
 }

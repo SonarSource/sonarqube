@@ -22,17 +22,17 @@ package org.sonar.server.user.ws;
 import java.io.IOException;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.FilterChain;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
@@ -75,8 +75,8 @@ public class ChangePasswordActionIT {
 
   private final ArgumentCaptor<UserDto> userDtoCaptor = ArgumentCaptor.forClass(UserDto.class);
 
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
-  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final HttpRequest request = mock(HttpRequest.class);
+  private final HttpResponse response = mock(HttpResponse.class);
   private final FilterChain chain = mock(FilterChain.class);
 
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
@@ -88,7 +88,7 @@ public class ChangePasswordActionIT {
 
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  private final ChangePasswordAction changePasswordAction = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler);
+  private final ChangePasswordAction underTest = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler);
   private ServletOutputStream responseOutputStream;
 
   @Before
@@ -147,7 +147,8 @@ public class ChangePasswordActionIT {
     userSessionRule.logIn(user.getLogin());
     UserTestData anotherLocalUser = createLocalUser();
 
-    assertThatThrownBy(() -> executeTest(anotherLocalUser.getLogin(), "I dunno", NEW_PASSWORD))
+    String anotherLocalUserLogin = anotherLocalUser.getLogin();
+    assertThatThrownBy(() -> executeTest(anotherLocalUserLogin, "I dunno", NEW_PASSWORD))
       .isInstanceOf(ForbiddenException.class);
     verifyNoInteractions(jwtHttpHandler);
     assertThat(findSessionTokenDto(db.getSession(), user.getSessionTokenUuid())).isPresent();
@@ -184,9 +185,10 @@ public class ChangePasswordActionIT {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     userSessionRule.logIn(user);
 
-    assertThatThrownBy(() -> executeTest(user.getLogin(), null, "polop"))
+    String userLogin = user.getLogin();
+    assertThatThrownBy(() -> executeTest(userLogin, null, "polop"))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("User with login '%s' has not been found", user.getLogin()));
+      .hasMessage(format("User with login '%s' has not been found", userLogin));
     verifyNoInteractions(jwtHttpHandler);
   }
 
@@ -217,7 +219,6 @@ public class ChangePasswordActionIT {
   public void fail_to_update_password_on_self_without_new_password() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.userDto());
-
 
     executeTest(user.getLogin(), OLD_PASSWORD, null);
     verify(response).setStatus(HTTP_BAD_REQUEST);
@@ -267,7 +268,7 @@ public class ChangePasswordActionIT {
     WebService.Context context = new WebService.Context();
     WebService.NewController newController = context.createController(controllerKey);
 
-    changePasswordAction.define(newController);
+    underTest.define(newController);
     newController.done();
 
     WebService.Action changePassword = context.controller(controllerKey).action("change_password");
@@ -283,7 +284,7 @@ public class ChangePasswordActionIT {
     when(request.getParameter(PARAM_LOGIN)).thenReturn(login);
     when(request.getParameter(PARAM_PREVIOUS_PASSWORD)).thenReturn(oldPassword);
     when(request.getParameter(PARAM_PASSWORD)).thenReturn(newPassword);
-    changePasswordAction.doFilter(request, response, chain);
+    underTest.doFilter(request, response, chain);
   }
 
   private UserTestData createLocalUser(String password) {

@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -57,13 +58,13 @@ public class UserTokenAuthentication {
     this.authenticationEvent = authenticationEvent;
   }
 
-  public Optional<UserAuthResult> authenticate(HttpServletRequest request) {
+  public Optional<UserAuthResult> authenticate(HttpRequest request) {
     return findBearerToken(request)
       .or(() -> findTokenUsedWithBasicAuthentication(request))
       .map(userAuthResult -> login(request, userAuthResult));
   }
 
-  private static Optional<String> findBearerToken(HttpServletRequest request) {
+  private static Optional<String> findBearerToken(HttpRequest request) {
     // hack necessary as #org.sonar.server.monitoring.MetricsAction and org.sonar.server.platform.ws.SafeModeMonitoringMetricAction
     // are providing their own bearer token based authentication mechanism that we can't get rid of for backward compatibility reasons
     if (request.getServletPath().startsWith(API_MONITORING_METRICS_PATH)) {
@@ -77,7 +78,7 @@ public class UserTokenAuthentication {
     return Optional.empty();
   }
 
-  private static Optional<String> findTokenUsedWithBasicAuthentication(HttpServletRequest request) {
+  private static Optional<String> findTokenUsedWithBasicAuthentication(HttpRequest request) {
     Credentials credentials = extractCredentialsFromHeader(request).orElse(null);
     if (isTokenWithBasicAuthenticationMethod(credentials)) {
       return Optional.ofNullable(credentials.getLogin());
@@ -89,13 +90,13 @@ public class UserTokenAuthentication {
     return Optional.ofNullable(credentials).map(c -> c.getPassword().isEmpty()).orElse(false);
   }
 
-  private UserAuthResult login(HttpServletRequest request, String token) {
+  private UserAuthResult login(HttpRequest request, String token) {
     UserAuthResult userAuthResult = authenticateFromUserToken(token, request);
     authenticationEvent.loginSuccess(request, userAuthResult.getUserDto().getLogin(), AuthenticationEvent.Source.local(AuthenticationEvent.Method.SONARQUBE_TOKEN));
     return userAuthResult;
   }
 
-  private UserAuthResult authenticateFromUserToken(String token, HttpServletRequest request) {
+  private UserAuthResult authenticateFromUserToken(String token, HttpRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserTokenDto userToken = authenticate(token);
       UserDto userDto = dbClient.userDao().selectByUuid(dbSession, userToken.getUserUuid());

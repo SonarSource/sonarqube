@@ -37,10 +37,14 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.server.http.JavaxHttpRequest;
+import org.sonar.server.http.JavaxHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -367,13 +371,23 @@ public class SamlIdentityProviderIT {
     }
 
     @Override
+    public HttpRequest getHttpRequest() {
+      return new JavaxHttpRequest(mock(HttpServletRequest.class));
+    }
+
+    @Override
+    public HttpResponse getHttpResponse() {
+      return new JavaxHttpResponse(response);
+    }
+
+    @Override
     public HttpServletRequest getRequest() {
-      return mock(HttpServletRequest.class);
+      throw new UnsupportedOperationException("deprecated");
     }
 
     @Override
     public HttpServletResponse getResponse() {
-      return response;
+      throw new UnsupportedOperationException("deprecated");
     }
   }
 
@@ -392,7 +406,7 @@ public class SamlIdentityProviderIT {
       this.expectedCallbackUrl = expectedCallbackUrl;
       Map<String, String[]> parameterMap = new HashMap<>();
       parameterMap.put("SAMLResponse", new String[]{loadResponse(encodedResponseFile)});
-      when(getRequest().getParameterMap()).thenReturn(parameterMap);
+      when(((JavaxHttpRequest) getHttpRequest()).getDelegate().getParameterMap()).thenReturn(parameterMap);
     }
 
 
@@ -431,13 +445,23 @@ public class SamlIdentityProviderIT {
     }
 
     @Override
+    public HttpRequest getHttpRequest() {
+      return new JavaxHttpRequest(request);
+    }
+
+    @Override
+    public HttpResponse getHttpResponse() {
+      return new JavaxHttpResponse(response);
+    }
+
+    @Override
     public HttpServletRequest getRequest() {
-      return this.request;
+      return null;
     }
 
     @Override
     public HttpServletResponse getResponse() {
-      return this.response;
+      return null;
     }
   }
 }

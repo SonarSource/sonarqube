@@ -30,8 +30,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.Cookie;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,7 +57,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }.getType();
 
   @Override
-  public void init(HttpServletRequest request, HttpServletResponse response) {
+  public void init(HttpRequest request, HttpResponse response) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     Optional<String> sanitizeRedirectUrl = sanitizeRedirectUrl(returnTo);
@@ -73,14 +74,14 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }
 
   @Override
-  public Optional<String> getReturnTo(HttpServletRequest request) {
+  public Optional<String> getReturnTo(HttpRequest request) {
     return getParameter(request, RETURN_TO_PARAMETER)
       .flatMap(OAuth2AuthenticationParametersImpl::sanitizeRedirectUrl);
   }
 
-  private static Optional<String> getParameter(HttpServletRequest request, String parameterKey) {
-    Optional<javax.servlet.http.Cookie> cookie = findCookie(AUTHENTICATION_COOKIE_NAME, request);
-    if (!cookie.isPresent()) {
+  private static Optional<String> getParameter(HttpRequest request, String parameterKey) {
+    Optional<Cookie> cookie = findCookie(AUTHENTICATION_COOKIE_NAME, request);
+    if (cookie.isEmpty()) {
       return empty();
     }
 
@@ -92,7 +93,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }
 
   @Override
-  public void delete(HttpServletRequest request, HttpServletResponse response) {
+  public void delete(HttpRequest request, HttpResponse response) {
     response.addCookie(newCookieBuilder(request)
       .setName(AUTHENTICATION_COOKIE_NAME)
       .setValue(null)

@@ -20,14 +20,12 @@
 package org.sonar.server.saml.ws;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.http.HttpRequest;
+import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.FilterChain;
+import org.sonar.api.web.HttpFilter;
+import org.sonar.api.web.UrlPattern;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
@@ -40,7 +38,7 @@ import org.sonar.server.ws.ServletFilterHandler;
 import static org.sonar.server.authentication.SamlValidationRedirectionFilter.SAML_VALIDATION_CONTROLLER_CONTEXT;
 import static org.sonar.server.authentication.SamlValidationRedirectionFilter.SAML_VALIDATION_KEY;
 
-public class ValidationInitAction extends ServletFilter implements SamlAction {
+public class ValidationInitAction extends HttpFilter implements SamlAction {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   public static final String VALIDATION_INIT_KEY = "validation_init";
@@ -73,10 +71,7 @@ public class ValidationInitAction extends ServletFilter implements SamlAction {
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+  public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
     try {
       userSession.checkIsSystemAdministrator();
     } catch (ForbiddenException e) {
@@ -84,7 +79,7 @@ public class ValidationInitAction extends ServletFilter implements SamlAction {
       return;
     }
 
-    String csrfState = oAuthCsrfVerifier.generateState(request,response);
+    String csrfState = oAuthCsrfVerifier.generateState(request, response);
 
     try {
       samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),

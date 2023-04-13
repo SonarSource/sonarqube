@@ -21,10 +21,10 @@ package org.sonar.server.authentication;
 
 import java.util.Base64;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -67,7 +67,7 @@ public class BasicAuthenticationTest {
   private final CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
   private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
 
-  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpRequest request = mock(HttpRequest.class);
 
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
