@@ -21,9 +21,6 @@ package org.sonar.server.platform.db.migration.version.v101;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
-import org.sonar.server.platform.db.migration.version.v100.AddIsMainColumnInProjectBranches;
-import org.sonar.server.platform.db.migration.version.v100.AlterIsMainColumnInProjectBranches;
-import org.sonar.server.platform.db.migration.version.v100.UpdateIsMainColumnInProjectBranches;
 
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
