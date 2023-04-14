@@ -17,51 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { click } from '../../../helpers/testUtils';
-import Search from '../components/Search';
-import { DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
-
-describe('Search', () => {
-  const defaultProps: Search['props'] = {
-    ...DEFAULT_FILTERS,
-    loading: false,
-    types: [],
-    onFilterUpdate: () => true,
-    onReload: () => true,
-    maxExecutedAt: undefined,
-    minSubmittedAt: undefined,
-  };
-
-  it('should render search form', () => {
-    const component = shallow(<Search {...defaultProps} />);
-    expect(component.find('SearchBox').exists()).toBe(true);
-  });
-
-  it('should not render search form', () => {
-    const component = shallow(<Search {...defaultProps} component={{ id: 'ABCD' }} />);
-    expect(component.find('SearchBox').exists()).toBe(false);
-  });
-
-  it('should search', () => {
-    const searchSpy = jest.fn();
-    const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
-    const searchInput = component.find('SearchBox');
-    searchInput.prop<Function>('onChange')('some search query');
-    expect(searchSpy).toHaveBeenCalledWith({ query: 'some search query' });
-  });
-
-  it('should reload', () => {
-    const reloadSpy = jest.fn();
-    const component = shallow(<Search {...defaultProps} onReload={reloadSpy} />);
-    const reloadButton = component.find('.js-reload');
-    expect(reloadSpy).not.toHaveBeenCalled();
-    click(reloadButton);
-    expect(reloadSpy).toHaveBeenCalled();
-  });
-});
 
 describe('Helpers', () => {
   describe('#formatDuration()', () => {

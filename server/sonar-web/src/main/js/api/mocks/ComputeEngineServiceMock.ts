@@ -28,6 +28,7 @@ import {
   cancelTask,
   getActivity,
   getStatus,
+  getTask,
   getTypes,
   getWorkers,
   setWorkerCount,
@@ -65,6 +66,7 @@ export default class ComputeEngineServiceMock {
     (getActivity as jest.Mock).mockImplementation(this.handleGetActivity);
     (getStatus as jest.Mock).mockImplementation(this.handleGetStatus);
     (getTypes as jest.Mock).mockImplementation(this.handleGetTypes);
+    (getTask as jest.Mock).mockImplementation(this.handleGetTask);
     (getWorkers as jest.Mock).mockImplementation(this.handleGetWorkers);
     (setWorkerCount as jest.Mock).mockImplementation(this.handleSetWorkerCount);
 
@@ -164,6 +166,16 @@ export default class ComputeEngineServiceMock {
   };
 
   handleGetTypes = () => Promise.resolve([...TASK_TYPES]);
+
+  handleGetTask = (id: string) => {
+    const task = this.tasks.find((t) => t.id === id);
+
+    if (task) {
+      return Promise.resolve(task);
+    }
+
+    return Promise.reject();
+  };
 
   handleGetWorkers = () => Promise.resolve({ ...this.workers });
 

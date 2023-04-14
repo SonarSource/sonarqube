@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getTask } from '../../../api/ce';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 
@@ -61,11 +62,6 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
     );
   }
 
-  handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   render() {
     const { task } = this.props;
     const { loading, stacktrace } = this.state;
@@ -100,9 +96,9 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
         </div>
 
         <div className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </a>
+          </ResetButtonLink>
         </div>
       </Modal>
     );

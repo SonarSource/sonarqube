@@ -20,9 +20,9 @@
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { colors } from '../../../app/theme';
-import { ClearButton } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
+import { ClearButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 
@@ -32,7 +32,7 @@ export interface Props {
   pendingCount?: number;
 }
 
-export function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Props) {
+function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Props) {
   if (pendingCount === undefined) {
     return null;
   }

@@ -31,6 +31,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
@@ -38,7 +39,7 @@ import { Task, TaskStatuses } from '../../../types/tasks';
 import { Component, Paging, RawQuery } from '../../../types/types';
 import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, PAGE_SIZE } from '../constants';
-import { mapFiltersToParameters, Query, updateTask } from '../utils';
+import { Query, mapFiltersToParameters, updateTask } from '../utils';
 import Header from './Header';
 import Search from './Search';
 import Stats from './Stats';
@@ -217,7 +218,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       return (
         <div className="page page-limited">
           <Helmet defer={false} title={translate('background_tasks.page')} />
-          <i className="spinner" />
+          <DeferredSpinner loading={true} />
         </div>
       );
     }

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getTask } from '../../../api/ce';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 
@@ -53,11 +54,6 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
     });
   }
 
-  handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   render() {
     const { task } = this.props;
     const { scannerContext } = this.state;
@@ -84,9 +80,7 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
         </div>
 
         <div className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('close')}
-          </a>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
         </div>
       </Modal>
     );
