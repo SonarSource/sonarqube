@@ -17,32 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import selectEvent from 'react-select-event';
-import { byLabelText, byRole } from 'testing-library-selector';
-import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
-import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
-import { mockComponent } from '../../../helpers/mocks/component';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
-import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { renderApp, renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
-import { Component } from '../../../types/types';
-import { CurrentUser } from '../../../types/users';
-import IssuesApp from '../components/IssuesApp';
-import { projectIssuesRoutes } from '../routes';
-
-jest.mock('../../../api/issues');
-jest.mock('../../../api/rules');
-jest.mock('../../../api/components');
-jest.mock('../../../api/users');
-
-const issuesHandler = new IssuesServiceMock();
-const componentsHandler = new ComponentsServiceMock();
+import {
+  componentsHandler,
+  issuesHandler,
+  renderIssueApp,
+  renderProjectIssuesApp,
+  ui,
+  waitOnDataLoaded,
+} from '../test-utils';
 
 beforeEach(() => {
   issuesHandler.reset();
@@ -50,59 +40,6 @@ beforeEach(() => {
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
-
-const ui = {
-  loading: byLabelText('loading'),
-  issueItems: byRole('region'),
-
-  issueItem1: byRole('region', { name: 'Issue with no location message' }),
-  issueItem2: byRole('region', { name: 'FlowIssue' }),
-  issueItem3: byRole('region', { name: 'Issue on file' }),
-  issueItem4: byRole('region', { name: 'Fix this' }),
-  issueItem5: byRole('region', { name: 'Fix that' }),
-  issueItem6: byRole('region', { name: 'Second issue' }),
-  issueItem7: byRole('region', { name: 'Issue with tags' }),
-  issueItem8: byRole('region', { name: 'Issue on page 2' }),
-
-  clearIssueTypeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.types' }),
-  codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
-  vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
-  clearSeverityFacet: byRole('button', { name: 'clear_x_filter.issues.facet.severities' }),
-  majorSeverityFilter: byRole('checkbox', { name: 'severity.MAJOR' }),
-  scopeFacet: byRole('button', { name: 'issues.facet.scopes' }),
-  clearScopeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.scopes' }),
-  mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
-  resolutionFacet: byRole('button', { name: 'issues.facet.resolutions' }),
-  clearResolutionFacet: byRole('button', { name: 'clear_x_filter.issues.facet.resolutions' }),
-  fixedResolutionFilter: byRole('checkbox', { name: 'issue.resolution.FIXED' }),
-  statusFacet: byRole('button', { name: 'issues.facet.statuses' }),
-  creationDateFacet: byRole('button', { name: 'issues.facet.createdAt' }),
-  clearCreationDateFacet: byRole('button', { name: 'clear_x_filter.issues.facet.createdAt' }),
-  clearStatusFacet: byRole('button', { name: 'clear_x_filter.issues.facet.statuses' }),
-  openStatusFilter: byRole('checkbox', { name: 'issue.status.OPEN' }),
-  confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),
-  ruleFacet: byRole('button', { name: 'issues.facet.rules' }),
-  clearRuleFacet: byRole('button', { name: 'clear_x_filter.issues.facet.rules' }),
-  tagFacet: byRole('button', { name: 'issues.facet.tags' }),
-  clearTagFacet: byRole('button', { name: 'clear_x_filter.issues.facet.tags' }),
-  projectFacet: byRole('button', { name: 'issues.facet.projects' }),
-  clearProjectFacet: byRole('button', { name: 'clear_x_filter.issues.facet.projects' }),
-  assigneeFacet: byRole('button', { name: 'issues.facet.assignees' }),
-  clearAssigneeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.assignees' }),
-  authorFacet: byRole('button', { name: 'issues.facet.authors' }),
-  clearAuthorFacet: byRole('button', { name: 'clear_x_filter.issues.facet.authors' }),
-
-  dateInputMonthSelect: byRole('combobox', { name: 'Month:' }),
-  dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
-
-  clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
-};
-
-async function waitOnDataLoaded() {
-  await waitFor(() => {
-    expect(ui.loading.query()).not.toBeInTheDocument();
-  });
-}
 
 describe('issues app', () => {
   describe('rendering', () => {
@@ -924,16 +861,3 @@ describe('redirects', () => {
     ).toBeInTheDocument();
   });
 });
-
-function renderIssueApp(currentUser?: CurrentUser) {
-  renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
-}
-
-function renderProjectIssuesApp(navigateTo?: string, overrides?: Partial<Component>) {
-  renderAppWithComponentContext(
-    'project/issues',
-    projectIssuesRoutes,
-    { navigateTo },
-    { component: mockComponent(overrides) }
-  );
-}

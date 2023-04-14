@@ -42,6 +42,7 @@ import {
   SourceViewerFile,
 } from '../../types/types';
 import {
+  GetTreeParams,
   changeKey,
   getChildren,
   getComponentData,
@@ -50,7 +51,6 @@ import {
   getDuplications,
   getSources,
   getTree,
-  GetTreeParams,
 } from '../components';
 
 interface ComponentTree {

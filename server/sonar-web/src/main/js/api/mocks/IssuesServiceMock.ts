@@ -59,8 +59,8 @@ import {
   editIssueComment,
   getIssueChangelog,
   getIssueFlowSnippets,
-  searchIssues,
   searchIssueTags,
+  searchIssues,
   setIssueAssignee,
   setIssueSeverity,
   setIssueTags,
@@ -282,7 +282,7 @@ export default class IssuesServiceMock {
       {
         issue: mockRawIssue(false, {
           key: 'issue1',
-          component: 'foo:test1.js',
+          component: 'foo:huge.js',
           message: 'Fix this',
           type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
@@ -296,7 +296,7 @@ export default class IssuesServiceMock {
             {
               locations: [
                 {
-                  component: 'foo:test1.js',
+                  component: 'foo:huge.js',
                   msg: 'location 1',
                   textRange: {
                     startLine: 1,
@@ -310,11 +310,11 @@ export default class IssuesServiceMock {
             {
               locations: [
                 {
-                  component: 'foo:test2.js',
+                  component: 'foo:huge.js',
                   msg: 'location 2',
                   textRange: {
-                    startLine: 20,
-                    endLine: 20,
+                    startLine: 50,
+                    endLine: 50,
                     startOffset: 0,
                     endOffset: 1,
                   },
@@ -326,14 +326,14 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'test1.js',
+              'huge.js',
               'foo',
-              times(40, (i) => i + 1)
+              times(80, (i) => i + 1)
             ),
             mockSnippetsByComponent(
-              'test2.js',
+              'huge.js',
               'foo',
-              times(40, (i) => i + 1)
+              times(80, (i) => i + 1)
             ),
           ],
           'component.key'

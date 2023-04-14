@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../api/components';
-import IssueMessageBox from '../../../components/issue/IssueMessageBox';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
+import IssueMessageBox from '../../../components/issue/IssueMessageBox';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -34,23 +34,23 @@ import {
   Duplication,
   ExpandDirection,
   FlowLocation,
-  Issue as TypeIssue,
   IssuesByLine,
   Snippet,
   SnippetGroup,
   SourceLine,
   SourceViewerFile,
+  Issue as TypeIssue,
 } from '../../../types/types';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
 import IssueSourceViewerHeader from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
 import {
+  EXPAND_BY_LINES,
+  MERGE_DISTANCE,
   createSnippets,
   expandSnippet,
-  EXPAND_BY_LINES,
   getPrimaryLocation,
   linesForSnippets,
-  MERGE_DISTANCE,
 } from './utils';
 
 interface Props {

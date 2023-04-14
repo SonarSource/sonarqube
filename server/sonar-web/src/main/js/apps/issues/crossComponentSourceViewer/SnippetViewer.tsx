@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
@@ -27,6 +26,7 @@ import {
   optimizeHighlightedSymbols,
   optimizeLocationMessage,
 } from '../../../components/SourceViewer/helpers/lines';
+import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
 import { translate } from '../../../helpers/l10n';
 import {
   Duplication,
