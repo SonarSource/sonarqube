@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
-import React from 'react';
 
-configure({
-  asyncUtilTimeout: 3000,
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { FCProps } from '../../types/misc';
+
+import { CoverageIndicator } from '../CoverageIndicator';
+
+it('should display CoverageIndicator', () => {
+  setupWithProps({ value: 10 });
+  expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
 });
-global.React = React;
+
+it('should display CoverageIndicator without value', () => {
+  setupWithProps();
+  expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
+});
+
+function setupWithProps(props: Partial<FCProps<typeof CoverageIndicator>> = {}) {
+  return render(<CoverageIndicator {...props} />);
+}

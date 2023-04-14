@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
-import React from 'react';
 
-configure({
-  asyncUtilTimeout: 3000,
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { FCProps } from '../../types/misc';
+
+import { MetricsRatingBadge } from '../MetricsRatingBadge';
+
+it('should display RatingIndicator', () => {
+  setupWithProps();
+  expect(screen.getByLabelText('New label')).toBeInTheDocument();
 });
-global.React = React;
+
+it('should display RatingIndicator with value', () => {
+  setupWithProps({ rating: 'A' });
+  expect(screen.getByText('A')).toBeInTheDocument();
+});
+
+function setupWithProps(props: Partial<FCProps<typeof MetricsRatingBadge>> = {}) {
+  return render(<MetricsRatingBadge label="New label" {...props} />);
+}

@@ -34,6 +34,7 @@ export { HomeIcon } from './HomeIcon';
 export { MainBranchIcon } from './MainBranchIcon';
 export { MenuHelpIcon } from './MenuHelpIcon';
 export { MenuSearchIcon } from './MenuSearchIcon';
+export { NoDataIcon } from './NoDataIcon';
 export { OpenCloseIndicator } from './OpenCloseIndicator';
 export { OpenNewTabIcon } from './OpenNewTabIcon';
 export { OverviewQGNotComputedIcon } from './OverviewQGNotComputedIcon';

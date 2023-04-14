@@ -17,11 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
-import React from 'react';
 
-configure({
-  asyncUtilTimeout: 3000,
-});
-global.React = React;
+export enum DuplicationEnum {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  E = 'E',
+  F = 'F',
+}
+
+export type DuplicationLabel = keyof typeof DuplicationEnum;
+
+export enum MetricsEnum {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  E = 'E',
+}
+
+export type MetricsLabel = keyof typeof MetricsEnum;
+
+export enum SizeEnum {
+  XS = 'XS',
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL',
+}
+export type SizeLabel = keyof typeof SizeEnum;

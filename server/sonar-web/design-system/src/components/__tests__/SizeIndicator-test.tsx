@@ -17,11 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
-import React from 'react';
 
-configure({
-  asyncUtilTimeout: 3000,
-});
-global.React = React;
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { FCProps } from '../../types/misc';
+
+import { SizeLabel } from '../../types/measures';
+import { SizeIndicator } from '../SizeIndicator';
+
+it.each(['XS', 'S', 'M', 'L', 'XL'])(
+  'should display SizeIndicator with size',
+  (value: SizeLabel) => {
+    setupWithProps({ value });
+    expect(screen.getByText(value)).toBeInTheDocument();
+  }
+);
+
+function setupWithProps(props: Partial<FCProps<typeof SizeIndicator>> = {}) {
+  return render(<SizeIndicator value="XS" {...props} />);
+}

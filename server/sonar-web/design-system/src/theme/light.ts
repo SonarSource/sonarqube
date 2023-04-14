@@ -296,12 +296,13 @@ const lightTheme = {
     coverageRed: danger.dark,
 
     // duplications indicators
-    'duplicationsRating.A': COLORS.green[500],
-    'duplicationsRating.B': COLORS.yellowGreen[500],
-    'duplicationsRating.C': COLORS.yellow[500],
-    'duplicationsRating.D': COLORS.orange[500],
-    'duplicationsRating.E': COLORS.red[500],
-    duplicationsRatingSecondary: secondary.light,
+    'duplicationsIndicator.A': COLORS.green[500],
+    'duplicationsIndicator.B': COLORS.green[500],
+    'duplicationsIndicator.C': COLORS.yellowGreen[500],
+    'duplicationsIndicator.D': COLORS.yellow[500],
+    'duplicationsIndicator.E': COLORS.orange[500],
+    'duplicationsIndicator.F': COLORS.red[500],
+    duplicationsIndicatorSecondary: secondary.light,
 
     // size indicators
     sizeIndicator: COLORS.blue[500],
