@@ -145,7 +145,17 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     from configurations.shutdowner
   }
 }
+// Check the size of the archive
+zip.doLast {
+  def minLength = 205000000
+  def maxLength = 260000000
 
+  def length = archiveFile.get().asFile.length()
+  if (length < minLength)
+    throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
+  if (length > maxLength)
+    throw new GradleException("$distsDir/$archiveName size ($length) too large. Max is $maxLength")
+}
 assemble.dependsOn zip
 
 // the script start.sh unpacks OSS distribution into $buildDir/distributions/sonarqube-oss.

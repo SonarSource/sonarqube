@@ -317,6 +317,7 @@ subprojects {
       // "elasticsearchDownloadUrlFile" and "elasticsearchDownloadSha512" must also be updated in gradle.properties
       dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.8') {
         exclude 'org.apache.logging.log4j:log4j-core'
+        exclude 'org.elasticsearch:jna'
       }
       dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.8'
       dependency 'org.elasticsearch:mocksocket:1.2'
@@ -324,6 +325,7 @@ subprojects {
       dependency 'org.codelibs.elasticsearch.module:reindex:7.17.1'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.9'
+      dependency 'net.java.dev.jna:jna:5.12.0'
       dependency 'org.hamcrest:hamcrest-all:1.3'
       dependency 'org.jsoup:jsoup:1.15.3'
       dependency 'org.mindrot:jbcrypt:0.4'

@@ -103,6 +103,17 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(6)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS)
+        .defaultValue("30")
+        .name("Delete inactive branches and PRs after")
+        .description("Branches and PRs which are inactive for more than this number of days will be deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
+        .index(7)
         .build());
   }
 }
