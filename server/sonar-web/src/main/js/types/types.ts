@@ -403,13 +403,9 @@ export interface NewCodePeriod {
   inherited?: boolean;
 }
 
-export interface NewCodePeriodBranch {
+export interface NewCodePeriodBranch extends NewCodePeriod {
   projectKey: string;
   branchKey: string;
-  inherited?: boolean;
-  type?: NewCodePeriodSettingType;
-  value?: string;
-  effectiveValue?: string;
 }
 
 export enum NewCodePeriodSettingType {

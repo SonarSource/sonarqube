@@ -18,21 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockNewCodePeriod } from '../../helpers/mocks/new-code-period';
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../types/types';
-import { getNewCodePeriod, setNewCodePeriod } from '../newCodePeriod';
+import { mockNewCodePeriod, mockNewCodePeriodBranch } from '../../helpers/mocks/new-code-period';
+import { NewCodePeriod, NewCodePeriodBranch, NewCodePeriodSettingType } from '../../types/types';
+import {
+  getNewCodePeriod,
+  listBranchesNewCodePeriod,
+  resetNewCodePeriod,
+  setNewCodePeriod,
+} from '../newCodePeriod';
 
 jest.mock('../newCodePeriod');
-
-const defaultNewCodePeriod = mockNewCodePeriod();
-
 export default class NewCodePeriodsServiceMock {
+  #defaultNewCodePeriod = mockNewCodePeriod({ inherited: true });
+  #defaultListBranchesNewCode = [
+    mockNewCodePeriodBranch({ inherited: true, branchKey: 'main' }),
+    mockNewCodePeriodBranch({
+      branchKey: 'feature',
+      type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+      value: '1',
+    }),
+  ];
+
   #newCodePeriod: NewCodePeriod;
+  #listBranchesNewCode: NewCodePeriodBranch[];
 
   constructor() {
-    this.#newCodePeriod = cloneDeep(defaultNewCodePeriod);
+    this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
+    this.#listBranchesNewCode = cloneDeep(this.#defaultListBranchesNewCode);
     jest.mocked(getNewCodePeriod).mockImplementation(this.handleGetNewCodePeriod);
     jest.mocked(setNewCodePeriod).mockImplementation(this.handleSetNewCodePeriod);
+    jest.mocked(resetNewCodePeriod).mockImplementation(this.handleResetNewCodePeriod);
+    jest.mocked(listBranchesNewCodePeriod).mockImplementation(this.handleListBranchesNewCodePeriod);
   }
 
   handleGetNewCodePeriod = () => {
@@ -45,13 +61,41 @@ export default class NewCodePeriodsServiceMock {
     type: NewCodePeriodSettingType;
     value?: string;
   }) => {
-    const { type, value } = data;
-    this.#newCodePeriod = mockNewCodePeriod({ type, value });
+    const { type, value, branch } = data;
+    if (branch) {
+      const branchNewCode = this.#listBranchesNewCode.find(
+        (bNew) => bNew.branchKey === branch
+      ) as NewCodePeriodBranch;
+      branchNewCode.type = type;
+      branchNewCode.value = value;
+    } else {
+      this.#newCodePeriod = mockNewCodePeriod({ type, value });
+    }
+
     return this.reply(undefined);
   };
 
+  handleResetNewCodePeriod = (data: { project?: string; branch?: string }) => {
+    const { branch } = data;
+    if (branch) {
+      const index = this.#listBranchesNewCode.findIndex((bNew) => bNew.branchKey === branch);
+      if (index >= 0) {
+        Object.assign(this.#listBranchesNewCode[index], cloneDeep(this.#defaultNewCodePeriod));
+      }
+    } else {
+      this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
+    }
+
+    return this.reply(undefined);
+  };
+
+  handleListBranchesNewCodePeriod = () => {
+    return this.reply({ newCodePeriods: this.#listBranchesNewCode });
+  };
+
   reset = () => {
-    this.#newCodePeriod = cloneDeep(defaultNewCodePeriod);
+    this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
+    this.#listBranchesNewCode = cloneDeep(this.#defaultListBranchesNewCode);
   };
 
   reply<T>(response: T): Promise<T> {

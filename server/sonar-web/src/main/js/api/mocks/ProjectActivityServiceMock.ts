@@ -31,7 +31,7 @@ import {
 } from '../projectActivity';
 
 const PAGE_SIZE = 10;
-const DEFAULT_PAGE = 0;
+const DEFAULT_PAGE = 1;
 const UNKNOWN_PROJECT = 'unknown';
 
 const defaultAnalysesList = [

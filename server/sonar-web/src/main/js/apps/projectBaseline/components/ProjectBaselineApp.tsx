@@ -68,7 +68,7 @@ interface State {
 
 const DEFAULT_NUMBER_OF_DAYS = '30';
 
-export class ProjectBaselineApp extends React.PureComponent<Props, State> {
+class ProjectBaselineApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branchList: [],
@@ -269,9 +269,9 @@ export class ProjectBaselineApp extends React.PureComponent<Props, State> {
         <Helmet defer={false} title={translate('project_baseline.page')} />
         <div className="page page-limited">
           <AppHeader canAdmin={!!appState.canAdmin} />
-          {loading ? (
-            <DeferredSpinner />
-          ) : (
+          <DeferredSpinner loading={loading} />
+
+          {!loading && (
             <div className="panel-white project-baseline">
               {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 

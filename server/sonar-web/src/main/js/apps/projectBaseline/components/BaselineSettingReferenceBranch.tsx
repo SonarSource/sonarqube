@@ -47,8 +47,7 @@ export interface BranchOption {
   value: string;
 }
 
-/* Export for testing */
-export function renderBranchOption(props: OptionProps<BranchOption, false>) {
+function renderBranchOption(props: OptionProps<BranchOption, false>) {
   const { data: option } = props;
 
   return (
@@ -118,6 +117,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
               <Select
                 className="little-spacer-top spacer-bottom"
                 options={branchList}
+                aria-label={translate('baseline.reference_branch.choose')}
                 onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
                 value={currentBranch}
                 components={{

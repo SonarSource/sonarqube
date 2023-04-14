@@ -118,7 +118,9 @@ export default function BranchListRow(props: BranchListRowProps) {
         </Tooltip>
       </td>
       <td className="text-right">
-        <ActionsDropdown>
+        <ActionsDropdown
+          label={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
+        >
           <ActionsDropdownItem onClick={() => props.onOpenEditModal(branch)}>
             {translate('edit')}
           </ActionsDropdownItem>

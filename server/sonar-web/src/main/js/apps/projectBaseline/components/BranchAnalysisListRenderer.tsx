@@ -19,14 +19,15 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { injectIntl, IntlShape, WrappedComponentProps } from 'react-intl';
 import Radio from '../../../components/controls/Radio';
 import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import Events from '../../projectActivity/components/Events';
 import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
@@ -49,8 +50,9 @@ function renderAnalysis(args: {
   isFirst: boolean;
   onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   selectedAnalysisKey: string;
+  intl: IntlShape;
 }) {
-  const { analysis, isFirst, onSelectAnalysis, selectedAnalysisKey } = args;
+  const { analysis, isFirst, onSelectAnalysis, selectedAnalysisKey, intl } = args;
   return (
     <li
       className={classNames('branch-analysis', {
@@ -75,14 +77,26 @@ function renderAnalysis(args: {
       )}
 
       <div className="analysis-selection-button">
-        <Radio checked={analysis.key === selectedAnalysisKey} onCheck={() => {}} value="" />
+        <Radio
+          checked={analysis.key === selectedAnalysisKey}
+          ariaLabel={translateWithParameters(
+            'baseline.branch_analyses.analysis_for_x',
+            `${intl.formatDate(analysis.date, longFormatterOption)}, ${intl.formatTime(
+              analysis.date
+            )}`
+          )}
+          onCheck={() => {}}
+          value=""
+        />
       </div>
     </li>
   );
 }
 
-export default function BranchAnalysisListRenderer(props: BranchAnalysisListRendererProps) {
-  const { analyses, loading, range, selectedAnalysisKey } = props;
+function BranchAnalysisListRenderer(
+  props: BranchAnalysisListRendererProps & WrappedComponentProps
+) {
+  const { analyses, loading, range, selectedAnalysisKey, intl } = props;
 
   const byVersionByDay = React.useMemo(
     () =>
@@ -129,7 +143,7 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
           onScroll={props.handleScroll}
           ref={props.registerScrollableNode}
         >
-          {loading && <DeferredSpinner className="big-spacer-top" />}
+          <DeferredSpinner className="big-spacer-top" loading={loading} />
 
           {!loading && !hasFilteredData ? (
             <div className="big-spacer-top big-spacer-bottom strong">
@@ -171,15 +185,15 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
                             <DateFormatter date={Number(day)} long={true} />
                           </div>
                           <ul className="branch-analysis-analyses-list">
-                            {version.byDay[day] != null &&
-                              version.byDay[day].map((analysis) =>
-                                renderAnalysis({
-                                  analysis,
-                                  selectedAnalysisKey,
-                                  isFirst: analyses[0].key === analysis.key,
-                                  onSelectAnalysis: props.onSelectAnalysis,
-                                })
-                              )}
+                            {version.byDay[day]?.map((analysis) =>
+                              renderAnalysis({
+                                analysis,
+                                selectedAnalysisKey,
+                                isFirst: analyses[0].key === analysis.key,
+                                onSelectAnalysis: props.onSelectAnalysis,
+                                intl,
+                              })
+                            )}
                           </ul>
                         </li>
                       ))}
@@ -194,3 +208,5 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
     </>
   );
 }
+
+export default injectIntl(BranchAnalysisListRenderer);

@@ -18,11 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../types/types';
+import { NewCodePeriod, NewCodePeriodBranch, NewCodePeriodSettingType } from '../../types/types';
 
 export function mockNewCodePeriod(overrides: Partial<NewCodePeriod> = {}) {
   return {
     type: NewCodePeriodSettingType.PREVIOUS_VERSION,
+    ...overrides,
+  };
+}
+
+export function mockNewCodePeriodBranch(overrides: Partial<NewCodePeriodBranch> = {}) {
+  return {
+    projectKey: 'pkey',
+    branchKey: 'bKey',
+    ...mockNewCodePeriod(),
     ...overrides,
   };
 }

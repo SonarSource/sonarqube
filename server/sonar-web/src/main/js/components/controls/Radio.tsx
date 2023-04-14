@@ -28,6 +28,7 @@ interface Props {
   disabled?: boolean;
   onCheck: (value: string) => void;
   value: string;
+  ariaLabel?: string;
 }
 
 export default class Radio extends React.PureComponent<Props> {
@@ -40,7 +41,7 @@ export default class Radio extends React.PureComponent<Props> {
   };
 
   render() {
-    const { className, checked, children, disabled, alignLabel = false } = this.props;
+    const { className, checked, children, disabled, alignLabel = false, ariaLabel } = this.props;
 
     return (
       <a
@@ -54,6 +55,7 @@ export default class Radio extends React.PureComponent<Props> {
         href="#"
         onClick={this.handleClick}
         role="radio"
+        aria-label={ariaLabel}
       >
         <i className={classNames('icon-radio', 'spacer-right', { 'is-checked': checked })} />
         {children}
