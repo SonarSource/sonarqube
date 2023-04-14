@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { parseDate } from '../../../helpers/dates';
@@ -84,8 +85,8 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
         detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
         projectBinding={projectBinding}
       />
-      <div className="page page-limited">
-        <div className="overview">
+      <LargeCenteredLayout>
+        <div className="overview sw-mt-6">
           <A11ySkipTarget anchor="overview_main" />
 
           {projectIsEmpty ? (
@@ -127,7 +128,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
             </div>
           )}
         </div>
-      </div>
+      </LargeCenteredLayout>
     </>
   );
 }
