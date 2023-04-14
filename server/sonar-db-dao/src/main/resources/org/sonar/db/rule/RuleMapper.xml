@@ -39,7 +39,8 @@
     r.ad_hoc_description as "adHocDescription",
     r.ad_hoc_severity as "adHocSeverity",
     r.ad_hoc_type as "adHocType",
-    r.education_principles as "educationPrinciplesField"
+    r.education_principles as "educationPrinciplesField",
+    r.characteristic as "characteristic"
   </sql>
 
   <sql id="leftOuterJoinRulesDescriptionSections">

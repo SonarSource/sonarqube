@@ -26,8 +26,8 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static java.lang.String.format;
@@ -39,6 +39,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private Long effort;
   private Severity severity;
   private RuleType type;
+  private RuleCharacteristic characteristic;
   private String engineId;
   private String ruleId;
 
@@ -100,9 +101,8 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @CheckForNull
-  @Override
-  public CodeCharacteristic characteristic() {
-    throw new IllegalStateException("Not implemented yet");
+  public RuleCharacteristic characteristic() {
+    return characteristic;
   }
 
   @Override
@@ -133,14 +133,15 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public DefaultExternalIssue type(RuleType type) {
-    this.type = type;
+  public DefaultExternalIssue characteristic(RuleCharacteristic characteristic) {
+    this.characteristic = characteristic;
     return this;
   }
 
   @Override
-  public NewExternalIssue characteristic(CodeCharacteristic characteristic) {
-    throw new IllegalStateException("Not implemented yet");
+  public DefaultExternalIssue type(RuleType type) {
+    this.type = type;
+    return this;
   }
 
 }

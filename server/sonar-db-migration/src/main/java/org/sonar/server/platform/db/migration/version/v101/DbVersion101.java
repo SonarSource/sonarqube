@@ -53,6 +53,6 @@ public class DbVersion101 implements DbVersion {
       .add(10_1_006, "Update value of 'is_main' in 'project_branches' table", UpdateIsMainColumnInProjectBranches.class)
       .add(10_1_007, "Alter column 'is_main' in 'project_branches' table - make it not nullable", AlterIsMainColumnInProjectBranches.class)
       .add(10_1_008, "Increase size of 'internal_properties.kee' from 20 to 40 characters", IncreaseKeeColumnSizeInInternalProperties.class)
-    ;
+      .add(10_1_009, "Add column 'characteristic' to 'rules' table", AddCharacteristicInRules.class);
   }
 }

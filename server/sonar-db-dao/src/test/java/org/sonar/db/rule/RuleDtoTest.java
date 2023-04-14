@@ -20,11 +20,18 @@
 package org.sonar.db.rule;
 
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.sonar.api.rules.RuleCharacteristic;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -34,10 +41,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
+@RunWith(DataProviderRunner.class)
 public class RuleDtoTest {
 
-
   public static final String SECTION_KEY = "section key";
+
   @Test
   public void fail_if_key_is_too_long() {
     assertThatThrownBy(() -> new RuleDto().setRuleKey(repeat("x", 250)))
@@ -178,4 +186,27 @@ public class RuleDtoTest {
       .key(section_key)
       .build();
   }
+
+  @Test
+  public void getEffectiveCharacteristic_when_noCharacteristicInitialized_should_return_dbConstantValueFromConverter() {
+    RuleDto rule = new RuleDto().setType(RuleType.BUG);
+
+    RuleCharacteristic characteristic = rule.getCharacteristic();
+    assertThat(characteristic).isNull();
+
+    RuleCharacteristic effectiveCharacteristic = rule.getEffectiveCharacteristic();
+    RuleCharacteristic expected = RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic(RuleType.BUG);
+    assertThat(effectiveCharacteristic).isEqualTo(expected);
+  }
+
+  @Test
+  public void getEffectiveCharacteristic_when_characteristicInitialized_should_return_characteristicDbConstantValue() {
+    RuleDto rule = new RuleDto().setType(RuleType.BUG).setCharacteristic(RuleCharacteristic.COMPLIANT);
+
+    RuleCharacteristic effectiveCharacteristic = rule.getEffectiveCharacteristic();
+    RuleCharacteristic characteristic = rule.getCharacteristic();
+
+    assertThat(effectiveCharacteristic).isEqualTo(characteristic).isEqualTo(RuleCharacteristic.COMPLIANT);
+  }
+
 }

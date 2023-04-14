@@ -45,6 +45,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
@@ -55,6 +56,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String key = null;
   private RuleType type = null;
+  private RuleCharacteristic characteristic = null;
   private String componentUuid = null;
   private String componentKey = null;
 
@@ -153,6 +155,17 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setType(RuleType type) {
     this.type = type;
+    return this;
+  }
+
+  @CheckForNull
+  @Override
+  public RuleCharacteristic characteristic() {
+    return characteristic;
+  }
+
+  public DefaultIssue setCharacteristic(RuleCharacteristic characteristic) {
+    this.characteristic = characteristic;
     return this;
   }
 
