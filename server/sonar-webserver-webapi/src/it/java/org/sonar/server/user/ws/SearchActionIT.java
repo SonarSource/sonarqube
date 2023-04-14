@@ -529,6 +529,25 @@ public class SearchActionIT {
     assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection, user.getLogin(), true);
   }
 
+
+  @Test
+  public void search_whenNoLastConnection_shouldReturnForBeforeOnly() {
+    userSession.logIn().setSystemAdministrator();
+    final Instant lastConnection = Instant.now();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("user-%_%-login")
+      .setName("user-name")
+      .setEmail("user@mail.com")
+      .setLocal(true)
+      .setScmAccounts(singletonList("user1")));
+
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_FROM, lastConnection, user.getLogin(), false);
+    assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_TO, lastConnection, user.getLogin(), true);
+
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, lastConnection, user.getLogin(), false);
+    assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection, user.getLogin(), true);
+  }
+
   @Test
   public void search_whenNotAdmin_shouldThrowForbidden() {
     userSession.logIn();

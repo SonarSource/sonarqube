@@ -146,7 +146,8 @@ public class SearchAction implements UsersWsAction {
     action.createParam(LAST_CONNECTION_DATE_FROM)
       .setSince("10.1")
       .setDescription("""
-        Filter the users based on the last connection date field. Only users who interacted with this instance at or after the date will be returned.
+        Filter the users based on the last connection date field.
+        Only users who interacted with this instance at or after the date will be returned.
         The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
       .setRequired(false)
       .setDefaultValue(null)
@@ -154,7 +155,8 @@ public class SearchAction implements UsersWsAction {
     action.createParam(LAST_CONNECTION_DATE_TO)
       .setSince("10.1")
       .setDescription("""
-        Filter the users based on the last connection date field. Only users who interacted with this instance at or before the date will be returned.
+        Filter the users based on the last connection date field.
+        Only users that never connected or who interacted with this instance at or before the date will be returned.
         The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
       .setRequired(false)
       .setDefaultValue(null)
@@ -162,7 +164,8 @@ public class SearchAction implements UsersWsAction {
     action.createParam(SONAR_LINT_LAST_CONNECTION_DATE_FROM)
       .setSince("10.1")
       .setDescription("""
-        Filter the users based on the sonar lint last connection date field. Only users who interacted with this instance using SonarLint at or after the date will be returned.
+        Filter the users based on the sonar lint last connection date field 
+        Only users who interacted with this instance using SonarLint at or after the date will be returned.
         The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
       .setRequired(false)
       .setDefaultValue(null)
@@ -170,7 +173,8 @@ public class SearchAction implements UsersWsAction {
     action.createParam(SONAR_LINT_LAST_CONNECTION_DATE_TO)
       .setSince("10.1")
       .setDescription("""
-        Filter the users based on the sonar lint last connection date field. Only users who interacted with this instance using SonarLint at or before the date will be returned.
+        Filter the users based on the sonar lint last connection date field.
+        Only users that never connected or who interacted with this instance using SonarLint at or before the date will be returned.
         The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
       .setRequired(false)
       .setDefaultValue(null)
