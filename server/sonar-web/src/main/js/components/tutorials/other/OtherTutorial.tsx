@@ -22,8 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import InstanceMessage from '../../common/InstanceMessage';
-import ProjectAnalysisStep from './ProjectAnalysisStep';
-import TokenStep from './TokenStep';
+import {getHostUrl} from "../../../helpers/urls";
 
 export enum Steps {
   ANALYSIS,
@@ -54,37 +53,16 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, baseUrl, currentUser, isLocal = false } = this.props;
-    const { step, token } = this.state;
+    const projectKey = this.props.component.key;
 
     return (
       <>
         <div className="page-header big-spacer-bottom">
           <h2 className="page-title">{translate('onboarding.project_analysis.header')}</h2>
           <p className="page-description">
-            <InstanceMessage message={translate('onboarding.project_analysis.description')} />
+            <p>{translate('layout.must_be_configured')} Run analysis on <a href={getHostUrl() + '/project/extension/developer/project?id=' + projectKey}>Project Analysis</a> Page. </p>
           </p>
         </div>
-
-        <TokenStep
-          currentUser={currentUser}
-          projectKey={component.key}
-          finished={Boolean(this.state.token)}
-          initialTokenName={`Analyze "${component.name}"`}
-          onContinue={this.handleTokenDone}
-          onOpen={this.handleTokenOpen}
-          open={step === Steps.TOKEN}
-          stepNumber={1}
-        />
-
-        <ProjectAnalysisStep
-          component={component}
-          baseUrl={baseUrl}
-          isLocal={isLocal}
-          open={step === Steps.ANALYSIS}
-          token={token}
-          stepNumber={2}
-        />
       </>
     );
   }
