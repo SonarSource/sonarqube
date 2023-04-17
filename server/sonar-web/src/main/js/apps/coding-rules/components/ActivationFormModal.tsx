@@ -48,6 +48,7 @@ interface ProfileWithDeph extends Profile {
 
 interface State {
   params: Dict<string | any>;
+  allParams: T.Dict<string | any>;
   profile?: ProfileWithDeph;
   severity: string;
   submitting: boolean;
@@ -62,7 +63,8 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     super(props);
     const profilesWithDepth = this.getQualityProfilesWithDepth(props);
     this.state = {
-      params: this.getParams(props),
+      params: this.getDefaultParams(props),
+      allParams: this.getAllParams(props),
       profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
       severity: props.activation ? props.activation.severity : props.rule.severity,
       submitting: false,
@@ -77,7 +79,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.mounted = false;
   }
 
-  getParams = ({ activation, rule } = this.props) => {
+  getDefaultParams = ({ activation, rule } = this.props) => {
     const params: Dict<any> = {};
     if (rule && rule.params) {
       for (const param of rule.params) {
@@ -94,7 +96,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       }
       if (activation && activation.params) {
         for (const param of activation.params) {
-         if (typeof(params[param.key]) !== 'string') {
+         if (typeof (params[param.key]) !== 'string') {
            let paramsArray: String[] = [];
            paramsArray = param.value.split(this.paramsDelimiter);
            paramsArray.push(this.keyValueDelimiter);
@@ -102,6 +104,22 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
          } else {
            params[param.key] = param.value || '';
          }
+        }
+      }
+    }
+    return params;
+  };
+
+// Unlike other param types, SINGLE_SELECT_LIST has predefined list of values from which user can choose from.
+  getAllParams = ({ rule } = this.props) => {
+    const params: T.Dict<any> = {};
+    if (rule && rule.params) {
+      for (const param of rule.params) {
+        if (param.type.startsWith("SINGLE_SELECT_LIST")) {
+          let list: String;
+          list = param.type.substring(param.type.indexOf('\"') + 1);
+          list = list.substring(0, list.indexOf(',\"'));
+          params[param.key] = list.split(',');
         }
       }
     }
@@ -175,6 +193,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
     this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
+  };
+
+  handleSingleSelectListChange = ({ value, labelKey }: { label: string, value: string, labelKey: string }) => {
+    let params = { ...this.state.params };
+    params[labelKey] = value;
+    this.setState({ params });
   };
 
   handleProfileChange = (profile: ProfileWithDeph) => {
@@ -274,7 +298,22 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
                         />
                       )
                     }
-                    {param.type === 'KEY_VALUE_MAP' ?
+                    {param.type.startsWith('SINGLE_SELECT_LIST') &&
+                      (
+                        <Select
+                          className="js-list"
+                          clearable={false}
+                          onChange={this.handleSingleSelectListChange}
+                          options={this.state.allParams[param.key].map((item: string) => ({
+                            labelKey: param.key,
+                            label: item,
+                            value: item
+                          }))}
+                          value={this.state.params[param.key] || ''}
+                        />
+                      )
+                    }
+                    {param.type === 'KEY_VALUE_MAP' &&
                       (
                         <ul>
                           {this.state.params[param.key].map((value: any, index: number) =>
@@ -306,7 +345,10 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
                             </li>
                           )}
                         </ul>
-                      ) : (
+                      )
+                     }
+                     {param.type !== 'KEY_VALUE_MAP' && !param.type.startsWith('SINGLE_SELECT_LIST') && param.type !== 'TEXT' &&
+                      (
                         <input
                           disabled={submitting}
                           name={param.key}
