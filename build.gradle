@@ -62,6 +62,7 @@ allprojects {
   }
 
   repositories {
+    mavenLocal()
     def repository = project.hasProperty('qa') ? 'sonarsource-qa' : 'sonarsource'
     maven {
       // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
@@ -203,7 +204,7 @@ subprojects {
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.12.0.1956'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.11.0.3905'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.11.0.3905'
-      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.14.0.375'
+      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.13-CODESCAN'
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.7.0.3820'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.11.0.2847'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.0.1.611'
