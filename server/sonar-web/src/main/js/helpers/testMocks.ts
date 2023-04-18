@@ -26,7 +26,14 @@ import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
-import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
+import {
+  IssueCharacteristic,
+  IssueScope,
+  IssueSeverity,
+  IssueStatus,
+  IssueType,
+  RawIssue,
+} from '../types/issues';
 import { Language } from '../types/languages';
 import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
@@ -296,6 +303,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     severity: IssueSeverity.Major,
     status: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
+    characteristic: IssueCharacteristic.Clear,
     type: IssueType.CodeSmell,
     transitions: [],
     scope: IssueScope.Main,
@@ -324,6 +332,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
 export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}): Issue {
   const issue: Issue = {
     actions: [],
+    characteristic: IssueCharacteristic.Robust,
     component: 'main.js',
     componentEnabled: true,
     componentLongName: 'main.js',

@@ -19,7 +19,7 @@
  */
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import { ComponentQualifier, Visibility } from './component';
-import { MessageFormatting } from './issues';
+import { IssueCharacteristic, MessageFormatting } from './issues';
 import { UserActive, UserBase } from './users';
 
 export type Dict<T> = { [key: string]: T };
@@ -246,6 +246,7 @@ export interface Issue {
   assigneeName?: string;
   author?: string;
   branch?: string;
+  characteristic: IssueCharacteristic;
   comments?: IssueComment[];
   component: string;
   componentEnabled?: boolean;

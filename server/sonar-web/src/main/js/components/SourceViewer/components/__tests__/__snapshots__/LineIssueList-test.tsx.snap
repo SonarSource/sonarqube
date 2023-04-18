@@ -17,6 +17,7 @@ exports[`should render issues 1`] = `
     issue={
       {
         "actions": [],
+        "characteristic": "ROBUST",
         "component": "main.js",
         "componentEnabled": true,
         "componentLongName": "main.js",

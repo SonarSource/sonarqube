@@ -77,6 +77,7 @@ exports[`should render correctly 1`] = `
         [
           {
             "actions": [],
+            "characteristic": "ROBUST",
             "component": "main.js",
             "componentEnabled": true,
             "componentLongName": "main.js",
@@ -113,6 +114,7 @@ exports[`should render correctly 1`] = `
           "26": [
             {
               "actions": [],
+              "characteristic": "ROBUST",
               "component": "main.js",
               "componentEnabled": true,
               "componentLongName": "main.js",
