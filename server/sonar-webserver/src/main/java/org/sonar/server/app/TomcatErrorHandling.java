@@ -24,7 +24,9 @@ import org.apache.catalina.valves.ErrorReportValve;
 
 public class TomcatErrorHandling {
   void configure(Tomcat tomcat) {
-    ErrorReportValve valve = new SecureErrorReportValve();
+    // This needs to be an instance of ErrrorReportValue, otherwise
+    // Tomcat 9's StandardHost will add another ErrorReportValve with the default values
+    ErrorReportValve valve = new ErrorReportValve();
     valve.setShowServerInfo(false);
     valve.setShowReport(false);
     tomcat.getHost().getPipeline().addValve(valve);
