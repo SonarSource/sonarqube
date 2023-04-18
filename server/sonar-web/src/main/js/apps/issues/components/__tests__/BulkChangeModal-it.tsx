@@ -25,7 +25,6 @@ import { bulkChangeIssues } from '../../../../api/issues';
 import { SEVERITIES } from '../../../../helpers/constants';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { IssueType } from '../../../../types/issues';
 import { Issue } from '../../../../types/types';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
@@ -57,10 +56,7 @@ it('should display warning when too many issues are passed', async () => {
   expect(await screen.findByText('issue_bulk_change.max_issues_reached')).toBeInTheDocument();
 });
 
-it.each([
-  ['type', 'set_type'],
-  ['severity', 'set_severity'],
-])('should render select for %s', async (_field, action) => {
+it.each([['severity', 'set_severity']])('should render select for %s', async (_field, action) => {
   renderBulkChangeModal([mockIssue(false, { actions: [action] })]);
 
   expect(await screen.findByText('issue.' + action)).toBeInTheDocument();
@@ -143,11 +139,6 @@ it('should properly submit', async () => {
     'tag2',
   ]);
 
-  // Select a type
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
-    `issue.type.CODE_SMELL`,
-  ]);
-
   // Select a severity
   await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_severity' }), [
     `severity.${SEVERITIES[0]}`,
@@ -175,7 +166,6 @@ it('should properly submit', async () => {
     set_severity: 'BLOCKER',
     add_tags: 'tag1,tag2',
     do_transition: 'Transition2',
-    set_type: IssueType.CodeSmell,
     sendNotifications: true,
   });
 });

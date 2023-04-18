@@ -62,8 +62,8 @@ import {
   editIssueComment,
   getIssueChangelog,
   getIssueFlowSnippets,
-  searchIssueTags,
   searchIssues,
+  searchIssueTags,
   setIssueAssignee,
   setIssueSeverity,
   setIssueTags,
@@ -528,11 +528,11 @@ export default class IssuesServiceMock {
   }
 
   handleBulkChangeIssues = (issueKeys: string[], query: RequestData) => {
-    //For now we only check for issue type change.
+    //For now we only check for issue severity change.
     this.list
       .filter((i) => issueKeys.includes(i.issue.key))
       .forEach((data) => {
-        data.issue.type = query.set_type;
+        data.issue.severity = query.set_severity;
       });
     return this.reply({});
   };

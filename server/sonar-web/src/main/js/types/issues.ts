@@ -94,7 +94,6 @@ export enum IssueStatus {
 }
 
 export enum IssueActions {
-  SetType = 'set_type',
   SetTags = 'set_tags',
   SetSeverity = 'set_severity',
   Comment = 'comment',
