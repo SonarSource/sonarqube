@@ -183,6 +183,46 @@
       </foreach>
   </select>
 
+  <select id="selectIndexingRulesByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
+    <include refid="sqlSelectIndexingRules"/>
+    where
+    <foreach collection="ruleUuids" index="index" item="ruleUuid" open="" separator=" or " close="">
+      r.uuid=#{ruleUuid,jdbcType=VARCHAR}
+    </foreach>
+    order by r.created_at asc
+  </select>
+
+  <select id="scrollIndexingRules" resultType="org.sonar.db.rule.RuleForIndexingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    <include refid="sqlSelectIndexingRules"/>
+    order by r.created_at asc
+  </select>
+
+  <sql id="sqlSelectIndexingRules">
+    select
+    r.uuid as "uuid",
+    r.plugin_name as "repository",
+    r.plugin_rule_key as "pluginRuleKey",
+    r.name as "name",
+    r.description as "description",
+    r.description_format as "descriptionFormat",
+    r.priority as "severity",
+    r.status as "status",
+    r.is_template as "isTemplate",
+    r.is_external as "isExternal",
+    r.system_tags as "systemTags",
+    r.security_standards as "securityStandards",
+    t.plugin_rule_key as "templateRuleKey",
+    t.plugin_name as "templateRepository",
+    r.plugin_config_key as "internalKey",
+    r.organization_uuid  as "organizationUuid",
+    r.language as "language",
+    r.rule_type as "type",
+    r.created_at as "createdAt",
+    r.updated_at as "updatedAt"
+    from rules r
+    left outer join rules t on t.uuid = r.template_uuid
+  </sql>
+
   <select id="selectByQuery" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>
