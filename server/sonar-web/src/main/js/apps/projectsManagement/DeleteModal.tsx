@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { bulkDeleteProjects } from '../../api/components';
+import { deleteBulkProjects } from '../../api/codescan';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import { Alert } from '../../components/ui/Alert';
@@ -68,7 +68,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
           qualifiers: this.props.qualifier,
           q: this.props.query || undefined,
         };
-    bulkDeleteProjects(parameters).then(
+    deleteBulkProjects(parameters).then(
       () => {
         if (this.mounted) {
           this.props.onConfirm();

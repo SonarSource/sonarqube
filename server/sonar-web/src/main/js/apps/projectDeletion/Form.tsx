@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { deleteApplication } from '../../api/application';
-import { deletePortfolio, deleteProject } from '../../api/components';
+import { deletePortfolio } from '../../api/components';
 import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../components/hoc/withRouter';
@@ -27,9 +27,10 @@ import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isApplication, isPortfolioLike } from '../../types/component';
 import { Component } from '../../types/types';
+import { deleteProject } from '../../api/codescan';
 
 interface Props {
-  component: Pick<Component, 'key' | 'name' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Router;
 }
 
@@ -45,7 +46,7 @@ export class Form extends React.PureComponent<Props> {
       deleteMethod = deleteApplication;
     }
 
-    await deleteMethod(component.key);
+    await deleteMethod(component.organization, component.key, true);
 
     addGlobalSuccessMessage(
       translateWithParameters('project_deletion.resource_deleted', component.name)
