@@ -82,6 +82,7 @@ public class DoTransitionAction implements IssuesWsAction {
         "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.1", "Field 'characteristic' added to issues in the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
         new Change("8.1", format("transitions '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, OPEN_AS_VULNERABILITY)),
