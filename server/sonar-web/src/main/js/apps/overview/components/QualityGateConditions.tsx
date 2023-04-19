@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Link } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
-import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
@@ -50,6 +49,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
 
   let renderConditions;
   let renderCollapsed;
+
   if (collapsed && sortedConditions.length > MAX_CONDITIONS) {
     renderConditions = sortedConditions.slice(0, MAX_CONDITIONS);
     renderCollapsed = true;
@@ -59,30 +59,22 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
   }
 
   return (
-    <ul
-      className="overview-quality-gate-conditions-list"
-      id="overview-quality-gate-conditions-list"
-    >
+    <ul id="overview-quality-gate-conditions-list" className="sw-mb-2">
       {renderConditions.map((condition) => (
-        <QualityGateCondition
-          branchLike={branchLike}
-          component={component}
-          condition={condition}
-          key={condition.measure.metric.key}
-        />
+        <div key={condition.measure.metric.key}>
+          <QualityGateCondition
+            branchLike={branchLike}
+            component={component}
+            condition={condition}
+          />
+          <BasicSeparator />
+        </div>
       ))}
       {renderCollapsed && (
-        <li>
-          <ButtonLink
-            className="overview-quality-gate-conditions-list-collapse"
-            onClick={handleToggleCollapsed}
-          >
-            {translateWithParameters(
-              'overview.X_more_failed_conditions',
-              sortedConditions.length - MAX_CONDITIONS
-            )}
-            <ChevronDownIcon className="little-spacer-left" />
-          </ButtonLink>
+        <li className="sw-flex sw-justify-center sw-my-3">
+          <Link onClick={handleToggleCollapsed} to={{}} preventDefault={true}>
+            <span className="sw-font-semibold sw-text-sm">{translate('show_more')}</span>
+          </Link>
         </li>
       )}
     </ul>

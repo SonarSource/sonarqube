@@ -17,31 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import {
+  BasicSeparator,
+  Card,
+  DeferredSpinner,
+  HelperHintIcon,
+  LargeCenteredLayout,
+  Link,
+  TextMuted,
+} from 'design-system';
 import { differenceBy, uniq } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getMeasuresWithMetrics } from '../../../api/measures';
 import { BranchStatusContextInterface } from '../../../app/components/branch-status/BranchStatusContext';
 import withBranchStatus from '../../../app/components/branch-status/withBranchStatus';
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
+import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
 import { BranchStatusData, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { Component, MeasureEnhanced } from '../../../types/types';
+import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
 import QualityGateConditions from '../components/QualityGateConditions';
+import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
+import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
+import { QualityGateStatusTitle } from '../components/QualityGateStatusTitle';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { MeasurementType, PR_METRICS } from '../utils';
 import AfterMergeEstimate from './AfterMergeEstimate';
-import LargeQualityGateBadge from './LargeQualityGateBadge';
 
 interface Props extends BranchStatusData, Pick<BranchStatusContextInterface, 'fetchBranchStatus'> {
   branchLike: PullRequest;
@@ -140,9 +152,11 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
 
     if (loading) {
       return (
-        <div className="page page-limited">
-          <i className="spinner" />
-        </div>
+        <LargeCenteredLayout>
+          <div className="sw-p-6">
+            <DeferredSpinner loading={true} />
+          </div>
+        </LargeCenteredLayout>
       );
     }
 
@@ -150,60 +164,69 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
       return null;
     }
 
+    const path =
+      component.qualityGate === undefined
+        ? getQualityGatesUrl()
+        : getQualityGateUrl(component.qualityGate.name);
+
     const failedConditions = conditions
       .filter((condition) => condition.level === 'ERROR')
       .map((c) => enhanceConditionWithMeasure(c, measures))
       .filter(isDefined);
 
     return (
-      <div className="page page-limited">
-        <div
-          className={classNames('pr-overview', {
-            'has-conditions': failedConditions.length > 0,
-          })}
-        >
-          {ignoredConditions && (
-            <Alert className="big-spacer-bottom" display="inline" variant="info">
-              <span className="text-middle">
-                {translate('overview.quality_gate.ignored_conditions')}
-              </span>
-              <HelpTooltip
-                className="spacer-left"
-                overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
-              />
-            </Alert>
-          )}
-          <div className="display-flex-row">
-            <div className="big-spacer-right">
-              <h2 className="overview-panel-title spacer-bottom small display-inline-flex-center">
-                {translate('overview.quality_gate')}
-                <HelpTooltip
-                  className="little-spacer-left"
-                  overlay={
-                    <div className="big-padded-top big-padded-bottom">
-                      {translate('overview.quality_gate.help')}
-                    </div>
-                  }
-                />
-              </h2>
-              <LargeQualityGateBadge component={component} level={status} />
+      <LargeCenteredLayout>
+        <div className="it__pr-overview sw-mt-12">
+          <div className="sw-flex">
+            <div className="sw-flex sw-flex-col sw-mr-12 width-30">
+              <QualityGateStatusTitle />
+              <Card>
+                {status && (
+                  <QualityGateStatusHeader
+                    status={status}
+                    failedConditionCount={failedConditions.length}
+                  />
+                )}
 
+                <div className="sw-flex sw-items-center sw-mb-4">
+                  <TextMuted text={translate('overview.on_new_code_long')} />
+                  <HelpTooltip
+                    className="sw-ml-2"
+                    overlay={
+                      <FormattedMessage
+                        defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
+                        id="overview.quality_gate.conditions_on_new_code"
+                        values={{
+                          link: <Link to={path}>{translate('overview.quality_gate.status')}</Link>,
+                        }}
+                      />
+                    }
+                  >
+                    <HelperHintIcon aria-label="help-tooltip" />
+                  </HelpTooltip>
+                </div>
+
+                {ignoredConditions && <IgnoredConditionWarning />}
+
+                {status === 'OK' && failedConditions.length === 0 && (
+                  <QualityGateStatusPassedView />
+                )}
+
+                {status !== 'OK' && <BasicSeparator />}
+
+                {failedConditions.length > 0 && (
+                  <div>
+                    <QualityGateConditions
+                      branchLike={branchLike}
+                      collapsible={true}
+                      component={component}
+                      failedConditions={failedConditions}
+                    />
+                  </div>
+                )}
+              </Card>
               <SonarLintPromotion qgConditions={conditions} />
             </div>
-
-            {failedConditions.length > 0 && (
-              <div className="pr-overview-failed-conditions big-spacer-right">
-                <h2 className="overview-panel-title spacer-bottom small">
-                  {translate('overview.failed_conditions')}
-                </h2>
-                <QualityGateConditions
-                  branchLike={branchLike}
-                  collapsible={true}
-                  component={component}
-                  failedConditions={failedConditions}
-                />
-              </div>
-            )}
 
             <div className="flex-1">
               <h2 className="overview-panel-title spacer-bottom small">
@@ -264,7 +287,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
             </div>
           </div>
         </div>
-      </div>
+      </LargeCenteredLayout>
     );
   }
 }

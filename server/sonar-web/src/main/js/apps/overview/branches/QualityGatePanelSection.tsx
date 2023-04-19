@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Accordion, BasicSeparator, TextMuted } from 'design-system';
 import * as React from 'react';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
@@ -57,19 +55,6 @@ function splitConditions(
   return [newCodeFailedConditions, overallFailedConditions];
 }
 
-function displayConditions(conditions: number) {
-  if (conditions === 0) {
-    return null;
-  }
-
-  const text =
-    conditions === 1
-      ? translate('overview.1_condition_failed')
-      : translateWithParameters('overview.X_conditions_failed', conditions);
-
-  return <span className="text-muted big-spacer-left">{text}</span>;
-}
-
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   const { component, qgStatus } = props;
   const [collapsed, setCollapsed] = React.useState(false);
@@ -96,7 +81,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     qgStatus.failedConditions
   );
 
-  const showName = isApplication(component.qualifier);
+  const collapsible = isApplication(component.qualifier);
 
   const showSectionTitles =
     isApplication(component.qualifier) ||
@@ -107,82 +92,107 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     ? translateWithParameters('overview.quality_gate.show_project_conditions_x', qgStatus.name)
     : translateWithParameters('overview.quality_gate.hide_project_conditions_x', qgStatus.name);
 
-  return (
-    <div className="overview-quality-gate-conditions">
-      {showName && (
-        <ButtonPlain
-          aria-label={toggleLabel}
-          aria-expanded={!collapsed}
-          className="width-100 text-left"
-          onClick={toggle}
-        >
-          <div className="display-flex-center">
-            <div
-              className="overview-quality-gate-conditions-project-name text-ellipsis h3"
-              title={qgStatus.name}
-            >
-              {collapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
-              <span className="spacer-left">{qgStatus.name}</span>
-            </div>
-            {collapsed && displayConditions(qgStatus.failedConditions.length)}
-          </div>
-        </ButtonPlain>
-      )}
+  const renderFailedConditions = () => {
+    return (
+      <>
+        {newCodeFailedConditions.length > 0 && (
+          <>
+            {showSectionTitles && (
+              <>
+                <p className="sw-px-2 sw-py-3">
+                  {translateWithParameters(
+                    'quality_gates.conditions.new_code_x',
+                    newCodeFailedConditions.length.toString()
+                  )}
+                </p>
+                <BasicSeparator />
+              </>
+            )}
+            <QualityGateConditions
+              component={qgStatus}
+              branchLike={qgStatus.branchLike}
+              failedConditions={newCodeFailedConditions}
+            />
+          </>
+        )}
 
-      {!collapsed && (
+        {overallFailedConditions.length > 0 && (
+          <>
+            {showSectionTitles && (
+              <>
+                <p className="sw-px-2 sw-py-3">
+                  {translateWithParameters(
+                    'quality_gates.conditions.overall_code_x',
+                    overallFailedConditions.length.toString()
+                  )}
+                </p>
+                <BasicSeparator />
+              </>
+            )}
+            <QualityGateConditions
+              component={qgStatus}
+              branchLike={qgStatus.branchLike}
+              failedConditions={overallFailedConditions}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <>
+      {collapsible ? (
         <>
+          <Accordion
+            ariaLabel={toggleLabel}
+            onClick={toggle}
+            open={!collapsed}
+            header={
+              <div className="sw-flex sw-flex-col sw-text-sm">
+                <span className="sw-body-sm-highlight">{qgStatus.name}</span>
+                {collapsed && newCodeFailedConditions.length > 0 && (
+                  <TextMuted
+                    text={translateWithParameters(
+                      'quality_gates.conditions.new_code_x',
+                      newCodeFailedConditions.length
+                    )}
+                  />
+                )}
+                {collapsed && overallFailedConditions.length > 0 && (
+                  <TextMuted
+                    text={translateWithParameters(
+                      'quality_gates.conditions.overall_code_x',
+                      overallFailedConditions.length
+                    )}
+                  />
+                )}
+              </div>
+            }
+          >
+            <BasicSeparator />
+            {renderFailedConditions()}
+          </Accordion>
+          <BasicSeparator />
+        </>
+      ) : (
+        <>
+          {renderFailedConditions()}
           {qgStatus.caycStatus === CaycStatus.NonCompliant &&
             !isApplication(component.qualifier) && (
               <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
                 <CleanAsYouCodeWarning component={component} />
               </div>
             )}
-
           {qgStatus.caycStatus === CaycStatus.OverCompliant &&
             !isApplication(component.qualifier) && (
               <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
                 <CleanAsYouCodeWarningOverCompliant component={component} />
               </div>
             )}
-
-          {newCodeFailedConditions.length > 0 && (
-            <>
-              {showSectionTitles && (
-                <div className="big-padded overview-quality-gate-conditions-section-title h4">
-                  {translateWithParameters(
-                    'quality_gates.conditions.new_code_x',
-                    newCodeFailedConditions.length.toString()
-                  )}
-                </div>
-              )}
-              <QualityGateConditions
-                component={qgStatus}
-                branchLike={qgStatus.branchLike}
-                failedConditions={newCodeFailedConditions}
-              />
-            </>
-          )}
-
-          {overallFailedConditions.length > 0 && (
-            <>
-              {showSectionTitles && (
-                <div className="big-padded overview-quality-gate-conditions-section-title h4">
-                  {translateWithParameters(
-                    'quality_gates.conditions.overall_code_x',
-                    overallFailedConditions.length.toString()
-                  )}
-                </div>
-              )}
-              <QualityGateConditions
-                component={qgStatus}
-                branchLike={qgStatus.branchLike}
-                failedConditions={overallFailedConditions}
-              />
-            </>
-          )}
         </>
       )}
-    </div>
+    </>
   );
 }
 

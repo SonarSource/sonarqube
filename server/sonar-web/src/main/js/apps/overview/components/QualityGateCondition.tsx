@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { LinkBox, TextMuted } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
-import Link from '../../../components/common/Link';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import Measure from '../../../components/measure/Measure';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
+import MeasureIndicator from '../../../components/measure/MeasureIndicator';
+import { isIssueMeasure, propsToIssueParams } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
-import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import {
+  getComponentDrilldownUrl,
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
-import { MetricKey } from '../../../types/metrics';
+import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, Dict } from '../../../types/types';
 
@@ -87,11 +90,6 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   wrapWithLink(children: React.ReactNode) {
     const { branchLike, component, condition } = this.props;
 
-    const className = classNames(
-      'overview-quality-gate-condition',
-      `overview-quality-gate-condition-${condition.level.toLowerCase()}`
-    );
-
     const metricKey = condition.measure.metric.key;
 
     const METRICS_TO_URL_MAPPING: Dict<() => Path> = {
@@ -109,67 +107,83 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true),
     };
 
-    return (
-      <li>
-        {METRICS_TO_URL_MAPPING[metricKey] ? (
-          <Link className={className} to={METRICS_TO_URL_MAPPING[metricKey]()}>
-            {children}
-          </Link>
-        ) : (
-          <DrilldownLink
-            branchLike={branchLike}
-            className={className}
-            component={component.key}
-            metric={condition.measure.metric.key}
-            inNewCodePeriod={condition.period != null}
-          >
-            {children}
-          </DrilldownLink>
-        )}
-      </li>
-    );
+    if (METRICS_TO_URL_MAPPING[metricKey]) {
+      return <LinkBox to={METRICS_TO_URL_MAPPING[metricKey]()}>{children}</LinkBox>;
+    }
+
+    if (isIssueMeasure(condition.measure.metric.key)) {
+      const url = getComponentIssuesUrl(component.key, {
+        ...propsToIssueParams(condition.measure.metric.key, condition.period != null),
+        ...getBranchLikeQuery(branchLike),
+      });
+
+      return <LinkBox to={url}>{children}</LinkBox>;
+    }
+
+    const url = getComponentDrilldownUrl({
+      componentKey: component.key,
+      metric: condition.measure.metric.key,
+      branchLike,
+      listView: true,
+    });
+
+    return <LinkBox to={url}>{children}</LinkBox>;
   }
+
+  getPrimaryText = () => {
+    const { condition } = this.props;
+    const { measure } = condition;
+    const { metric } = measure;
+    const isDiff = isDiffMetric(metric.key);
+
+    const subText =
+      !isDiff && condition.period != null
+        ? `${localizeMetric(metric.key)} ${translate('quality_gates.conditions.new_code')}`
+        : localizeMetric(metric.key);
+
+    if (metric.type !== MetricType.Rating) {
+      const actual = (condition.period ? measure.period?.value : measure.value) as string;
+      const formattedValue = formatMeasure(actual, metric.type, {
+        decimal: 2,
+        omitExtraDecimalZeros: metric.type === MetricType.Percent,
+      });
+      return `${formattedValue} ${subText}`;
+    }
+
+    return subText;
+  };
 
   render() {
     const { condition } = this.props;
     const { measure } = condition;
     const { metric } = measure;
 
-    const isDiff = isDiffMetric(metric.key);
-
     const threshold = (condition.level === 'ERROR' ? condition.error : condition.warning) as string;
     const actual = (condition.period ? measure.period?.value : measure.value) as string;
 
     let operator = translate('quality_gates.operator', condition.op);
 
-    if (metric.type === 'RATING') {
+    if (metric.type === MetricType.Rating) {
       operator = translate('quality_gates.operator', condition.op, 'rating');
     }
 
     return this.wrapWithLink(
-      <div className="overview-quality-gate-condition-container display-flex-center">
-        <div className="overview-quality-gate-condition-value text-center spacer-right">
-          <Measure
-            decimals={2}
-            metricKey={measure.metric.key}
-            metricType={measure.metric.type}
-            value={actual}
-          />
-        </div>
-
-        <div>
-          <span className="overview-quality-gate-condition-metric little-spacer-right">
-            <IssueTypeIcon className="little-spacer-right" query={metric.key} />
-            {localizeMetric(metric.key)}
-          </span>
-          {!isDiff && condition.period != null && (
-            <span className="overview-quality-gate-condition-period text-ellipsis little-spacer-right">
-              {translate('quality_gates.conditions.new_code')}
+      <div className="sw-flex sw-items-center sw-p-2">
+        <MeasureIndicator
+          className="sw-flex sw-justify-center sw-w-6 sw-mx-4"
+          decimals={2}
+          metricKey={measure.metric.key}
+          metricType={measure.metric.type}
+          value={actual}
+        />
+        <div className="sw-flex sw-flex-col sw-text-sm">
+          <div className="sw-flex sw-items-center">
+            <IssueTypeIcon className="sw-mr-2" query={metric.key} />
+            <span className="sw-body-sm-highlight sw-text-ellipsis sw-max-w-abs-300">
+              {this.getPrimaryText()}
             </span>
-          )}
-          <span className="little-spacer-top small text-muted">
-            {operator} {formatMeasure(threshold, metric.type)}
-          </span>
+          </div>
+          <TextMuted text={`${operator} ${formatMeasure(threshold, metric.type)}`} />
         </div>
       </div>
     );

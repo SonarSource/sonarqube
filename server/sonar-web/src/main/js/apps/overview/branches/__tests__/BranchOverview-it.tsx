@@ -205,7 +205,7 @@ describe('project overview', () => {
 
     // QG panel
     expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
-    expect(screen.getByText('overview.quality_gate_all_conditions_passed')).toBeInTheDocument();
+    expect(screen.getByText('overview.passed.clean_code')).toBeInTheDocument();
     expect(
       screen.queryByText('overview.quality_gate.conditions.cayc.warning')
     ).not.toBeInTheDocument();
@@ -342,7 +342,7 @@ it.each([
     renderBranchOverview();
 
     // wait for loading
-    await screen.findByText('overview.quality_gate');
+    await screen.findByText('overview.quality_gate.status');
 
     expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
   }

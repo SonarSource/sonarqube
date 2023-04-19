@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import DrilldownLink from '../DrilldownLink';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-it('should render issuesLink correctly', () => {
-  const wrapper = shallowRender({ metric: 'new_violations' });
-  expect(wrapper).toMatchSnapshot();
-});
+import { MetricKey } from '../../../types/metrics';
+import { propsToIssueParams } from '../utils';
 
-const shallowRender = (props: Partial<DrilldownLink['props']> = {}, label = 'label') => {
-  return shallow<DrilldownLink>(
-    <DrilldownLink component="project123" metric="other" {...props}>
-      {label}
-    </DrilldownLink>
-  );
-};
+describe('propsToIssueParams', () => {
+  it('should render correct default parameters', () => {
+    expect(propsToIssueParams('other')).toEqual({ resolved: 'false' });
+  });
+
+  it(`should render correct params`, () => {
+    expect(propsToIssueParams(MetricKey.false_positive_issues, true)).toEqual({
+      resolutions: 'FALSE-POSITIVE',
+      inNewCodePeriod: true,
+    });
+  });
+});

@@ -42,6 +42,7 @@ export * from './MetricsRatingBadge';
 export * from './NavBarTabs';
 export * from './NewCodeLegend';
 export { QualityGateIndicator } from './QualityGateIndicator';
+export * from './Separator';
 export * from './SizeIndicator';
 export * from './SonarQubeLogo';
 export * from './Text';

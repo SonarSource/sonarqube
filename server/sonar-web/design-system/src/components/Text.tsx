@@ -50,6 +50,22 @@ export function TextMuted({ text, className }: { className?: string; text: strin
   );
 }
 
+export function PageTitle({ text, className }: { className?: string; text: string }) {
+  return (
+    <StyledPageTitle className={className} title={text}>
+      {text}
+    </StyledPageTitle>
+  );
+}
+
+export function TextError({ text, className }: { className?: string; text: string }) {
+  return (
+    <StyledTextError className={className} title={text}>
+      {text}
+    </StyledTextError>
+  );
+}
+
 export const StyledText = styled.span`
   ${tw`sw-inline-block`};
   ${tw`sw-truncate`};
@@ -67,4 +83,13 @@ export const StyledText = styled.span`
 const StyledMutedText = styled(StyledText)`
   ${tw`sw-font-regular`};
   color: ${themeColor('dropdownMenuSubTitle')};
+`;
+
+const StyledPageTitle = styled(StyledText)`
+  ${tw`sw-text-base`}
+  color: ${themeColor('facetHeader')};
+`;
+
+const StyledTextError = styled(StyledText)`
+  color: ${themeColor('danger')};
 `;

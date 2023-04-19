@@ -17,23 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import DrilldownLink from '../DrilldownLink';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-it('should render issuesLink correctly', () => {
-  const wrapper = shallowRender({ metric: 'new_violations' });
-  expect(wrapper).toMatchSnapshot();
-});
+import { duplicationRatingConverter } from '../utils';
 
-const shallowRender = (props: Partial<DrilldownLink['props']> = {}, label = 'label') => {
-  return shallow<DrilldownLink>(
-    <DrilldownLink component="project123" metric="other" {...props}>
-      {label}
-    </DrilldownLink>
-  );
-};
+describe('duplicationRatingConverter', () => {
+  it('should work correctly for different use cases', () => {
+    expect(duplicationRatingConverter(-10)).toEqual('A');
+    expect(duplicationRatingConverter(2)).toEqual('A');
+    expect(duplicationRatingConverter(4)).toEqual('B');
+    expect(duplicationRatingConverter(8)).toEqual('C');
+    expect(duplicationRatingConverter(18)).toEqual('D');
+    expect(duplicationRatingConverter(20)).toEqual('E');
+    expect(duplicationRatingConverter(25)).toEqual('E');
+  });
+});

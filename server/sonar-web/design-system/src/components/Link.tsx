@@ -161,6 +161,18 @@ export const HoverLink = styled(StyledBaseLink)`
 `;
 HoverLink.displayName = 'HoverLink';
 
+export const LinkBox = styled(StyledBaseLink)`
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: ${themeColor('dropdownMenuHover')};
+    display: block;
+  }
+`;
+LinkBox.displayName = 'LinkBox';
+
 export const DiscreetLink = styled(HoverLink)`
   --border: ${themeBorder('default', 'linkDiscreet')};
 `;

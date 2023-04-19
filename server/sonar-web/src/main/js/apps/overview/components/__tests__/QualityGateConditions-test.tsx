@@ -48,7 +48,7 @@ it('should be collapsible', async () => {
     HALF_CONDITIONS
   );
 
-  await user.click(screen.getByRole('button', { name: 'overview.X_more_failed_conditions.5' }));
+  await user.click(screen.getByRole('link', { name: 'show_more' }));
 
   expect(await screen.findAllByText(/.*metric..+.name.*/)).toHaveLength(ALL_CONDITIONS);
   expect(await screen.findAllByText('quality_gates.operator', { exact: false })).toHaveLength(

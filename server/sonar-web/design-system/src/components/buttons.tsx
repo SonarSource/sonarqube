@@ -216,4 +216,8 @@ const ThirdPartyButtonStyled: React.FC<ButtonProps> = styled(Button)`
 export const BareButton = styled.button`
   all: unset;
   cursor: pointer;
+
+  &:focus-visible {
+    background-color: ${themeColor('dropdownMenuHover')};
+  }
 `;

@@ -31,6 +31,7 @@ interface Props {
   metricType: string;
   small?: boolean;
   value: string | undefined;
+  ratingComponent?: JSX.Element;
 }
 
 export default function Measure({
@@ -40,6 +41,7 @@ export default function Measure({
   metricType,
   small,
   value,
+  ratingComponent,
 }: Props) {
   if (value === undefined) {
     return <span className={className}>–</span>;
@@ -58,7 +60,7 @@ export default function Measure({
   }
 
   const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
-  const rating = <Rating value={value} />;
+  const rating = ratingComponent || <Rating value={value} />;
 
   if (tooltip) {
     return (

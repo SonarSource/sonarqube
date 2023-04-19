@@ -115,7 +115,6 @@ it('should render correctly for a passed QG', async () => {
   renderPullRequestOverview({ status: 'OK', conditions: [] });
 
   expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
-  expect(screen.queryByText('overview.failed_conditions')).not.toBeInTheDocument();
 });
 
 it('should render correctly if conditions are ignored', async () => {
@@ -148,12 +147,12 @@ it('should render correctly for a failed QG', async () => {
 
   expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
 
-  expect(await screen.findByText('overview.failed_conditions')).toBeInTheDocument();
-
   expect(await screen.findByText('metric.new_coverage.name')).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 2.0%')).toBeInTheDocument();
 
-  expect(await screen.findByText('metric.duplicated_lines.name')).toBeInTheDocument();
+  expect(
+    await screen.findByText('metric.duplicated_lines.name quality_gates.conditions.new_code')
+  ).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 1.0%')).toBeInTheDocument();
 
   expect(screen.getByText('quality_gates.operator.GT 3')).toBeInTheDocument();

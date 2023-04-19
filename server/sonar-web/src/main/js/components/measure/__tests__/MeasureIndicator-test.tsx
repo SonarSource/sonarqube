@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import DrilldownLink from '../DrilldownLink';
+import { MetricKey, MetricType } from '../../../types/metrics';
+import MeasureIndicator from '../MeasureIndicator';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-it('should render issuesLink correctly', () => {
-  const wrapper = shallowRender({ metric: 'new_violations' });
-  expect(wrapper).toMatchSnapshot();
-});
-
-const shallowRender = (props: Partial<DrilldownLink['props']> = {}, label = 'label') => {
-  return shallow<DrilldownLink>(
-    <DrilldownLink component="project123" metric="other" {...props}>
-      {label}
-    </DrilldownLink>
+it('renders correctly for coverage', () => {
+  render(
+    <MeasureIndicator metricKey={MetricKey.coverage} metricType={MetricType.Percent} value="73.0" />
   );
-};
+  expect(screen.getByRole('img')).toMatchSnapshot();
+});

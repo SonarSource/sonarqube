@@ -23,12 +23,11 @@ import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../../types/metrics';
+import { MetricKey, MetricType } from '../../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import QualityGateCondition from '../QualityGateCondition';
 
 it.each([
-  [quickMock(MetricKey.open_issues, 'INT')],
   [quickMock(MetricKey.reliability_rating)],
   [quickMock(MetricKey.security_rating)],
   [quickMock(MetricKey.sqale_rating)],
@@ -49,6 +48,11 @@ it.each([
   // if (condition.measure.metric.type === 'RATING') {
   //   expect(await screen.findByText('.rating', { exact: false })).toBeInTheDocument();
   // }
+});
+
+it('should show the count when metric is not rating', async () => {
+  renderQualityGateCondition({ condition: quickMock(MetricKey.open_issues, MetricType.Integer) });
+  expect(await screen.findByText('3 metric.open_issues.name')).toBeInTheDocument();
 });
 
 it('should work with branch', async () => {

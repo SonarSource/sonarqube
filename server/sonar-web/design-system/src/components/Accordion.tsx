@@ -24,6 +24,7 @@ import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons/OpenCloseIndicator';
 
 interface AccordionProps {
+  ariaLabel?: string;
   children: React.ReactNode;
   className?: string;
   data?: string;
@@ -33,7 +34,7 @@ interface AccordionProps {
 }
 
 export function Accordion(props: AccordionProps) {
-  const { className, open, header, data, onClick } = props;
+  const { ariaLabel, className, open, header, data, onClick } = props;
 
   const id = React.useMemo(() => uniqueId('accordion-'), []);
   const handleClick = React.useCallback(() => {
@@ -50,6 +51,7 @@ export function Accordion(props: AccordionProps) {
       <BareButton
         aria-controls={`${id}-panel`}
         aria-expanded={open}
+        aria-label={ariaLabel}
         className="sw-flex sw-items-center sw-justify-between sw-px-2 sw-py-2 sw-box-border sw-w-full"
         id={`${id}-header`}
         onClick={handleClick}

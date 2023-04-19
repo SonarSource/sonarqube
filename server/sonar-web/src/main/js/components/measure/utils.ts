@@ -38,3 +38,22 @@ export function enhanceMeasure(measure: Measure, metrics: Dict<Metric>): Measure
 export function getLeakValue(measure: MeasureIntern | undefined): string | undefined {
   return measure?.period?.value;
 }
+
+export function duplicationRatingConverter(val: number) {
+  const value = val || 0;
+  const THRESHOLD_A = 3;
+  const THRESHOLD_B = 5;
+  const THRESHOLD_C = 10;
+  const THRESHOLD_D = 20;
+
+  if (value < THRESHOLD_A) {
+    return 'A';
+  } else if (value < THRESHOLD_B) {
+    return 'B';
+  } else if (value < THRESHOLD_C) {
+    return 'C';
+  } else if (value < THRESHOLD_D) {
+    return 'D';
+  }
+  return 'E';
+}

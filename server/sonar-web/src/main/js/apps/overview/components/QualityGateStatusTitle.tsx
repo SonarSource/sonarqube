@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import DrilldownLink from '../DrilldownLink';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-it('should render issuesLink correctly', () => {
-  const wrapper = shallowRender({ metric: 'new_violations' });
-  expect(wrapper).toMatchSnapshot();
-});
+import { HelperHintIcon, PageTitle } from 'design-system';
+import React from 'react';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { translate } from '../../../helpers/l10n';
 
-const shallowRender = (props: Partial<DrilldownLink['props']> = {}, label = 'label') => {
-  return shallow<DrilldownLink>(
-    <DrilldownLink component="project123" metric="other" {...props}>
-      {label}
-    </DrilldownLink>
+export function QualityGateStatusTitle() {
+  return (
+    <div className="sw-flex sw-items-center sw-mb-4">
+      <PageTitle text={translate('overview.quality_gate.status')} />
+      <HelpTooltip
+        className="sw-ml-2"
+        overlay={<div className="sw-my-4">{translate('overview.quality_gate.help')}</div>}
+      >
+        <HelperHintIcon aria-label="help-tooltip" />
+      </HelpTooltip>
+    </div>
   );
-};
+}

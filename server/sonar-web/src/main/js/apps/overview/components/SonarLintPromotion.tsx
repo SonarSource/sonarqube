@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, DiscreetLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -55,26 +56,27 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
     return null;
   }
   return (
-    <div className="it__overview__sonarlint-promotion big-spacer-top overview-quality-gate-sonar-lint-info">
+    <Card className="it__overview__sonarlint-promotion sw-my-4 sw-body-sm">
       <FormattedMessage
         id="overview.fix_failed_conditions_with_sonarlint"
         defaultMessage={translate('overview.fix_failed_conditions_with_sonarlint')}
         values={{
           link: (
             <>
-              <a
-                href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube"
+              <DiscreetLink
+                to="https://www.sonarqube.org/sonarlint/?referrer=sonarqube"
                 rel="noopener noreferrer"
                 target="_blank"
+                showExternalIcon={false}
               >
                 SonarLint
-              </a>
+              </DiscreetLink>
               <SonarLintIcon size={16} />
             </>
           ),
         }}
       />
-    </div>
+    </Card>
   );
 }
 
