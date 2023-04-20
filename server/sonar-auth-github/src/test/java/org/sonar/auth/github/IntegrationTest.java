@@ -40,6 +40,9 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.server.property.InternalProperties;
+import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.http.JavaxHttpRequest;
 
 import static java.lang.String.format;
@@ -55,9 +58,13 @@ public class IntegrationTest {
   @Rule
   public MockWebServer github = new MockWebServer();
 
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
   // load settings with default values
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
-  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig());
+  private InternalProperties internalProperties = new InternalPropertiesImpl(db.getDbClient());
+  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig(), internalProperties);
   private UserIdentityFactoryImpl userIdentityFactory = new UserIdentityFactoryImpl();
   private ScribeGitHubApi scribeApi = new ScribeGitHubApi(gitHubSettings);
   private GitHubRestClient gitHubRestClient = new GitHubRestClient(gitHubSettings);

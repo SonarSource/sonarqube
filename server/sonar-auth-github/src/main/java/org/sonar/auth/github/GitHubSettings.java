@@ -19,12 +19,14 @@
  */
 package org.sonar.auth.github;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
@@ -41,14 +43,20 @@ public class GitHubSettings {
   public static final String API_URL = "sonar.auth.github.apiUrl";
   public static final String WEB_URL = "sonar.auth.github.webUrl";
   public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
+  @VisibleForTesting
+  static final String PROVISIONING = "sonar.provisioning.github.enabled";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
 
   private final Configuration configuration;
 
-  public GitHubSettings(Configuration configuration) {
+  private final InternalProperties internalProperties;
+
+
+  public GitHubSettings(Configuration configuration, InternalProperties internalProperties) {
     this.configuration = configuration;
+    this.internalProperties = internalProperties;
   }
 
   String clientId() {
@@ -91,6 +99,14 @@ public class GitHubSettings {
       return url + "/";
     }
     return url;
+  }
+
+  public void setProvisioning(boolean enableProvisioning) {
+    internalProperties.write(PROVISIONING, String.valueOf(enableProvisioning));
+  }
+
+  public boolean isProvisioningEnabled() {
+    return isEnabled() && internalProperties.read(PROVISIONING).map(Boolean::parseBoolean).orElse(false);
   }
 
   public static List<PropertyDefinition> definitions() {
