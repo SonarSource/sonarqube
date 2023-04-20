@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, QualityGateIndicator } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isDefinitionChangeEvent } from '../../../components/activity-graph/DefinitionChangeEventInner';
 import { isRichQualityGateEvent } from '../../../components/activity-graph/RichQualityGateEventInner';
-import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 import { AnalysisEvent } from '../../../types/project-activity';
 
@@ -32,48 +32,48 @@ interface Props {
 export function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
-      <span
-        className="overview-analysis-event analysis-version text-ellipsis max-width-80"
-        title={`${translate('version')} ${event.name}`}
-      >
+      <Badge className="sw-px-1 sw-text-ellipsis sw-mb-1" variant="new">
         {event.name}
-      </span>
+      </Badge>
     );
   }
 
   const eventCategory = translate('event.category', event.category);
   if (isDefinitionChangeEvent(event)) {
-    return (
-      <div className="overview-analysis-event">
-        <span className="note">{eventCategory}</span>
-      </div>
-    );
+    return <div className="sw-mb-1">{eventCategory}</div>;
   }
 
   if (isRichQualityGateEvent(event)) {
     return (
-      <div className="overview-analysis-event">
-        <span className="note">{eventCategory}:</span>{' '}
-        {event.qualityGate.stillFailing ? (
-          <FormattedMessage
-            defaultMessage={translate('event.quality_gate.still_x')}
-            id="event.quality_gate.still_x"
-            values={{ status: <Level level={event.qualityGate.status} small={true} /> }}
-          />
-        ) : (
-          <Level level={event.qualityGate.status} small={true} />
-        )}
+      <div className="sw-flex sw-items-center sw-mb-1">
+        <span>{eventCategory}:</span>
+        <div className="sw-mx-2">
+          {event.qualityGate.stillFailing ? (
+            <FormattedMessage
+              defaultMessage={translate('event.quality_gate.still_x')}
+              id="event.quality_gate.still_x"
+              values={{
+                status: <QualityGateIndicator status={event.qualityGate.status} size="sm" />,
+              }}
+            />
+          ) : (
+            <QualityGateIndicator status={event.qualityGate.status} size="sm" />
+          )}
+        </div>
+        <span className="sw-body-sm-highlight">
+          {translate(`event.quality_gate.${event.qualityGate.status}`)}
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="overview-analysis-event">
-      <span className="note text-ellipsis width-80">{eventCategory}:</span>{' '}
+    <div className="sw-mb-1">
+      <span className="sw-text-ellipsis sw-mr-2">{eventCategory}:</span>
       {event.description ? (
-        <strong title={event.description}>{event.name}</strong>
+        <span title={event.description}>{event.name}</span>
       ) : (
-        <strong>{event.name}</strong>
+        <span>{event.name}</span>
       )}
     </div>
   );

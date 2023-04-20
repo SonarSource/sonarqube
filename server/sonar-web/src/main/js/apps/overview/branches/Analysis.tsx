@@ -46,23 +46,15 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
       : ComponentQualifier.Project;
 
   return (
-    <li className="overview-analysis">
-      <div className="small little-spacer-bottom">
-        <strong>
-          <DateTimeFormatter date={analysis.date} />
-        </strong>
+    <div className="sw-body-sm">
+      <div className="sw-body-sm-highlight sw-mb-1">
+        <DateTimeFormatter date={analysis.date} />
       </div>
 
-      {sortedEvents.length > 0 ? (
-        <div className="overview-activity-events">
-          {sortedEvents.map((event) => (
-            <Event event={event} key={event.key} />
-          ))}
-        </div>
-      ) : (
-        <span className="note">{translate('project_activity.analyzed', qualifier)}</span>
-      )}
-    </li>
+      {sortedEvents.length > 0
+        ? sortedEvents.map((event) => <Event event={event} key={event.key} />)
+        : translate('project_activity.analyzed', qualifier)}
+    </div>
   );
 }
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import { BasicSeparator, Card, DeferredSpinner, PageTitle } from 'design-system';
 import * as React from 'react';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
@@ -28,7 +28,6 @@ import {
   splitSeriesInGraphs,
 } from '../../../components/activity-graph/utils';
 import ActivityLink from '../../../components/common/ActivityLink';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
@@ -92,59 +91,43 @@ export function ActivityPanel(props: ActivityPanelProps) {
   const filteredAnalyses = analyses.filter((a) => a.events.length > 0).slice(0, MAX_ANALYSES_NB);
 
   return (
-    <div className="overview-panel big-spacer-top" data-test="overview__activity-panel">
-      <h2 className="overview-panel-title">{translate('overview.activity')}</h2>
-
-      <div className="overview-panel-content">
-        <div className="display-flex-row">
-          <div className="display-flex-column flex-1">
-            <div className="overview-panel-big-padded display-flex-column flex-1">
-              <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
-              <GraphsHistory
-                analyses={[]}
-                ariaLabel={translateWithParameters(
-                  'overview.activity.graph_shows_data_for_x',
-                  displayedMetrics.map((metricKey) => localizeMetric(metricKey)).join(', ')
-                )}
-                canShowDataAsTable={false}
-                graph={graph}
-                graphs={graphs}
-                leakPeriodDate={shownLeakPeriodDate}
-                loading={Boolean(loading)}
-                measuresHistory={measuresHistory}
-                series={series}
-              />
-            </div>
-
-            <div className="overview-panel-padded bordered-top text-right">
-              <ActivityLink branchLike={branchLike} component={component.key} graph={graph} />
-            </div>
-          </div>
-
-          <div className="overview-panel-padded bordered-left width-30">
-            <div data-test="overview__activity-analyses">
-              <DeferredSpinner
-                className="spacer-top spacer-left"
-                loading={analyses.length === 0 && loading}
-              >
-                {analyses.length === 0 ? (
-                  <p className="spacer-top spacer-left note">{translate('no_results')}</p>
-                ) : (
-                  <ul className="spacer-top spacer-left">
-                    {filteredAnalyses.map((analysis) => (
-                      <Analysis
-                        analysis={analysis}
-                        key={analysis.key}
-                        qualifier={component.qualifier}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </DeferredSpinner>
-            </div>
-          </div>
+    <div className="sw-mt-8">
+      <PageTitle text={translate('overview.activity')} />
+      <Card className="sw-mt-4" data-test="overview__activity-panel">
+        <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
+        <GraphsHistory
+          analyses={[]}
+          ariaLabel={translateWithParameters(
+            'overview.activity.graph_shows_data_for_x',
+            displayedMetrics.map((metricKey) => localizeMetric(metricKey)).join(', ')
+          )}
+          canShowDataAsTable={false}
+          graph={graph}
+          graphs={graphs}
+          leakPeriodDate={shownLeakPeriodDate}
+          loading={Boolean(loading)}
+          measuresHistory={measuresHistory}
+          series={series}
+        />
+        <BasicSeparator />
+        <div className="sw-flex sw-justify-end sw-pt-3">
+          <ActivityLink branchLike={branchLike} component={component.key} graph={graph} />
         </div>
-      </div>
+      </Card>
+      <Card className="sw-mt-4" data-test="overview__activity-analyses">
+        <DeferredSpinner loading={loading}>
+          {filteredAnalyses.length === 0 ? (
+            <p>{translate('no_results')}</p>
+          ) : (
+            filteredAnalyses.map((analysis, index) => (
+              <div key={analysis.key}>
+                <Analysis analysis={analysis} qualifier={component.qualifier} />
+                {index !== filteredAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}
+              </div>
+            ))
+          )}
+        </DeferredSpinner>
+      </Card>
     </div>
   );
 }

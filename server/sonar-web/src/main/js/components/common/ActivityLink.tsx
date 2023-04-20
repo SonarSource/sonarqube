@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { StandoutLink } from 'design-system';
 import * as React from 'react';
-import HistoryIcon from '../../components/icons/HistoryIcon';
 import { translate } from '../../helpers/l10n';
 import { getActivityUrl, getMeasureHistoryUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { GraphType } from '../../types/project-activity';
 import { isCustomGraph } from '../activity-graph/utils';
 import './ActivityLink.css';
-import Link from './Link';
 
 export interface ActivityLinkProps {
   branchLike?: BranchLike;
@@ -38,16 +37,15 @@ export interface ActivityLinkProps {
 export default function ActivityLink(props: ActivityLinkProps) {
   const { branchLike, component, graph, label, metric } = props;
   return (
-    <Link
-      className="activity-link"
+    <StandoutLink
+      className="sw-body-sm-highlight"
       to={
         metric !== undefined && graph !== undefined && isCustomGraph(graph)
           ? getMeasureHistoryUrl(component, metric, branchLike)
           : getActivityUrl(component, branchLike, graph)
       }
     >
-      <HistoryIcon className="little-spacer-right" size={14} />
-      <span>{label || translate('portfolio.activity_link')}</span>
-    </Link>
+      {label || translate('portfolio.activity_link')}
+    </StandoutLink>
   );
 }
