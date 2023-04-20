@@ -133,86 +133,96 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     const isValid = selected !== NewCodePeriodSettingType.NUMBER_OF_DAYS || validateDays(days);
 
     return (
-      <ul className="settings-sub-categories-list">
-        <li>
-          <ul className="settings-definitions-list">
-            <li>
-              <div className="settings-definition">
-                <div className="settings-definition-left">
-                  <h3
-                    className="settings-definition-name"
-                    title={translate('settings.new_code_period.title')}
-                  >
-                    {translate('settings.new_code_period.title')}
-                  </h3>
+      <>
+        <h2
+          className="settings-sub-category-name settings-definition-name"
+          title={translate('settings.new_code_period.title')}
+        >
+          {translate('settings.new_code_period.title')}
+        </h2>
 
-                  <div className="small big-spacer-top">
-                    <FormattedMessage
-                      defaultMessage={translate('settings.new_code_period.description')}
-                      id="settings.new_code_period.description"
-                      values={{
-                        link: (
-                          <DocLink to="/project-administration/defining-new-code/">
-                            {translate('learn_more')}
-                          </DocLink>
-                        ),
-                      }}
-                    />
-                    <p className="spacer-top">
-                      {translate('settings.new_code_period.description2')}
-                    </p>
+        <ul className="settings-sub-categories-list">
+          <li>
+            <ul className="settings-definitions-list">
+              <li>
+                <div className="settings-definition">
+                  <div className="settings-definition-left">
+                    <div className="small">
+                      <p className="sw-mb-2">
+                        {translate('settings.new_code_period.description0')}
+                      </p>
+
+                      <p className="sw-mb-2">
+                        <FormattedMessage
+                          defaultMessage={translate('settings.new_code_period.description1')}
+                          id="settings.new_code_period.description1"
+                          values={{
+                            link: (
+                              <DocLink to="/project-administration/defining-new-code/">
+                                {translate('settings.new_code_period.description1.link')}
+                              </DocLink>
+                            ),
+                          }}
+                        />
+                      </p>
+                      <p>{translate('settings.new_code_period.description2')}</p>
+
+                      <p className="sw-mt-4">
+                        <strong>{translate('settings.new_code_period.question')}</strong>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="settings-definition-right">
+                    {loading ? (
+                      <DeferredSpinner />
+                    ) : (
+                      <form onSubmit={this.onSubmit}>
+                        <BaselineSettingPreviousVersion
+                          isDefault={true}
+                          onSelect={this.onSelectSetting}
+                          selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
+                        />
+                        <BaselineSettingDays
+                          className="spacer-top"
+                          days={days}
+                          isChanged={isChanged}
+                          isValid={isValid}
+                          onChangeDays={this.onSelectDays}
+                          onSelect={this.onSelectSetting}
+                          selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
+                        />
+                        {isChanged && (
+                          <div className="big-spacer-top">
+                            <p className="spacer-bottom">
+                              {translate('baseline.next_analysis_notice')}
+                            </p>
+                            <DeferredSpinner className="spacer-right" loading={saving} />
+                            <SubmitButton disabled={saving || !isValid}>
+                              {translate('save')}
+                            </SubmitButton>
+                            <ResetButtonLink className="spacer-left" onClick={this.onCancel}>
+                              {translate('cancel')}
+                            </ResetButtonLink>
+                          </div>
+                        )}
+                        {!saving && !loading && success && (
+                          <div className="big-spacer-top">
+                            <span className="text-success">
+                              <AlertSuccessIcon className="spacer-right" />
+                              {translate('settings.state.saved')}
+                            </span>
+                          </div>
+                        )}
+                      </form>
+                    )}
                   </div>
                 </div>
-
-                <div className="settings-definition-right">
-                  {loading ? (
-                    <DeferredSpinner />
-                  ) : (
-                    <form onSubmit={this.onSubmit}>
-                      <BaselineSettingPreviousVersion
-                        isDefault={true}
-                        onSelect={this.onSelectSetting}
-                        selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
-                      />
-                      <BaselineSettingDays
-                        className="spacer-top"
-                        days={days}
-                        isChanged={isChanged}
-                        isValid={isValid}
-                        onChangeDays={this.onSelectDays}
-                        onSelect={this.onSelectSetting}
-                        selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
-                      />
-                      {isChanged && (
-                        <div className="big-spacer-top">
-                          <p className="spacer-bottom">
-                            {translate('baseline.next_analysis_notice')}
-                          </p>
-                          <DeferredSpinner className="spacer-right" loading={saving} />
-                          <SubmitButton disabled={saving || !isValid}>
-                            {translate('save')}
-                          </SubmitButton>
-                          <ResetButtonLink className="spacer-left" onClick={this.onCancel}>
-                            {translate('cancel')}
-                          </ResetButtonLink>
-                        </div>
-                      )}
-                      {!saving && !loading && success && (
-                        <div className="big-spacer-top">
-                          <span className="text-success">
-                            <AlertSuccessIcon className="spacer-right" />
-                            {translate('settings.state.saved')}
-                          </span>
-                        </div>
-                      )}
-                    </form>
-                  )}
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </>
     );
   }
 }

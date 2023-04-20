@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { toNotSoISOString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -161,6 +161,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body modal-container branch-baseline-setting-modal">
+            <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
             <div className="display-flex-row huge-spacer-bottom" role="radiogroup">
               <BaselineSettingPreviousVersion
                 isDefault={false}

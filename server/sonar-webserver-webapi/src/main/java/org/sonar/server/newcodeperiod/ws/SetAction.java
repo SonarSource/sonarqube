@@ -24,6 +24,7 @@ import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -49,6 +50,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
+import static org.sonar.server.newcodeperiod.ws.NewCodeActionSupport.getDocumentationUrl;
 
 public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -69,21 +71,27 @@ public class SetAction implements NewCodePeriodsWsAction {
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
+  private final Server server;
 
-  public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao) {
+  public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider,
+    NewCodePeriodDao newCodePeriodDao, Server server) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
+    this.server = server;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
-      .setDescription("Updates the setting for the New Code Period on different levels:<br>" +
+      .setDescription("Updates the <a href=\"" + getDocumentationUrl(server.getVersion(), "project-administration/defining-new-code/") +
+        "\">new code definition</a> on different levels:<br>" +
         BEGIN_LIST +
+        BEGIN_ITEM_LIST + "Not providing a project key and a branch key will update the default value at global level. " +
+        "Existing projects or branches having a specific new code definition will not be impacted" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Project key must be provided to update the value for a project" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Both project and branch keys must be provided to update the value for a branch" + END_ITEM_LIST +
         END_LIST +
@@ -102,7 +110,7 @@ public class SetAction implements NewCodePeriodsWsAction {
     action.createParam(PARAM_TYPE)
       .setRequired(true)
       .setDescription("Type<br/>" +
-        "New code periods of the following types are allowed:" +
+        "New code definitions of the following types are allowed:" +
         BEGIN_LIST +
         BEGIN_ITEM_LIST + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)" + END_ITEM_LIST +
@@ -203,11 +211,11 @@ public class SetAction implements NewCodePeriodsWsAction {
   }
 
   private static void requireValue(NewCodePeriodType type, @Nullable String value) {
-    Preconditions.checkArgument(value != null, "New Code Period type '%s' requires a value", type);
+    Preconditions.checkArgument(value != null, "New code definition type '%s' requires a value", type);
   }
 
   private static void requireBranch(NewCodePeriodType type, @Nullable BranchDto branch) {
-    Preconditions.checkArgument(branch != null, "New Code Period type '%s' requires a branch", type);
+    Preconditions.checkArgument(branch != null, "New code definition type '%s' requires a branch", type);
   }
 
   private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {

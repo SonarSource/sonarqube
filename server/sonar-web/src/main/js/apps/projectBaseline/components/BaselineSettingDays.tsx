@@ -46,7 +46,10 @@ export default function BaselineSettingDays(props: Props) {
       title={translate('baseline.number_days')}
     >
       <>
-        <p className="big-spacer-bottom">{translate('baseline.number_days.description')}</p>
+        <div>
+          <p className="sw-mb-3">{translate('baseline.number_days.description')}</p>
+          <p className="sw-mb-4">{translate('baseline.number_days.usecase')}</p>
+        </div>
         {selected && (
           <>
             <MandatoryFieldsExplanation />

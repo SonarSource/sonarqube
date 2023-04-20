@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -69,13 +70,16 @@ public class SetActionIT {
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
-
-  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, editionProvider, dao);
+  private Server server = new NewCodeTestServer("9.9.0.65466");
+  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, editionProvider, dao, server);
   private WsActionTester ws = new WsActionTester(underTest);
+
 
   @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
+
+    assertThat(definition.description()).contains("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");
 
     assertThat(definition.key()).isEqualTo("set");
     assertThat(definition.isInternal()).isFalse();
@@ -135,7 +139,7 @@ public class SetActionIT {
       .setParam("type", "number_of_days")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("New Code Period type 'NUMBER_OF_DAYS' requires a value");
+      .hasMessageContaining("New code definition type 'NUMBER_OF_DAYS' requires a value");
   }
 
   @Test
@@ -149,7 +153,7 @@ public class SetActionIT {
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
+      .hasMessageContaining("New code definition type 'SPECIFIC_ANALYSIS' requires a value");
   }
 
   @Test

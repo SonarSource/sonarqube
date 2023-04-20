@@ -19,24 +19,24 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import org.sonar.api.server.ws.WebService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
-public class NewCodePeriodsWs implements WebService {
+class NewCodeActionSupport {
 
-  private final NewCodePeriodsWsAction[] actions;
+  private static final Pattern pattern = Pattern.compile("^(\\d{1,3}\\.\\d{1,3}).*$");
 
-  public NewCodePeriodsWs(NewCodePeriodsWsAction... actions) {
-    this.actions = actions;
+  private NewCodeActionSupport() {
+    throw new UnsupportedOperationException("This class cannot be instantiated.");
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/new_code_periods")
-      .setDescription("Manage new code definitions.")
-      .setSince("8.0");
-    for (NewCodePeriodsWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+  protected static String getDocumentationUrl(@Nonnull String version, @Nonnull String docPath) {
+    Matcher matcher = pattern.matcher(version);
+    boolean isSnapshot = version.contains("-SNAPSHOT");
+    boolean isPreviousVersion = matcher.matches() && matcher.groupCount() == 1 && !isSnapshot;
+    String docVersion = isPreviousVersion ? matcher.group(1) : "latest";
+    return String.format("https://docs.sonarqube.org/%s/%s", docVersion, docPath);
   }
+
 }

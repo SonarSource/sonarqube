@@ -19,24 +19,49 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import org.sonar.api.server.ws.WebService;
+import java.util.Date;
+import org.sonar.api.platform.Server;
 
-public class NewCodePeriodsWs implements WebService {
+class NewCodeTestServer extends Server {
 
-  private final NewCodePeriodsWsAction[] actions;
+  private final String version;
 
-  public NewCodePeriodsWs(NewCodePeriodsWsAction... actions) {
-    this.actions = actions;
+  NewCodeTestServer(String version) {
+    this.version = version;
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/new_code_periods")
-      .setDescription("Manage new code definitions.")
-      .setSince("8.0");
-    for (NewCodePeriodsWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+  public String getId() {
+    return null;
+  }
+
+  @Override
+  public String getPermanentServerId() {
+    return null;
+  }
+
+  @Override
+  public String getVersion() {
+    return version;
+  }
+
+  @Override
+  public Date getStartedAt() {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
+    return null;
+  }
+
+  @Override
+  public String getPublicRootUrl() {
+    return null;
+  }
+
+  @Override
+  public boolean isSecured() {
+    return false;
   }
 }

@@ -21,12 +21,12 @@ package org.sonar.server.newcodeperiod.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -53,16 +53,18 @@ public class ShowActionIT {
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
   private NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
-  private ShowAction underTest = new ShowAction(dbClient, userSession, componentFinder, dao);
+  private Server server = new NewCodeTestServer("10.1-SNAPSHOT");
+  private ShowAction underTest = new ShowAction(dbClient, userSession, componentFinder, dao, server);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
+
+    assertThat(definition.description()).contains("https://docs.sonarqube.org/latest/project-administration/defining-new-code/");
 
     assertThat(definition.key()).isEqualTo("show");
     assertThat(definition.isInternal()).isFalse();

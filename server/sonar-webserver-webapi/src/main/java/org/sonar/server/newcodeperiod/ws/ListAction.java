@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,6 +47,7 @@ import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.server.newcodeperiod.ws.NewCodeActionSupport.getDocumentationUrl;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse.newBuilder;
 
@@ -56,18 +58,21 @@ public class ListAction implements NewCodePeriodsWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
+  private final Server server;
 
-  public ListAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public ListAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao, Server server) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.newCodePeriodDao = newCodePeriodDao;
+    this.server = server;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("list")
-      .setDescription("List the New Code Periods for all branches in a project.<br>" +
+      .setDescription("Lists the <a href=\"" + getDocumentationUrl(server.getVersion(), "project-administration/defining-new-code/") +
+        "\">new code definition</a> for all branches in a project.<br>" +
         "Requires the permission to browse the project")
       .setSince("8.0")
       .setResponseExample(getClass().getResource("list-example.json"))

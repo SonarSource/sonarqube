@@ -32,20 +32,22 @@ export default function AppHeader(props: AppHeaderProps) {
 
   return (
     <header className="page-header">
-      <h1 className="page-title">{translate('project_baseline.page')}</h1>
-      <p className="page-description">
+      <h1 className="sw-mb-4">{translate('project_baseline.page')}</h1>
+      <p className="sw-mb-2">{translate('project_baseline.page.description')}</p>
+      <p className="sw-mb-2">
         <FormattedMessage
-          defaultMessage={translate('project_baseline.page.description')}
-          id="project_baseline.page.description"
+          defaultMessage={translate('settings.new_code_period.description1')}
+          id="settings.new_code_period.description1"
           values={{
             link: (
               <DocLink to="/project-administration/defining-new-code/">
-                {translate('project_baseline.page.description.link')}
+                {translate('settings.new_code_period.description1.link')}
               </DocLink>
             ),
           }}
         />
-        <br />
+      </p>
+      <p>
         {canAdmin && (
           <FormattedMessage
             defaultMessage={translate('project_baseline.page.description2')}
@@ -59,6 +61,10 @@ export default function AppHeader(props: AppHeaderProps) {
             }}
           />
         )}
+      </p>
+
+      <p className="sw-mt-4">
+        <strong>{translate('project_baseline.page.question')}</strong>
       </p>
     </header>
   );

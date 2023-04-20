@@ -40,7 +40,10 @@ export default function BaselineSettingPreviousVersion(props: Props) {
         translate('baseline.previous_version') + (isDefault ? ` (${translate('default')})` : '')
       }
     >
-      <p>{translate('baseline.previous_version.description')}</p>
+      <div>
+        <p>{translate('baseline.previous_version.description')}</p>
+        <p className="sw-mt-3">{translate('baseline.previous_version.usecase')}</p>
+      </div>
     </RadioCard>
   );
 }

@@ -38,39 +38,40 @@
    */
   package org.sonar.server.newcodeperiod.ws;
 
-  import java.time.Instant;
-  import java.util.Optional;
-  import org.junit.Rule;
-  import org.junit.Test;
-  import org.sonar.api.server.ws.WebService;
-  import org.sonar.api.utils.DateUtils;
-  import org.sonar.api.utils.System2;
-  import org.sonar.api.web.UserRole;
-  import org.sonar.core.util.UuidFactoryFast;
-  import org.sonar.db.DbClient;
-  import org.sonar.db.DbTester;
-  import org.sonar.db.component.BranchType;
-  import org.sonar.db.component.ComponentDbTester;
-  import org.sonar.db.component.ComponentDto;
-  import org.sonar.db.component.SnapshotDto;
-  import org.sonar.db.newcodeperiod.NewCodePeriodDao;
-  import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
-  import org.sonar.db.newcodeperiod.NewCodePeriodDto;
-  import org.sonar.db.newcodeperiod.NewCodePeriodType;
-  import org.sonar.server.component.ComponentFinder;
-  import org.sonar.server.component.TestComponentFinder;
-  import org.sonar.server.exceptions.ForbiddenException;
-  import org.sonar.server.exceptions.NotFoundException;
-  import org.sonar.server.tester.UserSessionRule;
-  import org.sonar.server.ws.WsActionTester;
-  import org.sonarqube.ws.NewCodePeriods;
-  import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
-  import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
+import java.time.Instant;
+import java.util.Optional;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDao;
+import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.NewCodePeriods;
+import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
+import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
-  import static org.assertj.core.api.Assertions.assertThat;
-  import static org.assertj.core.api.Assertions.assertThatThrownBy;
-  import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
-  import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
   public class ListActionIT {
     @Rule
@@ -83,12 +84,15 @@
     private ComponentFinder componentFinder = TestComponentFinder.from(db);
     private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
     private NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
-    private ListAction underTest = new ListAction(dbClient, userSession, componentFinder, dao);
+    private Server server = new NewCodeTestServer("9.9.0.65466");
+    private ListAction underTest = new ListAction(dbClient, userSession, componentFinder, dao, server);
     private WsActionTester ws = new WsActionTester(underTest);
 
     @Test
     public void test_definition() {
       WebService.Action definition = ws.getDef();
+
+      assertThat(definition.description()).contains("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");
 
       assertThat(definition.key()).isEqualTo("list");
       assertThat(definition.isInternal()).isFalse();
