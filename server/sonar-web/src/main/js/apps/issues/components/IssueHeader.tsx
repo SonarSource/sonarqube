@@ -24,6 +24,7 @@ import LinkIcon from '../../../components/icons/LinkIcon';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
 import IssueChangelog from '../../../components/issue/components/IssueChangelog';
+import IssueCharacteristicHeader from '../../../components/issue/components/IssueCharacteristicHeader';
 import IssueMessageTags from '../../../components/issue/components/IssueMessageTags';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -135,7 +136,11 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <div className="display-flex-center display-flex-space-between big-padded-top">
+        <IssueCharacteristicHeader
+          characteristic={issue.characteristic}
+          className="big-padded-top"
+        />
+        <div className="display-flex-center display-flex-space-between">
           <h1 className="text-bold spacer-right">
             <span className="spacer-right issue-header" aria-label={issue.message}>
               <IssueMessageHighlighting

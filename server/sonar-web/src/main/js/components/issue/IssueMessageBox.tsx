@@ -19,9 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { colors } from '../../app/theme';
 import { Issue } from '../../types/types';
-import IssueTypeIcon from '../icons/IssueTypeIcon';
+import IssueCharacteristicHeader from './components/IssueCharacteristicHeader';
 import './Issue.css';
 import { IssueMessageHighlighting } from './IssueMessageHighlighting';
 
@@ -36,7 +35,7 @@ export function IssueMessageBox(props: IssueMessageBoxProps, ref: React.Forwarde
 
   return (
     <div
-      className={classNames('issue-message-box display-flex-row display-flex-center padded-right', {
+      className={classNames('issue-message-box padded-left padded-right', {
         'selected big-padded-top big-padded-bottom text-bold': selected,
         'secondary-issue padded-top padded-bottom': !selected,
       })}
@@ -46,11 +45,7 @@ export function IssueMessageBox(props: IssueMessageBoxProps, ref: React.Forwarde
       ref={ref}
       aria-label={issue.message}
     >
-      <IssueTypeIcon
-        className="big-spacer-right spacer-left"
-        fill={colors.baseFontColor}
-        query={issue.type}
-      />
+      <IssueCharacteristicHeader characteristic={issue.characteristic} />
       <IssueMessageHighlighting
         message={issue.message}
         messageFormattings={issue.messageFormattings}
