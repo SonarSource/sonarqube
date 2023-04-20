@@ -28,9 +28,9 @@ import {
 } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
-import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
+import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
@@ -40,8 +40,8 @@ import { getBaseUrl } from '../../../../helpers/system';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { getPropertyName } from '../../utils';
 import DefinitionDescription from '../DefinitionDescription';
-import useSamlConfiguration, { SAML_ENABLED_FIELD } from './hook/useLoadSamlSettings';
 import SamlConfigurationForm from './SamlConfigurationForm';
+import useSamlConfiguration, { SAML_ENABLED_FIELD } from './hook/useLoadSamlSettings';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -177,49 +177,36 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
               </Button>
             </div>
           </div>
-          {hasScim && (
-            <div className="spacer-bottom big-padded bordered display-flex-space-between">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (newScimStatus !== scimStatus) {
-                    setShowConfirmProvisioningModal(true);
-                  } else {
-                    handleSaveGroup();
-                  }
-                }}
-              >
-                <fieldset className="display-flex-column big-spacer-bottom">
-                  <label className="h5">
-                    {translate('settings.authentication.saml.form.provisioning')}
-                  </label>
-                  {samlEnabled ? (
-                    <div className="display-flex-row spacer-top">
-                      <RadioCard
-                        label={translate(
-                          'settings.authentication.saml.form.provisioning_with_scim'
-                        )}
-                        title={translate(
-                          'settings.authentication.saml.form.provisioning_with_scim'
-                        )}
-                        selected={newScimStatus ?? scimStatus}
-                        onClick={() => setNewScimStatus(true)}
-                      >
-                        <p className="spacer-bottom">
-                          {translate(
-                            'settings.authentication.saml.form.provisioning_with_scim.sub'
-                          )}
-                        </p>
-                        <p className="spacer-bottom">
-                          {translate(
-                            'settings.authentication.saml.form.provisioning_with_scim.description'
-                          )}
-                        </p>
+          <div className="spacer-bottom big-padded bordered display-flex-space-between">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (newScimStatus !== scimStatus) {
+                  setShowConfirmProvisioningModal(true);
+                } else {
+                  handleSaveGroup();
+                }
+              }}
+            >
+              <fieldset className="display-flex-column big-spacer-bottom">
+                <label className="h5">
+                  {translate('settings.authentication.saml.form.provisioning')}
+                </label>
+                {samlEnabled ? (
+                  <div className="display-flex-row spacer-top">
+                    <RadioCard
+                      label={translate('settings.authentication.saml.form.provisioning_with_scim')}
+                      title={translate('settings.authentication.saml.form.provisioning_with_scim')}
+                      selected={newScimStatus ?? scimStatus}
+                      onClick={() => setNewScimStatus(true)}
+                      disabled={!hasScim}
+                    >
+                      {!hasScim ? (
                         <p>
                           <FormattedMessage
-                            id="settings.authentication.saml.form.provisioning_with_scim.description.doc"
+                            id="settings.authentication.saml.form.provisioning.disabled"
                             defaultMessage={translate(
-                              'settings.authentication.saml.form.provisioning_with_scim.description.doc'
+                              'settings.authentication.saml.form.provisioning.disabled'
                             )}
                             values={{
                               documentation: (
@@ -230,76 +217,104 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
                             }}
                           />
                         </p>
-                      </RadioCard>
-                      <RadioCard
-                        label={translate('settings.authentication.saml.form.provisioning_at_login')}
-                        title={translate('settings.authentication.saml.form.provisioning_at_login')}
-                        selected={!(newScimStatus ?? scimStatus)}
-                        onClick={() => setNewScimStatus(false)}
-                      >
-                        <p>
-                          {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
-                        </p>
-                        {groupValue && (
-                          <div className="settings-definition">
-                            <DefinitionDescription definition={groupValue.definition} />
-                            <div className="settings-definition-right">
-                              <input
-                                id={groupValue.definition.key}
-                                maxLength={4000}
-                                name={groupValue.definition.key}
-                                onChange={(e) => setNewGroupSetting(e.currentTarget.value)}
-                                type="text"
-                                value={String(groupValue.newValue ?? groupValue.value ?? '')}
-                                aria-label={getPropertyName(groupValue.definition)}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </RadioCard>
-                    </div>
-                  ) : (
-                    <Alert className="big-spacer-top" variant="info">
-                      {translate('settings.authentication.saml.enable_first')}
-                    </Alert>
-                  )}
-                </fieldset>
-                {samlEnabled && (
-                  <>
-                    <SubmitButton disabled={!hasScimConfigChange}>{translate('save')}</SubmitButton>
-                    <ResetButtonLink
-                      className="spacer-left"
-                      onClick={() => {
-                        setNewScimStatus(undefined);
-                        setNewGroupSetting();
-                      }}
-                      disabled={!hasScimConfigChange}
+                      ) : (
+                        <>
+                          <p className="spacer-bottom">
+                            {translate(
+                              'settings.authentication.saml.form.provisioning_with_scim.sub'
+                            )}
+                          </p>
+                          <p className="spacer-bottom">
+                            {translate(
+                              'settings.authentication.saml.form.provisioning_with_scim.description'
+                            )}
+                          </p>
+                          <p>
+                            <FormattedMessage
+                              id="settings.authentication.saml.form.provisioning_with_scim.description.doc"
+                              defaultMessage={translate(
+                                'settings.authentication.saml.form.provisioning_with_scim.description.doc'
+                              )}
+                              values={{
+                                documentation: (
+                                  <DocLink to="/instance-administration/authentication/saml/scim/overview">
+                                    {translate('documentation')}
+                                  </DocLink>
+                                ),
+                              }}
+                            />
+                          </p>
+                        </>
+                      )}
+                    </RadioCard>
+                    <RadioCard
+                      label={translate('settings.authentication.saml.form.provisioning_at_login')}
+                      title={translate('settings.authentication.saml.form.provisioning_at_login')}
+                      selected={!(newScimStatus ?? scimStatus)}
+                      onClick={() => setNewScimStatus(false)}
                     >
-                      {translate('cancel')}
-                    </ResetButtonLink>
-                  </>
+                      <p>
+                        {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
+                      </p>
+                      {groupValue && (
+                        <div className="settings-definition">
+                          <DefinitionDescription definition={groupValue.definition} />
+                          <div className="settings-definition-right">
+                            <input
+                              id={groupValue.definition.key}
+                              maxLength={4000}
+                              name={groupValue.definition.key}
+                              onChange={(e) => setNewGroupSetting(e.currentTarget.value)}
+                              type="text"
+                              value={String(groupValue.newValue ?? groupValue.value ?? '')}
+                              aria-label={getPropertyName(groupValue.definition)}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </RadioCard>
+                  </div>
+                ) : (
+                  <Alert className="big-spacer-top" variant="info">
+                    {translate('settings.authentication.saml.enable_first')}
+                  </Alert>
                 )}
-                {showConfirmProvisioningModal && (
-                  <ConfirmModal
-                    onConfirm={() => handleConfirmChangeProvisioning()}
-                    header={translate(
-                      'settings.authentication.saml.confirm',
-                      newScimStatus ? 'scim' : 'jit'
-                    )}
-                    onClose={() => setShowConfirmProvisioningModal(false)}
-                    isDestructive={!newScimStatus}
-                    confirmButtonText={translate('yes')}
+              </fieldset>
+              {samlEnabled && (
+                <>
+                  <SubmitButton disabled={!hasScimConfigChange}>{translate('save')}</SubmitButton>
+                  <ResetButtonLink
+                    className="spacer-left"
+                    onClick={() => {
+                      setNewScimStatus(undefined);
+                      setNewGroupSetting();
+                    }}
+                    disabled={!hasScimConfigChange}
                   >
-                    {translate(
-                      'settings.authentication.saml.confirm',
-                      newScimStatus ? 'scim' : 'jit',
-                      'description'
-                    )}
-                  </ConfirmModal>
-                )}
-              </form>
-            </div>
-          )}
+                    {translate('cancel')}
+                  </ResetButtonLink>
+                </>
+              )}
+              {showConfirmProvisioningModal && (
+                <ConfirmModal
+                  onConfirm={() => handleConfirmChangeProvisioning()}
+                  header={translate(
+                    'settings.authentication.saml.confirm',
+                    newScimStatus ? 'scim' : 'jit'
+                  )}
+                  onClose={() => setShowConfirmProvisioningModal(false)}
+                  isDestructive={!newScimStatus}
+                  confirmButtonText={translate('yes')}
+                >
+                  {translate(
+                    'settings.authentication.saml.confirm',
+                    newScimStatus ? 'scim' : 'jit',
+                    'description'
+                  )}
+                </ConfirmModal>
+              )}
+            </form>
+          </div>
         </>
       )}
       {showEditModal && (

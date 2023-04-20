@@ -71,7 +71,8 @@ export default function RadioCard(props: Props) {
       onClick={isActionable && !disabled ? onClick : undefined}
       role="radio"
       aria-label={label}
-      tabIndex={0}
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
     >
       <h2 className="radio-card-header big-spacer-bottom">
         <span className="display-flex-center link-radio">

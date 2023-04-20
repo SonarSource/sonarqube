@@ -49,10 +49,6 @@
   margin-right: 0;
 }
 
-.radio-card:focus {
-  outline: none;
-}
-
 .radio-card-vertical {
   width: 100%;
   min-height: auto;
