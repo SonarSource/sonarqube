@@ -20,10 +20,13 @@
 import {
   BasicSeparator,
   Card,
+  CoverageIndicator,
   DeferredSpinner,
+  DuplicationsIndicator,
   HelperHintIcon,
   LargeCenteredLayout,
   Link,
+  PageTitle,
   TextMuted,
 } from 'design-system';
 import { differenceBy, uniq } from 'lodash';
@@ -34,6 +37,7 @@ import { BranchStatusContextInterface } from '../../../app/components/branch-sta
 import withBranchStatus from '../../../app/components/branch-status/withBranchStatus';
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { duplicationRatingConverter } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
@@ -42,10 +46,9 @@ import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
 import { BranchStatusData, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { Component, MeasureEnhanced } from '../../../types/types';
+import MeasuresPanelIssueMeasure from '../branches/MeasuresPanelIssueMeasure';
+import MeasuresPanelPercentMeasure from '../branches/MeasuresPanelPercentMeasure';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
-import IssueLabel from '../components/IssueLabel';
-import IssueRating from '../components/IssueRating';
-import MeasurementLabel from '../components/MeasurementLabel';
 import QualityGateConditions from '../components/QualityGateConditions';
 import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
 import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
@@ -53,7 +56,6 @@ import { QualityGateStatusTitle } from '../components/QualityGateStatusTitle';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { MeasurementType, PR_METRICS } from '../utils';
-import AfterMergeEstimate from './AfterMergeEstimate';
 
 interface Props extends BranchStatusData, Pick<BranchStatusContextInterface, 'fetchBranchStatus'> {
   branchLike: PullRequest;
@@ -228,59 +230,41 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
               <SonarLintPromotion qgConditions={conditions} />
             </div>
 
-            <div className="flex-1">
-              <h2 className="overview-panel-title spacer-bottom small">
-                {translate('overview.measures')}
+            <div className="sw-flex-1">
+              <h2 className="sw-body-md-highlight">
+                <PageTitle text={translate('overview.measures')} />
               </h2>
 
-              <div className="overview-panel-content">
+              <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
                 {[
                   IssueType.Bug,
                   IssueType.Vulnerability,
                   IssueType.SecurityHotspot,
                   IssueType.CodeSmell,
                 ].map((type: IssueType) => (
-                  <div className="overview-measures-row display-flex-row" key={type}>
-                    <div className="overview-panel-big-padded flex-1 small display-flex-center">
-                      <IssueLabel
-                        branchLike={branchLike}
-                        component={component}
-                        measures={measures}
-                        type={type}
-                        useDiffMetric={true}
-                      />
-                    </div>
-                    <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
-                      <IssueRating
-                        branchLike={branchLike}
-                        component={component}
-                        measures={measures}
-                        type={type}
-                        useDiffMetric={true}
-                      />
-                    </div>
-                  </div>
+                  <Card key={type} className="sw-p-8">
+                    <MeasuresPanelIssueMeasure
+                      branchLike={branchLike}
+                      component={component}
+                      isNewCodeTab={true}
+                      measures={measures}
+                      type={type}
+                    />
+                  </Card>
                 ))}
 
                 {[MeasurementType.Coverage, MeasurementType.Duplication].map(
                   (type: MeasurementType) => (
-                    <div className="overview-measures-row display-flex-row" key={type}>
-                      <div className="overview-panel-big-padded flex-1 small display-flex-center">
-                        <MeasurementLabel
-                          branchLike={branchLike}
-                          component={component}
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={true}
-                        />
-                      </div>
-
-                      <AfterMergeEstimate
-                        className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
+                    <Card key={type} className="sw-p-8">
+                      <MeasuresPanelPercentMeasure
+                        branchLike={branchLike}
+                        component={component}
                         measures={measures}
+                        ratingIcon={renderMeasureIcon(type)}
                         type={type}
+                        useDiffMetric={true}
                       />
-                    </div>
+                    </Card>
                   )
                 )}
               </div>
@@ -293,3 +277,17 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
 }
 
 export default withBranchStatus(withBranchStatusActions(PullRequestOverview));
+
+function renderMeasureIcon(type: MeasurementType) {
+  if (type === MeasurementType.Coverage) {
+    return function CoverageIndicatorRenderer(value?: string) {
+      return <CoverageIndicator value={value} size="md" />;
+    };
+  }
+
+  return function renderDuplicationIcon(value?: string) {
+    const rating = duplicationRatingConverter(Number(value));
+
+    return <DuplicationsIndicator rating={rating} size="md" />;
+  };
+}

@@ -52,7 +52,7 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
     leakPeriod.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS ||
     leakPeriod.mode === NewCodePeriodSettingType.REFERENCE_BRANCH
   ) {
-    return <div className="note spacer-top">{leakPeriodLabel} </div>;
+    return <div>{leakPeriodLabel} </div>;
   }
 
   const leakPeriodDate = getPeriodDate(leakPeriod);
@@ -63,20 +63,19 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
 
   return (
     <>
-      <div className="note spacer-top text-ellipsis" title={leakPeriodLabel}>
+      <div className="sw-mr-2 sw-text-ellipsis" title={leakPeriodLabel}>
         {leakPeriodLabel}
       </div>
+
       <DateFromNow date={leakPeriodDate}>
-        {(fromNow) => (
-          <div className="note little-spacer-top">
-            {translateWithParameters(
-              leakPeriod.mode === 'previous_analysis'
-                ? 'overview.previous_analysis_x'
-                : 'overview.started_x',
-              fromNow
-            )}
-          </div>
-        )}
+        {(fromNow) =>
+          translateWithParameters(
+            leakPeriod.mode === 'previous_analysis'
+              ? 'overview.previous_analysis_x'
+              : 'overview.started_x',
+            fromNow
+          )
+        }
       </DateFromNow>
     </>
   );

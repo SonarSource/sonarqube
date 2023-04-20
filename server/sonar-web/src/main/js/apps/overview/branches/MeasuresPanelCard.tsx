@@ -17,23 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 
-(window as any).React = React;
+interface Props {
+  category: React.ReactElement;
+  rating: React.ReactElement | null;
+}
 
-const content = document.createElement('div');
-content.id = 'content';
-document.documentElement.appendChild(content);
+export default function MeasuresPanelCard(
+  props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>
+) {
+  const { category, children, rating, ...attributes } = props;
 
-const baseUrl = '';
-(window as any).baseUrl = baseUrl;
+  return (
+    <div className="sw-flex sw-justify-between sw-items-center" {...attributes}>
+      <div className="sw-flex sw-flex-col sw-justify-between">
+        <div className="sw-body-sm-highlight sw-flex sw-items-center">{category}</div>
 
-Element.prototype.scrollIntoView = () => {};
+        <div className="sw-mt-3">{children}</div>
+      </div>
 
-jest.mock('../../src/main/js/helpers/l10n', () => ({
-  ...jest.requireActual('../../src/main/js/helpers/l10n'),
-  hasMessage: () => true,
-  translate: (...keys: string[]) => keys.join('.'),
-  translateWithParameters: (messageKey: string, ...parameters: Array<string | number>) =>
-    [messageKey, ...parameters].join('.'),
-}));
+      <div>{rating}</div>
+    </div>
+  );
+}

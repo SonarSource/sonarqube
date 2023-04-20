@@ -93,3 +93,11 @@ const StyledPageTitle = styled(StyledText)`
 const StyledTextError = styled(StyledText)`
   color: ${themeColor('danger')};
 `;
+
+export const LightLabel = styled.span`
+  color: ${themeColor('pageContentLight')};
+`;
+
+export const LightPrimary = styled.span`
+  color: ${themeContrast('primaryLight')};
+`;

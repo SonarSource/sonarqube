@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { LightPrimary } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
-import { getMeasurementAfterMergeMetricKey, MeasurementType } from '../utils';
+import { MeasurementType, getMeasurementAfterMergeMetricKey } from '../utils';
 
 export interface AfterMergeEstimateProps {
   className?: string;
@@ -40,11 +41,10 @@ export function AfterMergeEstimate({ className, measures, type }: AfterMergeEsti
   }
 
   return (
-    <div className={classNames(className, 'display-flex-center')}>
-      <span className="huge">{formatMeasure(measure.value, 'PERCENT')}</span>
-      <span className="label flex-1 spacer-left text-right">
-        {translate('component_measures.facet_category.overall_category.estimated')}
-      </span>
+    <div className={classNames(className, 'sw-flex sw-items-center')}>
+      <LightPrimary className="sw-heading-lg">
+        {formatMeasure(measure.value, MetricType.Percent)}
+      </LightPrimary>
     </div>
   );
 }

@@ -28,21 +28,16 @@ import { MetricKey } from '../../../../types/metrics';
 import { IssueRating, IssueRatingProps } from '../IssueRating';
 
 it('should render correctly for vulnerabilities', async () => {
-  renderIssueRating({ type: IssueType.Vulnerability });
-  expect(await screen.findByText('metric_domain.Security')).toBeInTheDocument();
-
   renderIssueRating({ type: IssueType.Vulnerability, useDiffMetric: true });
-  const labels = await screen.findAllByText('metric_domain.Security');
-  expect(labels).toHaveLength(2);
-  const tooltips = await screen.findAllByText('metric.security_rating.tooltip.A');
-  expect(tooltips).toHaveLength(2);
+  expect(await screen.findByLabelText('metric.has_rating_X.A')).toBeInTheDocument();
+  expect(await screen.findByText('metric.security_rating.tooltip.A')).toBeInTheDocument();
 });
 
 it('should render correctly if no values are present', async () => {
   renderIssueRating({
     measures: [mockMeasureEnhanced({ metric: mockMetric({ key: 'NONE' }) })],
   });
-  expect(await screen.findByText('metric_domain.Reliability')).toBeInTheDocument();
+  expect(await screen.findByText('–')).toBeInTheDocument();
 });
 
 function renderIssueRating(props: Partial<IssueRatingProps> = {}) {

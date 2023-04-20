@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DrilldownLink } from 'design-system';
 import * as React from 'react';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { MetricKey } from '../../../types/metrics';
+import { MetricKey, MetricType } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
 
 export interface DrilldownMeasureValueProps {
@@ -36,34 +37,29 @@ export function DrilldownMeasureValue(props: DrilldownMeasureValueProps) {
   const { branchLike, component, measures, metric } = props;
   const measure = findMeasure(measures, metric);
 
-  let content;
   if (!measure || measure.value === undefined) {
-    content = <span className="overview-measures-value text-light">-</span>;
-  } else {
-    content = (
-      <span>
-        <DrilldownLink
-          ariaLabel={translateWithParameters(
-            'overview.see_more_details_on_x_y',
-            measure.value,
-            localizeMetric(metric)
-          )}
-          branchLike={branchLike}
-          className="overview-measures-value text-light"
-          component={component.key}
-          metric={metric}
-        >
-          {formatMeasure(measure.value, 'SHORT_INT')}
-        </DrilldownLink>
-      </span>
-    );
+    return <span>–</span>;
   }
 
+  const url = getComponentDrilldownUrl({
+    branchLike,
+    componentKey: component.key,
+    metric,
+  });
+
   return (
-    <div className="display-flex-column display-flex-center">
-      {content}
-      <span className="spacer-top">{getLocalizedMetricName({ key: metric })}</span>
-    </div>
+    <span>
+      <DrilldownLink
+        aria-label={translateWithParameters(
+          'overview.see_more_details_on_x_y',
+          measure.value,
+          localizeMetric(metric)
+        )}
+        to={url}
+      >
+        {formatMeasure(measure.value, MetricType.ShortInteger)}
+      </DrilldownLink>
+    </span>
   );
 }
 

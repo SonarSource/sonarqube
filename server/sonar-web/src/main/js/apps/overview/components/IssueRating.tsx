@@ -19,17 +19,18 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
+import { DiscreetLinkBox, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 import { getLeakValue } from '../../../components/measure/utils';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
-import Rating from '../../../components/ui/Rating';
-import { findMeasure } from '../../../helpers/measures';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { findMeasure, formatRating } from '../../../helpers/measures';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { Component, MeasureEnhanced } from '../../../types/types';
-import { getIssueRatingMetricKey, getIssueRatingName } from '../utils';
+import { getIssueRatingMetricKey } from '../utils';
 
 export interface IssueRatingProps {
   branchLike?: BranchLike;
@@ -39,46 +40,45 @@ export interface IssueRatingProps {
   useDiffMetric?: boolean;
 }
 
-function renderRatingLink(props: IssueRatingProps) {
+export function IssueRating(props: IssueRatingProps) {
   const { branchLike, component, useDiffMetric = false, measures, type } = props;
-  const rating = getIssueRatingMetricKey(type, useDiffMetric);
-  const measure = findMeasure(measures, rating);
+  const ratingKey = getIssueRatingMetricKey(type, useDiffMetric);
+  const measure = findMeasure(measures, ratingKey);
+  const rawValue = measure && (useDiffMetric ? getLeakValue(measure) : measure.value);
+  const value = formatRating(rawValue);
 
-  if (!rating || !measure) {
-    return (
-      <div className="padded">
-        <Rating value={undefined} />
-      </div>
-    );
+  if (!ratingKey || !measure) {
+    return <NoRating />;
   }
 
-  const value = measure && (useDiffMetric ? getLeakValue(measure) : measure.value);
-
   return (
-    <Tooltip overlay={value && <RatingTooltipContent metricKey={rating} value={value} />}>
+    <Tooltip overlay={rawValue && <RatingTooltipContent metricKey={ratingKey} value={rawValue} />}>
       <span>
-        <DrilldownLink
-          branchLike={branchLike}
-          className="link-no-underline link-rating"
-          component={component.key}
-          metric={rating}
-        >
-          <Rating value={value} />
-        </DrilldownLink>
+        {value ? (
+          <DiscreetLinkBox
+            to={getComponentDrilldownUrl({
+              branchLike,
+              componentKey: component.key,
+              metric: ratingKey,
+              listView: true,
+            })}
+          >
+            <MetricsRatingBadge
+              label={translateWithParameters('metric.has_rating_X', value)}
+              rating={value}
+              size="md"
+            />
+          </DiscreetLinkBox>
+        ) : (
+          <NoRating />
+        )}
       </span>
     </Tooltip>
   );
 }
 
-export function IssueRating(props: IssueRatingProps) {
-  const { type } = props;
+export default IssueRating;
 
-  return (
-    <>
-      <span className="flex-1 big-spacer-right text-right">{getIssueRatingName(type)}</span>
-      {renderRatingLink(props)}
-    </>
-  );
+function NoRating() {
+  return <div className="sw-w-8 sw-h-8 sw-flex sw-justify-center sw-items-center">–</div>;
 }
-
-export default React.memo(IssueRating);

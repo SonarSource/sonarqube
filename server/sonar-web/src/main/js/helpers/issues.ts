@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
 import { flatten, sortBy } from 'lodash';
-import BugIcon from '../components/icons/BugIcon';
-import CodeSmellIcon from '../components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from '../components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from '../components/icons/VulnerabilityIcon';
 import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
 import { Dict, Flow, FlowLocation, Issue, TextRange } from '../types/types';

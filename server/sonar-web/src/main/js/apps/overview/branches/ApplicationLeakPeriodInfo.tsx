@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -29,18 +30,20 @@ export interface ApplicationLeakPeriodInfoProps {
 
 export function ApplicationLeakPeriodInfo({ leakPeriod }: ApplicationLeakPeriodInfoProps) {
   return (
-    <div className="note spacer-top display-inline-flex-center">
+    <>
       <DateFromNow date={leakPeriod.date}>
         {(fromNow) => translateWithParameters('overview.started_x', fromNow)}
       </DateFromNow>
       <HelpTooltip
-        className="little-spacer-left"
+        className="sw-ml-1"
         overlay={translateWithParameters(
           'overview.max_new_code_period_from_x',
           leakPeriod.projectName
         )}
-      />
-    </div>
+      >
+        <HelperHintIcon />
+      </HelpTooltip>
+    </>
   );
 }
 

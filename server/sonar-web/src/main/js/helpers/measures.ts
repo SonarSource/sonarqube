@@ -78,7 +78,10 @@ interface Formatter {
   (value: string | number, options?: any): string;
 }
 
-/** Format a measure value for a given type */
+/**
+ * Format a measure value for a given type
+ * ! For Ratings, use formatRating instead
+ */
 export function formatMeasure(
   value: string | number | undefined,
   type: string,
@@ -87,6 +90,21 @@ export function formatMeasure(
   const formatter = getFormatter(type);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   return useFormatter(value, formatter, options);
+}
+
+type RatingValue = 'A' | 'B' | 'C' | 'D' | 'E';
+const RATING_VALUES: RatingValue[] = ['A', 'B', 'C', 'D', 'E'];
+export function formatRating(value: string | number | undefined): RatingValue | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (typeof value === 'string') {
+    value = parseInt(value, 10);
+  }
+
+  // rating is 1-5, adjust for 0-based indexing
+  return RATING_VALUES[value - 1];
 }
 
 /** Return a localized metric name */

@@ -173,6 +173,18 @@ export const LinkBox = styled(StyledBaseLink)`
 `;
 LinkBox.displayName = 'LinkBox';
 
+export const DiscreetLinkBox = styled(StyledBaseLink)`
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: none;
+    display: block;
+  }
+`;
+LinkBox.displayName = 'DiscreetLinkBox';
+
 export const DiscreetLink = styled(HoverLink)`
   --border: ${themeBorder('default', 'linkDiscreet')};
 `;

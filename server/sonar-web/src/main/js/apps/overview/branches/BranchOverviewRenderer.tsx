@@ -93,7 +93,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
             <NoCodeWarning branchLike={branch} component={component} measures={measures} />
           ) : (
             <div className="sw-flex">
-              <div className="width-30 sw-mr-12">
+              <div className="width-30 sw-mr-12 sw-pt-6">
                 <QualityGatePanel
                   component={component}
                   loading={loadingStatus}
@@ -102,7 +102,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
               </div>
 
               <div className="sw-flex-1">
-                <div className="sw-flex sw-flex-col">
+                <div className="sw-flex sw-flex-col sw-pt-6">
                   <MeasuresPanel
                     appLeak={appLeak}
                     branch={branch}
@@ -110,6 +110,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     loading={loadingStatus}
                     measures={measures}
                     period={period}
+                    qgStatuses={qgStatuses}
                   />
 
                   <ActivityPanel
