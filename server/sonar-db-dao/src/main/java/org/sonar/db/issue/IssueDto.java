@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -34,6 +35,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -44,6 +46,7 @@ import org.sonar.db.rule.RuleDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
+import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
 
 public final class IssueDto implements Serializable {
 
@@ -53,6 +56,8 @@ public final class IssueDto implements Serializable {
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private int type;
+  private int ruleType;
+  private RuleCharacteristic ruleCharacteristic;
   private String kee;
   private String componentUuid;
   private String projectUuid;
@@ -707,6 +712,37 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setType(RuleType type) {
     this.type = type.getDbConstant();
+    return this;
+  }
+
+  @CheckForNull
+  public RuleCharacteristic getRuleCharacteristic() {
+    return ruleCharacteristic;
+  }
+
+  @VisibleForTesting
+  IssueDto setRuleCharacteristic(RuleCharacteristic ruleCharacteristic) {
+    this.ruleCharacteristic = ruleCharacteristic;
+    return this;
+  }
+
+  @CheckForNull
+  public RuleCharacteristic getEffectiveRuleCharacteristic() {
+    return ruleCharacteristic != null ? ruleCharacteristic : convertTypeToCharacteristic(ruleType);
+  }
+
+  private static RuleCharacteristic convertTypeToCharacteristic(int type) {
+    RuleType ruleType = RuleType.valueOf(type);
+    return convertToRuleCharacteristic(ruleType);
+  }
+
+  public int getRuleType() {
+    return ruleType;
+  }
+
+  @VisibleForTesting
+  IssueDto setRuleType(int  ruleType) {
+    this.ruleType = ruleType;
     return this;
   }
 

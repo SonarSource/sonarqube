@@ -29,6 +29,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -155,19 +156,19 @@ public class IssueDtoTest {
     assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
+        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now, now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
     assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
       .containsExactly(Set.of("todo"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-      IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getRuleUuid)
+        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
+        IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getRuleUuid)
       .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey", "ruleUuid");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
@@ -186,18 +187,18 @@ public class IssueDtoTest {
     assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
+        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
     assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
       .containsExactly(Set.of("todo"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
+        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
       .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
@@ -235,5 +236,17 @@ public class IssueDtoTest {
       .setIsNewCodeReferenceIssue(true)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     return defaultIssue;
+  }
+
+  @Test
+  public void getEffectiveCharacteristic_when_characteristicInitialized_should_return_characteristicDbConstantValue() {
+    IssueDto issueDto = new IssueDto().setRuleType(RuleType.CODE_SMELL.getDbConstant()).setRuleCharacteristic(RuleCharacteristic.CLEAR);
+    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
+  }
+
+  @Test
+  public void getEffectiveCharacteristic_when_characteristicNotInitialized_should_return_characteristicDbConstantValue() {
+    IssueDto issueDto = new IssueDto().setRuleType(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
   }
 }

@@ -56,6 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
+import static org.sonar.api.rules.RuleCharacteristic.CLEAR;
 
 public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -456,6 +457,7 @@ public class RuleDaoIT {
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
+      .setCharacteristic(CLEAR)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
@@ -483,6 +485,8 @@ public class RuleDaoIT {
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(CLEAR);
+
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);

@@ -32,6 +32,8 @@
     r.plugin_name as ruleRepo,
     r.language as language,
     r.security_standards as securityStandards,
+    r.rule_type as ruleType,
+    r.characteristic as ruleCharacteristic,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
     p.path as filePath,
