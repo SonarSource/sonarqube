@@ -33,7 +33,7 @@ export default function ProjectOverviewFacet({ value, selected, onChange }: Prop
   const facetName = translate('component_measures.overview', value, 'facet');
   return (
     <FacetBox property={value}>
-      <FacetItemsList>
+      <FacetItemsList label={value}>
         <FacetItem
           active={value === selected}
           key={value}

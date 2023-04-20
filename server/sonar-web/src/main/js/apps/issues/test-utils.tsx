@@ -83,6 +83,9 @@ export const ui = {
   dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
 
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
+
+  ruleFacetList: byRole('list', { name: 'rules' }),
+  ruleFacetSearch: byRole('searchbox', { name: 'search.search_for_rules' }),
 };
 
 export async function waitOnDataLoaded() {

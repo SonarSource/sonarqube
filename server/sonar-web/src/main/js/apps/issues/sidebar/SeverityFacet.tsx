@@ -27,7 +27,7 @@ import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHi
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { Query, formatFacetStat } from '../utils';
 
 interface Props {
   fetching: boolean;
@@ -93,23 +93,23 @@ export default class SeverityFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { severities, stats = {} } = this.props;
+    const { fetching, open, severities, stats = {} } = this.props;
     const values = severities.map((severity) => translate('severity', severity));
 
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          fetching={this.props.fetching}
+          fetching={fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={values}
         />
 
-        {this.props.open && (
+        {open && (
           <>
-            <FacetItemsList>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList label={this.property}>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={severities.length} />
           </>
         )}

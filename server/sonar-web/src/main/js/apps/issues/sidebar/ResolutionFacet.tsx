@@ -27,7 +27,7 @@ import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHi
 import { translate } from '../../../helpers/l10n';
 import { IssueResolution } from '../../../types/issues';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { Query, formatFacetStat } from '../utils';
 
 interface Props {
   fetching: boolean;
@@ -115,23 +115,25 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { resolutions, stats = {} } = this.props;
+    const { fetching, open, resolutions, stats = {} } = this.props;
     const values = resolutions.map((resolution) => this.getFacetItemName(resolution));
 
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          fetching={this.props.fetching}
+          fetching={fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={values}
         />
 
-        {this.props.open && (
+        {open && (
           <>
-            <FacetItemsList>{RESOLUTIONS.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList label={this.property}>
+              {RESOLUTIONS.map(this.renderItem)}
+            </FacetItemsList>
             <MultipleSelectionHint
               options={Object.keys(stats).length}
               values={resolutions.length}

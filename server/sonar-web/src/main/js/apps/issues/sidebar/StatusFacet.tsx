@@ -27,7 +27,7 @@ import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHi
 import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { Query, formatFacetStat } from '../utils';
 
 interface Props {
   fetching: boolean;
@@ -91,23 +91,23 @@ export default class StatusFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { statuses, stats = {} } = this.props;
+    const { fetching, open, statuses, stats = {} } = this.props;
     const values = statuses.map((status) => translate('issue.status', status));
 
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          fetching={this.props.fetching}
+          fetching={fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={values}
         />
 
-        {this.props.open && (
+        {open && (
           <>
-            <FacetItemsList>{STATUSES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList label={this.property}>{STATUSES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
           </>
         )}

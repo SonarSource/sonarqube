@@ -21,17 +21,12 @@ import * as React from 'react';
 
 export interface FacetItemsListProps {
   children?: React.ReactNode;
-  title?: string;
+  label: string;
 }
 
-export default function FacetItemsList({ children, title }: FacetItemsListProps) {
+export default function FacetItemsList({ children, label }: FacetItemsListProps) {
   return (
-    <div className="search-navigator-facet-list" role="list">
-      {title && (
-        <div className="search-navigator-facet-list-title" role="presentation">
-          {title}
-        </div>
-      )}
+    <div className="search-navigator-facet-list" role="list" aria-label={label}>
       {children}
     </div>
   );

@@ -75,11 +75,6 @@ it('should correctly render a disabled header', () => {
   expect(screen.queryByRole('checkbox', { name: 'foo' })).not.toBeInTheDocument();
 });
 
-it('should correctly render a facet item list with title', () => {
-  renderFacet(undefined, { open: true }, { title: 'My list title' });
-  expect(screen.getByText('My list title')).toBeInTheDocument();
-});
-
 function renderFacet(
   facetBoxProps: Partial<FacetBoxProps> = {},
   facetHeaderProps: Partial<FacetHeader['props']> = {},
@@ -90,8 +85,10 @@ function renderFacet(
     const [open, setOpen] = React.useState(facetHeaderProps.open ?? false);
     const [values, setValues] = React.useState(facetHeaderProps.values ?? undefined);
 
+    const property = 'foo';
+
     return (
-      <FacetBox property="foo" {...facetBoxProps}>
+      <FacetBox property={property} {...facetBoxProps}>
         <FacetHeader
           name="foo"
           onClick={() => setOpen(!open)}
@@ -100,7 +97,7 @@ function renderFacet(
         />
 
         {open && (
-          <FacetItemsList {...facetItemListProps}>
+          <FacetItemsList label={property} {...facetItemListProps}>
             <FacetItem
               active={true}
               name="Foo/Bar"

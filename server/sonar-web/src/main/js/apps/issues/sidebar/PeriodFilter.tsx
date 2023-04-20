@@ -55,7 +55,7 @@ export default function PeriodFilter(props: PeriodFilterProps) {
 
   return (
     <FacetBox property={PROPERTY}>
-      <FacetItemsList>
+      <FacetItemsList label={PROPERTY}>
         <FacetItem
           active={newCodeSelected}
           loading={fetching}

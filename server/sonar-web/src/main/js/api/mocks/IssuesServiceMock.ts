@@ -27,6 +27,7 @@ import {
   mockLoggedInUser,
   mockPaging,
   mockRawIssue,
+  mockRule,
   mockRuleDetails,
 } from '../../helpers/testMocks';
 import {
@@ -43,10 +44,12 @@ import {
   RawIssuesResponse,
   ReferencedComponent,
 } from '../../types/issues';
+import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
 import {
   Dict,
   FlowType,
+  Rule,
   RuleActivation,
   RuleDetails,
   SnippetsByComponent,
@@ -67,7 +70,7 @@ import {
   setIssueTransition,
   setIssueType,
 } from '../issues';
-import { getRuleDetails } from '../rules';
+import { getRuleDetails, searchRules } from '../rules';
 import { dismissNotice, getCurrentUser, searchUsers } from '../users';
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
@@ -103,6 +106,7 @@ export default class IssuesServiceMock {
   currentUser: LoggedInUser;
   standards?: Standards;
   defaultList: IssueData[];
+  rulesList: Rule[];
   list: IssueData[];
 
   constructor() {
@@ -439,11 +443,41 @@ export default class IssuesServiceMock {
         snippets: {},
       },
     ];
+    this.rulesList = [
+      mockRule({
+        key: 'simpleRuleId',
+        name: 'Simple rule',
+        lang: 'java',
+        langName: 'Java',
+        type: 'CODE_SMELL',
+      }),
+      mockRule({
+        key: 'advancedRuleId',
+        name: 'Advanced rule',
+        lang: 'web',
+        langName: 'HTML',
+        type: 'VULNERABILITY',
+      }),
+      mockRule({
+        key: 'cpp:S6069',
+        lang: 'cpp',
+        langName: 'C++',
+        name: 'Security hotspot rule',
+        type: 'SECURITY_HOTSPOT',
+      }),
+      mockRule({
+        key: 'tsql:S131',
+        name: '"CASE" expressions should end with "ELSE" clauses',
+        lang: 'tsql',
+        langName: 'T-SQL',
+      }),
+    ];
 
     this.list = cloneDeep(this.defaultList);
 
     (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);
     (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
     (getIssueFlowSnippets as jest.Mock).mockImplementation(this.handleGetIssueFlowSnippets);
     (bulkChangeIssues as jest.Mock).mockImplementation(this.handleBulkChangeIssues);
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
@@ -509,6 +543,22 @@ export default class IssuesServiceMock {
       return Promise.reject({ errors: [{ msg: `No issue has been found for id ${issueKey}` }] });
     }
     return this.reply(issue.snippets);
+  };
+
+  handleSearchRules = (req: SearchRulesQuery) => {
+    const rules = this.rulesList.filter((rule) => {
+      const query = req.q?.toLowerCase() || '';
+      const nameMatches = rule.name.toLowerCase().includes(query);
+      const keyMatches = rule.key.toLowerCase().includes(query);
+      const isTypeRight = req.types?.includes(rule.type);
+      return isTypeRight && (nameMatches || keyMatches);
+    });
+    return this.reply({
+      p: 1,
+      ps: 30,
+      rules,
+      total: rules.length,
+    });
   };
 
   handleGetRuleDetails = (parameters: {
@@ -709,6 +759,7 @@ export default class IssuesServiceMock {
         pageSize,
         total: filteredList.length,
       }),
+      rules: this.rulesList,
       users: [
         { login: 'login0' },
         { login: 'login1', name: 'Login 1' },

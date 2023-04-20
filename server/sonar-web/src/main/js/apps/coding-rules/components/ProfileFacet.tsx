@@ -153,7 +153,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { languages, referencedProfiles } = this.props;
+    const { languages, open, referencedProfiles } = this.props;
     let profiles = Object.values(referencedProfiles);
     if (languages.length > 0) {
       profiles = profiles.filter((profile) => languages.includes(profile.language));
@@ -164,13 +164,15 @@ export default class ProfileFacet extends React.PureComponent<Props> {
       (profile) => profile.languageName
     );
 
+    const property = 'profile';
+
     return (
-      <FacetBox property="profile">
+      <FacetBox property={property}>
         <FacetHeader
           name={translate('coding_rules.facet.qprofile')}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={this.getTextValue()}
         >
           <DocumentationTooltip
@@ -185,7 +187,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           />
         </FacetHeader>
 
-        {this.props.open && <FacetItemsList>{profiles.map(this.renderItem)}</FacetItemsList>}
+        {open && <FacetItemsList label={property}>{profiles.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );
   }

@@ -93,7 +93,15 @@ export default class Facet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { disabled, renderTextName = defaultRenderName, stats } = this.props;
+    const {
+      children,
+      disabled,
+      disabledHelper,
+      open,
+      property,
+      renderTextName = defaultRenderName,
+      stats,
+    } = this.props;
     const values = this.props.values.map(renderTextName);
     const items =
       this.props.options ||
@@ -107,25 +115,25 @@ export default class Facet extends React.PureComponent<Props> {
     return (
       <FacetBox
         className={classNames({ 'search-navigator-facet-box-forbidden': disabled })}
-        property={this.props.property}
+        property={property}
       >
         <FacetHeader
-          name={translate('coding_rules.facet', this.props.property)}
+          name={translate('coding_rules.facet', property)}
           disabled={disabled}
-          disabledHelper={this.props.disabledHelper}
+          disabledHelper={disabledHelper}
           onClear={this.handleClear}
           onClick={disabled ? undefined : this.handleHeaderClick}
-          open={this.props.open && !disabled}
+          open={open && !disabled}
           values={values}
         >
-          {this.props.children}
+          {children}
         </FacetHeader>
 
-        {this.props.open && items !== undefined && (
-          <FacetItemsList>{items.map(this.renderItem)}</FacetItemsList>
+        {open && items !== undefined && (
+          <FacetItemsList label={property}>{items.map(this.renderItem)}</FacetItemsList>
         )}
 
-        {this.props.open && this.props.renderFooter !== undefined && this.props.renderFooter()}
+        {open && this.props.renderFooter !== undefined && this.props.renderFooter()}
       </FacetBox>
     );
   }

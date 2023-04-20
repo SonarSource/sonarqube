@@ -287,18 +287,20 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   }
 
   render() {
+    const { fetching, open } = this.props;
+
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          fetching={this.props.fetching}
+          fetching={fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={this.getValues()}
         />
 
-        {this.props.open && this.renderInner()}
+        {open && this.renderInner()}
       </FacetBox>
     );
   }

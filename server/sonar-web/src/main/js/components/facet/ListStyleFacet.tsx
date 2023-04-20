@@ -240,7 +240,15 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   };
 
   renderList() {
-    const { stats, showMoreAriaLabel, showLessAriaLabel } = this.props;
+    const {
+      maxInitialItems,
+      maxItems,
+      property,
+      stats,
+      showMoreAriaLabel,
+      showLessAriaLabel,
+      values,
+    } = this.props;
 
     if (!stats) {
       return null;
@@ -256,20 +264,18 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     const limitedList = this.state.showFullList
       ? sortedItems
-      : sortedItems.slice(0, this.props.maxInitialItems);
+      : sortedItems.slice(0, maxInitialItems);
 
     // make sure all selected items are displayed
     const selectedBelowLimit = this.state.showFullList
       ? []
-      : sortedItems
-          .slice(this.props.maxInitialItems)
-          .filter((item) => this.props.values.includes(item));
+      : sortedItems.slice(maxInitialItems).filter((item) => values.includes(item));
 
-    const mightHaveMoreResults = sortedItems.length >= this.props.maxItems;
+    const mightHaveMoreResults = sortedItems.length >= maxItems;
 
     return (
       <>
-        <FacetItemsList>
+        <FacetItemsList label={property}>
           {limitedList.map((item) => (
             <FacetItem
               active={this.props.values.includes(item)}
@@ -285,7 +291,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         {selectedBelowLimit.length > 0 && (
           <>
             <div className="note spacer-bottom text-center">⋯</div>
-            <FacetItemsList>
+            <FacetItemsList label={property}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
@@ -332,7 +338,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   renderSearchResults() {
-    const { showMoreAriaLabel } = this.props;
+    const { property, showMoreAriaLabel } = this.props;
     const { searching, searchMaxResults, searchResults, searchPaging } = this.state;
 
     if (!searching && (!searchResults || !searchResults.length)) {
@@ -346,7 +352,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     return (
       <>
-        <FacetItemsList>
+        <FacetItemsList label={property}>
           {searchResults.map((result) => this.renderSearchResult(result))}
         </FacetItemsList>
         {searchMaxResults && (
@@ -386,31 +392,41 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   render() {
-    const { disabled, stats = {} } = this.props;
+    const {
+      className,
+      disabled,
+      disabledHelper,
+      facetHeader,
+      fetching,
+      open,
+      property,
+      stats = {},
+      values: propsValues,
+    } = this.props;
     const { query, searching, searchResults } = this.state;
-    const values = this.props.values.map((item) => this.props.getFacetItemText(item));
+    const values = propsValues.map((item) => this.props.getFacetItemText(item));
     const loadingResults =
       query !== '' && searching && (searchResults === undefined || searchResults.length === 0);
     const showList = !query || loadingResults;
     return (
       <FacetBox
-        className={classNames(this.props.className, {
+        className={classNames(className, {
           'search-navigator-facet-box-forbidden': disabled,
         })}
-        property={this.props.property}
+        property={property}
       >
         <FacetHeader
-          fetching={this.props.fetching}
-          name={this.props.facetHeader}
+          fetching={fetching}
+          name={facetHeader}
           disabled={disabled}
-          disabledHelper={this.props.disabledHelper}
+          disabledHelper={disabledHelper}
           onClear={this.handleClear}
           onClick={disabled ? undefined : this.handleHeaderClick}
-          open={this.props.open && !disabled}
+          open={open && !disabled}
           values={values}
         />
 
-        {this.props.open && !disabled && (
+        {open && !disabled && (
           <>
             {this.renderSearch()}
             {showList ? this.renderList() : this.renderSearchResults()}

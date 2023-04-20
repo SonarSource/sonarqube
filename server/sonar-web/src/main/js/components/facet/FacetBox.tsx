@@ -27,12 +27,11 @@ export interface FacetBoxProps {
 }
 
 export default function FacetBox(props: FacetBoxProps) {
+  const { children, className, property } = props;
+
   return (
-    <div
-      className={classNames('search-navigator-facet-box', props.className)}
-      data-property={props.property}
-    >
-      {props.children}
+    <div className={classNames('search-navigator-facet-box', className)} data-property={property}>
+      {children}
     </div>
   );
 }

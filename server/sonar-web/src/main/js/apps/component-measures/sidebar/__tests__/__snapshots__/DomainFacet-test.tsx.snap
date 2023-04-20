@@ -11,7 +11,9 @@ exports[`should display facet item list 1`] = `
     open={true}
     values={[]}
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="Reliability"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -149,7 +151,9 @@ exports[`should display facet item list with bugs selected 1`] = `
       ]
     }
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="Reliability"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -283,7 +287,9 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
     open={true}
     values={[]}
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="Reliability"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -364,7 +370,9 @@ exports[`should not display subtitles of new measures if there is none, even on 
     open={true}
     values={[]}
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="Reliability"
+  >
     <FacetItem
       active={false}
       halfWidth={false}

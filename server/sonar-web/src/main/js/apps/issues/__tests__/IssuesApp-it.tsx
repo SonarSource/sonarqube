@@ -373,6 +373,7 @@ describe('issues app', () => {
       // Rule
       await user.click(ui.ruleFacet.get());
       await user.click(screen.getByRole('checkbox', { name: 'other' }));
+      expect(screen.getByRole('checkbox', { name: '(HTML) Advanced rule' })).toBeInTheDocument(); // Name should apply to the rule
 
       // Tag
       await user.click(ui.tagFacet.get());
@@ -462,6 +463,41 @@ describe('issues app', () => {
       await user.click(screen.getByRole('button', { name: 'all' }));
       expect(ui.issueItem2.get()).toBeInTheDocument();
       expect(ui.issueItem3.get()).toBeInTheDocument();
+    });
+
+    it('should search for rules with proper types', async () => {
+      const user = userEvent.setup();
+
+      renderIssueApp();
+
+      await user.click(await ui.ruleFacet.find());
+      await user.type(ui.ruleFacetSearch.get(), 'rule');
+      expect(within(ui.ruleFacetList.get()).getAllByRole('checkbox')).toHaveLength(2);
+      expect(
+        within(ui.ruleFacetList.get()).getByRole('checkbox', {
+          name: /Advanced rule/,
+        })
+      ).toBeInTheDocument();
+      expect(
+        within(ui.ruleFacetList.get()).getByRole('checkbox', {
+          name: /Simple rule/,
+        })
+      ).toBeInTheDocument();
+
+      await user.click(ui.vulnerabilityIssueTypeFilter.get());
+      // after changing the issue type filter, search field is reset, so we type again
+      await user.type(ui.ruleFacetSearch.get(), 'rule');
+
+      expect(
+        within(ui.ruleFacetList.get()).getByRole('checkbox', {
+          name: /Advanced rule/,
+        })
+      ).toBeInTheDocument();
+      expect(
+        within(ui.ruleFacetList.get()).queryByRole('checkbox', {
+          name: /Simple rule/,
+        })
+      ).not.toBeInTheDocument();
     });
   });
 });

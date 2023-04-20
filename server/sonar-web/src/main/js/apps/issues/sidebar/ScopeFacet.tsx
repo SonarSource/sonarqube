@@ -43,8 +43,10 @@ export default function ScopeFacet(props: ScopeFacetProps) {
   const { fetching, open, scopes = [], stats = {} } = props;
   const values = scopes.map((scope) => translate('issue.scope', scope));
 
+  const property = 'scopes';
+
   return (
-    <FacetBox property="scopes">
+    <FacetBox property={property}>
       <FacetHeader
         fetching={fetching}
         name={translate('issues.facet.scopes')}
@@ -56,7 +58,7 @@ export default function ScopeFacet(props: ScopeFacetProps) {
 
       {open && (
         <>
-          <FacetItemsList>
+          <FacetItemsList label={property}>
             {SOURCE_SCOPES.map(({ scope, qualifier }) => {
               const active = scopes.includes(scope);
               const stat = stats[scope];

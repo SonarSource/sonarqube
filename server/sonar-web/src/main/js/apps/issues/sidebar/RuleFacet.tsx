@@ -21,33 +21,35 @@ import { omit } from 'lodash';
 import * as React from 'react';
 import { searchRules } from '../../../api/rules';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { Facet, ReferencedRule } from '../../../types/issues';
+import { Facet, IssueType, ReferencedRule } from '../../../types/issues';
 import { Dict, Rule } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
   fetching: boolean;
-  languages: string[];
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
   referencedRules: Dict<ReferencedRule>;
-  rules: string[];
   stats: Dict<number> | undefined;
 }
 
 export default class RuleFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page = 1) => {
-    const { languages } = this.props;
+    const { languages, types } = this.props.query;
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
       q: query,
       p: page,
       ps: 30,
+      types: types.length
+        ? types.join()
+        : ISSUE_TYPES.filter((type) => type !== IssueType.SecurityHotspot).join(),
       s: 'name',
       include_external: true,
     }).then((response) => ({
@@ -76,10 +78,12 @@ export default class RuleFacet extends React.PureComponent<Props> {
   };
 
   render() {
+    const { fetching, open, query, stats } = this.props;
+
     return (
       <ListStyleFacet<Rule>
         facetHeader={translate('issues.facet.rules')}
-        fetching={this.props.fetching}
+        fetching={fetching}
         getFacetItemText={this.getRuleName}
         getSearchResultKey={(rule) => rule.key}
         getSearchResultText={(rule) => rule.name}
@@ -87,14 +91,14 @@ export default class RuleFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={this.props.open}
+        open={open}
         property="rules"
-        query={omit(this.props.query, 'rules')}
+        query={omit(query, 'rules')}
         renderFacetItem={this.getRuleName}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_rules')}
-        stats={this.props.stats}
-        values={this.props.rules}
+        stats={stats}
+        values={query.rules}
       />
     );
   }

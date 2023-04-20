@@ -52,22 +52,24 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
       : undefined;
 
   render() {
+    const { open, value } = this.props;
+
     return (
       <FacetBox property="availableSince">
         <FacetHeader
           name={translate('coding_rules.facet.available_since')}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={this.getValues()}
         />
 
-        {this.props.open && (
+        {open && (
           <DateInput
             name="available-since"
             onChange={this.handlePeriodChange}
             placeholder={translate('date')}
-            value={this.props.value}
+            value={value}
           />
         )}
       </FacetBox>

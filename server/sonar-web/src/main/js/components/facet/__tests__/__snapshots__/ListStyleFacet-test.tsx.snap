@@ -44,7 +44,9 @@ exports[`should display all selected items 1`] = `
     placeholder="search for foo..."
     value=""
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={true}
       halfWidth={false}
@@ -73,7 +75,9 @@ exports[`should display all selected items 1`] = `
   >
     ⋯
   </div>
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={true}
       halfWidth={false}
@@ -119,7 +123,9 @@ exports[`should render 1`] = `
     placeholder="search for foo..."
     value=""
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -187,7 +193,9 @@ exports[`should search 1`] = `
     placeholder="search for foo..."
     value="query"
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -246,7 +254,9 @@ exports[`should search 2`] = `
     placeholder="search for foo..."
     value="query"
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={false}
       halfWidth={false}
@@ -316,7 +326,9 @@ exports[`should search 3`] = `
     placeholder="search for foo..."
     value=""
   />
-  <FacetItemsList>
+  <FacetItemsList
+    label="foo"
+  >
     <FacetItem
       active={false}
       halfWidth={false}

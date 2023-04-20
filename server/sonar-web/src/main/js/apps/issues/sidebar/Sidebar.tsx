@@ -238,14 +238,12 @@ export class Sidebar extends React.PureComponent<Props> {
         />
         <RuleFacet
           fetching={this.props.loadingFacets.rules === true}
-          languages={query.languages}
           loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.rules}
           query={query}
           referencedRules={this.props.referencedRules}
-          rules={query.rules}
           stats={facets.rules}
         />
         <TagFacet

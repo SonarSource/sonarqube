@@ -40,7 +40,7 @@ import {
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query, STANDARDS } from '../utils';
+import { Query, STANDARDS, formatFacetStat } from '../utils';
 
 interface Props {
   cwe: string[];
@@ -243,7 +243,15 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       return null;
     }
     const categories = sortBy(Object.keys(stats), (key) => -stats[key]);
-    return this.renderFacetItemsList(stats, values, categories, renderName, renderName, onClick);
+    return this.renderFacetItemsList(
+      stats,
+      values,
+      categories,
+      valuesProp,
+      renderName,
+      renderName,
+      onClick
+    );
   };
 
   // eslint-disable-next-line max-params
@@ -251,6 +259,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     stats: any,
     values: string[],
     categories: string[],
+    listLabel: ValuesProp,
     renderName: (standards: Standards, category: string) => React.ReactNode,
     renderTooltip: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
@@ -268,7 +277,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     };
 
     return (
-      <FacetItemsList>
+      <FacetItemsList label={listLabel}>
         {categories.map((category) => (
           <FacetItem
             active={values.includes(category)}
@@ -334,7 +343,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     const allItemShown = limitedList.length + selectedBelowLimit.length === sortedItems.length;
     return (
       <>
-        <FacetItemsList>
+        <FacetItemsList label={SecurityStandard.SONARSOURCE}>
           {limitedList.map((item) => (
             <FacetItem
               active={values.includes(item)}
@@ -350,7 +359,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         {selectedBelowLimit.length > 0 && (
           <>
             {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
-            <FacetItemsList>
+            <FacetItemsList label={SecurityStandard.SONARSOURCE}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
@@ -390,19 +399,35 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   }
 
   renderSubFacets() {
+    const {
+      cwe,
+      cweOpen,
+      cweStats,
+      fetchingCwe,
+      fetchingOwaspTop10,
+      'fetchingOwaspTop10-2021': fetchingOwaspTop102021,
+      fetchingSonarSourceSecurity,
+      owaspTop10,
+      owaspTop10Open,
+      'owaspTop10-2021Open': owaspTop102021Open,
+      'owaspTop10-2021': owaspTop102021,
+      query,
+      sonarsourceSecurity,
+      sonarsourceSecurityOpen,
+    } = this.props;
     return (
       <>
         <FacetBox className="is-inner" property={SecurityStandard.SONARSOURCE}>
           <FacetHeader
-            fetching={this.props.fetchingSonarSourceSecurity}
+            fetching={fetchingSonarSourceSecurity}
             name={translate('issues.facet.sonarsourceSecurity')}
             onClick={this.handleSonarSourceSecurityHeaderClick}
-            open={this.props.sonarsourceSecurityOpen}
-            values={this.props.sonarsourceSecurity.map((item) =>
+            open={sonarsourceSecurityOpen}
+            values={sonarsourceSecurity.map((item) =>
               renderSonarSourceSecurityCategory(this.state.standards, item)
             )}
           />
-          {this.props.sonarsourceSecurityOpen && (
+          {sonarsourceSecurityOpen && (
             <>
               {this.renderSonarSourceSecurityList()}
               {this.renderSonarSourceSecurityHint()}
@@ -411,15 +436,15 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         </FacetBox>
         <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10_2021}>
           <FacetHeader
-            fetching={this.props['fetchingOwaspTop10-2021']}
+            fetching={fetchingOwaspTop102021}
             name={translate('issues.facet.owaspTop10_2021')}
             onClick={this.handleOwaspTop102021HeaderClick}
-            open={this.props['owaspTop10-2021Open']}
-            values={this.props['owaspTop10-2021'].map((item) =>
+            open={owaspTop102021Open}
+            values={owaspTop102021.map((item) =>
               renderOwaspTop102021Category(this.state.standards, item)
             )}
           />
-          {this.props['owaspTop10-2021Open'] && (
+          {owaspTop102021Open && (
             <>
               {this.renderOwaspTop102021List()}
               {this.renderOwaspTop102021Hint()}
@@ -428,15 +453,13 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         </FacetBox>
         <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
           <FacetHeader
-            fetching={this.props.fetchingOwaspTop10}
+            fetching={fetchingOwaspTop10}
             name={translate('issues.facet.owaspTop10')}
             onClick={this.handleOwaspTop10HeaderClick}
-            open={this.props.owaspTop10Open}
-            values={this.props.owaspTop10.map((item) =>
-              renderOwaspTop10Category(this.state.standards, item)
-            )}
+            open={owaspTop10Open}
+            values={owaspTop10.map((item) => renderOwaspTop10Category(this.state.standards, item))}
           />
-          {this.props.owaspTop10Open && (
+          {owaspTop10Open && (
             <>
               {this.renderOwaspTop10List()}
               {this.renderOwaspTop10Hint()}
@@ -446,7 +469,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         <ListStyleFacet<string>
           className="is-inner"
           facetHeader={translate('issues.facet.cwe')}
-          fetching={this.props.fetchingCwe}
+          fetching={fetchingCwe}
           getFacetItemText={(item) => renderCWECategory(this.state.standards, item)}
           getSearchResultKey={(item) => item}
           getSearchResultText={(item) => renderCWECategory(this.state.standards, item)}
@@ -454,33 +477,35 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           onChange={this.props.onChange}
           onSearch={this.handleCWESearch}
           onToggle={this.props.onToggle}
-          open={this.props.cweOpen}
+          open={cweOpen}
           property={SecurityStandard.CWE}
-          query={omit(this.props.query, 'cwe')}
+          query={omit(query, 'cwe')}
           renderFacetItem={(item) => renderCWECategory(this.state.standards, item)}
           renderSearchResult={(item, query) =>
             highlightTerm(renderCWECategory(this.state.standards, item), query)
           }
           searchPlaceholder={translate('search.search_for_cwe')}
-          stats={this.props.cweStats}
-          values={this.props.cwe}
+          stats={cweStats}
+          values={cwe}
         />
       </>
     );
   }
 
   render() {
+    const { open } = this.props;
+
     return (
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={this.getValues()}
         />
 
-        {this.props.open && this.renderSubFacets()}
+        {open && this.renderSubFacets()}
       </FacetBox>
     );
   }

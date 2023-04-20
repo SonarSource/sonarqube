@@ -28,7 +28,7 @@ import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { Query, formatFacetStat } from '../utils';
 
 interface Props {
   fetching: boolean;
@@ -99,23 +99,23 @@ export default class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { types, stats = {} } = this.props;
+    const { fetching, open, types, stats = {} } = this.props;
     const values = types.map((type) => translate('issue.type', type));
 
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          fetching={this.props.fetching}
+          fetching={fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
-          open={this.props.open}
+          open={open}
           values={values}
         />
 
-        {this.props.open && (
+        {open && (
           <>
-            <FacetItemsList>
+            <FacetItemsList label={this.property}>
               {ISSUE_TYPES.filter((t) => t !== 'SECURITY_HOTSPOT').map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />
