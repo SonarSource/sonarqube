@@ -71,6 +71,7 @@ export function mockQuery(overrides: Partial<Query> = {}): Query {
     assigned: false,
     assignees: [],
     author: [],
+    characteristics: [],
     createdAfter: undefined,
     createdAt: '',
     createdBefore: undefined,

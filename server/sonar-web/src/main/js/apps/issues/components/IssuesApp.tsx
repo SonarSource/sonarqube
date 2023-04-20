@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { debounce, keyBy, omit, without } from 'lodash';
+import { debounce, get, keyBy, omit, set, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -69,6 +69,7 @@ import {
   ASSIGNEE_ME,
   Facet,
   FetchIssuesPromise,
+  IssueCharacteristicFitFor,
   ReferencedComponent,
   ReferencedLanguage,
   ReferencedRule,
@@ -82,6 +83,7 @@ import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeade
 import Sidebar from '../sidebar/Sidebar';
 import '../styles.css';
 import {
+  OpenFacets,
   Query,
   STANDARDS,
   areMyIssuesSelected,
@@ -127,7 +129,7 @@ export interface State {
   loadingMore: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
-  openFacets: Dict<boolean>;
+  openFacets: OpenFacets;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
   openRuleDetails?: RuleDetails;
@@ -167,16 +169,19 @@ export class App extends React.PureComponent<Props, State> {
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
+        characteristics: {
+          [IssueCharacteristicFitFor.Production]: true,
+          [IssueCharacteristicFitFor.Development]: true,
+        },
+        severities: true,
         owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
         'owaspTop10-2021': shouldOpenStandardsChildFacet(
           {},
           query,
           SecurityStandard.OWASP_TOP10_2021
         ),
-        severities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
-        types: true,
       },
       query,
       referencedComponentsById: {},
@@ -700,32 +705,41 @@ export class App extends React.PureComponent<Props, State> {
     }));
   };
 
-  handleFacetToggle = (property: string) => {
-    this.setState((state) => {
-      const willOpenProperty = !state.openFacets[property];
-      const newState = {
-        loadingFacets: state.loadingFacets,
-        openFacets: { ...state.openFacets, [property]: willOpenProperty },
-      };
+  /**
+   * @param property Facet property within openFacets. Can be a path, e.g. 'characteristics.PRODUCTION'
+   */
+  handleFacetToggle = async (property: string) => {
+    const willOpenProperty = !get(this.state.openFacets, property);
+    const newState = {
+      loadingFacets: this.state.loadingFacets,
+      openFacets: { ...this.state.openFacets },
+    };
+    set(newState.openFacets, property, willOpenProperty);
 
-      // Try to open sonarsource security "subfacet" by default if the standard facet is open
-      if (willOpenProperty && property === STANDARDS) {
-        newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
-          newState.openFacets,
-          state.query
-        );
-        // Force loading of sonarsource security facet data
-        property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
-      }
+    // Try to open sonarsource security "subfacet" by default if the standard facet is open
+    if (property === STANDARDS && willOpenProperty) {
+      newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
+        newState.openFacets,
+        this.state.query
+      );
+      // Force loading of sonarsource security facet data
+      property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
+    }
 
-      // No need to load facets data for standard facet
-      if (property !== STANDARDS && !state.facets[property]) {
-        newState.loadingFacets[property] = true;
-        this.fetchFacet(property);
-      }
+    // No need to load facets data for standard facet
+    if (property !== STANDARDS) {
+      newState.loadingFacets[property] = true;
+    }
 
-      return newState;
-    });
+    this.setState(newState);
+
+    // No need to load facets data for standard facet
+    if (property !== STANDARDS) {
+      // Fetch facet from the backend, only keeping first level of the property,
+      // eg will send 'characteristics' for property 'characteristics.PRODUCTION'
+      const facetName = property.split('.')[0];
+      await this.fetchFacet(facetName);
+    }
   };
 
   handleReset = () => {

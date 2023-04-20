@@ -30,6 +30,8 @@ import {
 } from '../../../types/component';
 import {
   Facet,
+  IssueCharacteristic,
+  IssueCharacteristicFitFor,
   ReferencedComponent,
   ReferencedLanguage,
   ReferencedRule,
@@ -37,9 +39,10 @@ import {
 import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';
 import { UserBase } from '../../../types/users';
-import { Query } from '../utils';
+import { OpenFacets, Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
+import CharacteristicFacet from './CharacteristicFacet';
 import CreationDateFacet from './CreationDateFacet';
 import DirectoryFacet from './DirectoryFacet';
 import FileFacet from './FileFacet';
@@ -60,13 +63,13 @@ export interface Props {
   branchLike?: BranchLike;
   component: Component | undefined;
   createdAfterIncludesTime: boolean;
-  facets: Dict<Facet | undefined>;
+  facets: Dict<Facet>;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   loadingFacets: Dict<boolean>;
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
-  openFacets: Dict<boolean>;
+  openFacets: OpenFacets;
   query: Query;
   referencedComponentsById: Dict<ReferencedComponent>;
   referencedComponentsByKey: Dict<ReferencedComponent>;
@@ -147,13 +150,23 @@ export class Sidebar extends React.PureComponent<Props> {
             newCodeSelected={query.inNewCodePeriod}
           />
         )}
-        <TypeFacet
-          fetching={this.props.loadingFacets.types === true}
+        <CharacteristicFacet
+          fetching={this.props.loadingFacets.characteristics === true}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
-          open={!!openFacets.types}
-          stats={facets.types}
-          types={query.types}
+          open={openFacets.characteristics?.[IssueCharacteristicFitFor.Production]}
+          stats={facets.characteristics}
+          fitFor={IssueCharacteristicFitFor.Production}
+          characteristics={query.characteristics as IssueCharacteristic[]}
+        />
+        <CharacteristicFacet
+          fetching={this.props.loadingFacets.characteristics === true}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={openFacets.characteristics?.[IssueCharacteristicFitFor.Development]}
+          stats={facets.characteristics}
+          fitFor={IssueCharacteristicFitFor.Development}
+          characteristics={query.characteristics as IssueCharacteristic[]}
         />
         <SeverityFacet
           fetching={this.props.loadingFacets.severities === true}
@@ -162,6 +175,14 @@ export class Sidebar extends React.PureComponent<Props> {
           open={!!openFacets.severities}
           severities={query.severities}
           stats={facets.severities}
+        />
+        <TypeFacet
+          fetching={this.props.loadingFacets.types === true}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.types}
+          stats={facets.types}
+          types={query.types}
         />
         <ScopeFacet
           fetching={this.props.loadingFacets.scopes === true}

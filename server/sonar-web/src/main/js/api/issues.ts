@@ -35,6 +35,7 @@ type FacetName =
   | 'assigned_to_me'
   | 'assignees'
   | 'author'
+  | 'characteristics'
   | 'createdAt'
   | 'cwe'
   | 'directories'
