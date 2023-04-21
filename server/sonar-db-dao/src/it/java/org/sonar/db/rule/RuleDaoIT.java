@@ -521,6 +521,7 @@ public class RuleDaoIT {
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setScope(Scope.ALL)
       .setType(RuleType.BUG)
+      .setCharacteristic(RuleCharacteristic.PORTABLE)
       .setUpdatedAt(2_000_000_000_000L);
 
     underTest.update(db.getSession(), ruleToUpdate);
@@ -546,6 +547,7 @@ public class RuleDaoIT {
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(RuleCharacteristic.PORTABLE);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);

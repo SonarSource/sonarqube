@@ -42,6 +42,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
@@ -164,8 +165,7 @@ public class RegisterRulesTest {
           .key(s.getKey())
           .content(s.getHtmlContent())
           .context(s.getContext().map(c -> RuleDescriptionSectionContextDto.of(c.getKey(), c.getDisplayName())).orElse(null))
-          .build()
-        )
+          .build())
         .collect(Collectors.toSet());
       return Sets.union(ruleDescriptionSectionDtos, Set.of(builder().uuid(UuidFactoryFast.getInstance().create()).key("default").content(description).build()));
     });
@@ -210,6 +210,7 @@ public class RegisterRulesTest {
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
+    assertThat(hotspotRule.getCharacteristic()).isEqualTo(RuleCharacteristic.SECURE);
     assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
   }
 
@@ -220,7 +221,7 @@ public class RegisterRulesTest {
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(2);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), EXTERNAL_RULE_KEY1);
-    verifyRule(rule1);
+    verifyExternalRule(rule1);
     assertThat(rule1.isExternal()).isTrue();
     assertThat(rule1.getDefRemediationFunction()).isNull();
     assertThat(rule1.getDefRemediationGapMultiplier()).isNull();
@@ -231,6 +232,15 @@ public class RegisterRulesTest {
   }
 
   private void verifyRule(RuleDto rule) {
+    verifyCommonsFields(rule);
+  }
+
+  private void verifyExternalRule(RuleDto rule) {
+    verifyCommonsFields(rule);
+    assertThat(rule.getCharacteristic()).isEqualTo(RuleCharacteristic.COMPLIANT);
+  }
+
+  private void verifyCommonsFields(RuleDto rule) {
     assertThat(rule.getName()).isEqualTo("One");
     assertThat(rule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description of One");
     assertThat(rule.getSeverityString()).isEqualTo(BLOCKER);
@@ -412,9 +422,10 @@ public class RegisterRulesTest {
     assertThat(rule1.getNoteUserUuid()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(READY);
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(rule1.getCharacteristic()).isEqualTo(RuleCharacteristic.PORTABLE);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
-    assertThat(rule1.getEducationPrinciples()).containsOnly("concept1","concept4");
+    assertThat(rule1.getEducationPrinciples()).containsOnly("concept1", "concept4");
   }
 
   @Test
@@ -665,7 +676,7 @@ public class RegisterRulesTest {
 
   @DataProvider
   public static Object[][] allRenamingCases() {
-    return new Object[][]{
+    return new Object[][] {
       {"repo1", "rule1", "repo1", "rule2"},
       {"repo1", "rule1", "repo2", "rule1"},
       {"repo1", "rule1", "repo2", "rule2"},
@@ -748,7 +759,7 @@ public class RegisterRulesTest {
     RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "ctx_1");
     RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 content", "ctx_2");
     RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "section2 content", "ctx_1");
-    RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 ctx2 content", "ctx_2");
+    RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "section2 ctx2 content", "ctx_2");
     RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "section3 content", null);
     RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "section4 content", null);
     execute(context -> {
@@ -1108,15 +1119,15 @@ public class RegisterRulesTest {
 
   @Test
   public void removed_rule_should_appear_in_changelog() {
-    //GIVEN
+    // GIVEN
     QProfileDto qProfileDto = db.qualityProfiles().insert();
     RuleDto ruleDto = db.rules().insert(RULE_KEY1);
     db.qualityProfiles().activateRule(qProfileDto, ruleDto);
     ActiveRuleChange arChange = new ActiveRuleChange(DEACTIVATED, ActiveRuleDto.createFor(qProfileDto, ruleDto), ruleDto);
     when(qProfileRules.deleteRule(any(DbSession.class), eq(ruleDto))).thenReturn(List.of(arChange));
-    //WHEN
+    // WHEN
     execute(context -> context.createRepository("fake", "java").done());
-    //THEN
+    // THEN
     List<QProfileChangeDto> qProfileChangeDtos = dbClient.qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfileDto.getKee()));
     assertThat(qProfileChangeDtos).extracting(QProfileChangeDto::getRulesProfileUuid, QProfileChangeDto::getChangeType)
       .contains(tuple(qProfileDto.getRulesProfileUuid(), "DEACTIVATED"));
@@ -1124,13 +1135,13 @@ public class RegisterRulesTest {
 
   @Test
   public void removed_rule_should_be_deleted_when_renamed_repository() {
-    //GIVEN
+    // GIVEN
     RuleDto removedRuleDto = db.rules().insert(RuleKey.of("old_repo", "removed_rule"));
     RuleDto renamedRuleDto = db.rules().insert(RuleKey.of("old_repo", "renamed_rule"));
-    //WHEN
+    // WHEN
     execute(context -> createRule(context, "java", "new_repo", renamedRuleDto.getRuleKey(),
       rule -> rule.addDeprecatedRuleKey(renamedRuleDto.getRepositoryKey(), renamedRuleDto.getRuleKey())));
-    //THEN
+    // THEN
     verify(qProfileRules).deleteRule(any(DbSession.class), eq(removedRuleDto));
   }
 
@@ -1159,6 +1170,7 @@ public class RegisterRulesTest {
       .setInternalKey("config1")
       .setTags("tag1", "tag2", "tag3")
       .setType(RuleType.CODE_SMELL)
+      .setCharacteristic(RuleCharacteristic.ROBUST)
       .setStatus(RuleStatus.BETA);
   }
 
@@ -1170,6 +1182,7 @@ public class RegisterRulesTest {
       .setHtmlDescription("Description of One")
       .setSeverity(BLOCKER)
       .setType(RuleType.CODE_SMELL)
+      .setCharacteristic(RuleCharacteristic.TESTED)
       .setStatus(RuleStatus.BETA);
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
@@ -1207,6 +1220,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
+        .setCharacteristic(RuleCharacteristic.CLEAR)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("java.S115.effortToFix")
         .addEducationPrincipleKeys("concept1", "concept2", "concept3");
@@ -1219,6 +1233,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
+        .setCharacteristic(RuleCharacteristic.SECURE)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 
@@ -1246,6 +1261,7 @@ public class RegisterRulesTest {
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
         .setType(RuleType.BUG)
+        .setCharacteristic(RuleCharacteristic.PORTABLE)
         .setStatus(READY)
         .setGapDescription("java.S115.effortToFix.v2")
         .addEducationPrincipleKeys("concept1", "concept4");
@@ -1287,6 +1303,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
+        .setCharacteristic(RuleCharacteristic.COMPLIANT)
         .setStatus(RuleStatus.BETA)
         .addEducationPrincipleKeys("concept1", "concept2", "concept3");
 
@@ -1294,6 +1311,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
+        .setCharacteristic(RuleCharacteristic.SECURE)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 

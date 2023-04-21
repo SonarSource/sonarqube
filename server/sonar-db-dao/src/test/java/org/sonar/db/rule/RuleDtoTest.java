@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
-@RunWith(DataProviderRunner.class)
 public class RuleDtoTest {
 
   public static final String SECTION_KEY = "section key";

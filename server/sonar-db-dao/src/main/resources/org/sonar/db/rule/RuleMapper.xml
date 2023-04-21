@@ -344,6 +344,7 @@
       security_standards=#{securityStandardsField,jdbcType=VARCHAR},
       scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
+      characteristic=#{characteristic,jdbcType=VARCHAR},
       note_data=#{noteData,jdbcType=CLOB},
       note_user_uuid=#{noteUserUuid,jdbcType=VARCHAR},
       note_created_at=#{noteCreatedAt,jdbcType=BIGINT},

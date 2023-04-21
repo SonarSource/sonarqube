@@ -406,7 +406,7 @@ public class RuleDto {
     return characteristic != null ? characteristic : RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic(type);
   }
 
-  public RuleDto setCharacteristic(RuleCharacteristic characteristic) {
+  public RuleDto setCharacteristic(@Nullable RuleCharacteristic characteristic) {
     this.characteristic = characteristic;
     return this;
   }

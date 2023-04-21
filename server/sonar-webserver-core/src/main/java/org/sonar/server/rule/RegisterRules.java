@@ -43,6 +43,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -99,7 +100,6 @@ public class RegisterRules implements Startable {
   private final UuidFactory uuidFactory;
   private final MetadataIndex metadataIndex;
   private final RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver;
-
 
   public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2,
@@ -209,7 +209,7 @@ public class RegisterRules implements Startable {
         RuleDto rule = dbRulesByRuleUuid.get(ruleUuid);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with uuid %s referenced by a deprecated rule key. " +
-              "The following deprecated rule keys seem to be referencing a non-existing rule",
+            "The following deprecated rule keys seem to be referencing a non-existing rule",
             ruleUuid, entry.getValue());
         } else {
           entry.getValue().forEach(d -> rulesByKey.put(d.getOldRuleKeyAsRuleKey(), rule));
@@ -268,10 +268,10 @@ public class RegisterRules implements Startable {
 
     private Stream<RuleDto> getAllModified() {
       return Stream.of(
-          created.stream(),
-          updated.stream(),
-          removed.stream(),
-          renamed.keySet().stream())
+        created.stream(),
+        updated.stream(),
+        removed.stream(),
+        renamed.keySet().stream())
         .flatMap(s -> s);
     }
 
@@ -391,7 +391,8 @@ public class RegisterRules implements Startable {
       .setGapDescription(ruleDef.gapDescription())
       .setSystemTags(ruleDef.tags())
       .setSecurityStandards(ruleDef.securityStandards())
-      .setType(RuleType.valueOf(ruleDef.type().name()))
+      .setType(ruleDef.type())
+      .setCharacteristic(ruleDef.characteristic())
       .setScope(toDtoScope(ruleDef.scope()))
       .setIsExternal(ruleDef.repository().isExternal())
       .setIsAdHoc(false)
@@ -486,11 +487,17 @@ public class RegisterRules implements Startable {
       dto.setLanguage(def.repository().language());
       changed = true;
     }
-    RuleType type = RuleType.valueOf(def.type().name());
+    RuleType type = def.type();
     if (!Objects.equals(dto.getType(), type.getDbConstant())) {
       dto.setType(type);
       changed = true;
     }
+    RuleCharacteristic characteristic = def.characteristic();
+    if (!Objects.equals(dto.getCharacteristic(), characteristic)) {
+      dto.setCharacteristic(characteristic);
+      changed = true;
+    }
+
     if (dto.isAdHoc()) {
       dto.setIsAdHoc(false);
       changed = true;
@@ -663,9 +670,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      changed = true;
-    }
+        dto.setSystemTags(ruleDef.tags());
+        changed = true;
+      }
     return changed;
   }
 
@@ -677,9 +684,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
@@ -811,8 +818,8 @@ public class RegisterRules implements Startable {
 
   private static Set<String> getExistingAndRenamedRepositories(RegisterRulesContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
-        context.stream().map(RulesDefinition.ExtendedRepository::key),
-        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+      context.stream().map(RulesDefinition.ExtendedRepository::key),
+      recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
       .collect(toSet());
   }
 
