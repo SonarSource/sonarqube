@@ -22,6 +22,7 @@ package org.sonar.xoo.rule;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.rule.RuleScope;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RuleParamType;
@@ -145,7 +146,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneBugIssuePerTestLine = repo.createRule(OneBugIssuePerTestLineSensor.RULE_KEY).setName("One Bug Issue Per Test Line")
       .setScope(RuleScope.TEST)
-      .setType(RuleType.BUG);
+      .setType(RuleType.BUG).setCharacteristic(RuleCharacteristic.COMPLIANT);
     addAllDescriptionSections(oneBugIssuePerTestLine, "Generate a bug issue on each line of a test file. It requires the metric \"lines\".");
 
     oneBugIssuePerTestLine
@@ -188,9 +189,9 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule hotspotWithRangeAndMultipleLocations = repo.createRule(MultilineHotspotSensor.RULE_KEY)
       .setName("Creates hotspots with ranges/multiple locations")
-      .setType(RuleType.SECURITY_HOTSPOT);
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setCharacteristic(RuleCharacteristic.PORTABLE);
     addAllDescriptionSections(hotspotWithRangeAndMultipleLocations, "Hotspot with range and multiple locations");
-
 
     NewRule issueOnEachFileWithExtUnknown = repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extension 'unknown'");
     addAllDescriptionSections(issueOnEachFileWithExtUnknown, "This issue is generated on each file with extenstion 'unknown'");
@@ -202,13 +203,14 @@ public class XooRulesDefinition implements RulesDefinition {
     addAllDescriptionSections(oneBugIssuePerLine, "Generate a bug issue on each line of a file. It requires the metric \"lines\".");
 
     NewRule oneCodeSmellIssuePerLine = repo.createRule(OneCodeSmellIssuePerLineSensor.RULE_KEY).setName("One Code Smell Issue Per Line")
-      .setType(RuleType.CODE_SMELL);
+      .setType(RuleType.CODE_SMELL)
+      .setCharacteristic(RuleCharacteristic.STRUCTURED);
     oneCodeSmellIssuePerLine
       .setDebtRemediationFunction(oneCodeSmellIssuePerLine.debtRemediationFunctions().linear("9min"));
     addAllDescriptionSections(oneCodeSmellIssuePerLine, "Generate a code smell issue on each line of a file. It requires the metric \"lines\".");
 
     NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
-      .setType(RuleType.VULNERABILITY);
+      .setType(RuleType.VULNERABILITY).setCharacteristic(RuleCharacteristic.ROBUST);
     addAllDescriptionSections(oneVulnerabilityIssuePerModule, "Generate an issue on each module");
 
     oneVulnerabilityIssuePerModule
@@ -274,6 +276,7 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule hotspotWithSingleContext = repo.createRule(HotspotWithSingleContextSensor.RULE_KEY)
       .setName("Find security hotspots, how_to_fix with single context")
       .setType(RuleType.SECURITY_HOTSPOT)
+      .setCharacteristic(RuleCharacteristic.SECURE)
       .setActivatedByDefault(false)
       .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hotspotWithSingleContext, "Search for Security Hotspots with single context in Xoo files");

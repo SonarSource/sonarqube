@@ -25,6 +25,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
@@ -55,6 +56,7 @@ public class XooRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().gapMultiplier()).isEqualTo("1min");
     assertThat(rule.debtRemediationFunction().baseEffort()).isNull();
     assertThat(rule.gapDescription()).isNotEmpty();
+    assertThat(rule.characteristic()).isNull();
     assertThat(rule.ruleDescriptionSections()).isNotEmpty();
     assertThat(rule.ruleDescriptionSections().stream().anyMatch(rds -> rds.getContext().isPresent())).isTrue();
   }
@@ -112,6 +114,13 @@ public class XooRulesDefinitionTest {
     assertThat(repo.name()).isEqualTo("Xoo2");
     assertThat(repo.language()).isEqualTo("xoo2");
     assertThat(repo.rules()).hasSize(2);
+  }
+
+  @Test
+  public void define_xoo_rule_with_characteristic() {
+    RulesDefinition.Repository repo = context.repository("xoo");
+    RulesDefinition.Rule oneCodeSmellIssuePerLine = repo.rule("OneCodeSmellIssuePerLine");
+    assertThat(oneCodeSmellIssuePerLine.characteristic()).isEqualTo(RuleCharacteristic.STRUCTURED);
   }
 
   private RulesDefinition.Repository getRepository() {
