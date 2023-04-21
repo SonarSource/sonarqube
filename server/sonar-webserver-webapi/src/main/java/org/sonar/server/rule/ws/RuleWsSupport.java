@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
@@ -177,8 +177,8 @@ public class RuleWsSupport {
       .createParam(PARAM_CHARACTERISTICS)
       .setSince("10.1")
       .setDescription("Comma-separated list of characteristics. Returned rules match any of the characteristics (OR operator)")
-      .setPossibleValues(RuleCharacteristic.values())
-      .setExampleValue(RuleCharacteristic.CLEAR);
+      .setPossibleValues(CodeCharacteristic.values())
+      .setExampleValue(CodeCharacteristic.CLEAR);
 
     action
       .createParam(PARAM_ACTIVATION)

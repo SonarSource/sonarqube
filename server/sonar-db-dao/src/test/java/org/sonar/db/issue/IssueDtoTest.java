@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -240,13 +240,13 @@ public class IssueDtoTest {
 
   @Test
   public void getEffectiveCharacteristic_when_characteristicInitialized_should_return_characteristicDbConstantValue() {
-    IssueDto issueDto = new IssueDto().setRuleType(RuleType.CODE_SMELL.getDbConstant()).setRuleCharacteristic(RuleCharacteristic.CLEAR);
-    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
+    IssueDto issueDto = new IssueDto().setRuleType(RuleType.CODE_SMELL.getDbConstant()).setRuleCharacteristic(CodeCharacteristic.CLEAR);
+    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(CodeCharacteristic.CLEAR);
   }
 
   @Test
   public void getEffectiveCharacteristic_when_characteristicNotInitialized_should_return_characteristicDbConstantValue() {
     IssueDto issueDto = new IssueDto().setRuleType(RuleType.CODE_SMELL.getDbConstant());
-    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
+    assertThat(issueDto.getEffectiveRuleCharacteristic()).isEqualTo(CodeCharacteristic.CLEAR);
   }
 }

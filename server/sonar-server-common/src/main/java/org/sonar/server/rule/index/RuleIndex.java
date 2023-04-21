@@ -50,9 +50,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -298,9 +298,9 @@ public class RuleIndex {
         QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
     }
 
-    Collection<RuleCharacteristic> characteristics = query.getCharacteristics();
+    Collection<CodeCharacteristic> characteristics = query.getCharacteristics();
     if (isNotEmpty(characteristics)) {
-      List<String> characteristicNames = characteristics.stream().map(RuleCharacteristic::name).toList();
+      List<String> characteristicNames = characteristics.stream().map(CodeCharacteristic::name).toList();
       filters.put(FIELD_RULE_CHARACTERISTIC,
         QueryBuilders.termsQuery(FIELD_RULE_CHARACTERISTIC, characteristicNames));
     }
@@ -469,7 +469,7 @@ public class RuleIndex {
           (types == null) ? (new String[0]) : types.toArray()));
     }
     if (options.getFacets().contains(FACET_CHARACTERISTICS)) {
-      Collection<RuleCharacteristic> characteristics = query.getCharacteristics();
+      Collection<CodeCharacteristic> characteristics = query.getCharacteristics();
       aggregations.put(FACET_CHARACTERISTICS,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CHARACTERISTIC, FACET_CHARACTERISTICS,
           (characteristics == null) ? (new String[0]) : characteristics.toArray()));

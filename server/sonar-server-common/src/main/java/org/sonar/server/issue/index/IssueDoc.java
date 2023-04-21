@@ -25,8 +25,8 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.server.es.BaseDoc;
@@ -134,8 +134,8 @@ public class IssueDoc extends BaseDoc {
     return RuleType.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_TYPE));
   }
 
-  public RuleCharacteristic characteristic() {
-    return RuleCharacteristic.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_CHARACTERISTIC));
+  public CodeCharacteristic characteristic() {
+    return CodeCharacteristic.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_CHARACTERISTIC));
   }
 
   @CheckForNull
@@ -271,7 +271,7 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setCharacteristic(RuleCharacteristic characteristic) {
+  public IssueDoc setCharacteristic(CodeCharacteristic characteristic) {
     setField(IssueIndexDefinition.FIELD_ISSUE_CHARACTERISTIC, characteristic.toString());
     return this;
   }

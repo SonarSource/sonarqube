@@ -34,10 +34,10 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -57,7 +57,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
-import static org.sonar.api.rules.RuleCharacteristic.CLEAR;
 
 public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -83,7 +82,6 @@ public class RuleDaoIT {
 
     assertThat(underTest.selectByKey(db.getSession(), ruleDto.getKey())).isNotEmpty();
   }
-
 
   @Test
   public void selectByUuid() {
@@ -458,7 +456,7 @@ public class RuleDaoIT {
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
-      .setCharacteristic(RuleCharacteristic.TESTED)
+      .setCharacteristic(CodeCharacteristic.TESTED)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
@@ -486,7 +484,7 @@ public class RuleDaoIT {
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(ruleDto.getCharacteristic()).isEqualTo(RuleCharacteristic.TESTED);
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(CodeCharacteristic.TESTED);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
@@ -521,7 +519,7 @@ public class RuleDaoIT {
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setScope(Scope.ALL)
       .setType(RuleType.BUG)
-      .setCharacteristic(RuleCharacteristic.PORTABLE)
+      .setCharacteristic(CodeCharacteristic.PORTABLE)
       .setUpdatedAt(2_000_000_000_000L);
 
     underTest.update(db.getSession(), ruleToUpdate);
@@ -547,7 +545,7 @@ public class RuleDaoIT {
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(ruleDto.getCharacteristic()).isEqualTo(RuleCharacteristic.PORTABLE);
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(CodeCharacteristic.PORTABLE);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);

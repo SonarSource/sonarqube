@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 public class RuleForIndexingDto {
@@ -54,7 +54,7 @@ public class RuleForIndexingDto {
   private long createdAt;
   private long updatedAt;
   private Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos = new HashSet<>();
-  private RuleCharacteristic characteristic;
+  private CodeCharacteristic characteristic;
 
   @VisibleForTesting
   public RuleForIndexingDto() {
@@ -209,7 +209,7 @@ public class RuleForIndexingDto {
     this.type = type;
   }
 
-  public RuleCharacteristic getCharacteristic() {
+  public CodeCharacteristic getCharacteristic() {
     return characteristic;
   }
 }

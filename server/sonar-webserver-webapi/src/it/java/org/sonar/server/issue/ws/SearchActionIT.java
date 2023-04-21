@@ -35,10 +35,10 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
@@ -95,8 +95,8 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
-import static org.sonar.api.rules.RuleType.*;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -519,8 +519,8 @@ public class SearchActionIT {
 
   @Test
   public void search_by_characteristic_when_characteristic_set() {
-    RuleDto rule1 = newIssueRule(XOO_X1, r -> r.setCharacteristic(RuleCharacteristic.PORTABLE));
-    RuleDto rule2 = newIssueRule(XOO_X2, r -> r.setCharacteristic(RuleCharacteristic.TESTED));
+    RuleDto rule1 = newIssueRule(XOO_X1, r -> r.setCharacteristic(CodeCharacteristic.PORTABLE));
+    RuleDto rule2 = newIssueRule(XOO_X2, r -> r.setCharacteristic(CodeCharacteristic.TESTED));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
@@ -534,7 +534,7 @@ public class SearchActionIT {
     indexPermissions();
 
     SearchWsResponse searchWsResponse = ws.newRequest()
-      .setParam(PARAM_CHARACTERISTICS, RuleCharacteristic.PORTABLE.name() + "," + RuleCharacteristic.TESTED.name())
+      .setParam(PARAM_CHARACTERISTICS, CodeCharacteristic.PORTABLE.name() + "," + CodeCharacteristic.TESTED.name())
       .executeProtobuf(SearchWsResponse.class);
 
     List<Issue> issuesList = searchWsResponse.getIssuesList();

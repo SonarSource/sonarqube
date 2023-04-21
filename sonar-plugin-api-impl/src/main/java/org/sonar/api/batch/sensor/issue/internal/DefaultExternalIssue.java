@@ -26,8 +26,8 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static java.lang.String.format;
@@ -39,7 +39,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private Long effort;
   private Severity severity;
   private RuleType type;
-  private RuleCharacteristic characteristic;
+  private CodeCharacteristic characteristic;
   private String engineId;
   private String ruleId;
 
@@ -101,7 +101,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @CheckForNull
-  public RuleCharacteristic characteristic() {
+  public CodeCharacteristic characteristic() {
     return characteristic;
   }
 
@@ -133,7 +133,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public DefaultExternalIssue characteristic(RuleCharacteristic characteristic) {
+  public DefaultExternalIssue characteristic(CodeCharacteristic characteristic) {
     this.characteristic = characteristic;
     return this;
   }

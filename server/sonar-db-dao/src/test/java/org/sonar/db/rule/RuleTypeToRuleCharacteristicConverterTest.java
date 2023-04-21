@@ -24,7 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.rules.RuleCharacteristic;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,17 +36,17 @@ public class RuleTypeToRuleCharacteristicConverterTest {
   @Test
   @UseDataProvider("ruleTypeToRulCharacteristicData")
   public void convertToRuleCharacteristic_when_receivedNonNullRuleType_should_convertToCorrespondingDefaultCharacteristic(RuleType type,
-    RuleCharacteristic expectedCharacteristic) {
+    CodeCharacteristic expectedCharacteristic) {
     assertThat(convertToRuleCharacteristic(type)).isEqualTo(expectedCharacteristic);
   }
 
   @DataProvider
   public static Object[][] ruleTypeToRulCharacteristicData() {
     return new Object[][] {
-      {RuleType.CODE_SMELL, RuleCharacteristic.CLEAR},
-      {RuleType.BUG, RuleCharacteristic.ROBUST},
-      {RuleType.VULNERABILITY, RuleCharacteristic.SECURE},
-      {RuleType.SECURITY_HOTSPOT, RuleCharacteristic.SECURE}
+      {RuleType.CODE_SMELL, CodeCharacteristic.CLEAR},
+      {RuleType.BUG, CodeCharacteristic.ROBUST},
+      {RuleType.VULNERABILITY, CodeCharacteristic.SECURE},
+      {RuleType.SECURITY_HOTSPOT, CodeCharacteristic.SECURE}
     };
   }
 

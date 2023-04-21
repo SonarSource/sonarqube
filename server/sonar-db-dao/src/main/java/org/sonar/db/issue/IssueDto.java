@@ -34,8 +34,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -57,7 +57,7 @@ public final class IssueDto implements Serializable {
 
   private int type;
   private int ruleType;
-  private RuleCharacteristic ruleCharacteristic;
+  private CodeCharacteristic ruleCharacteristic;
   private String kee;
   private String componentUuid;
   private String projectUuid;
@@ -716,18 +716,18 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public RuleCharacteristic getRuleCharacteristic() {
+  public CodeCharacteristic getRuleCharacteristic() {
     return ruleCharacteristic;
   }
 
   @VisibleForTesting
-  IssueDto setRuleCharacteristic(RuleCharacteristic ruleCharacteristic) {
+  IssueDto setRuleCharacteristic(CodeCharacteristic ruleCharacteristic) {
     this.ruleCharacteristic = ruleCharacteristic;
     return this;
   }
 
   @CheckForNull
-  public RuleCharacteristic getEffectiveRuleCharacteristic() {
+  public CodeCharacteristic getEffectiveRuleCharacteristic() {
     return ruleCharacteristic != null ? ruleCharacteristic : convertToRuleCharacteristic(ruleType);
   }
 
@@ -736,7 +736,7 @@ public final class IssueDto implements Serializable {
   }
 
   @VisibleForTesting
-  IssueDto setRuleType(int  ruleType) {
+  IssueDto setRuleType(int ruleType) {
     this.ruleType = ruleType;
     return this;
   }

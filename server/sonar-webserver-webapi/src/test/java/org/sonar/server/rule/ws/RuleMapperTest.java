@@ -22,15 +22,13 @@ package org.sonar.server.rule.ws;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
@@ -42,7 +40,7 @@ public class RuleMapperTest {
 
   @Test
   @UseDataProvider("pluginApiEnumsMappedToProtobufEnums")
-  public void toWsRule_shouldMapCharacteristicEnumToProtobuf(RuleCharacteristic pluginApiEnum, Common.RuleCharacteristic protoEnum) {
+  public void toWsRule_shouldMapCharacteristicEnumToProtobuf(CodeCharacteristic pluginApiEnum, Common.RuleCharacteristic protoEnum) {
     RuleMapper ruleMapper = new RuleMapper(mock(Languages.class), mock(), mock());
 
     RuleDto ruleDto = new RuleDto();
@@ -57,14 +55,14 @@ public class RuleMapperTest {
   @DataProvider
   public static Object[][] pluginApiEnumsMappedToProtobufEnums() {
     return new Object[][] {
-      {RuleCharacteristic.CLEAR, Common.RuleCharacteristic.CLEAR},
-      {RuleCharacteristic.TESTED, Common.RuleCharacteristic.TESTED},
-      {RuleCharacteristic.ROBUST, Common.RuleCharacteristic.ROBUST},
-      {RuleCharacteristic.SECURE, Common.RuleCharacteristic.SECURE},
-      {RuleCharacteristic.CONSISTENT, Common.RuleCharacteristic.CONSISTENT},
-      {RuleCharacteristic.COMPLIANT, Common.RuleCharacteristic.COMPLIANT},
-      {RuleCharacteristic.STRUCTURED, Common.RuleCharacteristic.STRUCTURED},
-      {RuleCharacteristic.PORTABLE, Common.RuleCharacteristic.PORTABLE}
+      {CodeCharacteristic.CLEAR, Common.RuleCharacteristic.CLEAR},
+      {CodeCharacteristic.TESTED, Common.RuleCharacteristic.TESTED},
+      {CodeCharacteristic.ROBUST, Common.RuleCharacteristic.ROBUST},
+      {CodeCharacteristic.SECURE, Common.RuleCharacteristic.SECURE},
+      {CodeCharacteristic.CONSISTENT, Common.RuleCharacteristic.CONSISTENT},
+      {CodeCharacteristic.COMPLIANT, Common.RuleCharacteristic.COMPLIANT},
+      {CodeCharacteristic.STRUCTURED, Common.RuleCharacteristic.STRUCTURED},
+      {CodeCharacteristic.PORTABLE, Common.RuleCharacteristic.PORTABLE}
     };
   }
 }
