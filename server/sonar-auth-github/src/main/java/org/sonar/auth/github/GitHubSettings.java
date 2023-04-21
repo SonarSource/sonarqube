@@ -44,7 +44,7 @@ public class GitHubSettings {
   public static final String WEB_URL = "sonar.auth.github.webUrl";
   public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
   @VisibleForTesting
-  static final String PROVISIONING = "sonar.provisioning.github.enabled";
+  static final String PROVISIONING = "provisioning.github"; //TODO
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";

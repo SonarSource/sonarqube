@@ -19,13 +19,25 @@
  */
 package org.sonar.auth.github;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDao;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserQuery;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +45,15 @@ public class GitHubManagedInstanceServiceTest {
 
   @Mock
   private GitHubSettings gitHubSettings;
+
+  @Mock
+  private UserDao userDao;
+
+  @Mock
+  private DbSession dbSession;
+
+  @Captor
+  private ArgumentCaptor<UserQuery> userQueryCaptor;
 
   @InjectMocks
   private GitHubManagedInstanceService gitHubManagedInstanceService;
@@ -48,4 +69,62 @@ public class GitHubManagedInstanceServiceTest {
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     assertThat(gitHubManagedInstanceService.isInstanceExternallyManaged()).isTrue();
   }
+
+  @Test
+  public void getManagedUsersSqlFilter_whenTrue_returnsFilterByGithub() {
+    String managedUsersSqlFilter = gitHubManagedInstanceService.getManagedUsersSqlFilter(true);
+    assertThat(managedUsersSqlFilter).isEqualTo("external_identity_provider = 'github'");
+  }
+
+  @Test
+  public void getManagedUsersSqlFilter_whenFalse_returnsFilterByNotGithub() {
+    String managedUsersSqlFilter = gitHubManagedInstanceService.getManagedUsersSqlFilter(false);
+    assertThat(managedUsersSqlFilter).isEqualTo("external_identity_provider <> 'github'");
+  }
+
+  @Test
+  public void getUserUuidToManaged_whenNoUsers_returnsFalseForAllInput() {
+    Set<String> uuids = Set.of("uuid1", "uuid2");
+    Map<String, Boolean> userUuidToManaged = gitHubManagedInstanceService.getUserUuidToManaged(dbSession, uuids);
+
+    assertThat(userUuidToManaged)
+      .hasSize(2)
+      .containsEntry("uuid1", false)
+      .containsEntry("uuid2", false);
+  }
+
+  @Test
+  public void getUserUuidToManaged_whenOneUserManaged_returnsTrueForIt() {
+    String managedUserUuid = "managedUserUuid";
+    Set<String> uuids = Set.of("uuid1", managedUserUuid);
+
+    UserDto user2dto = mock(UserDto.class);
+    when(user2dto.getUuid()).thenReturn(managedUserUuid);
+
+    when(userDao.selectUsers(eq(dbSession), userQueryCaptor.capture())).thenReturn(List.of(user2dto));
+
+    Map<String, Boolean> userUuidToManaged = gitHubManagedInstanceService.getUserUuidToManaged(dbSession, uuids);
+
+    assertThat(userUuidToManaged)
+      .hasSize(2)
+      .containsEntry("uuid1", false)
+      .containsEntry(managedUserUuid, true);
+  }
+
+  @Test
+  public void getUserUuidToManaged_sendsTheRightQueryToUserDao() {
+    Set<String> uuids = Set.of("uuid1", "uuid2");
+
+    when(userDao.selectUsers(eq(dbSession), userQueryCaptor.capture())).thenReturn(emptyList());
+
+    gitHubManagedInstanceService.getUserUuidToManaged(dbSession, uuids);
+
+    UserQuery capturedQuery = userQueryCaptor.getValue();
+    UserQuery expectedQuery = UserQuery.builder()
+      .userUuids(uuids)
+      .isManagedClause(gitHubManagedInstanceService.getManagedUsersSqlFilter(true))
+      .build();
+    assertThat(capturedQuery).usingRecursiveComparison().isEqualTo(expectedQuery);
+  }
+
 }

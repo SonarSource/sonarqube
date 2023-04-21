@@ -32,6 +32,7 @@ public class GitHubModule extends Module {
     add(
       GitHubIdentityProvider.class,
       GitHubSettings.class,
+      GitHubManagedInstanceService.class,
       GitHubRestClient.class,
       UserIdentityFactoryImpl.class,
       ScribeGitHubApi.class);

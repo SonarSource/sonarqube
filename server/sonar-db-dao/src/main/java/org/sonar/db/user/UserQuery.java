@@ -21,6 +21,7 @@ package org.sonar.db.user;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -33,10 +34,11 @@ public class UserQuery {
   private final Long lastConnectionDateTo;
   private final Long sonarLintLastConnectionDateFrom;
   private final Long sonarLintLastConnectionDateTo;
+  private final Set<String> userUuids;
 
-  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
+  private UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
     @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,
-    @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo) {
+    @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo, @Nullable Set<String> userUuids) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
@@ -44,18 +46,20 @@ public class UserQuery {
     this.lastConnectionDateTo = formatDateToInput(lastConnectionDateTo);
     this.sonarLintLastConnectionDateFrom = parseDateToLong(sonarLintLastConnectionDateFrom);
     this.sonarLintLastConnectionDateTo = formatDateToInput(sonarLintLastConnectionDateTo);
+    this.userUuids = userUuids;
   }
 
   private static Long formatDateToInput(@Nullable OffsetDateTime dateTo) {
-    if(dateTo == null) {
+    if (dateTo == null) {
       return null;
     } else {
       // add 1 second to include all timestamp at the second precision.
       return dateTo.toInstant().plus(1, ChronoUnit.SECONDS).toEpochMilli();
     }
   }
+
   private static Long parseDateToLong(@Nullable OffsetDateTime date) {
-    if(date == null) {
+    if (date == null) {
       return null;
     } else {
       return date.toInstant().toEpochMilli();
@@ -96,13 +100,20 @@ public class UserQuery {
   public Long getLastConnectionDateTo() {
     return lastConnectionDateTo;
   }
+
   @CheckForNull
   public Long getSonarLintLastConnectionDateFrom() {
     return sonarLintLastConnectionDateFrom;
   }
+
   @CheckForNull
   public Long getSonarLintLastConnectionDateTo() {
     return sonarLintLastConnectionDateTo;
+  }
+
+  @CheckForNull
+  public Set<String> getUserUuids() {
+    return userUuids;
   }
 
   public static UserQueryBuilder builder() {
@@ -117,7 +128,7 @@ public class UserQuery {
     private OffsetDateTime lastConnectionDateTo = null;
     private OffsetDateTime sonarLintLastConnectionDateFrom = null;
     private OffsetDateTime sonarLintLastConnectionDateTo = null;
-
+    private Set<String> userUuids = null;
 
     private UserQueryBuilder() {
     }
@@ -157,10 +168,15 @@ public class UserQuery {
       return this;
     }
 
+    public UserQueryBuilder userUuids(@Nullable Set<String> userUuids) {
+      this.userUuids = userUuids;
+      return this;
+    }
+
     public UserQuery build() {
       return new UserQuery(
         searchText, isActive, isManagedSqlClause, lastConnectionDateFrom, lastConnectionDateTo,
-        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo);
+        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, userUuids);
     }
   }
 }
