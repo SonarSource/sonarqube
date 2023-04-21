@@ -20,7 +20,6 @@
 import { subDays, subSeconds } from 'date-fns';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
 import { getIdentityProviders, searchUsers } from '../../api/users';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
@@ -158,61 +157,8 @@ export default function UsersApp() {
             className="sw-ml-1"
             overlay={
               <>
-                <p>{translate('users.activity_filter.helptext')}</p>
-                <ul className="spacer-top">
-                  <li>
-                    <FormattedMessage
-                      defaultMessage={translate('users.activity_filter.helptext.all_users')}
-                      id="users.activity_filter.helptext.all_users"
-                      values={{
-                        allUsersLabel: (
-                          <strong>{translate('users.activity_filter.all_users')}</strong>
-                        ),
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <FormattedMessage
-                      defaultMessage={translate(
-                        'users.activity_filter.helptext.active_sonarlint_users'
-                      )}
-                      id="users.activity_filter.helptext.active_sonarlint_users"
-                      values={{
-                        activeSonarLintUsersLabel: (
-                          <strong>
-                            {translate('users.activity_filter.active_sonarlint_users')}
-                          </strong>
-                        ),
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <FormattedMessage
-                      defaultMessage={translate(
-                        'users.activity_filter.helptext.active_sonarqube_users'
-                      )}
-                      id="users.activity_filter.helptext.active_sonarqube_users"
-                      values={{
-                        activeSonarQubeUsersLabel: (
-                          <strong>
-                            {translate('users.activity_filter.active_sonarqube_users')}
-                          </strong>
-                        ),
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <FormattedMessage
-                      defaultMessage={translate('users.activity_filter.helptext.inactive_users')}
-                      id="users.activity_filter.helptext.inactive_users"
-                      values={{
-                        inactiveUsersLabel: (
-                          <strong>{translate('users.activity_filter.inactive_users')}</strong>
-                        ),
-                      }}
-                    />
-                  </li>
-                </ul>
+                <p>{translate('users.activity_filter.helptext.sonarqube')}</p>
+                <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
               </>
             }
           />

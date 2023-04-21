@@ -120,14 +120,10 @@ describe('different filters combinations', () => {
 
     await userEvent.click(await ui.localFilter.find());
     await act(async () => {
-      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
-        return (
-          // eslint-disable-next-line jest/no-conditional-in-test
-          content === 'users.activity_filter.active_sonarlint_users' &&
-          element?.tagName === 'DIV' &&
-          element?.className.split(' ').includes('react-select__option')
-        );
-      });
+      await selectEvent.select(
+        ui.activityFilter.get(),
+        'users.activity_filter.active_sonarlint_users'
+      );
     });
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
@@ -139,14 +135,10 @@ describe('different filters combinations', () => {
 
     await userEvent.click(await ui.managedFilter.find());
     await act(async () => {
-      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
-        return (
-          // eslint-disable-next-line jest/no-conditional-in-test
-          content === 'users.activity_filter.active_sonarqube_users' &&
-          element?.tagName === 'DIV' &&
-          element?.className.split(' ').includes('react-select__option')
-        );
-      });
+      await selectEvent.select(
+        ui.activityFilter.get(),
+        'users.activity_filter.active_sonarqube_users'
+      );
     });
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
@@ -158,14 +150,7 @@ describe('different filters combinations', () => {
 
     await userEvent.click(await ui.allFilter.find());
     await act(async () => {
-      await selectEvent.select(ui.activityFilter.get(), (content, element) => {
-        return (
-          // eslint-disable-next-line jest/no-conditional-in-test
-          content === 'users.activity_filter.inactive_users' &&
-          element?.tagName === 'DIV' &&
-          element?.className.split(' ').includes('react-select__option')
-        );
-      });
+      await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
     });
 
     expect(await ui.userRows.findAll()).toHaveLength(2);
