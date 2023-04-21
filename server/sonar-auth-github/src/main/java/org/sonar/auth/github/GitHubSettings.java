@@ -45,7 +45,9 @@ public class GitHubSettings {
   public static final String ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
   public static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
   public static final String API_URL = "sonar.auth.github.apiUrl";
+  public static final String DEFAULT_API_URL = "https://api.github.com/";
   public static final String WEB_URL = "sonar.auth.github.webUrl";
+  public static final String DEFAULT_WEB_URL = "https://github.com/";
   public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
   @VisibleForTesting
   static final String PROVISIONING = "provisioning.github.enabled";
@@ -71,11 +73,11 @@ public class GitHubSettings {
     return configuration.get(CLIENT_SECRET).orElse("");
   }
 
-  String appId() {
+  public String appId() {
     return configuration.get(APP_ID).orElse("");
   }
 
-  String privateKey() {
+  public String privateKey() {
     return configuration.get(PRIVATE_KEY).orElse("");
   }
 
@@ -97,7 +99,7 @@ public class GitHubSettings {
   }
 
   @CheckForNull
-  String apiURL() {
+  public String apiURL() {
     return urlWithEndingSlash(configuration.get(API_URL).orElse(""));
   }
 
@@ -189,21 +191,20 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(API_URL)
         .name("The API url for a GitHub instance.")
-        .description("The API url for a GitHub instance. https://api.github.com/ for Github.com, https://github.company.com/api/v3/ when using Github Enterprise")
+        .description(String.format("The API url for a GitHub instance. %s for Github.com, https://github.company.com/api/v3/ when using Github Enterprise", DEFAULT_API_URL))
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
-        .defaultValue("https://api.github.com/")
+        .defaultValue(DEFAULT_API_URL)
         .index(index++)
         .build(),
       PropertyDefinition.builder(WEB_URL)
         .name("The WEB url for a GitHub instance.")
-        .description("The WEB url for a GitHub instance. " +
-          "https://github.com/ for Github.com, https://github.company.com/ when using GitHub Enterprise.")
+        .description(String.format("The WEB url for a GitHub instance. %s for Github.com, https://github.company.com/ when using GitHub Enterprise.", DEFAULT_WEB_URL))
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
-        .defaultValue("https://github.com/")
+        .defaultValue(DEFAULT_WEB_URL)
         .index(index++)
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS)

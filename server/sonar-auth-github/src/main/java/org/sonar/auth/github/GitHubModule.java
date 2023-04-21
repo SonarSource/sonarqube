@@ -26,18 +26,18 @@ import org.sonar.core.platform.Module;
 import static org.sonar.auth.github.GitHubSettings.definitions;
 
 public class GitHubModule extends Module {
+  private static final List<Class<?>> COMPONENT_CLASSES = List.of(
+    GitHubIdentityProvider.class,
+    GitHubSettings.class,
+    GitHubRestClient.class,
+    UserIdentityFactoryImpl.class,
+    ScribeGitHubApi.class
+  );
 
   @Override
   protected void configureModule() {
-    add(
-      GitHubIdentityProvider.class,
-      GitHubSettings.class,
-      GitHubManagedInstanceService.class,
-      GitHubRestClient.class,
-      UserIdentityFactoryImpl.class,
-      ScribeGitHubApi.class);
+    add(COMPONENT_CLASSES);
     List<PropertyDefinition> definitions = definitions();
     add(definitions.toArray(new Object[definitions.size()]));
   }
-
 }

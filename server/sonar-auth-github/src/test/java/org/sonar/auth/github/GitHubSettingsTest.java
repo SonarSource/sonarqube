@@ -90,7 +90,7 @@ public class GitHubSettingsTest {
 
   @Test
   public void isProvisioningEnabled_ifProvisioningEnabledAndGithubAuthEnabled_returnsTrue() {
-    enableGithubAuthentication();
+    enableGithubAuthenticationWithGithubApp();
     when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
     assertThat(underTest.isProvisioningEnabled()).isTrue();
   }
@@ -228,5 +228,11 @@ public class GitHubSettingsTest {
     settings.setProperty("sonar.auth.github.clientId.secured", "id");
     settings.setProperty("sonar.auth.github.clientSecret.secured", "secret");
     settings.setProperty("sonar.auth.github.enabled", true);
+  }
+
+  private void enableGithubAuthenticationWithGithubApp() {
+    enableGithubAuthentication();
+    settings.setProperty("sonar.auth.github.appId", "id");
+    settings.setProperty("sonar.auth.github.privateKey.secured", "secret");
   }
 }

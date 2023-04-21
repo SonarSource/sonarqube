@@ -30,6 +30,58 @@ public class GithubBinding {
     //nothing to do
   }
 
+  public static class GsonAppInstallation {
+    @SerializedName("id")
+    long id;
+    @SerializedName("account")
+    GsonAppOrgAccount account;
+
+    public GsonAppInstallation() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public GsonAppInstallation(long id, GsonAppOrgAccount account) {
+      this.id = id;
+      this.account = account;
+    }
+
+    public long getId() {
+      return id;
+    }
+
+    public GsonAppOrgAccount getAccount() {
+      return account;
+    }
+  }
+
+  public static class GsonAppOrgAccount {
+    @SerializedName("login")
+    String name;
+    @SerializedName("type")
+    String type;
+
+    public GsonAppOrgAccount() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public GsonAppOrgAccount(String name, String type) {
+      this.name = name;
+      this.type = type;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getType() {
+      return type;
+    }
+  }
+
   public static class GsonInstallations {
     @SerializedName("total_count")
     int totalCount;
