@@ -27,6 +27,13 @@ public class RuleTypeToRuleCharacteristicConverter {
   private RuleTypeToRuleCharacteristicConverter() {
   }
 
+  public static RuleCharacteristic convertToRuleCharacteristic(int ruleType) {
+    if (ruleType == 0) {
+      return RuleCharacteristic.CLEAR;
+    }
+    return convertToRuleCharacteristic(RuleType.valueOf(ruleType));
+  }
+
   public static RuleCharacteristic convertToRuleCharacteristic(RuleType ruleType) {
     return switch (ruleType) {
       case BUG -> RuleCharacteristic.ROBUST;

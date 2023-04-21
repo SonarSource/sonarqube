@@ -120,6 +120,7 @@ message Rule {
   optional DeprecatedKeys deprecatedKeys = 48;
   optional DescriptionSections descriptionSections = 49;
   optional EducationPrinciples educationPrinciples = 50;
+  optional sonarqube.ws.commons.RuleCharacteristic characteristic = 51;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;

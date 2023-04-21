@@ -1,0 +1,25 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
+  "issues": [    {
+    "rule": "xoo:x1",
+    "component": "FILE_KEY",
+    "project": "PROJECT_KEY",
+    "flows": [],
+    "status": "OPEN",
+    "characteristic": "CONSISTENT"
+  }, {
+      "rule": "xoo:x1",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "characteristic": "CLEAR"
+    }]
+}

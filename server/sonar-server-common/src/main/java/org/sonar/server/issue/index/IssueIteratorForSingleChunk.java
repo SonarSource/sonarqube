@@ -45,6 +45,7 @@ import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
 import static org.sonar.db.rule.RuleDto.deserializeSecurityStandardsString;
+import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
 /**
@@ -76,13 +77,15 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "c.branch_uuid",
     "pb.is_main",
     "pb.project_uuid",
-
-    // column 22
     "i.tags",
+
+    // column 21
     "i.issue_type",
     "r.security_standards",
     "c.qualifier",
-    "n.uuid"
+    "n.uuid",
+    "r.characteristic",
+    "r.rule_type"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -216,7 +219,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
       String branchUuid = rs.getString(17);
-      boolean isMainBranch = rs.getBoolean( 18);
+      boolean isMainBranch = rs.getBoolean(18);
       String projectUuid = rs.getString(19);
       doc.setBranchUuid(branchUuid);
       doc.setIsMainBranch(isMainBranch);
@@ -239,6 +242,10 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
       doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
       doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
+
+      String characteristic = rs.getString(25);
+      doc.setCharacteristic(characteristic != null ? characteristic : convertToRuleCharacteristic(rs.getInt(26)).name());
+
       return doc;
     }
 

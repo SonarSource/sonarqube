@@ -33,6 +33,7 @@ import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -96,6 +97,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CHARACTERISTICS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
@@ -130,6 +132,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 public class SearchAction implements IssuesWsAction {
   private static final String LOGIN_MYSELF = "__me__";
+  private static final String COMMA_SEPERATED_PARAMS_FORMAT = "%s,%s";
   private static final Set<String> ISSUE_SCOPES = Arrays.stream(IssueScope.values()).map(Enum::name).collect(Collectors.toSet());
   private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
@@ -148,6 +151,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_LANGUAGES,
     PARAM_TAGS,
     PARAM_TYPES,
+    PARAM_CHARACTERISTICS,
     PARAM_PCI_DSS_32,
     PARAM_PCI_DSS_40,
     PARAM_OWASP_ASVS_40,
@@ -193,6 +197,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.1", "Code characteristic is now included in the response. New parameter 'characteristics' added."),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
         new Change("10.0", format("Deprecated value 'ASSIGNEE' in parameter '%s' is dropped", Param.SORT)),
@@ -274,7 +279,12 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
-      .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
+      .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, RuleType.CODE_SMELL, RuleType.BUG));
+    action.createParam(PARAM_CHARACTERISTICS)
+      .setDescription("Comma-separated list of characteristics.")
+      .setSince("10.1")
+      .setPossibleValues(Arrays.stream(RuleCharacteristic.values()).map(Enum::name).toList())
+      .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, RuleCharacteristic.CLEAR, RuleCharacteristic.COMPLIANT));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
       .setDescription("Level of OWASP ASVS categories.")
       .setSince("9.7")
@@ -324,7 +334,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_SCOPES)
       .setDescription("Comma-separated list of scopes. Available since 8.5")
       .setPossibleValues(IssueScope.MAIN.name(), IssueScope.TEST.name())
-      .setExampleValue(format("%s,%s", IssueScope.MAIN.name(), IssueScope.TEST.name()));
+      .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, IssueScope.MAIN.name(), IssueScope.TEST.name()));
     action.createParam(PARAM_LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
       .setExampleValue("java,js");
@@ -489,6 +499,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_SCOPES, ISSUE_SCOPES);
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
+    addMandatoryValuesToFacet(facets, PARAM_CHARACTERISTICS, request.getCharacteristics());
 
     setTypesFacet(facets);
 
@@ -567,6 +578,7 @@ public class SearchAction implements IssuesWsAction {
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
+      .setCharacteristics(request.paramAsStrings(PARAM_CHARACTERISTICS))
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
       .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))
       .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))

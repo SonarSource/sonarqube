@@ -54,12 +54,12 @@ public class ActivateRulesActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
-  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class, Mockito.RETURNS_MOCKS);
+  private final RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class, Mockito.RETURNS_MOCKS);
 
-  private QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
-  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
+  private final QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
+  private final WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
 
   @Test
   public void define_bulk_activate_rule_action() {
@@ -68,6 +68,7 @@ public class ActivateRulesActionIT {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       "types",
+      "characteristics",
       "template_key",
       "languages",
       "is_template",

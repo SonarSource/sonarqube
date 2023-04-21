@@ -36,7 +36,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
@@ -93,6 +95,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.rules.RuleType.*;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -116,6 +119,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CHARACTERISTICS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
@@ -396,10 +400,11 @@ public class SearchActionIT {
     indexIssues();
     userSession.logIn(john);
 
-    ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("additionalFields", "comments,users")
-      .execute()
-      .assertJson(this.getClass(), "issue_with_comments.json");
+      .execute();
+
+    response.assertJson(this.getClass(), "issue_with_comments.json");
   }
 
   @Test
@@ -483,6 +488,60 @@ public class SearchActionIT {
     ws.newRequest()
       .setParam("additionalFields", "_all").execute()
       .assertJson(this.getClass(), "load_additional_fields_with_issue_admin_permission.json");
+  }
+
+  @Test
+  public void search_by_characteristic_when_characteristic_not_set() {
+    RuleDto rule1 = newIssueRule(XOO_X1, r -> r.setType(CODE_SMELL).setCharacteristic(null));
+    RuleDto rule2 = newIssueRule(XOO_X2, r -> r.setType(RuleType.BUG).setCharacteristic(null));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+
+    db.issues().insertIssue(rule1, project, file);
+    db.issues().insertIssue(rule2, project, file);
+    session.commit();
+    indexIssues();
+
+    userSession.logIn("john")
+      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+    indexPermissions();
+
+    SearchWsResponse searchWsResponse = ws.newRequest()
+      .setParam(PARAM_CHARACTERISTICS, Common.RuleCharacteristic.CLEAR.name() + "," + Common.RuleCharacteristic.ROBUST.name())
+      .executeProtobuf(SearchWsResponse.class);
+
+    List<Issue> issuesList = searchWsResponse.getIssuesList();
+
+    assertThat(issuesList).hasSize(2);
+    assertThat(issuesList.stream().filter(f -> f.getCharacteristic() == Common.RuleCharacteristic.CLEAR)).hasSize(1);
+    assertThat(issuesList.stream().filter(f -> f.getCharacteristic() == Common.RuleCharacteristic.ROBUST)).hasSize(1);
+  }
+
+  @Test
+  public void search_by_characteristic_when_characteristic_set() {
+    RuleDto rule1 = newIssueRule(XOO_X1, r -> r.setCharacteristic(RuleCharacteristic.PORTABLE));
+    RuleDto rule2 = newIssueRule(XOO_X2, r -> r.setCharacteristic(RuleCharacteristic.TESTED));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+
+    db.issues().insertIssue(rule1, project, file);
+    db.issues().insertIssue(rule2, project, file);
+    session.commit();
+    indexIssues();
+
+    userSession.logIn("john")
+      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+    indexPermissions();
+
+    SearchWsResponse searchWsResponse = ws.newRequest()
+      .setParam(PARAM_CHARACTERISTICS, RuleCharacteristic.PORTABLE.name() + "," + RuleCharacteristic.TESTED.name())
+      .executeProtobuf(SearchWsResponse.class);
+
+    List<Issue> issuesList = searchWsResponse.getIssuesList();
+
+    assertThat(issuesList).hasSize(2);
+    assertThat(issuesList.stream().filter(f -> f.getCharacteristic() == Common.RuleCharacteristic.TESTED)).hasSize(1);
+    assertThat(issuesList.stream().filter(f -> f.getCharacteristic() == Common.RuleCharacteristic.PORTABLE)).hasSize(1);
   }
 
   @Test
@@ -1598,11 +1657,11 @@ public class SearchActionIT {
     RuleDto hotspotRule = newHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, file);
     insertIssues(i -> i.setType(RuleType.BUG), i -> i.setType(RuleType.VULNERABILITY),
-      i -> i.setType(RuleType.CODE_SMELL));
+      i -> i.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
     TestRequest request = ws.newRequest()
-      .setParam("types", RuleType.SECURITY_HOTSPOT.toString());
+      .setParam("types", SECURITY_HOTSPOT.toString());
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'types' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
@@ -1753,7 +1812,7 @@ public class SearchActionIT {
       "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
-      "owaspAsvsLevel", "owaspTop10",
+      "owaspAsvsLevel", "owaspTop10", "characteristics",
       "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
@@ -1818,10 +1877,20 @@ public class SearchActionIT {
   }
 
   private RuleDto newIssueRule() {
-    RuleDto rule = newRule(XOO_X1, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+    return newIssueRule(XOO_X1);
+  }
+
+  private RuleDto newIssueRule(RuleKey key) {
+    return newIssueRule(key, r -> {
+    });
+  }
+
+  private RuleDto newIssueRule(RuleKey key, Consumer<RuleDto> consumer) {
+    RuleDto rule = newRule(key, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setLanguage("xoo")
       .setName("Rule name")
       .setStatus(RuleStatus.READY);
+    consumer.accept(rule);
     db.rules().insert(rule);
     return rule;
   }

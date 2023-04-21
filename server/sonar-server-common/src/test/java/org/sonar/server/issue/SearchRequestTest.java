@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import java.util.List;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -42,6 +43,7 @@ public class SearchRequestTest {
       .setScopes(asList("MAIN", "TEST"))
       .setLanguages(singletonList("xoo"))
       .setTags(asList("tag1", "tag2"))
+      .setCharacteristics(singletonList("CLEAR"))
       .setAssigned(true)
       .setCreatedAfter("2013-04-16T09:08:24+0200")
       .setCreatedBefore("2013-04-17T09:08:24+0200")
@@ -79,6 +81,7 @@ public class SearchRequestTest {
     assertThat(underTest.getOwaspAsvsLevel()).isEqualTo(2);
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
+    assertThat(underTest.getCharacteristics()).containsOnly("CLEAR");
   }
 
   @Test

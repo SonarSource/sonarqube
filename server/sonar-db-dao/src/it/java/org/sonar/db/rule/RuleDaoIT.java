@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -457,7 +458,7 @@ public class RuleDaoIT {
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
-      .setCharacteristic(CLEAR)
+      .setCharacteristic(RuleCharacteristic.TESTED)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
@@ -485,8 +486,7 @@ public class RuleDaoIT {
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(ruleDto.getCharacteristic()).isEqualTo(CLEAR);
-
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(RuleCharacteristic.TESTED);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
@@ -667,6 +667,8 @@ public class RuleDaoIT {
     assertThat(ruleDto.getGapDescription()).isEqualTo(rule.getGapDescription());
     assertThat(ruleDto.getSystemTags()).containsAll(rule.getSystemTags());
     assertThat(ruleDto.getType()).isEqualTo(rule.getType());
+    assertThat(ruleDto.getCharacteristic()).isEqualTo(rule.getCharacteristic());
+
   }
 
   @Test

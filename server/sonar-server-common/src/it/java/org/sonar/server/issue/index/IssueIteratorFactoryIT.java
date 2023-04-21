@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -90,6 +91,7 @@ public class IssueIteratorFactoryIT {
     assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isPositive();
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
+    assertThat(issue.characteristic()).isEqualTo(RuleCharacteristic.CLEAR);
   }
 
   @Test

@@ -161,6 +161,7 @@ message Issue {
   optional string ruleDescriptionContextKey = 37;
 
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 38;
+  optional sonarqube.ws.commons.RuleCharacteristic characteristic = 39;
 }
 
 message Transitions {
@@ -267,6 +268,7 @@ message IssueLite {
   optional sonarqube.ws.commons.RuleType type = 6;
   optional Location mainLocation = 7;
   optional bool closed = 8;
+  optional sonarqube.ws.commons.RuleCharacteristic characteristic = 9;
 }
 
 
@@ -287,6 +289,7 @@ message TaintVulnerabilityLite {
   repeated Flow flows = 9;
   optional bool assignedToSubscribedUser = 10;
   optional string ruleDescriptionContextKey = 11;
+  optional sonarqube.ws.commons.RuleCharacteristic characteristic = 12;
 }
 
 message Flow {

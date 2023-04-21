@@ -33,6 +33,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
@@ -95,6 +96,7 @@ import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CHARACTERISTICS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
@@ -144,7 +146,7 @@ public class SearchActionIT {
     assertThat(def.since()).isEqualTo("4.4");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params()).hasSize(28);
+    assertThat(def.params()).hasSize(29);
 
     WebService.Param compareToProfile = def.param("compareToProfile");
     assertThat(compareToProfile.since()).isEqualTo("6.5");
@@ -321,6 +323,7 @@ public class SearchActionIT {
     assertThat(result.getRepo()).isNotEmpty();
     assertThat(result.getSeverity()).isNotEmpty();
     assertThat(result.getType().name()).isEqualTo(RuleType.valueOf(rule.getType()).name());
+    assertThat(result.getCharacteristic().name()).isEqualTo(rule.getEffectiveCharacteristic().name());
   }
 
   @Test
@@ -336,6 +339,7 @@ public class SearchActionIT {
     // mandatory fields
     assertThat(result.getKey()).isEqualTo(rule.getKey().toString());
     assertThat(result.getType().getNumber()).isEqualTo(rule.getType());
+    assertThat(result.getCharacteristic().name()).isEqualTo(rule.getEffectiveCharacteristic().name());
 
     // selected fields
     assertThat(result.getCreatedAt()).isNotEmpty();
@@ -395,6 +399,51 @@ public class SearchActionIT {
       .setParam("f", "repo,name")
       .setParam("tags", rule1.getTags().stream().collect(Collectors.joining(",")));
     verify(request, rule1);
+  }
+
+  @Test
+  public void characteristics_shouldFilterOnCharacteristics() {
+    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.ROBUST));
+    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
+    indexRules();
+
+    Consumer<TestRequest> populator = r -> r
+      .setParam(PARAM_CHARACTERISTICS, RuleCharacteristic.ROBUST.name());
+
+    TestRequest request = ws.newRequest();
+    populator.accept(request);
+
+    List<Rule> rulesList = request.executeProtobuf(SearchResponse.class).getRulesList();
+
+    assertThat(rulesList).hasSize(1);
+    assertThat(rulesList.get(0).getKey()).isEqualTo(rule1.getKey().toString());
+  }
+
+
+  @Test
+  public void characteristics_shouldGroupCharacteristicsInTheFacets() {
+    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.ROBUST));
+    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
+    RuleDto rule3 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "characteristics")
+      .executeProtobuf(SearchResponse.class);
+
+    Common.Facet facets = result.getFacets().getFacets(0);
+
+    int valuesCount = facets.getValuesCount();
+    assertThat(valuesCount).isEqualTo(RuleCharacteristic.values().length);
+
+    List<Common.FacetValue> valuesList = facets.getValuesList();
+    Common.FacetValue compliantFacetValue = valuesList.get(0);
+    assertThat(compliantFacetValue.getVal()).isEqualTo(RuleCharacteristic.COMPLIANT.name());
+    assertThat(compliantFacetValue.getCount()).isEqualTo(2);
+
+    Common.FacetValue robustFacetValue = valuesList.get(1);
+    assertThat(robustFacetValue.getVal()).isEqualTo(RuleCharacteristic.ROBUST.name());
+    assertThat(robustFacetValue.getCount()).isEqualTo(1);
   }
 
   @Test

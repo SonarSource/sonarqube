@@ -177,6 +177,18 @@ enum RuleType {
   SECURITY_HOTSPOT = 4;
 }
 
+enum RuleCharacteristic {
+  UNKNOWN_RULE_CHARACTERISTIC = 0;
+  CLEAR = 1;
+  CONSISTENT = 2;
+  STRUCTURED = 3;
+  TESTED = 4;
+  ROBUST = 5;
+  SECURE = 6;
+  PORTABLE = 7;
+  COMPLIANT = 8;
+}
+
 enum BranchType {
   reserved 1, 2;
 

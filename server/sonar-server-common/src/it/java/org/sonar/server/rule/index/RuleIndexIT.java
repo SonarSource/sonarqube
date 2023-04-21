@@ -45,7 +45,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.security.SecurityStandards;
 
-import static com.google.common.collect.ImmutableSet.of;
+import static java.util.Set.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -60,12 +60,16 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.rules.RuleCharacteristic.CLEAR;
+import static org.sonar.api.rules.RuleCharacteristic.COMPLIANT;
+import static org.sonar.api.rules.RuleCharacteristic.SECURE;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
+import static org.sonar.db.rule.RuleTesting.setCharacteristic;
 import static org.sonar.db.rule.RuleTesting.setCreatedAt;
 import static org.sonar.db.rule.RuleTesting.setIsExternal;
 import static org.sonar.db.rule.RuleTesting.setIsTemplate;
@@ -357,6 +361,38 @@ public class RuleIndexIT {
     // null list => no filter
     query = new RuleQuery().setTypes(null);
     assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
+  }
+
+  @Test
+  public void search_by_characteristic() {
+    RuleDto secure = createRule(setCharacteristic(SECURE));
+    RuleDto compliant = createRule(setCharacteristic(COMPLIANT));
+    RuleDto clear = createRule(setCharacteristic(CLEAR));
+    index();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(3);
+
+    // find secure
+    query = new RuleQuery().setCharacteristics(of(SECURE));
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(secure.getUuid());
+
+    // find compliant
+    query = new RuleQuery().setCharacteristics(of(COMPLIANT));
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(compliant.getUuid());
+
+    // find clear
+    query = new RuleQuery().setCharacteristics(of(CLEAR));
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(clear.getUuid());
+
+    // empty list => no filter
+    query = new RuleQuery().setTypes(of());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(3);
+
+    // null list => no filter
+    query = new RuleQuery().setTypes(null);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(3);
   }
 
   @Test

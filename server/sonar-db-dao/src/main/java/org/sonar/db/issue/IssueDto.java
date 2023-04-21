@@ -728,12 +728,7 @@ public final class IssueDto implements Serializable {
 
   @CheckForNull
   public RuleCharacteristic getEffectiveRuleCharacteristic() {
-    return ruleCharacteristic != null ? ruleCharacteristic : convertTypeToCharacteristic(ruleType);
-  }
-
-  private static RuleCharacteristic convertTypeToCharacteristic(int type) {
-    RuleType ruleType = RuleType.valueOf(type);
-    return convertToRuleCharacteristic(ruleType);
+    return ruleCharacteristic != null ? ruleCharacteristic : convertToRuleCharacteristic(ruleType);
   }
 
   public int getRuleType() {

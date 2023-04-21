@@ -79,6 +79,7 @@ public class IssuesWsParameters {
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";
+  public static final String PARAM_CHARACTERISTICS = "characteristics";
   public static final String PARAM_OWASP_ASVS_LEVEL = "owaspAsvsLevel";
   public static final String PARAM_PCI_DSS = "pciDss";
   public static final String PARAM_PCI_DSS_32 = "pciDss-3.2";
