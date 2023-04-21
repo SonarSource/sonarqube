@@ -99,12 +99,25 @@ public class UserDao implements Dao {
       .toList();
   }
 
-  public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
-    return mapper(dbSession).selectUsers(query, Pagination.all());
+  public List<UserDto> selectUsers(DbSession dbSession, UserQuery userQuery) {
+    return selectUsers(dbSession, userQuery, Pagination.all());
   }
 
-  public List<UserDto> selectUsers(DbSession dbSession, UserQuery query, int offset, int limit) {
-    return mapper(dbSession).selectUsers(query, Pagination.forPage(offset).andSize(limit));
+  public List<UserDto> selectUsers(DbSession dbSession, UserQuery userQuery, int offset, int limit) {
+    Pagination pagination = Pagination.forPage(offset).andSize(limit);
+    return selectUsers(dbSession, userQuery, pagination);
+  }
+
+  private List<UserDto> selectUsers(DbSession dbSession, UserQuery userQuery, Pagination pagination) {
+    if (userQuery.getUserUuids() != null) {
+      return executeLargeInputs(
+        userQuery.getUserUuids(),
+        partialSetOfUsers -> mapper(dbSession).selectUsers(
+          UserQuery.copyWithNewRangeOfUserUuids(userQuery, partialSetOfUsers),
+          pagination)
+      );
+    }
+    return mapper(dbSession).selectUsers(userQuery, pagination);
   }
 
   public int countUsers(DbSession dbSession, UserQuery userQuery) {

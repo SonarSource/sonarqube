@@ -21,6 +21,8 @@ package org.sonar.db.user;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -35,6 +37,21 @@ public class UserQuery {
   private final Long sonarLintLastConnectionDateFrom;
   private final Long sonarLintLastConnectionDateTo;
   private final Set<String> userUuids;
+
+  public static UserQuery copyWithNewRangeOfUserUuids(UserQuery userQuery, Collection<String> userUuids) {
+    return new UserQuery(userQuery, userUuids);
+  }
+
+  private UserQuery(UserQuery userQuery, Collection<String> userUuids) {
+    this.searchText = userQuery.getSearchText();
+    this.isActive = userQuery.isActive();
+    this.isManagedSqlClause = userQuery.getIsManagedSqlClause();
+    this.lastConnectionDateFrom = userQuery.getLastConnectionDateFrom();
+    this.lastConnectionDateTo = userQuery.getLastConnectionDateTo();
+    this.sonarLintLastConnectionDateTo = userQuery.getSonarLintLastConnectionDateTo();
+    this.sonarLintLastConnectionDateFrom = userQuery.getSonarLintLastConnectionDateFrom();
+    this.userUuids = new HashSet<>(userUuids);
+  }
 
   private UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
     @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,

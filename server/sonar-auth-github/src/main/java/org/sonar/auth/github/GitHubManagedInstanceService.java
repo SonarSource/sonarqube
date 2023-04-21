@@ -53,18 +53,27 @@ public class GitHubManagedInstanceService implements ManagedInstanceService {
 
   @Override
   public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
+    Set<String> gitHubUserUuids = findManagedUserUuids(dbSession, userUuids);
+
+    return userUuids.stream()
+      .collect(toMap(Function.identity(), gitHubUserUuids::contains));
+  }
+
+  private Set<String> findManagedUserUuids(DbSession dbSession, Set<String> userUuids) {
+    List<UserDto> userDtos = findManagedUsers(dbSession, userUuids);
+
+    return userDtos.stream()
+      .map(UserDto::getUuid)
+      .collect(toSet());
+  }
+
+  private List<UserDto> findManagedUsers(DbSession dbSession, Set<String> userUuids) {
     UserQuery managedUsersQuery = UserQuery.builder()
       .userUuids(userUuids)
       .isManagedClause(getManagedUsersSqlFilter(true))
       .build();
 
-    List<UserDto> userDtos = userDao.selectUsers(dbSession, managedUsersQuery);
-    Set<String> gitHubUserUuids = userDtos.stream()
-      .map(UserDto::getUuid)
-      .collect(toSet());
-
-    return userUuids.stream()
-      .collect(toMap(Function.identity(), gitHubUserUuids::contains));
+    return userDao.selectUsers(dbSession, managedUsersQuery);
   }
 
   @Override

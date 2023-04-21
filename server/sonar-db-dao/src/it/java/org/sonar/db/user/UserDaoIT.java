@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,6 +49,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -249,6 +249,40 @@ public class UserDaoIT {
     assertThat(users).isEmpty();
   }
 
+  @Test
+  public void selectUsersByQuery_whenSearchingByUuids_findsTheRightResults() {
+    db.users().insertUser();
+    UserDto userToFind1 = db.users().insertUser();
+    UserDto userToFind2 = db.users().insertUser();
+
+    UserQuery query = UserQuery.builder().userUuids(Set.of(userToFind1.getUuid(), userToFind2.getUuid())).build();
+    List<UserDto> users = underTest.selectUsers(session, query);
+
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsOnly(userToFind1, userToFind2);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(2);
+  }
+
+  @Test
+  public void selectUsersByQuery_whenSearchingByUuidsWithLongRange_shouldReturnTheExpectedUsers() {
+    db.users().insertUser();
+    List<UserDto> users = generateAndInsertUsers(3200);
+    Set<String> userUuids = users.stream()
+      .map(UserDto::getUuid)
+      .collect(toSet());
+
+    UserQuery query = UserQuery.builder().userUuids(userUuids).build();
+    List<UserDto> actualUsers = underTest.selectUsers(session, query);
+
+    assertThat(actualUsers.stream().map(UserDto::getUuid).collect(toSet()))
+      .containsExactlyInAnyOrderElementsOf(userUuids);
+  }
+
+  private List<UserDto> generateAndInsertUsers(int totalUsers) {
+    return IntStream.range(0, totalUsers)
+      .mapToObj(i -> db.users().insertUser())
+      .toList();
+  }
+
   @DataProvider
   public static Object[][] paginationTestCases() {
     return new Object[][] {
@@ -288,7 +322,7 @@ public class UserDaoIT {
     }
     return IntStream.range(1000 + (offset - 1) * limit, 1000 + offset * limit)
       .mapToObj(i -> allUsers.get(i + "_name"))
-      .collect(Collectors.toSet());
+      .collect(toSet());
   }
 
   @Test
