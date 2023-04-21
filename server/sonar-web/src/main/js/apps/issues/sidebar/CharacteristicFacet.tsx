@@ -154,7 +154,9 @@ export default class CharacteristicFacet extends React.PureComponent<Props> {
 
         {this.props.open && (
           <>
-            <FacetItemsList>{availableCharacteristics.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList label={this.property}>
+              {availableCharacteristics.map(this.renderItem)}
+            </FacetItemsList>
             <MultipleSelectionHint
               options={Object.keys(availableCharacteristics).length}
               values={values.length}

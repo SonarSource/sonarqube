@@ -30,6 +30,7 @@ import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
 import { TreeComponentWithPath } from '../../../types/component';
 import { Facet } from '../../../types/issues';
+import { MetricKey } from '../../../types/metrics';
 import { Query } from '../utils';
 
 interface Props {
@@ -43,6 +44,7 @@ interface Props {
   open: boolean;
   query: Query;
   stats: Facet | undefined;
+  forceShow: boolean;
 }
 
 const MAX_PATH_LENGTH = 15;
@@ -75,7 +77,7 @@ export default class FileFacet extends React.PureComponent<Props> {
   };
 
   loadSearchResultCount = (files: TreeComponentWithPath[]) => {
-    return this.props.loadSearchResultCount('files', {
+    return this.props.loadSearchResultCount(MetricKey.files, {
       files: files
         .map((file) => {
           return file.path;
@@ -106,10 +108,16 @@ export default class FileFacet extends React.PureComponent<Props> {
   };
 
   render() {
+    const { forceShow, files, fetching, open, query, stats } = this.props;
+
+    if (files.length < 1 && !forceShow) {
+      return null;
+    }
+
     return (
       <ListStyleFacet<TreeComponentWithPath>
         facetHeader={translate('issues.facet.files')}
-        fetching={this.props.fetching}
+        fetching={fetching}
         getFacetItemText={this.getFacetItemText}
         getSearchResultKey={this.getSearchResultKey}
         getSearchResultText={this.getSearchResultText}
@@ -118,14 +126,14 @@ export default class FileFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={this.props.open}
-        property="files"
-        query={omit(this.props.query, 'files')}
+        open={open}
+        property={MetricKey.files}
+        query={omit(query, MetricKey.files)}
         renderFacetItem={this.renderFacetItem}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_files')}
-        stats={this.props.stats}
-        values={this.props.files}
+        stats={stats}
+        values={files}
       />
     );
   }

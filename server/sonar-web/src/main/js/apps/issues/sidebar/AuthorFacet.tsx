@@ -37,6 +37,7 @@ interface Props {
   query: Query;
   stats: Dict<number> | undefined;
   author: string[];
+  forceShow: boolean;
 }
 
 const SEARCH_SIZE = 100;
@@ -66,10 +67,16 @@ export default class AuthorFacet extends React.PureComponent<Props> {
   };
 
   render() {
+    const { forceShow, fetching, open, stats, author, query } = this.props;
+
+    if (author.length < 1 && !forceShow) {
+      return null;
+    }
+
     return (
       <ListStyleFacet<string>
         facetHeader={translate('issues.facet.authors')}
-        fetching={this.props.fetching}
+        fetching={fetching}
         getFacetItemText={this.identity}
         getSearchResultKey={this.identity}
         getSearchResultText={this.identity}
@@ -77,14 +84,14 @@ export default class AuthorFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={this.props.open}
+        open={open}
         property="author"
-        query={omit(this.props.query, 'author')}
+        query={omit(query, 'author')}
         renderFacetItem={this.identity}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_authors')}
-        stats={this.props.stats}
-        values={this.props.author}
+        stats={stats}
+        values={author}
       />
     );
   }

@@ -24,6 +24,7 @@ import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
+import { IssueSeverity } from '../../../../types/issues';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { Sidebar } from '../Sidebar';
 
@@ -93,6 +94,55 @@ it('should render correct facets for SubPortfolio', () => {
   ]);
 });
 
+it('should render only main visible facets: Characteristics & Severity', () => {
+  renderSidebar({
+    component: mockComponent(),
+    showAllFilters: false,
+    query: mockQuery({ assigned: true }),
+  });
+
+  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+    'issues.facet.characteristics.PRODUCTION',
+    'issues.facet.characteristics.DEVELOPMENT',
+    'issues.facet.severities',
+  ]);
+});
+
+it('should render secondary facets with filters applied eventhough "Show more filters" button isn`t toggled', () => {
+  renderSidebar({
+    component: mockComponent(),
+    showAllFilters: false,
+    query: mockQuery({
+      assigned: false,
+      tags: ['tag'],
+      rules: ['rule'],
+      directories: ['directory'],
+      cwe: ['security'],
+      languages: ['java'],
+      severities: [IssueSeverity.Blocker],
+    }),
+  });
+
+  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+    'issues.facet.characteristics.PRODUCTION',
+    'issues.facet.characteristics.DEVELOPMENT',
+    'issues.facet.severities',
+    'clear',
+    'issues.facet.standards',
+    'clear',
+    'issues.facet.languages',
+    'clear',
+    'issues.facet.rules',
+    'clear',
+    'issues.facet.tags',
+    'clear',
+    'issues.facet.directories',
+    'clear',
+    'issues.facet.assignees',
+    'clear',
+  ]);
+});
+
 it.each([
   ['week', '1w'],
   ['month', '1m'],
@@ -129,6 +179,7 @@ function renderSidebar(props: Partial<Sidebar['props']> = {}) {
       referencedLanguages={{}}
       referencedRules={{}}
       referencedUsers={{}}
+      showAllFilters={true}
       {...props}
     />
   );

@@ -89,6 +89,8 @@ export const ui = {
   dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
 
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
+  showFiltersButton: (showMore = true) =>
+    byRole('button', { name: `issues.show_${showMore ? 'more' : 'less'}_filters` }),
 
   ruleFacetList: byRole('list', { name: 'rules' }),
   languageFacetList: byRole('list', { name: 'languages' }),

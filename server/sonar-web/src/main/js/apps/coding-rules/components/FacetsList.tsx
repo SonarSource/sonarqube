@@ -125,6 +125,7 @@ export default function FacetsList(props: FacetsListProps) {
         sonarsourceSecurity={props.query.sonarsourceSecurity}
         sonarsourceSecurityOpen={!!props.openFacets.sonarsourceSecurity}
         sonarsourceSecurityStats={props.facets && props.facets.sonarsourceSecurity}
+        forceShow={true}
       />
       <AvailableSinceFacet
         onChange={props.onFilterChange}

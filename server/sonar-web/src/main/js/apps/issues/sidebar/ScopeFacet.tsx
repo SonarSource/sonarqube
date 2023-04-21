@@ -37,13 +37,17 @@ export interface ScopeFacetProps {
   open: boolean;
   scopes: string[];
   stats: Dict<number> | undefined;
+  forceShow: boolean;
 }
 
 export default function ScopeFacet(props: ScopeFacetProps) {
-  const { fetching, open, scopes = [], stats = {} } = props;
+  const { fetching, open, scopes = [], stats = {}, forceShow } = props;
   const values = scopes.map((scope) => translate('issue.scope', scope));
 
   const property = 'scopes';
+  if (values.length < 1 && !forceShow) {
+    return null;
+  }
 
   return (
     <FacetBox property={property}>
