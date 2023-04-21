@@ -21,6 +21,7 @@ package org.sonar.auth.github;
 
 import java.util.Optional;
 import org.junit.Test;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -118,6 +119,18 @@ public class GitHubSettingsTest {
   }
 
   @Test
+  public void return_app_id() {
+    settings.setProperty("sonar.auth.github.appId", "secret");
+    assertThat(underTest.appId()).isEqualTo("secret");
+  }
+
+  @Test
+  public void return_private_key() {
+    settings.setProperty("sonar.auth.github.privateKey.secured", "secret");
+    assertThat(underTest.privateKey()).isEqualTo("secret");
+  }
+
+  @Test
   public void allow_users_to_sign_up() {
     settings.setProperty("sonar.auth.github.allowUsersToSignUp", "true");
     assertThat(underTest.allowUsersToSignUp()).isTrue();
@@ -187,7 +200,19 @@ public class GitHubSettingsTest {
 
   @Test
   public void definitions() {
-    assertThat(GitHubSettings.definitions()).hasSize(8);
+    assertThat(GitHubSettings.definitions().stream()
+      .map(PropertyDefinition::name))
+      .containsExactly(
+        "Enabled",
+        "Client ID",
+        "Client Secret",
+        "GitHub App ID",
+        "Private Key",
+        "Allow users to sign-up",
+        "Synchronize teams as groups",
+        "The API url for a GitHub instance.",
+        "The WEB url for a GitHub instance.",
+        "Organizations");
   }
 
   private void enableGithubAuthentication() {

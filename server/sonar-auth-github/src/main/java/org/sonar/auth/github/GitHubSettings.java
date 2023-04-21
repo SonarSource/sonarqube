@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.server.property.InternalProperties;
@@ -37,6 +38,8 @@ public class GitHubSettings {
 
   public static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
   public static final String CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
+  public static final String APP_ID = "sonar.auth.github.appId";
+  public static final String PRIVATE_KEY = "sonar.auth.github.privateKey.secured";
   public static final String ENABLED = "sonar.auth.github.enabled";
   public static final String ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
   public static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
@@ -65,6 +68,14 @@ public class GitHubSettings {
 
   String clientSecret() {
     return configuration.get(CLIENT_SECRET).orElse("");
+  }
+
+  String appId() {
+    return configuration.get(APP_ID).orElse("");
+  }
+
+  String privateKey() {
+    return configuration.get(PRIVATE_KEY).orElse("");
   }
 
   boolean isEnabled() {
@@ -110,6 +121,7 @@ public class GitHubSettings {
   }
 
   public static List<PropertyDefinition> definitions() {
+    int index = 1;
     return Arrays.asList(
       PropertyDefinition.builder(ENABLED)
         .name("Enabled")
@@ -118,14 +130,14 @@ public class GitHubSettings {
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(1)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(CLIENT_ID)
         .name("Client ID")
         .description("Client ID provided by GitHub when registering the application.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
-        .index(2)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(CLIENT_SECRET)
         .name("Client Secret")
@@ -133,7 +145,25 @@ public class GitHubSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PASSWORD)
-        .index(3)
+        .index(index++)
+        .build(),
+      PropertyDefinition.builder(APP_ID)
+        .name("GitHub App ID")
+        .description("The App ID is found on your GitHub App's page on GitHub at Settings > Developer Settings > GitHub Apps.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(STRING)
+        .index(index++)
+        .build(),
+      PropertyDefinition.builder(PRIVATE_KEY)
+        .name("Private Key")
+        .description("""
+          Your GitHub App's private key. You can generate a .pem file from your GitHub App's page under Private keys.
+          Copy and paste the whole contents of the file here.""")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(PropertyType.TEXT)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)
         .name("Allow users to sign-up")
@@ -142,7 +172,7 @@ public class GitHubSettings {
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
         .defaultValue(valueOf(true))
-        .index(4)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(GROUPS_SYNC)
         .name("Synchronize teams as groups")
@@ -151,7 +181,7 @@ public class GitHubSettings {
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(6)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(API_URL)
         .name("The API url for a GitHub instance.")
@@ -160,7 +190,7 @@ public class GitHubSettings {
         .subCategory(SUBCATEGORY)
         .type(STRING)
         .defaultValue("https://api.github.com/")
-        .index(7)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(WEB_URL)
         .name("The WEB url for a GitHub instance.")
@@ -170,7 +200,7 @@ public class GitHubSettings {
         .subCategory(SUBCATEGORY)
         .type(STRING)
         .defaultValue("https://github.com/")
-        .index(8)
+        .index(index++)
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS)
         .name("Organizations")
@@ -179,7 +209,7 @@ public class GitHubSettings {
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
-        .index(9)
+        .index(index)
         .build());
   }
 }
