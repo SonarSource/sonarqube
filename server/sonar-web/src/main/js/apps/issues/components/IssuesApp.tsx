@@ -33,11 +33,11 @@ import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { Button } from '../../../components/controls/buttons';
 import ButtonToggle from '../../../components/controls/ButtonToggle';
 import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
+import { Button } from '../../../components/controls/buttons';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -82,19 +82,19 @@ import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeade
 import Sidebar from '../sidebar/Sidebar';
 import '../styles.css';
 import {
+  Query,
+  STANDARDS,
   areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
   getOpenIssue,
   parseFacets,
   parseQuery,
-  Query,
   saveMyIssues,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
-  STANDARDS,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueHeader from './IssueHeader';
@@ -503,10 +503,10 @@ export class App extends React.PureComponent<Props, State> {
           if (issues.length > 0) {
             selected = openIssue ? openIssue.key : issues[0].key;
           }
-          this.setState((state) => ({
+          this.setState({
             cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
             effortTotal,
-            facets: { ...state.facets, ...parseFacets(facets) },
+            facets: parseFacets(facets),
             loading: false,
             locationsNavigator: true,
             issues,
@@ -520,7 +520,7 @@ export class App extends React.PureComponent<Props, State> {
             selected,
             selectedFlowIndex: 0,
             selectedLocationIndex: undefined,
-          }));
+          });
         }
         return issues;
       },

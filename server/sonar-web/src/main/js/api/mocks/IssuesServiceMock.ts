@@ -620,8 +620,12 @@ export default class IssuesServiceMock {
     });
   };
 
-  mockFacetDetailResponse = (facetsQuery: string): RawFacet[] => {
-    return facetsQuery.split(',').map((name: string): RawFacet => {
+  mockFacetDetailResponse = (query: RequestData): RawFacet[] => {
+    const facets = (query.facets ?? '').split(',');
+    const types: Exclude<IssueType, IssueType.SecurityHotspot>[] = (
+      query.types ?? 'BUG,CODE_SMELL,VULNERABILITY'
+    ).split(',');
+    return facets.map((name: string): RawFacet => {
       if (name === 'owaspTop10-2021') {
         return this.owasp2021FacetList();
       }
@@ -678,16 +682,21 @@ export default class IssuesServiceMock {
         };
       }
       if (name === 'languages') {
+        const counters = {
+          [IssueType.Bug]: { java: 4100, ts: 500 },
+          [IssueType.CodeSmell]: { java: 21000, ts: 2000 },
+          [IssueType.Vulnerability]: { java: 111, ts: 674 },
+        };
         return {
           property: name,
           values: [
             {
               val: 'java',
-              count: 25211,
+              count: types.reduce<number>((acc, type) => acc + counters[type].java, 0),
             },
             {
               val: 'ts',
-              count: 3174,
+              count: types.reduce<number>((acc, type) => acc + counters[type].ts, 0),
             },
           ],
         };
@@ -700,7 +709,7 @@ export default class IssuesServiceMock {
   };
 
   handleSearchIssues = (query: RequestData): Promise<RawIssuesResponse> => {
-    const facets = this.mockFacetDetailResponse((query.facets ?? '') as string);
+    const facets = this.mockFacetDetailResponse(query);
 
     // Filter list (only supports assignee, type and severity)
     const filteredList = this.list

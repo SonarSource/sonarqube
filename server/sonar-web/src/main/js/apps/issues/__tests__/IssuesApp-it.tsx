@@ -499,6 +499,33 @@ describe('issues app', () => {
         })
       ).not.toBeInTheDocument();
     });
+
+    it('should update collapsed facets with filter change', async () => {
+      const user = userEvent.setup();
+
+      renderIssueApp();
+
+      await user.click(await ui.languageFacet.find());
+      expect(await ui.languageFacetList.find()).toBeInTheDocument();
+      expect(
+        within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' })
+      ).toHaveTextContent('java25short_number_suffix.k');
+      expect(
+        within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' })
+      ).toHaveTextContent('ts3.2short_number_suffix.k');
+
+      await user.click(ui.languageFacet.get());
+      expect(ui.languageFacetList.query()).not.toBeInTheDocument();
+      await user.click(ui.vulnerabilityIssueTypeFilter.get());
+      await user.click(ui.languageFacet.get());
+      expect(await ui.languageFacetList.find()).toBeInTheDocument();
+      expect(
+        within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' })
+      ).toHaveTextContent('java111');
+      expect(
+        within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' })
+      ).toHaveTextContent('ts674');
+    });
   });
 });
 

@@ -68,6 +68,7 @@ export const ui = {
   clearStatusFacet: byRole('button', { name: 'clear_x_filter.issues.facet.statuses' }),
   openStatusFilter: byRole('checkbox', { name: 'issue.status.OPEN' }),
   confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),
+  languageFacet: byRole('button', { name: 'issues.facet.languages' }),
   ruleFacet: byRole('button', { name: 'issues.facet.rules' }),
   clearRuleFacet: byRole('button', { name: 'clear_x_filter.issues.facet.rules' }),
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
@@ -85,6 +86,7 @@ export const ui = {
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
 
   ruleFacetList: byRole('list', { name: 'rules' }),
+  languageFacetList: byRole('list', { name: 'languages' }),
   ruleFacetSearch: byRole('searchbox', { name: 'search.search_for_rules' }),
 };
 
