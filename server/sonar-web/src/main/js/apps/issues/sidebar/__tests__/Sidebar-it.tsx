@@ -28,9 +28,15 @@ import { IssueSeverity } from '../../../../types/issues';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { Sidebar } from '../Sidebar';
 
+const getFacetNames = () =>
+  screen
+    .getAllByRole('button')
+    .map((button) => button.textContent)
+    .filter((name) => !!name);
+
 it('should render correct facets for Application', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+  expect(getFacetNames()).toStrictEqual([
     'issues.facet.characteristics.PRODUCTION',
     'issues.facet.characteristics.DEVELOPMENT',
     'issues.facet.severities',
@@ -52,7 +58,7 @@ it('should render correct facets for Application', () => {
 
 it('should render correct facets for Portfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+  expect(getFacetNames()).toStrictEqual([
     'issues.facet.characteristics.PRODUCTION',
     'issues.facet.characteristics.DEVELOPMENT',
     'issues.facet.severities',
@@ -74,7 +80,7 @@ it('should render correct facets for Portfolio', () => {
 
 it('should render correct facets for SubPortfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+  expect(getFacetNames()).toStrictEqual([
     'issues.facet.characteristics.PRODUCTION',
     'issues.facet.characteristics.DEVELOPMENT',
     'issues.facet.severities',
@@ -101,7 +107,7 @@ it('should render only main visible facets: Characteristics & Severity', () => {
     query: mockQuery({ assigned: true }),
   });
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+  expect(getFacetNames()).toStrictEqual([
     'issues.facet.characteristics.PRODUCTION',
     'issues.facet.characteristics.DEVELOPMENT',
     'issues.facet.severities',
@@ -123,7 +129,7 @@ it('should render secondary facets with filters applied eventhough "Show more fi
     }),
   });
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+  expect(getFacetNames()).toStrictEqual([
     'issues.facet.characteristics.PRODUCTION',
     'issues.facet.characteristics.DEVELOPMENT',
     'issues.facet.severities',
