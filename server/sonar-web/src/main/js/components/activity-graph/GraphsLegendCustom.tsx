@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { NewCodeLegend } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate } from '../../helpers/l10n';
 import { Serie } from '../../types/project-activity';
-import GraphsLegendItem from './GraphsLegendItem';
+import { GraphsLegendItem } from './GraphsLegendItem';
 import { hasDataValues } from './utils';
 
 export interface GraphsLegendCustomProps {
@@ -31,10 +33,12 @@ export interface GraphsLegendCustomProps {
 
 export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
   const { series } = props;
+
   return (
     <ul className="activity-graph-legends">
       {series.map((serie, idx) => {
         const hasData = hasDataValues(serie);
+
         const legendItem = (
           <GraphsLegendItem
             index={idx}
@@ -44,6 +48,7 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
             showWarning={!hasData}
           />
         );
+
         if (!hasData) {
           return (
             <Tooltip
@@ -59,12 +64,19 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
             </Tooltip>
           );
         }
+
         return (
-          <li className="spacer-left spacer-right" key={serie.name}>
+          <li className="sw-ml-3" key={serie.name}>
             {legendItem}
           </li>
         );
       })}
+      <li key={translate('hotspot.filters.period.since_leak_period')}>
+        <NewCodeLegend
+          className="sw-ml-3 sw-mr-4"
+          text={translate('hotspot.filters.period.since_leak_period')}
+        />
+      </li>
     </ul>
   );
 }

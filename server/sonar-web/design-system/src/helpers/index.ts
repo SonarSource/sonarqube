@@ -21,3 +21,4 @@
 export * from './colors';
 export * from './constants';
 export * from './positioning';
+export * from './theme';

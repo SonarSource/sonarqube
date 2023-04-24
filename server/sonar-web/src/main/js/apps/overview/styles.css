@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 .overview {
   animation: fadeIn 0.5s forwards;
 }
@@ -267,21 +268,7 @@
 
 .overview-panel .activity-graph-legends {
   justify-content: right;
-  margin-top: -30px;
-}
-
-.overview-panel .activity-graph-new-code-legend {
-  position: relative;
-  z-index: var(--aboveNormalZIndex);
-  width: 12px;
-  overflow: hidden;
-  margin-top: 1px;
-  margin-left: calc(2 * var(--gridSize));
-  text-indent: -9999px;
-}
-
-.overview-panel .activity-graph-new-code-legend::after {
-  margin: 0;
+  margin-top: -38px;
 }
 
 .overview-analysis {

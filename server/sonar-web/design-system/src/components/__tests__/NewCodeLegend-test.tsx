@@ -18,24 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
+import { screen } from '@testing-library/react';
+import tailwindBaseConfig from '../../../../tailwind.base.config';
+import { render } from '../../helpers/testUtils';
+import { NewCodeLegend } from '../NewCodeLegend';
 
-interface Props {
-  name: string;
-  index: number;
-  translatedName: string;
-  value: string;
-}
+it('should render NewCodeLegend', () => {
+  render(<NewCodeLegend text="the text" />);
 
-export default function GraphsTooltipsContent({ name, index, translatedName, value }: Props) {
-  return (
-    <tr className="activity-graph-tooltip-line" key={name}>
-      <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={index} />
-      </td>
-      <td className="activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
-      <td>{translatedName}</td>
-    </tr>
-  );
-}
+  expect(screen.getByText('the text')).toHaveStyle({
+    'font-size': tailwindBaseConfig.theme.fontSize.sm[0],
+    'line-height': tailwindBaseConfig.theme.fontSize.sm[1],
+    'margin-left': tailwindBaseConfig.theme.spacing[1],
+  });
+});

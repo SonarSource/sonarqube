@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ThemeProp, themeColor, withTheme } from 'design-system';
 import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
@@ -29,7 +31,7 @@ import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH } from './utils';
 
-interface Props {
+interface PropsWithoutTheme {
   events: AnalysisEvent[];
   formatValue: (tick: number | string) => string;
   graph: string;
@@ -41,16 +43,19 @@ interface Props {
   tooltipPos: number;
 }
 
-const TOOLTIP_WIDTH = 250;
+export type Props = PropsWithoutTheme & ThemeProp;
+
+const TOOLTIP_WIDTH = 280;
 const TOOLTIP_LEFT_MARGIN = 60;
 const TOOLTIP_LEFT_FLIP_THRESHOLD = 50;
 
-export default class GraphsTooltips extends React.PureComponent<Props> {
+export class GraphsTooltipsClass extends React.PureComponent<Props> {
   renderContent() {
     const { tooltipIdx, series, graph, measuresHistory } = this.props;
 
     return series.map((serie, idx) => {
       const point = serie.data[tooltipIdx];
+
       if (!point || (!point.y && point.y !== 0)) {
         return null;
       }
@@ -82,12 +87,21 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
   }
 
   render() {
-    const { events, measuresHistory, tooltipIdx, tooltipPos, graph, graphWidth, selectedDate } =
-      this.props;
+    const {
+      events,
+      measuresHistory,
+      tooltipIdx,
+      tooltipPos,
+      graph,
+      graphWidth,
+      selectedDate,
+      theme,
+    } = this.props;
 
     const top = 30;
     let left = tooltipPos + TOOLTIP_LEFT_MARGIN;
     let placement = PopupPlacement.RightTop;
+
     if (left > graphWidth - TOOLTIP_WIDTH - TOOLTIP_LEFT_FLIP_THRESHOLD) {
       left -= TOOLTIP_WIDTH;
       placement = PopupPlacement.LeftTop;
@@ -103,10 +117,23 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
         style={{ top, left, width: TOOLTIP_WIDTH }}
       >
         <div className="activity-graph-tooltip">
-          <div className="activity-graph-tooltip-title spacer-bottom">
+          <div
+            className="sw-body-md-highlight sw-whitespace-nowrap"
+            style={{ color: themeColor('selectionCardHeader')({ theme }) }}
+          >
             <DateTimeFormatter date={selectedDate} />
           </div>
-          <table className="width-100">
+          <table
+            className="width-100"
+            style={{ color: themeColor('dropdownMenuSubTitle')({ theme }) }}
+          >
+            {addSeparator && (
+              <tr>
+                <td className="activity-graph-tooltip-separator" colSpan={3}>
+                  <hr />
+                </td>
+              </tr>
+            )}
             {events?.length > 0 && (
               <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
             )}
@@ -131,3 +158,5 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
     );
   }
 }
+
+export const GraphsTooltips = withTheme<PropsWithoutTheme>(GraphsTooltipsClass);

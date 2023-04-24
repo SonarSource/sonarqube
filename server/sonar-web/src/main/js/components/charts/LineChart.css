@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 .line-chart-path {
   fill: none;
-  stroke: var(--blue);
   stroke-width: 3px;
 }
 
 .line-chart-path.line-chart-path-1 {
-  stroke: var(--darkBlue);
   stroke-dasharray: 3;
 }
 
 .line-chart-path.line-chart-path-2 {
-  stroke: #24c6e0;
   stroke-dasharray: 10;
 }
 
@@ -58,7 +56,6 @@
 
 .line-chart-tick {
   fill: var(--secondFontColor);
-  font-size: var(--smallFontSize);
 }
 
 .line-chart-tick-x {

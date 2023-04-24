@@ -43,7 +43,7 @@ const danger = {
   darker: COLORS.red[800],
 };
 
-const lightTheme = {
+export const lightTheme = {
   id: 'light-theme',
   highlightTheme: 'atom-one-light.css',
   logo: 'sonarcloud-logo-black.svg',
@@ -381,10 +381,10 @@ const lightTheme = {
 
     // graph - chart
     graphPointCircleColor: COLORS.white,
-    'graphLineColor.0': COLORS.blue[500],
-    'graphLineColor.1': COLORS.blue[700],
+    'graphLineColor.0': COLORS.blue[700],
+    'graphLineColor.1': COLORS.blue[500],
     'graphLineColor.2': COLORS.blue[300],
-    'graphLineColor.3': COLORS.blue[900],
+    'graphLineColor.3': COLORS.blue[800],
     graphGridColor: COLORS.grey[50],
     graphCursorLineColor: COLORS.blueGrey[400],
     newCodeHighlight: COLORS.indigo[300],
@@ -441,9 +441,9 @@ const lightTheme = {
     'bubble.4': [...COLORS.orange[500], 0.3],
     'bubble.5': [...COLORS.red[500], 0.3],
 
-    // leak legend
-    leakLegend: [...COLORS.indigo[300], 0.15],
-    leakLegendBorder: COLORS.indigo[100],
+    // new code legend
+    newCodeLegend: [...COLORS.indigo[300], 0.15],
+    newCodeLegendBorder: COLORS.indigo[200],
 
     // hotspot
     hotspotStatus: COLORS.blueGrey[25],
@@ -744,5 +744,3 @@ const lightTheme = {
     GitLabPipeline: '/images/alms/gitlab.svg',
   },
 };
-
-export default lightTheme;

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { MetricsEnum, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
-import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
-import Rating from '../../components/ui/Rating';
+import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
 import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 import { Dict } from '../../types/types';
@@ -42,20 +43,40 @@ const METRIC_RATING: Dict<string> = {
 export default function GraphsTooltipsContentIssues(props: GraphsTooltipsContentIssuesProps) {
   const { index, measuresHistory, name, tooltipIdx, translatedName, value } = props;
   const rating = measuresHistory.find((measure) => measure.metric === METRIC_RATING[name]);
+
   if (!rating || !rating.history[tooltipIdx]) {
     return null;
   }
+
   const ratingValue = rating.history[tooltipIdx].value;
+
+  const ratingEnumValue =
+    (ratingValue &&
+      {
+        '1.0': MetricsEnum.A,
+        '2.0': MetricsEnum.B,
+        '3.0': MetricsEnum.C,
+        '4.0': MetricsEnum.D,
+        '5.0': MetricsEnum.E,
+      }[ratingValue]) ||
+    undefined;
+
   return (
-    <tr className="activity-graph-tooltip-issues-line" key={name}>
-      <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={index} />
+    <tr className="sw-h-8" key={name}>
+      <td className="sw-w-5">
+        <ChartLegendIcon className="sw-mr-0" index={index} />
       </td>
-      <td className="text-right spacer-right">
-        <span className="activity-graph-tooltip-value">{value}</span>
-        {ratingValue && <Rating className="spacer-left" value={ratingValue} />}
+      <td>
+        <span className="sw-body-sm-highlight sw-ml-2">{value}</span>
       </td>
-      <td>{translatedName}</td>
+      <td>
+        <span className="sw-body-sm">{translatedName}</span>
+      </td>
+      {ratingValue && (
+        <td>
+          <MetricsRatingBadge label={ratingValue} rating={ratingEnumValue} size="xs" />
+        </td>
+      )}
     </tr>
   );
 }

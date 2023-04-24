@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { keyBy, times } from 'lodash';
@@ -66,6 +67,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   projectActivityHandler.reset();
   timeMachineHandler.reset();
+
   timeMachineHandler.setMeasureHistory(
     [
       MetricKey.bugs,
@@ -97,6 +99,7 @@ describe('rendering', () => {
 
   it('should correctly show the baseline marker', async () => {
     const { ui } = getPageObject();
+
     renderProjectActivityAppContainer(
       mockComponent({
         leakPeriodDate: parseDate('2017-03-01T22:00:00.000Z').toDateString(),
@@ -105,6 +108,7 @@ describe('rendering', () => {
         ],
       })
     );
+
     await ui.appLoaded();
 
     expect(ui.baseline.get()).toBeInTheDocument();
@@ -112,6 +116,7 @@ describe('rendering', () => {
 
   it('should only show certain security hotspot-related metrics for a project', async () => {
     const { ui } = getPageObject();
+
     renderProjectActivityAppContainer(
       mockComponent({
         breadcrumbs: [
@@ -130,6 +135,7 @@ describe('rendering', () => {
     'should only show certain security hotspot-related metrics for a %s',
     async (qualifier) => {
       const { ui } = getPageObject();
+
       renderProjectActivityAppContainer(
         mockComponent({
           qualifier,
@@ -140,6 +146,7 @@ describe('rendering', () => {
       await ui.changeGraphType(GraphType.custom);
       await ui.openMetricsDropdown();
       expect(ui.metricCheckbox(MetricKey.security_review_rating).get()).toBeInTheDocument();
+
       expect(
         ui.metricCheckbox(MetricKey.security_hotspots_reviewed).query()
       ).not.toBeInTheDocument();
@@ -152,6 +159,7 @@ describe('CRUD', () => {
     const { ui } = getPageObject();
     const initialValue = '1.1-SNAPSHOT';
     const updatedValue = '1.1--SNAPSHOT';
+
     renderProjectActivityAppContainer(
       mockComponent({
         breadcrumbs: [
@@ -160,6 +168,7 @@ describe('CRUD', () => {
         configuration: { showHistory: true },
       })
     );
+
     await ui.appLoaded();
 
     await ui.addVersionEvent('1.1.0.1', initialValue);
@@ -178,6 +187,7 @@ describe('CRUD', () => {
     const { ui } = getPageObject();
     const initialValue = 'Custom event name';
     const updatedValue = 'Custom event updated name';
+
     renderProjectActivityAppContainer(
       mockComponent({
         breadcrumbs: [
@@ -186,6 +196,7 @@ describe('CRUD', () => {
         configuration: { showHistory: true },
       })
     );
+
     await ui.appLoaded();
 
     await act(async () => {
@@ -204,6 +215,7 @@ describe('CRUD', () => {
 
   it('should correctly allow deletion of specific analyses', async () => {
     const { ui } = getPageObject();
+
     renderProjectActivityAppContainer(
       mockComponent({
         breadcrumbs: [
@@ -212,6 +224,7 @@ describe('CRUD', () => {
         configuration: { showHistory: true },
       })
     );
+
     await ui.appLoaded();
 
     // Most recent analysis is not deletable.
@@ -231,6 +244,7 @@ describe('data loading', () => {
 
   it('should load all analyses', async () => {
     const count = 1000;
+
     projectActivityHandler.setAnalysesList(
       times(count, (i) => {
         return mockAnalysis({
@@ -239,6 +253,7 @@ describe('data loading', () => {
         });
       })
     );
+
     const { ui } = getPageObject();
     renderProjectActivityAppContainer();
     await ui.appLoaded();
@@ -257,6 +272,7 @@ describe('data loading', () => {
 
   it('should correctly fetch the top level component when dealing with sub portfolios', async () => {
     const { ui } = getPageObject();
+
     renderProjectActivityAppContainer(
       mockComponent({
         key: 'unknown',
@@ -267,6 +283,7 @@ describe('data loading', () => {
         ],
       })
     );
+
     await ui.appLoaded();
 
     // If it didn't fail, it means we correctly queried for project "foo".
@@ -319,6 +336,7 @@ describe('filtering', () => {
         });
       })
     );
+
     const { ui } = getPageObject();
     renderProjectActivityAppContainer();
     await ui.appLoaded();
@@ -347,9 +365,11 @@ describe('graph interactions', () => {
     await ui.appLoaded();
 
     expect(ui.bugsPopupCell.query()).not.toBeInTheDocument();
+
     await act(async () => {
       await ui.showDetails('1.1.0.1');
     });
+
     expect(ui.bugsPopupCell.get()).toBeInTheDocument();
   });
 
@@ -386,6 +406,7 @@ describe('graph interactions', () => {
 
 function getPageObject() {
   const user = userEvent.setup();
+
   const ui = {
     // Graph types.
     graphTypeSelect: byLabelText('project_activity.graphs.choose_type'),
@@ -426,7 +447,7 @@ function getPageObject() {
     // Misc.
     loading: byLabelText('loading'),
     baseline: byText('project_activity.new_code_period_start'),
-    bugsPopupCell: byRole('cell', { name: 'bugs' }),
+    bugsPopupCell: byRole('cell', { name: MetricKey.bugs }),
   };
 
   return {
@@ -438,65 +459,80 @@ function getPageObject() {
           expect(ui.loading.query()).not.toBeInTheDocument();
         });
       },
+
       async changeGraphType(type: GraphType) {
         await selectEvent.select(ui.graphTypeSelect.get(), [`project_activity.graphs.${type}`]);
       },
+
       async openMetricsDropdown() {
         await user.click(ui.addMetricBtn.get());
       },
+
       async toggleMetric(metric: MetricKey) {
         await user.click(ui.metricCheckbox(metric).get());
       },
+
       async closeMetricsDropdown() {
         await user.keyboard('{Escape}');
       },
+
       async openCogMenu(id: string) {
         await user.click(ui.cogBtn(id).get());
       },
+
       async deleteAnalysis(id: string) {
         await user.click(ui.cogBtn(id).get());
         await user.click(ui.deleteAnalysisBtn.get());
         await user.click(ui.deleteBtn.get());
       },
+
       async addVersionEvent(id: string, value: string) {
         await user.click(ui.cogBtn(id).get());
         await user.click(ui.addVersionEvenBtn.get());
         await user.type(ui.nameInput.get(), value);
         await user.click(ui.saveBtn.get());
       },
+
       async addCustomEvent(id: string, value: string) {
         await user.click(ui.cogBtn(id).get());
         await user.click(ui.addCustomEventBtn.get());
         await user.type(ui.nameInput.get(), value);
         await user.click(ui.saveBtn.get());
       },
+
       async updateEvent(index: number, value: string) {
         await user.click(ui.editEventBtn.getAll()[index]);
         await user.clear(ui.nameInput.get());
         await user.type(ui.nameInput.get(), value);
         await user.click(ui.changeBtn.get());
       },
+
       async deleteEvent(index: number) {
         await user.click(ui.deleteEventBtn.getAll()[index]);
         await user.click(ui.deleteBtn.get());
       },
+
       async showDetails(id: string) {
         await user.click(ui.seeDetailsBtn(id).get());
       },
+
       async filterByCategory(
         category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory
       ) {
         await selectEvent.select(ui.categorySelect.get(), [`event.category.${category}`]);
       },
+
       async setDateRange(from?: string, to?: string) {
         const dateInput = dateInputEvent(user);
         if (from) {
           await dateInput.pickDate(ui.fromDateInput.get(), parseDate(from));
         }
+
         if (to) {
           await dateInput.pickDate(ui.toDateInput.get(), parseDate(to));
         }
       },
+
       async resetDateFilters() {
         await user.click(ui.resetDatesBtn.get());
       },

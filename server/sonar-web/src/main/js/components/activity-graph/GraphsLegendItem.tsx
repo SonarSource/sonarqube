@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { useTheme } from '@emotion/react';
 import classNames from 'classnames';
+import { Theme, themeColor } from 'design-system';
 import * as React from 'react';
 import { ClearButton } from '../../components/controls/buttons';
 import AlertWarnIcon from '../../components/icons/AlertWarnIcon';
-import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
+import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
 import { translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
@@ -33,38 +36,41 @@ interface Props {
   removeMetric?: (metric: string) => void;
 }
 
-export default class GraphsLegendItem extends React.PureComponent<Props> {
-  handleClick = () => {
-    if (this.props.removeMetric) {
-      this.props.removeMetric(this.props.metric);
-    }
-  };
+export function GraphsLegendItem({
+  className,
+  index,
+  metric,
+  name,
+  removeMetric,
+  showWarning,
+}: Props) {
+  const theme = useTheme() as Theme;
 
-  render() {
-    const { className, name, index, showWarning } = this.props;
-    const isActionable = this.props.removeMetric != null;
-    const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
+  const isActionable = removeMetric !== undefined;
 
-    return (
-      <span className={legendClass}>
-        {showWarning ? (
-          <AlertWarnIcon className="spacer-right" />
-        ) : (
-          <ChartLegendIcon className="text-middle spacer-right" index={index} />
-        )}
-        <span className="text-middle">{name}</span>
-        {isActionable && (
-          <ClearButton
-            className="button-tiny spacer-left text-middle"
-            aria-label={translateWithParameters(
-              'project_activity.graphs.custom.remove_metric',
-              name
-            )}
-            iconProps={{ size: 12 }}
-            onClick={this.handleClick}
-          />
-        )}
+  const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
+
+  return (
+    <span className={legendClass}>
+      {showWarning ? (
+        <AlertWarnIcon className="sw-mr-2" />
+      ) : (
+        <ChartLegendIcon className="sw-align-middle sw-mr-2" index={index} />
+      )}
+      <span
+        className="sw-align-middle sw-body-sm"
+        style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
+      >
+        {name}
       </span>
-    );
-  }
+      {isActionable && (
+        <ClearButton
+          aria-label={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
+          className="button-tiny sw-align-middle sw-ml-2"
+          iconProps={{ size: 12 }}
+          onClick={() => removeMetric(metric)}
+        />
+      )}
+    </span>
+  );
 }

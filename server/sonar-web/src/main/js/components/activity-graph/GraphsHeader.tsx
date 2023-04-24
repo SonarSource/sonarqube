@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+
+import {
+  ButtonSecondary,
+  ChevronDownIcon,
+  Dropdown,
+  ItemButton,
+  PopupPlacement,
+  PopupZLevel,
+  TextMuted,
+} from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
@@ -48,30 +57,66 @@ export default class GraphsHeader extends React.PureComponent<Props> {
   render() {
     const { className, graph, metrics, metricsTypeFilter, selectedMetrics = [] } = this.props;
 
-    const types = getGraphTypes(
-      this.props.onAddCustomMetric === undefined || this.props.onRemoveCustomMetric === undefined
-    );
+    const noCustomGraph =
+      this.props.onAddCustomMetric === undefined || this.props.onRemoveCustomMetric === undefined;
 
-    const selectOptions = types.map((type) => ({
-      label: translate('project_activity.graphs', type),
-      value: type,
-    }));
+    const types = getGraphTypes(noCustomGraph);
+
+    const overlayItems: JSX.Element[] = [];
+
+    const selectOptions: Array<{
+      label: string;
+      value: GraphType;
+    }> = [];
+
+    types.forEach((type) => {
+      const label = translate('project_activity.graphs', type);
+
+      selectOptions.push({ label, value: type });
+
+      overlayItems.push(
+        <ItemButton key={label} onClick={() => this.handleGraphChange({ value: type })}>
+          {label}
+        </ItemButton>
+      );
+    });
+
+    const selectedOption = selectOptions.find((option) => option.value === graph);
+    const selectedLabel = selectedOption?.label ?? '';
 
     return (
-      <div className={classNames(className, 'position-relative')}>
+      <div className={className}>
         <div className="display-flex-end">
           <div className="display-flex-column">
-            <label className="text-bold little-spacer-bottom" id="graph-select-label">
-              {translate('project_activity.graphs.choose_type')}
-            </label>
-            <Select
-              aria-labelledby="graph-select-label"
-              className="input-medium"
-              isSearchable={false}
-              onChange={this.handleGraphChange}
-              options={selectOptions}
-              value={selectOptions.find((option) => option.value === graph)}
-            />
+            {noCustomGraph ? (
+              <Dropdown
+                id="activity-graph-type"
+                size="auto"
+                placement={PopupPlacement.BottomLeft}
+                zLevel={PopupZLevel.Content}
+                overlay={overlayItems}
+              >
+                <ButtonSecondary
+                  aria-label={translate('project_activity.graphs.choose_type')}
+                  className={
+                    'sw-body-sm sw-flex sw-flex-row sw-justify-between sw-pl-3 sw-pr-2 sw-w-32 ' +
+                    'sw-z-normal' // needed because the legends overlap part of the button
+                  }
+                >
+                  <TextMuted text={selectedLabel} />
+                  <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
+                </ButtonSecondary>
+              </Dropdown>
+            ) : (
+              <Select
+                aria-label={translate('project_activity.graphs.choose_type')}
+                className="input-medium"
+                isSearchable={false}
+                onChange={this.handleGraphChange}
+                options={selectOptions}
+                value={selectedOption}
+              />
+            )}
           </div>
           {isCustomGraph(graph) &&
             this.props.onAddCustomMetric !== undefined &&

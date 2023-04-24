@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';
@@ -30,16 +31,16 @@ import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
-import GraphsTooltips from '../GraphsTooltips';
+import { GraphsTooltips, Props } from '../GraphsTooltips';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
 
 it.each([
   [
     GraphType.issues,
     [
-      [MetricKey.bugs, 1, 'C'],
-      [MetricKey.code_smells, 0, 'A'],
-      [MetricKey.vulnerabilities, 2, 'E'],
+      [MetricKey.bugs, 1, 3],
+      [MetricKey.code_smells, 0, 1],
+      [MetricKey.vulnerabilities, 2, 5],
     ],
   ],
   [
@@ -64,14 +65,14 @@ it.each([
       expect(
         screen.getByRole('row', {
           // eslint-disable-next-line jest/no-conditional-in-test
-          name: rating ? `${n} metric.has_rating_X.${rating} ${key}` : `${n} ${key}`,
+          name: rating ? `${n} ${key} ${rating}` : `${n} ${key}`,
         })
       ).toBeInTheDocument();
     });
   }
 );
 
-function renderGraphsTooltips(props: Partial<GraphsTooltips['props']> = {}) {
+function renderGraphsTooltips(props: Partial<Props> = {}) {
   const graph = (props.graph as GraphType) || GraphType.coverage;
   const measuresHistory: MeasureHistory[] = [];
   const date = props.selectedDate || parseDate('2016-01-01T00:00:00+0200');
@@ -95,6 +96,7 @@ function renderGraphsTooltips(props: Partial<GraphsTooltips['props']> = {}) {
         history: [mockHistoryItem({ date, value })],
       })
     );
+
     metrics.push(
       mockMetric({
         key: metric,

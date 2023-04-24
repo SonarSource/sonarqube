@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { useTheme } from '@emotion/react';
 import classNames from 'classnames';
+import { Theme, themeColor } from 'design-system';
 import * as React from 'react';
 import Icon from './Icon';
 
@@ -26,12 +29,17 @@ interface Props {
   index: number;
 }
 
-export default function ChartLegendIcon({ index, className }: Props) {
+export function ChartLegendIcon({ index, className }: Props) {
+  const theme = useTheme() as Theme;
+
   return (
-    <Icon className={className} aria-hidden={true} width={21}>
+    <Icon className={className} aria-hidden={true} width={20}>
       <path
-        className={classNames('line-chart-path line-chart-path-legend', 'line-chart-path-' + index)}
-        d="M0 8 L 21 8"
+        className={classNames('line-chart-path line-chart-path-legend', `line-chart-path-${index}`)}
+        d="M0 8 L 20 8"
+        stroke={themeColor(`graphLineColor.${index}` as Parameters<typeof themeColor>[0])({
+          theme,
+        })}
       />
     </Icon>
   );

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 const path = require('path');
 const { fontFamily } = require('tailwindcss/defaultTheme');
 const utilities = require('./tailwind-utilities');
@@ -77,6 +78,7 @@ module.exports = {
       12: '3rem', // 48px
       16: '4rem', // 64px
       24: '6rem', // 96px
+      32: '8rem', // 128px
       40: '10rem', // 160px
       64: '16rem', // 256px
 

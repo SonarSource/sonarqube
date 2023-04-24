@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { extent, max } from 'd3-array';
-import { scaleLinear, ScaleLinear } from 'd3-scale';
-import { area as d3Area, curveBasis, line as d3Line } from 'd3-shape';
+import { ScaleLinear, scaleLinear } from 'd3-scale';
+import { curveBasis, area as d3Area, line as d3Line } from 'd3-shape';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import './LineChart.css';
@@ -59,6 +60,7 @@ export default class LineChart extends React.PureComponent<Props> {
       .curve(curveBasis);
 
     let { data } = this.props;
+
     if (this.props.backdropConstraints) {
       const c = this.props.backdropConstraints;
       data = data.filter((d) => c[0] <= d.x && d.x <= c[1]);
@@ -79,9 +81,11 @@ export default class LineChart extends React.PureComponent<Props> {
       .map((point, index) => {
         const x = xScale(point.x);
         const y = yScale(point.y || 0);
+
         // eslint-disable-next-line react/no-array-index-key
         return <circle className="line-chart-point" cx={x} cy={y} key={index} r="3" />;
       });
+
     return <g>{points}</g>;
   }
 
@@ -96,9 +100,11 @@ export default class LineChart extends React.PureComponent<Props> {
       const x = xScale(point.x);
       const y1 = yScale.range()[0];
       const y2 = yScale(point.y || 0);
+
       // eslint-disable-next-line react/no-array-index-key
       return <line className="line-chart-grid" key={index} x1={x} x2={x} y1={y1} y2={y2} />;
     });
+
     return <g>{lines}</g>;
   }
 
@@ -113,13 +119,15 @@ export default class LineChart extends React.PureComponent<Props> {
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale.range()[0];
+
       return (
         // eslint-disable-next-line react/no-array-index-key
-        <text className="line-chart-tick" dy="1.5em" key={index} x={x} y={y}>
+        <text className="line-chart-tick sw-body-sm" dy="1.5em" key={index} x={x} y={y}>
           {tick}
         </text>
       );
     });
+
     return <g>{ticks}</g>;
   }
 
@@ -134,13 +142,15 @@ export default class LineChart extends React.PureComponent<Props> {
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale(point.y || 0);
+
       return (
         // eslint-disable-next-line react/no-array-index-key
-        <text className="line-chart-tick" dy="-1em" key={index} x={x} y={y}>
+        <text className="line-chart-tick sw-body-sm" dy="-1em" key={index} x={x} y={y}>
           {value}
         </text>
       );
     });
+
     return <g>{ticks}</g>;
   }
 
@@ -150,6 +160,7 @@ export default class LineChart extends React.PureComponent<Props> {
       .y((d) => yScale(d.y || 0))
       .defined((d) => d.y != null)
       .curve(curveBasis);
+
     return <path className="line-chart-path" d={p(this.props.data) as string} />;
   }
 
@@ -166,6 +177,7 @@ export default class LineChart extends React.PureComponent<Props> {
     const xScale = scaleLinear()
       .domain(extent(this.props.data, (d) => d.x) as [number, number])
       .range([0, availableWidth]);
+
     const yScale = scaleLinear().range([availableHeight, 0]);
 
     if (this.props.domain) {

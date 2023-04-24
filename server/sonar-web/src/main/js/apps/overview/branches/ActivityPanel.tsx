@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
@@ -72,15 +73,18 @@ export function ActivityPanel(props: ActivityPanelProps) {
   const series = generateSeries(measuresHistory, graph, metrics, displayedMetrics);
   const graphs = splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
   let shownLeakPeriodDate;
+
   if (leakPeriodDate !== undefined) {
     const startDate = measuresHistory.reduce((oldest: Date, { history }) => {
       if (history.length > 0) {
         const date = parseDate(history[0].date);
+
         return oldest.getTime() > date.getTime() ? date : oldest;
-      } else {
-        return oldest;
       }
+
+      return oldest;
     }, new Date());
+
     shownLeakPeriodDate =
       startDate.getTime() > leakPeriodDate.getTime() ? startDate : leakPeriodDate;
   }
@@ -94,7 +98,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
       <div className="overview-panel-content">
         <div className="display-flex-row">
           <div className="display-flex-column flex-1">
-            <div className="overview-panel-padded display-flex-column flex-1">
+            <div className="overview-panel-big-padded display-flex-column flex-1">
               <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
               <GraphsHistory
                 analyses={[]}

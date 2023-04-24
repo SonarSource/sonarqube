@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import {
@@ -40,7 +40,7 @@ import {
 import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
+import { MetricKey, MetricType } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import { CaycStatus, Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
@@ -58,11 +58,11 @@ jest.mock('../../../../api/measures', () => {
 
         let type;
         if (/(coverage|duplication)$/.test(key)) {
-          type = 'PERCENT';
+          type = MetricType.Percent;
         } else if (/_rating$/.test(key)) {
-          type = 'RATING';
+          type = MetricType.Rating;
         } else {
-          type = 'INT';
+          type = MetricType.Integer;
         }
         metrics.push(mockMetric({ key, id: key, name: key, type }));
         measures.push(
@@ -350,10 +350,20 @@ it.each([
 
 it('should correctly handle graph type storage', async () => {
   renderBranchOverview();
+
   expect(getActivityGraph).toHaveBeenCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo');
 
-  const select = await screen.findByLabelText('project_activity.graphs.choose_type');
-  await selectEvent.select(select, `project_activity.graphs.${GraphType.issues}`);
+  const dropdownButton = await screen.findByLabelText('project_activity.graphs.choose_type');
+
+  await userEvent.click(dropdownButton);
+
+  const issuesItem = await screen.findByRole('menuitem', {
+    name: `project_activity.graphs.${GraphType.issues}`,
+  });
+
+  expect(issuesItem).toBeInTheDocument();
+
+  await userEvent.click(issuesItem);
 
   expect(saveActivityGraph).toHaveBeenCalledWith(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,

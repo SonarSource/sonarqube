@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { MetricType } from '../../types/metrics';
 import './Rating.css';
 
 interface Props extends React.AriaAttributes {
@@ -42,7 +44,9 @@ export default function Rating({ className, muted = false, value, ...ariaAttrs }
       </span>
     );
   }
-  const formatted = formatMeasure(value, 'RATING');
+
+  const formatted = formatMeasure(value, MetricType.Rating);
+
   return (
     <span
       aria-label={translateWithParameters('metric.has_rating_X', formatted)}

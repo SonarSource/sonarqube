@@ -29,13 +29,6 @@ interface Props {
 export default function GraphsTooltipsContentEvents({ addSeparator, events }: Props) {
   return (
     <tbody>
-      {addSeparator && (
-        <tr>
-          <td className="activity-graph-tooltip-separator" colSpan={3}>
-            <hr />
-          </td>
-        </tr>
-      )}
       <tr className="activity-graph-tooltip-line">
         <td colSpan={3}>
           {events.map((event) => (

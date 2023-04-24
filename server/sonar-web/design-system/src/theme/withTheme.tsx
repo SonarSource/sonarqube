@@ -18,24 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
+import { useTheme } from '@emotion/react';
+import { Theme } from '../types/theme';
 
-interface Props {
-  name: string;
-  index: number;
-  translatedName: string;
-  value: string;
+export interface ThemeProp {
+  theme: Theme;
 }
 
-export default function GraphsTooltipsContent({ name, index, translatedName, value }: Props) {
-  return (
-    <tr className="activity-graph-tooltip-line" key={name}>
-      <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={index} />
-      </td>
-      <td className="activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
-      <td>{translatedName}</td>
-    </tr>
-  );
+export function withTheme<P>(
+  WrappedComponent: React.ComponentType<P & ThemeProp>
+): React.ComponentType<P> {
+  return function WrappedComponentWithTheme(props: P) {
+    const theme = useTheme();
+
+    return <WrappedComponent theme={theme} {...props} />;
+  };
 }

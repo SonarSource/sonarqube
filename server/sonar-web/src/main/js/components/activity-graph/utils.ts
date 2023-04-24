@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { chunk, flatMap, groupBy, sortBy } from 'lodash';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
@@ -52,6 +53,7 @@ export function isCustomGraph(graph: GraphType) {
 
 export function getGraphTypes(ignoreCustom = false) {
   const graphs = [GraphType.issues, GraphType.coverage, GraphType.duplications];
+
   return ignoreCustom ? graphs : [...graphs, GraphType.custom];
 }
 
@@ -93,6 +95,7 @@ export function generateCoveredLinesMetric(
   const linesToCover = measuresHistory.find(
     (measure) => measure.metric === MetricKey.lines_to_cover
   );
+
   return {
     data: linesToCover
       ? uncoveredLines.history.map((analysis, idx) => ({
@@ -115,6 +118,7 @@ export function generateSeries(
   if (displayedMetrics.length <= 0 || measuresHistory === undefined) {
     return [];
   }
+
   return sortBy(
     measuresHistory
       .filter((measure) => displayedMetrics.indexOf(measure.metric) >= 0)
@@ -134,7 +138,9 @@ export function generateSeries(
         };
       }),
     (serie) =>
-      displayedMetrics.indexOf(serie.name === 'covered_lines' ? 'uncovered_lines' : serie.name)
+      displayedMetrics.indexOf(
+        serie.name === 'covered_lines' ? MetricKey.uncovered_lines : serie.name
+      )
   );
 }
 
@@ -145,6 +151,7 @@ export function saveActivityGraph(
   metrics: string[] = []
 ) {
   save(namespace, graph, project);
+
   if (isCustomGraph(graph)) {
     save(`${namespace}.custom`, metrics.join(','), project);
   }
@@ -155,6 +162,7 @@ export function getActivityGraph(
   project: string
 ): { graph: GraphType; customGraphs: string[] } {
   const customGraphs = get(`${namespace}.custom`, project);
+
   return {
     graph: (get(namespace, project) as GraphType) || DEFAULT_GRAPH,
     customGraphs: customGraphs ? customGraphs.split(',') : [],
@@ -168,6 +176,7 @@ export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date
       return analysis.events;
     }
   }
+
   return [];
 }
 

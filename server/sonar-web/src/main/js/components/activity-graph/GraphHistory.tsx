@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
-import AdvancedTimeline from '../../components/charts/AdvancedTimeline';
+import { AdvancedTimeline } from '../../components/charts/AdvancedTimeline';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
-import { Button } from '../controls/buttons';
 import ModalButton from '../controls/ModalButton';
+import { Button } from '../controls/buttons';
 import DataTableModal from './DataTableModal';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
-import GraphsTooltips from './GraphsTooltips';
+import { GraphsTooltips } from './GraphsTooltips';
 import { getAnalysisEventsForDate } from './utils';
 
 interface Props {
@@ -88,11 +89,27 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
       showAreas,
       graphDescription,
     } = this.props;
+
+    const modalProp = ({ onClose }: { onClose: () => void }) => (
+      <DataTableModal
+        analyses={analyses}
+        graphEndDate={graphEndDate}
+        graphStartDate={graphStartDate}
+        series={series}
+        onClose={onClose}
+      />
+    );
+
     const { tooltipIdx, tooltipXPos } = this.state;
     const events = getAnalysisEventsForDate(analyses, selectedDate);
 
     return (
-      <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
+      <div
+        className={
+          'activity-graph-container flex-grow display-flex-column display-flex-stretch ' +
+          'display-flex-justify-center'
+        }
+      >
         {isCustom && this.props.removeCustomMetric ? (
           <GraphsLegendCustom removeMetric={this.props.removeCustomMetric} series={series} />
         ) : (
@@ -104,7 +121,6 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
             {({ height, width }) => (
               <div>
                 <AdvancedTimeline
-                  displayNewCodeLegend={true}
                   endDate={graphEndDate}
                   formatYTick={this.formatValue}
                   height={height}
@@ -140,17 +156,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
           </AutoSizer>
         </div>
         {canShowDataAsTable && (
-          <ModalButton
-            modal={({ onClose }) => (
-              <DataTableModal
-                analyses={analyses}
-                graphEndDate={graphEndDate}
-                graphStartDate={graphStartDate}
-                series={series}
-                onClose={onClose}
-              />
-            )}
-          >
+          <ModalButton modal={modalProp}>
             {({ onClick }) => (
               <Button className="a11y-hidden" onClick={onClick}>
                 {translate('project_activity.graphs.open_in_table')}

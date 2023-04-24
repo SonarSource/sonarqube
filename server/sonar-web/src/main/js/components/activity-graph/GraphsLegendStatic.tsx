@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { NewCodeLegend } from 'design-system';
 import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 import { Serie } from '../../types/project-activity';
-import GraphsLegendItem from './GraphsLegendItem';
+import { GraphsLegendItem } from './GraphsLegendItem';
 
 export interface GraphsLegendStaticProps {
   series: Array<Pick<Serie, 'name' | 'translatedName'>>;
@@ -31,13 +34,19 @@ export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) 
       {series.map((serie, idx) => (
         <li key={serie.name}>
           <GraphsLegendItem
-            className="big-spacer-left big-spacer-right"
+            className="sw-ml-3"
             index={idx}
             metric={serie.name}
             name={serie.translatedName}
           />
         </li>
       ))}
+      <li key={translate('hotspot.filters.period.since_leak_period')}>
+        <NewCodeLegend
+          className="sw-ml-3 big-spacer-right"
+          text={translate('hotspot.filters.period.since_leak_period')}
+        />
+      </li>
     </ul>
   );
 }

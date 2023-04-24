@@ -18,24 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
+import styled from '@emotion/styled';
+import classNames from 'classnames';
+import tw from 'twin.macro';
+import { themeColor } from '../helpers/theme';
 
-interface Props {
-  name: string;
-  index: number;
-  translatedName: string;
-  value: string;
-}
+export const NewCodeLegendIcon = styled.span`
+  ${tw`sw-align-middle`}
+  ${tw`sw-box-border`}
+  ${tw`sw-h-3`}
+  ${tw`sw-inline-block`}
+  ${tw`sw-w-3`}
+  background-color: ${themeColor('newCodeLegend')};
+  border: 1px solid ${themeColor('newCodeLegendBorder')};
+`;
 
-export default function GraphsTooltipsContent({ name, index, translatedName, value }: Props) {
+const NewCodeLegendText = styled.span`
+  ${tw`sw-align-middle`}
+  ${tw`sw-body-sm`}
+  ${tw`sw-ml-1`}
+  color: ${themeColor('graphCursorLineColor')};
+`;
+
+export function NewCodeLegend(props: { className?: string; text: string }) {
+  const { className, text } = props;
+
   return (
-    <tr className="activity-graph-tooltip-line" key={name}>
-      <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={index} />
-      </td>
-      <td className="activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
-      <td>{translatedName}</td>
-    </tr>
+    <span className={classNames(className, 'sw-whitespace-nowrap')}>
+      <NewCodeLegendIcon />
+      <NewCodeLegendText>{text}</NewCodeLegendText>
+    </span>
   );
 }

@@ -21,4 +21,5 @@
 export * from './components';
 export * from './helpers';
 export * from './theme';
+export * from './types/measures';
 export * from './types/theme';
