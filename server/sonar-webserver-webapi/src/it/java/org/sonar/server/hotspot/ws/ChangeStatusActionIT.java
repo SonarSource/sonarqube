@@ -99,8 +99,8 @@ public class ChangeStatusActionIT {
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
-  public void ws_is_internal() {
-    assertThat(actionTester.getDef().isInternal()).isTrue();
+  public void define_shouldMarkWebServiceAsPublic() {
+    assertThat(actionTester.getDef().isInternal()).isFalse();
   }
 
   @Test

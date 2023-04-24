@@ -23,6 +23,7 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -76,7 +77,8 @@ public class ChangeStatusAction implements HotspotsWsAction {
       .setDescription("Change the status of a Security Hotpot.<br/>" +
         "Requires the 'Administer Security Hotspot' permission.")
       .setSince("8.1")
-      .setInternal(true);
+      .setChangelog(
+        new Change("10.1", "Endpoint visibility change from internal to public"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
