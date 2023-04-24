@@ -38,10 +38,6 @@ public class UserQuery {
   private final Long sonarLintLastConnectionDateTo;
   private final Set<String> userUuids;
 
-  public static UserQuery copyWithNewRangeOfUserUuids(UserQuery userQuery, Collection<String> userUuids) {
-    return new UserQuery(userQuery, userUuids);
-  }
-
   private UserQuery(UserQuery userQuery, Collection<String> userUuids) {
     this.searchText = userQuery.getSearchText();
     this.isActive = userQuery.isActive();
@@ -64,6 +60,10 @@ public class UserQuery {
     this.sonarLintLastConnectionDateFrom = parseDateToLong(sonarLintLastConnectionDateFrom);
     this.sonarLintLastConnectionDateTo = formatDateToInput(sonarLintLastConnectionDateTo);
     this.userUuids = userUuids;
+  }
+
+  public static UserQuery copyWithNewRangeOfUserUuids(UserQuery userQuery, Collection<String> userUuids) {
+    return new UserQuery(userQuery, userUuids);
   }
 
   private static Long formatDateToInput(@Nullable OffsetDateTime dateTo) {

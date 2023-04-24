@@ -108,7 +108,7 @@ public class UserDao implements Dao {
     return selectUsers(dbSession, userQuery, pagination);
   }
 
-  private List<UserDto> selectUsers(DbSession dbSession, UserQuery userQuery, Pagination pagination) {
+  private static List<UserDto> selectUsers(DbSession dbSession, UserQuery userQuery, Pagination pagination) {
     if (userQuery.getUserUuids() != null) {
       return executeLargeInputs(
         userQuery.getUserUuids(),
