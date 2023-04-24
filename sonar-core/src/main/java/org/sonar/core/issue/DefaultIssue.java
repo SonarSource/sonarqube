@@ -146,12 +146,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return type;
   }
 
-  @CheckForNull
-  @Override
-  public CodeCharacteristic characteristic() {
-    throw new IllegalStateException("Not implemented yet");
-  }
-
   public DefaultIssue setType(RuleType type) {
     this.type = type;
     return this;
