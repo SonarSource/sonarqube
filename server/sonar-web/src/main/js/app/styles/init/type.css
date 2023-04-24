@@ -302,3 +302,7 @@ small,
   font-family: var(--sourceCodeFontFamily);
   font-size: var(--smallFontSize);
 }
+
+.new-background {
+  background-color: #fcfcfd;
+}

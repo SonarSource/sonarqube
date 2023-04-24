@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetLink, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import { Alert } from '../../../components/ui/Alert';
+import withAppStateContext, {
+  WithAppStateContextProps,
+} from '../../../app/components/app-state/withAppStateContext';
+import { getUrlForDoc } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
@@ -30,33 +32,38 @@ interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
 }
 
-export default function CleanAsYouCodeWarning({ component }: Props) {
+function CleanAsYouCodeWarning({ component, appState }: Props & WithAppStateContextProps) {
+  const caycUrl = getUrlForDoc(appState.version, '/user-guide/clean-as-you-code/');
+
   return (
     <>
-      <Alert variant="warning">{translate('overview.quality_gate.conditions.cayc.warning')}</Alert>
+      <FlagMessage
+        ariaLabel={translate('overview.quality_gate.conditions.cayc.warning')}
+        variant="warning"
+      >
+        {translate('overview.quality_gate.conditions.cayc.warning')}
+      </FlagMessage>
       {component.qualityGate ? (
-        <p className="big-spacer-top big-spacer-bottom">
+        <p className="sw-my-4">
           <FormattedMessage
             id="overview.quality_gate.conditions.cayc.details_with_link"
             defaultMessage={translate('overview.quality_gate.conditions.cayc.details_with_link')}
             values={{
               link: (
-                <Link to={getQualityGateUrl(component.qualityGate.name)}>
+                <DiscreetLink to={getQualityGateUrl(component.qualityGate.name)}>
                   {translate('overview.quality_gate.conditions.non_cayc.warning.link')}
-                </Link>
+                </DiscreetLink>
               ),
             }}
           />
         </p>
       ) : (
-        <p className="big-spacer-top big-spacer-bottom">
-          {translate('overview.quality_gate.conditions.cayc.details')}
-        </p>
+        <p className="sw-my-4">{translate('overview.quality_gate.conditions.cayc.details')}</p>
       )}
 
-      <DocLink to="/user-guide/clean-as-you-code/">
-        {translate('overview.quality_gate.conditions.cayc.link')}
-      </DocLink>
+      <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
     </>
   );
 }
+
+export default withAppStateContext(CleanAsYouCodeWarning);

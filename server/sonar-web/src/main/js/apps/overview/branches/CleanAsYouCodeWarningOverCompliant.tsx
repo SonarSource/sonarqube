@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetLink, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
+import withAppStateContext, {
+  WithAppStateContextProps,
+} from '../../../app/components/app-state/withAppStateContext';
+import { getUrlForDoc } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
@@ -29,11 +32,19 @@ interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
 }
 
-export default function CleanAsYouCodeWarningOverCompliant({ component }: Props) {
+function CleanAsYouCodeWarningOverCompliant({
+  component,
+  appState,
+}: Props & WithAppStateContextProps) {
+  const caycDrawbackUrl = getUrlForDoc(
+    appState.version,
+    '/user-guide/clean-as-you-code/#potential-drawbacks'
+  );
+
   return (
     <>
       {component.qualityGate ? (
-        <p className="big-spacer-bottom">
+        <p className="sw-mb-4">
           <FormattedMessage
             id="overview.quality_gate.conditions.cayc_over_compliant.details_with_link"
             defaultMessage={translate(
@@ -41,22 +52,24 @@ export default function CleanAsYouCodeWarningOverCompliant({ component }: Props)
             )}
             values={{
               link: (
-                <Link to={getQualityGateUrl(component.qualityGate.name)}>
+                <DiscreetLink to={getQualityGateUrl(component.qualityGate.name)}>
                   {translate('overview.quality_gate.conditions.cayc_over_compliant.warning.link')}
-                </Link>
+                </DiscreetLink>
               ),
             }}
           />
         </p>
       ) : (
-        <p className="big-spacer-bottom">
+        <p className="sw-mb-4">
           {translate('overview.quality_gate.conditions.cayc_over_compliant.details')}
         </p>
       )}
 
-      <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+      <Link to={caycDrawbackUrl}>
         {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
-      </DocLink>
+      </Link>
     </>
   );
 }
+
+export default withAppStateContext(CleanAsYouCodeWarningOverCompliant);

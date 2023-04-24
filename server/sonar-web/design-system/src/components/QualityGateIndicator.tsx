@@ -37,7 +37,6 @@ interface Props {
   size?: keyof typeof SIZE;
   status: QGStatus;
   tooltipPlacement?: BasePlacement;
-  withTooltip?: boolean;
 }
 
 const RX_4 = 4;
@@ -49,7 +48,6 @@ export function QualityGateIndicator(props: Props) {
     size = 'md',
     status,
     tooltipPlacement = PopupPlacement.Right,
-    withTooltip,
     ariaLabel,
   } = props;
   const iconProps = {
@@ -59,7 +57,6 @@ export function QualityGateIndicator(props: Props) {
     size,
     tooltipPlacement,
     width: SIZE[size],
-    withTooltip,
   };
   let StatusComponent: React.ReactNode;
   switch (status) {
@@ -94,17 +91,9 @@ interface IconProps {
   size: keyof typeof SIZE;
   tooltipPlacement?: BasePlacement;
   width: string;
-  withTooltip?: boolean;
 }
 
-function QGNotComputed({
-  className,
-  rx,
-  size,
-  tooltipPlacement,
-  withTooltip,
-  ...sizeProps
-}: IconProps) {
+function QGNotComputed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorNotComputed')({ theme });
   return (
@@ -121,7 +110,7 @@ function QGNotComputed({
   );
 }
 
-function QGPassed({ className, rx, size, tooltipPlacement, withTooltip, ...sizeProps }: IconProps) {
+function QGPassed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorPassed')({ theme });
   return (
@@ -153,7 +142,7 @@ function QGPassed({ className, rx, size, tooltipPlacement, withTooltip, ...sizeP
   );
 }
 
-function QGFailed({ className, rx, size, tooltipPlacement, withTooltip, ...sizeProps }: IconProps) {
+function QGFailed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorFailed')({ theme });
   return (

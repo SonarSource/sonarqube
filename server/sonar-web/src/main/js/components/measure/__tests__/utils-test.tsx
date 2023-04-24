@@ -21,13 +21,15 @@
 import { duplicationRatingConverter } from '../utils';
 
 describe('duplicationRatingConverter', () => {
-  it('should work correctly for different use cases', () => {
-    expect(duplicationRatingConverter(-10)).toEqual('A');
-    expect(duplicationRatingConverter(2)).toEqual('A');
-    expect(duplicationRatingConverter(4)).toEqual('B');
-    expect(duplicationRatingConverter(8)).toEqual('C');
-    expect(duplicationRatingConverter(18)).toEqual('D');
-    expect(duplicationRatingConverter(20)).toEqual('E');
-    expect(duplicationRatingConverter(25)).toEqual('E');
+  it.each([
+    [-10, 'A'],
+    [2, 'A'],
+    [4, 'B'],
+    [8, 'C'],
+    [18, 'D'],
+    [20, 'E'],
+    [25, 'E'],
+  ])('should work correctly when value is %s', (value: number, result: string) => {
+    expect(duplicationRatingConverter(value)).toEqual(result);
   });
 });

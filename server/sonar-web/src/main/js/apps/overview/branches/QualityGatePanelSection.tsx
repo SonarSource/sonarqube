@@ -29,8 +29,6 @@ import {
 } from '../../../types/quality-gates';
 import { CaycStatus, Component } from '../../../types/types';
 import QualityGateConditions from '../components/QualityGateConditions';
-import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
-import CleanAsYouCodeWarningOverCompliant from './CleanAsYouCodeWarningOverCompliant';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
@@ -176,21 +174,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           <BasicSeparator />
         </>
       ) : (
-        <>
-          {renderFailedConditions()}
-          {qgStatus.caycStatus === CaycStatus.NonCompliant &&
-            !isApplication(component.qualifier) && (
-              <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-                <CleanAsYouCodeWarning component={component} />
-              </div>
-            )}
-          {qgStatus.caycStatus === CaycStatus.OverCompliant &&
-            !isApplication(component.qualifier) && (
-              <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-                <CleanAsYouCodeWarningOverCompliant component={component} />
-              </div>
-            )}
-        </>
+        renderFailedConditions()
       )}
     </>
   );

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ThemeProvider } from '@emotion/react';
+import classNames from 'classnames';
 import { lightTheme } from 'design-system';
 import * as React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -25,17 +26,19 @@ import A11yProvider from '../../components/a11y/A11yProvider';
 import A11ySkipLinks from '../../components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
 import Workspace from '../../components/workspace/Workspace';
-import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import GlobalFooter from './GlobalFooter';
+import StartupModal from './StartupModal';
+import SystemAnnouncement from './SystemAnnouncement';
+import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
 import MetricsContextProvider from './metrics/MetricsContextProvider';
 import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
-import StartupModal from './StartupModal';
-import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
+
+const TEMP_PAGELIST_WITH_NEW_BACKGROUND = ['/dashboard'];
 
 export default function GlobalContainer() {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
@@ -48,7 +51,12 @@ export default function GlobalContainer() {
           <StartupModal>
             <A11ySkipLinks />
             <div className="global-container">
-              <div className="page-wrapper" id="container">
+              <div
+                className={classNames('page-wrapper', {
+                  'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
+                })}
+                id="container"
+              >
                 <div className="page-container">
                   <BranchStatusContextProvider>
                     <Workspace>

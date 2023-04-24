@@ -50,15 +50,14 @@ it.each([
 it('should display tooltip', () => {
   const { rerender } = setupWithProps({
     status: 'NONE',
-    withTooltip: true,
     ariaLabel: 'label-none',
   });
   expect(screen.getByLabelText('label-none')).toBeInTheDocument();
 
-  rerender(<QualityGateIndicator ariaLabel="label-ok" status="OK" withTooltip={true} />);
+  rerender(<QualityGateIndicator ariaLabel="label-ok" status="OK" />);
   expect(screen.getByLabelText('label-ok')).toBeInTheDocument();
 
-  rerender(<QualityGateIndicator ariaLabel="label-error" status="ERROR" withTooltip={true} />);
+  rerender(<QualityGateIndicator ariaLabel="label-error" status="ERROR" />);
   expect(screen.getByLabelText('label-error')).toBeInTheDocument();
 });
 

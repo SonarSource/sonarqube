@@ -68,10 +68,13 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
                 rel="noopener noreferrer"
                 target="_blank"
                 showExternalIcon={false}
+                className="sw-mr-1"
               >
                 SonarLint
               </DiscreetLink>
-              <SonarLintIcon size={16} />
+              <span className="sw-align-middle">
+                <SonarLintIcon size={16} />
+              </span>
             </>
           ),
         }}

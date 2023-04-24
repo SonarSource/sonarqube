@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { Alert } from '../../../components/ui/Alert';
+import withAppStateContext, {
+  WithAppStateContextProps,
+} from '../../../app/components/app-state/withAppStateContext';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getUrlForDoc } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
-import { ComponentQualifier } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { CaycStatus } from '../../../types/types';
 
@@ -34,18 +34,34 @@ interface Props {
   caycStatus: CaycStatus;
 }
 
-export default function ApplicationNonCaycProjectWarning({ projects, caycStatus }: Props) {
+function ApplicationNonCaycProjectWarning({
+  projects,
+  caycStatus,
+  appState,
+}: Props & WithAppStateContextProps) {
+  const caycUrl = getUrlForDoc(appState.version, '/user-guide/clean-as-you-code/');
+  const caycDrawbacksUrl = getUrlForDoc(
+    appState.version,
+    '/user-guide/clean-as-you-code/#potential-drawbacks'
+  );
+
   return (
-    <div className="overview-quality-gate-conditions-list padded big-spacer-top">
+    <Card className="sw-mt-4 sw-body-sm">
       {caycStatus === CaycStatus.NonCompliant ? (
-        <Alert variant="warning">
+        <FlagMessage
+          ariaLabel={translateWithParameters(
+            'overview.quality_gate.application.non_cayc.projects_x',
+            projects.length
+          )}
+          variant="warning"
+        >
           {translateWithParameters(
             'overview.quality_gate.application.non_cayc.projects_x',
             projects.length
           )}
-        </Alert>
+        </FlagMessage>
       ) : (
-        <p className="padded">
+        <p className="sw-p-2">
           {translateWithParameters(
             'overview.quality_gate.application.cayc_over_compliant.projects_x',
             projects.length
@@ -53,34 +69,25 @@ export default function ApplicationNonCaycProjectWarning({ projects, caycStatus 
         </p>
       )}
 
-      <ul className="spacer-left spacer-bottom big-spacer-top">
+      <ul className="sw-mt-4 sw-ml-2 sw-mb-2">
         {projects.map(({ key, name, branchLike }) => (
-          <li key={key} className="text-ellipsis spacer-bottom" title={name}>
-            <Link
-              className="link-no-underline"
-              to={getProjectQueryUrl(key, getBranchLikeQuery(branchLike))}
-            >
-              <QualifierIcon
-                className="little-spacer-right"
-                qualifier={ComponentQualifier.Project}
-              />
-              {name}
-            </Link>
+          <li key={key} className="sw-text-ellipsis sw-mb-2" title={name}>
+            <Link to={getProjectQueryUrl(key, getBranchLikeQuery(branchLike))}>{name}</Link>
           </li>
         ))}
       </ul>
-      <hr className="big-spacer-top big-spacer-bottom" />
-      <div className="spacer spacer-bottom big-spacer-top">
+      <hr className="sw-my-4" />
+      <div className="sw-m-2 sw-mt-4">
         {caycStatus === CaycStatus.NonCompliant ? (
-          <DocLink to="/user-guide/clean-as-you-code/">
-            {translate('overview.quality_gate.conditions.cayc.link')}
-          </DocLink>
+          <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
         ) : (
-          <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+          <Link to={caycDrawbacksUrl}>
             {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
-          </DocLink>
+          </Link>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
+
+export default withAppStateContext(ApplicationNonCaycProjectWarning);

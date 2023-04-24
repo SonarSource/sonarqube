@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -84,9 +84,9 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
   /* eslint-enable no-lonely-if */
 
   return (
-    <Alert display="banner" variant="warning">
+    <FlagMessage ariaLabel={title} variant="warning">
       {title}
-    </Alert>
+    </FlagMessage>
   );
 }
 

@@ -111,21 +111,17 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       return <LinkBox to={METRICS_TO_URL_MAPPING[metricKey]()}>{children}</LinkBox>;
     }
 
-    if (isIssueMeasure(condition.measure.metric.key)) {
-      const url = getComponentIssuesUrl(component.key, {
-        ...propsToIssueParams(condition.measure.metric.key, condition.period != null),
-        ...getBranchLikeQuery(branchLike),
-      });
-
-      return <LinkBox to={url}>{children}</LinkBox>;
-    }
-
-    const url = getComponentDrilldownUrl({
-      componentKey: component.key,
-      metric: condition.measure.metric.key,
-      branchLike,
-      listView: true,
-    });
+    const url = isIssueMeasure(condition.measure.metric.key)
+      ? getComponentIssuesUrl(component.key, {
+          ...propsToIssueParams(condition.measure.metric.key, condition.period != null),
+          ...getBranchLikeQuery(branchLike),
+        })
+      : getComponentDrilldownUrl({
+          componentKey: component.key,
+          metric: condition.measure.metric.key,
+          branchLike,
+          listView: true,
+        });
 
     return <LinkBox to={url}>{children}</LinkBox>;
   }
