@@ -22,19 +22,19 @@ package org.sonar.db.rule;
 import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rules.RuleType;
 
-public class RuleTypeToRuleCharacteristicConverter {
+public class RuleTypeToCodeCharacteristicConverter {
 
-  private RuleTypeToRuleCharacteristicConverter() {
+  private RuleTypeToCodeCharacteristicConverter() {
   }
 
-  public static CodeCharacteristic convertToRuleCharacteristic(int ruleType) {
+  public static CodeCharacteristic convertToCodeCharacteristic(int ruleType) {
     if (ruleType == 0) {
       return CodeCharacteristic.CLEAR;
     }
-    return convertToRuleCharacteristic(RuleType.valueOf(ruleType));
+    return convertToCodeCharacteristic(RuleType.valueOf(ruleType));
   }
 
-  public static CodeCharacteristic convertToRuleCharacteristic(RuleType ruleType) {
+  public static CodeCharacteristic convertToCodeCharacteristic(RuleType ruleType) {
     return switch (ruleType) {
       case BUG -> CodeCharacteristic.ROBUST;
       case CODE_SMELL -> CodeCharacteristic.CLEAR;

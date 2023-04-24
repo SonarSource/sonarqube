@@ -42,11 +42,12 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTypeToCodeCharacteristicConverter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
+import static org.sonar.db.rule.RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic;
 
 public final class IssueDto implements Serializable {
 
@@ -728,7 +729,7 @@ public final class IssueDto implements Serializable {
 
   @CheckForNull
   public CodeCharacteristic getEffectiveRuleCharacteristic() {
-    return ruleCharacteristic != null ? ruleCharacteristic : convertToRuleCharacteristic(ruleType);
+    return ruleCharacteristic != null ? ruleCharacteristic : RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic(ruleType);
   }
 
   public int getRuleType() {

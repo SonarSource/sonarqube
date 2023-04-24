@@ -38,6 +38,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
+import org.sonar.db.rule.RuleTypeToCodeCharacteristicConverter;
 import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -45,7 +46,7 @@ import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
 import static org.sonar.db.rule.RuleDto.deserializeSecurityStandardsString;
-import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
+import static org.sonar.db.rule.RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
 /**
@@ -244,7 +245,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
 
       String characteristic = rs.getString(25);
-      doc.setCharacteristic(characteristic != null ? characteristic : convertToRuleCharacteristic(rs.getInt(26)).name());
+      doc.setCharacteristic(characteristic != null ? characteristic : RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic(rs.getInt(26)).name());
 
       return doc;
     }

@@ -28,20 +28,20 @@ import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
+import static org.sonar.db.rule.RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic;
 
 @RunWith(DataProviderRunner.class)
-public class RuleTypeToRuleCharacteristicConverterTest {
+public class RuleTypeToCodeCharacteristicConverterTest {
 
   @Test
-  @UseDataProvider("ruleTypeToRulCharacteristicData")
-  public void convertToRuleCharacteristic_when_receivedNonNullRuleType_should_convertToCorrespondingDefaultCharacteristic(RuleType type,
+  @UseDataProvider("ruleTypeToCodeCharacteristicData")
+  public void convertToCodeCharacteristic_when_receivedNonNullRuleType_should_convertToCorrespondingDefaultCharacteristic(RuleType type,
     CodeCharacteristic expectedCharacteristic) {
-    assertThat(convertToRuleCharacteristic(type)).isEqualTo(expectedCharacteristic);
+    assertThat(convertToCodeCharacteristic(type)).isEqualTo(expectedCharacteristic);
   }
 
   @DataProvider
-  public static Object[][] ruleTypeToRulCharacteristicData() {
+  public static Object[][] ruleTypeToCodeCharacteristicData() {
     return new Object[][] {
       {RuleType.CODE_SMELL, CodeCharacteristic.CLEAR},
       {RuleType.BUG, CodeCharacteristic.ROBUST},

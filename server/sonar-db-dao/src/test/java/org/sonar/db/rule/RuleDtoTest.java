@@ -189,7 +189,7 @@ public class RuleDtoTest {
     assertThat(characteristic).isNull();
 
     CodeCharacteristic effectiveCharacteristic = rule.getEffectiveCharacteristic();
-    CodeCharacteristic expected = RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic(RuleType.BUG);
+    CodeCharacteristic expected = RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic(RuleType.BUG);
     assertThat(effectiveCharacteristic).isEqualTo(expected);
   }
 
