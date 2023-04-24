@@ -25,7 +25,7 @@ export interface BoxedTabsProps<K extends string | number> {
   className?: string;
   onSelect: (key: K) => void;
   selected?: K;
-  tabs: Array<{ key: K; label: React.ReactNode }>;
+  tabs: ReadonlyArray<{ key: K; label: React.ReactNode }>;
 }
 
 const TabContainer = styled.div`

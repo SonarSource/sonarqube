@@ -23,8 +23,9 @@ import ValidationInput, {
 } from '../../../../components/controls/ValidationInput';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
-import SamlSecuredField from './SamlSecuredField';
-import SamlToggleField from './SamlToggleField';
+import { isSecuredDefinition } from '../../utils';
+import AuthenticationSecuredField from './AuthenticationSecuredField';
+import AuthenticationToggleField from './AuthenticationToggleField';
 
 interface SamlToggleFieldProps {
   settingValue?: string | boolean;
@@ -35,7 +36,7 @@ interface SamlToggleFieldProps {
   error?: string;
 }
 
-export default function SamlFormField(props: SamlToggleFieldProps) {
+export default function AuthenticationFormField(props: SamlToggleFieldProps) {
   const { mandatory = false, definition, settingValue, isNotSet, error } = props;
 
   return (
@@ -50,23 +51,22 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
         )}
       </div>
       <div className="settings-definition-right big-padded-top display-flex-column">
-        {definition.type === SettingType.PASSWORD && (
-          <SamlSecuredField
+        {isSecuredDefinition(definition) && (
+          <AuthenticationSecuredField
             definition={definition}
             settingValue={String(settingValue ?? '')}
             onFieldChange={props.onFieldChange}
             isNotSet={isNotSet}
           />
         )}
-        {definition.type === SettingType.BOOLEAN && (
-          <SamlToggleField
+        {!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN && (
+          <AuthenticationToggleField
             definition={definition}
             settingValue={settingValue}
-            toggleDisabled={false}
             onChange={(value) => props.onFieldChange(definition.key, value)}
           />
         )}
-        {definition.type === undefined && (
+        {!isSecuredDefinition(definition) && definition.type === undefined && (
           <ValidationInput
             error={error}
             errorPlacement={ValidationInputErrorPlacement.Bottom}

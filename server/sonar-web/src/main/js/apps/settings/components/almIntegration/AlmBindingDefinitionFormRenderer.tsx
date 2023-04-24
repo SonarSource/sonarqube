@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import Modal from '../../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
@@ -112,7 +112,7 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
         shouldCloseOnOverlayClick={false}
         size="medium"
       >
-        <form className="views-form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>
           </div>

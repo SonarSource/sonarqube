@@ -18,7 +18,6 @@ exports[`should render correctly: form 1`] = `
   size="small"
 >
   <form
-    className="views-form"
     onSubmit={[Function]}
   >
     <div

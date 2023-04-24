@@ -84,7 +84,7 @@ const ui = {
     createConfiguration: async (user: UserEvent) => {
       const { saml } = ui;
       await act(async () => {
-        await user.click(await saml.createConfigButton.find());
+        await user.click((await saml.createConfigButton.findAll())[0]);
       });
       await saml.fillForm(user);
       await act(async () => {
@@ -135,7 +135,7 @@ describe('SAML tab', () => {
     const user = userEvent.setup();
     renderAuthentication();
 
-    await user.click(await saml.createConfigButton.find());
+    await user.click((await saml.createConfigButton.findAll())[0]);
 
     expect(saml.saveConfigButton.get()).toBeDisabled();
     await saml.fillForm(user);

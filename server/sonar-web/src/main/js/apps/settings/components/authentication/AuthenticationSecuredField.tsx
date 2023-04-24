@@ -20,7 +20,7 @@
 import React, { useEffect } from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { isSecuredDefinition } from '../../utils';
 
 interface SamlToggleFieldProps {
@@ -31,7 +31,7 @@ interface SamlToggleFieldProps {
   isNotSet: boolean;
 }
 
-export default function SamlSecuredField(props: SamlToggleFieldProps) {
+export default function AuthenticationSecuredField(props: SamlToggleFieldProps) {
   const { settingValue, definition, optional = true, isNotSet } = props;
   const [showSecretField, setShowSecretField] = React.useState(
     !isNotSet && isSecuredDefinition(definition)
@@ -43,17 +43,28 @@ export default function SamlSecuredField(props: SamlToggleFieldProps) {
 
   return (
     <>
-      {!showSecretField && (
-        <textarea
-          className="width-100"
-          id={definition.key}
-          maxLength={4000}
-          onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
-          required={!optional}
-          rows={5}
-          value={settingValue ?? ''}
-        />
-      )}
+      {!showSecretField &&
+        (definition.type === SettingType.TEXT ? (
+          <textarea
+            className="width-100"
+            id={definition.key}
+            maxLength={4000}
+            onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
+            required={!optional}
+            rows={5}
+            value={settingValue ?? ''}
+          />
+        ) : (
+          <input
+            className="width-100"
+            id={definition.key}
+            maxLength={4000}
+            name={definition.key}
+            onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
+            type="text"
+            value={String(settingValue ?? '')}
+          />
+        ))}
       {showSecretField && (
         <div>
           <p>{translate('settings.almintegration.form.secret.field')}</p>

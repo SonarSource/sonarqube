@@ -40,8 +40,12 @@ import { getBaseUrl } from '../../../../helpers/system';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { getPropertyName } from '../../utils';
 import DefinitionDescription from '../DefinitionDescription';
-import SamlConfigurationForm from './SamlConfigurationForm';
-import useSamlConfiguration, { SAML_ENABLED_FIELD } from './hook/useLoadSamlSettings';
+import ConfigurationForm from './ConfigurationForm';
+import useSamlConfiguration, {
+  SAML_ENABLED_FIELD,
+  SAML_GROUP_NAME,
+  SAML_SCIM_DEPRECATED,
+} from './hook/useLoadSamlSettings';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -50,8 +54,9 @@ interface SamlAuthenticationProps {
 export const SAML = 'saml';
 
 const CONFIG_TEST_PATH = '/saml/validation_init';
+const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_GROUP_NAME, SAML_SCIM_DEPRECATED];
 
-export default function SamlAuthentication(props: SamlAuthenticationProps) {
+export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   const { definitions } = props;
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = React.useState(false);
@@ -71,13 +76,9 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
     newScimStatus,
     setNewScimStatus,
     setNewGroupSetting,
-    onReload,
+    reload,
+    deleteConfiguration,
   } = useSamlConfiguration(definitions);
-
-  const handleDeleteConfiguration = async () => {
-    await resetSettingValue({ keys: Object.keys(values).join(',') });
-    await onReload();
-  };
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -90,7 +91,7 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
   const handleToggleEnable = async () => {
     const value = values[SAML_ENABLED_FIELD];
     await setSettingValue(value.definition, !samlEnabled);
-    await onReload();
+    await reload();
   };
 
   const handleSaveGroup = async () => {
@@ -100,7 +101,7 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
       } else {
         await setSettingValue(groupValue.definition, groupValue.newValue);
       }
-      await onReload();
+      await reload();
     }
   };
 
@@ -111,7 +112,7 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
       await deactivateScim();
       await handleSaveGroup();
     }
-    await onReload();
+    await reload();
   };
 
   return (
@@ -167,11 +168,7 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
                 <EditIcon />
                 {translate('settings.authentication.form.edit')}
               </Button>
-              <Button
-                className="button-red"
-                disabled={samlEnabled}
-                onClick={handleDeleteConfiguration}
-              >
+              <Button className="button-red" disabled={samlEnabled} onClick={deleteConfiguration}>
                 <DeleteIcon />
                 {translate('settings.authentication.form.delete')}
               </Button>
@@ -318,14 +315,16 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
         </>
       )}
       {showEditModal && (
-        <SamlConfigurationForm
+        <ConfigurationForm
+          tab={SAML}
+          excludedField={SAML_EXCLUDED_FIELD}
           loading={loading}
           values={values}
           setNewValue={setNewValue}
           canBeSave={canBeSave}
           onClose={handleCancelConfiguration}
           create={!hasConfiguration}
-          onReload={onReload}
+          onReload={reload}
         />
       )}
     </div>

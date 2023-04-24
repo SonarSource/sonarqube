@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { every, isEmpty, keyBy } from 'lodash';
 import React from 'react';
-import { fetchIsScimEnabled, getValues } from '../../../../../api/settings';
+import { fetchIsScimEnabled } from '../../../../../api/settings';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
-import { Dict } from '../../../../../types/types';
-
-const SAML = 'saml';
+import useConfiguration from './useConfiguration';
 
 export const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';
 export const SAML_GROUP_NAME = 'sonar.auth.saml.group.name';
@@ -42,87 +39,28 @@ const OPTIONAL_FIELDS = [
   SAML_SCIM_DEPRECATED,
 ];
 
-export interface SamlSettingValue {
-  key: string;
-  mandatory: boolean;
-  isNotSet: boolean;
-  value?: string;
-  newValue?: string | boolean;
-  definition: ExtendedSettingDefinition;
-}
-
 export default function useSamlConfiguration(definitions: ExtendedSettingDefinition[]) {
-  const [loading, setLoading] = React.useState(true);
   const [scimStatus, setScimStatus] = React.useState<boolean>(false);
-  const [values, setValues] = React.useState<Dict<SamlSettingValue>>({});
   const [newScimStatus, setNewScimStatus] = React.useState<boolean>();
   const hasScim = React.useContext(AvailableFeaturesContext).includes(Feature.Scim);
+  const {
+    loading,
+    reload: reloadConfig,
+    values,
+    setNewValue,
+    canBeSave,
+    hasConfiguration,
+    deleteConfiguration,
+    isValueChange,
+  } = useConfiguration(definitions, OPTIONAL_FIELDS);
 
-  const onReload = React.useCallback(async () => {
-    const samlDefinition = definitions.filter((def) => def.subCategory === SAML);
-    const keys = samlDefinition.map((definition) => definition.key);
-
-    setLoading(true);
-
-    try {
-      const values = await getValues({
-        keys,
-      });
-
-      setValues(
-        keyBy(
-          samlDefinition.map((definition) => ({
-            key: definition.key,
-            value: values.find((v) => v.key === definition.key)?.value,
-            mandatory: !OPTIONAL_FIELDS.includes(definition.key),
-            isNotSet: values.find((v) => v.key === definition.key) === undefined,
-            definition,
-          })),
-          'key'
-        )
-      );
-
+  React.useEffect(() => {
+    (async () => {
       if (hasScim) {
         setScimStatus(await fetchIsScimEnabled());
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [...definitions]);
-
-  React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
-      await onReload();
     })();
-  }, [...definitions]);
-
-  const setNewValue = (key: string, newValue?: string | boolean) => {
-    const newValues = {
-      ...values,
-      [key]: {
-        key,
-        newValue,
-        mandatory: values[key]?.mandatory,
-        isNotSet: values[key]?.isNotSet,
-        value: values[key]?.value,
-        definition: values[key]?.definition,
-      },
-    };
-    setValues(newValues);
-  };
-
-  const canBeSave = every(
-    Object.values(values).filter((v) => v.mandatory),
-    (v) =>
-      (v.newValue !== undefined && !isEmpty(v.newValue)) ||
-      (!v.isNotSet && v.newValue === undefined)
-  );
-
-  const hasConfiguration = every(
-    Object.values(values).filter((v) => v.mandatory),
-    (v) => !v.isNotSet
-  );
+  }, [hasScim]);
 
   const name = values[SAML_PROVIDER_NAME]?.value;
   const url = values[SAML_LOGIN_URL]?.value;
@@ -134,10 +72,12 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
   };
 
   const hasScimConfigChange =
-    newScimStatus !== undefined &&
-    groupValue &&
-    (newScimStatus !== scimStatus ||
-      (groupValue.newValue !== undefined && (groupValue.value ?? '') !== groupValue.newValue));
+    isValueChange(SAML_GROUP_NAME) || (newScimStatus !== undefined && newScimStatus !== scimStatus);
+
+  const reload = React.useCallback(async () => {
+    await reloadConfig();
+    setScimStatus(await fetchIsScimEnabled());
+  }, [reloadConfig]);
 
   return {
     hasScim,
@@ -151,10 +91,11 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
     canBeSave,
     values,
     setNewValue,
-    onReload,
+    reload,
     hasScimConfigChange,
     newScimStatus,
     setNewScimStatus,
     setNewGroupSetting,
+    deleteConfiguration,
   };
 }

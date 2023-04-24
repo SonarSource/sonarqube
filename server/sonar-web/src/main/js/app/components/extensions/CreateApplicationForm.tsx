@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { createApplication } from '../../../api/application';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Radio from '../../../components/controls/Radio';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -104,7 +104,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
         size="small"
       >
         {({ onCloseClick, onFormSubmit, submitting }) => (
-          <form className="views-form" onSubmit={onFormSubmit}>
+          <form onSubmit={onFormSubmit}>
             <div className="modal-head">
               <h2>{header}</h2>
             </div>

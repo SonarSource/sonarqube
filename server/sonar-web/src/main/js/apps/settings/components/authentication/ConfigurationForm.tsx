@@ -22,28 +22,26 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { setSettingValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import Modal from '../../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { Dict } from '../../../../types/types';
-import {
-  SamlSettingValue,
-  SAML_ENABLED_FIELD,
-  SAML_GROUP_NAME,
-  SAML_SCIM_DEPRECATED,
-} from './hook/useLoadSamlSettings';
-import SamlFormField from './SamlFormField';
+import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
+import AuthenticationFormField from './AuthenticationFormField';
+import { SettingValue } from './hook/useConfiguration';
 
 interface Props {
   create: boolean;
   loading: boolean;
-  values: Dict<SamlSettingValue>;
+  values: Dict<SettingValue>;
   setNewValue: (key: string, value: string | boolean) => void;
   canBeSave: boolean;
   onClose: () => void;
   onReload: () => Promise<void>;
+  tab: AuthenticationTabs;
+  excludedField: string[];
 }
 
 interface ErrorValue {
@@ -51,15 +49,11 @@ interface ErrorValue {
   message: string;
 }
 
-export const SAML = 'saml';
-
-const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_GROUP_NAME, SAML_SCIM_DEPRECATED];
-
-export default function SamlConfigurationForm(props: Props) {
-  const { create, loading, values, setNewValue, canBeSave } = props;
+export default function ConfigurationForm(props: Props) {
+  const { create, loading, values, setNewValue, canBeSave, tab, excludedField } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
 
-  const headerLabel = translate('settings.authentication.saml.form', create ? 'create' : 'edit');
+  const headerLabel = translate('settings.authentication.form', create ? 'create' : 'edit', tab);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -95,14 +89,14 @@ export default function SamlConfigurationForm(props: Props) {
 
   return (
     <Modal contentLabel={headerLabel} shouldCloseOnOverlayClick={false} size="medium">
-      <form className="views-form create-saml-form" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="modal-head">
           <h2>{headerLabel}</h2>
         </div>
         <div className="modal-body modal-container">
           <DeferredSpinner
             loading={loading}
-            ariaLabel={translate('settings.authentication.saml.form.loading')}
+            ariaLabel={translate('settings.authentication.form.loading')}
           >
             <Alert variant="info">
               <FormattedMessage
@@ -110,7 +104,9 @@ export default function SamlConfigurationForm(props: Props) {
                 defaultMessage={translate('settings.authentication.help')}
                 values={{
                   link: (
-                    <DocLink to="/instance-administration/authentication/saml/overview/">
+                    <DocLink
+                      to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[tab]}/`}
+                    >
                       {translate('settings.authentication.help.link')}
                     </DocLink>
                   ),
@@ -118,12 +114,12 @@ export default function SamlConfigurationForm(props: Props) {
               />
             </Alert>
             {Object.values(values).map((val) => {
-              if (SAML_EXCLUDED_FIELD.includes(val.key)) {
+              if (excludedField.includes(val.key)) {
                 return null;
               }
               return (
                 <div key={val.key}>
-                  <SamlFormField
+                  <AuthenticationFormField
                     settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
                     definition={val.definition}
                     mandatory={val.mandatory}
