@@ -89,7 +89,7 @@ class TomcatConnectors {
   private static void configureCompression(Connector connector) {
     connector.setProperty("compression", "on");
     connector.setProperty("compressionMinSize", "1024");
-    connector.setProperty("compressableMimeType", "text/html,text/xml,text/plain,text/css,application/json,application/javascript");
+    connector.setProperty("compressibleMimeType", "text/html,text/xml,text/plain,text/css,application/json,application/javascript,text/javascript");
   }
 
   private static void setConnectorAttribute(Connector c, String key, @Nullable Object value) {

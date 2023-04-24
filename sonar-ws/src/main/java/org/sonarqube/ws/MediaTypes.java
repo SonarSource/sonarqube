@@ -32,7 +32,7 @@ public final class MediaTypes {
   public static final String CSV = "text/csv";
   public static final String DEFAULT = "application/octet-stream";
   public static final String HTML = "text/html";
-  public static final String JAVASCRIPT = "application/javascript";
+  public static final String JAVASCRIPT = "text/javascript";
   public static final String JSON = "application/json";
   public static final String PROTOBUF = "application/x-protobuf";
   public static final String SVG = "image/svg+xml";
