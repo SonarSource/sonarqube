@@ -62,11 +62,12 @@ public class ProgressReportTest {
     underTest.start("start");
     underTest.message("Some message");
     boolean logged = false;
-    Thread.sleep(1000);
+    Thread.sleep(2000);
     while (!logged) {
       logged = logTester.logs().contains("Some message");
     }
     underTest.stop("stop");
+    Thread.sleep(1000);
     assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("stop", s))).isTrue();
   }
 
