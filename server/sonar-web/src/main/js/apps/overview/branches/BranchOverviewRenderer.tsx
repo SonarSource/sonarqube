@@ -87,7 +87,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
       />
       <LargeCenteredLayout>
         <PageContentFontWrapper>
-          <div className="overview sw-mt-6 sw-body-sm">
+          <div className="overview sw-my-6 sw-body-sm">
             <A11ySkipTarget anchor="overview_main" />
 
             {projectIsEmpty ? (

@@ -22,34 +22,6 @@
   animation: fadeIn 0.5s forwards;
 }
 
-.overview-panel {
-  min-height: 100%;
-}
-
-.overview-panel-content {
-  background: white;
-  border: 1px solid var(--barBorderColor);
-}
-
-.overview-panel-title {
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: var(--smallFontSize);
-  margin-bottom: var(--gridSize);
-}
-
-.overview-panel-padded {
-  padding: calc(2 * var(--gridSize));
-}
-
-.overview-panel-big-padded {
-  padding: calc(3 * var(--gridSize));
-}
-
-.overview-panel-huge-padded {
-  padding: calc(5 * var(--gridSize));
-}
-
 /*
  * Measures
  */
@@ -206,6 +178,6 @@
 }
 
 .activity-graph-container {
-  min-height: 200px;
+  height: 300px;
   padding-bottom: 0;
 }
