@@ -3,27 +3,32 @@
 exports[`should render correctly 1`] = `
 <tr>
   <td
-    className="thin nowrap text-middle"
+    className="thin text-middle"
   >
-    <withAppStateContext(Avatar)
-      name="One"
-      size={36}
-    />
+    <div
+      className="sw-flex sw-items-center"
+    >
+      <withAppStateContext(Avatar)
+        className="sw-shrink-0 sw-mr-4"
+        name="One"
+        size={36}
+      />
+      <UserListItemIdentity
+        user={
+          {
+            "active": true,
+            "lastConnectionDate": "2019-01-18T15:06:33+0100",
+            "local": false,
+            "login": "obi",
+            "managed": false,
+            "name": "One",
+            "scmAccounts": [],
+            "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
+          }
+        }
+      />
+    </div>
   </td>
-  <UserListItemIdentity
-    user={
-      {
-        "active": true,
-        "lastConnectionDate": "2019-01-18T15:06:33+0100",
-        "local": false,
-        "login": "obi",
-        "managed": false,
-        "name": "One",
-        "scmAccounts": [],
-        "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
-      }
-    }
-  />
   <td
     className="thin text-middle"
   >
@@ -105,27 +110,32 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly without last connection date 1`] = `
 <tr>
   <td
-    className="thin nowrap text-middle"
+    className="thin text-middle"
   >
-    <withAppStateContext(Avatar)
-      name="One"
-      size={36}
-    />
+    <div
+      className="sw-flex sw-items-center"
+    >
+      <withAppStateContext(Avatar)
+        className="sw-shrink-0 sw-mr-4"
+        name="One"
+        size={36}
+      />
+      <UserListItemIdentity
+        user={
+          {
+            "active": true,
+            "lastConnectionDate": "2019-01-18T15:06:33+0100",
+            "local": false,
+            "login": "obi",
+            "managed": false,
+            "name": "One",
+            "scmAccounts": [],
+            "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
+          }
+        }
+      />
+    </div>
   </td>
-  <UserListItemIdentity
-    user={
-      {
-        "active": true,
-        "lastConnectionDate": "2019-01-18T15:06:33+0100",
-        "local": false,
-        "login": "obi",
-        "managed": false,
-        "name": "One",
-        "scmAccounts": [],
-        "sonarLintLastConnectionDate": "2019-01-16T15:06:33+0100",
-      }
-    }
-  />
   <td
     className="thin text-middle"
   >

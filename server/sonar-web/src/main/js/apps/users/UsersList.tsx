@@ -48,8 +48,7 @@ export default function UsersList({
       <table className="data zebra" id="users-list">
         <thead>
           <tr>
-            <th />
-            <th className="nowrap" />
+            <th className="nowrap">{translate('users.user_name')}</th>
             <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
             <th className="nowrap">{translate('users.last_connection')}</th>
             <th className="nowrap">
@@ -62,7 +61,7 @@ export default function UsersList({
             <th className="nowrap">{translate('my_profile.groups')}</th>
             <th className="nowrap">{translate('users.tokens')}</th>
             {(manageProvider === undefined || users.some((u) => !u.managed)) && (
-              <th className="nowrap">&nbsp;</th>
+              <th className="nowrap">{translate('actions')}</th>
             )}
           </tr>
         </thead>

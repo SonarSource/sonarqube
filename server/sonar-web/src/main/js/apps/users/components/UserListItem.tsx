@@ -54,14 +54,16 @@ export default function UserListItem(props: UserListItemProps) {
 
   return (
     <tr>
-      <td className="thin nowrap text-middle">
-        <Avatar hash={user.avatar} name={user.name} size={36} />
+      <td className="thin text-middle">
+        <div className="sw-flex sw-items-center">
+          <Avatar className="sw-shrink-0 sw-mr-4" hash={user.avatar} name={user.name} size={36} />
+          <UserListItemIdentity
+            identityProvider={identityProvider}
+            user={user}
+            manageProvider={manageProvider}
+          />
+        </div>
       </td>
-      <UserListItemIdentity
-        identityProvider={identityProvider}
-        user={user}
-        manageProvider={manageProvider}
-      />
       <td className="thin text-middle">
         <UserScmAccounts scmAccounts={user.scmAccounts || []} />
       </td>

@@ -36,9 +36,7 @@ exports[`#ExternalProvider should render the user external provider and identity
 `;
 
 exports[`#UserListItemIdentity should render correctly 1`] = `
-<td
-  className="text-middle"
->
+<div>
   <div>
     <strong
       className="js-user-name"
@@ -79,5 +77,5 @@ exports[`#UserListItemIdentity should render correctly 1`] = `
       }
     }
   />
-</td>
+</div>
 `;
