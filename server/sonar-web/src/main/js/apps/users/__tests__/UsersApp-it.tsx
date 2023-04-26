@@ -24,22 +24,27 @@ import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from 'testing-library-selector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
+import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../types/features';
+import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { ChangePasswordResults, CurrentUser } from '../../../types/users';
 import UsersApp from '../UsersApp';
 
 jest.mock('../../../api/user-tokens');
 jest.mock('../../../api/components');
 jest.mock('../../../api/settings');
+jest.mock('../../../api/ce');
 
 const userHandler = new UsersServiceMock();
 const tokenHandler = new UserTokensMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
+const computeEngineHandler = new ComputeEngineServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
@@ -67,7 +72,6 @@ const ui = {
     byRole('button', {
       name: `remove_x.users.create_user.scm_account_${value ? `x.${value}` : 'new'}`,
     }),
-
   userRows: byRole('row', {
     name: (accessibleName) => /^[A-Z]+ /.test(accessibleName),
   }),
@@ -121,6 +125,9 @@ const ui = {
   confirmPassword: byLabelText('my_profile.password.confirm', { selector: 'input', exact: false }),
   tokenNameInput: byRole('textbox', { name: 'users.tokens.name' }),
   deleteUserCheckbox: byRole('checkbox', { name: 'users.delete_user' }),
+  githubProvisioningInProgress: byRole('status', { name: /synchronisation_in_progress/ }),
+  githubProvisioningSuccess: byRole('status', { name: /synchronisation_successful/ }),
+  githubProvisioningAlert: byRole('alert', { name: /synchronisation_failed/ }),
 };
 
 beforeEach(() => {
@@ -379,7 +386,7 @@ describe('in non managed mode', () => {
   it('should change a password', async () => {
     const user = userEvent.setup();
     const currentUser = mockLoggedInUser({ login: 'alice.merveille' });
-    renderUsersApp(currentUser);
+    renderUsersApp([], currentUser);
 
     await act(async () =>
       user.click(
@@ -441,6 +448,10 @@ describe('in non managed mode', () => {
 describe('in manage mode', () => {
   beforeEach(() => {
     userHandler.setIsManaged(true);
+  });
+
+  afterEach(() => {
+    computeEngineHandler.clearTasks();
   });
 
   it('should not be able to create a user"', async () => {
@@ -546,6 +557,39 @@ describe('in manage mode', () => {
     await user.click(ui.doneButton.get());
     expect(ui.dialogTokens.query()).not.toBeInTheDocument();
   });
+
+  describe('Github Provisioning', () => {
+    it('should display an info status when the synchronisation is in Progress', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.InProgress,
+        type: TaskTypes.GithubProvisioning,
+        executedAt: '2022-02-03T11:45:35+0200',
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      expect(await ui.githubProvisioningInProgress.find()).toBeInTheDocument();
+    });
+
+    it('should display a success status when the synchronisation is a success', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Success,
+        type: TaskTypes.GithubProvisioning,
+        executedAt: '2022-02-03T11:45:35+0200',
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
+    });
+
+    it('should display an error alert when the synchronisation failed', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Failed,
+        type: TaskTypes.GithubProvisioning,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
+    });
+  });
 });
 
 it('should render external identity Providers', async () => {
@@ -555,7 +599,10 @@ it('should render external identity Providers', async () => {
   expect(await ui.denisRow.find()).toHaveTextContent(/test2: UnknownExternalProvider/);
 });
 
-function renderUsersApp(currentUser?: CurrentUser) {
+function renderUsersApp(featureList: Feature[] = [], currentUser?: CurrentUser) {
   // eslint-disable-next-line testing-library/no-unnecessary-act
-  return renderApp('admin/users', <UsersApp />, { currentUser: mockCurrentUser(currentUser) });
+  renderApp('admin/users', <UsersApp />, {
+    currentUser: mockCurrentUser(currentUser),
+    featureList,
+  });
 }

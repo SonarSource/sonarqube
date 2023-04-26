@@ -23,6 +23,11 @@ import { useEffect } from 'react';
 import { getSystemInfo } from '../../api/system';
 import { SysInfoCluster } from '../../types/types';
 
+export enum Provider {
+  Github = 'GitHub',
+  Scim = 'SCIM',
+}
+
 export function useManageProvider(): string | undefined {
   const [manageProvider, setManageProvider] = React.useState<string | undefined>();
 

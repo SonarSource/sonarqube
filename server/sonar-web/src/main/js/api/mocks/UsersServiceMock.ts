@@ -290,7 +290,7 @@ export default class UsersServiceMock {
               System: {
                 'High Availability': true,
                 'Server ID': 'asd564-asd54a-5dsfg45',
-                'External Users and Groups Provisioning': 'Okta',
+                'External Users and Groups Provisioning': 'GitHub',
               },
             }
           : {}

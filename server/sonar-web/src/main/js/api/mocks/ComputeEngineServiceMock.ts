@@ -47,6 +47,7 @@ const TASK_TYPES = [
   TaskTypes.ProjectImport,
   TaskTypes.ViewRefresh,
   TaskTypes.ReportSubmit,
+  TaskTypes.GithubProvisioning,
 ];
 
 const DEFAULT_TASKS: Task[] = [mockTask()];

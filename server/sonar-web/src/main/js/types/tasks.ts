@@ -20,6 +20,7 @@
 export enum TaskTypes {
   Report = 'REPORT',
   IssueSync = 'ISSUE_SYNC',
+  GithubProvisioning = 'GITHUB_AUTH_PROVISIONING',
   AppRefresh = 'APP_REFRESH',
   ViewRefresh = 'VIEW_REFRESH',
   ProjectExport = 'PROJECT_EXPORT',

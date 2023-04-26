@@ -21,13 +21,14 @@ import { subDays, subSeconds } from 'date-fns';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getIdentityProviders, searchUsers } from '../../api/users';
+import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
 import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { useManageProvider } from '../../components/hooks/useManageProvider';
+import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
@@ -125,6 +126,7 @@ export default function UsersApp() {
       <Suggestions suggestions="users" />
       <Helmet defer={false} title={translate('users.page')} />
       <Header onUpdateUsers={fetchUsers} manageProvider={manageProvider} />
+      {manageProvider === Provider.Github && <GitHubSynchronisationWarning />}
       <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
         <ManagedFilter
           manageProvider={manageProvider}

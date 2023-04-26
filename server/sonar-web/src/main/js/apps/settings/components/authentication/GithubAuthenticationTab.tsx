@@ -26,10 +26,12 @@ import {
   resetSettingValue,
   setSettingValue,
 } from '../../../../api/settings';
+import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import DocLink from '../../../../components/common/DocLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
+import { Provider } from '../../../../components/hooks/useManageProvider';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
@@ -82,7 +84,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     resetJitSetting,
   } = useGithubConfiguration(definitions, props.onReload);
 
-  const hasDifferentProvider = provider !== undefined && provider !== 'github';
+  const hasDifferentProvider = provider !== undefined && provider !== Provider.Github;
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -217,7 +219,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                               'settings.authentication.github.form.provisioning_with_github.description'
                             )}
                           </p>
-                          <p>
+                          <p className="spacer-bottom">
                             <FormattedMessage
                               id="settings.authentication.github.form.provisioning_with_github.description.doc"
                               defaultMessage={translate(
@@ -236,6 +238,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                               }}
                             />
                           </p>
+                          {githubProvisioningStatus && <GitHubSynchronisationWarning />}
                         </>
                       ) : (
                         <p>

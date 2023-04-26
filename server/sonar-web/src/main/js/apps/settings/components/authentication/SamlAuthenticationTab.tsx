@@ -31,6 +31,7 @@ import Link from '../../../../components/common/Link';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
+import { Provider } from '../../../../components/hooks/useManageProvider';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
@@ -82,7 +83,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     deleteConfiguration,
   } = useSamlConfiguration(definitions, onReload);
 
-  const hasDifferentProvider = provider !== undefined && provider !== name;
+  const hasDifferentProvider = provider !== undefined && provider !== Provider.Scim;
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
