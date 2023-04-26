@@ -256,10 +256,12 @@ exports[`should render correctly: Zoom enabled 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -516,10 +518,12 @@ exports[`should render correctly: basisCurve 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -776,10 +780,12 @@ exports[`should render correctly: default 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -1196,10 +1202,12 @@ exports[`should render correctly: format y tick 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -1464,10 +1472,12 @@ exports[`should render correctly: leakPeriodDate 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -1607,9 +1617,11 @@ exports[`should render correctly: level metric 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -1866,10 +1878,12 @@ exports[`should render correctly: no areas 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -2031,10 +2045,12 @@ exports[`should render correctly: rating metric 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="12"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -2291,10 +2307,12 @@ exports[`should render correctly: selected date 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <g>
@@ -2306,16 +2324,20 @@ exports[`should render correctly: selected date 1`] = `
         y2="0"
       />
       <circle
-        class="line-chart-dot line-chart-dot-0"
         cx="0"
         cy="16"
+        fill="rgb(58,127,173)"
         r="4"
+        stroke="white"
+        stroke-width="1"
       />
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="0"
         cy="0"
+        fill="rgb(85,170,223)"
         r="4"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect
@@ -2572,10 +2594,12 @@ exports[`should render correctly: zoomSpeed 1`] = `
     </g>
     <g>
       <circle
-        class="line-chart-dot line-chart-dot-1"
         cx="40"
         cy="0"
+        fill="rgb(85,170,223)"
         r="2"
+        stroke="white"
+        stroke-width="1"
       />
     </g>
     <rect

@@ -458,7 +458,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   };
 
   renderDots = () => {
-    const { series } = this.props;
+    const { series, theme } = this.props;
     const { xScale, yScale } = this.state;
 
     return (
@@ -481,11 +481,17 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
 
                 return (
                   <circle
-                    className={classNames('line-chart-dot', `line-chart-dot-${serieIdx}`)}
                     cx={xScale(point.x)}
                     cy={yScale(point.y as YPoint)}
-                    key={`${serie.name}${idx}`}
+                    fill={themeColor(
+                      `graphLineColor.${serieIdx}` as Parameters<typeof themeColor>[0]
+                    )({
+                      theme,
+                    })}
+                    key={`${serie.name}${point.x}${point.y}`}
                     r="2"
+                    stroke="white"
+                    strokeWidth={1}
                   />
                 );
               })
@@ -524,8 +530,9 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   };
 
   renderSelectedDate = () => {
+    const { series, theme } = this.props;
     const { selectedDateIdx, selectedDateXPos, yScale } = this.state;
-    const firstSerie = this.props.series[0];
+    const firstSerie = series[0];
 
     if (selectedDateIdx == null || selectedDateXPos == null || !firstSerie) {
       return null;
@@ -540,7 +547,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
           y1={yScale.range()[0]}
           y2={yScale.range()[1]}
         />
-        {this.props.series.map((serie, idx) => {
+        {series.map((serie, idx) => {
           const point = serie.data[selectedDateIdx];
 
           if (!point || (!point.y && point.y !== 0)) {
@@ -549,11 +556,15 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
 
           return (
             <circle
-              className={classNames('line-chart-dot', `line-chart-dot-${idx}`)}
               cx={selectedDateXPos}
               cy={yScale(point.y as YPoint)}
+              fill={themeColor(`graphLineColor.${idx}` as Parameters<typeof themeColor>[0])({
+                theme,
+              })}
               key={serie.name}
               r="4"
+              stroke="white"
+              strokeWidth={1}
             />
           );
         })}

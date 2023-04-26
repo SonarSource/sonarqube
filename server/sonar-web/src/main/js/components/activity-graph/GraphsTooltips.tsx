@@ -113,6 +113,7 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
     return (
       <Popup
         className="disabled-pointer-events"
+        noArrow={true}
         placement={placement}
         style={{ top, left, width: TOOLTIP_WIDTH }}
       >

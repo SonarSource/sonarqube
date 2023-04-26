@@ -51,13 +51,14 @@ interface PopupProps {
   arrowStyle?: React.CSSProperties;
   children?: React.ReactNode;
   className?: string;
+  noArrow?: boolean;
   noPadding?: boolean;
   placement?: PopupPlacement;
   style?: React.CSSProperties;
 }
 
 function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
-  const { placement = PopupPlacement.Bottom } = props;
+  const { noArrow = false, placement = PopupPlacement.Bottom } = props;
   return (
     <ClickEventBoundary>
       <div
@@ -71,7 +72,7 @@ function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
         style={props.style}
       >
         {props.children}
-        <PopupArrow style={props.arrowStyle} />
+        {!noArrow && <PopupArrow style={props.arrowStyle} />}
       </div>
     </ClickEventBoundary>
   );
