@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -123,9 +122,6 @@ public class IssueDaoIT {
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
     assertThat(issue.isExternal()).isTrue();
-    assertThat(issue.getRuleType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
-    assertThat(issue.getRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
-    assertThat(issue.getEffectiveRuleCharacteristic()).isEqualTo(RuleCharacteristic.CLEAR);
     assertFalse(issue.isQuickFixAvailable());
   }
 

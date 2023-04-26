@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
@@ -93,7 +92,6 @@ public class RuleTesting {
       .setName("name_" + randomAlphanumeric(5))
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
-      .setCharacteristic(RuleCharacteristic.CLEAR)
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + ruleKey.rule())
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
