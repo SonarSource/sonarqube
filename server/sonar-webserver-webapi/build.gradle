@@ -39,7 +39,7 @@ dependencies {
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
-  testImplementation 'org.springframework:spring-test:${springVersion}'
+  testImplementation 'org.springframework:spring-test'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
