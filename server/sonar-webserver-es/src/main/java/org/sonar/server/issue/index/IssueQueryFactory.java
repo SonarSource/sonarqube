@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -98,9 +97,6 @@ public class IssueQueryFactory {
     .filter(s -> !s.equals(STATUS_TO_REVIEW))
     .filter(s -> !s.equals(STATUS_REVIEWED))
     .collect(ImmutableList.toImmutableList());
-  public static final Set<String> CHARACTERISTICS = Arrays.stream(CodeCharacteristic.values())
-    .map(Enum::name)
-    .collect(Collectors.toSet());
   public static final Set<String> ISSUE_TYPE_NAMES = Arrays.stream(RuleType.values())
     .filter(t -> t != RuleType.SECURITY_HOTSPOT)
     .map(Enum::name)

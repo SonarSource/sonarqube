@@ -518,16 +518,6 @@ public class SearchActionIT {
   }
 
   @Test
-  public void handle_whenCharacteristicsFacetAsked_shouldAlwaysReturnCompleteListOfCharacteristics() {
-    SearchWsResponse searchWsResponse = ws.newRequest()
-      .setParam(FACETS, "characteristics")
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(searchWsResponse.getFacets().getFacetsCount()).isEqualTo(1);
-    assertThat(searchWsResponse.getFacets().getFacets(0).getValuesCount()).isEqualTo(CodeCharacteristic.values().length);
-  }
-
-  @Test
   public void search_by_characteristic_when_characteristic_set() {
     RuleDto rule1 = newIssueRule(XOO_X1, r -> r.setCharacteristic(CodeCharacteristic.PORTABLE));
     RuleDto rule2 = newIssueRule(XOO_X2, r -> r.setCharacteristic(CodeCharacteristic.TESTED));

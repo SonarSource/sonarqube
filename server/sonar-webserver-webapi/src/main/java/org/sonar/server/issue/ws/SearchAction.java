@@ -80,7 +80,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
-import static org.sonar.server.issue.index.IssueQueryFactory.CHARACTERISTICS;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -284,7 +283,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_CHARACTERISTICS)
       .setDescription("Comma-separated list of characteristics.")
       .setSince("10.1")
-      .setPossibleValues(CHARACTERISTICS)
+      .setPossibleValues(Arrays.stream(CodeCharacteristic.values()).map(Enum::name).toList())
       .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, CodeCharacteristic.CLEAR, CodeCharacteristic.COMPLIANT));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
       .setDescription("Level of OWASP ASVS categories.")
@@ -500,7 +499,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_SCOPES, ISSUE_SCOPES);
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, PARAM_CHARACTERISTICS, CHARACTERISTICS);
+    addMandatoryValuesToFacet(facets, PARAM_CHARACTERISTICS, request.getCharacteristics());
 
     setTypesFacet(facets);
 
