@@ -64,9 +64,9 @@ import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.Duration;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
@@ -118,7 +118,6 @@ import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SU
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNEES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHOR;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CHARACTERISTICS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
@@ -139,6 +138,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.CHARACTERISTICS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID;
@@ -245,7 +245,7 @@ public class IssueIndex {
     // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
     RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
     TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
-    CHARACTERISTICS(PARAM_CHARACTERISTICS, FIELD_ISSUE_CHARACTERISTIC, STICKY, CodeCharacteristic.values().length),
+    CHARACTERISTICS(PARAM_CHARACTERISTICS, FIELD_ISSUE_CHARACTERISTIC, STICKY, RuleCharacteristic.values().length),
     SCOPES(PARAM_SCOPES, FIELD_ISSUE_SCOPE, STICKY, MAX_FACET_SIZE),
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
@@ -492,6 +492,7 @@ public class IssueIndex {
     }
   }
 
+
   private static Set<String> calculateRequirementsForOwaspAsvs40Params(IssueQuery query) {
     int level = query.getOwaspAsvsLevel().orElse(3);
     List<String> levelRequirements = OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level);
@@ -520,8 +521,10 @@ public class IssueIndex {
 
   /**
    * <p>Builds the Elasticsearch boolean query to filter the PCI DSS categories.</p>
+   *
    * <p>The PCI DSS security report handles all the subcategories as one level. This means that subcategory 1.1 doesn't include the issues from 1.1.1.
    * Taking this into account, the search filter follows the same logic and uses prefix matching for top-level categories and exact matching for subcategories</p>
+   *
    * <p>Example</p>
    * <p>List of PCI DSS categories in issues: {1.5.8, 1.5.9, 1.6.7}
    *   <ul>
@@ -982,7 +985,7 @@ public class IssueIndex {
         t ->
           // add sub-aggregation to return issue count for current user
           aggregationHelper.getSubAggregationHelper()
-            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[]{uuid})
             .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }

@@ -39,11 +39,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Startable;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -209,7 +209,7 @@ public class RegisterRules implements Startable {
         RuleDto rule = dbRulesByRuleUuid.get(ruleUuid);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with uuid %s referenced by a deprecated rule key. " +
-              "The following deprecated rule keys seem to be referencing a non-existing rule",
+            "The following deprecated rule keys seem to be referencing a non-existing rule",
             ruleUuid, entry.getValue());
         } else {
           entry.getValue().forEach(d -> rulesByKey.put(d.getOldRuleKeyAsRuleKey(), rule));
@@ -268,10 +268,10 @@ public class RegisterRules implements Startable {
 
     private Stream<RuleDto> getAllModified() {
       return Stream.of(
-          created.stream(),
-          updated.stream(),
-          removed.stream(),
-          renamed.keySet().stream())
+        created.stream(),
+        updated.stream(),
+        removed.stream(),
+        renamed.keySet().stream())
         .flatMap(s -> s);
     }
 
@@ -492,7 +492,7 @@ public class RegisterRules implements Startable {
       dto.setType(type);
       changed = true;
     }
-    CodeCharacteristic characteristic = def.characteristic();
+    RuleCharacteristic characteristic = def.characteristic();
     if (!Objects.equals(dto.getCharacteristic(), characteristic)) {
       dto.setCharacteristic(characteristic);
       changed = true;
@@ -670,9 +670,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      changed = true;
-    }
+        dto.setSystemTags(ruleDef.tags());
+        changed = true;
+      }
     return changed;
   }
 
@@ -684,9 +684,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
@@ -818,8 +818,8 @@ public class RegisterRules implements Startable {
 
   private static Set<String> getExistingAndRenamedRepositories(RegisterRulesContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
-        context.stream().map(RulesDefinition.ExtendedRepository::key),
-        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+      context.stream().map(RulesDefinition.ExtendedRepository::key),
+      recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
       .collect(toSet());
   }
 

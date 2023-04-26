@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -103,7 +103,7 @@ public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
   private static final Collection<String> DEFAULT_FACETS = Set.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
-  private static final String[] POSSIBLE_FACETS = new String[] {
+  private static final String[] POSSIBLE_FACETS = new String[]{
     FACET_LANGUAGES,
     FACET_REPOSITORIES,
     FACET_TAGS,
@@ -325,7 +325,7 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
-    addMandatoryFacetValues(results, FACET_CHARACTERISTICS, Arrays.stream(CodeCharacteristic.values()).map(Enum::name).toList());
+    addMandatoryFacetValues(results, FACET_CHARACTERISTICS, Arrays.stream(RuleCharacteristic.values()).map(Enum::name).toList());
     addMandatoryFacetValues(results, FACET_CWE, request.getCwe());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());

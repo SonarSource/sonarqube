@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
@@ -403,12 +403,12 @@ public class SearchActionIT {
 
   @Test
   public void characteristics_shouldFilterOnCharacteristics() {
-    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(CodeCharacteristic.ROBUST));
-    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(CodeCharacteristic.COMPLIANT));
+    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.ROBUST));
+    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
     indexRules();
 
     Consumer<TestRequest> populator = r -> r
-      .setParam(PARAM_CHARACTERISTICS, CodeCharacteristic.ROBUST.name());
+      .setParam(PARAM_CHARACTERISTICS, RuleCharacteristic.ROBUST.name());
 
     TestRequest request = ws.newRequest();
     populator.accept(request);
@@ -419,11 +419,12 @@ public class SearchActionIT {
     assertThat(rulesList.get(0).getKey()).isEqualTo(rule1.getKey().toString());
   }
 
+
   @Test
   public void characteristics_shouldGroupCharacteristicsInTheFacets() {
-    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(CodeCharacteristic.ROBUST));
-    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(CodeCharacteristic.COMPLIANT));
-    RuleDto rule3 = db.rules().insert(r -> r.setCharacteristic(CodeCharacteristic.COMPLIANT));
+    RuleDto rule1 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.ROBUST));
+    RuleDto rule2 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
+    RuleDto rule3 = db.rules().insert(r -> r.setCharacteristic(RuleCharacteristic.COMPLIANT));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -433,15 +434,15 @@ public class SearchActionIT {
     Common.Facet facets = result.getFacets().getFacets(0);
 
     int valuesCount = facets.getValuesCount();
-    assertThat(valuesCount).isEqualTo(CodeCharacteristic.values().length);
+    assertThat(valuesCount).isEqualTo(RuleCharacteristic.values().length);
 
     List<Common.FacetValue> valuesList = facets.getValuesList();
     Common.FacetValue compliantFacetValue = valuesList.get(0);
-    assertThat(compliantFacetValue.getVal()).isEqualTo(CodeCharacteristic.COMPLIANT.name());
+    assertThat(compliantFacetValue.getVal()).isEqualTo(RuleCharacteristic.COMPLIANT.name());
     assertThat(compliantFacetValue.getCount()).isEqualTo(2);
 
     Common.FacetValue robustFacetValue = valuesList.get(1);
-    assertThat(robustFacetValue.getVal()).isEqualTo(CodeCharacteristic.ROBUST.name());
+    assertThat(robustFacetValue.getVal()).isEqualTo(RuleCharacteristic.ROBUST.name());
     assertThat(robustFacetValue.getCount()).isEqualTo(1);
   }
 
@@ -1028,10 +1029,10 @@ public class SearchActionIT {
     indexRules();
 
     ws.newRequest()
-      .setParam(WebService.Param.PAGE, "2")
-      .setParam(WebService.Param.PAGE_SIZE, "9")
-      .execute()
-      .assertJson(this.getClass(), "paging.json");
+            .setParam(WebService.Param.PAGE, "2")
+            .setParam(WebService.Param.PAGE_SIZE, "9")
+            .execute()
+            .assertJson(this.getClass(), "paging.json");
   }
 
   @Test
@@ -1082,6 +1083,7 @@ public class SearchActionIT {
     List<Rule.DescriptionSection> actualSections = result.getRules(0).getDescriptionSections().getDescriptionSectionsList();
     assertThat(actualSections).hasSameElementsAs(expected);
   }
+
 
   private void verifyNoResults(Consumer<TestRequest> requestPopulator) {
     verify(requestPopulator);

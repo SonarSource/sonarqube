@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
-import org.sonar.api.code.CodeCharacteristic;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +44,7 @@ public class DefaultAdHocRuleTest {
       .description("desc")
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL)
-      .characteristic(CodeCharacteristic.COMPLIANT);
+      .characteristic(RuleCharacteristic.COMPLIANT);
     rule.save();
 
     assertThat(rule.engineId()).isEqualTo("engine");
@@ -53,7 +53,7 @@ public class DefaultAdHocRuleTest {
     assertThat(rule.description()).isEqualTo("desc");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.type()).isEqualTo(RuleType.CODE_SMELL);
-    assertThat(rule.characteristic()).isEqualTo(CodeCharacteristic.COMPLIANT);
+    assertThat(rule.characteristic()).isEqualTo(RuleCharacteristic.COMPLIANT);
     verify(storage).store(any(DefaultAdHocRule.class));
   }
 

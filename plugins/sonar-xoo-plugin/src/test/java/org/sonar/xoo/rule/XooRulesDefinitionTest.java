@@ -23,9 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
@@ -120,7 +120,7 @@ public class XooRulesDefinitionTest {
   public void define_xoo_rule_with_characteristic() {
     RulesDefinition.Repository repo = context.repository("xoo");
     RulesDefinition.Rule oneCodeSmellIssuePerLine = repo.rule("OneCodeSmellIssuePerLine");
-    assertThat(oneCodeSmellIssuePerLine.characteristic()).isEqualTo(CodeCharacteristic.STRUCTURED);
+    assertThat(oneCodeSmellIssuePerLine.characteristic()).isEqualTo(RuleCharacteristic.STRUCTURED);
   }
 
   private RulesDefinition.Repository getRepository() {

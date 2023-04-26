@@ -19,7 +19,7 @@
  */
 package org.sonar.db.rule;
 
-import org.sonar.api.code.CodeCharacteristic;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 public class RuleTypeToRuleCharacteristicConverter {
@@ -27,18 +27,18 @@ public class RuleTypeToRuleCharacteristicConverter {
   private RuleTypeToRuleCharacteristicConverter() {
   }
 
-  public static CodeCharacteristic convertToRuleCharacteristic(int ruleType) {
+  public static RuleCharacteristic convertToRuleCharacteristic(int ruleType) {
     if (ruleType == 0) {
-      return CodeCharacteristic.CLEAR;
+      return RuleCharacteristic.CLEAR;
     }
     return convertToRuleCharacteristic(RuleType.valueOf(ruleType));
   }
 
-  public static CodeCharacteristic convertToRuleCharacteristic(RuleType ruleType) {
+  public static RuleCharacteristic convertToRuleCharacteristic(RuleType ruleType) {
     return switch (ruleType) {
-      case BUG -> CodeCharacteristic.ROBUST;
-      case CODE_SMELL -> CodeCharacteristic.CLEAR;
-      case SECURITY_HOTSPOT, VULNERABILITY -> CodeCharacteristic.SECURE;
+      case BUG -> RuleCharacteristic.ROBUST;
+      case CODE_SMELL -> RuleCharacteristic.CLEAR;
+      case SECURITY_HOTSPOT, VULNERABILITY -> RuleCharacteristic.SECURE;
     };
   }
 

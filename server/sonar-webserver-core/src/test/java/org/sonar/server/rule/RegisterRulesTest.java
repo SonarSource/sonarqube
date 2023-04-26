@@ -36,20 +36,20 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -210,7 +210,7 @@ public class RegisterRulesTest {
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
-    assertThat(hotspotRule.getCharacteristic()).isEqualTo(CodeCharacteristic.SECURE);
+    assertThat(hotspotRule.getCharacteristic()).isEqualTo(RuleCharacteristic.SECURE);
     assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
   }
 
@@ -237,7 +237,7 @@ public class RegisterRulesTest {
 
   private void verifyExternalRule(RuleDto rule) {
     verifyCommonsFields(rule);
-    assertThat(rule.getCharacteristic()).isEqualTo(CodeCharacteristic.COMPLIANT);
+    assertThat(rule.getCharacteristic()).isEqualTo(RuleCharacteristic.COMPLIANT);
   }
 
   private void verifyCommonsFields(RuleDto rule) {
@@ -422,7 +422,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getNoteUserUuid()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(READY);
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(rule1.getCharacteristic()).isEqualTo(CodeCharacteristic.PORTABLE);
+    assertThat(rule1.getCharacteristic()).isEqualTo(RuleCharacteristic.PORTABLE);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
     assertThat(rule1.getEducationPrinciples()).containsOnly("concept1", "concept4");
@@ -1170,7 +1170,7 @@ public class RegisterRulesTest {
       .setInternalKey("config1")
       .setTags("tag1", "tag2", "tag3")
       .setType(RuleType.CODE_SMELL)
-      .setCharacteristic(CodeCharacteristic.ROBUST)
+      .setCharacteristic(RuleCharacteristic.ROBUST)
       .setStatus(RuleStatus.BETA);
   }
 
@@ -1182,7 +1182,7 @@ public class RegisterRulesTest {
       .setHtmlDescription("Description of One")
       .setSeverity(BLOCKER)
       .setType(RuleType.CODE_SMELL)
-      .setCharacteristic(CodeCharacteristic.TESTED)
+      .setCharacteristic(RuleCharacteristic.TESTED)
       .setStatus(RuleStatus.BETA);
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
@@ -1220,7 +1220,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
-        .setCharacteristic(CodeCharacteristic.CLEAR)
+        .setCharacteristic(RuleCharacteristic.CLEAR)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("java.S115.effortToFix")
         .addEducationPrincipleKeys("concept1", "concept2", "concept3");
@@ -1233,7 +1233,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
-        .setCharacteristic(CodeCharacteristic.SECURE)
+        .setCharacteristic(RuleCharacteristic.SECURE)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 
@@ -1261,7 +1261,7 @@ public class RegisterRulesTest {
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
         .setType(RuleType.BUG)
-        .setCharacteristic(CodeCharacteristic.PORTABLE)
+        .setCharacteristic(RuleCharacteristic.PORTABLE)
         .setStatus(READY)
         .setGapDescription("java.S115.effortToFix.v2")
         .addEducationPrincipleKeys("concept1", "concept4");
@@ -1303,7 +1303,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
-        .setCharacteristic(CodeCharacteristic.COMPLIANT)
+        .setCharacteristic(RuleCharacteristic.COMPLIANT)
         .setStatus(RuleStatus.BETA)
         .addEducationPrincipleKeys("concept1", "concept2", "concept3");
 
@@ -1311,7 +1311,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
-        .setCharacteristic(CodeCharacteristic.SECURE)
+        .setCharacteristic(RuleCharacteristic.SECURE)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 

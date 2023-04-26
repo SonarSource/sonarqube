@@ -32,8 +32,8 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -283,12 +283,12 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_CHARACTERISTICS)
       .setDescription("Comma-separated list of characteristics.")
       .setSince("10.1")
-      .setPossibleValues(Arrays.stream(CodeCharacteristic.values()).map(Enum::name).toList())
-      .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, CodeCharacteristic.CLEAR, CodeCharacteristic.COMPLIANT));
+      .setPossibleValues(Arrays.stream(RuleCharacteristic.values()).map(Enum::name).toList())
+      .setExampleValue(format(COMMA_SEPERATED_PARAMS_FORMAT, RuleCharacteristic.CLEAR, RuleCharacteristic.COMPLIANT));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
       .setDescription("Level of OWASP ASVS categories.")
       .setSince("9.7")
-      .setPossibleValues(1, 2, 3);
+      .setPossibleValues(1,2,3);
     action.createParam(PARAM_PCI_DSS_32)
       .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
       .setSince("9.6")

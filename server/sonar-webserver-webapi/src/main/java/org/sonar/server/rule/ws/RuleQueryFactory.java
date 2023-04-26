@@ -21,8 +21,8 @@ package org.sonar.server.rule.ws;
 
 import java.util.Date;
 import java.util.List;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -67,7 +67,7 @@ public class RuleQueryFactory {
 
   /**
    * Similar to {@link #createRuleQuery(DbSession, Request)} but sets additional fields which are only used
-   * for the rule search WS.
+   * for the rule search WS. 
    */
   public RuleQuery createRuleSearchQuery(DbSession dbSession, Request request) {
     RuleQuery query = createRuleQuery(dbSession, request);
@@ -100,7 +100,7 @@ public class RuleQueryFactory {
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
-    query.setCharacteristics(toEnums(request.paramAsStrings(PARAM_CHARACTERISTICS), CodeCharacteristic.class));
+    query.setCharacteristics(toEnums(request.paramAsStrings(PARAM_CHARACTERISTICS), RuleCharacteristic.class));
     query.setKey(request.param(PARAM_RULE_KEY));
     query.setCwe(request.paramAsStrings(PARAM_CWE));
     query.setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10));
