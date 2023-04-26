@@ -117,7 +117,6 @@ public class RuleMapper {
     // Mandatory fields
     ruleResponse.setKey(ruleDto.getKey().toString());
     ruleResponse.setType(Common.RuleType.forNumber(ruleDto.getType()));
-    ruleResponse.setCharacteristic(Common.RuleCharacteristic.valueOf(ruleDto.getEffectiveCharacteristic().name()));
 
     // Optional fields
     setName(ruleResponse, ruleDto, fieldsToReturn);

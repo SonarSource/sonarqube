@@ -138,7 +138,6 @@ public class IssueQueryFactory {
         .languages(request.getLanguages())
         .tags(request.getTags())
         .types(request.getTypes())
-        .characteristics(request.getCharacteristics())
         .pciDss32(request.getPciDss32())
         .pciDss40(request.getPciDss40())
         .owaspAsvs40(request.getOwaspAsvs40())

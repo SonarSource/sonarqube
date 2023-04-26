@@ -52,7 +52,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -90,7 +89,6 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CHARACTERISTIC;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CWE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
@@ -128,7 +126,6 @@ public class RuleIndex {
   public static final String FACET_ACTIVE_SEVERITIES = "active_severities";
   public static final String FACET_STATUSES = "statuses";
   public static final String FACET_TYPES = "types";
-  public static final String FACET_CHARACTERISTICS = "characteristics";
   public static final String FACET_OLD_DEFAULT = "true";
   public static final String FACET_CWE = "cwe";
   /**
@@ -293,16 +290,9 @@ public class RuleIndex {
 
     Collection<RuleType> types = query.getTypes();
     if (isNotEmpty(types)) {
-      List<String> typeNames = types.stream().map(RuleType::toString).toList();
+      List<String> typeNames = types.stream().map(RuleType::toString).collect(MoreCollectors.toList());
       filters.put(FIELD_RULE_TYPE,
         QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
-    }
-
-    Collection<RuleCharacteristic> characteristics = query.getCharacteristics();
-    if (isNotEmpty(characteristics)) {
-      List<String> characteristicNames = characteristics.stream().map(RuleCharacteristic::name).toList();
-      filters.put(FIELD_RULE_CHARACTERISTIC,
-        QueryBuilders.termsQuery(FIELD_RULE_CHARACTERISTIC, characteristicNames));
     }
 
     if (query.getAvailableSinceLong() != null) {
@@ -467,12 +457,6 @@ public class RuleIndex {
       aggregations.put(FACET_TYPES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_TYPE, FACET_TYPES,
           (types == null) ? (new String[0]) : types.toArray()));
-    }
-    if (options.getFacets().contains(FACET_CHARACTERISTICS)) {
-      Collection<RuleCharacteristic> characteristics = query.getCharacteristics();
-      aggregations.put(FACET_CHARACTERISTICS,
-        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CHARACTERISTIC, FACET_CHARACTERISTICS,
-          (characteristics == null) ? (new String[0]) : characteristics.toArray()));
     }
     if (options.getFacets().contains(FACET_REPOSITORIES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> repositories = query.getRepositories();

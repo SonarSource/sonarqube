@@ -214,10 +214,6 @@ public class RuleTesting {
     return rule -> rule.setType(type);
   }
 
-  public static Consumer<RuleDto> setCharacteristic(RuleCharacteristic characteristic) {
-    return rule -> rule.setCharacteristic(characteristic);
-  }
-
   public static Consumer<RuleDto> setIsExternal(boolean isExternal) {
     return rule -> rule.setIsExternal(isExternal);
   }

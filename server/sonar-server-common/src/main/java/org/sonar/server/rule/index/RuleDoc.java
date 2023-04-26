@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
@@ -273,15 +272,6 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
-  private RuleDoc setCharacteristic(RuleCharacteristic characteristic) {
-    setField(RuleIndexDefinition.FIELD_RULE_CHARACTERISTIC, characteristic.name());
-    return this;
-  }
-
-  public RuleCharacteristic characteristic() {
-    return RuleCharacteristic.valueOf(getField(RuleIndexDefinition.FIELD_RULE_CHARACTERISTIC));
-  }
-
   public long createdAt() {
     return getField(RuleIndexDefinition.FIELD_RULE_CREATED_AT);
   }
@@ -324,7 +314,6 @@ public class RuleDoc extends BaseDoc {
       .setSeverity(dto.getSeverityAsString())
       .setStatus(dto.getStatus().toString())
       .setType(dto.getTypeAsRuleType())
-      .setCharacteristic(dto.getCharacteristic())
       .setCreatedAt(dto.getCreatedAt())
       .setTags(Sets.union(dto.getTags(), dto.getSystemTags()))
       .setUpdatedAt(dto.getUpdatedAt())

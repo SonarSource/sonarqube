@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -69,7 +67,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
-import static org.sonar.server.rule.index.RuleIndex.FACET_CHARACTERISTICS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
@@ -85,7 +82,6 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CHARACTERISTICS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
@@ -111,7 +107,6 @@ public class SearchAction implements RulesWsAction {
     FACET_ACTIVE_SEVERITIES,
     FACET_STATUSES,
     FACET_TYPES,
-    FACET_CHARACTERISTICS,
     FACET_OLD_DEFAULT,
     FACET_CWE,
     FACET_OWASP_TOP_10,
@@ -171,8 +166,7 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
         new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
-        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
-        new Change("10.1", "The field 'characteristic' has been added to the response. New parameter 'characteristics has been added.")
+        new Change("10.0", "Parameter 'sansTop25' is deprecated")
       );
 
     action.createParam(FACETS)
@@ -325,7 +319,6 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
-    addMandatoryFacetValues(results, FACET_CHARACTERISTICS, Arrays.stream(RuleCharacteristic.values()).map(Enum::name).toList());
     addMandatoryFacetValues(results, FACET_CWE, request.getCwe());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
@@ -342,7 +335,6 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_ACTIVE_SEVERITIES, request.getActiveSeverities());
     facetValuesByFacetKey.put(FACET_TAGS, request.getTags());
     facetValuesByFacetKey.put(FACET_TYPES, request.getTypes());
-    facetValuesByFacetKey.put(FACET_CHARACTERISTICS, request.getCharacteristics());
     facetValuesByFacetKey.put(FACET_CWE, request.getCwe());
     facetValuesByFacetKey.put(FACET_OWASP_TOP_10, request.getOwaspTop10());
     facetValuesByFacetKey.put(FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
@@ -406,7 +398,6 @@ public class SearchAction implements RulesWsAction {
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(request.paramAsStrings(PARAM_TYPES))
-      .setCharacteristics(request.paramAsStrings(PARAM_CHARACTERISTICS))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
@@ -494,7 +485,6 @@ public class SearchAction implements RulesWsAction {
     private List<String> statuses;
     private List<String> tags;
     private List<String> types;
-    private List<String> characteristics;
     private List<String> cwe;
     private List<String> owaspTop10;
     private List<String> owaspTop10For2021;
@@ -600,16 +590,6 @@ public class SearchAction implements RulesWsAction {
       return types;
     }
 
-    private SearchRequest setCharacteristics(@Nullable List<String> characteristics) {
-      this.characteristics = characteristics;
-      return this;
-    }
-
-    @CheckForNull
-    private List<String> getCharacteristics() {
-      return characteristics;
-    }
-
     public List<String> getCwe() {
       return cwe;
     }
@@ -659,6 +639,5 @@ public class SearchAction implements RulesWsAction {
       this.sonarsourceSecurity = sonarsourceSecurity;
       return this;
     }
-
   }
 }

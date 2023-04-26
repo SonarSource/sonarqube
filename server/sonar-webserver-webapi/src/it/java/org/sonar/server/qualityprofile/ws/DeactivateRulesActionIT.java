@@ -69,7 +69,6 @@ public class DeactivateRulesActionIT {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       "types",
-      "characteristics",
       "template_key",
       "languages",
       "is_template",

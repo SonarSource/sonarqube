@@ -59,7 +59,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_IS_EXTERNAL = "isExternal";
   public static final String FIELD_RULE_TEMPLATE_KEY = "templateKey";
   public static final String FIELD_RULE_TYPE = "type";
-  public static final String FIELD_RULE_CHARACTERISTIC = "characteristic";
   public static final String FIELD_RULE_CREATED_AT = "createdAt";
   public static final String FIELD_RULE_UPDATED_AT = "updatedAt";
   public static final String FIELD_RULE_CWE = "cwe";
@@ -140,7 +139,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_CHARACTERISTIC).disableNorms().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);

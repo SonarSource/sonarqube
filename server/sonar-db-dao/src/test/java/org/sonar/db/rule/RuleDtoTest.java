@@ -209,13 +209,4 @@ public class RuleDtoTest {
     assertThat(effectiveCharacteristic).isEqualTo(characteristic).isEqualTo(RuleCharacteristic.COMPLIANT);
   }
 
-  @Test
-  public void getEffectiveCharacteristic_whenType0_shouldReturnClearCharacteristic() {
-    RuleDto rule = new RuleDto().setType(0);
-
-    RuleCharacteristic effectiveCharacteristic = rule.getEffectiveCharacteristic();
-
-    assertThat(effectiveCharacteristic).isEqualTo(RuleCharacteristic.CLEAR);
-  }
-
 }

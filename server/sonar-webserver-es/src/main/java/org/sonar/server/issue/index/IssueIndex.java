@@ -66,7 +66,6 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
@@ -138,11 +137,9 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CHARACTERISTICS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CHARACTERISTIC;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CWE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH;
@@ -182,7 +179,6 @@ import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CHARACTERISTICS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
@@ -245,7 +241,6 @@ public class IssueIndex {
     // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
     RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
     TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
-    CHARACTERISTICS(PARAM_CHARACTERISTICS, FIELD_ISSUE_CHARACTERISTIC, STICKY, RuleCharacteristic.values().length),
     SCOPES(PARAM_SCOPES, FIELD_ISSUE_SCOPE, STICKY, MAX_FACET_SIZE),
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
@@ -446,7 +441,6 @@ public class IssueIndex {
     filters.addFilter(FIELD_ISSUE_LANGUAGE, LANGUAGES.getFilterScope(), createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.addFilter(FIELD_ISSUE_TAGS, TAGS.getFilterScope(), createTermsFilter(FIELD_ISSUE_TAGS, query.tags()));
     filters.addFilter(FIELD_ISSUE_TYPE, TYPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_TYPE, query.types()));
-    filters.addFilter(FIELD_ISSUE_CHARACTERISTIC, CHARACTERISTICS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CHARACTERISTIC, query.characteristics()));
     filters.addFilter(
       FIELD_ISSUE_RESOLUTION, RESOLUTIONS.getFilterScope(),
       createTermsFilter(FIELD_ISSUE_RESOLUTION, query.resolutions()));
@@ -790,7 +784,6 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHOR, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TYPES, query.types().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, CHARACTERISTICS, query.characteristics().toArray());
 
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());

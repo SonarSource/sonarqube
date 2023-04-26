@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
@@ -75,7 +74,6 @@ public class IssueDocTesting {
     doc.setKey(Uuids.createFast());
     doc.setRuleUuid(Uuids.createFast());
     doc.setType(RuleType.CODE_SMELL);
-    doc.setCharacteristic(RuleCharacteristic.COMPLIANT);
     doc.setAssigneeUuid("assignee_uuid_" + randomAlphabetic(26));
     doc.setAuthorLogin("author_" + randomAlphabetic(5));
     doc.setScope(IssueScope.MAIN);
