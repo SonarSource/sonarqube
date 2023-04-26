@@ -403,7 +403,7 @@ public class RuleDto {
   }
 
   public CodeCharacteristic getEffectiveCharacteristic() {
-    return characteristic != null ? characteristic : RuleTypeToCodeCharacteristicConverter.convertToCodeCharacteristic(type);
+    return characteristic != null ? characteristic : RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic(type);
   }
 
   public RuleDto setCharacteristic(@Nullable CodeCharacteristic characteristic) {
