@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.server.property.InternalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,7 +96,15 @@ public class GitHubSettingsTest {
   }
 
   @Test
+  public void setProvisioning_whenGitHubAuthDisabled_shouldThrow() {
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.setProvisioning(true))
+      .withMessage("GitHub authentication must be enabled to enable GitHub provisioning.");
+  }
+
+  @Test
   public void setProvisioning_whenPassedTrue_delegatesToInternalPropertiesWrite() {
+    enableGithubAuthentication();
     underTest.setProvisioning(true);
     verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.TRUE.toString());
   }

@@ -33,6 +33,7 @@ import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GitHubSettings {
 
@@ -47,7 +48,7 @@ public class GitHubSettings {
   public static final String WEB_URL = "sonar.auth.github.webUrl";
   public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
   @VisibleForTesting
-  static final String PROVISIONING = "provisioning.github"; //TODO
+  static final String PROVISIONING = "provisioning.github.enabled";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
@@ -78,7 +79,7 @@ public class GitHubSettings {
     return configuration.get(PRIVATE_KEY).orElse("");
   }
 
-  boolean isEnabled() {
+  public boolean isEnabled() {
     return configuration.getBoolean(ENABLED).orElse(false) && !clientId().isEmpty() && !clientSecret().isEmpty();
   }
 
@@ -113,6 +114,9 @@ public class GitHubSettings {
   }
 
   public void setProvisioning(boolean enableProvisioning) {
+    if (enableProvisioning) {
+      checkState(isEnabled(), "GitHub authentication must be enabled to enable GitHub provisioning.");
+    }
     internalProperties.write(PROVISIONING, String.valueOf(enableProvisioning));
   }
 
