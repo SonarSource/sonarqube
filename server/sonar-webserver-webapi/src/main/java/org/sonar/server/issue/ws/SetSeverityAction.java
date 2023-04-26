@@ -79,7 +79,6 @@ public class SetSeverityAction implements IssuesWsAction {
         "</ul>")
       .setSince("3.6")
       .setChangelog(
-        new Change("10.1", "Field 'characteristic' added to issues in the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
         new Change("6.5", "the database ids of the components are removed from the response"),

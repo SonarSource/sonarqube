@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -85,9 +84,6 @@ public abstract class BasePullAction implements IssuesWsAction {
       .createAction(actionName)
       .setHandler(this)
       .setInternal(true)
-      .setChangelog(
-        new Change("10.1", "Field 'characteristic' added to issues in the response")
-        )
       .setResponseExample(getClass().getResource(resourceExample))
       .setDescription(format("This endpoint fetches and returns all (unless filtered by optional params) the %s for a given branch. " +
         "The %s returned are not paginated, so the response size can be big. Requires project 'Browse' permission.", issueType, issueType))

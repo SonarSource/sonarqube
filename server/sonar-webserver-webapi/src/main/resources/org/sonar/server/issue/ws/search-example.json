@@ -93,8 +93,7 @@
         }
       ],
       "quickFixAvailable": false,
-      "ruleDescriptionContextKey": "spring",
-      "characteristic": "CLEAR"
+      "ruleDescriptionContextKey": "spring"
     }
   ],
   "components": [
