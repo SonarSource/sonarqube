@@ -30,5 +30,12 @@ interface SamlToggleFieldProps {
 export default function AuthenticationToggleField(props: SamlToggleFieldProps) {
   const { settingValue, definition } = props;
 
-  return <Toggle name={definition.key} onChange={props.onChange} value={settingValue ?? ''} />;
+  return (
+    <Toggle
+      ariaLabel={definition.key}
+      name={definition.key}
+      onChange={props.onChange}
+      value={settingValue ?? ''}
+    />
+  );
 }

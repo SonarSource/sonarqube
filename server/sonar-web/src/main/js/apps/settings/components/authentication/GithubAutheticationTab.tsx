@@ -17,19 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { setSettingValue } from '../../../../api/settings';
-import { Button } from '../../../../components/controls/buttons';
+import { isEmpty } from 'lodash';
+import React, { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import {
+  activateGithubProvisioning,
+  deactivateGithubProvisioning,
+  resetSettingValue,
+  setSettingValue,
+} from '../../../../api/settings';
+import DocLink from '../../../../components/common/DocLink';
+import ConfirmModal from '../../../../components/controls/ConfirmModal';
+import RadioCard from '../../../../components/controls/RadioCard';
+import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
+import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
+import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
-import useGithubConfiguration, { GITHUB_ENABLED_FIELD } from './hook/useGithubConfiguration';
+import useGithubConfiguration, {
+  GITHUB_ENABLED_FIELD,
+  GITHUB_JIT_FIELDS,
+} from './hook/useGithubConfiguration';
 
-interface SamlAuthenticationProps {
+interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
 }
 
@@ -37,12 +53,17 @@ const GITHUB_EXCLUDED_FIELD = [
   'sonar.auth.github.enabled',
   'sonar.auth.github.groupsSync',
   'sonar.auth.github.allowUsersToSignUp',
+  'sonar.auth.github.organizations',
 ];
 
-export default function GithubAithentication(props: SamlAuthenticationProps) {
-  const [showEditModal, setShowEditModal] = React.useState(false);
+export default function GithubAithentication(props: GithubAuthenticationProps) {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
+
   const {
     hasConfiguration,
+    hasGithubProvisioning,
+    githubProvisioningStatus,
     loading,
     values,
     setNewValue,
@@ -52,6 +73,10 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
     appId,
     enabled,
     deleteConfiguration,
+    newGithubProvisioningStatus,
+    setNewGithubProvisioningStatus,
+    hasGithubProvisioningConfigChange,
+    resetJitSetting,
   } = useGithubConfiguration(props.definitions);
 
   const handleCreateConfiguration = () => {
@@ -62,6 +87,35 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
     setShowEditModal(false);
   };
 
+  const handleConfirmChangeProvisioning = async () => {
+    if (newGithubProvisioningStatus && newGithubProvisioningStatus !== githubProvisioningStatus) {
+      await activateGithubProvisioning();
+      await reload();
+    } else {
+      if (newGithubProvisioningStatus !== githubProvisioningStatus) {
+        await deactivateGithubProvisioning();
+      }
+      await handleSaveGroup();
+    }
+  };
+
+  const handleSaveGroup = async () => {
+    await Promise.all(
+      GITHUB_JIT_FIELDS.map(async (settingKey) => {
+        const value = values[settingKey];
+        if (value.newValue !== undefined) {
+          // isEmpty always return true for booleans...
+          if (isEmpty(value.newValue) && typeof value.newValue !== 'boolean') {
+            await resetSettingValue({ keys: value.definition.key });
+          } else {
+            await setSettingValue(value.definition, value.newValue);
+          }
+        }
+      })
+    );
+    await reload();
+  };
+
   const handleToggleEnable = async () => {
     const value = values[GITHUB_ENABLED_FIELD];
     await setSettingValue(value.definition, !enabled);
@@ -69,7 +123,7 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
   };
 
   return (
-    <div className="saml-configuration">
+    <div className="authentication-configuration">
       <div className="spacer-bottom display-flex-space-between display-flex-center">
         <h4>{translate('settings.authentication.github.configuration')}</h4>
 
@@ -82,7 +136,7 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
         )}
       </div>
       {!hasConfiguration ? (
-        <div className="big-padded text-center huge-spacer-bottom saml-no-config">
+        <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
           {translate('settings.authentication.github.form.not_configured')}
         </div>
       ) : (
@@ -93,18 +147,18 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
               <p>{url}</p>
               <p className="big-spacer-top big-spacer-bottom">
                 {enabled ? (
-                  <span className="saml-enabled spacer-left">
+                  <span className="authentication-enabled spacer-left">
                     <CheckIcon className="spacer-right" />
-                    {translate('settings.authentication.saml.form.enabled')}
+                    {translate('settings.authentication.form.enabled')}
                   </span>
                 ) : (
-                  translate('settings.authentication.saml.form.not_enabled')
+                  translate('settings.authentication.form.not_enabled')
                 )}
               </p>
               <Button className="spacer-top" onClick={handleToggleEnable}>
                 {enabled
-                  ? translate('settings.authentication.saml.form.disable')
-                  : translate('settings.authentication.saml.form.enable')}
+                  ? translate('settings.authentication.form.disable')
+                  : translate('settings.authentication.form.enable')}
               </Button>
             </div>
             <div>
@@ -118,9 +172,128 @@ export default function GithubAithentication(props: SamlAuthenticationProps) {
               </Button>
             </div>
           </div>
-          <div className="spacer-bottom big-padded bordered display-flex-space-between">
-            Provisioning TODO
-          </div>
+          {hasGithubProvisioning && (
+            <div className="spacer-bottom big-padded bordered display-flex-space-between">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (newGithubProvisioningStatus !== githubProvisioningStatus) {
+                    setShowConfirmProvisioningModal(true);
+                  } else {
+                    await handleSaveGroup();
+                  }
+                }}
+              >
+                <fieldset className="display-flex-column big-spacer-bottom">
+                  <label className="h5">
+                    {translate('settings.authentication.form.provisioning')}
+                  </label>
+
+                  {enabled ? (
+                    <div className="display-flex-row spacer-top">
+                      <RadioCard
+                        label={translate(
+                          'settings.authentication.github.form.provisioning_with_github'
+                        )}
+                        title={translate(
+                          'settings.authentication.github.form.provisioning_with_github'
+                        )}
+                        selected={newGithubProvisioningStatus ?? githubProvisioningStatus}
+                        onClick={() => setNewGithubProvisioningStatus(true)}
+                      >
+                        <p className="spacer-bottom">
+                          {translate(
+                            'settings.authentication.github.form.provisioning_with_github.description'
+                          )}
+                        </p>
+                        <p>
+                          <FormattedMessage
+                            id="settings.authentication.github.form.provisioning_with_github.description.doc"
+                            defaultMessage={translate(
+                              'settings.authentication.github.form.provisioning_with_github.description.doc'
+                            )}
+                            values={{
+                              documentation: (
+                                <DocLink
+                                  to={`/instance-administration/authentication/${
+                                    DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
+                                  }/`}
+                                >
+                                  {translate('documentation')}
+                                </DocLink>
+                              ),
+                            }}
+                          />
+                        </p>
+                      </RadioCard>
+                      <RadioCard
+                        label={translate('settings.authentication.form.provisioning_at_login')}
+                        title={translate('settings.authentication.form.provisioning_at_login')}
+                        selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
+                        onClick={() => setNewGithubProvisioningStatus(false)}
+                      >
+                        {Object.values(values).map((val) => {
+                          if (!GITHUB_JIT_FIELDS.includes(val.key)) {
+                            return null;
+                          }
+                          return (
+                            <div key={val.key}>
+                              <AuthenticationFormField
+                                settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
+                                definition={val.definition}
+                                mandatory={val.mandatory}
+                                onFieldChange={setNewValue}
+                                isNotSet={val.isNotSet}
+                              />
+                            </div>
+                          );
+                        })}
+                      </RadioCard>
+                    </div>
+                  ) : (
+                    <Alert className="big-spacer-top" variant="info">
+                      {translate('settings.authentication.github.enable_first')}
+                    </Alert>
+                  )}
+                </fieldset>
+                {enabled && (
+                  <>
+                    <SubmitButton disabled={!hasGithubProvisioningConfigChange}>
+                      {translate('save')}
+                    </SubmitButton>
+                    <ResetButtonLink
+                      className="spacer-left"
+                      onClick={() => {
+                        setNewGithubProvisioningStatus(undefined);
+                        resetJitSetting();
+                      }}
+                      disabled={!hasGithubProvisioningConfigChange}
+                    >
+                      {translate('cancel')}
+                    </ResetButtonLink>
+                  </>
+                )}
+                {showConfirmProvisioningModal && (
+                  <ConfirmModal
+                    onConfirm={() => handleConfirmChangeProvisioning()}
+                    header={translate(
+                      'settings.authentication.github.confirm',
+                      newGithubProvisioningStatus ? 'auto' : 'jit'
+                    )}
+                    onClose={() => setShowConfirmProvisioningModal(false)}
+                    isDestructive={!newGithubProvisioningStatus}
+                    confirmButtonText={translate('yes')}
+                  >
+                    {translate(
+                      'settings.authentication.github.confirm',
+                      newGithubProvisioningStatus ? 'auto' : 'jit',
+                      'description'
+                    )}
+                  </ConfirmModal>
+                )}
+              </form>
+            </div>
+          )}
         </>
       )}
 

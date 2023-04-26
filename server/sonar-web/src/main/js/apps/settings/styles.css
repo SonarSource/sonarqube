@@ -90,10 +90,18 @@
   box-sizing: border-box;
 }
 
+.radio-card .settings-definition-left {
+  padding-right: 0;
+}
+
 .settings-definition-right {
   position: relative;
   width: calc(100% - 330px);
   box-sizing: border-box;
+}
+
+.radio-card .settings-definition-right input {
+  width: 100%;
 }
 
 .settings-definition-name {
@@ -230,47 +238,47 @@
   overflow-wrap: break-word;
 }
 
-.saml-enabled {
+.authentication-enabled {
   color: var(--success500);
 }
 
-.saml-no-config {
+.authentication-no-config {
   background-color: var(--neutral50);
   color: var(--blacka60);
 }
 
-.saml-configuration .radio-card {
+.authentication-configuration .radio-card {
   width: 50%;
   background-color: var(--neutral50);
   border: 1px solid var(--neutral200);
 }
 
-.saml-configuration .radio-card.selected {
+.authentication-configuration .radio-card.selected {
   background-color: var(--info50);
   border: 1px solid var(--info500);
 }
 
-.saml-configuration .radio-card:hover:not(.selected) {
+.authentication-configuration .radio-card:hover:not(.selected) {
   border: 1px solid var(--info500);
 }
 
-.saml-configuration fieldset > div {
+.authentication-configuration fieldset > div {
   justify-content: space-between;
 }
 
-.saml-configuration .radio-card-header {
+.authentication-configuration .radio-card-header {
   justify-content: space-around;
 }
 
-.saml-configuration .radio-card-body {
+.authentication-configuration .radio-card-body {
   justify-content: flex-start;
 }
 
-.saml-configuration .settings-definition-left {
+.authentication-configuration .settings-definition-left {
   width: 50%;
 }
 
-.saml-configuration .settings-definition-right {
+.authentication-configuration .settings-definition-right {
   display: flex;
   align-items: center;
   width: 50%;

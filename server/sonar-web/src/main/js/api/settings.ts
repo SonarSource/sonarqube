@@ -130,3 +130,17 @@ export function activateScim(): Promise<void> {
 export function deactivateScim(): Promise<void> {
   return post('/api/scim_management/disable').catch(throwGlobalError);
 }
+
+export function fetchIsGithubProvisioningEnabled(): Promise<boolean> {
+  return getJSON('/api/github_provisioning/status')
+    .then((r) => r.enabled)
+    .catch(throwGlobalError);
+}
+
+export function activateGithubProvisioning(): Promise<void> {
+  return post('/api/github_provisioning/enable').catch(throwGlobalError);
+}
+
+export function deactivateGithubProvisioning(): Promise<void> {
+  return post('/api/github_provisioning/disable').catch(throwGlobalError);
+}

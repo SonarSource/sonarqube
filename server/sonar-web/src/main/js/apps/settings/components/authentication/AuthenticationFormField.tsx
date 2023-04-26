@@ -24,14 +24,15 @@ import ValidationInput, {
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { isSecuredDefinition } from '../../utils';
+import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
 import AuthenticationSecuredField from './AuthenticationSecuredField';
 import AuthenticationToggleField from './AuthenticationToggleField';
 
 interface SamlToggleFieldProps {
-  settingValue?: string | boolean;
+  settingValue?: string | boolean | string[];
   definition: ExtendedSettingDefinition;
   mandatory?: boolean;
-  onFieldChange: (key: string, value: string | boolean) => void;
+  onFieldChange: (key: string, value: string | boolean | string[]) => void;
   isNotSet: boolean;
   error?: string;
 }
@@ -51,6 +52,13 @@ export default function AuthenticationFormField(props: SamlToggleFieldProps) {
         )}
       </div>
       <div className="settings-definition-right big-padded-top display-flex-column">
+        {definition.multiValues && (
+          <AuthenticationMultiValueField
+            definition={definition}
+            settingValue={settingValue as string[]}
+            onFieldChange={(value) => props.onFieldChange(definition.key, value)}
+          />
+        )}
         {isSecuredDefinition(definition) && (
           <AuthenticationSecuredField
             definition={definition}
@@ -62,28 +70,30 @@ export default function AuthenticationFormField(props: SamlToggleFieldProps) {
         {!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN && (
           <AuthenticationToggleField
             definition={definition}
-            settingValue={settingValue}
+            settingValue={settingValue as string | boolean}
             onChange={(value) => props.onFieldChange(definition.key, value)}
           />
         )}
-        {!isSecuredDefinition(definition) && definition.type === undefined && (
-          <ValidationInput
-            error={error}
-            errorPlacement={ValidationInputErrorPlacement.Bottom}
-            isValid={false}
-            isInvalid={Boolean(error)}
-          >
-            <input
-              className="width-100"
-              id={definition.key}
-              maxLength={4000}
-              name={definition.key}
-              onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
-              type="text"
-              value={String(settingValue ?? '')}
-            />
-          </ValidationInput>
-        )}
+        {!isSecuredDefinition(definition) &&
+          definition.type === undefined &&
+          !definition.multiValues && (
+            <ValidationInput
+              error={error}
+              errorPlacement={ValidationInputErrorPlacement.Bottom}
+              isValid={false}
+              isInvalid={Boolean(error)}
+            >
+              <input
+                className="width-100"
+                id={definition.key}
+                maxLength={4000}
+                name={definition.key}
+                onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
+                type="text"
+                value={String(settingValue ?? '')}
+              />
+            </ValidationInput>
+          )}
       </div>
     </div>
   );

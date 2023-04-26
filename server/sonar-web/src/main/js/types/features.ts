@@ -26,4 +26,5 @@ export enum Feature {
   ProjectImport = 'project-import',
   RegulatoryReport = 'regulatory-reports',
   Scim = 'scim',
+  GithubProvisioning = 'github-provisioning',
 }

@@ -18,28 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { every, isEmpty, keyBy } from 'lodash';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { getValues, resetSettingValue } from '../../../../../api/settings';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import { Dict } from '../../../../../types/types';
 
-export interface SettingValue {
-  key: string;
-  mandatory: boolean;
-  isNotSet: boolean;
-  value?: string;
-  newValue?: string | boolean;
-  definition: ExtendedSettingDefinition;
-}
+export type SettingValue =
+  | {
+      key: string;
+      multiValues: false;
+      mandatory: boolean;
+      isNotSet: boolean;
+      value?: string;
+      newValue?: string | boolean;
+      definition: ExtendedSettingDefinition;
+    }
+  | {
+      key: string;
+      multiValues: true;
+      mandatory: boolean;
+      isNotSet: boolean;
+      value?: string[];
+      newValue?: string[];
+      definition: ExtendedSettingDefinition;
+    };
 
 export default function useConfiguration(
   definitions: ExtendedSettingDefinition[],
   optionalFields: string[]
 ) {
-  const [loading, setLoading] = React.useState(true);
-  const [values, setValues] = React.useState<Dict<SettingValue>>({});
+  const [loading, setLoading] = useState(true);
+  const [values, setValues] = useState<Dict<SettingValue>>({});
 
-  const reload = React.useCallback(async () => {
+  const reload = useCallback(async () => {
     const keys = definitions.map((definition) => definition.key);
 
     setLoading(true);
@@ -51,13 +62,28 @@ export default function useConfiguration(
 
       setValues(
         keyBy(
-          definitions.map((definition) => ({
-            key: definition.key,
-            value: values.find((v) => v.key === definition.key)?.value,
-            mandatory: !optionalFields.includes(definition.key),
-            isNotSet: values.find((v) => v.key === definition.key) === undefined,
-            definition,
-          })),
+          definitions.map((definition) => {
+            const value = values.find((v) => v.key === definition.key);
+            const multiValues = definition.multiValues ?? false;
+            if (multiValues) {
+              return {
+                key: definition.key,
+                multiValues,
+                value: value?.values,
+                mandatory: !optionalFields.includes(definition.key),
+                isNotSet: value === undefined,
+                definition,
+              };
+            }
+            return {
+              key: definition.key,
+              multiValues,
+              value: value?.value,
+              mandatory: !optionalFields.includes(definition.key),
+              isNotSet: value === undefined,
+              definition,
+            };
+          }),
           'key'
         )
       );
@@ -72,19 +98,27 @@ export default function useConfiguration(
     })();
   }, [...definitions]);
 
-  const setNewValue = (key: string, newValue?: string | boolean) => {
-    const newValues = {
-      ...values,
-      [key]: {
-        key,
-        newValue,
-        mandatory: values[key]?.mandatory,
-        isNotSet: values[key]?.isNotSet,
-        value: values[key]?.value,
-        definition: values[key]?.definition,
-      },
-    };
-    setValues(newValues);
+  const setNewValue = (key: string, newValue?: string | boolean | string[]) => {
+    const value = values[key];
+    if (value.multiValues) {
+      const newValues = {
+        ...values,
+        [key]: {
+          ...value,
+          newValue: newValue as string[],
+        },
+      };
+      setValues(newValues);
+    } else {
+      const newValues = {
+        ...values,
+        [key]: {
+          ...value,
+          newValue: newValue as string | boolean,
+        },
+      };
+      setValues(newValues);
+    }
   };
 
   const canBeSave = every(
@@ -99,12 +133,12 @@ export default function useConfiguration(
     (v) => !v.isNotSet
   );
 
-  const deleteConfiguration = React.useCallback(async () => {
+  const deleteConfiguration = useCallback(async () => {
     await resetSettingValue({ keys: Object.keys(values).join(',') });
     await reload();
   }, [reload, values]);
 
-  const isValueChange = React.useCallback(
+  const isValueChange = useCallback(
     (setting: string) => {
       const value = values[setting];
       return value && value.newValue !== undefined && (value.value ?? '') !== value.newValue;

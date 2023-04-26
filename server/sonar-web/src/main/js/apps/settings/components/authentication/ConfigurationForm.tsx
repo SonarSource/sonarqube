@@ -88,7 +88,13 @@ export default function ConfigurationForm(props: Props) {
   };
 
   return (
-    <Modal contentLabel={headerLabel} shouldCloseOnOverlayClick={false} size="medium">
+    <Modal
+      contentLabel={headerLabel}
+      onRequestClose={props.onClose}
+      shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={true}
+      size="medium"
+    >
       <form onSubmit={handleSubmit}>
         <div className="modal-head">
           <h2>{headerLabel}</h2>

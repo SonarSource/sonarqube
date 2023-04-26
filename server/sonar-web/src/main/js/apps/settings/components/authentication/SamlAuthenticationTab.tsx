@@ -45,7 +45,7 @@ import useSamlConfiguration, {
   SAML_ENABLED_FIELD,
   SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
-} from './hook/useLoadSamlSettings';
+} from './hook/useSamlConfiguration';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -116,7 +116,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   };
 
   return (
-    <div className="saml-configuration">
+    <div className="authentication-configuration">
       <div className="spacer-bottom display-flex-space-between display-flex-center">
         <h4>{translate('settings.authentication.saml.configuration')}</h4>
 
@@ -129,7 +129,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
         )}
       </div>
       {!hasConfiguration && (
-        <div className="big-padded text-center huge-spacer-bottom saml-no-config">
+        <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
           {translate('settings.authentication.saml.form.not_configured')}
         </div>
       )}
@@ -142,18 +142,18 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
               <p>{url}</p>
               <p className="big-spacer-top big-spacer-bottom">
                 {samlEnabled ? (
-                  <span className="saml-enabled spacer-left">
+                  <span className="authentication-enabled spacer-left">
                     <CheckIcon className="spacer-right" />
-                    {translate('settings.authentication.saml.form.enabled')}
+                    {translate('settings.authentication.form.enabled')}
                   </span>
                 ) : (
-                  translate('settings.authentication.saml.form.not_enabled')
+                  translate('settings.authentication.form.not_enabled')
                 )}
               </p>
               <Button className="spacer-top" disabled={scimStatus} onClick={handleToggleEnable}>
                 {samlEnabled
-                  ? translate('settings.authentication.saml.form.disable')
-                  : translate('settings.authentication.saml.form.enable')}
+                  ? translate('settings.authentication.form.disable')
+                  : translate('settings.authentication.form.enable')}
               </Button>
             </div>
             <div>

@@ -22,8 +22,11 @@ import { mockSettingValue } from '../../helpers/mocks/settings';
 import { BranchParameters } from '../../types/branch-like';
 import { SettingDefinition, SettingValue } from '../../types/settings';
 import {
+  activateGithubProvisioning,
   activateScim,
+  deactivateGithubProvisioning,
   deactivateScim,
+  fetchIsGithubProvisioningEnabled,
   fetchIsScimEnabled,
   getValues,
   resetSettingValue,
@@ -33,6 +36,7 @@ import {
 export default class AuthenticationServiceMock {
   settingValues: SettingValue[];
   scimStatus: boolean;
+  githubProvisioningStatus: boolean;
   defaulSettingValues: SettingValue[] = [
     mockSettingValue({ key: 'test1', value: '' }),
     mockSettingValue({ key: 'test2', value: 'test2' }),
@@ -61,13 +65,22 @@ export default class AuthenticationServiceMock {
   constructor() {
     this.settingValues = cloneDeep(this.defaulSettingValues);
     this.scimStatus = false;
+    this.githubProvisioningStatus = false;
     jest.mocked(getValues).mockImplementation(this.handleGetValues);
     jest.mocked(setSettingValue).mockImplementation(this.handleSetValue);
     jest.mocked(resetSettingValue).mockImplementation(this.handleResetValue);
     jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
     jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
-
     jest.mocked(fetchIsScimEnabled).mockImplementation(this.handleFetchIsScimEnabled);
+    jest
+      .mocked(activateGithubProvisioning)
+      .mockImplementation(this.handleActivateGithubProvisioning);
+    jest
+      .mocked(deactivateGithubProvisioning)
+      .mockImplementation(this.handleDeactivateGithubProvisioning);
+    jest
+      .mocked(fetchIsGithubProvisioningEnabled)
+      .mockImplementation(this.handleFetchIsGithubProvisioningEnabled);
   }
 
   handleActivateScim = () => {
@@ -82,6 +95,20 @@ export default class AuthenticationServiceMock {
 
   handleFetchIsScimEnabled = () => {
     return Promise.resolve(this.scimStatus);
+  };
+
+  handleActivateGithubProvisioning = () => {
+    this.githubProvisioningStatus = true;
+    return Promise.resolve();
+  };
+
+  handleDeactivateGithubProvisioning = () => {
+    this.githubProvisioningStatus = false;
+    return Promise.resolve();
+  };
+
+  handleFetchIsGithubProvisioningEnabled = () => {
+    return Promise.resolve(this.githubProvisioningStatus);
   };
 
   handleGetValues = (
