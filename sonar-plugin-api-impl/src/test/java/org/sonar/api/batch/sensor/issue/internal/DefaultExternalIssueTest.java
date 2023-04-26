@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,8 +69,7 @@ public class DefaultExternalIssueTest {
       .forRule(RuleKey.of("repo", "rule"))
       .remediationEffortMinutes(10L)
       .type(RuleType.BUG)
-      .severity(Severity.BLOCKER)
-      .characteristic(RuleCharacteristic.SECURE);
+      .severity(Severity.BLOCKER);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_repo", "rule"));
@@ -81,7 +79,6 @@ public class DefaultExternalIssueTest {
     assertThat(issue.remediationEffort()).isEqualTo(10L);
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(issue.characteristic()).isEqualTo(RuleCharacteristic.SECURE);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();

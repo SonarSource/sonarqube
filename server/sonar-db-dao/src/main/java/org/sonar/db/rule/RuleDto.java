@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -41,7 +40,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
-import static org.sonar.db.rule.RuleTypeToRuleCharacteristicConverter.convertToRuleCharacteristic;
 
 public class RuleDto {
 
@@ -100,7 +98,6 @@ public class RuleDto {
   private String systemTagsField = null;
   private String securityStandardsField = null;
   private int type = 0;
-  private RuleCharacteristic characteristic = null;
   private Scope scope = null;
 
   private RuleKey key = null;
@@ -244,7 +241,7 @@ public class RuleDto {
     return deserializeStringSet(educationPrinciplesField);
   }
 
-  public RuleDto setEducationPrinciples(Set<String> educationPrinciples) {
+  public RuleDto setEducationPrinciples(Set<String> educationPrinciples){
     this.educationPrinciplesField = serializeStringSet(educationPrinciples);
     return this;
   }
@@ -398,26 +395,6 @@ public class RuleDto {
     return this;
   }
 
-  @CheckForNull
-  public RuleCharacteristic getCharacteristic() {
-    return this.characteristic;
-  }
-
-  @CheckForNull
-  public RuleCharacteristic getEffectiveCharacteristic() {
-    return characteristic != null ? characteristic : convertTypeToCharacteristic(type);
-  }
-
-  private static RuleCharacteristic convertTypeToCharacteristic(int type) {
-    RuleType ruleType = RuleType.valueOf(type);
-    return convertToRuleCharacteristic(ruleType);
-  }
-
-  public RuleDto setCharacteristic(RuleCharacteristic characteristic) {
-    this.characteristic = characteristic;
-    return this;
-  }
-
   public long getCreatedAt() {
     return createdAt;
   }
@@ -435,6 +412,7 @@ public class RuleDto {
     this.updatedAt = updatedAt;
     return this;
   }
+
 
   @CheckForNull
   public String getDefRemediationFunction() {
