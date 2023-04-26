@@ -20,7 +20,7 @@
 import { getJSON, post, postJSON } from '../helpers/request';
 import { throwGlobalError } from '../helpers/error';
 
-export function getnotificationsfororganization(key: string) {
+export function getNotificationsForOrganization(key: string) {
   return getJSON('/_codescan/notifications', { organizationid: key }).then(
     r => r.organization,
     throwglobalerror
@@ -49,24 +49,23 @@ export function deleteBulkProjects(data: {
     .catch(throwglobalerror);
 }
 
-export function deleteorganization(organizationid: string): promise<void> {
+export function deleteOrganization(organizationid: string): promise<void> {
   return post('/_codescan/integrations/organizations/delete', { organizationid })
     .catch(throwglobalerror);
 }
 
-export function getapikeyforzoho(data: {
+export function getApiKeyForZoho(data: {
   operation: string;
   email?: string;
-  loginname: string;
-  fullname: string;
+  loginName: string;
+  fullName: string;
   utype: string;
-}): promise<string> {
-  return postJSON('/_codescan/zoho/apikey', data)
-    .catch(throwglobalerror);
+}): Promise<string> {
+  return postJSON('/_codescan/zoho/apiKey', data)
+      .catch(throwGlobalError);
 }
 
-export function getprojectanalysis(organizationid: string, projectkey: string): promise<object> {
-  return getjson('/_codescan/integrations/list', {organizationid, projectkey})
-    .catch(throwglobalerror);
+export function getProjectAnalysis(organizationId: string, projectKey: string): Promise<object> {
+  return getJSON('/_codescan/integrations/list', {organizationId, projectKey})
+    .catch(throwGlobalError);
 }
-
