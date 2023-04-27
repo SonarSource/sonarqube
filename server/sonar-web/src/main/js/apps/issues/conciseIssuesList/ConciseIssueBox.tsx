@@ -23,6 +23,7 @@ import { ButtonPlain } from '../../../components/controls/buttons';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import FlowsList from '../../../components/locations/FlowsList';
 import LocationsList from '../../../components/locations/LocationsList';
+import TypeHelper from '../../../components/shared/TypeHelper';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { FlowType, Issue } from '../../../types/types';
 import { getLocations } from '../utils';
@@ -62,6 +63,7 @@ export default function ConciseIssueBox(props: Props) {
         />
       </ButtonPlain>
       <div className="concise-issue-box-attributes">
+        <TypeHelper className="display-block little-spacer-right" type={issue.type} />
         {issue.flowsWithType.length > 0 ? (
           <span className="concise-issue-box-flow-indicator muted">
             {translateWithParameters(
