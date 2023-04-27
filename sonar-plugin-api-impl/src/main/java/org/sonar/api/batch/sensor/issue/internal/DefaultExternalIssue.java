@@ -102,7 +102,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @CheckForNull
   @Override
   public CodeCharacteristic characteristic() {
-    throw new IllegalStateException("Not implemented yet");
+    return null;
   }
 
   @Override
@@ -140,7 +140,8 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
 
   @Override
   public NewExternalIssue characteristic(CodeCharacteristic characteristic) {
-    throw new IllegalStateException("Not implemented yet");
+    // no op
+    return this;
   }
 
 }

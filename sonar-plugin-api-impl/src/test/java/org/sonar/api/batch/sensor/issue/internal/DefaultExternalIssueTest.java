@@ -54,7 +54,6 @@ public class DefaultExternalIssueTest {
       .setWorkDir(temp.newFolder()));
   }
 
-
   private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
     .build();
@@ -166,11 +165,10 @@ public class DefaultExternalIssueTest {
   }
 
   @Test
-  public void characteristic_shouldThrowIllegalStateException() {
+  public void characteristic_shouldBeNoOp() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultExternalIssue issue = new DefaultExternalIssue(project, storage);
-    assertThatThrownBy(issue::characteristic).isInstanceOf(IllegalStateException.class);
-    assertThatThrownBy(() -> issue.characteristic(CodeCharacteristic.CLEAR)).isInstanceOf(IllegalStateException.class);
+    issue.characteristic(CodeCharacteristic.ROBUST);
+    assertThat(issue.characteristic()).isNull();
   }
-
 }

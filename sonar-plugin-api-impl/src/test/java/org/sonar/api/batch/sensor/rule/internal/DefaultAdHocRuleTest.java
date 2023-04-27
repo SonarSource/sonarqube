@@ -56,7 +56,6 @@ public class DefaultAdHocRuleTest {
     verify(storage).store(any(DefaultAdHocRule.class));
   }
 
-
   @Test
   public void description_is_optional() {
     SensorStorage storage = mock(SensorStorage.class);
@@ -119,7 +118,6 @@ public class DefaultAdHocRuleTest {
       .hasMessageContaining("Name is mandatory");
   }
 
-
   @Test
   public void fail_to_store_if_no_severity() {
     SensorStorage storage = mock(SensorStorage.class);
@@ -151,10 +149,10 @@ public class DefaultAdHocRuleTest {
   }
 
   @Test
-  public void characteristic_shouldThrowIllegalStateException() {
+  public void characteristic_shouldBeNoOp() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultAdHocRule rule = new DefaultAdHocRule(storage);
-    assertThatThrownBy(() -> rule.characteristic(CodeCharacteristic.CLEAR)).isInstanceOf(IllegalStateException.class);
-    assertThatThrownBy(() -> rule.characteristic()).isInstanceOf(IllegalStateException.class);
+    rule.characteristic(CodeCharacteristic.CLEAR);
+    assertThat(rule.characteristic()).isNull();
   }
 }

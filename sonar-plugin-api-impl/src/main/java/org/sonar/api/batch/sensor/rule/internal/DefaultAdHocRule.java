@@ -98,7 +98,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   @CheckForNull
   @Override
   public CodeCharacteristic characteristic() {
-    throw new IllegalStateException("Not implemented yet");
+    return null;
   }
 
   @Override
@@ -133,7 +133,8 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
 
   @Override
   public NewAdHocRule characteristic(CodeCharacteristic characteristic) {
-    throw new IllegalStateException("Not implemented yet");
+    // no op
+    return this;
   }
 
 }
