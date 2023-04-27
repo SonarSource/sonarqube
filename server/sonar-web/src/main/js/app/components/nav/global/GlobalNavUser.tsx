@@ -33,6 +33,8 @@ import { sortBy } from "lodash";
 interface Props {
   currentUser: CurrentUser;
   userOrganizations: Organization[];
+  pendoInitialized: boolean;
+  updatePendoInitialized: (pendoInitialized: boolean) => void;
   router: Router;
 }
 
@@ -58,6 +60,24 @@ export class GlobalNavUser extends React.PureComponent<Props> {
 
   renderAuthenticated() {
     const currentUser = this.props.currentUser as LoggedInUser;
+    const hasOrganizations = this.props.userOrganizations.length > 0;
+    console.log("Pendo Initialized : " + this.props.pendoInitialized);
+       if (isLoggedIn(currentUser) && hasOrganizations && !this.props.pendoInitialized) {
+         const script = document.createElement('script');
+         const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
+         script.innerHTML =
+            "      pendo.initialize({\n" +
+            "        visitor: {\n" +
+            "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
+            "        },\n" +
+            "        account: {\n" +
+            "          id: '" + orgKeys + "'\n" +
+            "        }\n" +
+            "      });";
+         document.body.appendChild(script);
+         this.props.updatePendoInitialized(true);
+       }
+
     return (
       <Dropdown
         className="js-user-authenticated"
