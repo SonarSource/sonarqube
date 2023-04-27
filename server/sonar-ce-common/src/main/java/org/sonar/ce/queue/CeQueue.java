@@ -124,7 +124,8 @@ public interface CeQueue {
   int clear();
 
   enum SubmitOption {
-    UNIQUE_QUEUE_PER_MAIN_COMPONENT
+    UNIQUE_QUEUE_PER_MAIN_COMPONENT,
+    UNIQUE_QUEUE_PER_TASK_TYPE
   }
 
   enum WorkersPauseStatus {

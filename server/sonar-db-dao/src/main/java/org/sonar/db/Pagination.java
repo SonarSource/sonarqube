@@ -27,6 +27,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class Pagination {
   private static final Pagination ALL = new Builder(1).andSize(Integer.MAX_VALUE);
 
+  private static final Pagination FIRST = new Builder(1).andSize(1);
+
   private final int page;
   private final int pageSize;
 
@@ -37,6 +39,10 @@ public final class Pagination {
 
   public static Pagination all() {
     return ALL;
+  }
+
+  public static Pagination first() {
+    return FIRST;
   }
 
   public static Builder forPage(int page) {

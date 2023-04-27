@@ -46,6 +46,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.DeleteIf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
@@ -55,7 +56,6 @@ import org.sonar.server.property.InternalProperties;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMPONENT;
 import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
@@ -95,24 +95,39 @@ public class CeQueueImpl implements CeQueue {
 
   private Optional<CeTask> submit(CeTaskSubmit submission, EnumSet<SubmitOption> submitOptions) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (submitOptions.contains(UNIQUE_QUEUE_PER_MAIN_COMPONENT)
-        && submission.getComponent()
-          .map(component -> dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, PENDING, component.getMainComponentUuid()) > 0)
-          .orElse(false)) {
-        return Optional.empty();
-      }
-      CeQueueDto taskDto = addToQueueInDb(dbSession, submission);
+      Optional<CeTask> ceTask = submit(dbSession, submission, submitOptions);
       dbSession.commit();
-
-      Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
-      if (componentsByUuid.isEmpty()) {
-        return of(convertToTask(dbSession, taskDto, submission.getCharacteristics(), null, null));
-      }
-
-      return of(convertToTask(dbSession, taskDto, submission.getCharacteristics(),
-        ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
-        ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null)));
+      return ceTask;
     }
+  }
+
+  private Optional<CeTask> submit(DbSession dbSession, CeTaskSubmit submission, EnumSet<SubmitOption> submitOptions) {
+    CeTaskQuery query = new CeTaskQuery();
+    for (SubmitOption option : submitOptions) {
+      switch (option) {
+        case UNIQUE_QUEUE_PER_MAIN_COMPONENT -> submission.getComponent()
+          .flatMap(component -> Optional.ofNullable(component.getMainComponentUuid()))
+          .ifPresent(mainComponentUuid -> query.setMainComponentUuid(mainComponentUuid).setStatuses(List.of(PENDING.name())));
+        case UNIQUE_QUEUE_PER_TASK_TYPE -> query.setType(submission.getType());
+      }
+    }
+
+    boolean queryNonEmpty = query.getMainComponentUuids() != null || query.getStatuses() != null || query.getType() != null;
+    if (queryNonEmpty && dbClient.ceQueueDao().countByQuery(dbSession, query) > 0) {
+      return Optional.empty();
+    }
+    CeQueueDto inserted = addToQueueInDb(dbSession, submission);
+    return Optional.of(convertQueueDtoToTask(dbSession, inserted, submission));
+  }
+
+  private CeTask convertQueueDtoToTask(DbSession dbSession, CeQueueDto queueDto, CeTaskSubmit submission) {
+    Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, queueDto);
+    if (componentsByUuid.isEmpty()) {
+      return convertToTask(dbSession, queueDto, submission.getCharacteristics(), null, null);
+    }
+    return convertToTask(dbSession, queueDto, submission.getCharacteristics(),
+      ofNullable(queueDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
+      ofNullable(queueDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
   }
 
   Map<String, ComponentDto> loadComponentDtos(DbSession dbSession, CeQueueDto taskDto) {
@@ -183,7 +198,7 @@ public class CeQueueImpl implements CeQueue {
     return Arrays.stream(options).collect(toEnumSet(SubmitOption.class));
   }
 
-  private CeQueueDto addToQueueInDb(DbSession dbSession, CeTaskSubmit submission) {
+  private void insertCharacteristics(DbSession dbSession, CeTaskSubmit submission) {
     for (Map.Entry<String, String> characteristic : submission.getCharacteristics().entrySet()) {
       CeTaskCharacteristicDto characteristicDto = new CeTaskCharacteristicDto();
       characteristicDto.setUuid(uuidFactory.create());
@@ -192,6 +207,10 @@ public class CeQueueImpl implements CeQueue {
       characteristicDto.setValue(characteristic.getValue());
       dbClient.ceTaskCharacteristicsDao().insert(dbSession, characteristicDto);
     }
+  }
+
+  private CeQueueDto addToQueueInDb(DbSession dbSession, CeTaskSubmit submission) {
+    insertCharacteristics(dbSession, submission);
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(submission.getUuid());
@@ -262,7 +281,7 @@ public class CeQueueImpl implements CeQueue {
     updateExecutionFields(activityDto);
     remove(dbSession, task, activityDto);
   }
-  
+
   protected long updateExecutionFields(CeActivityDto activityDto) {
     Long startedAt = activityDto.getStartedAt();
     if (startedAt == null) {
@@ -353,7 +372,6 @@ public class CeQueueImpl implements CeQueue {
       .setType(taskDto.getTaskType())
       .setCharacteristics(characteristics)
       .setSubmitter(resolveSubmitter(dbSession, taskDto.getSubmitterUuid()));
-
 
     String componentUuid = taskDto.getComponentUuid();
     if (component != null) {

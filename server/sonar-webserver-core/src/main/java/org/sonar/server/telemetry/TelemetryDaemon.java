@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -35,6 +34,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.property.InternalProperties;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 import org.sonar.server.util.GlobalLockManager;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
@@ -42,7 +42,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQU
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 @ServerSide
-public class TelemetryDaemon implements Startable {
+public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService> {
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
   private static final int ONE_DAY = 24 * 60 * 60 * 1_000;
   private static final String I_PROP_LAST_PING = "telemetry.lastPing";
@@ -60,10 +60,9 @@ public class TelemetryDaemon implements Startable {
   private final InternalProperties internalProperties;
   private final System2 system2;
 
-  private ScheduledExecutorService executorService;
-
   public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryDataJsonWriter dataJsonWriter, TelemetryClient telemetryClient, Configuration config,
     InternalProperties internalProperties, GlobalLockManager lockManager, System2 system2) {
+    super(Executors.newSingleThreadScheduledExecutor(newThreadFactory()));
     this.dataLoader = dataLoader;
     this.dataJsonWriter = dataJsonWriter;
     this.telemetryClient = telemetryClient;
@@ -90,22 +89,8 @@ public class TelemetryDaemon implements Startable {
       return;
     }
     LOG.info("Sharing of SonarQube statistics is enabled.");
-    executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
     int frequencyInSeconds = frequency();
-    executorService.scheduleWithFixedDelay(telemetryCommand(), frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
-  }
-
-  @Override
-  public void stop() {
-    try {
-      if (executorService == null) {
-        return;
-      }
-      executorService.shutdown();
-      executorService.awaitTermination(5, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
+    scheduleWithFixedDelay(telemetryCommand(), frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
   }
 
   private static ThreadFactory newThreadFactory() {

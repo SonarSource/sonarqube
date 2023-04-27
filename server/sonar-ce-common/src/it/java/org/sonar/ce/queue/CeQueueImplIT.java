@@ -56,6 +56,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMPONENT;
+import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_TASK_TYPE;
 
 public class CeQueueImplIT {
 
@@ -206,6 +207,22 @@ public class CeQueueImplIT {
       .hasSize(uuids.length + 1)
       .contains(uuids)
       .contains(task.getUuid());
+  }
+
+  @Test
+  public void submit_with_UNIQUE_QUEUE_PER_TASK_TYPE_does_not_create_task_when_there_is_a_task_with_the_same_type() {
+    String mainComponentUuid = randomAlphabetic(5);
+    CeTaskSubmit taskSubmit = createTaskSubmit("some type", newComponent(mainComponentUuid), null);
+    String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
+      .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
+      .map(CeQueueDto::getUuid)
+      .toArray(String[]::new);
+    Optional<CeTask> task = underTest.submit(taskSubmit, UNIQUE_QUEUE_PER_TASK_TYPE);
+
+    assertThat(task).isEmpty();
+    assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
+      .extracting(CeQueueDto::getUuid)
+      .containsOnly(uuids);
   }
 
   @Test

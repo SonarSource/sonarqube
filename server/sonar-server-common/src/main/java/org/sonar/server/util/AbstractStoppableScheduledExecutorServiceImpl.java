@@ -24,9 +24,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class AbstractStoppableScheduledExecutorServiceImpl<T extends ScheduledExecutorService> extends AbstractStoppableExecutorService<T>
+public abstract class AbstractStoppableScheduledExecutorServiceImpl<T extends ScheduledExecutorService> extends AbstractStoppableExecutorService<T>
   implements StoppableScheduledExecutorService {
-  public AbstractStoppableScheduledExecutorServiceImpl(T delegate) {
+  protected AbstractStoppableScheduledExecutorServiceImpl(T delegate) {
     super(delegate);
   }
 
