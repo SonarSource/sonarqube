@@ -29,40 +29,6 @@ export enum IssueType {
   SecurityHotspot = 'SECURITY_HOTSPOT',
 }
 
-export enum IssueCharacteristic {
-  Clear = 'CLEAR',
-  Consistent = 'CONSISTENT',
-  Structured = 'STRUCTURED',
-  Tested = 'TESTED',
-  Robust = 'ROBUST',
-  Secure = 'SECURE',
-  Portable = 'PORTABLE',
-  Compliant = 'COMPLIANT',
-}
-
-export enum IssueCharacteristicFitFor {
-  Production = 'PRODUCTION',
-  Development = 'DEVELOPMENT',
-}
-
-export const ISSUE_CHARACTERISTIC_TO_FIT_FOR = {
-  [IssueCharacteristic.Clear]: IssueCharacteristicFitFor.Development,
-  [IssueCharacteristic.Consistent]: IssueCharacteristicFitFor.Development,
-  [IssueCharacteristic.Structured]: IssueCharacteristicFitFor.Development,
-  [IssueCharacteristic.Tested]: IssueCharacteristicFitFor.Development,
-  [IssueCharacteristic.Robust]: IssueCharacteristicFitFor.Production,
-  [IssueCharacteristic.Secure]: IssueCharacteristicFitFor.Production,
-  [IssueCharacteristic.Portable]: IssueCharacteristicFitFor.Production,
-  [IssueCharacteristic.Compliant]: IssueCharacteristicFitFor.Production,
-};
-
-export const ISSUE_TYPE_TO_CHARACTERISTIC = {
-  [IssueType.Bug]: IssueCharacteristic.Robust,
-  [IssueType.CodeSmell]: IssueCharacteristic.Clear,
-  [IssueType.SecurityHotspot]: IssueCharacteristic.Secure,
-  [IssueType.Vulnerability]: IssueCharacteristic.Secure,
-};
-
 // Keep this enum in the correct order (most severe to least severe).
 export enum IssueSeverity {
   Blocker = 'BLOCKER',
@@ -161,7 +127,6 @@ export interface RawIssue {
   severity: string;
   status: string;
   textRange?: TextRange;
-  characteristic: IssueCharacteristic;
   type: IssueType;
   scope: string;
   ruleDescriptionContextKey?: string;
