@@ -27,13 +27,13 @@ import {
   IssueType as IssueTypeEnum,
 } from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
-import IssueTypeIcon from '../../icons/IssueTypeIcon';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';
 import IssueSeverity from './IssueSeverity';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
+import IssueType from './IssueType';
 
 interface Props {
   issue: Issue;
@@ -98,15 +98,21 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     const canAssign = issue.actions.includes(IssueActions.Assign);
     const canComment = issue.actions.includes(IssueActions.Comment);
     const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
+    const canSetType = issue.actions.includes(IssueActions.SetType);
     const canSetTags = issue.actions.includes(IssueActions.SetTags);
     const hasTransitions = issue.transitions.length > 0;
 
     return (
       <div className={classNames(className, 'issue-actions')}>
         <div className="issue-meta-list">
-          <div className="issue-meta display-flex-center disabled">
-            <IssueTypeIcon className="little-spacer-right" query={issue.type} />
-            {translate('issue.type', issue.type)}
+          <div className="issue-meta">
+            <IssueType
+              canSetType={canSetType}
+              isOpen={this.props.currentPopup === 'set-type' && canSetType}
+              issue={issue}
+              setIssueProperty={this.setIssueProperty}
+              togglePopup={this.props.togglePopup}
+            />
           </div>
           <div className="issue-meta">
             <IssueSeverity

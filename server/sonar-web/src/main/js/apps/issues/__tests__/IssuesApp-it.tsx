@@ -246,6 +246,12 @@ describe('issues app', () => {
       // Check that we bulk change the selected issue
       const issueBoxFixThat = within(screen.getByRole('region', { name: 'Fix that' }));
 
+      expect(
+        issueBoxFixThat.getByRole('button', {
+          name: 'issue.type.type_x_click_to_change.issue.type.CODE_SMELL',
+        })
+      ).toBeInTheDocument();
+
       await user.click(
         screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' })
       );
@@ -255,14 +261,14 @@ describe('issues app', () => {
       await user.keyboard('New Comment');
       expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
-      await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_severity' }), [
-        'severity.BLOCKER',
+      await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
+        'issue.type.BUG',
       ]);
       await user.click(screen.getByRole('button', { name: 'apply' }));
 
       expect(
         issueBoxFixThat.getByRole('button', {
-          name: 'issue.severity.severity_x_click_to_change.severity.BLOCKER',
+          name: 'issue.type.type_x_click_to_change.issue.type.BUG',
         })
       ).toBeInTheDocument();
     });
@@ -616,6 +622,22 @@ describe('issues item', () => {
 
     // Get a specific issue list item
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
+
+    // Change issue type
+    await user.click(
+      listItem.getByRole('button', {
+        name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`,
+      })
+    );
+    expect(listItem.getByText('issue.type.BUG')).toBeInTheDocument();
+    expect(listItem.getByText('issue.type.VULNERABILITY')).toBeInTheDocument();
+
+    await user.click(listItem.getByText('issue.type.VULNERABILITY'));
+    expect(
+      listItem.getByRole('button', {
+        name: `issue.type.type_x_click_to_change.issue.type.VULNERABILITY`,
+      })
+    ).toBeInTheDocument();
 
     // Change issue severity
     expect(listItem.getByText('severity.MAJOR')).toBeInTheDocument();

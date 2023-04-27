@@ -145,6 +145,12 @@ it('should be able to interact with issue action', async () => {
   const user = userEvent.setup();
   renderSourceViewer();
 
+  //Open Issue type
+  await user.click(
+    await screen.findByRole('button', { name: 'issue.type.type_x_click_to_change.issue.type.BUG' })
+  );
+  expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
+
   // Open severity
   await user.click(
     await screen.findByRole('button', {

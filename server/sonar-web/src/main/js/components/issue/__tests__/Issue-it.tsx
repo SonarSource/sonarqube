@@ -125,6 +125,19 @@ describe('rendering', () => {
 });
 
 describe('updating', () => {
+  it('should allow updating the type', async () => {
+    const { ui } = getPageObject();
+    const issue = mockRawIssue(false, {
+      type: IssueType.Bug,
+      actions: [IssueActions.SetType],
+    });
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    renderIssue({ issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'type') }) });
+
+    await ui.updateType(IssueType.Bug, IssueType.CodeSmell);
+    expect(ui.updateTypeBtn(IssueType.CodeSmell).get()).toBeInTheDocument();
+  });
+
   it('should allow updating the severity', async () => {
     const { ui } = getPageObject();
     const issue = mockRawIssue(false, {

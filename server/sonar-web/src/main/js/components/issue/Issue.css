@@ -89,10 +89,6 @@
   display: flex;
 }
 
-.issue-meta.disabled {
-  color: var(--gray60);
-}
-
 .issue-meta + .issue-meta {
   margin-left: var(--gridSize);
 }
