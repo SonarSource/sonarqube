@@ -39,7 +39,6 @@ interface Props {
   query: Query;
   referencedLanguages: Dict<ReferencedLanguage>;
   stats: Dict<number> | undefined;
-  forceShow: boolean;
 }
 
 class LanguageFacet extends React.PureComponent<Props> {
@@ -80,16 +79,10 @@ class LanguageFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { forceShow, stats, selectedLanguages, open, fetching, query } = this.props;
-
-    if (selectedLanguages.length < 1 && !forceShow) {
-      return null;
-    }
-
     return (
       <ListStyleFacet<Language>
         facetHeader={translate('issues.facet.languages')}
-        fetching={fetching}
+        fetching={this.props.fetching}
         getFacetItemText={this.getLanguageName}
         getSearchResultKey={(language) => language.key}
         getSearchResultText={(language) => language.name}
@@ -98,14 +91,14 @@ class LanguageFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={open}
+        open={this.props.open}
         property="languages"
-        query={omit(query, 'languages')}
+        query={omit(this.props.query, 'languages')}
         renderFacetItem={this.getLanguageName}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_languages')}
-        stats={stats}
-        values={selectedLanguages}
+        stats={this.props.stats}
+        values={this.props.selectedLanguages}
       />
     );
   }

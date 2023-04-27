@@ -39,7 +39,6 @@ interface Props {
   query: Query;
   stats: Dict<number> | undefined;
   referencedUsers: Dict<UserBase>;
-  forceShow: boolean;
 }
 
 export default class AssigneeFacet extends React.PureComponent<Props> {
@@ -138,20 +137,15 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { forceShow, assignees, assigned, stats, open, fetching, query } = this.props;
-    const values = [...assignees];
-    if (!assigned) {
+    const values = [...this.props.assignees];
+    if (!this.props.assigned) {
       values.push('');
-    }
-
-    if (values.length < 1 && !forceShow) {
-      return null;
     }
 
     return (
       <ListStyleFacet<UserBase>
         facetHeader={translate('issues.facet.assignees')}
-        fetching={fetching}
+        fetching={this.props.fetching}
         getFacetItemText={this.getAssigneeName}
         getSearchResultKey={(user) => user.login}
         getSearchResultText={(user) => user.name || user.login}
@@ -163,13 +157,13 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
         onItemClick={this.handleItemClick}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={open}
+        open={this.props.open}
         property="assignees"
-        query={omit(query, 'assigned', 'assignees')}
+        query={omit(this.props.query, 'assigned', 'assignees')}
         renderFacetItem={this.renderFacetItem}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_users')}
-        stats={stats}
+        stats={this.props.stats}
         values={values}
       />
     );

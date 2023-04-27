@@ -50,7 +50,6 @@ interface Props {
   open: boolean;
   inNewCodePeriod: boolean;
   stats: Dict<number> | undefined;
-  forceShow: boolean;
 }
 
 export class CreationDateFacet extends React.PureComponent<Props & WrappedComponentProps> {
@@ -260,10 +259,10 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
     if (createdAt) {
       return (
         <div className="search-navigator-facet-container">
-          <DateTimeFormatter date={createdAt} />
+          <DateTimeFormatter date={this.props.createdAt} />
           <br />
           <span className="note">
-            <DateFromNow date={createdAt} />
+            <DateFromNow date={this.props.createdAt} />
           </span>
         </div>
       );
@@ -288,13 +287,8 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   }
 
   render() {
-    const { forceShow, open, fetching } = this.props;
-    const values = this.getValues();
+    const { fetching, open } = this.props;
     const headerId = `facet_${this.property}`;
-
-    if (values.length < 1 && !forceShow) {
-      return null;
-    }
 
     return (
       <FacetBox property={this.property}>

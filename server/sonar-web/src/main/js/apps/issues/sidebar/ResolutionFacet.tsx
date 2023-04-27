@@ -37,7 +37,6 @@ interface Props {
   resolved: boolean;
   resolutions: string[];
   stats: Dict<number> | undefined;
-  forceShow: boolean;
 }
 
 const RESOLUTIONS = [
@@ -56,10 +55,10 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { resolutions, resolved } = this.props;
+    const { resolutions } = this.props;
     if (itemValue === '') {
       // unresolved
-      this.props.onChange({ resolved: !resolved, resolutions: [] });
+      this.props.onChange({ resolved: !this.props.resolved, resolutions: [] });
     } else if (multiple) {
       const newValue = orderBy(
         resolutions.includes(itemValue)
@@ -116,13 +115,9 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { resolutions, stats = {}, forceShow, fetching, open } = this.props;
+    const { fetching, open, resolutions, stats = {} } = this.props;
     const values = resolutions.map((resolution) => this.getFacetItemName(resolution));
     const headerId = `facet_${this.property}`;
-
-    if (values.length < 1 && !forceShow) {
-      return null;
-    }
 
     return (
       <FacetBox property={this.property}>

@@ -33,11 +33,11 @@ import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { Button } from '../../../components/controls/buttons';
 import ButtonToggle from '../../../components/controls/ButtonToggle';
 import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
+import { Button } from '../../../components/controls/buttons';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -80,24 +80,23 @@ import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
-import FiltersVisibilityButton from '../sidebar/FiltersVisibilityButton';
 import Sidebar from '../sidebar/Sidebar';
 import '../styles.css';
 import {
+  OpenFacets,
+  Query,
+  STANDARDS,
   areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
   getOpenIssue,
-  OpenFacets,
   parseFacets,
   parseQuery,
-  Query,
   saveMyIssues,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
-  STANDARDS,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueHeader from './IssueHeader';
@@ -130,7 +129,6 @@ export interface State {
   loadingMore: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
-  showAllFilters: boolean;
   openFacets: OpenFacets;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
@@ -170,7 +168,6 @@ export class App extends React.PureComponent<Props, State> {
       loadingMore: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
-      showAllFilters: false,
       openFacets: {
         characteristics: {
           [IssueCharacteristicFitFor.Production]: true,
@@ -647,12 +644,6 @@ export class App extends React.PureComponent<Props, State> {
     return translateWithParameters('issues.bulk_change_X_issues', count);
   };
 
-  handleShowFiltersChange = (showAllFilters: boolean) => {
-    this.setState({
-      showAllFilters,
-    });
-  };
-
   handleFilterChange = (changes: Partial<Query>) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
@@ -914,7 +905,7 @@ export class App extends React.PureComponent<Props, State> {
 
   renderFacets() {
     const { component, currentUser, branchLike } = this.props;
-    const { query, showAllFilters } = this.state;
+    const { query } = this.state;
 
     return (
       <div className="layout-page-filters">
@@ -943,16 +934,11 @@ export class App extends React.PureComponent<Props, State> {
           onFilterChange={this.handleFilterChange}
           openFacets={this.state.openFacets}
           query={query}
-          showAllFilters={showAllFilters}
           referencedComponentsById={this.state.referencedComponentsById}
           referencedComponentsByKey={this.state.referencedComponentsByKey}
           referencedLanguages={this.state.referencedLanguages}
           referencedRules={this.state.referencedRules}
           referencedUsers={this.state.referencedUsers}
-        />
-        <FiltersVisibilityButton
-          showAllFilters={showAllFilters}
-          onClick={this.handleShowFiltersChange}
         />
       </div>
     );

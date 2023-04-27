@@ -61,7 +61,6 @@ describe('issues app', () => {
     it('should support OWASP Top 10 version 2021', async () => {
       const user = userEvent.setup();
       renderIssueApp();
-      await user.click(ui.showFiltersButton().get());
       await user.click(screen.getByRole('button', { name: 'issues.facet.standards' }));
       const owaspTop102021 = screen.getByRole('button', { name: 'issues.facet.owaspTop10_2021' });
       expect(owaspTop102021).toBeInTheDocument();
@@ -273,7 +272,6 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
       await waitOnDataLoaded();
-      await user.click(ui.showFiltersButton().get());
 
       // Ensure issue type filter is unchecked
       await user.click(ui.typeFacet.get());
@@ -329,7 +327,6 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
       await waitOnDataLoaded();
-      await user.click(ui.showFiltersButton().get());
 
       // Select a characteristic
       await user.click(ui.clearCharacteristicFilter.get());
@@ -438,7 +435,6 @@ describe('issues app', () => {
       issuesHandler.setCurrentUser(currentUser);
       renderIssueApp(currentUser);
       await waitOnDataLoaded();
-      await user.click(ui.showFiltersButton().get());
 
       // Select a specific date range such that only one issue matches
       await user.click(ui.creationDateFacet.get());
@@ -484,7 +480,6 @@ describe('issues app', () => {
 
       renderIssueApp();
 
-      await user.click(ui.showFiltersButton().get());
       await user.click(await ui.ruleFacet.find());
       await user.type(ui.ruleFacetSearch.get(), 'rule');
       expect(within(ui.ruleFacetList.get()).getAllByRole('checkbox')).toHaveLength(2);
@@ -499,7 +494,6 @@ describe('issues app', () => {
         })
       ).toBeInTheDocument();
 
-      await user.click(await ui.typeFacet.find());
       await user.click(ui.vulnerabilityIssueTypeFilter.get());
       // after changing the issue type filter, search field is reset, so we type again
       await user.type(ui.ruleFacetSearch.get(), 'rule');
@@ -521,7 +515,6 @@ describe('issues app', () => {
 
       renderIssueApp();
 
-      await user.click(ui.showFiltersButton().get());
       await user.click(await ui.languageFacet.find());
       expect(await ui.languageFacetList.find()).toBeInTheDocument();
       expect(
@@ -533,7 +526,6 @@ describe('issues app', () => {
 
       await user.click(ui.languageFacet.get());
       expect(ui.languageFacetList.query()).not.toBeInTheDocument();
-      await user.click(await ui.typeFacet.find());
       await user.click(ui.vulnerabilityIssueTypeFilter.get());
       await user.click(ui.languageFacet.get());
       expect(await ui.languageFacetList.find()).toBeInTheDocument();

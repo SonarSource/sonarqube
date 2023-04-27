@@ -40,7 +40,6 @@ exports[`should render correctly 1`] = `
     fetchingOwaspTop10={false}
     fetchingOwaspTop10-2021={false}
     fetchingSonarSourceSecurity={false}
-    forceShow={true}
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
     open={false}

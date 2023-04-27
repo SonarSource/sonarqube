@@ -37,7 +37,6 @@ interface Props {
   open: boolean;
   stats: Dict<number> | undefined;
   types: string[];
-  forceShow: boolean;
 }
 
 export default class TypeFacet extends React.PureComponent<Props> {
@@ -100,13 +99,9 @@ export default class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { types, stats = {}, forceShow, open, fetching } = this.props;
+    const { fetching, open, types, stats = {} } = this.props;
     const values = types.map((type) => translate('issue.type', type));
     const typeFacetHeaderId = `facet_${this.property}`;
-
-    if (values.length < 1 && !forceShow) {
-      return null;
-    }
 
     return (
       <FacetBox property={this.property}>

@@ -40,7 +40,6 @@ interface Props {
   query: Query;
   stats: Dict<number> | undefined;
   tags: string[];
-  forceShow: boolean;
 }
 
 const SEARCH_SIZE = 100;
@@ -83,16 +82,10 @@ export default class TagFacet extends React.PureComponent<Props> {
   );
 
   render() {
-    const { forceShow, tags, fetching, stats, open, query } = this.props;
-
-    if (tags.length < 1 && !forceShow) {
-      return null;
-    }
-
     return (
       <ListStyleFacet<string>
         facetHeader={translate('issues.facet.tags')}
-        fetching={fetching}
+        fetching={this.props.fetching}
         getFacetItemText={this.getTagName}
         getSearchResultKey={(tag) => tag}
         getSearchResultText={(tag) => tag}
@@ -100,14 +93,14 @@ export default class TagFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={open}
+        open={this.props.open}
         property="tags"
-        query={omit(query, 'tags')}
+        query={omit(this.props.query, 'tags')}
         renderFacetItem={this.renderTag}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_tags')}
-        stats={stats}
-        values={tags}
+        stats={this.props.stats}
+        values={this.props.tags}
       />
     );
   }

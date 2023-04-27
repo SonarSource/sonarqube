@@ -29,7 +29,6 @@ import { highlightTerm } from '../../../helpers/search';
 import { BranchLike } from '../../../types/branch-like';
 import { TreeComponentWithPath } from '../../../types/component';
 import { Facet } from '../../../types/issues';
-import { MetricKey } from '../../../types/metrics';
 import { Query } from '../utils';
 
 interface Props {
@@ -43,7 +42,6 @@ interface Props {
   open: boolean;
   query: Query;
   stats: Facet | undefined;
-  forceShow: boolean;
 }
 
 export default class DirectoryFacet extends React.PureComponent<Props> {
@@ -75,7 +73,7 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
   };
 
   loadSearchResultCount = (directories: TreeComponentWithPath[]) => {
-    return this.props.loadSearchResultCount(MetricKey.directories, {
+    return this.props.loadSearchResultCount('directories', {
       directories: directories.map((directory) => directory.path),
     });
   };
@@ -96,16 +94,10 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { forceShow, directories, stats, fetching, open, query } = this.props;
-
-    if (directories.length < 1 && !forceShow) {
-      return null;
-    }
-
     return (
       <ListStyleFacet<TreeComponentWithPath>
         facetHeader={translate('issues.facet.directories')}
-        fetching={fetching}
+        fetching={this.props.fetching}
         getFacetItemText={this.getFacetItemText}
         getSearchResultKey={this.getSearchResultKey}
         getSearchResultText={this.getSearchResultText}
@@ -114,14 +106,14 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
-        open={open}
-        property={MetricKey.directories}
-        query={omit(query, MetricKey.directories)}
+        open={this.props.open}
+        property="directories"
+        query={omit(this.props.query, 'directories')}
         renderFacetItem={this.renderFacetItem}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_directories')}
-        stats={stats}
-        values={directories}
+        stats={this.props.stats}
+        values={this.props.directories}
       />
     );
   }
