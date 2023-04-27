@@ -26,7 +26,6 @@ import { Issue } from '../../../types/types';
 import Checkbox from '../../controls/Checkbox';
 import { updateIssue } from '../actions';
 import IssueActionsBar from './IssueActionsBar';
-import IssueCharacteristicHeader from './IssueCharacteristicHeader';
 import IssueCommentLine from './IssueCommentLine';
 import IssueTitleBar from './IssueTitleBar';
 
@@ -110,7 +109,6 @@ export default class IssueView extends React.PureComponent<Props> {
             title={translate('issues.action_select')}
           />
         )}
-        <IssueCharacteristicHeader characteristic={issue.characteristic} className="spacer-left" />
         <IssueTitleBar
           branchLike={branchLike}
           onClick={this.handleDetailClick}

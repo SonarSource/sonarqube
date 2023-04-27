@@ -253,10 +253,6 @@
   background-color: var(--badgeRedBackgroundOnIssue);
 }
 
-.issue-category-fit {
-  font-weight: 400;
-}
-
 .issue-message-box {
   background-color: var(--issueBgColor);
   border: 2px solid transparent;
