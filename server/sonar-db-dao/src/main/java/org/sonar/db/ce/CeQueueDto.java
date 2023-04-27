@@ -21,11 +21,8 @@ package org.sonar.db.ce;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 public class CeQueueDto {
 
@@ -110,7 +107,7 @@ public class CeQueueDto {
   }
 
   public CeQueueDto setTaskType(String s) {
-    checkArgument(s.length() <= 15, "Value of task type is too long: %s", s);
+    checkArgument(s.length() <= 40, "Value of task type is too long: %s", s);
     this.taskType = s;
     return this;
   }

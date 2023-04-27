@@ -54,6 +54,7 @@ public class DbVersion101 implements DbVersion {
       .add(10_1_010, "Remove user tokens linked to unexistent project", RemoveOrphanUserTokens.class)
       .add(10_1_011, "Populate 'project_key' in 'user_tokens'", PopulateProjectUuidInUserTokens.class)
       .add(10_1_012, "Drop column 'project_key' in 'user_tokens", DropProjectKeyInUserTokens.class)
-    ;
+      .add(10_1_013, "Increase size of 'ce_queue.task_type' from 15 to 40 characters", IncreaseTaskTypeColumnSizeInCeQueue.class)
+      .add(10_1_014, "Increase size of 'ce_activity.task_type' from 15 to 40 characters", IncreaseTaskTypeColumnSizeInCeActivity.class);
   }
 }

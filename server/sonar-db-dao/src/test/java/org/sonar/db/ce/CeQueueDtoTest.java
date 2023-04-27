@@ -79,11 +79,11 @@ public class CeQueueDtoTest {
 
   @Test
   public void setTaskType_throws_IAE_if_value_is_41_chars() {
-    String str_16_chars = STR_15_CHARS + "a";
+    String str_41_chars = STR_40_CHARS + "a";
 
-    assertThatThrownBy(() -> underTest.setTaskType(str_16_chars))
+    assertThatThrownBy(() -> underTest.setTaskType(str_41_chars))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of task type is too long: " + str_16_chars);
+      .hasMessage("Value of task type is too long: " + str_41_chars);
   }
 
   @Test
