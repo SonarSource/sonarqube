@@ -21,8 +21,8 @@ package org.sonar.server.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
-import java.util.List;
 import javax.annotation.Nullable;
+import java.util.List;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
