@@ -29,12 +29,10 @@ import {
   mockRawIssue,
   mockRule,
   mockRuleDetails,
-  mockUser,
 } from '../../helpers/testMocks';
 import {
   ASSIGNEE_ME,
   IssueActions,
-  IssueCharacteristic,
   IssueResolution,
   IssueScope,
   IssueSeverity,
@@ -64,8 +62,8 @@ import {
   editIssueComment,
   getIssueChangelog,
   getIssueFlowSnippets,
-  searchIssueTags,
   searchIssues,
+  searchIssueTags,
   setIssueAssignee,
   setIssueSeverity,
   setIssueTags,
@@ -120,7 +118,6 @@ export default class IssuesServiceMock {
           component: 'foo:test1.js',
           creationDate: '2023-01-05T09:36:01+0100',
           message: 'Issue with no location message',
-          characteristic: IssueCharacteristic.Secure,
           type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
           textRange: {
@@ -183,7 +180,6 @@ export default class IssuesServiceMock {
           component: 'foo:test1.js',
           creationDate: '2022-01-01T09:36:01+0100',
           message: 'FlowIssue',
-          characteristic: IssueCharacteristic.Clear,
           type: IssueType.CodeSmell,
           severity: IssueSeverity.Minor,
           rule: 'simpleRuleId',
@@ -280,7 +276,6 @@ export default class IssuesServiceMock {
           component: 'foo:test1.js',
           message: 'Issue on file',
           assignee: mockLoggedInUser().login,
-          characteristic: IssueCharacteristic.Clear,
           type: IssueType.CodeSmell,
           rule: 'simpleRuleId',
           textRange: undefined,
@@ -294,7 +289,6 @@ export default class IssuesServiceMock {
           key: 'issue1',
           component: 'foo:huge.js',
           message: 'Fix this',
-          characteristic: IssueCharacteristic.Secure,
           type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
           textRange: {
@@ -482,23 +476,23 @@ export default class IssuesServiceMock {
 
     this.list = cloneDeep(this.defaultList);
 
-    jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
-    jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
+    (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);
+    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
-    jest.mocked(getIssueFlowSnippets).mockImplementation(this.handleGetIssueFlowSnippets);
-    jest.mocked(bulkChangeIssues).mockImplementation(this.handleBulkChangeIssues);
-    jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
-    jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
-    jest.mocked(setIssueType).mockImplementation(this.handleSetIssueType);
+    (getIssueFlowSnippets as jest.Mock).mockImplementation(this.handleGetIssueFlowSnippets);
+    (bulkChangeIssues as jest.Mock).mockImplementation(this.handleBulkChangeIssues);
+    (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
+    (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
+    (setIssueType as jest.Mock).mockImplementation(this.handleSetIssueType);
     jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
-    jest.mocked(setIssueSeverity).mockImplementation(this.handleSetIssueSeverity);
-    jest.mocked(setIssueTransition).mockImplementation(this.handleSetIssueTransition);
-    jest.mocked(setIssueTags).mockImplementation(this.handleSetIssueTags);
+    (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
+    (setIssueTransition as jest.Mock).mockImplementation(this.handleSetIssueTransition);
+    (setIssueTags as jest.Mock).mockImplementation(this.handleSetIssueTags);
     jest.mocked(addIssueComment).mockImplementation(this.handleAddComment);
     jest.mocked(editIssueComment).mockImplementation(this.handleEditComment);
     jest.mocked(deleteIssueComment).mockImplementation(this.handleDeleteComment);
-    jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
-    jest.mocked(searchIssueTags).mockImplementation(this.handleSearchIssueTags);
+    (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
+    (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
     jest.mocked(getIssueChangelog).mockImplementation(this.handleGetIssueChangelog);
   }
 
@@ -534,14 +528,14 @@ export default class IssuesServiceMock {
     this.isAdmin = isAdmin;
   }
 
-  handleBulkChangeIssues = (issueKeys: string[], query: RequestData): Promise<void> => {
+  handleBulkChangeIssues = (issueKeys: string[], query: RequestData) => {
     //For now we only check for issue severity change.
     this.list
       .filter((i) => issueKeys.includes(i.issue.key))
       .forEach((data) => {
         data.issue.severity = query.set_severity;
       });
-    return this.reply(undefined);
+    return this.reply({});
   };
 
   handleGetIssueFlowSnippets = (issueKey: string): Promise<Dict<SnippetsByComponent>> => {
@@ -746,11 +740,6 @@ export default class IssuesServiceMock {
         (item) =>
           !query.createdAfter || new Date(item.issue.creationDate) >= new Date(query.createdAfter)
       )
-      .filter(
-        (item) =>
-          !query.characteristics ||
-          query.characteristics.split(',').includes(item.issue.characteristic)
-      )
       .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
       .filter(
         (item) => !query.severities || query.severities.split(',').includes(item.issue.severity)
@@ -927,10 +916,7 @@ export default class IssuesServiceMock {
   };
 
   handleSearchUsers = () => {
-    return this.reply({
-      paging: mockPaging({ pageIndex: 1, pageSize: 5, total: 1 }),
-      users: [mockUser({ login: 'luke', name: 'Skywalker' })],
-    });
+    return this.reply({ users: [mockLoggedInUser()] });
   };
 
   handleSearchIssueTags = () => {

@@ -44,7 +44,6 @@ export interface Query {
   assigned: boolean;
   assignees: string[];
   author: string[];
-  characteristics: string[];
   createdAfter: Date | undefined;
   createdAt: string;
   createdBefore: Date | undefined;
@@ -74,10 +73,6 @@ export interface Query {
   types: string[];
 }
 
-export type OpenFacets = Dict<boolean | Dict<boolean>> & {
-  characteristics?: Dict<boolean>;
-};
-
 export const STANDARDS = 'standards';
 
 // allow sorting by CREATION_DATE only
@@ -89,7 +84,6 @@ export function parseQuery(query: RawQuery): Query {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
     author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
-    characteristics: parseAsArray(query.characteristics, parseAsString),
     createdAfter: parseAsDate(query.createdAfter),
     createdAt: parseAsString(query.createdAt),
     createdBefore: parseAsDate(query.createdBefore),
@@ -136,7 +130,6 @@ export function serializeQuery(query: Query): RawQuery {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
     author: query.author,
-    characteristics: serializeStringArray(query.characteristics),
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),
@@ -251,16 +244,19 @@ export function allLocationsEmpty(
   return getLocations(issue, selectedFlowIndex).every((location) => !location.msg);
 }
 
-export function shouldOpenStandardsFacet(openFacets: OpenFacets, query: Partial<Query>): boolean {
+export function shouldOpenStandardsFacet(
+  openFacets: Dict<boolean>,
+  query: Partial<Query>
+): boolean {
   return (
-    !!openFacets[STANDARDS] ||
+    openFacets[STANDARDS] ||
     isFilteredBySecurityIssueTypes(query) ||
     isOneStandardChildFacetOpen(openFacets, query)
   );
 }
 
 export function shouldOpenStandardsChildFacet(
-  openFacets: OpenFacets,
+  openFacets: Dict<boolean>,
   query: Partial<Query>,
   standardType:
     | SecurityStandard.CWE
@@ -271,13 +267,13 @@ export function shouldOpenStandardsChildFacet(
   const filter = query[standardType];
   return (
     openFacets[STANDARDS] !== false &&
-    (!!openFacets[standardType] ||
+    (openFacets[standardType] ||
       (standardType !== SecurityStandard.CWE && filter !== undefined && filter.length > 0))
   );
 }
 
 export function shouldOpenSonarSourceSecurityFacet(
-  openFacets: OpenFacets,
+  openFacets: Dict<boolean>,
   query: Partial<Query>
 ): boolean {
   // Open it by default if the parent is open, and no other standard is open.
@@ -291,7 +287,7 @@ function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
   return query.types !== undefined && query.types.includes('VULNERABILITY');
 }
 
-function isOneStandardChildFacetOpen(openFacets: OpenFacets, query: Partial<Query>): boolean {
+function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Query>): boolean {
   return [SecurityStandard.OWASP_TOP10, SecurityStandard.CWE, SecurityStandard.SONARSOURCE].some(
     (
       standardType:

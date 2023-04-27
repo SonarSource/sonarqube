@@ -21,7 +21,7 @@ import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import { Dict, MeasureEnhanced } from '../../../types/types';
-import { KNOWN_DOMAINS, PROJECT_OVERVEW, Query, groupByDomains } from '../utils';
+import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
 import DomainFacet from './DomainFacet';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 

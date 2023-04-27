@@ -274,7 +274,6 @@ describe('issues app', () => {
       await waitOnDataLoaded();
 
       // Ensure issue type filter is unchecked
-      await user.click(ui.typeFacet.get());
       expect(ui.codeSmellIssueTypeFilter.get()).not.toBeChecked();
       expect(ui.vulnerabilityIssueTypeFilter.get()).not.toBeChecked();
       expect(ui.issueItem1.get()).toBeInTheDocument();
@@ -328,21 +327,7 @@ describe('issues app', () => {
       renderIssueApp();
       await waitOnDataLoaded();
 
-      // Select a characteristic
-      await user.click(ui.clearCharacteristicFilter.get());
-      expect(ui.issueItem1.query()).not.toBeInTheDocument();
-      expect(ui.issueItem2.get()).toBeInTheDocument();
-
-      // Clicking on same filter should uncheck it
-      await user.click(ui.clearCharacteristicFilter.get());
-      expect(ui.issueItem1.get()).toBeInTheDocument();
-      expect(ui.issueItem2.get()).toBeInTheDocument();
-
-      // Select clarity characteristic (should make the first issue disappear)
-      await user.click(ui.clearCharacteristicFilter.get());
-
-      // Select only code smells
-      await user.click(ui.typeFacet.get());
+      // Select only code smells (should make the first issue disappear)
       await user.click(ui.codeSmellIssueTypeFilter.get());
 
       // Select code smells + major severity
@@ -410,7 +395,6 @@ describe('issues app', () => {
       expect(ui.issueItem7.get()).toBeInTheDocument();
 
       // Clear filters one by one
-      await user.click(ui.clearFitForDevelopmentFacet.get());
       await user.click(ui.clearIssueTypeFacet.get());
       await user.click(ui.clearSeverityFacet.get());
       await user.click(ui.clearScopeFacet.get());
@@ -918,14 +902,11 @@ describe('redirects', () => {
     expect(screen.getByText('/security_hotspots?assignedToMe=false')).toBeInTheDocument();
   });
 
-  it('should filter out hotspots', async () => {
-    const user = userEvent.setup();
+  it('should filter out hotspots', () => {
     renderProjectIssuesApp(
       `project/issues?types=${IssueType.SecurityHotspot},${IssueType.CodeSmell}`
     );
-    await waitOnDataLoaded();
 
-    await user.click(ui.typeFacet.get());
     expect(
       screen.getByRole('checkbox', { name: `issue.type.${IssueType.CodeSmell}` })
     ).toBeInTheDocument();

@@ -30,10 +30,8 @@ import { Sidebar } from '../Sidebar';
 it('should render correct facets for Application', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.characteristics.PRODUCTION',
-    'issues.facet.characteristics.DEVELOPMENT',
-    'issues.facet.severities',
     'issues.facet.types',
+    'issues.facet.severities',
     'issues.facet.scopes',
     'issues.facet.resolutions',
     'issues.facet.statuses',
@@ -52,10 +50,8 @@ it('should render correct facets for Application', () => {
 it('should render correct facets for Portfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.characteristics.PRODUCTION',
-    'issues.facet.characteristics.DEVELOPMENT',
-    'issues.facet.severities',
     'issues.facet.types',
+    'issues.facet.severities',
     'issues.facet.scopes',
     'issues.facet.resolutions',
     'issues.facet.statuses',
@@ -74,10 +70,8 @@ it('should render correct facets for Portfolio', () => {
 it('should render correct facets for SubPortfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.characteristics.PRODUCTION',
-    'issues.facet.characteristics.DEVELOPMENT',
-    'issues.facet.severities',
     'issues.facet.types',
+    'issues.facet.severities',
     'issues.facet.scopes',
     'issues.facet.resolutions',
     'issues.facet.statuses',

@@ -51,11 +51,6 @@ export const ui = {
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
 
-  clearFitForDevelopmentFacet: byRole('button', {
-    name: 'clear_x_filter.issues.facet.characteristics.DEVELOPMENT',
-  }),
-  clearCharacteristicFilter: byRole('checkbox', { name: 'issue.characteristic.CLEAR' }),
-  typeFacet: byRole('button', { name: 'issues.facet.types' }),
   clearIssueTypeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.types' }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
