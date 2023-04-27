@@ -95,6 +95,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
   render() {
     const { statuses, stats = {}, forceShow, fetching, open } = this.props;
     const values = statuses.map((status) => translate('issue.status', status));
+    const headerId = `facet_${this.property}`;
 
     if (values.length < 1 && !forceShow) {
       return null;
@@ -104,6 +105,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={fetching}
+          id={headerId}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -113,7 +115,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
 
         {open && (
           <>
-            <FacetItemsList label={this.property}>{STATUSES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList labelledby={headerId}>{STATUSES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
           </>
         )}

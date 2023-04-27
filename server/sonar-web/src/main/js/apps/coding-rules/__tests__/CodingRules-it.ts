@@ -19,7 +19,7 @@
  */
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byRole } from 'testing-library-selector';
+import { byPlaceholderText, byRole } from 'testing-library-selector';
 import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -32,8 +32,11 @@ jest.mock('../../../api/users');
 jest.mock('../../../api/quality-profiles');
 
 const ui = {
+  rulesList: byRole('list', { name: 'list_of_rules' }),
   activateInSelectOption: byRole('combobox', { name: 'coding_rules.activate_in' }),
   deactivateInSelectOption: byRole('combobox', { name: 'coding_rules.deactivate_in' }),
+  availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
+  availableSinceDateField: byPlaceholderText('date'),
 };
 
 let handler: CodingRulesMock;
@@ -504,6 +507,24 @@ it('should not show notification for anonymous users', async () => {
       name: 'coding_rules.more_info.scroll_message',
     })
   ).not.toBeInTheDocument();
+});
+
+it('should filter correctly', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp(mockCurrentUser());
+
+  expect(await within(await ui.rulesList.find()).findAllByRole('listitem')).toHaveLength(8);
+  await user.click(await ui.availableSinceFacet.find());
+  await user.click(await ui.availableSinceDateField.find());
+  await userEvent.selectOptions(
+    await screen.findByRole('combobox', { name: 'Month:' }),
+    'November'
+  );
+  await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Year:' }), '2022');
+  await user.click(screen.getByRole('gridcell', { name: '1' }));
+  expect(ui.availableSinceDateField.get()).toHaveDisplayValue('Nov 1, 2022');
+  // eslint-disable-next-line jest-dom/prefer-in-document
+  expect(within(ui.rulesList.get()).getAllByRole('listitem')).toHaveLength(1);
 });
 
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {

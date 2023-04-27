@@ -165,10 +165,12 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     );
 
     const property = 'profile';
+    const headerId = `facet_${property}`;
 
     return (
       <FacetBox property={property}>
         <FacetHeader
+          id={headerId}
           name={translate('coding_rules.facet.qprofile')}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -187,7 +189,9 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           />
         </FacetHeader>
 
-        {open && <FacetItemsList label={property}>{profiles.map(this.renderItem)}</FacetItemsList>}
+        {open && (
+          <FacetItemsList labelledby={headerId}>{profiles.map(this.renderItem)}</FacetItemsList>
+        )}
       </FacetBox>
     );
   }

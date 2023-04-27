@@ -181,6 +181,7 @@ export default class IssuesServiceMock {
         issue: mockRawIssue(false, {
           key: 'issue11',
           component: 'foo:test1.js',
+          creationDate: '2022-01-01T09:36:01+0100',
           message: 'FlowIssue',
           characteristic: IssueCharacteristic.Clear,
           type: IssueType.CodeSmell,
@@ -760,6 +761,10 @@ export default class IssuesServiceMock {
       .filter((item) => !query.rules || query.rules.split(',').includes(item.issue.rule))
       .filter(
         (item) => !query.resolutions || query.resolutions.split(',').includes(item.issue.resolution)
+      )
+      .filter(
+        (item) =>
+          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10')
       );
 
     // Splice list items according to paging using a fixed page size

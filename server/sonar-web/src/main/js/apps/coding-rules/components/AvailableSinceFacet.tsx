@@ -34,8 +34,10 @@ interface Props {
 }
 
 class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentProps> {
+  property: keyof Query = 'availableSince';
+
   handleHeaderClick = () => {
-    this.props.onToggle('availableSince');
+    this.props.onToggle(this.property);
   };
 
   handleClear = () => {
@@ -53,10 +55,12 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
 
   render() {
     const { open, value } = this.props;
+    const headerId = `facet_${this.property}`;
 
     return (
-      <FacetBox property="availableSince">
+      <FacetBox property={this.property}>
         <FacetHeader
+          id={headerId}
           name={translate('coding_rules.facet.available_since')}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}

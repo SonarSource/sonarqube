@@ -32,18 +32,19 @@ import { Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../typ
 import { NoticeType } from '../../types/users';
 import { getFacet } from '../issues';
 import {
-  bulkActivateRules,
-  bulkDeactivateRules,
   Profile,
-  searchQualityProfiles,
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse,
+  bulkActivateRules,
+  bulkDeactivateRules,
+  searchQualityProfiles,
 } from '../quality-profiles';
 import { getRuleDetails, getRulesApp, searchRules, updateRule } from '../rules';
 import { dismissNotice, getCurrentUser } from '../users';
 
 interface FacetFilter {
   languages?: string;
+  available_since?: string;
 }
 
 const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
@@ -158,6 +159,7 @@ export default class CodingRulesMock {
         ],
       }),
       mockRuleDetails({
+        createdAt: '2022-12-16T17:26:54+0100',
         key: 'rule8',
         type: 'VULNERABILITY',
         lang: 'py',
@@ -188,8 +190,8 @@ export default class CodingRulesMock {
     this.rules = cloneDeep(this.defaultRules);
   }
 
-  getRuleWithoutDetails() {
-    return this.rules.map((r) =>
+  getRulesWithoutDetails(rules: RuleDetails[]) {
+    return rules.map((r) =>
       pick(r, [
         'isTemplate',
         'key',
@@ -206,12 +208,17 @@ export default class CodingRulesMock {
     );
   }
 
-  filterFacet({ languages }: FacetFilter) {
-    let filteredRules = this.getRuleWithoutDetails();
+  filterFacet({ languages, available_since }: FacetFilter) {
+    let filteredRules = this.rules;
     if (languages) {
       filteredRules = filteredRules.filter((r) => r.lang && languages.includes(r.lang));
     }
-    return filteredRules;
+    if (available_since) {
+      filteredRules = filteredRules.filter(
+        (r) => r.createdAt && new Date(r.createdAt) > new Date(available_since)
+      );
+    }
+    return this.getRulesWithoutDetails(filteredRules);
   }
 
   setIsAdmin() {
@@ -314,7 +321,14 @@ export default class CodingRulesMock {
     return this.reply(rule);
   };
 
-  handleSearchRules = ({ facets, languages, p, ps, rule_key }: SearchRulesQuery) => {
+  handleSearchRules = ({
+    facets,
+    languages,
+    p,
+    ps,
+    available_since,
+    rule_key,
+  }: SearchRulesQuery) => {
     const countFacet = (facets || '').split(',').map((facet: keyof Rule) => {
       const facetCount = countBy(
         this.rules.map((r) => r[FACET_RULE_MAP[facet] || facet] as string)
@@ -328,9 +342,9 @@ export default class CodingRulesMock {
     const currentP = p || 1;
     let filteredRules: Rule[] = [];
     if (rule_key) {
-      filteredRules = this.getRuleWithoutDetails().filter((r) => r.key === rule_key);
+      filteredRules = this.getRulesWithoutDetails(this.rules).filter((r) => r.key === rule_key);
     } else {
-      filteredRules = this.filterFacet({ languages });
+      filteredRules = this.filterFacet({ languages, available_since });
     }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({

@@ -141,10 +141,13 @@ export default class CharacteristicFacet extends React.PureComponent<Props> {
       .filter(([, value]) => value === fitFor)
       .map(([key]) => key as IssueCharacteristic);
 
+    const headerId = `facet_${this.property}_${fitFor}`;
+
     return (
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={this.props.fetching}
+          id={headerId}
           name={translate('issues.facet.characteristics', fitFor)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -154,7 +157,7 @@ export default class CharacteristicFacet extends React.PureComponent<Props> {
 
         {this.props.open && (
           <>
-            <FacetItemsList label={this.property}>
+            <FacetItemsList labelledby={headerId}>
               {availableCharacteristics.map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint

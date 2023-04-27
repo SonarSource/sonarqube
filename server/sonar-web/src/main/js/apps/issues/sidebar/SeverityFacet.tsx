@@ -95,11 +95,13 @@ export default class SeverityFacet extends React.PureComponent<Props> {
   render() {
     const { fetching, open, severities, stats = {} } = this.props;
     const values = severities.map((severity) => translate('severity', severity));
+    const headerId = `facet_${this.property}`;
 
     return (
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={fetching}
+          id={headerId}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -109,7 +111,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
 
         {open && (
           <>
-            <FacetItemsList label={this.property}>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList labelledby={headerId}>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={severities.length} />
           </>
         )}

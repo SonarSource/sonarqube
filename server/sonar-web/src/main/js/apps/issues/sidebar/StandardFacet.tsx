@@ -157,6 +157,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     ];
   };
 
+  getFacetHeaderId = (property: string) => {
+    return `facet_${property}`;
+  };
+
   handleHeaderClick = () => {
     this.props.onToggle(this.property);
   };
@@ -265,7 +269,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     stats: any,
     values: string[],
     categories: string[],
-    listLabel: ValuesProp,
+    listKey: ValuesProp,
     renderName: (standards: Standards, category: string) => React.ReactNode,
     renderTooltip: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
@@ -283,7 +287,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     };
 
     return (
-      <FacetItemsList label={listLabel}>
+      <FacetItemsList labelledby={this.getFacetHeaderId(listKey)}>
         {categories.map((category) => (
           <FacetItem
             active={values.includes(category)}
@@ -349,7 +353,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     const allItemShown = limitedList.length + selectedBelowLimit.length === sortedItems.length;
     return (
       <>
-        <FacetItemsList label={SecurityStandard.SONARSOURCE}>
+        <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}>
           {limitedList.map((item) => (
             <FacetItem
               active={values.includes(item)}
@@ -365,7 +369,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         {selectedBelowLimit.length > 0 && (
           <>
             {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
-            <FacetItemsList label={SecurityStandard.SONARSOURCE}>
+            <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
@@ -428,6 +432,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         <FacetBox className="is-inner" property={SecurityStandard.SONARSOURCE}>
           <FacetHeader
             fetching={fetchingSonarSourceSecurity}
+            id={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}
             name={translate('issues.facet.sonarsourceSecurity')}
             onClick={this.handleSonarSourceSecurityHeaderClick}
             open={sonarsourceSecurityOpen}
@@ -445,6 +450,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10_2021}>
           <FacetHeader
             fetching={fetchingOwaspTop102021}
+            id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10_2021)}
             name={translate('issues.facet.owaspTop10_2021')}
             onClick={this.handleOwaspTop102021HeaderClick}
             open={owaspTop102021Open}
@@ -460,6 +466,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
           <FacetHeader
             fetching={fetchingOwaspTop10}
+            id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10)}
             name={translate('issues.facet.owaspTop10')}
             onClick={this.handleOwaspTop10HeaderClick}
             open={owaspTop10Open}
@@ -508,6 +515,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
+          id={this.getFacetHeaderId(this.property)}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}

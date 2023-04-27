@@ -290,6 +290,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   render() {
     const { forceShow, open, fetching } = this.props;
     const values = this.getValues();
+    const headerId = `facet_${this.property}`;
 
     if (values.length < 1 && !forceShow) {
       return null;
@@ -299,6 +300,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={fetching}
+          id={headerId}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}

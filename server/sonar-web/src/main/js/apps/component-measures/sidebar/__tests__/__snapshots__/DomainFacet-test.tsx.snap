@@ -6,13 +6,14 @@ exports[`should display facet item list 1`] = `
 >
   <FacetHeader
     helper="component_measures.domain_facets.Reliability.help"
+    id="facet_Reliability"
     name="Reliability"
     onClick={[Function]}
     open={true}
     values={[]}
   />
   <FacetItemsList
-    label="Reliability"
+    labelledby="facet_Reliability"
   >
     <FacetItem
       active={false}
@@ -142,6 +143,7 @@ exports[`should display facet item list with bugs selected 1`] = `
 >
   <FacetHeader
     helper="component_measures.domain_facets.Reliability.help"
+    id="facet_Reliability"
     name="Reliability"
     onClick={[Function]}
     open={true}
@@ -152,7 +154,7 @@ exports[`should display facet item list with bugs selected 1`] = `
     }
   />
   <FacetItemsList
-    label="Reliability"
+    labelledby="facet_Reliability"
   >
     <FacetItem
       active={false}
@@ -282,13 +284,14 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
 >
   <FacetHeader
     helper="component_measures.domain_facets.Reliability.help"
+    id="facet_Reliability"
     name="Reliability"
     onClick={[Function]}
     open={true}
     values={[]}
   />
   <FacetItemsList
-    label="Reliability"
+    labelledby="facet_Reliability"
   >
     <FacetItem
       active={false}
@@ -365,13 +368,14 @@ exports[`should not display subtitles of new measures if there is none, even on 
 >
   <FacetHeader
     helper="component_measures.domain_facets.Reliability.help"
+    id="facet_Reliability"
     name="Reliability"
     onClick={[Function]}
     open={true}
     values={[]}
   />
   <FacetItemsList
-    label="Reliability"
+    labelledby="facet_Reliability"
   >
     <FacetItem
       active={false}

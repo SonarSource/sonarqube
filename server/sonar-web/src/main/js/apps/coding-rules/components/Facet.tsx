@@ -111,6 +111,7 @@ export default class Facet extends React.PureComponent<Props> {
           (key) => -stats[key],
           (key) => renderTextName(key).toLowerCase()
         ));
+    const headerId = `facet_${property}`;
 
     return (
       <FacetBox
@@ -118,6 +119,7 @@ export default class Facet extends React.PureComponent<Props> {
         property={property}
       >
         <FacetHeader
+          id={headerId}
           name={translate('coding_rules.facet', property)}
           disabled={disabled}
           disabledHelper={disabledHelper}
@@ -130,7 +132,7 @@ export default class Facet extends React.PureComponent<Props> {
         </FacetHeader>
 
         {open && items !== undefined && (
-          <FacetItemsList label={property}>{items.map(this.renderItem)}</FacetItemsList>
+          <FacetItemsList labelledby={headerId}>{items.map(this.renderItem)}</FacetItemsList>
         )}
 
         {open && this.props.renderFooter !== undefined && this.props.renderFooter()}

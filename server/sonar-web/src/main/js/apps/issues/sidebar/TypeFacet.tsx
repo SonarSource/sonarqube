@@ -102,6 +102,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
   render() {
     const { types, stats = {}, forceShow, open, fetching } = this.props;
     const values = types.map((type) => translate('issue.type', type));
+    const typeFacetHeaderId = `facet_${this.property}`;
 
     if (values.length < 1 && !forceShow) {
       return null;
@@ -111,6 +112,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={fetching}
+          id={typeFacetHeaderId}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -120,7 +122,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
 
         {open && (
           <>
-            <FacetItemsList label={this.property}>
+            <FacetItemsList labelledby={typeFacetHeaderId}>
               {ISSUE_TYPES.filter((t) => t !== 'SECURITY_HOTSPOT').map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />

@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Button, ButtonLink } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
+import { Button, ButtonLink } from '../../components/controls/buttons';
 import OpenCloseIcon from '../../components/icons/OpenCloseIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -33,6 +33,7 @@ interface Props {
   disabled?: boolean;
   disabledHelper?: string;
   name: string;
+  id: string;
   onClear?: () => void;
   onClick?: () => void;
   open: boolean;
@@ -70,7 +71,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
   }
 
   render() {
-    const { disabled, values, disabledHelper, name, open, children, fetching } = this.props;
+    const { disabled, values, disabledHelper, name, open, children, fetching, id } = this.props;
     const showClearButton = values != null && values.length > 0 && this.props.onClear != null;
     const header = disabled ? (
       <Tooltip overlay={disabledHelper}>
@@ -99,6 +100,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
               onClick={this.handleClick}
               aria-expanded={open}
               tabIndex={0}
+              id={id}
             >
               <OpenCloseIcon className="little-spacer-right" open={open} />
               {header}
@@ -106,7 +108,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
             {this.renderHelper()}
           </span>
         ) : (
-          <span className="search-navigator-facet-header display-flex-center">
+          <span className="search-navigator-facet-header display-flex-center" id={id}>
             {header}
             {this.renderHelper()}
           </span>

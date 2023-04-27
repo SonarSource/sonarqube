@@ -92,9 +92,10 @@ export const ui = {
   showFiltersButton: (showMore = true) =>
     byRole('button', { name: `issues.show_${showMore ? 'more' : 'less'}_filters` }),
 
-  ruleFacetList: byRole('list', { name: 'rules' }),
-  languageFacetList: byRole('list', { name: 'languages' }),
+  ruleFacetList: byRole('list', { name: 'issues.facet.rules' }),
+  languageFacetList: byRole('list', { name: 'issues.facet.languages' }),
   ruleFacetSearch: byRole('searchbox', { name: 'search.search_for_rules' }),
+  inNewCodeFilter: byRole('checkbox', { name: 'issues.new_code' }),
 };
 
 export async function waitOnDataLoaded() {

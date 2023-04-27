@@ -9,6 +9,7 @@ exports[`should be disabled 1`] = `
     disabled={true}
     disabledHelper="Disabled helper description"
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     open={false}
@@ -23,6 +24,7 @@ exports[`should display all selected items 1`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -45,7 +47,7 @@ exports[`should display all selected items 1`] = `
     value=""
   />
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={true}
@@ -76,7 +78,7 @@ exports[`should display all selected items 1`] = `
     ⋯
   </div>
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={true}
@@ -108,6 +110,7 @@ exports[`should render 1`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -124,7 +127,7 @@ exports[`should render 1`] = `
     value=""
   />
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={false}
@@ -178,6 +181,7 @@ exports[`should search 1`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -194,7 +198,7 @@ exports[`should search 1`] = `
     value="query"
   />
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={false}
@@ -239,6 +243,7 @@ exports[`should search 2`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -255,7 +260,7 @@ exports[`should search 2`] = `
     value="query"
   />
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={false}
@@ -311,6 +316,7 @@ exports[`should search 3`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -327,7 +333,7 @@ exports[`should search 3`] = `
     value=""
   />
   <FacetItemsList
-    label="foo"
+    labelledby="facet_foo"
   >
     <FacetItem
       active={false}
@@ -381,6 +387,7 @@ exports[`should search 4`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}
@@ -414,6 +421,7 @@ exports[`should search 5`] = `
 >
   <FacetHeader
     fetching={false}
+    id="facet_foo"
     name="facet header"
     onClear={[Function]}
     onClick={[Function]}

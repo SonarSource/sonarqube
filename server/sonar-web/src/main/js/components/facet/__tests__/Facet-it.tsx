@@ -24,11 +24,11 @@ import { findTooltipWithContent, renderComponent } from '../../../helpers/testRe
 import FacetBox, { FacetBoxProps } from '../FacetBox';
 import FacetHeader from '../FacetHeader';
 import FacetItem from '../FacetItem';
-import FacetItemsList, { FacetItemsListProps } from '../FacetItemsList';
+import FacetItemsList from '../FacetItemsList';
 
 it('should render and function correctly', () => {
   const onFacetClick = jest.fn();
-  renderFacet(undefined, undefined, undefined, { onClick: onFacetClick });
+  renderFacet(undefined, undefined, { onClick: onFacetClick });
 
   // Start closed.
   let facetHeader = screen.getByRole('button', { name: 'foo', expanded: false });
@@ -78,7 +78,6 @@ it('should correctly render a disabled header', () => {
 function renderFacet(
   facetBoxProps: Partial<FacetBoxProps> = {},
   facetHeaderProps: Partial<FacetHeader['props']> = {},
-  facetItemListProps: Partial<FacetItemsListProps> = {},
   facetItemProps: Partial<FacetItem['props']> = {}
 ) {
   function Facet() {
@@ -86,10 +85,12 @@ function renderFacet(
     const [values, setValues] = React.useState(facetHeaderProps.values ?? undefined);
 
     const property = 'foo';
+    const headerId = `facet_${property}`;
 
     return (
       <FacetBox property={property} {...facetBoxProps}>
         <FacetHeader
+          id={headerId}
           name="foo"
           onClick={() => setOpen(!open)}
           onClear={() => setValues(undefined)}
@@ -97,7 +98,7 @@ function renderFacet(
         />
 
         {open && (
-          <FacetItemsList label={property} {...facetItemListProps}>
+          <FacetItemsList labelledby={headerId}>
             <FacetItem
               active={true}
               name="Foo/Bar"

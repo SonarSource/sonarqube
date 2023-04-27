@@ -55,7 +55,7 @@ export default function PeriodFilter(props: PeriodFilterProps) {
 
   return (
     <FacetBox property={PROPERTY}>
-      <FacetItemsList label={PROPERTY}>
+      <FacetItemsList label={translate('issues.facet', PROPERTY)}>
         <FacetItem
           active={newCodeSelected}
           loading={fetching}

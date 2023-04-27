@@ -231,6 +231,10 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     return stats && stats[item] !== undefined ? stats && stats[item] : undefined;
   }
 
+  getFacetHeaderId = (property: string) => {
+    return `facet_${property}`;
+  };
+
   showFullList = () => {
     this.setState({ showFullList: true });
   };
@@ -275,7 +279,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     return (
       <>
-        <FacetItemsList label={property}>
+        <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
           {limitedList.map((item) => (
             <FacetItem
               active={this.props.values.includes(item)}
@@ -291,7 +295,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         {selectedBelowLimit.length > 0 && (
           <>
             <div className="note spacer-bottom text-center">⋯</div>
-            <FacetItemsList label={property}>
+            <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
@@ -352,7 +356,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     return (
       <>
-        <FacetItemsList label={property}>
+        <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
           {searchResults.map((result) => this.renderSearchResult(result))}
         </FacetItemsList>
         {searchMaxResults && (
@@ -419,6 +423,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           fetching={fetching}
           name={facetHeader}
           disabled={disabled}
+          id={this.getFacetHeaderId(property)}
           disabledHelper={disabledHelper}
           onClear={this.handleClear}
           onClick={disabled ? undefined : this.handleHeaderClick}

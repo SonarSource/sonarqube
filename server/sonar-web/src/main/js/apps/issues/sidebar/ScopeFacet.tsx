@@ -45,6 +45,7 @@ export default function ScopeFacet(props: ScopeFacetProps) {
   const values = scopes.map((scope) => translate('issue.scope', scope));
 
   const property = 'scopes';
+  const headerId = `facet_${property}`;
   if (values.length < 1 && !forceShow) {
     return null;
   }
@@ -53,6 +54,7 @@ export default function ScopeFacet(props: ScopeFacetProps) {
     <FacetBox property={property}>
       <FacetHeader
         fetching={fetching}
+        id={headerId}
         name={translate('issues.facet.scopes')}
         onClear={() => props.onChange({ scopes: [] })}
         onClick={() => props.onToggle('scopes')}
@@ -62,7 +64,7 @@ export default function ScopeFacet(props: ScopeFacetProps) {
 
       {open && (
         <>
-          <FacetItemsList label={property}>
+          <FacetItemsList labelledby={headerId}>
             {SOURCE_SCOPES.map(({ scope, qualifier }) => {
               const active = scopes.includes(scope);
               const stat = stats[scope];

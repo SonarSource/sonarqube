@@ -19,14 +19,22 @@
  */
 import * as React from 'react';
 
-export interface FacetItemsListProps {
-  children?: React.ReactNode;
-  label: string;
-}
+export type FacetItemsListProps =
+  | {
+      children?: React.ReactNode;
+      labelledby: string;
+      label?: never;
+    }
+  | {
+      children?: React.ReactNode;
+      labelledby?: never;
+      label: string;
+    };
 
-export default function FacetItemsList({ children, label }: FacetItemsListProps) {
+export default function FacetItemsList({ children, labelledby, label }: FacetItemsListProps) {
+  const props = labelledby ? { 'aria-labelledby': labelledby } : { 'aria-label': label };
   return (
-    <div className="search-navigator-facet-list" role="list" aria-label={label}>
+    <div className="search-navigator-facet-list" role="list" {...props}>
       {children}
     </div>
   );

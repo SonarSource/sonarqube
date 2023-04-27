@@ -118,6 +118,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   render() {
     const { resolutions, stats = {}, forceShow, fetching, open } = this.props;
     const values = resolutions.map((resolution) => this.getFacetItemName(resolution));
+    const headerId = `facet_${this.property}`;
 
     if (values.length < 1 && !forceShow) {
       return null;
@@ -127,6 +128,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
       <FacetBox property={this.property}>
         <FacetHeader
           fetching={fetching}
+          id={headerId}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -136,7 +138,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
 
         {open && (
           <>
-            <FacetItemsList label={this.property}>
+            <FacetItemsList labelledby={headerId}>
               {RESOLUTIONS.map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint

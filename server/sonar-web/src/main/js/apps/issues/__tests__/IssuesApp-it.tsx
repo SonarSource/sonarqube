@@ -545,6 +545,16 @@ describe('issues app', () => {
       ).toHaveTextContent('ts674');
     });
   });
+
+  it('should show the new code issues only', async () => {
+    const user = userEvent.setup();
+
+    renderProjectIssuesApp('project/issues?id=myproject');
+
+    expect(await ui.issueItems.findAll()).toHaveLength(7);
+    await user.click(await ui.inNewCodeFilter.find());
+    expect(await ui.issueItems.findAll()).toHaveLength(6);
+  });
 });
 
 describe('issues item', () => {

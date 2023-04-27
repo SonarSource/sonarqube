@@ -149,10 +149,12 @@ export default class DomainFacet extends React.PureComponent<Props> {
     const { domain, open } = this.props;
     const helperMessageKey = `component_measures.domain_facets.${domain.name}.help`;
     const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
+    const headerId = `facet_${domain.name}`;
     return (
       <FacetBox property={domain.name}>
         <FacetHeader
           helper={helper}
+          id={headerId}
           name={getLocalizedMetricDomain(domain.name)}
           onClick={this.handleHeaderClick}
           open={open}
@@ -160,7 +162,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
         />
 
         {open && (
-          <FacetItemsList label={domain.name}>
+          <FacetItemsList labelledby={headerId}>
             {this.renderOverviewFacet()}
             {this.renderItemsFacet()}
           </FacetItemsList>
