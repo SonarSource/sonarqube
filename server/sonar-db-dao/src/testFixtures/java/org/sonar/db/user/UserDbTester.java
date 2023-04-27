@@ -133,8 +133,8 @@ public class UserDbTester {
     return Optional.of(users.get(0));
   }
 
-  public Optional<UserDto> selectUserByExternalLoginAndIdentityProvider(String login, String identityProvider) {
-    return Optional.ofNullable(dbClient.userDao().selectByExternalLoginAndIdentityProvider(db.getSession(), login, identityProvider));
+  public Optional<UserDto> selectUserByExternalIdAndIdentityProvider(String externalId, String identityProvider) {
+    return Optional.ofNullable(dbClient.userDao().selectByExternalIdAndIdentityProvider(db.getSession(), externalId, identityProvider));
   }
 
   // GROUPS
