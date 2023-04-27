@@ -25,9 +25,11 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,7 +72,8 @@ public class DefaultIssueTest {
       .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
       .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
       .setSelectedAt(1400000000000L)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setType(RuleType.BUG);
 
     assertThat((Object) issue.getLocations()).isEqualTo("loc");
     assertThat(issue.locationsChanged()).isTrue();
@@ -105,6 +108,7 @@ public class DefaultIssueTest {
     assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
     assertThat(issue.selectedAt()).isEqualTo(1400000000000L);
     assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
   }
 
   @Test
@@ -297,5 +301,11 @@ public class DefaultIssueTest {
     defaultIssue.setQuickFixAvailable(false);
 
     assertThat(defaultIssue.isQuickFixAvailable()).isFalse();
+  }
+
+  @Test
+  public void characteristic_shouldThrowIllegalStateException() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    assertThatThrownBy(() -> defaultIssue.characteristic()).isInstanceOf(IllegalStateException.class);
   }
 }
