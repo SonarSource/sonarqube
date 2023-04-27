@@ -19,10 +19,7 @@
  */
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import DocLink from '../../../components/common/DocLink';
-import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { isBranch, isPullRequest } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
 import {
@@ -172,11 +169,6 @@ export class Sidebar extends React.PureComponent<Props> {
             newCodeSelected={query.inNewCodePeriod}
           />
         )}
-        <DismissableAlert alertKey="issues-characteristic-facets" variant="info" display="inline">
-          <strong>{translate('issues.characteristic.facet-highlight.title')}</strong>
-          <br />
-          <DocLink to="/what-sonarqube-can-do">{translate('learn_more')}</DocLink>
-        </DismissableAlert>
         <CharacteristicFacet
           fetching={loadingFacets.characteristics === true}
           onChange={this.props.onFilterChange}
