@@ -253,7 +253,7 @@ public class UserTokenAuthenticationTest {
   public void authenticate_givenProjectToken_resultContainsUuid() {
     UserDto user = db.users().insertUser();
     String tokenName = db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH)
-      .setProjectKey("project-key")
+      .setProjectUuid("project-uuid")
       .setType(PROJECT_ANALYSIS_TOKEN.name())).getName();
 
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_PROJECT_ANALYSIS_TOKEN + ":"));
@@ -262,7 +262,7 @@ public class UserTokenAuthenticationTest {
     assertThat(result).isPresent();
     assertThat(result.get().getTokenDto().getUuid()).isNotNull();
     assertThat(result.get().getTokenDto().getType()).isEqualTo(PROJECT_ANALYSIS_TOKEN.name());
-    assertThat(result.get().getTokenDto().getProjectKey()).isEqualTo("project-key");
+    assertThat(result.get().getTokenDto().getProjectUuid()).isEqualTo("project-uuid");
     verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(SONARQUBE_TOKEN));
     verify(request).setAttribute("TOKEN_NAME", tokenName);
   }

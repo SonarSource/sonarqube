@@ -62,7 +62,7 @@ public class ComponentCleanerService {
   public void delete(DbSession dbSession, ProjectDto project) {
     dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
-    dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
+    dbClient.userTokenDao().deleteByProjectUuid(dbSession, project.getKey(), project.getUuid());
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
@@ -76,7 +76,7 @@ public class ComponentCleanerService {
     checkArgument(hasProjectScope(component) && isDeletable(component), "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, component.uuid(), component.qualifier(), component.name(), component.getKey());
     dbClient.userDao().cleanHomepage(dbSession, component);
-    dbClient.userTokenDao().deleteByProjectKey(dbSession, component.getKey());
+    dbClient.userTokenDao().deleteByProjectUuid(dbSession, component.getKey(), component.uuid());
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(component), PROJECT_DELETION);
   }
 

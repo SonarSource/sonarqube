@@ -69,13 +69,13 @@ public class UserTokenDaoIT {
   @Test
   public void insert_project_analysis_token() {
     UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
-    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectAnalysisToken.getProjectKey()));
+    ComponentDto project = db.components().insertPublicProject(projectAnalysisToken.getProjectUuid());
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
 
     UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());
     assertTokenStandardFields(projectAnalysisToken, projectAnalysisTokenFromDb);
-    assertThat(projectAnalysisTokenFromDb.getProjectUuid()).isEqualTo(project.uuid());
-    assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
+    assertThat(projectAnalysisTokenFromDb.getProjectUuid()).isEqualTo(projectAnalysisToken.getProjectUuid());
+    assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(project.getKey());
     assertThat(projectAnalysisTokenFromDb.getProjectName()).isEqualTo(project.name());
     assertThat(projectAnalysisTokenFromDb.getExpirationDate()).isNull();
   }
@@ -172,11 +172,11 @@ public class UserTokenDaoIT {
   public void delete_tokens_by_projectKey() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    db.users().insertToken(user1, t -> t.setProjectKey("projectKey1"));
-    db.users().insertToken(user1, t -> t.setProjectKey("projectKey2"));
-    db.users().insertToken(user2, t -> t.setProjectKey("projectKey1"));
+    db.users().insertToken(user1, t -> t.setProjectUuid("projectUuid1"));
+    db.users().insertToken(user1, t -> t.setProjectUuid("projectUuid2"));
+    db.users().insertToken(user2, t -> t.setProjectUuid("projectUuid1"));
 
-    underTest.deleteByProjectKey(dbSession, "projectKey1");
+    underTest.deleteByProjectUuid(dbSession, "projectKey1", "projectUuid1");
     db.commit();
 
     assertThat(underTest.selectByUser(dbSession, user1)).hasSize(1);

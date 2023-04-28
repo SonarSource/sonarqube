@@ -35,8 +35,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -88,9 +90,10 @@ public class GenerateActionIT {
   private final MapSettings mapSettings = new MapSettings();
   private final Configuration configuration = mapSettings.asConfig();
   private final GenerateActionValidation validation = new GenerateActionValidation(configuration, runtime);
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), new ResourceTypesRule());
 
   private final WsActionTester ws = new WsActionTester(
-    new GenerateAction(db.getDbClient(), System2.INSTANCE, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation));
+    new GenerateAction(db.getDbClient(), System2.INSTANCE, componentFinder, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation));
 
   @Before
   public void setUp() {

@@ -110,8 +110,8 @@ public class UserTokenDao implements Dao {
     }
   }
 
-  public void deleteByProjectKey(DbSession dbSession, String projectKey) {
-    int deletedRows = mapper(dbSession).deleteByProjectKey(projectKey);
+  public void deleteByProjectUuid(DbSession dbSession, String projectKey, String projectUuid) {
+    int deletedRows = mapper(dbSession).deleteByProjectUuid(projectUuid);
 
     if (deletedRows > 0) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(projectKey));
