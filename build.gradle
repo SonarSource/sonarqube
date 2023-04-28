@@ -80,6 +80,15 @@ allprojects {
       }
       url "https://repox.jfrog.io/repox/${repository}"
     }
+
+    maven {
+      def autorabitRepository = System.env.'ARTIFACTORY_CODESCAN_REPO' ?: (project.hasProperty('artifactoryRepo') ? project.getProperty('artifactoryRepo') : 'libs-release-local')
+      url "https://artifactory.autorabit.com/artifactory/${autorabitRepository}"
+      credentials {
+         username = System.env.'ARTIFACTORY_USER' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+         password = System.env.'ARTIFACTORY_PWD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+      }
+    }
   }
 
   task allDependencies {
@@ -203,7 +212,7 @@ subprojects {
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.12.0.1956'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.11.0.3905'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.11.0.3905'
-      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.14.0.375'
+      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.14-CODESCAN'
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.7.0.3820'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.11.0.2847'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.0.1.611'
