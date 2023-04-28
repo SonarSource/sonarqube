@@ -304,8 +304,8 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void characteristic_shouldThrowIllegalStateException() {
+  public void characteristic_shouldReturnNull() {
     DefaultIssue defaultIssue = new DefaultIssue();
-    assertThatThrownBy(() -> defaultIssue.characteristic()).isInstanceOf(IllegalStateException.class);
+    assertThat(defaultIssue.characteristic()).isNull();
   }
 }
