@@ -25,13 +25,38 @@ import DocLink from '../common/DocLink';
 import Link from '../common/Link';
 import { DropdownOverlay } from '../controls/Dropdown';
 import { SuggestionsContext } from './SuggestionsContext';
+import { getApiKeyForZoho } from "../../api/codescan";
+import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
+import { CurrentUserContextInterface } from "../../app/components/current-user/CurrentUserContext";
+import { LoggedInUser } from "../../types/users";
 
 interface Props {
+  currentUser: LoggedInUser;
   onClose: () => void;
 }
 
-export default class EmbedDocsPopup extends React.PureComponent<Props> {
+type State = {
+  zohoUrl: string;
+}
+
+class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInterface, State> {
   firstItem: HTMLAnchorElement | null = null;
+
+  state: State = {
+    zohoUrl: ''
+  };
+
+  componentDidMount() {
+    this.getZohoDeskUrl();
+  }
+
+  handleResetPopup() {
+    this.setState({ reseting: true });
+  };
+
+  handleClosePopup = () => {
+    this.setState({ reseting: false });
+  };
 
   /*
    * Will be called by the first suggestion (if any), as well as the first link (documentation)
@@ -45,6 +70,36 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       this.firstItem.focus();
     }
   };
+
+  getZohoDeskUrl() {
+    const { currentUser } = this.props;
+    const payLoad = {
+      "operation": "signup",
+      "email": "arunsimha.kamalapuram@autorabit.com",
+      "loginName": "support.autorabit",
+      "fullName": currentUser.name,
+      "utype": "portal",
+    }
+
+  // get zohoApiKey
+  return getApiKeyForZoho(payLoad).then((response: any) => {
+     const zohoUrl = `https://support.autorabit.com/support/RemoteAuth?operation=${payLoad.operation}&email=${payLoad.email}&fullname=${payLoad.fullName}&loginname=${payLoad.loginName}&utype=${payLoad.utype}&ts=${response.ts}&apikey=${response.apiKey}`;
+     this.setState({ zohoUrl });
+    })
+   }
+
+  renderAboutCodescan(link: string, icon: string, text: string) {
+    return (
+      <Modal className="abs-width-auto" onRequestClose={this.handleClosePopup} contentLabel={''}>
+        <a href={link} rel="noopener noreferrer" target="_blank">
+          <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
+        </a>
+        <span className="cross-button">
+          <ClearButton onClick={this.handleClosePopup} />
+        </span>
+      </Modal>
+    );
+  }
 
   renderTitle(text: string, labelId: string) {
     return (
@@ -100,10 +155,10 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
         <ul className="menu abs-width-240">
           <li>
-            <DocLink innerRef={this.focusFirstItem} onClick={this.props.onClose} to="/">
-              {translate('docs.documentation')}
-            </DocLink>
-          </li>
+            <Link onClick={this.props.onClose} target="_blank" to="https://knowledgebase.autorabit.com/codescan">
+              {translate('embed_docs.documentation')}
+            </Link>
+         </li>
           <li>
             <Link onClick={this.props.onClose} to="/web_api">
               {translate('api_documentation.page')}
@@ -114,7 +169,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           <li>
             <Link
               className="display-flex-center"
-              to="https://community.sonarsource.com/"
+              to={this.state.zohoUrl}
               target="_blank"
             >
               {translate('docs.get_help')}
@@ -125,21 +180,14 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu abs-width-240" aria-labelledby="stay_connected">
           <li>
             {this.renderIconLink(
-              'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
-              'embed-doc/sq-icon.svg',
-              translate('docs.news')
+              'https://www.codescan.io/blog',
+              'embed-doc/codescan.svg',
+              translate('embed_docs.blog')
             )}
           </li>
           <li>
             {this.renderIconLink(
-              'https://www.sonarqube.org/roadmap/?referrer=sonarqube',
-              'embed-doc/sq-icon.svg',
-              translate('docs.roadmap')
-            )}
-          </li>
-          <li>
-            {this.renderIconLink(
-              'https://twitter.com/SonarQube',
+              'https://twitter.com/CodeScanforSFDC',
               'embed-doc/twitter-icon.svg',
               'Twitter'
             )}
@@ -149,3 +197,5 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withCurrentUserContext(EmbedDocsPopup)

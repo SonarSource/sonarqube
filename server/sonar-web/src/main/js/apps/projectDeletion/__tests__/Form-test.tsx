@@ -20,13 +20,18 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { deleteApplication } from '../../../api/application';
-import { deletePortfolio, deleteProject } from '../../../api/components';
+import { deleteProject } from '../../../api/codescan';
+import { deletePortfolio } from '../../../api/components';
 import { mockRouter } from '../../../helpers/testMocks';
 import { Form } from '../Form';
 
 jest.mock('../../../api/components', () => ({
   deleteProject: jest.fn().mockResolvedValue(undefined),
   deletePortfolio: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../../api/codescan', () => ({
+  deleteProject: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../../api/application', () => ({
@@ -38,24 +43,24 @@ beforeEach(() => {
 });
 
 it('should render', () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK', organization: 'default' };
   const form = shallow(<Form component={component} router={mockRouter()} />);
   expect(form).toMatchSnapshot();
   expect(form.prop<Function>('children')({ onClick: jest.fn() })).toMatchSnapshot();
 });
 
 it('should delete project', async () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK', organization: 'default' };
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
-  expect(deleteProject).toHaveBeenCalledWith('foo');
+  expect(deleteProject).toHaveBeenCalledWith({ organizationId: 'default', projectKey: 'foo', projectDelete: true });
   await new Promise(setImmediate);
   expect(router.replace).toHaveBeenCalledWith('/');
 });
 
 it('should delete portfolio', async () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'VW' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'VW', organization: 'default' };
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();

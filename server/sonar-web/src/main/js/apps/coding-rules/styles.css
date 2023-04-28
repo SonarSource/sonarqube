@@ -301,3 +301,8 @@
   display: inline-block;
   margin-left: var(--gridSize);
 }
+
+.coding-rule-map-input {
+  width: 170px !important;
+  vertical-align: text-top;
+}

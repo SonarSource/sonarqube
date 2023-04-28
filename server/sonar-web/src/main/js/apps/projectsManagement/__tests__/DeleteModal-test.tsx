@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/first */
-jest.mock('../../../api/components', () => ({
-  bulkDeleteProjects: jest.fn(() => Promise.resolve()),
+jest.mock('../../../api/codescan', () => ({
+  deleteBulkProjects: jest.fn(() => Promise.resolve()),
 }));
 
 import { shallow } from 'enzyme';
@@ -28,10 +28,10 @@ import { parseDate } from '../../../helpers/dates';
 import { click } from '../../../helpers/testUtils';
 import DeleteModal, { Props } from '../DeleteModal';
 
-const bulkDeleteProjects = require('../../../api/components').bulkDeleteProjects as jest.Mock<any>;
+const deleteBulkProjects = require('../../../api/codescan').deleteBulkProjects as jest.Mock<any>;
 
 beforeEach(() => {
-  bulkDeleteProjects.mockClear();
+  deleteBulkProjects.mockClear();
 });
 
 it('deletes all projects', async () => {
@@ -42,7 +42,7 @@ it('deletes all projects', async () => {
 
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
-  expect(bulkDeleteProjects).toHaveBeenCalledWith({
+  expect(deleteBulkProjects).toHaveBeenCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: undefined,
     q: 'bla',
@@ -61,7 +61,7 @@ it('deletes selected projects', async () => {
 
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
-  expect(bulkDeleteProjects).toHaveBeenCalledWith({ projects: 'proj1,proj2' });
+  expect(deleteBulkProjects).toHaveBeenCalledWith({ projects: 'proj1,proj2' });
 
   await new Promise(setImmediate);
   expect(onConfirm).toHaveBeenCalled();

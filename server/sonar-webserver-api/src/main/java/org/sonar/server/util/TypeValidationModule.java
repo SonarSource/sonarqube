@@ -33,7 +33,8 @@ public class TypeValidationModule extends Module {
       StringTypeValidation.class,
       StringListTypeValidation.class,
       LongTypeValidation.class,
-      MetricLevelTypeValidation.class
+      MetricLevelTypeValidation.class,
+      KeyValueMapValidation.class
     );
   }
 }

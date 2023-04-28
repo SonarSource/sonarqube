@@ -25,5 +25,5 @@ export function getUrlForDoc(version: string, to: string) {
   const docPrefix =
     versionPrefix && versionPrefix.length === 2 && !isSnapshot ? versionPrefix[1] : 'latest';
 
-  return `https://docs.sonarqube.org/${docPrefix}${to}`;
+  return `${to}`;
 }

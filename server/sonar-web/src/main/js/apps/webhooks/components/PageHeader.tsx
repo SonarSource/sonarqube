@@ -41,7 +41,7 @@ export default function PageHeader({ children, loading }: Props) {
           id="webhooks.description"
           values={{
             url: (
-              <DocLink to="/project-administration/webhooks/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs/webhooks/">
                 {translate('webhooks.documentation_link')}
               </DocLink>
             ),
