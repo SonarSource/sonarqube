@@ -25,29 +25,30 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-class CreateScmAccountsTable extends CreateTableChange {
-  @VisibleForTesting
-  static final String TABLE_NAME = "scm_accounts";
-  @VisibleForTesting
-  static final String USER_UUID_COLUMN_NAME = "user_uuid";
-  @VisibleForTesting
-  static final String SCM_ACCOUNT_COLUMN_NAME = "scm_account";
+public class CreateExternalGroupsTable extends CreateTableChange {
 
   @VisibleForTesting
-  static final int SCM_ACCOUNT_SIZE = 255;
+  static final String TABLE_NAME = "external_groups";
+  @VisibleForTesting
+  static final String GROUP_UUID_COLUMN_NAME = "group_uuid";
+  @VisibleForTesting
+  static final String EXTERNAL_GROUP_ID_COLUMN_NAME = "external_group_id";
+  @VisibleForTesting
+  static final String EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME = "external_identity_provider";
 
-  public CreateScmAccountsTable(Database db) {
+  public CreateExternalGroupsTable(Database db) {
     super(db, TABLE_NAME);
   }
 
   @Override
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(USER_UUID_COLUMN_NAME).setIsNullable(false).setLimit(USER_UUID_SIZE).build())
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(SCM_ACCOUNT_COLUMN_NAME).setIsNullable(false).setLimit(SCM_ACCOUNT_SIZE).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(GROUP_UUID_COLUMN_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(EXTERNAL_GROUP_ID_COLUMN_NAME).setIsNullable(false).setLimit(255).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME).setIsNullable(false).setLimit(100).build())
       .build());
   }
 }
