@@ -20,14 +20,10 @@
 
 .rdp {
   --rdp-cell-size: 30px;
+  --rdp-caption-font-size: 13px;
   /* Ensures the month/year dropdowns do not move on click, but rdp outline is not shown */
   --rdp-outline: 2px solid transparent;
   --rdp-outline-selected: 2px solid transparent;
-}
-
-.rdp-caption_label {
-  /* Avoid calendar width to change when we cycle through months */
-  font-size: 115%;
 }
 
 .rdp-day_selected {
