@@ -50,7 +50,7 @@ public class InternalPropertiesDao implements Dao {
    */
   private static final String LOCK_PREFIX = "lock.";
 
-  private static final int KEY_MAX_LENGTH = 20;
+  private static final int KEY_MAX_LENGTH = 40;
   public static final int LOCK_NAME_MAX_LENGTH = KEY_MAX_LENGTH - LOCK_PREFIX.length();
 
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;

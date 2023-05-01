@@ -77,7 +77,7 @@ public class DeactivateActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
-  private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userSession, userAnonymizer);
+  private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator, managedInstanceChecker));
 

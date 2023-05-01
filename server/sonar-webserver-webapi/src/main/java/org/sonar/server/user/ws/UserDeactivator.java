@@ -23,7 +23,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -32,12 +31,10 @@ import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class UserDeactivator {
   private final DbClient dbClient;
-  private final UserSession userSession;
   private final UserAnonymizer userAnonymizer;
 
-  public UserDeactivator(DbClient dbClient, UserSession userSession, UserAnonymizer userAnonymizer) {
+  public UserDeactivator(DbClient dbClient, UserAnonymizer userAnonymizer) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
     this.userAnonymizer = userAnonymizer;
   }
 
@@ -55,7 +52,6 @@ public class UserDeactivator {
   }
 
   private UserDto doBeforeDeactivation(DbSession dbSession, String login) {
-    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
     UserDto user = getUserOrThrow(dbSession, login);
     ensureNotLastAdministrator(dbSession, user);
     deleteRelatedData(dbSession, user);

@@ -80,9 +80,8 @@ public class DeactivateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String login;
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    login = request.mandatoryParam(PARAM_LOGIN);
+    String login = request.mandatoryParam(PARAM_LOGIN);
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
     try (DbSession dbSession = dbClient.openSession(false)) {
       preventManagedUserDeactivationIfManagedInstance(dbSession, login);

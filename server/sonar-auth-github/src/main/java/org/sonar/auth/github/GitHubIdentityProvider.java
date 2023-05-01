@@ -35,7 +35,7 @@ import static java.lang.String.format;
 
 public class GitHubIdentityProvider implements OAuth2IdentityProvider {
 
-  static final String KEY = "github";
+  public static final String KEY = "github";
 
   private final GitHubSettings settings;
   private final UserIdentityFactory userIdentityFactory;

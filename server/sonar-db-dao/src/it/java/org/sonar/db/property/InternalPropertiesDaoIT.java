@@ -63,14 +63,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.property.InternalPropertiesDao.LOCK_NAME_MAX_LENGTH;
 
 public class InternalPropertiesDaoIT {
 
   private static final String EMPTY_STRING = "";
   private static final String A_KEY = "a_key";
   private static final String ANOTHER_KEY = "another_key";
-  private static final String VALUE_1 = "one";
-  private static final String VALUE_2 = "two";
   private static final long DATE_1 = 1_500_000_000_000L;
   private static final long DATE_2 = 1_600_000_000_000L;
   private static final String VALUE_SMALL = "some small value";
@@ -391,7 +390,7 @@ public class InternalPropertiesDaoIT {
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
-    expectKeyNullOrEmptyIAE(() ->  underTest.selectByKeys(dbSession, keysIncludingAnEmptyString));
+    expectKeyNullOrEmptyIAE(() -> underTest.selectByKeys(dbSession, keysIncludingAnEmptyString));
   }
 
   @Test
@@ -548,8 +547,8 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_throws_IAE_if_lock_name_length_is_16_or_more() {
-    String tooLongName = randomAlphabetic(16 + new Random().nextInt(30));
+  public void tryLock_throws_IAE_if_lock_name_length_is_too_long() {
+    String tooLongName = randomAlphabetic(LOCK_NAME_MAX_LENGTH + new Random().nextInt(30));
 
     assertThatThrownBy(() -> underTest.tryLock(dbSession, tooLongName, 60))
       .isInstanceOf(IllegalArgumentException.class)
