@@ -21,6 +21,7 @@
 export * from './Accordion';
 export * from './Avatar';
 export { Badge } from './Badge';
+export { BarChart } from './BarChart';
 export * from './Card';
 export * from './CoverageIndicator';
 export { DeferredSpinner } from './DeferredSpinner';
