@@ -100,11 +100,34 @@ public class GitHubSettingsTest {
     assertThatIllegalStateException()
       .isThrownBy(() -> underTest.setProvisioning(true))
       .withMessage("GitHub authentication must be enabled to enable GitHub provisioning.");
+    assertThat(underTest.isProvisioningEnabled()).isFalse();
+  }
+
+  @Test
+  public void setProvisioning_whenPrivateKeyMissing_shouldThrow() {
+    enableGithubAuthenticationWithGithubApp();
+    settings.setProperty("sonar.auth.github.privateKey.secured", "");
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.setProvisioning(true))
+      .withMessage("Private key must be provided to enable GitHub provisioning.");
+    assertThat(underTest.isProvisioningEnabled()).isFalse();
+  }
+
+  @Test
+  public void setProvisioning_whenAppIdMissing_shouldThrow() {
+    enableGithubAuthenticationWithGithubApp();
+    settings.setProperty("sonar.auth.github.appId", "");
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.setProvisioning(true))
+      .withMessage("Application ID must be provided to enable GitHub provisioning.");
+    assertThat(underTest.isProvisioningEnabled()).isFalse();
   }
 
   @Test
   public void setProvisioning_whenPassedTrue_delegatesToInternalPropertiesWrite() {
-    enableGithubAuthentication();
+    enableGithubAuthenticationWithGithubApp();
     underTest.setProvisioning(true);
     verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.TRUE.toString());
   }

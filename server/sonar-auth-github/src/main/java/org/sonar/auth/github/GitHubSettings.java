@@ -29,7 +29,9 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.server.property.InternalProperties;
 
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;
@@ -58,7 +60,6 @@ public class GitHubSettings {
   private final Configuration configuration;
 
   private final InternalProperties internalProperties;
-
 
   public GitHubSettings(Configuration configuration, InternalProperties internalProperties) {
     this.configuration = configuration;
@@ -117,9 +118,19 @@ public class GitHubSettings {
 
   public void setProvisioning(boolean enableProvisioning) {
     if (enableProvisioning) {
-      checkState(isEnabled(), "GitHub authentication must be enabled to enable GitHub provisioning.");
+      checkGithubConfigIsCompleteForProvisioning();
     }
     internalProperties.write(PROVISIONING, String.valueOf(enableProvisioning));
+  }
+
+  private void checkGithubConfigIsCompleteForProvisioning() {
+    checkState(isEnabled(), getErrorMessage("GitHub authentication must be enabled"));
+    checkState(isNotBlank(appId()), getErrorMessage("Application ID must be provided"));
+    checkState(isNotBlank(privateKey()), getErrorMessage("Private key must be provided"));
+  }
+
+  private static String getErrorMessage(String prefix) {
+    return format("%s to enable GitHub provisioning.", prefix);
   }
 
   public boolean isProvisioningEnabled() {
