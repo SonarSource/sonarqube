@@ -55,14 +55,13 @@ export default function withKeyboardNavigation<P>(
         return true;
       }
       if (event.key === KeyboardKeys.UpArrow) {
-        return this.skipIfFile(event, this.handleHighlightPrevious);
+        return this.skipIfFile(this.handleHighlightPrevious);
       } else if (event.key === KeyboardKeys.DownArrow) {
-        return this.skipIfFile(event, this.handleHighlightNext);
+        return this.skipIfFile(this.handleHighlightNext);
       } else if (event.key === KeyboardKeys.RightArrow || event.key === KeyboardKeys.Enter) {
-        return this.skipIfFile(event, this.handleSelectCurrent);
+        return this.skipIfFile(this.handleSelectCurrent);
       } else if (event.key === KeyboardKeys.LeftArrow) {
         this.handleSelectParent();
-        return false; // always hijack left / Why did you put this @wouter?
       }
       return true;
     };
@@ -77,11 +76,10 @@ export default function withKeyboardNavigation<P>(
         : -1;
     };
 
-    skipIfFile = (event: KeyboardEvent, handler: () => void) => {
+    skipIfFile = (handler: () => void) => {
       if (this.props.isFile) {
         return true;
       }
-      event.preventDefault();
       handler();
       return false;
     };
