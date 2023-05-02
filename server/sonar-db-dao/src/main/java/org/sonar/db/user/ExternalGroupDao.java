@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -29,12 +30,20 @@ public class ExternalGroupDao implements Dao {
     mapper(dbSession).insert(externalGroupDto);
   }
 
+  public Optional<ExternalGroupDto> selectByGroupUuid(DbSession dbSession, String groupUuid) {
+    return mapper(dbSession).selectByGroupUuid(groupUuid);
+  }
+
   public List<ExternalGroupDto> selectByIdentityProvider(DbSession dbSession, String identityProvider) {
     return mapper(dbSession).selectByIdentityProvider(identityProvider);
   }
 
   public void deleteByGroupUuid(DbSession dbSession, String groupUuid) {
     mapper(dbSession).deleteByGroupUuid(groupUuid);
+  }
+
+  public Optional<ExternalGroupDto> selectByExternalIdAndIdentityProvider(DbSession dbSession, String externalId, String identityProvider) {
+    return mapper(dbSession).selectByExternalIdAndIdentityProvider(externalId, identityProvider);
   }
 
   private static ExternalGroupMapper mapper(DbSession session) {

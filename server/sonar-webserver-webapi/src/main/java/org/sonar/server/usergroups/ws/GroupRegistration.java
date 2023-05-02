@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.usergroups.ws;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.ibatis.annotations.Param;
-
-public interface ExternalGroupMapper {
-
-  void insert(ExternalGroupDto externalGroupDto);
-
-  Optional<ExternalGroupDto> selectByGroupUuid(@Param("groupUuid") String groupUuid);
-
-  List<ExternalGroupDto> selectByIdentityProvider(@Param("identityProvider") String identityProvider);
-
-  Optional<ExternalGroupDto> selectByExternalIdAndIdentityProvider(@Param("externalId") String externalId, @Param("identityProvider") String identityProvider);
-
-  void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
+public record GroupRegistration(String externalId, String externalIdentityProvider, String name) {
 }

@@ -21,6 +21,7 @@ package org.sonar.db.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.DbSession;
@@ -29,6 +30,10 @@ import org.sonar.db.DbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExternalGroupDaoIT {
+
+  private static final String GROUP_UUID = "uuid";
+  private static final String EXTERNAL_ID = "external_id";
+  private static final String EXTERNAL_IDENTITY_PROVIDER = "external_identity_provider";
 
   @Rule
   public final DbTester db = DbTester.create();
@@ -41,14 +46,25 @@ public class ExternalGroupDaoIT {
 
   @Test
   public void insert_savesExternalGroup() {
-    GroupDto localGroup = insertGroup("12345");
+    GroupDto localGroup = insertGroup(GROUP_UUID);
     insertGroup("67689");
-    ExternalGroupDto externalGroupDto = externalGroup("12345", "providerId");
+    ExternalGroupDto externalGroupDto = externalGroup(GROUP_UUID, EXTERNAL_IDENTITY_PROVIDER);
     underTest.insert(dbSession, externalGroupDto);
-    List<ExternalGroupDto> savedGroups = underTest.selectByIdentityProvider(dbSession, "providerId");
+    List<ExternalGroupDto> savedGroups = underTest.selectByIdentityProvider(dbSession, EXTERNAL_IDENTITY_PROVIDER);
     assertThat(savedGroups)
       .hasSize(1)
       .contains(createExternalGroupDto(localGroup.getName(), externalGroupDto));
+  }
+
+  @Test
+  public void selectByGroupUuid_shouldReturnExternalGroup() {
+    ExternalGroupDto expectedExternalGroupDto = new ExternalGroupDto(GROUP_UUID, EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER);
+    underTest.insert(dbSession, expectedExternalGroupDto);
+
+    Optional<ExternalGroupDto> actualExternalGroupDto = underTest.selectByGroupUuid(dbSession, GROUP_UUID);
+
+    assertThat(actualExternalGroupDto).isPresent();
+    compareExpectedAndActualExternalGroupDto(expectedExternalGroupDto, actualExternalGroupDto.get());
   }
 
   @Test
@@ -57,6 +73,25 @@ public class ExternalGroupDaoIT {
     createAndInsertExternalGroupDtos("provider2", 1);
     List<ExternalGroupDto> savedGroup = underTest.selectByIdentityProvider(dbSession, "provider1");
     assertThat(savedGroup).containsExactlyInAnyOrderElementsOf(expectedGroups);
+  }
+
+  @Test
+  public void selectByExternalIdAndIdentityProvider_shouldReturnOnlyMatchingExternalGroup() {
+    ExternalGroupDto expectedExternalGroupDto = new ExternalGroupDto(GROUP_UUID, EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER);
+    underTest.insert(dbSession, expectedExternalGroupDto);
+    underTest.insert(dbSession, new ExternalGroupDto(GROUP_UUID + "1", EXTERNAL_ID, "another_external_identity_provider"));
+    underTest.insert(dbSession, new ExternalGroupDto(GROUP_UUID + "2", "another_external_id", EXTERNAL_IDENTITY_PROVIDER));
+    underTest.insert(dbSession, new ExternalGroupDto(GROUP_UUID + "3", "whatever", "whatever"));
+
+    Optional<ExternalGroupDto> actualExternalGroupDto = underTest.selectByExternalIdAndIdentityProvider(dbSession, EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER);
+
+    compareExpectedAndActualExternalGroupDto(expectedExternalGroupDto, actualExternalGroupDto.get());
+  }
+
+  private void compareExpectedAndActualExternalGroupDto(ExternalGroupDto expectedExternalGroupDto, ExternalGroupDto actualExternalGroupDto) {
+    assertThat(actualExternalGroupDto)
+      .usingRecursiveComparison()
+      .isEqualTo(expectedExternalGroupDto);
   }
 
   @Test

@@ -30,7 +30,7 @@ public class GroupQuery {
   private final String searchText;
   private final String isManagedSqlClause;
 
-  private GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause) {
+  GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isManagedSqlClause = isManagedSqlClause;
   }

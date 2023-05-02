@@ -163,6 +163,12 @@ public class UserDbTester {
     db.commit();
   }
 
+  public ExternalGroupDto insertExternalGroup(ExternalGroupDto dto) {
+    db.getDbClient().externalGroupDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
   public ScimGroupDto insertScimGroup(GroupDto dto) {
     ScimGroupDto result = db.getDbClient().scimGroupDao().enableScimForGroup(db.getSession(), dto.getUuid());
     db.commit();
@@ -182,6 +188,14 @@ public class UserDbTester {
 
   public Optional<GroupDto> selectGroup(String name) {
     return db.getDbClient().groupDao().selectByName(db.getSession(), name);
+  }
+
+  public int countAllGroups() {
+    return db.getDbClient().groupDao().countByQuery(db.getSession(), new GroupQuery(null, null));
+  }
+
+  public Optional<ExternalGroupDto> selectExternalGroupByGroupUuid(String groupUuid) {
+    return db.getDbClient().externalGroupDao().selectByGroupUuid(db.getSession(), groupUuid);
   }
 
   // GROUP MEMBERSHIP
