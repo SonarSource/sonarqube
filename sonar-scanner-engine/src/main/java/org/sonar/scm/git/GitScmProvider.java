@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,7 +135,7 @@ public class GitScmProvider extends ScmProvider {
   }
 
   @CheckForNull
-  public Collection<ChangedFile> branchChangedFilesWithFileMovementDetection(String targetBranchName, Path rootBaseDir) {
+  public Set<ChangedFile> branchChangedFilesWithFileMovementDetection(String targetBranchName, Path rootBaseDir) {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
@@ -171,7 +172,7 @@ public class GitScmProvider extends ScmProvider {
     return null;
   }
 
-  private static List<ChangedFile> computeChangedFiles(Repository repository, List<DiffEntry> diffEntries) throws IOException {
+  private static Set<ChangedFile> computeChangedFiles(Repository repository, List<DiffEntry> diffEntries) throws IOException {
     Path workingDirectory = repository.getWorkTree().toPath();
 
     Map<String, String> renamedFilePaths = computeRenamedFilePaths(repository, diffEntries);
@@ -180,8 +181,8 @@ public class GitScmProvider extends ScmProvider {
     return collectChangedFiles(workingDirectory, renamedFilePaths, changedFilePaths);
   }
 
-  private static List<ChangedFile> collectChangedFiles(Path workingDirectory, Map<String, String> renamedFilePaths, Set<String> changedFilePaths) {
-    List<ChangedFile> changedFiles = new LinkedList<>();
+  private static Set<ChangedFile> collectChangedFiles(Path workingDirectory, Map<String, String> renamedFilePaths, Set<String> changedFilePaths) {
+    Set<ChangedFile> changedFiles = new HashSet<>();
     changedFilePaths.forEach(filePath -> changedFiles.add(ChangedFile.of(workingDirectory.resolve(filePath), renamedFilePaths.get(filePath))));
     return changedFiles;
   }
