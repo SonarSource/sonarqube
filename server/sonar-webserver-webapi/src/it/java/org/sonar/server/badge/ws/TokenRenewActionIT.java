@@ -98,6 +98,20 @@ public class TokenRenewActionIT {
   }
 
   @Test
+  public void handle_whenApplicationKeyPassed_shouldAddTokenAndReturn204() {
+    ProjectDto application = db.components().insertPrivateApplicationDto();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, application);
+    when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
+
+    TestResponse response = ws.newRequest().setParam("project", application.getKey()).execute();
+
+    ProjectBadgeTokenDto projectBadgeTokenDto = db.getDbClient().projectBadgeTokenDao().selectTokenByProject(db.getSession(), application);
+    assertThat(projectBadgeTokenDto).isNotNull();
+    assertThat(projectBadgeTokenDto.getToken()).isEqualTo("generated_token");
+    response.assertNoContent();
+  }
+
+  @Test
   public void should_replace_existing_token_when__token_already_present_and_update_update_at() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
