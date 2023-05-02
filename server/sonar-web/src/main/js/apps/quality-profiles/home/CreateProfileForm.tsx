@@ -25,11 +25,11 @@ import {
   createQualityProfile,
   getImporters,
 } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import RadioCard from '../../../components/controls/RadioCard';
 import Select from '../../../components/controls/Select';
 import ValidationInput from '../../../components/controls/ValidationInput';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Location } from '../../../components/hoc/withRouter';
 import CopyQualityProfileIcon from '../../../components/icons/CopyQualityProfileIcon';
 import ExtendQualityProfileIcon from '../../../components/icons/ExtendQualityProfileIcon';
@@ -203,7 +203,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
               <i className="spinner" />
             </div>
           ) : (
-            <div className="modal-body">
+            <div className="modal-body modal-container">
               <fieldset className="modal-field big-spacer-bottom">
                 <label className="spacer-top">
                   {translate('quality_profiles.chose_creation_type')}

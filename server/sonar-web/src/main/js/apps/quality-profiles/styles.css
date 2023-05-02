@@ -112,9 +112,10 @@
 }
 
 #create-profile-form .radio-card {
-  width: 245px;
+  width: 244px;
   background-color: var(--neutral50);
   border: 1px solid var(--neutral200);
+  margin-right: 0;
 }
 
 #create-profile-form .radio-card.selected {
