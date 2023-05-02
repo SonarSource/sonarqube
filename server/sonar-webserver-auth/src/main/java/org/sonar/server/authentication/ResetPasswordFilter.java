@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import java.util.Set;
+import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.web.FilterChain;
@@ -28,7 +29,6 @@ import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static org.sonar.api.web.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
 public class ResetPasswordFilter extends HttpFilter {
@@ -48,7 +48,7 @@ public class ResetPasswordFilter extends HttpFilter {
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
       .includes("/*")
-      .excludes(staticResourcePatterns())
+      .excludes(StaticResources.patterns())
       .excludes(SKIPPED_URLS)
       .build();
   }

@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
@@ -39,7 +40,6 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 
 @ServerSide
@@ -75,14 +75,13 @@ public class UserSessionInitializer {
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
-    .excludes(staticResourcePatterns())
+    .excludes(StaticResources.patterns())
     .excludes(SKIPPED_URLS)
     .build();
 
   private static final UrlPattern PASSCODE_URLS = UrlPattern.builder()
     .includes(URL_USING_PASSCODE)
     .build();
-
 
   private final Configuration config;
   private final ThreadLocalUserSession threadLocalSession;

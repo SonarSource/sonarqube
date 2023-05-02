@@ -22,6 +22,7 @@ package org.sonar.server.plugins;
 import java.io.IOException;
 import java.util.Set;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.web.FilterChain;
@@ -30,7 +31,6 @@ import org.sonar.api.web.UrlPattern;
 import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static org.sonar.api.web.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.REQUIRED;
@@ -74,7 +74,7 @@ public class PluginsRiskConsentFilter extends HttpFilter {
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
       .includes("/*")
-      .excludes(staticResourcePatterns())
+      .excludes(StaticResources.patterns())
       .excludes(SKIPPED_URLS)
       .build();
   }

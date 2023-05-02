@@ -36,7 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.IOUtils.write;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+import static org.sonar.api.impl.ws.StaticResources.patterns;
 import static org.sonarqube.ws.MediaTypes.HTML;
 
 /**
@@ -50,7 +50,7 @@ public class WebPagesFilter implements Filter {
 
   private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
     .builder()
-    .excludes(staticResourcePatterns())
+    .excludes(patterns())
     .excludes("/api/v2/*")
     .build();
 
@@ -60,8 +60,7 @@ public class WebPagesFilter implements Filter {
     this(PlatformImpl.getInstance().getContainer().getComponentByType(WebPagesCache.class));
   }
 
-  @VisibleForTesting
-  WebPagesFilter(WebPagesCache webPagesCache) {
+  @VisibleForTesting WebPagesFilter(WebPagesCache webPagesCache) {
     this.webPagesCache = webPagesCache;
   }
 
