@@ -25,8 +25,8 @@ import { createProject, doesComponentExists } from '../../../api/components';
 import { getValue } from '../../../api/settings';
 import DocLink from '../../../components/common/DocLink';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
-import { SubmitButton } from '../../../components/controls/buttons';
 import ValidationInput from '../../../components/controls/ValidationInput';
+import { SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -34,9 +34,9 @@ import { translate } from '../../../helpers/l10n';
 import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../types/component';
 import { GlobalSettingKeys } from '../../../types/settings';
-import { PROJECT_NAME_MAX_LEN } from './constants';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
+import { PROJECT_NAME_MAX_LEN } from './constants';
 
 interface Props {
   branchesEnabled: boolean;
@@ -283,7 +283,9 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                     )}
                     values={{
                       learn_more: (
-                        <DocLink to="/branches/overview">{translate('learn_more')}</DocLink>
+                        <DocLink to="/analyzing-source-code/branches/branch-analysis">
+                          {translate('learn_more')}
+                        </DocLink>
                       ),
                     }}
                   />
