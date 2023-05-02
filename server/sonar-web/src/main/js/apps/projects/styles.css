@@ -42,6 +42,10 @@
   height: var(--controlHeight);
 }
 
+.projects-header-row {
+  padding-top: 2px;
+}
+
 .projects-list .page-actions {
   margin-bottom: 0;
 }

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
 import * as React from 'react';
 import { setHomePage } from '../../api/users';
@@ -71,22 +70,13 @@ export class HomePageSelect extends React.PureComponent<Props> {
 
     return (
       <Tooltip overlay={tooltip}>
-        {isDefault ? (
-          <span
-            aria-label={tooltip}
-            className={classNames('sw-inline-block', className)}
-            role="img"
-          >
-            <HomeFillIcon />
-          </span>
-        ) : (
-          <DiscreetInteractiveIcon
-            aria-label={tooltip}
-            className={className}
-            Icon={isChecked ? HomeFillIcon : HomeIcon}
-            onClick={isChecked ? this.handleReset : this.handleClick}
-          />
-        )}
+        <DiscreetInteractiveIcon
+          aria-label={tooltip}
+          className={className}
+          disabled={isDefault}
+          Icon={isChecked ? HomeFillIcon : HomeIcon}
+          onClick={isChecked ? this.handleReset : this.handleClick}
+        />
       </Tooltip>
     );
   }

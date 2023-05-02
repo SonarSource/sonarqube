@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="page-header"
 >
   <div
-    className="display-flex-space-between spacer-top"
+    className="display-flex-center projects-header-row display-flex-space-between"
   >
     <SearchFilterContainer
       onQueryChange={[MockFunction]}
@@ -35,7 +35,7 @@ exports[`should render correctly 1`] = `
     </div>
   </div>
   <div
-    className="big-spacer-top display-flex-space-between"
+    className="spacer-top projects-header-row display-flex-space-between"
   >
     <div
       className="display-flex-center"
@@ -80,7 +80,7 @@ exports[`should render correctly while loading 1`] = `
   className="page-header"
 >
   <div
-    className="display-flex-space-between spacer-top"
+    className="display-flex-center projects-header-row display-flex-space-between"
   >
     <SearchFilterContainer
       onQueryChange={[MockFunction]}
@@ -110,7 +110,7 @@ exports[`should render correctly while loading 1`] = `
     </div>
   </div>
   <div
-    className="big-spacer-top display-flex-space-between"
+    className="spacer-top projects-header-row display-flex-space-between"
   >
     <div
       className="display-flex-center is-loading"

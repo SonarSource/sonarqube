@@ -47,7 +47,7 @@ export default function PageHeader(props: Props) {
 
   return (
     <div className="page-header">
-      <div className="display-flex-space-between spacer-top">
+      <div className="display-flex-center projects-header-row display-flex-space-between">
         <SearchFilterContainer onQueryChange={props.onQueryChange} query={props.query} />
         <div className="display-flex-center">
           <ProjectCreationMenu className="little-spacer-right" />
@@ -58,7 +58,7 @@ export default function PageHeader(props: Props) {
           />
         </div>
       </div>
-      <div className="big-spacer-top display-flex-space-between">
+      <div className="spacer-top projects-header-row display-flex-space-between">
         <div
           className={classNames('display-flex-center', {
             'is-loading': loading,
