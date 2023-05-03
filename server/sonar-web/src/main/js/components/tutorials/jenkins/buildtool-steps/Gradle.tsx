@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { translate } from '../../../../helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import FinishButton from '../../components/FinishButton';
-import SentenceWithFilename from '../../components/SentenceWithFilename';
+import GradleBuildSelection from '../../components/GradleBuildSelection';
+import { GradleBuildDSL } from '../../types';
 import { buildGradleSnippet } from '../../utils';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
@@ -38,14 +41,28 @@ const JENKINSFILE_SNIPPET = `node {
 
 export default function Gradle(props: LanguageProps) {
   const { component } = props;
+
   return (
     <>
       <li className="abs-width-600">
-        <SentenceWithFilename
-          filename="build.gradle"
-          translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
-        />
-        <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
+        <span className="markdown">
+          <FormattedMessage
+            defaultMessage={translate(
+              'onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2',
+              'sentence'
+            )}
+            id="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2.sentence"
+            values={{
+              groovy: <code>{GradleBuildDSL.Groovy}</code>,
+              kotlin: <code>{GradleBuildDSL.Kotlin}</code>,
+            }}
+          />
+        </span>
+        <GradleBuildSelection className="big-spacer-top big-spacer-bottom">
+          {(build) => (
+            <CodeSnippet snippet={buildGradleSnippet(component.key, component.name, build)} />
+          )}
+        </GradleBuildSelection>
       </li>
       <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
       <FinishButton onClick={props.onDone} />

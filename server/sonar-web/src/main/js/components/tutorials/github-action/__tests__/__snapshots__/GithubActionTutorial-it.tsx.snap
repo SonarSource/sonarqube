@@ -229,7 +229,7 @@ jobs:
         run: ./gradlew build sonar --info"
 `;
 
-exports[`should follow and complete all steps: Gradle: build.gradle 1`] = `
+exports[`should follow and complete all steps: Groovy: build.gradle 1`] = `
 "plugins {
   id "org.sonarqube" version "4.0.0.2929"
 }
@@ -238,6 +238,19 @@ sonar {
   properties {
     property "sonar.projectKey", "my-project"
     property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`should follow and complete all steps: Kotlin: build.gradle.kts 1`] = `
+"plugins {
+  id("org.sonarqube") version "4.0.0.2929"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
   }
 }"
 `;

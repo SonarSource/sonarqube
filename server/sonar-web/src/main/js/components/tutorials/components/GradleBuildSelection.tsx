@@ -17,35 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci',
+import React from 'react';
+import ButtonToggle from '../../controls/ButtonToggle';
+import { GradleBuildDSL } from '../types';
+
+interface Props {
+  className?: string;
+  children: (build: GradleBuildDSL) => React.ReactNode;
 }
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other',
-}
+export default function GradleBuildSelection({ children, className }: Props) {
+  const [build, setBuild] = React.useState<GradleBuildDSL>(GradleBuildDSL.Groovy);
 
-export enum GradleBuildDSL {
-  Groovy = 'build.gradle',
-  Kotlin = 'build.gradle.kts',
-}
+  const buildOptions = Object.values(GradleBuildDSL).map((v: GradleBuildDSL) => ({
+    label: v,
+    value: v,
+  }));
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac',
+  return (
+    <>
+      <div className={className}>
+        <ButtonToggle
+          options={buildOptions}
+          value={build}
+          onCheck={(value: GradleBuildDSL) => setBuild(value)}
+        />
+      </div>
+      {children(build)}
+    </>
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

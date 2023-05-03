@@ -37,7 +37,7 @@ import {
   getTutorialActionButtons,
   getTutorialBuildButtons,
 } from '../../test-utils';
-import { TutorialModes } from '../../types';
+import { GradleBuildDSL, TutorialModes } from '../../types';
 import BitbucketPipelinesTutorial, {
   BitbucketPipelinesTutorialProps,
 } from '../BitbucketPipelinesTutorial';
@@ -79,8 +79,10 @@ it('should follow and complete all steps', async () => {
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Gradle: build.gradle');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('Gradle: bitbucket-pipelines.yml');
+  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Groovy: build.gradle');
+  await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
+  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Kotlin: build.gradle.kts');
+  expect(getCopyToClipboardValue(4)).toMatchSnapshot('Gradle: bitbucket-pipelines.yml');
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());

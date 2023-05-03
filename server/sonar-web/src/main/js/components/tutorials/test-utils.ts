@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import { byRole, byText } from 'testing-library-selector';
-import { BuildTools, OSs, TutorialModes } from './types';
+import { BuildTools, GradleBuildDSL, OSs, TutorialModes } from './types';
 
 const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {
   [TutorialModes.BitbucketPipelines]: 'bitbucket_pipelines',
@@ -70,6 +70,7 @@ export function getTutorialBuildButtons() {
     describeBuildTitle: byRole('heading', { name: 'onboarding.build' }),
     mavenBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Maven}` }),
     gradleBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Gradle}` }),
+    gradleDSLButton: (name: GradleBuildDSL) => byRole('button', { name }),
     dotnetBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.DotNet}` }),
     cFamilyBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.CFamily}` }),
     otherBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Other}` }),

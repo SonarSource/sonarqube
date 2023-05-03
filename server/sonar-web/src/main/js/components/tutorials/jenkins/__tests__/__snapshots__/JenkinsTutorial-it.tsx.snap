@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: build.gradle file 1`] = `
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
   id "org.sonarqube" version "4.0.0.2929"
 }
@@ -9,6 +9,19 @@ sonar {
   properties {
     property "sonar.projectKey", "my-project"
     property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
+"plugins {
+  id("org.sonarqube") version "4.0.0.2929"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
   }
 }"
 `;
@@ -194,7 +207,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
 "
 `;
 
-exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: build.gradle file 1`] = `
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
   id "org.sonarqube" version "4.0.0.2929"
 }
@@ -203,6 +216,19 @@ sonar {
   properties {
     property "sonar.projectKey", "my-project"
     property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
+"plugins {
+  id("org.sonarqube") version "4.0.0.2929"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
   }
 }"
 `;
@@ -388,7 +414,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
 "
 `;
 
-exports[`github: can select devops platform and complete all the steps with copying code snippets: build.gradle file 1`] = `
+exports[`github: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
   id "org.sonarqube" version "4.0.0.2929"
 }
@@ -397,6 +423,19 @@ sonar {
   properties {
     property "sonar.projectKey", "my-project"
     property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`github: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
+"plugins {
+  id("org.sonarqube") version "4.0.0.2929"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
   }
 }"
 `;
@@ -582,7 +621,7 @@ exports[`github: can select devops platform and complete all the steps with copy
 "
 `;
 
-exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: build.gradle file 1`] = `
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
   id "org.sonarqube" version "4.0.0.2929"
 }
@@ -591,6 +630,19 @@ sonar {
   properties {
     property "sonar.projectKey", "my-project"
     property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
+"plugins {
+  id("org.sonarqube") version "4.0.0.2929"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
   }
 }"
 `;

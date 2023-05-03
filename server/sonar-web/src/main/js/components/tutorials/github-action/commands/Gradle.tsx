@@ -18,14 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
-import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
-import { buildGradleSnippet } from '../../utils';
+import GradleBuild from '../../components/GradleBuild';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
 
@@ -65,22 +61,7 @@ export default function Gradle(props: GradleProps) {
 
   return (
     <>
-      <li className="abs-width-600">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.yaml.gradle')}
-          id="onboarding.tutorial.with.yaml.gradle"
-          values={{
-            gradle: (
-              <>
-                <code className="rule">build.gradle</code>
-                <ClipboardIconButton copyValue="build.gradle" />
-              </>
-            ),
-            sq: <code className="rule">org.sonarqube</code>,
-          }}
-        />
-        <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
-      </li>
+      <GradleBuild component={component} />
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
         yamlTemplate={generateGitHubActionsYaml(

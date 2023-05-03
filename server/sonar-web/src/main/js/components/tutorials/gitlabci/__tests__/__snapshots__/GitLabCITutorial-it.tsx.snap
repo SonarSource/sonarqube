@@ -63,20 +63,6 @@ sonar.qualitygate.wait=true
 "
 `;
 
-exports[`should follow and complete all steps: Gradle: build.gradle 1`] = `
-"plugins {
-  id "org.sonarqube" version "4.0.0.2929"
-}
-
-sonar {
-  properties {
-    property "sonar.projectKey", "my-project"
-    property "sonar.projectName", "MyProject"
-    property "sonar.qualitygate.wait", true 
-  }
-}"
-`;
-
 exports[`should follow and complete all steps: Gradle: gitlab-ci.yml 1`] = `
 "sonarqube-check:
   image: gradle:jre11-slim
@@ -92,6 +78,34 @@ exports[`should follow and complete all steps: Gradle: gitlab-ci.yml 1`] = `
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
 "
+`;
+
+exports[`should follow and complete all steps: Groovy: build.gradle 1`] = `
+"plugins {
+  id "org.sonarqube" version "4.0.0.2929"
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
+    property "sonar.qualitygate.wait", true 
+  }
+}"
+`;
+
+exports[`should follow and complete all steps: Kotlin: build.gradle.kts 1`] = `
+"plugins {
+  id ("org.sonarqube") version "4.0.0.2929"
+}
+
+sonar {
+  properties {
+    property("sonar.projectKey", "my-project")
+    property("sonar.projectName", "MyProject")
+    property("sonar.qualitygate.wait", true)
+  }
+}"
 `;
 
 exports[`should follow and complete all steps: Maven: gitlab-ci.yml 1`] = `

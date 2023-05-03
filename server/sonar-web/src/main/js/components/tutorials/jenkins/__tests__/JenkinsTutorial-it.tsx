@@ -32,6 +32,7 @@ import {
   getTutorialActionButtons,
   getTutorialBuildButtons,
 } from '../../test-utils';
+import { GradleBuildDSL } from '../../types';
 import JenkinsTutorial, { JenkinsTutorialProps } from '../JenkinsTutorial';
 
 jest.mock('../../../../api/user-tokens');
@@ -117,9 +118,12 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     await user.click(ui.mavenBuildButton.get());
     expect(getCopyToClipboardValue()).toMatchSnapshot(`maven jenkinsfile`);
 
-    // Gradle
+    // Gradle (Groovy)
     await user.click(ui.gradleBuildButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`build.gradle file`);
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`Groovy: build.gradle file`);
+    // Gradle(Kotlin)
+    await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`Kotlin: build.gradle.kts file`);
     expect(getCopyToClipboardValue(1)).toMatchSnapshot(`gradle jenkinsfile`);
 
     // .NET

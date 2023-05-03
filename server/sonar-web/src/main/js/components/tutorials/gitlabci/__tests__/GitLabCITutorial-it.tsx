@@ -31,7 +31,7 @@ import {
   getTutorialActionButtons,
   getTutorialBuildButtons,
 } from '../../test-utils';
-import { TutorialModes } from '../../types';
+import { GradleBuildDSL, TutorialModes } from '../../types';
 import GitLabCITutorial, { GitLabCITutorialProps } from '../GitLabCITutorial';
 
 jest.mock('../../../../api/user-tokens');
@@ -72,8 +72,10 @@ it('should follow and complete all steps', async () => {
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Gradle: build.gradle');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('Gradle: gitlab-ci.yml');
+  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Groovy: build.gradle');
+  await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
+  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Kotlin: build.gradle.kts');
+  expect(getCopyToClipboardValue(4)).toMatchSnapshot('Gradle: gitlab-ci.yml');
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());

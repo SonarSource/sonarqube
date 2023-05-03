@@ -31,9 +31,10 @@ import CodeSnippet from '../../common/CodeSnippet';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
+import GradleBuildSelection from '../components/GradleBuildSelection';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
-import { BuildTools, TutorialModes } from '../types';
+import { BuildTools, GradleBuildDSL, TutorialModes } from '../types';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps extends WithAvailableFeaturesProps {
@@ -50,7 +51,9 @@ const mavenSnippet = () => `<properties>
   <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 </properties>`;
 
-const gradleSnippet = (key: string, name: string) => `plugins {
+const gradleSnippet = (key: string, name: string, build: GradleBuildDSL) => {
+  const map = {
+    [GradleBuildDSL.Groovy]: `plugins {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
@@ -60,7 +63,21 @@ sonar {
     property "sonar.projectName", "${name}"
     property "sonar.qualitygate.wait", true 
   }
-}`;
+}`,
+    [GradleBuildDSL.Kotlin]: `plugins {
+  id ("org.sonarqube") version "${GRADLE_SCANNER_VERSION}"
+}
+
+sonar {
+  properties {
+    property("sonar.projectKey", "${key}")
+    property("sonar.projectName", "${name}")
+    property("sonar.qualitygate.wait", true)
+  }
+}`,
+  };
+  return map[build];
+};
 
 const otherSnippet = (key: string) => `sonar.projectKey=${key}
 sonar.qualitygate.wait=true
@@ -75,7 +92,7 @@ const snippetForBuildTool = {
 
 const filenameForBuildTool = {
   [BuildTools.Maven]: 'pom.xml',
-  [BuildTools.Gradle]: 'build.gradle',
+  [BuildTools.Gradle]: GradleBuildDSL.Groovy,
   [BuildTools.CFamily]: 'sonar-project.properties',
   [BuildTools.Other]: 'sonar-project.properties',
 };
@@ -118,19 +135,44 @@ export function YmlFileStep(props: YmlFileStepProps) {
                 `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`
               )}
               id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
-              values={{
-                file: (
-                  <>
-                    <code className="rule">{filenameForBuildTool[buildTool]}</code>
-                    <ClipboardIconButton
-                      className="little-spacer-left"
-                      copyValue={filenameForBuildTool[buildTool]}
-                    />
-                  </>
-                ),
-              }}
+              values={Object.assign(
+                {
+                  file: (
+                    <>
+                      <code className="rule">{filenameForBuildTool[buildTool]}</code>
+                      <ClipboardIconButton
+                        className="little-spacer-left"
+                        copyValue={filenameForBuildTool[buildTool]}
+                      />
+                    </>
+                  ),
+                },
+                buildTool === BuildTools.Gradle
+                  ? {
+                      file2: (
+                        <>
+                          <code className="rule">{GradleBuildDSL.Kotlin}</code>
+                          <ClipboardIconButton
+                            className="little-spacer-left"
+                            copyValue={GradleBuildDSL.Kotlin}
+                          />
+                        </>
+                      ),
+                    }
+                  : {}
+              )}
             />
-            <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key, component.name)} />
+            {buildTool === BuildTools.Gradle ? (
+              <GradleBuildSelection className="spacer-top big-spacer-bottom">
+                {(build) => (
+                  <CodeSnippet
+                    snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
+                  />
+                )}
+              </GradleBuildSelection>
+            ) : (
+              <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key)} />
+            )}
           </li>
         )}
         {buildTool && (

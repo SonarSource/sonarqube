@@ -25,6 +25,8 @@ import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
 import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
+import GradleBuildSelection from '../../components/GradleBuildSelection';
+import { GradleBuildDSL } from '../../types';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
@@ -33,11 +35,17 @@ export interface JavaGradleProps {
   token: string;
 }
 
+const config = {
+  [GradleBuildDSL.Groovy]: `plugins {
+  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
+}`,
+  [GradleBuildDSL.Kotlin]: `plugins {
+  id("org.sonarqube") version "${GRADLE_SCANNER_VERSION}"
+}`,
+};
+
 export default function JavaGradle(props: JavaGradleProps) {
   const { baseUrl, component, token } = props;
-  const config = `plugins {
-  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
-}`;
 
   const command = [
     './gradlew sonar',
@@ -58,13 +66,16 @@ export default function JavaGradle(props: JavaGradleProps) {
               id="onboarding.analysis.java.gradle.text.1"
               values={{
                 plugin_code: <code>org.sonarqube</code>,
-                filename: <code>build.gradle</code>,
+                groovy: <code>{GradleBuildDSL.Groovy}</code>,
+                kotlin: <code>{GradleBuildDSL.Kotlin}</code>,
               }}
             />
           </p>
         )}
       </InstanceMessage>
-      <CodeSnippet snippet={config} />
+      <GradleBuildSelection className="big-spacer-top big-spacer-bottom">
+        {(build) => <CodeSnippet snippet={config[build]} />}
+      </GradleBuildSelection>
       <p className="big-spacer-bottom markdown">
         <em className="small text-muted">
           <FormattedMessage

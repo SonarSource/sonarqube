@@ -18,14 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
-import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
-import CodeSnippet from '../../common/CodeSnippet';
 import DefaultProjectKey from '../components/DefaultProjectKey';
+import GradleBuild from '../components/GradleBuild';
 import { BuildTools } from '../types';
-import { buildGradleSnippet } from '../utils';
 
 export interface PreambuleYamlProps {
   buildTool: BuildTools;
@@ -36,24 +32,7 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
   const { buildTool, component } = props;
   switch (buildTool) {
     case BuildTools.Gradle:
-      return (
-        <li className="abs-width-600">
-          <FormattedMessage
-            defaultMessage={translate('onboarding.tutorial.with.yaml.gradle')}
-            id="onboarding.tutorial.with.yaml.gradle"
-            values={{
-              gradle: (
-                <>
-                  <code className="rule">build.gradle</code>
-                  <ClipboardIconButton copyValue="build.gradle" />
-                </>
-              ),
-              sq: <code className="rule">org.sonarqube</code>,
-            }}
-          />
-          <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
-        </li>
-      );
+      return <GradleBuild component={component} />;
     case BuildTools.CFamily:
     case BuildTools.Other:
       return <DefaultProjectKey component={component} />;

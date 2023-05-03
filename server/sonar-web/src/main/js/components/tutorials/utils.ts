@@ -21,13 +21,15 @@ import { GRADLE_SCANNER_VERSION } from '../../helpers/constants';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { UserToken } from '../../types/token';
+import { GradleBuildDSL } from './types';
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
 }
 
-export function buildGradleSnippet(key: string, name: string) {
-  return `plugins {
+export function buildGradleSnippet(key: string, name: string, build: GradleBuildDSL) {
+  const map = {
+    [GradleBuildDSL.Groovy]: `plugins {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
@@ -36,7 +38,19 @@ sonar {
     property "sonar.projectKey", "${key}"
     property "sonar.projectName", "${name}"
   }
-}`;
+}`,
+    [GradleBuildDSL.Kotlin]: `plugins {
+  id("org.sonarqube") version "${GRADLE_SCANNER_VERSION}"
+}
+    
+sonar {
+  properties {
+    property("sonar.projectKey", "${key}")
+    property("sonar.projectName", "${name}")
+  }
+}`,
+  };
+  return map[build];
 }
 
 export function getUniqueTokenName(tokens: UserToken[], initialTokenName: string) {
