@@ -39,20 +39,15 @@ const OPTIONAL_FIELDS = [
   SAML_SCIM_DEPRECATED,
 ];
 
-export default function useSamlConfiguration(definitions: ExtendedSettingDefinition[]) {
+export default function useSamlConfiguration(
+  definitions: ExtendedSettingDefinition[],
+  onReload: () => void
+) {
   const [scimStatus, setScimStatus] = React.useState<boolean>(false);
   const [newScimStatus, setNewScimStatus] = React.useState<boolean>();
   const hasScim = React.useContext(AvailableFeaturesContext).includes(Feature.Scim);
-  const {
-    loading,
-    reload: reloadConfig,
-    values,
-    setNewValue,
-    canBeSave,
-    hasConfiguration,
-    deleteConfiguration,
-    isValueChange,
-  } = useConfiguration(definitions, OPTIONAL_FIELDS);
+  const config = useConfiguration(definitions, OPTIONAL_FIELDS);
+  const { reload: reloadConfig, values, setNewValue, isValueChange } = config;
 
   React.useEffect(() => {
     (async () => {
@@ -77,18 +72,17 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
   const reload = React.useCallback(async () => {
     await reloadConfig();
     setScimStatus(await fetchIsScimEnabled());
-  }, [reloadConfig]);
+    onReload();
+  }, [reloadConfig, onReload]);
 
   return {
+    ...config,
     hasScim,
     scimStatus,
-    loading,
     samlEnabled,
     name,
     url,
     groupValue,
-    hasConfiguration,
-    canBeSave,
     values,
     setNewValue,
     reload,
@@ -96,6 +90,5 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
     newScimStatus,
     setNewScimStatus,
     setNewGroupSetting,
-    deleteConfiguration,
   };
 }

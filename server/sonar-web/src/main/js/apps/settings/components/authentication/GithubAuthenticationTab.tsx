@@ -47,6 +47,8 @@ import useGithubConfiguration, {
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
+  provider: string | undefined;
+  onReload: () => void;
 }
 
 const GITHUB_EXCLUDED_FIELD = [
@@ -56,7 +58,8 @@ const GITHUB_EXCLUDED_FIELD = [
   'sonar.auth.github.organizations',
 ];
 
-export default function GithubAithentication(props: GithubAuthenticationProps) {
+export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
+  const { definitions, provider } = props;
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
 
@@ -77,7 +80,9 @@ export default function GithubAithentication(props: GithubAuthenticationProps) {
     setNewGithubProvisioningStatus,
     hasGithubProvisioningConfigChange,
     resetJitSetting,
-  } = useGithubConfiguration(props.definitions);
+  } = useGithubConfiguration(definitions, props.onReload);
+
+  const hasDifferentProvider = provider !== undefined && provider !== 'github';
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -104,7 +109,6 @@ export default function GithubAithentication(props: GithubAuthenticationProps) {
       GITHUB_JIT_FIELDS.map(async (settingKey) => {
         const value = values[settingKey];
         if (value.newValue !== undefined) {
-          // isEmpty always return true for booleans...
           if (isEmpty(value.newValue) && typeof value.newValue !== 'boolean') {
             await resetSettingValue({ keys: value.definition.key });
           } else {
@@ -199,10 +203,15 @@ export default function GithubAithentication(props: GithubAuthenticationProps) {
                       )}
                       selected={newGithubProvisioningStatus ?? githubProvisioningStatus}
                       onClick={() => setNewGithubProvisioningStatus(true)}
-                      disabled={!hasGithubProvisioning}
+                      disabled={!hasGithubProvisioning || hasDifferentProvider}
                     >
                       {hasGithubProvisioning ? (
                         <>
+                          {hasDifferentProvider && (
+                            <p className="spacer-bottom text-bold">
+                              {translate('settings.authentication.form.other_provisioning_enabled')}
+                            </p>
+                          )}
                           <p className="spacer-bottom">
                             {translate(
                               'settings.authentication.github.form.provisioning_with_github.description'

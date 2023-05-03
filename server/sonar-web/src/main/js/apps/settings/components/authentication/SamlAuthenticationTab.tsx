@@ -49,6 +49,8 @@ import useSamlConfiguration, {
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
+  provider: string | undefined;
+  onReload: () => void;
 }
 
 export const SAML = 'saml';
@@ -57,7 +59,7 @@ const CONFIG_TEST_PATH = '/saml/validation_init';
 const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_GROUP_NAME, SAML_SCIM_DEPRECATED];
 
 export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
-  const { definitions } = props;
+  const { definitions, provider, onReload } = props;
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = React.useState(false);
   const {
@@ -78,7 +80,9 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     setNewGroupSetting,
     reload,
     deleteConfiguration,
-  } = useSamlConfiguration(definitions);
+  } = useSamlConfiguration(definitions, onReload);
+
+  const hasDifferentProvider = provider !== undefined && provider !== name;
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -187,7 +191,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
             >
               <fieldset className="display-flex-column big-spacer-bottom">
                 <label className="h5">
-                  {translate('settings.authentication.saml.form.provisioning')}
+                  {translate('settings.authentication.form.provisioning')}
                 </label>
                 {samlEnabled ? (
                   <div className="display-flex-row spacer-top">
@@ -196,7 +200,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                       title={translate('settings.authentication.saml.form.provisioning_with_scim')}
                       selected={newScimStatus ?? scimStatus}
                       onClick={() => setNewScimStatus(true)}
-                      disabled={!hasScim}
+                      disabled={!hasScim || hasDifferentProvider}
                     >
                       {!hasScim ? (
                         <p>
@@ -216,6 +220,11 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                         </p>
                       ) : (
                         <>
+                          {hasDifferentProvider && (
+                            <p className="spacer-bottom text-bold">
+                              {translate('settings.authentication.form.other_provisioning_enabled')}
+                            </p>
+                          )}
                           <p className="spacer-bottom">
                             {translate(
                               'settings.authentication.saml.form.provisioning_with_scim.sub'

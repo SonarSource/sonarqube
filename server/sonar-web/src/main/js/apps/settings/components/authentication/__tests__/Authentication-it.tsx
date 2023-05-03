@@ -23,6 +23,7 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
 import { byRole, byText } from 'testing-library-selector';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
+import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
@@ -30,14 +31,20 @@ import { Feature } from '../../../../../types/features';
 import Authentication from '../Authentication';
 
 jest.mock('../../../../../api/settings');
+jest.mock('../../../../../api/system');
 
 let handler: AuthenticationServiceMock;
+let system: SystemServiceMock;
 
 beforeEach(() => {
   handler = new AuthenticationServiceMock();
+  system = new SystemServiceMock();
 });
 
-afterEach(() => handler.resetValues());
+afterEach(() => {
+  handler.resetValues();
+  system.reset();
+});
 
 const ui = {
   saveButton: byRole('button', { name: 'settings.authentication.saml.form.save' }),
@@ -64,7 +71,7 @@ const ui = {
     editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
     enableFirstMessage: byText('settings.authentication.saml.enable_first'),
     jitProvisioningButton: byRole('radio', {
-      name: 'settings.authentication.form.provisioning_at_login',
+      name: 'settings.authentication.saml.form.provisioning_at_login',
     }),
     scimProvisioningButton: byRole('radio', {
       name: 'settings.authentication.saml.form.provisioning_with_scim',
@@ -239,7 +246,7 @@ describe('SAML tab', () => {
     expect(await saml.saveScim.find()).toBeDisabled();
   });
 
-  it('should not allow edtion below Enterprise to select SCIM provisioning', async () => {
+  it('should not allow editions below Enterprise to select SCIM provisioning', async () => {
     const { saml } = ui;
     const user = userEvent.setup();
 

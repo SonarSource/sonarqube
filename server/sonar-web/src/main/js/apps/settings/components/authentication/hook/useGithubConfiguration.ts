@@ -45,7 +45,10 @@ export interface SamlSettingValue {
   definition: ExtendedSettingDefinition;
 }
 
-export default function useGithubConfiguration(definitions: ExtendedSettingDefinition[]) {
+export default function useGithubConfiguration(
+  definitions: ExtendedSettingDefinition[],
+  onReload: () => void
+) {
   const config = useConfiguration(definitions, OPTIONAL_FIELDS);
   const { values, isValueChange, setNewValue, reload: reloadConfig } = config;
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
@@ -77,7 +80,8 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const reload = useCallback(async () => {
     await reloadConfig();
     setGithubProvisioningStatus(await fetchIsGithubProvisioningEnabled());
-  }, [reloadConfig]);
+    onReload();
+  }, [reloadConfig, onReload]);
 
   return {
     ...config,
