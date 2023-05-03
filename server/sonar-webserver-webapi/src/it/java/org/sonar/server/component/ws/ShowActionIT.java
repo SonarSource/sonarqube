@@ -78,7 +78,8 @@ public class ShowActionIT {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"),
+      tuple("10.1", "The use of module keys in parameter 'component' is removed"));
     assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "branch", "pullRequest");
 
     WebService.Param component = action.param(PARAM_COMPONENT);

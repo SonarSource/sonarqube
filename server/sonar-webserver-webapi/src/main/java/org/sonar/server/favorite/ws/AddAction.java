@@ -69,6 +69,7 @@ public class AddAction implements FavoritesWsAction {
         "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
       .setSince("6.3")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("8.4", "It's no longer possible to set a file as favorite"),
         new Change("7.7", "It's no longer possible to have more than 100 favorites by qualifier"),
         new Change("7.7", "It's no longer possible to set a directory as favorite"),

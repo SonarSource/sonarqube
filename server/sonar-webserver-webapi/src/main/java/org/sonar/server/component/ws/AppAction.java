@@ -61,8 +61,10 @@ public class AppAction implements ComponentsWsAction {
         "Requires the following permission: 'Browse'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.4")
-      .setChangelog(new Change("9.6", "The fields 'subProject', 'subProjectName' were removed from the response."))
-      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+      .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("9.6", "The fields 'subProject', 'subProjectName' were removed from the response."),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setInternal(true)
       .setHandler(this);
 

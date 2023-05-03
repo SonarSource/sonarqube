@@ -79,6 +79,7 @@ public class ShowAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 

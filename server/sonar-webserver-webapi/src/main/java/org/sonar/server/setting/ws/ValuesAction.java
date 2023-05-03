@@ -103,6 +103,7 @@ public class ValuesAction implements SettingsWsAction {
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("9.1", "The secured settings values are no longer returned. Secured settings keys that have a value " +
           "are now returned in setSecuredSettings array."),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),

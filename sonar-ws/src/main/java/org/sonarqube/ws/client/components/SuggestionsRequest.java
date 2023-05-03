@@ -42,7 +42,6 @@ public class SuggestionsRequest {
    *   <li>"SVW"</li>
    *   <li>"APP"</li>
    *   <li>"TRK"</li>
-   *   <li>"BRC"</li>
    *   <li>"FIL"</li>
    *   <li>"UTS"</li>
    * </ul>

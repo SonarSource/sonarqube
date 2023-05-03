@@ -749,7 +749,8 @@ public class ComponentActionIT {
       tuple("6.4", "The 'visibility' field is added"),
       tuple("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
       tuple("7.6", "The use of module keys in parameter 'component' is deprecated"),
-      tuple("8.8", "Deprecated parameter 'componentKey' has been removed. Please use parameter 'component' instead"));
+      tuple("8.8", "Deprecated parameter 'componentKey' has been removed. Please use parameter 'component' instead"),
+      tuple("10.1", "The use of module keys in parameter 'component' is removed"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT);
     assertThat(componentId.isRequired()).isFalse();

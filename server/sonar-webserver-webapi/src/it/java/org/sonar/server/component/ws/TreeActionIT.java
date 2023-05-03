@@ -99,6 +99,7 @@ public class TreeActionIT {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("10.1", "The use of module keys in parameter 'component' is removed"),
       tuple("10.1", "The use of 'BRC' as value for parameter 'qualifiers' is removed"),
       tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
       tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));

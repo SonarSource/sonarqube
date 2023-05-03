@@ -77,7 +77,9 @@ public class ListDefinitionsAction implements SettingsWsAction {
         "</ul>")
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
       .setSince("6.3")
-      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+      .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")

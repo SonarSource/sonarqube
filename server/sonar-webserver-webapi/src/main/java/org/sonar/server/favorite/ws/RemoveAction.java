@@ -53,7 +53,9 @@ public class RemoveAction implements FavoritesWsAction {
       .setDescription("Remove a component (project, portfolio, application etc.) as favorite for the authenticated user.<br>" +
         "Requires authentication.")
       .setSince("6.3")
-      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+      .setChangelog(
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setPost(true)
       .setHandler(this);
 

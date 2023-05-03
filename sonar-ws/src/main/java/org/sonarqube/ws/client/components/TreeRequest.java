@@ -137,7 +137,6 @@ public class TreeRequest {
   /**
    * Possible values:
    * <ul>
-   *   <li>"BRC"</li>
    *   <li>"DIR"</li>
    *   <li>"FIL"</li>
    *   <li>"TRK"</li>

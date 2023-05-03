@@ -112,7 +112,8 @@ public class ActivityAction implements CeWsAction {
         new Change("7.1", "field \"pullRequest\" added"),
         new Change("7.6", format("The use of module keys in parameters '%s' is deprecated", TEXT_QUERY)),
         new Change("8.8", "field \"logs\" is dropped"),
-        new Change("10.0", "Remove deprecated field 'componentId'"))
+        new Change("10.0", "Remove deprecated field 'componentId'"),
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT)

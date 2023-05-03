@@ -89,7 +89,6 @@ public class SearchRequest {
    * This is a mandatory parameter.
    * Possible values:
    * <ul>
-   *   <li>"BRC"</li>
    *   <li>"DIR"</li>
    *   <li>"FIL"</li>
    *   <li>"TRK"</li>
