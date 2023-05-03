@@ -229,3 +229,29 @@ export const BareButton = styled.button`
     background-color: ${themeColor('dropdownMenuHover')};
   }
 `;
+
+interface CodeViewerExpanderProps {
+  direction: 'UP' | 'DOWN';
+}
+
+export const CodeViewerExpander = styled(BareButton)<CodeViewerExpanderProps>`
+  ${tw`sw-flex sw-items-center sw-gap-2`}
+  ${tw`sw-px-2 sw-py-1`}
+  ${tw`sw-code`}
+  ${tw`sw-w-full`}
+  ${tw`sw-box-border`}
+
+  color: ${themeContrast('codeLineEllipsis')};
+  background-color: ${themeColor('codeLineEllipsis')};
+
+  &:hover {
+    color: ${themeContrast('codeLineEllipsisHover')};
+    background-color: ${themeColor('codeLineEllipsisHover')};
+  }
+
+  border-top: ${(props) =>
+    props.direction === 'DOWN' ? themeBorder('default', 'codeLineBorder') : 'none'};
+
+  border-bottom: ${(props) =>
+    props.direction === 'UP' ? themeBorder('default', 'codeLineBorder') : 'none'};
+`;

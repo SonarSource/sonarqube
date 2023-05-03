@@ -201,6 +201,25 @@ export const lightTheme = {
     codeLineCoveredUnderline: [...COLORS.green[500], 0.15],
     codeLineUncoveredUnderline: [...COLORS.red[500], 0.15],
 
+    codeLineHover: secondary.light,
+    codeLineHighlighted: COLORS.blueGrey[100],
+    codeLineNewCodeUnderline: [...COLORS.indigo[300], 0.15],
+    codeLineMeta: COLORS.blueGrey[300],
+    codeLineMetaHover: secondary.dark,
+    codeLineDuplication: secondary.default,
+    codeLineCovered: COLORS.green[300],
+    codeLineUncovered: danger.default,
+    codeLinePartiallyCoveredA: danger.default,
+    codeLinePartiallyCoveredB: COLORS.white,
+    codeLineIssueSquiggle: danger.lighter,
+    codeLineIssuePointerBorder: COLORS.white,
+    codeLineLocationHighlighted: [...COLORS.blueGrey[200], 0.6],
+    codeLineEllipsis: COLORS.white,
+    codeLineEllipsisHover: secondary.light,
+    codeLineIssueLocation: [...danger.lighter, 0.15],
+    codeLineIssueLocationSelected: [...danger.lighter, 0.5],
+    codeLineIssueMessageTooltip: secondary.darker,
+
     // checkbox
     checkboxHover: COLORS.indigo[50],
     checkboxCheckedHover: primary.light,
@@ -562,8 +581,14 @@ export const lightTheme = {
     toggleHover: secondary.darker,
 
     // code viewer
+    codeLineNewCodeUnderline: COLORS.indigo[500],
+    codeLineCoveredUnderline: COLORS.green[700],
+    codeLineUncoveredUnderline: COLORS.red[700],
+    codeLineEllipsis: COLORS.blueGrey[300],
+    codeLineEllipsisHover: secondary.dark,
     codeLineLocationMarker: COLORS.red[900],
     codeLineLocationMarkerSelected: COLORS.red[900],
+    codeLineIssueMessageTooltip: COLORS.blueGrey[25],
 
     // code snippet
     codeSnippetHighlight: danger.default,

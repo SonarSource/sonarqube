@@ -27,6 +27,7 @@ export { ChevronRightIcon } from './ChevronRightIcon';
 export { ClockIcon } from './ClockIcon';
 export { CodeSmellIcon } from './CodeSmellIcon';
 export { CommentIcon } from './CommentIcon';
+export { CopyIcon } from './CopyIcon';
 export { DirectoryIcon } from './DirectoryIcon';
 export { ExecutionFlowIcon } from './ExecutionFlowIcon';
 export { FileIcon } from './FileIcon';

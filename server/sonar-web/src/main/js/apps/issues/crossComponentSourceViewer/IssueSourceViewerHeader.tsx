@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import {
+  ChevronRightIcon,
+  CopyIcon,
+  DeferredSpinner,
+  HoverLink,
+  InteractiveIcon,
+  LightLabel,
+  Link,
+  ThemeProp,
+  UnfoldIcon,
+  themeColor,
+  withTheme,
+} from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
-import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Tooltip from '../../../components/controls/Tooltip';
+import { ClipboardBase } from '../../../components/controls/clipboard';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
@@ -33,6 +43,8 @@ import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
 import './IssueSourceViewerHeader.css';
+
+export const INTERACTIVE_TOOLTIP_DELAY = 0.5;
 
 export interface Props {
   branchLike: BranchLike | undefined;
@@ -45,7 +57,7 @@ export interface Props {
   sourceViewerFile: SourceViewerFile;
 }
 
-export default function IssueSourceViewerHeader(props: Props) {
+function IssueSourceViewerHeader(props: Props & ThemeProp) {
   const {
     branchLike,
     className,
@@ -55,64 +67,83 @@ export default function IssueSourceViewerHeader(props: Props) {
     loading,
     onExpand,
     sourceViewerFile,
+    theme,
   } = props;
   const { measures, path, project, projectName, q } = sourceViewerFile;
 
-  const projectNameLabel = (
-    <>
-      <QualifierIcon qualifier={ComponentQualifier.Project} /> <span>{projectName}</span>
-    </>
-  );
-
   const isProjectRoot = q === ComponentQualifier.Project;
 
+  const borderColor = themeColor('codeLineBorder')({ theme });
+
+  const IssueSourceViewerStyle = styled.div`
+    border: 1px solid ${borderColor};
+    border-bottom: none;
+  `;
+
   return (
-    <div
+    <IssueSourceViewerStyle
       className={classNames(
-        'issue-source-viewer-header display-flex-row display-flex-space-between',
+        'sw-flex sw-justify-space-between sw-items-center sw-px-4 sw-py-3 sw-text-sm',
         className
       )}
       role="separator"
       aria-label={sourceViewerFile.path}
     >
-      <div className="display-flex-center flex-1">
+      <div className="sw-flex-1">
         {displayProjectName && (
-          <div className="spacer-right">
+          <>
             {linkToProject ? (
-              <a
-                className="link-no-underline"
-                href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}
+              <HoverLink
+                to={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}
+                className="sw-mr-2"
               >
-                {projectNameLabel}
-              </a>
+                <LightLabel>{projectName}</LightLabel>
+              </HoverLink>
             ) : (
-              projectNameLabel
+              <LightLabel className="sw-ml-1 sw-mr-2">{projectName}</LightLabel>
             )}
-          </div>
+          </>
         )}
 
         {!isProjectRoot && (
           <>
-            <div className="spacer-right">
-              <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
-              <span className="component-name-file">{fileFromPath(path)}</span>
-            </div>
+            {displayProjectName && <ChevronRightIcon className="sw-mr-2" />}
+            <LightLabel>
+              {collapsedDirFromPath(path)}
+              {fileFromPath(path)}
+            </LightLabel>
 
-            <div className="spacer-right">
-              <ClipboardIconButton
-                className="button-link link-no-underline"
-                copyValue={path}
-                aria-label={translate('source_viewer.click_to_copy_filepath')}
-              />
-            </div>
+            <ClipboardBase>
+              {({ setCopyButton, copySuccess }) => {
+                return (
+                  <Tooltip
+                    mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
+                    overlay={
+                      <div className="sw-w-abs-150 sw-text-center">
+                        {translate(copySuccess ? 'copied_action' : 'copy_to_clipboard')}
+                      </div>
+                    }
+                    {...(copySuccess ? { visible: copySuccess } : undefined)}
+                  >
+                    <InteractiveIcon
+                      Icon={CopyIcon}
+                      aria-label={translate('source_viewer.click_to_copy_filepath')}
+                      data-clipboard-text={path}
+                      className="sw-h-6 sw-mr-2"
+                      innerRef={setCopyButton}
+                    />
+                  </Tooltip>
+                );
+              }}
+            </ClipboardBase>
           </>
         )}
       </div>
 
       {!isProjectRoot && measures.issues !== undefined && (
         <div
-          className={classNames('flex-0 big-spacer-left', {
-            'little-spacer-right': !expandable || loading,
+          className={classNames('sw-ml-4', {
+            'sw-mr-1': !expandable || loading,
           })}
         >
           <Link
@@ -127,19 +158,20 @@ export default function IssueSourceViewerHeader(props: Props) {
         </div>
       )}
 
-      {expandable && (
-        <DeferredSpinner className="little-spacer-right" loading={loading}>
-          <div className="flex-0 big-spacer-left">
-            <ButtonIcon
-              aria-label={translate('source_viewer.expand_all_lines')}
-              className="js-actions"
-              onClick={onExpand}
-            >
-              <ExpandSnippetIcon />
-            </ButtonIcon>
-          </div>
-        </DeferredSpinner>
+      <DeferredSpinner className="sw-mr-1" loading={loading} />
+
+      {expandable && !loading && (
+        <div className="sw-ml-4">
+          <InteractiveIcon
+            Icon={UnfoldIcon}
+            aria-label={translate('source_viewer.expand_all_lines')}
+            className="sw-h-6"
+            onClick={onExpand}
+          />
+        </div>
       )}
-    </div>
+    </IssueSourceViewerStyle>
   );
 }
+
+export default withTheme(IssueSourceViewerHeader);

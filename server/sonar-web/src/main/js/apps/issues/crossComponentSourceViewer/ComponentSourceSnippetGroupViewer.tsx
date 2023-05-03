@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../api/components';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import IssueMessageBox from '../../../components/issue/IssueMessageBox';
-import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -273,20 +274,26 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     return (
       <>
         {issueIsClosed && (
-          <Alert variant="success">
-            <FormattedMessage
-              id={closedIssueMessageKey}
-              defaultMessage={translate(closedIssueMessageKey)}
-              values={{
-                status: (
-                  <strong>
-                    {translate('issue.status', issue.status)} (
-                    {issue.resolution ? translate('issue.resolution', issue.resolution) : '-'})
-                  </strong>
-                ),
-              }}
-            />
-          </Alert>
+          <FlagMessage
+            className="sw-mb-2 sw-flex"
+            variant="success"
+            ariaLabel={translate(closedIssueMessageKey)}
+          >
+            <div className="sw-block">
+              <FormattedMessage
+                id={closedIssueMessageKey}
+                defaultMessage={translate(closedIssueMessageKey)}
+                values={{
+                  status: (
+                    <strong>
+                      {translate('issue.status', issue.status)} (
+                      {issue.resolution ? translate('issue.resolution', issue.resolution) : '-'})
+                    </strong>
+                  ),
+                }}
+              />
+            </div>
+          </FlagMessage>
         )}
 
         <IssueSourceViewerHeader
@@ -337,6 +344,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             onLocationSelect={this.props.onLocationSelect}
             renderDuplicationPopup={this.renderDuplicationPopup}
             snippet={snippet}
+            className={classNames({ 'sw-mt-2': index !== 0 })}
           />
         ))}
       </>

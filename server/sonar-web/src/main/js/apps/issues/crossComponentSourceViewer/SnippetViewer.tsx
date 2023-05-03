@@ -18,6 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import {
+  CodeViewerExpander,
+  ThemeProp,
+  UnfoldDownIcon,
+  UnfoldUpIcon,
+  themeColor,
+  withTheme,
+} from 'design-system';
 import * as React from 'react';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
@@ -26,7 +34,6 @@ import {
   optimizeHighlightedSymbols,
   optimizeLocationMessage,
 } from '../../../components/SourceViewer/helpers/lines';
-import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
 import { translate } from '../../../helpers/l10n';
 import {
   Duplication,
@@ -40,7 +47,7 @@ import {
 import './SnippetViewer.css';
 import { LINES_BELOW_ISSUE } from './utils';
 
-interface Props {
+export interface SnippetViewerProps {
   component: SourceViewerFile;
   displayLineNumberOptions?: boolean;
   displaySCM?: boolean;
@@ -60,9 +67,10 @@ interface Props {
   renderAdditionalChildInLine?: (line: SourceLine) => React.ReactNode | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   snippet: SourceLine[];
+  className?: string;
 }
 
-export default class SnippetViewer extends React.PureComponent<Props> {
+class SnippetViewer extends React.PureComponent<SnippetViewerProps & ThemeProp> {
   expandBlock = (direction: ExpandDirection) => () =>
     this.props.expandBlock(this.props.index, direction);
 
@@ -136,8 +144,16 @@ export default class SnippetViewer extends React.PureComponent<Props> {
   }
 
   render() {
-    const { component, displaySCM, issue, lastSnippetOfLastGroup, locationsByLine, snippet } =
-      this.props;
+    const {
+      component,
+      displaySCM,
+      issue,
+      lastSnippetOfLastGroup,
+      locationsByLine,
+      snippet,
+      theme,
+      className,
+    } = this.props;
     const lastLine =
       component.measures && component.measures.lines && parseInt(component.measures.lines, 10);
 
@@ -154,26 +170,24 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     const displayDuplications =
       Boolean(this.props.loadDuplications) && snippet.some((s) => !!s.duplicated);
 
+    const borderColor = themeColor('codeLineBorder')({ theme });
+
     return (
-      <div className="source-viewer-code snippet">
+      <div
+        className={classNames('source-viewer-code', className)}
+        style={{ border: `1px solid ${borderColor}` }}
+      >
         <div>
           {snippet[0].line > 1 && (
-            <div className="expand-block expand-block-above">
-              <button
-                aria-label={translate('source_viewer.expand_above')}
-                onClick={this.expandBlock('up')}
-                type="button"
-              >
-                <ExpandSnippetIcon />
-              </button>
-            </div>
+            <CodeViewerExpander
+              direction="UP"
+              className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
+              onClick={this.expandBlock('up')}
+            >
+              <UnfoldUpIcon aria-label={translate('source_viewer.expand_above')} />
+            </CodeViewerExpander>
           )}
-          <table
-            className={classNames('source-table', {
-              'expand-up': snippet[0].line > 1,
-              'expand-down': !lastLine || snippet[snippet.length - 1].line < lastLine,
-            })}
-          >
+          <table>
             <tbody>
               {snippet.map((line, index) =>
                 this.renderLine({
@@ -190,18 +204,18 @@ export default class SnippetViewer extends React.PureComponent<Props> {
             </tbody>
           </table>
           {(!lastLine || snippet[snippet.length - 1].line < lastLine) && (
-            <div className="expand-block expand-block-below">
-              <button
-                aria-label={translate('source_viewer.expand_below')}
-                onClick={this.expandBlock('down')}
-                type="button"
-              >
-                <ExpandSnippetIcon />
-              </button>
-            </div>
+            <CodeViewerExpander
+              className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
+              onClick={this.expandBlock('down')}
+              direction="DOWN"
+            >
+              <UnfoldDownIcon aria-label={translate('source_viewer.expand_below')} />
+            </CodeViewerExpander>
           )}
         </div>
       </div>
     );
   }
 }
+
+export default withTheme(SnippetViewer);

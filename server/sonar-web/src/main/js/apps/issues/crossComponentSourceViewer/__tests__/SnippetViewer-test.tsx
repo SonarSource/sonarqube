@@ -24,7 +24,7 @@ import { byRole } from 'testing-library-selector';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import SnippetViewer from '../SnippetViewer';
+import SnippetViewer, { SnippetViewerProps } from '../SnippetViewer';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -91,7 +91,7 @@ it('should render additional child in line', () => {
   expect(screen.getByTestId('additional-child')).toBeInTheDocument();
 });
 
-function renderSnippetViewer(props: Partial<SnippetViewer['props']> = {}) {
+function renderSnippetViewer(props: Partial<SnippetViewerProps> = {}) {
   return renderComponent(
     <SnippetViewer
       component={mockSourceViewerFile()}

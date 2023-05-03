@@ -26,7 +26,7 @@ import IssueSourceViewerHeader, { Props } from '../IssueSourceViewerHeader';
 
 const ui = {
   expandAllLines: byRole('button', { name: 'source_viewer.expand_all_lines' }),
-  projectLink: byRole('link', { name: 'qualifier.TRK MyProject' }),
+  projectLink: byRole('link', { name: 'MyProject' }),
   projectName: byText('MyProject'),
   viewAllIssues: byRole('link', { name: 'source_viewer.view_all_issues' }),
 };
