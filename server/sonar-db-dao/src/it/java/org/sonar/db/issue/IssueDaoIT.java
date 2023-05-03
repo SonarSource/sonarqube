@@ -122,6 +122,8 @@ public class IssueDaoIT {
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
     assertThat(issue.isExternal()).isTrue();
+    assertThat(issue.getTags()).containsOnly("tag1", "tag2");
+    assertThat(issue.getCodeVariants()).containsOnly("variant1", "variant2");
     assertFalse(issue.isQuickFixAvailable());
   }
 
@@ -590,6 +592,8 @@ public class IssueDaoIT {
     dto.setIssueCreationTime(1_450_000_000_000L);
     dto.setIssueUpdateTime(1_450_000_000_000L);
     dto.setIssueCloseTime(1_450_000_000_000L);
+    dto.setTags(Set.of("tag1", "tag2"));
+    dto.setCodeVariants(Set.of("variant1", "variant2"));
     return dto;
   }
 

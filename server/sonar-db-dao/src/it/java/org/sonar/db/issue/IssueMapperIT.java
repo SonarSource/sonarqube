@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.apache.ibatis.session.ResultContext;
@@ -108,6 +109,8 @@ public class IssueMapperIT {
     assertThat(result.getIssueCloseTime()).isEqualTo(1_403_000_000_000L);
     assertThat(result.getCreatedAt()).isEqualTo(1_400_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_500_000_000_000L);
+    assertThat(result.getTags()).containsOnly("tag1", "tag2");
+    assertThat(result.getCodeVariants()).containsOnly("variant1", "variant2");
   }
 
   @Test
@@ -132,6 +135,8 @@ public class IssueMapperIT {
     update.setAssigneeUuid("karadoc");
     update.setChecksum("123456789");
     update.setMessage("the message");
+    update.setTags(Set.of("tag3", "tag4"));
+    update.setCodeVariants(Set.of("variant3", "variant4"));
 
     update.setIssueCreationTime(1_550_000_000_000L);
     update.setIssueUpdateTime(1_550_000_000_000L);
@@ -165,6 +170,8 @@ public class IssueMapperIT {
     assertThat(result.getIssueCloseTime()).isEqualTo(1_550_000_000_000L);
     assertThat(result.getCreatedAt()).isEqualTo(1_400_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_550_000_000_000L);
+    assertThat(result.getTags()).containsOnly("tag3", "tag4");
+    assertThat(result.getCodeVariants()).containsOnly("variant3", "variant4");
   }
 
   @Test
@@ -178,7 +185,9 @@ public class IssueMapperIT {
       .setGap(1.12d)
       .setEffort(50L)
       .setIssueUpdateTime(1_600_000_000_000L)
-      .setUpdatedAt(1_600_000_000_000L);
+      .setUpdatedAt(1_600_000_000_000L)
+      .setTags(Set.of("tag2", "tag3"))
+      .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected after last update -> ok
     dto.setSelectedAt(1500000000000L);
@@ -196,6 +205,8 @@ public class IssueMapperIT {
     assertThat(result.getEffort()).isEqualTo(50L);
     assertThat(result.getIssueUpdateTime()).isEqualTo(1_600_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_600_000_000_000L);
+    assertThat(result.getTags()).containsOnly("tag2", "tag3");
+    assertThat(result.getCodeVariants()).containsOnly("variant2", "variant3");
   }
 
   @Test
@@ -209,7 +220,9 @@ public class IssueMapperIT {
       .setGap(1.12d)
       .setEffort(50L)
       .setIssueUpdateTime(1_600_000_000_000L)
-      .setUpdatedAt(1_600_000_000_000L);
+      .setUpdatedAt(1_600_000_000_000L)
+      .setTags(Set.of("tag2", "tag3"))
+      .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected before last update -> ko
     dto.setSelectedAt(1400000000000L);
@@ -228,6 +241,8 @@ public class IssueMapperIT {
     assertThat(result.getEffort()).isEqualTo(10L);
     assertThat(result.getIssueUpdateTime()).isEqualTo(1_402_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_500_000_000_000L);
+    assertThat(result.getTags()).containsOnly("tag1", "tag2");
+    assertThat(result.getCodeVariants()).containsOnly("variant1", "variant2");
   }
 
   @Test
@@ -539,7 +554,9 @@ public class IssueMapperIT {
       .setIssueUpdateTime(1_402_000_000_000L)
       .setIssueCloseTime(1_403_000_000_000L)
       .setCreatedAt(1_400_000_000_000L)
-      .setUpdatedAt(1_500_000_000_000L);
+      .setUpdatedAt(1_500_000_000_000L)
+      .setTags(Set.of("tag1", "tag2"))
+      .setCodeVariants(Set.of("variant1", "variant2"));
   }
 
   private static class RecorderResultHandler implements ResultHandler<IssueDto> {

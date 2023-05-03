@@ -77,6 +77,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String authorLogin = null;
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
+  private Set<String> codeVariants = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
@@ -653,7 +654,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public Set<String> tags() {
     if (tags == null) {
-      return ImmutableSet.of();
+      return Set.of();
     } else {
       return ImmutableSet.copyOf(tags);
     }
@@ -661,6 +662,20 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setTags(Collection<String> tags) {
     this.tags = new LinkedHashSet<>(tags);
+    return this;
+  }
+
+  @Override
+  public Set<String> codeVariants() {
+    if (codeVariants == null) {
+      return Set.of();
+    } else {
+      return ImmutableSet.copyOf(codeVariants);
+    }
+  }
+
+  public DefaultIssue setCodeVariants(Collection<String> codeVariants) {
+    this.codeVariants = new LinkedHashSet<>(codeVariants);
     return this;
   }
 

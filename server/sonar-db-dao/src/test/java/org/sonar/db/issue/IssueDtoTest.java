@@ -145,6 +145,39 @@ public class IssueDtoTest {
   }
 
   @Test
+  public void setCodeVariants_shouldReturnCodeVariants() {
+    IssueDto dto = new IssueDto();
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+
+    dto.setCodeVariants(Arrays.asList("variant1", "variant2", "variant3"));
+    assertThat(dto.getCodeVariants()).containsOnly("variant1", "variant2", "variant3");
+    assertThat(dto.getCodeVariantsString()).isEqualTo("variant1,variant2,variant3");
+
+    dto.setCodeVariants(null);
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+
+    dto.setCodeVariants(List.of());
+    assertThat(dto.getCodeVariants()).isEmpty();
+    assertThat(dto.getCodeVariantsString()).isNull();
+  }
+
+  @Test
+  public void setCodeVariantsString_shouldReturnCodeVariants() {
+    IssueDto dto = new IssueDto();
+
+    dto.setCodeVariantsString("variant1, variant2 ,,variant4");
+    assertThat(dto.getCodeVariants()).containsOnly("variant1", "variant2", "variant4");
+
+    dto.setCodeVariantsString(null);
+    assertThat(dto.getCodeVariants()).isEmpty();
+
+    dto.setCodeVariantsString("");
+    assertThat(dto.getCodeVariants()).isEmpty();
+  }
+
+  @Test
   public void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
     long now = System.currentTimeMillis();
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
@@ -162,8 +195,8 @@ public class IssueDtoTest {
       IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
@@ -193,8 +226,8 @@ public class IssueDtoTest {
       IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
@@ -233,7 +266,8 @@ public class IssueDtoTest {
       .setSelectedAt(dateNow.getTime())
       .setQuickFixAvailable(true)
       .setIsNewCodeReferenceIssue(true)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setCodeVariants(List.of("variant1", "variant2"));
     return defaultIssue;
   }
 }

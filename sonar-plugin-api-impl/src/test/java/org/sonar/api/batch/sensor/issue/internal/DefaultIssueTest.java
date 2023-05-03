@@ -79,7 +79,8 @@ public class DefaultIssueTest {
         .message("Wrong way!"))
       .forRule(RULE_KEY)
       .gap(10.0)
-      .setRuleDescriptionContextKey("spring");
+      .setRuleDescriptionContextKey("spring")
+      .setCodeVariants(List.of("variant1", "variant2"));
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
@@ -87,6 +88,7 @@ public class DefaultIssueTest {
     assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
     assertThat(issue.ruleDescriptionContextKey()).contains("spring");
+    assertThat(issue.codeVariants()).containsOnly("variant1", "variant2");
 
     issue.save();
 

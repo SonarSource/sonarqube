@@ -39,6 +39,7 @@
     i.project_uuid as projectUuid,
     i.issue_type as type,
     i.quick_fix_available as quickFixAvailable,
+    i.code_variants as codeVariantsString,
     <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
@@ -68,7 +69,8 @@
     i.component_uuid,
     i.project_uuid,
     i.issue_type,
-    i.quick_fix_available
+    i.quick_fix_available,
+    i.code_variants
   </sql>
 
   <sql id="isNewCodeReferenceIssue" databaseId="mssql">
@@ -110,7 +112,7 @@
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -130,7 +132,8 @@
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
-    #{quickFixAvailable, jdbcType=BOOLEAN})
+    #{quickFixAvailable, jdbcType=BOOLEAN},
+    #{codeVariantsString,jdbcType=VARCHAR})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -171,7 +174,8 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER}
+    issue_type=#{type,jdbcType=INTEGER},
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR}
     where kee = #{kee}
   </update>
 
@@ -201,7 +205,8 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER}
+    issue_type=#{type,jdbcType=INTEGER},
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -709,4 +714,3 @@
   </select>
 
 </mapper>
-

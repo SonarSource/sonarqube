@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -43,6 +44,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   private Severity overriddenSeverity;
   private boolean quickFixAvailable = false;
   private String ruleDescriptionContextKey;
+  private List<String> codeVariants;
 
   public DefaultIssue(DefaultInputProject project) {
     this(project, null);
@@ -98,6 +100,16 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public DefaultIssue setCodeVariants(@Nullable Iterable<String> codeVariants) {
+    if (codeVariants != null) {
+      List<String> codeVariantsList = new ArrayList<>();
+      codeVariants.forEach(codeVariantsList::add);
+      this.codeVariants = codeVariantsList;
+    }
+    return this;
+  }
+
+  @Override
   public boolean isQuickFixAvailable() {
     return quickFixAvailable;
   }
@@ -110,6 +122,11 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   @Override
   public List<QuickFix> quickFixes() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<String> codeVariants() {
+    return codeVariants;
   }
 
   @Override

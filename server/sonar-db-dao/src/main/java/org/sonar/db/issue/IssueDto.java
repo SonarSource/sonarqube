@@ -48,9 +48,9 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 public final class IssueDto implements Serializable {
 
   public static final int AUTHOR_MAX_SIZE = 255;
-  private static final char TAGS_SEPARATOR = ',';
-  private static final Joiner TAGS_JOINER = Joiner.on(TAGS_SEPARATOR).skipNulls();
-  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private static final char STRING_LIST_SEPARATOR = ',';
+  private static final Joiner STRING_LIST_JOINER = Joiner.on(STRING_LIST_SEPARATOR).skipNulls();
+  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private int type;
   private String kee;
@@ -97,6 +97,7 @@ public final class IssueDto implements Serializable {
   private String projectKey;
   private String filePath;
   private String tags;
+  private String codeVariants;
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
 
@@ -139,6 +140,7 @@ public final class IssueDto implements Serializable {
       .setSelectedAt(issue.selectedAt())
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
+      .setCodeVariants(issue.codeVariants())
 
       // technical dates
       .setCreatedAt(now)
@@ -186,6 +188,7 @@ public final class IssueDto implements Serializable {
       .setSelectedAt(issue.selectedAt())
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
+      .setCodeVariants(issue.codeVariants())
 
       // technical date
       .setUpdatedAt(now);
@@ -625,14 +628,14 @@ public final class IssueDto implements Serializable {
   }
 
   public Set<String> getTags() {
-    return ImmutableSet.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags));
+    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(tags == null ? "" : tags));
   }
 
   public IssueDto setTags(@Nullable Collection<String> tags) {
     if (tags == null || tags.isEmpty()) {
       setTagsString(null);
     } else {
-      setTagsString(TAGS_JOINER.join(tags));
+      setTagsString(STRING_LIST_JOINER.join(tags));
     }
     return this;
   }
@@ -645,6 +648,30 @@ public final class IssueDto implements Serializable {
 
   public String getTagsString() {
     return tags;
+  }
+
+  public Set<String> getCodeVariants() {
+    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(codeVariants == null ? "" : codeVariants));
+  }
+
+  public String getCodeVariantsString() {
+    return codeVariants;
+  }
+
+  public IssueDto setCodeVariants(@Nullable Collection<String> codeVariants) {
+    if (codeVariants == null || codeVariants.isEmpty()) {
+      setCodeVariantsString(null);
+    } else {
+      setCodeVariantsString(STRING_LIST_JOINER.join(codeVariants));
+    }
+    return this;
+  }
+
+  public IssueDto setCodeVariantsString(@Nullable String codeVariants) {
+    checkArgument(codeVariants == null || codeVariants.length() <= 4000,
+      "Value is too long for column ISSUES.CODE_VARIANTS: %codeVariants", codeVariants);
+    this.codeVariants = codeVariants;
+    return this;
   }
 
   @CheckForNull
@@ -761,6 +788,7 @@ public final class IssueDto implements Serializable {
     issue.setIsFromExternalRuleEngine(isExternal);
     issue.setQuickFixAvailable(quickFixAvailable);
     issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
+    issue.setCodeVariants(getCodeVariants());
     return issue;
   }
 }
