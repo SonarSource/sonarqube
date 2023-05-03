@@ -317,6 +317,13 @@
     </choose>
   </select>
 
+  <select id="selectBranchOrphanIssues" parameterType="map">
+    select i.kee from issues i
+    left outer join components c on i.component_uuid = c.uuid
+    where i.project_uuid = #{branchUuid,jdbcType=VARCHAR} and c.kee is null
+  </select>
+
+
   <select id="selectDisabledComponentsWithoutIssues" resultType="String" parameterType="String">
     SELECT
       p.uuid

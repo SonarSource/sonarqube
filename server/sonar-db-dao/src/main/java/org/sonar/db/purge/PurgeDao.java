@@ -67,6 +67,7 @@ public class PurgeDao implements Dao {
     purgeAnalyses(commands, rootUuid);
     purgeDisabledComponents(commands, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
+    deleteOrphanIssues(mapper, rootUuid);
     purgeOldCeActivities(rootUuid, commands);
     purgeOldCeScannerContexts(rootUuid, commands);
 
@@ -106,10 +107,21 @@ public class PurgeDao implements Dao {
     commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener);
   }
 
+  private static void deleteOrphanIssues(PurgeMapper mapper, String rootUuid) {
+    LOG.debug("<- Delete orphan issues");
+    List<String> issueKeys = mapper.selectBranchOrphanIssues(rootUuid);
+    deleteIssues(mapper, issueKeys);
+  }
+
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
     String rootUuid = conf.rootUuid();
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(rootUuid, dateToLong(toDate));
+    deleteIssues(mapper, issueKeys);
+    listener.onIssuesRemoval(rootUuid, issueKeys);
+  }
+
+  private static void deleteIssues(PurgeMapper mapper, Collection<String> issueKeys) {
     executeLargeInputs(issueKeys, input -> {
       mapper.deleteIssueChangesFromIssueKeys(input);
       return emptyList();
@@ -124,7 +136,6 @@ public class PurgeDao implements Dao {
       mapper.deleteIssuesFromKeys(input);
       return emptyList();
     });
-    listener.onIssuesRemoval(rootUuid, issueKeys);
   }
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {

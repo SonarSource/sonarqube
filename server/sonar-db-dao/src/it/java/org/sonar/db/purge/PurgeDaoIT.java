@@ -1132,6 +1132,27 @@ public class PurgeDaoIT {
   }
 
   @Test
+  public void purge_shouldDeleteOrphanIssues() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
+
+    IssueDto issue1 = db.issues().insert(rule, project, file);
+    IssueDto orphanIssue = db.issues().insert(rule, project, file, issue -> issue.setComponentUuid("nonExisting"));
+    IssueChangeDto orphanIssueChange = db.issues().insertChange(orphanIssue);
+    db.issues().insertNewCodeReferenceIssue(orphanIssue);
+
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    db.commit();
+
+    assertThat(db.countRowsOfTable("issue_changes")).isZero();
+    assertThat(db.countRowsOfTable("new_code_reference_issues")).isZero();
+    assertThat(db.select("select kee as \"KEE\" from issues")).extracting(i -> i.get("KEE")).containsOnly(issue1.getKey());
+  }
+
+  @Test
   public void should_delete_old_closed_issues() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
