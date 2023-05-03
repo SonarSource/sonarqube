@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -59,7 +58,6 @@ import org.sonarqube.ws.Components.TreeWsResponse;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
@@ -121,6 +119,7 @@ public class TreeAction implements ComponentsWsAction {
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
+        new Change("10.1", String.format("The use of 'BRC' as value for parameter '%s' is removed", PARAM_QUALIFIERS)),
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this)

@@ -101,7 +101,7 @@ public class SearchActionIT {
       .extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
         tuple("8.4", "Param 'language' has been removed"),
-        tuple("8.4", "The use of 'DIR','FIL','UTS' as values for parameter 'qualifiers' is no longer supported"),
+        tuple("8.4", "The use of 'DIR','FIL','UTS' and 'BRC' as values for parameter 'qualifiers' is no longer supported"),
         tuple("8.0", "Field 'id' from response has been removed"),
         tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
     assertThat(action.responseExampleAsString()).isNotEmpty();

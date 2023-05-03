@@ -71,6 +71,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -178,6 +179,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.1", String.format("The use of 'BRC' as value for parameter '%s' is removed", ComponentsWsParameters.PARAM_QUALIFIERS)),
         new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
           MeasuresWsModule.getDeprecatedMetrics())),
         new Change("10.0", "the response field periods under measures field is removed."),

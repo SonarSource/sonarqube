@@ -26,8 +26,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -46,6 +49,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
@@ -64,7 +68,6 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -102,9 +105,13 @@ public class ComponentTreeActionIT {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final I18nRule i18n = new I18nRule();
+
+  private final ResourceTypes defaultResourceTypes = new ResourceTypes(new ResourceTypeTree[]{DefaultResourceTypes.get()});
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule()
-    .setRootQualifiers(PROJECT)
+    .setRootQualifiers(defaultResourceTypes.getRoots())
+    .setAllQualifiers(defaultResourceTypes.getAll())
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
+
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
@@ -1057,6 +1064,23 @@ public class ComponentTreeActionIT {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+  }
+
+  @Test
+  public void doHandle_whenPassingUnexpectedQualifier_shouldThrowException(){
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, BranchDto.DEFAULT_MAIN_BRANCH_NAME)
+      .setParam(PARAM_QUALIFIERS, "BRC")
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey());
+
+    assertThatThrownBy(()->testRequest.execute()).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'qualifiers' (BRC) must be one of: [UTS, FIL, DIR, TRK]");
   }
 
   private static MetricDto newMetricDto() {

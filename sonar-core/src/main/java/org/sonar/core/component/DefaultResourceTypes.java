@@ -33,6 +33,7 @@ public final class DefaultResourceTypes {
 
   private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
+  public static final String IGNORED = "ignored";
 
   private DefaultResourceTypes() {
     // only static methods
@@ -51,6 +52,7 @@ public final class DefaultResourceTypes {
       .addType(ResourceType.builder(Qualifiers.MODULE)
         .setProperty(UPDATABLE_KEY, true)
         .setProperty(CONFIGURABLE, true)
+        .setProperty(IGNORED, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.DIRECTORY)
         .build())

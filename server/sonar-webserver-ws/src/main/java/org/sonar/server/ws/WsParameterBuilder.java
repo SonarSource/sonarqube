@@ -85,6 +85,7 @@ public class WsParameterBuilder {
 
   private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
     return resourceTypes.getAll().stream()
+      .filter(r -> !r.getBooleanProperty("ignored"))
       .map(ResourceType::getQualifier)
       .collect(Collectors.toCollection(TreeSet::new));
   }
