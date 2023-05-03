@@ -112,6 +112,7 @@ const ui = {
     saveGithubProvisioning: byRole('button', { name: 'save' }),
     groupAttribute: byRole('textbox', { name: 'property.sonar.auth.github.group.name.name' }),
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
+    disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
     editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
     enableFirstMessage: byText('settings.authentication.github.enable_first'),
     jitProvisioningButton: byRole('radio', {
@@ -125,8 +126,6 @@ const ui = {
       await act(async () => {
         await user.type(await github.clientId.find(), 'Awsome GITHUB config');
         await user.type(github.clientSecret.get(), 'Client shut');
-        // await user.type(github.githubAppId.get(), 'http://test.org');
-        // await user.type(github.privateKey.get(), '-secret-');
         await user.type(github.githubApiUrl.get(), 'API Url');
         await user.type(github.githubWebUrl.get(), 'WEb Url');
       });
@@ -284,20 +283,33 @@ describe('Github tab', () => {
   });
 
   it('should be able to enable/disable configuration', async () => {
-    const { github, saml } = ui;
+    const { github } = ui;
     const user = userEvent.setup();
     renderAuthentication();
     await user.click(await github.tab.find());
 
     await github.createConfiguration(user);
 
-    await user.click(await saml.enableConfigButton.find());
+    await user.click(await github.enableConfigButton.find());
 
-    expect(await saml.disableConfigButton.find()).toBeInTheDocument();
-    await user.click(saml.disableConfigButton.get());
-    expect(saml.disableConfigButton.query()).not.toBeInTheDocument();
+    expect(await github.disableConfigButton.find()).toBeInTheDocument();
+    await user.click(github.disableConfigButton.get());
+    expect(github.disableConfigButton.query()).not.toBeInTheDocument();
 
-    expect(await saml.enableConfigButton.find()).toBeInTheDocument();
+    expect(await github.enableConfigButton.find()).toBeInTheDocument();
+  });
+
+  it('should not allow edtion below Enterprise to select Github provisioning', async () => {
+    const { github } = ui;
+    const user = userEvent.setup();
+
+    renderAuthentication();
+
+    await github.createConfiguration(user);
+    await user.click(await github.enableConfigButton.find());
+
+    expect(await github.jitProvisioningButton.find()).toBeChecked();
+    expect(github.githubProvisioningButton.get()).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should be able to choose provisioning', async () => {
