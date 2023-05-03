@@ -22,13 +22,12 @@ import * as React from 'react';
 import { getParents } from '../../api/components';
 import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import { isPullRequest } from '../../helpers/branch-like';
-import { scrollToElement } from '../../helpers/scrolling';
 import { BranchLike } from '../../types/branch-like';
 import { Issue, SourceViewerFile } from '../../types/types';
 import SourceViewer from '../SourceViewer/SourceViewer';
-import { ComponentDescriptor } from './context';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
+import { ComponentDescriptor } from './context';
 
 export interface Props extends Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;
@@ -78,12 +77,7 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
         `.source-line[data-line-number="${this.props.component.line}"]`
       );
       if (row) {
-        scrollToElement(row, {
-          smooth: false,
-          parent: this.container,
-          topOffset: 50,
-          bottomOffset: 50,
-        });
+        row.scrollIntoView({ block: 'center' });
       }
     }
   };

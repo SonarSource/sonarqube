@@ -24,7 +24,6 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import { buildSettingLink, isRealSettingKey } from '../utils';
@@ -46,15 +45,10 @@ export interface SettingsSearchRendererProps {
 export default function SettingsSearchRenderer(props: SettingsSearchRendererProps) {
   const { className, component, results, searchQuery, selectedResult, showResults } = props;
 
-  const scrollableNodeRef = React.useRef(null);
   const selectedNodeRef = React.useRef<HTMLLIElement>(null);
 
   React.useEffect(() => {
-    const parent = scrollableNodeRef.current;
-    const selectedNode = selectedNodeRef.current;
-    if (selectedNode && parent) {
-      scrollToElement(selectedNode, { topOffset: 30, bottomOffset: 30, parent });
-    }
+    selectedNodeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   });
 
   return (
@@ -72,7 +66,6 @@ export default function SettingsSearchRenderer(props: SettingsSearchRendererProp
             <ul
               className="settings-search-results menu"
               title={translate('settings.search.results')}
-              ref={scrollableNodeRef}
             >
               {results && results.length > 0 ? (
                 results.map((r) => (

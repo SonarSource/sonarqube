@@ -19,14 +19,13 @@
  */
 import { throttle } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
+import { Button } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
 import {
@@ -160,12 +159,10 @@ export default class FilesView extends React.PureComponent<Props, State> {
   };
 
   scrollToElement = () => {
-    if (this.listContainer) {
-      const elem = this.listContainer.getElementsByClassName('selected')[0];
-      if (elem) {
-        scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
-      }
-    }
+    this.listContainer?.getElementsByClassName('selected')[0]?.scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    });
   };
 
   render() {

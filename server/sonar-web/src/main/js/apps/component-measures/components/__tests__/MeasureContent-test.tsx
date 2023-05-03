@@ -25,10 +25,6 @@ import { mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MeasureContent from '../MeasureContent';
 
-jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn(),
-}));
-
 jest.mock('../../../../api/components', () => {
   const { mockComponentMeasure } = jest.requireActual('../../../../helpers/mocks/component');
   return {

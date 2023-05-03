@@ -40,7 +40,6 @@ export interface BranchAnalysisListRendererProps {
   onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   range: number;
   registerBadgeNode: (version: string) => (el: HTMLDivElement) => void;
-  registerScrollableNode: (el: HTMLDivElement) => void;
   selectedAnalysisKey: string;
   shouldStick: (version: string) => boolean;
 }
@@ -138,11 +137,7 @@ function BranchAnalysisListRenderer(
         />
       </div>
       <div className="branch-analysis-list-wrapper">
-        <div
-          className="bordered branch-analysis-list"
-          onScroll={props.handleScroll}
-          ref={props.registerScrollableNode}
-        >
+        <div className="bordered branch-analysis-list" onScroll={props.handleScroll}>
           <DeferredSpinner className="big-spacer-top" loading={loading} />
 
           {!loading && !hasFilteredData ? (

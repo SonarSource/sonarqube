@@ -25,10 +25,6 @@ import {
   shouldOpenStandardsFacet,
 } from '../utils';
 
-jest.mock('../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn(),
-}));
-
 beforeEach(() => {
   jest.clearAllMocks();
 });

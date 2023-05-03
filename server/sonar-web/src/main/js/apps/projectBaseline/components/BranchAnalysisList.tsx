@@ -22,7 +22,6 @@ import { throttle } from 'lodash';
 import * as React from 'react';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { Analysis, ParsedAnalysis } from '../../../types/project-activity';
 import { Dict } from '../../../types/types';
 import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
@@ -46,7 +45,6 @@ const STICKY_BADGE_SCROLL_OFFSET = 10;
 export default class BranchAnalysisList extends React.PureComponent<Props, State> {
   mounted = false;
   badges: Dict<HTMLDivElement> = {};
-  scrollableNode?: HTMLDivElement;
   state: State = {
     analyses: [],
     loading: true,
@@ -69,10 +67,10 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
   }
 
   scrollToSelected() {
-    const selectedNode = document.querySelector('.branch-analysis.selected');
-    if (this.scrollableNode && selectedNode) {
-      scrollToElement(selectedNode, { parent: this.scrollableNode, bottomOffset: 40 });
-    }
+    document.querySelector('.branch-analysis.selected')?.scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    });
   }
 
   fetchAnalyses(initial = false) {
@@ -150,9 +148,6 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
         onSelectAnalysis={onSelectAnalysis}
         range={range}
         registerBadgeNode={this.registerBadgeNode}
-        registerScrollableNode={(el) => {
-          this.scrollableNode = el;
-        }}
         selectedAnalysisKey={analysis}
         shouldStick={this.shouldStick}
       />

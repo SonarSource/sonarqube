@@ -20,7 +20,6 @@
 import * as React from 'react';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
@@ -53,29 +52,7 @@ export interface HotspotSnippetContainerRendererProps {
 }
 
 const noop = () => undefined;
-const SCROLL_DELAY = 100;
 const EXPAND_ANIMATION_SPEED = 200;
-
-const TOP_OFFSET = 100; // 5 lines above
-const BOTTOM_OFFSET = 28; // 1 line below + margin
-
-/* Exported for testing */
-export function getScrollHandler(scrollableRef: React.RefObject<HTMLDivElement>) {
-  return (element: Element, offset?: number, smooth = true) => {
-    /* We need this delay to let the parent resize itself before scrolling */
-    setTimeout(() => {
-      const parent = scrollableRef.current;
-      if (parent) {
-        scrollToElement(element, {
-          parent,
-          topOffset: offset ?? TOP_OFFSET,
-          bottomOffset: offset ?? BOTTOM_OFFSET,
-          smooth,
-        });
-      }
-    }, SCROLL_DELAY);
-  };
-}
 
 /* Exported for testing */
 export async function animateExpansion(
@@ -154,7 +131,6 @@ export default function HotspotSnippetContainerRenderer(
       <HotspotPrimaryLocationBox
         hotspot={hotspot}
         onCommentClick={props.onCommentButtonClick}
-        scroll={getScrollHandler(scrollableRef)}
         secondaryLocationSelected={secondaryLocationSelected}
       />
     ),

@@ -20,9 +20,9 @@
 
 import {
   DropdownMenu,
+  INTERACTIVE_TOOLTIP_DELAY,
   InputSearch,
   InteractiveIcon,
-  INTERACTIVE_TOOLTIP_DELAY,
   MenuSearchIcon,
   Popup,
   PopupZLevel,
@@ -40,7 +40,6 @@ import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
@@ -279,11 +278,9 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
       const node = this.nodes[this.state.selected];
 
       if (node && this.node) {
-        // using scrollIntoView here is creating some weird scroll behaviour when scrolling
-        scrollToElement(node, {
-          topOffset: 30,
-          bottomOffset: 30,
-          parent: this.node,
+        node.scrollIntoView({
+          block: 'center',
+          behavior: 'smooth',
         });
       }
     }

@@ -25,7 +25,6 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { isBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
-import { scrollToElement } from '../../helpers/scrolling';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
@@ -90,12 +89,16 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   const scrollableRef = React.useRef(null);
 
   React.useEffect(() => {
-    const parent = scrollableRef.current;
-    const element =
-      selectedHotspot && document.querySelector(`[data-hotspot-key="${selectedHotspot.key}"]`);
-    if (parent && element) {
-      scrollToElement(element, { parent, smooth: true, topOffset: 100, bottomOffset: 100 });
+    if (!selectedHotspot) {
+      return;
     }
+    // Wait for next tick, in case newly selected hotspot is not yet expanded
+    setTimeout(() => {
+      document.querySelector(`[data-hotspot-key="${selectedHotspot.key}"]`)?.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      });
+    });
   }, [selectedHotspot]);
 
   return (

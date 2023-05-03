@@ -29,15 +29,14 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { WebApi } from '../../../types/types';
 import '../styles/web-api.css';
 import {
+  Query,
   getActionKey,
   isDomainPathActive,
   parseQuery,
   parseVersion,
-  Query,
   serializeQuery,
 } from '../utils';
 import Domain from './Domain';
@@ -96,11 +95,9 @@ export class WebApiApp extends React.PureComponent<Props, State> {
   scrollToAction = () => {
     const splat = this.props.params.splat || '';
     const action = document.getElementById(splat);
-    if (action) {
-      scrollToElement(action, { topOffset: 20, bottomOffset: 20 });
-    } else {
-      window.scrollTo(0, 0);
-    }
+    action?.scrollIntoView({
+      block: 'center',
+    });
   };
 
   updateQuery = (newQuery: Partial<Query>) => {

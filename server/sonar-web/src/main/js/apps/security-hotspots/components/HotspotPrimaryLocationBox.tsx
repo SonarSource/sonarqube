@@ -27,11 +27,14 @@ import { Hotspot } from '../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import './HotspotPrimaryLocationBox.css';
 
+const SCROLL_DELAY = 100;
+const SCROLL_TOP_OFFSET = 100; // 5 lines above
+const SCROLL_BOTTOM_OFFSET = 28; // 1 line below + margin
+
 export interface HotspotPrimaryLocationBoxProps {
   hotspot: Hotspot;
   onCommentClick: () => void;
   currentUser: CurrentUser;
-  scroll: (element: HTMLElement, offset?: number) => void;
   secondaryLocationSelected: boolean;
 }
 
@@ -41,11 +44,16 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
   const locationRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const { current } = locationRef;
-    if (current && !secondaryLocationSelected) {
-      props.scroll(current);
+    if (locationRef.current && !secondaryLocationSelected) {
+      // We need this delay to let the parent resize itself before scrolling
+      setTimeout(() => {
+        locationRef.current?.scrollIntoView({
+          block: 'nearest',
+          behavior: 'smooth',
+        });
+      }, SCROLL_DELAY);
     }
-  });
+  }, [locationRef, secondaryLocationSelected]);
 
   return (
     <div
@@ -54,6 +62,10 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
         'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
         `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
       )}
+      style={{
+        scrollMarginTop: `${SCROLL_TOP_OFFSET}px`,
+        scrollMarginBottom: `${SCROLL_BOTTOM_OFFSET}px`,
+      }}
       ref={locationRef}
     >
       <div className="text-bold">

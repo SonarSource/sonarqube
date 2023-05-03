@@ -26,10 +26,6 @@ import { mockIssue } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import SnippetViewer from '../SnippetViewer';
 
-jest.mock('../../../../helpers/scrolling', () => ({
-  scrollHorizontally: jest.fn(),
-}));
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
