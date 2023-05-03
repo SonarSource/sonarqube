@@ -34,28 +34,31 @@ build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
 nightly_task_template: &NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_CRON == $NIGHTLY_99_CRON
 
+master_or_nightly_or_maintenance_task_template: &MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+    only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
+
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_CRON != $NIGHTLY_99_CRON
 
-database_related_nightly_task_template: &DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+database_related_task_template: &DATABASE_RELATED_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_CRON == $NIGHTLY_99_CRON ||
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java', 'server/sonar-db-core/src/main/java/org/sonar/db/*.java')
 
-saml_nightly_task_template: &SAML_NIGHTLY_TASK_TEMPLATE
+saml_task_template: &SAML_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_CRON == $NIGHTLY_99_CRON ||
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-saml/src/main/java/**/*.java', 'server/sonar-auth-saml/src/main/resources/**/*', 'server/sonar-db-dao/src/main/**/SAML*.java', 'private/it-core/src/test/java/org/sonarqube/tests/saml/*.java', 'server/sonar-webserver-webapi/src/main/java/org/sonar/server/saml/**/*.java')
 
-ldap_nightly_task_template: &LDAP_NIGHTLY_TASK_TEMPLATE
+ldap_task_template: &LDAP_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_CRON == $NIGHTLY_99_CRON ||
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-ldap/src/main/java/**/*.java', 'server/sonar-webserver-auth/src/main/java/org/sonar/server/authentication/LdapCredentialsAuthentication.java', 'private/it-core/src/test/java/org/sonarqube/tests/ldap/*.java')
 
-github_nightly_task_template: &GITHUB_NIGHTLY_TASK_TEMPLATE
+github_task_template: &GITHUB_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_CRON == $NIGHTLY_99_CRON ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')    
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')
 
 docker_build_container_template: &CONTAINER_TEMPLATE
   region: eu-central-1
@@ -326,7 +329,6 @@ qa_task:
 task: #bitbucket
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -352,7 +354,6 @@ task: #bitbucket
 qa_bb_cloud_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -372,7 +373,7 @@ qa_bb_cloud_task:
 qa_ha_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
+  <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -390,7 +391,6 @@ qa_ha_task:
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *DEFAULT_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
@@ -441,7 +441,6 @@ qa_gitlab_task:
 qa_gitlab_cloud_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -463,7 +462,6 @@ qa_gitlab_cloud_task:
 qa_azure_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -482,7 +480,7 @@ qa_azure_task:
 qa_github_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *GITHUB_NIGHTLY_TASK_TEMPLATE
+  <<: *GITHUB_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -501,7 +499,7 @@ qa_github_task:
 qa_saml_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *SAML_NIGHTLY_TASK_TEMPLATE
+  <<: *SAML_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -528,7 +526,7 @@ qa_saml_task:
 qa_ldap_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *LDAP_NIGHTLY_TASK_TEMPLATE
+  <<: *LDAP_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -576,7 +574,7 @@ package_docker_task:
 sql_mssql_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -598,7 +596,7 @@ sql_mssql_task:
 sql_postgres_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -613,7 +611,7 @@ sql_postgres_task:
 sql_postgres11_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -628,7 +626,7 @@ sql_postgres11_task:
 sql_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -642,7 +640,7 @@ sql_oracle21_task:
 upgd_mssql_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -668,7 +666,7 @@ upgd_mssql_task:
 upgd_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
