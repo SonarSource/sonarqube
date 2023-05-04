@@ -33,7 +33,7 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys } from '../types/theme';
 import { ChevronDownIcon } from './icons';
 
-export interface LabelValueSelectOption<V = string> {
+export interface LabelValueSelectOption<V> {
   Icon?: ReactNode;
   label: string;
   value: V;
@@ -44,14 +44,16 @@ interface StyleExtensionProps {
 }
 
 type SelectProps<
-  Option = LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 > = NamedProps<Option, IsMulti, Group> & StyleExtensionProps;
 
 function IconOption<
-  Option extends LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: OptionProps<Option, IsMulti, Group>) {
   const {
@@ -69,8 +71,9 @@ function IconOption<
 }
 
 function SingleValue<
-  Option extends LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: OptionProps<Option, IsMulti, Group>) {
   const {
@@ -88,8 +91,9 @@ function SingleValue<
 }
 
 function IndicatorsContainer<
-  Option extends LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: OptionProps<Option, IsMulti, Group>) {
   return (
@@ -102,10 +106,11 @@ function IndicatorsContainer<
 }
 
 export function InputSelect<
-  Option extends LabelValueSelectOption = LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
->({ size = 'medium', ...props }: SelectProps<Option, IsMulti, Group>) {
+>({ size = 'medium', ...props }: SelectProps<V, Option, IsMulti, Group>) {
   return (
     <ReactSelect<Option, IsMulti, Group>
       {...omit(props, 'className', 'large')}
@@ -114,10 +119,11 @@ export function InputSelect<
       classNames={{
         container: () => 'sw-relative sw-inline-block sw-align-middle',
         placeholder: () => 'sw-truncate sw-leading-4',
-        menu: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
+        menu: () => 'sw-w-auto',
+        menuList: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
         control: ({ isDisabled }) =>
           classNames(
-            'sw-absolut sw-box-border sw-rounded-2 sw-mt-1 sw-overflow-hidden sw-z-dropdown-menu',
+            'sw-absolut sw-box-border sw-rounded-2 sw-overflow-hidden sw-z-dropdown-menu',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
         option: ({ isDisabled }) =>
@@ -134,14 +140,15 @@ export function InputSelect<
         IndicatorSeparator: null,
       }}
       isSearchable={props.isSearchable ?? false}
-      styles={selectStyle<Option, IsMulti, Group>({ size })}
+      styles={selectStyle({ size })}
     />
   );
 }
 
 export function selectStyle<
-  Option = LabelValueSelectOption,
-  IsMulti extends boolean = boolean,
+  V,
+  Option extends LabelValueSelectOption<V>,
+  IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >({ size }: { size: InputSizeKeys }): StylesConfig<Option, IsMulti, Group> {
   const theme = themeInfo();

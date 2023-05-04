@@ -20,7 +20,9 @@
 
 export { BranchIcon } from './BranchIcon';
 export { BugIcon } from './BugIcon';
+export { CalendarIcon } from './CalendarIcon';
 export { ChevronDownIcon } from './ChevronDownIcon';
+export { ChevronLeftIcon } from './ChevronLeftIcon';
 export { ChevronRightIcon } from './ChevronRightIcon';
 export { ClockIcon } from './ClockIcon';
 export { CodeSmellIcon } from './CodeSmellIcon';

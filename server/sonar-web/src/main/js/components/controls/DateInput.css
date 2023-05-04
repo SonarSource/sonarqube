@@ -27,7 +27,11 @@
 }
 
 .rdp-day_selected {
-  background-color: var(--blue) !important;
+  background-color: var(--blue);
+}
+
+.rdp-day_selected:hover {
+  background-color: var(--blue);
 }
 
 .date-input-control {

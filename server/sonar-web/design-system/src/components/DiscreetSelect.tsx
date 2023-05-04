@@ -23,16 +23,16 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys } from '../types/theme';
 import { InputSelect, LabelValueSelectOption } from './InputSelect';
 
-interface Props {
+interface Props<V> {
   className?: string;
   customValue?: JSX.Element;
-  options: LabelValueSelectOption[];
-  setValue: ({ value }: LabelValueSelectOption) => void;
+  options: LabelValueSelectOption<V>[];
+  setValue: ({ value }: LabelValueSelectOption<V>) => void;
   size?: InputSizeKeys;
-  value: string;
+  value: V;
 }
 
-export function DiscreetSelect({
+export function DiscreetSelect<V>({
   className,
   customValue,
   options,
@@ -40,7 +40,7 @@ export function DiscreetSelect({
   setValue,
   value,
   ...props
-}: Props) {
+}: Props<V>) {
   return (
     <StyledSelect
       className={className}

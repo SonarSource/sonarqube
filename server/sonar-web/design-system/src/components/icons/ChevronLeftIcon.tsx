@@ -17,35 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import EscKeydownHandler from './EscKeydownHandler';
-import { FocusOutHandler } from './FocusOutHandler';
-import OutsideClickHandler from './OutsideClickHandler';
-import { Popup } from './popups';
 
-type PopupProps = Popup['props'];
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
 
-interface Props extends PopupProps {
-  onRequestClose: VoidFunction;
-  open: boolean;
-}
-
-export function DropdownToggler(props: Props) {
-  const { children, open, onRequestClose, overlay, ...popupProps } = props;
-
+export function ChevronLeftIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+  const theme = useTheme();
   return (
-    <Popup
-      overlay={
-        open ? (
-          <OutsideClickHandler onClickOutside={onRequestClose}>
-            <FocusOutHandler onFocusOut={onRequestClose}>
-              <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>
-            </FocusOutHandler>
-          </OutsideClickHandler>
-        ) : undefined
-      }
-      {...popupProps}
-    >
-      {children}
-    </Popup>
+    <CustomIcon {...iconProps}>
+      <path
+        clipRule="evenodd"
+        d="M10.16801 12.7236c-.19527.1953-.51185.1953-.70711 0l-4.185-4.18499c-.1953-.19526-.1953-.51184 0-.7071l4.185-4.18503c.19526-.19527.51184-.19527.70711 0 .19526.19526.19526.51184 0 .7071L6.33653 8.18506l3.83148 3.83144c.19526.1953.19526.5119 0 .7071Z"
+        fill={themeColor(fill)({ theme })}
+        fillRule="evenodd"
+      />
+    </CustomIcon>
   );
 }
