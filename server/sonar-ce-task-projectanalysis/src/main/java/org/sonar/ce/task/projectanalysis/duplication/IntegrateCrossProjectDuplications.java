@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -56,12 +55,13 @@ public class IntegrateCrossProjectDuplications {
   private final Configuration config;
   private final DuplicationRepository duplicationRepository;
 
-  private Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
+  private final Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
 
-  public IntegrateCrossProjectDuplications(Configuration config, DuplicationRepository duplicationRepository, CeTaskMessages ceTaskMessages, System2 system) {
+  public IntegrateCrossProjectDuplications(CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder, Configuration config,
+    DuplicationRepository duplicationRepository, CeTaskMessages ceTaskMessages, System2 system) {
     this.config = config;
     this.duplicationRepository = duplicationRepository;
-    if (config.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false)) {
+    if (crossProjectDuplicationStatusHolder.isEnabled()) {
       LOGGER.warn(DEPRECATED_WARNING);
       ceTaskMessages.add(new CeTaskMessages.Message(DEPRECATED_WARNING_DASHBOARD, system.now()));
     }

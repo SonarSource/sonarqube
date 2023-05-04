@@ -42,6 +42,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -59,10 +60,12 @@ public class IntegrateCrossProjectDuplicationsTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create();
 
-  private TestSystem2 system = new TestSystem2();
-  private MapSettings settings = new MapSettings();
-  private CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
-  private IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
+  private final TestSystem2 system = new TestSystem2();
+  private final MapSettings settings = new MapSettings();
+  private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
+  private final CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder = mock(CrossProjectDuplicationStatusHolder.class);
+  private final IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(crossProjectDuplicationStatusHolder, settings.asConfig(),
+    duplicationRepository, ceTaskMessages, system);
 
   @Test
   public void add_duplications_from_two_blocks() {
@@ -336,10 +339,10 @@ public class IntegrateCrossProjectDuplicationsTest {
 
   @Test
   public void log_warning_if_this_deprecated_feature_is_enabled() {
-    settings.setProperty("sonar.cpd.cross_project", "true");
+    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     system.setNow(1000L);
 
-    new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
+    new IntegrateCrossProjectDuplications(crossProjectDuplicationStatusHolder, settings.asConfig(), duplicationRepository, ceTaskMessages, system);
 
     assertThat(logTester.logs()).containsExactly("This analysis uses the deprecated cross-project duplication feature.");
     verify(ceTaskMessages).add(new CeTaskMessages.Message("This project uses the deprecated cross-project duplication feature.", 1000L));
