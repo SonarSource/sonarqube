@@ -55,27 +55,30 @@ interface PopupProps {
   noPadding?: boolean;
   placement?: PopupPlacement;
   style?: React.CSSProperties;
+  useEventBoundary?: boolean;
 }
 
 function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
-  const { noArrow = false, placement = PopupPlacement.Bottom } = props;
-  return (
-    <ClickEventBoundary>
-      <div
-        className={classNames(
-          'popup',
-          `is-${placement}`,
-          { 'no-padding': props.noPadding },
-          props.className
-        )}
-        ref={ref || React.createRef()}
-        style={props.style}
-      >
-        {props.children}
-        {!noArrow && <PopupArrow style={props.arrowStyle} />}
-      </div>
-    </ClickEventBoundary>
+  const { useEventBoundary = true, noArrow = false, placement = PopupPlacement.Bottom } = props;
+  const inner = (
+    <div
+      className={classNames(
+        'popup',
+        `is-${placement}`,
+        { 'no-padding': props.noPadding },
+        props.className
+      )}
+      ref={ref || React.createRef()}
+      style={props.style}
+    >
+      {props.children}
+      {!noArrow && <PopupArrow style={props.arrowStyle} />}
+    </div>
   );
+  if (useEventBoundary) {
+    return <ClickEventBoundary>{inner}</ClickEventBoundary>;
+  }
+  return inner;
 }
 
 const PopupWithRef = React.forwardRef(PopupBase);

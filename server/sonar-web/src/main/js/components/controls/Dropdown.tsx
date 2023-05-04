@@ -97,6 +97,7 @@ export default class Dropdown extends React.PureComponent<Props, State> {
           <DropdownOverlay
             noPadding={this.props.noOverlayPadding}
             placement={this.props.overlayPlacement}
+            useEventBoundary={!closeOnClick}
           >
             {this.props.overlay}
           </DropdownOverlay>
@@ -119,6 +120,7 @@ interface OverlayProps {
   children: React.ReactNode;
   noPadding?: boolean;
   placement?: PopupPlacement;
+  useEventBoundary?: boolean;
 }
 
 export class DropdownOverlay extends React.Component<OverlayProps> {
@@ -141,6 +143,7 @@ export class DropdownOverlay extends React.Component<OverlayProps> {
           ? { marginLeft: `calc(50% + ${leftFix}px)` }
           : undefined
       }
+      useEventBoundary={this.props.useEventBoundary}
     >
       {this.props.children}
     </Popup>
