@@ -22,7 +22,7 @@ import { isEqual } from 'date-fns';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { ParsedAnalysis } from '../../../types/project-activity';
@@ -143,7 +143,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                 {days.map((day) => (
                   <li
                     className="project-activity-day"
-                    data-day={toShortNotSoISOString(Number(day))}
+                    data-day={toShortISO8601String(Number(day))}
                     key={day}
                   >
                     <h3>

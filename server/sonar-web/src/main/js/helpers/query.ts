@@ -19,7 +19,7 @@
  */
 import { isEqual, isNil, omitBy } from 'lodash';
 import { RawQuery } from '../types/types';
-import { isValidDate, parseDate, toNotSoISOString, toShortNotSoISOString } from './dates';
+import { isValidDate, parseDate, toISO8601WithOffsetString, toShortISO8601String } from './dates';
 
 export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
   const keysA = Object.keys(a);
@@ -91,7 +91,10 @@ export function parseAsOptionalArray<T>(
   return value ? parseAsArray(value, itemParser) : undefined;
 }
 
-export function serializeDate(value?: Date, serializer = toNotSoISOString): string | undefined {
+export function serializeDate(
+  value?: Date,
+  serializer = toISO8601WithOffsetString
+): string | undefined {
   if (value != null) {
     return serializer(value);
   }
@@ -99,7 +102,7 @@ export function serializeDate(value?: Date, serializer = toNotSoISOString): stri
 }
 
 export function serializeDateShort(value: Date | undefined): string | undefined {
-  return serializeDate(value, toShortNotSoISOString);
+  return serializeDate(value, toShortISO8601String);
 }
 
 export function serializeString(value: string | undefined): string | undefined {

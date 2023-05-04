@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { bulkDeleteProjects } from '../../api/components';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
-import { toNotSoISOString } from '../../helpers/dates';
+import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export interface Props {
@@ -60,7 +60,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
           projects: this.props.selection.join(),
         }
       : {
-          analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
+          analyzedBefore: analyzedBefore && toISO8601WithOffsetString(analyzedBefore),
           onProvisionedOnly: this.props.provisioned || undefined,
           qualifiers: this.props.qualifier,
           q: this.props.query || undefined,

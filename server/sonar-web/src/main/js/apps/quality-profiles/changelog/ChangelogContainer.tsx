@@ -21,7 +21,7 @@ import * as React from 'react';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { parseDate, toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile, ProfileChangelogEvent } from '../types';
@@ -117,8 +117,8 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
 
   handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
     const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, {
-      since: from && toShortNotSoISOString(from),
-      to: to && toShortNotSoISOString(to),
+      since: from && toShortISO8601String(from),
+      to: to && toShortISO8601String(to),
     });
     this.props.router.push(path);
   };

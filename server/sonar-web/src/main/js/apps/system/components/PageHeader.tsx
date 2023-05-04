@@ -21,7 +21,7 @@ import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { ClipboardButton } from '../../../components/controls/clipboard';
 import { Alert } from '../../../components/ui/Alert';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import PageActions from './PageActions';
@@ -86,7 +86,7 @@ function PageHeader(props: Props) {
               copyValue={`SonarQube ID information
 Server ID: ${serverId}
 Version: ${version}
-Date: ${toShortNotSoISOString(Date.now())}
+Date: ${toShortISO8601String(Date.now())}
 `}
             >
               {translate('system.copy_id_info')}

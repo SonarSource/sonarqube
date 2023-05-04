@@ -22,7 +22,7 @@ import * as React from 'react';
 import { showLicense } from '../../api/editions';
 import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import { parseDate, toShortNotSoISOString } from '../../helpers/dates';
+import { parseDate, toShortISO8601String } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
 import { AppState } from '../../types/appstate';
@@ -71,7 +71,7 @@ export class StartupModal extends React.PureComponent<Props & StateProps, State>
         showLicense()
           .then((license) => {
             if (!license || !license.isValidEdition) {
-              save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
+              save(LICENSE_PROMPT, toShortISO8601String(new Date()), currentUser.login);
               this.setState({ open: true });
             }
           })

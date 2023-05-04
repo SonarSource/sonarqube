@@ -26,7 +26,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { parseDate, toShortISO8601String } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import Events from '../../projectActivity/components/Events';
@@ -173,7 +173,7 @@ function BranchAnalysisListRenderer(
                       {days.map((day) => (
                         <li
                           className="branch-analysis-day"
-                          data-day={toShortNotSoISOString(Number(day))}
+                          data-day={toShortISO8601String(Number(day))}
                           key={day}
                         >
                           <div className="branch-analysis-date">

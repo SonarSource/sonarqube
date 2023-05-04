@@ -21,7 +21,7 @@ import { subDays } from 'date-fns';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { getProjectActivity } from '../../../api/projectActivity';
-import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { parseDate, toShortISO8601String } from '../../../helpers/dates';
 import { Analysis, ParsedAnalysis } from '../../../types/project-activity';
 import { Dict } from '../../../types/types';
 import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
@@ -81,7 +81,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
     return getProjectActivity({
       branch,
       project: component,
-      from: range ? toShortNotSoISOString(subDays(new Date(), range)) : undefined,
+      from: range ? toShortISO8601String(subDays(new Date(), range)) : undefined,
     }).then((result: { analyses: Analysis[] }) => {
       // If the selected analysis wasn't found in the default 30 days range, redo the search
       if (initial && analysis && !result.analyses.find((a) => a.key === analysis)) {

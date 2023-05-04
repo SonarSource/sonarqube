@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
-import { toNotSoISOString } from '../../helpers/dates';
+import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { addGlobalErrorMessageFromAPI } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { PermissionTemplate } from '../../types/types';
@@ -94,7 +94,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             templateId: permissionTemplate,
           }
         : {
-            analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
+            analyzedBefore: analyzedBefore && toISO8601WithOffsetString(analyzedBefore),
             onProvisionedOnly: this.props.provisioned || undefined,
             qualifiers: this.props.qualifier,
             q: this.props.query || undefined,

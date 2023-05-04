@@ -21,8 +21,9 @@ import { differenceInDays } from 'date-fns';
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { showLicense } from '../../../api/editions';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
 import { hasMessage } from '../../../helpers/l10n';
+import { mockLicense } from '../../../helpers/mocks/editions';
 import { get, save } from '../../../helpers/storage';
 import { mockAppState, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
@@ -45,7 +46,7 @@ jest.mock('../../../helpers/l10n', () => ({
 
 jest.mock('../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('parsed-date'),
-  toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date'),
+  toShortISO8601String: jest.fn().mockReturnValue('short-not-iso-date'),
 }));
 
 jest.mock('date-fns', () => ({ differenceInDays: jest.fn().mockReturnValue(1) }));
@@ -60,12 +61,12 @@ const LOGGED_IN_USER: LoggedInUser = {
 };
 
 beforeEach(() => {
-  (differenceInDays as jest.Mock<any>).mockClear();
-  (hasMessage as jest.Mock<any>).mockClear();
-  (get as jest.Mock<any>).mockClear();
-  (save as jest.Mock<any>).mockClear();
-  (showLicense as jest.Mock<any>).mockClear();
-  (toShortNotSoISOString as jest.Mock<any>).mockClear();
+  jest.mocked(differenceInDays).mockClear();
+  jest.mocked(hasMessage).mockClear();
+  jest.mocked(get).mockClear();
+  jest.mocked(save).mockClear();
+  jest.mocked(showLicense).mockClear();
+  jest.mocked(toShortISO8601String).mockClear();
 });
 
 it('should render only the children', async () => {
@@ -76,14 +77,14 @@ it('should render only the children', async () => {
 
   await shouldNotHaveModals(getWrapper({ appState: mockAppState({ canAdmin: false }) }));
 
-  (hasMessage as jest.Mock<any>).mockReturnValueOnce(false);
+  jest.mocked(hasMessage).mockReturnValueOnce(false);
   await shouldNotHaveModals(getWrapper());
 
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: true });
+  jest.mocked(showLicense).mockResolvedValueOnce(mockLicense({ isValidEdition: true }));
   await shouldNotHaveModals(getWrapper());
 
-  (get as jest.Mock<any>).mockReturnValueOnce('date');
-  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
+  jest.mocked(get).mockReturnValueOnce('date');
+  jest.mocked(differenceInDays).mockReturnValueOnce(0);
   await shouldNotHaveModals(getWrapper());
 
   await shouldNotHaveModals(
@@ -99,11 +100,11 @@ it('should render license prompt', async () => {
   await shouldDisplayLicense(getWrapper());
   expect(save).toHaveBeenCalledWith('sonarqube.license.prompt', 'short-not-iso-date', 'luke');
 
-  (get as jest.Mock<any>).mockReturnValueOnce('date');
-  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(1);
+  jest.mocked(get).mockReturnValueOnce('date');
+  jest.mocked(differenceInDays).mockReturnValueOnce(1);
   await shouldDisplayLicense(getWrapper());
 
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: false });
+  jest.mocked(showLicense).mockResolvedValueOnce(mockLicense({ isValidEdition: false }));
   await shouldDisplayLicense(getWrapper());
 });
 

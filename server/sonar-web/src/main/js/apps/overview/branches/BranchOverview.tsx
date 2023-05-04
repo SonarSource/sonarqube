@@ -34,7 +34,7 @@ import {
   getBranchLikeQuery,
   isMainBranch,
 } from '../../../helpers/branch-like';
-import { parseDate, toNotSoISOString } from '../../../helpers/dates';
+import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import {
   extractStatusConditionsFromApplicationStatusChildProject,
@@ -78,7 +78,7 @@ export const BRANCH_OVERVIEW_ACTIVITY_GRAPH = 'sonar_branch_overview.graph';
 export const NO_CI_DETECTED = 'undetected';
 
 // Get all history data over the past year.
-const FROM_DATE = toNotSoISOString(new Date().setFullYear(new Date().getFullYear() - 1));
+const FROM_DATE = toISO8601WithOffsetString(new Date().setFullYear(new Date().getFullYear() - 1));
 
 export default class BranchOverview extends React.PureComponent<Props, State> {
   mounted = false;

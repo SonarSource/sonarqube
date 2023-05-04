@@ -21,8 +21,13 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byPlaceholderText, byRole, byText } from 'testing-library-selector';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
+import { parseDate } from '../../../helpers/dates';
 import { mockAppState } from '../../../helpers/testMocks';
-import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
+import {
+  RenderContext,
+  dateInputEvent,
+  renderAppWithAdminContext,
+} from '../../../helpers/testReactTestingUtils';
 import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
@@ -87,6 +92,8 @@ describe('The Global background task page', () => {
     });
     computeEngineServiceMock.addTask({ status: TaskStatuses.Pending, type: TaskTypes.IssueSync });
     computeEngineServiceMock.addTask({
+      executedAt: '2022-02-04T11:45:36+0200',
+      submittedAt: '2022-02-04T11:45:35+0200',
       componentKey: 'otherComponent',
       status: TaskStatuses.Success,
       type: TaskTypes.AppRefresh,
@@ -99,25 +106,36 @@ describe('The Global background task page', () => {
 
     expect(ui.getAllRows()).toHaveLength(4);
 
+    // Status filter.
     await ui.changeTaskFilter('status', 'background_task.status.IN_PROGRESS');
     expect(ui.getAllRows()).toHaveLength(1);
 
     await ui.changeTaskFilter('status', 'background_task.status.ALL');
     expect(ui.getAllRows()).toHaveLength(5);
 
+    // Type filter.
     await ui.changeTaskFilter('type', `background_task.type.${TaskTypes.AppRefresh}`);
     expect(ui.getAllRows()).toHaveLength(3);
 
+    // Latest analysis.
     await user.click(ui.onlyLatestAnalysis.get());
     expect(ui.getAllRows()).toHaveLength(2);
-    await user.click(ui.onlyLatestAnalysis.get());
 
-    /*
-     * Must test date range filters, but it requires refactoring the DateRange component
-     */
+    // Reset filters.
+    await user.click(ui.resetFilters.get());
+    expect(ui.getAllRows()).toHaveLength(4);
+
+    // Date filters.
+    await ui.setDateRange('2022-02-01', '2022-02-04');
+    expect(ui.getAllRows()).toHaveLength(1);
+
+    // Reset filters.
+    await user.click(ui.resetFilters.get());
+    expect(ui.getAllRows()).toHaveLength(4);
+
+    // Search.
     await user.click(ui.search.get());
     await user.keyboard('other');
-
     expect(ui.getAllRows()).toHaveLength(1);
 
     // Reset filters
@@ -298,6 +316,8 @@ function getPageObject() {
     numberOfWorkers: byText('background_tasks.number_of_workers'),
     onlyLatestAnalysis: byRole('checkbox', { name: 'yes' }),
     search: byPlaceholderText('background_tasks.search_by_task_or_component'),
+    fromDateInput: byRole('textbox', { name: 'start_date' }),
+    toDateInput: byRole('textbox', { name: 'end_date' }),
     resetFilters: byRole('button', { name: 'reset_verb' }),
     showMoreButton: byRole('button', { name: 'show_more' }),
     reloadButton: byRole('button', { name: 'reload' }),
@@ -309,20 +329,33 @@ function getPageObject() {
   const ui = {
     ...selectors,
 
-    appLoaded: async () => {
+    async appLoaded() {
       await waitFor(() => {
         expect(selectors.loading.query()).not.toBeInTheDocument();
       });
     },
 
-    getAllRows: () => screen.getAllByRole('row').slice(1), // Excludes header
+    getAllRows() {
+      return screen.getAllByRole('row').slice(1); // Excludes header
+    },
 
-    changeTaskFilter: async (fieldLabel: string, value: string) => {
+    async changeTaskFilter(fieldLabel: string, value: string) {
       await user.click(screen.getByLabelText(fieldLabel, { selector: 'input' }));
       await user.click(screen.getByText(value));
     },
 
-    clickOnTaskAction: async (rowIndex: number, label: string) => {
+    async setDateRange(from?: string, to?: string) {
+      const dateInput = dateInputEvent(user);
+      if (from) {
+        await dateInput.pickDate(ui.fromDateInput.get(), parseDate(from));
+      }
+
+      if (to) {
+        await dateInput.pickDate(ui.toDateInput.get(), parseDate(to));
+      }
+    },
+
+    async clickOnTaskAction(rowIndex: number, label: string) {
       const row = ui.getAllRows()[rowIndex];
       expect(row).toBeVisible();
       await user.click(within(row).getByRole('button', { name: 'background_tasks.show_actions' }));

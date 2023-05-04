@@ -21,7 +21,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { searchRules } from '../../../api/rules';
 import Link from '../../../components/common/Link';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
@@ -54,7 +54,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
     this.state = {};
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 1);
-    this.periodStartDate = toShortNotSoISOString(startDate);
+    this.periodStartDate = toShortISO8601String(startDate);
   }
 
   componentDidMount() {

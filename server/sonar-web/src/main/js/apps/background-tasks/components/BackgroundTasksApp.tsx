@@ -32,7 +32,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { toShortNotSoISOString } from '../../../helpers/dates';
+import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
@@ -162,11 +162,11 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     });
 
     if (nextQuery.minSubmittedAt) {
-      nextQuery.minSubmittedAt = toShortNotSoISOString(nextQuery.minSubmittedAt);
+      nextQuery.minSubmittedAt = toShortISO8601String(nextQuery.minSubmittedAt);
     }
 
     if (nextQuery.maxExecutedAt) {
-      nextQuery.maxExecutedAt = toShortNotSoISOString(nextQuery.maxExecutedAt);
+      nextQuery.maxExecutedAt = toShortISO8601String(nextQuery.maxExecutedAt);
     }
 
     this.props.router.push({

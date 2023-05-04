@@ -22,6 +22,7 @@ import { cloneDeep, groupBy, sortBy } from 'lodash';
 import { PAGE_SIZE } from '../../apps/background-tasks/constants';
 import { parseDate } from '../../helpers/dates';
 import { mockTask } from '../../helpers/mocks/tasks';
+import { isDefined } from '../../helpers/types';
 import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   cancelAllTasks,
@@ -63,7 +64,7 @@ export default class ComputeEngineServiceMock {
   constructor() {
     (cancelAllTasks as jest.Mock).mockImplementation(this.handleCancelAllTasks);
     (cancelTask as jest.Mock).mockImplementation(this.handleCancelTask);
-    (getActivity as jest.Mock).mockImplementation(this.handleGetActivity);
+    jest.mocked(getActivity).mockImplementation(this.handleGetActivity);
     (getStatus as jest.Mock).mockImplementation(this.handleGetStatus);
     (getTypes as jest.Mock).mockImplementation(this.handleGetTypes);
     (getTask as jest.Mock).mockImplementation(this.handleGetTask);
@@ -96,7 +97,6 @@ export default class ComputeEngineServiceMock {
 
   handleGetActivity = (data: ActivityRequestParameters) => {
     let results = cloneDeep(this.tasks);
-
     results = results.filter((task) => {
       return !(
         (data.component && task.componentKey !== data.component) ||
@@ -115,12 +115,10 @@ export default class ComputeEngineServiceMock {
     });
 
     if (data.onlyCurrents) {
-      /*
-       *  This is more complex in real life, but it's a good enough approximation to suit tests
-       */
-      results = Object.values(groupBy(results, (t) => t.componentKey)).map(
-        (tasks) => sortBy(tasks, (t) => t.executedAt).pop()!
-      );
+      // This is more complex in real life, but it's a good enough approximation to suit tests.
+      results = Object.values(groupBy(results, (t) => t.componentKey))
+        .map((tasks) => sortBy(tasks, (t) => t.executedAt).pop())
+        .filter(isDefined);
     }
 
     const page = data.p ?? 1;

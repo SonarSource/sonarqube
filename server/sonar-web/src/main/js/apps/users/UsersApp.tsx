@@ -29,7 +29,7 @@ import Select, { LabelValueSelectOption } from '../../components/controls/Select
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { useManageProvider } from '../../components/hooks/useManageProvider';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { now, toNotSoISOString } from '../../helpers/dates';
+import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider, Paging } from '../../types/types';
 import { User } from '../../types/users';
@@ -59,16 +59,16 @@ export default function UsersApp() {
     switch (usersActivity) {
       case UserActivity.ActiveSonarLintUser:
         return {
-          slLastConnectedAfter: toNotSoISOString(nowDateMinus30Days),
+          slLastConnectedAfter: toISO8601WithOffsetString(nowDateMinus30Days),
         };
       case UserActivity.ActiveSonarQubeUser:
         return {
-          lastConnectedAfter: toNotSoISOString(nowDateMinus30Days),
-          slLastConnectedBefore: toNotSoISOString(nowDateMinus30DaysAnd1Second),
+          lastConnectedAfter: toISO8601WithOffsetString(nowDateMinus30Days),
+          slLastConnectedBefore: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
         };
       case UserActivity.InactiveUser:
         return {
-          lastConnectedBefore: toNotSoISOString(nowDateMinus30DaysAnd1Second),
+          lastConnectedBefore: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
         };
       default:
         return {};

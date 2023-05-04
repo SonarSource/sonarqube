@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { toShortNotSoISOString } from '../../helpers/dates';
+import { toShortISO8601String } from '../../helpers/dates';
 import { ActivityRequestParameters, Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 
@@ -65,11 +65,11 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
   }
 
   if (filters.minSubmittedAt) {
-    parameters.minSubmittedAt = toShortNotSoISOString(filters.minSubmittedAt);
+    parameters.minSubmittedAt = toShortISO8601String(filters.minSubmittedAt);
   }
 
   if (filters.maxExecutedAt) {
-    parameters.maxExecutedAt = toShortNotSoISOString(filters.maxExecutedAt);
+    parameters.maxExecutedAt = toShortISO8601String(filters.maxExecutedAt);
   }
 
   if (filters.query) {
