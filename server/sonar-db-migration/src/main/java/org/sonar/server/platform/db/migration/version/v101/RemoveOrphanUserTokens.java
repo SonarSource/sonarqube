@@ -31,7 +31,7 @@ public class RemoveOrphanUserTokens extends DataChange {
     SELECT ut.uuid as tokenUuid
     FROM user_tokens ut
     LEFT OUTER JOIN projects p ON ut.project_key = p.kee
-    WHERE p.uuid is null
+    WHERE p.uuid is null and ut.project_key IS NOT NULL
     """;
 
   public RemoveOrphanUserTokens(Database db) {
@@ -44,7 +44,7 @@ public class RemoveOrphanUserTokens extends DataChange {
       if (DatabaseUtils.tableColumnExists(connection, "user_tokens", "project_key")) {
         MassUpdate massUpdate = context.prepareMassUpdate();
         massUpdate.select(SELECT_QUERY);
-        massUpdate.update("delete user_tokens where uuid = ?");
+        massUpdate.update("delete from user_tokens where uuid = ?");
         massUpdate.execute((row, update) -> {
           String uuid = row.getString(1);
           update.setString(1, uuid);

@@ -22,12 +22,12 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,11 +46,12 @@ public class RemoveOrphanUserTokensTest {
 
     String token1Uuid = insertUserToken("project1");
     String token2Uuid = insertUserToken("orphan");
+    String token3Uuid = insertUserToken(null);
 
     underTest.execute();
     assertThat(db.select("select * from user_tokens"))
       .extracting(r -> r.get("UUID"))
-      .containsOnly(token1Uuid);
+      .containsOnly(token1Uuid, token3Uuid);
   }
 
   @Test
@@ -68,7 +69,7 @@ public class RemoveOrphanUserTokensTest {
       .containsOnly(token1Uuid);
   }
 
-  private String insertUserToken(String projectKey) {
+  private String insertUserToken( @Nullable String projectKey) {
     Map<String, Object> map = new HashMap<>();
     String uuid = uuidFactory.create();
     map.put("UUID", uuid);
