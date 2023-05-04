@@ -4,6 +4,7 @@ exports[`should set value correctly 1`] = `
 <AppStateContextProvider
   appState={
     {
+      "documentationUrl": "https://docs.sonarqube.org/10.0",
       "edition": "community",
       "productionDatabase": true,
       "qualifiers": [

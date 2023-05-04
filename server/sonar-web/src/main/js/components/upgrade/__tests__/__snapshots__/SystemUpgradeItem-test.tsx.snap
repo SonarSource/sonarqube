@@ -89,12 +89,12 @@ exports[`should display correctly 1`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -188,12 +188,12 @@ exports[`should display correctly 2`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -280,12 +280,12 @@ exports[`should display correctly 3`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -379,12 +379,12 @@ exports[`should display correctly 4`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -478,12 +478,12 @@ exports[`should display correctly 5`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -577,12 +577,12 @@ exports[`should display correctly 6`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;
@@ -657,12 +657,12 @@ exports[`should display correctly 7`] = `
     >
       system.download_x.5.6.7
     </a>
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </div>
 `;

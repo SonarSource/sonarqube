@@ -15,12 +15,12 @@ exports[`should render correctly 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </header>
 `;
@@ -58,12 +58,12 @@ exports[`should render correctly 2`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </header>
 `;
@@ -107,12 +107,12 @@ exports[`should render correctly 3`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
 </header>
 `;
@@ -150,12 +150,12 @@ exports[`should show a create form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
   <CreateProfileForm
     languages={
@@ -233,12 +233,12 @@ exports[`should show a restore form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <withAppStateContext(DocLink)
+    <DocLink
       className="spacer-left"
       to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </withAppStateContext(DocLink)>
+    </DocLink>
   </div>
   <RestoreProfileForm
     onClose={[Function]}

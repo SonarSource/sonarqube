@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
+import DocLink from '../../../components/common/DocLink';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
@@ -227,15 +228,9 @@ export default class App extends React.PureComponent<Props, State> {
                     id="maintenance.sonarqube_is_under_maintenance.2"
                     values={{
                       link: (
-                        <Link
-                          // We cannot use <DocLink> here, as it relies on AppState. However, the maintenance
-                          // app is a special app that can run in a "downgraded" environment, where the AppState
-                          // may not yet be fully loaded. Hence, we link to this documentation page directly.
-                          to="https://docs.sonarqube.org/latest/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
-                          target="_blank"
-                        >
+                        <DocLink to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/">
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
-                        </Link>
+                        </DocLink>
                       ),
                     }}
                   />

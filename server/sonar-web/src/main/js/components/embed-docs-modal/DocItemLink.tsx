@@ -20,9 +20,7 @@
 
 import { ItemLink, OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
-import { AppStateContext } from '../../app/components/app-state/AppStateContext';
-
-import { getUrlForDoc } from '../../helpers/docs';
+import { useDocUrl } from '../../helpers/docs';
 
 interface Props {
   to: string;
@@ -31,9 +29,7 @@ interface Props {
 }
 
 export function DocItemLink({ to, innerRef, children }: Props) {
-  const { version } = React.useContext(AppStateContext);
-
-  const toStatic = getUrlForDoc(version, to);
+  const toStatic = useDocUrl(to);
 
   return (
     <ItemLink innerRef={innerRef} to={toStatic}>

@@ -18,18 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext, {
-  WithAppStateContextProps,
-} from '../../app/components/app-state/withAppStateContext';
-import { getUrlForDoc } from '../../helpers/docs';
+import { useDocUrl } from '../../helpers/docs';
 import Link, { LinkProps } from './Link';
 
-type Props = WithAppStateContextProps &
-  Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
+type Props = Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
 
-export function DocLink({ appState, to, innerRef, ...props }: Props) {
-  const toStatic = getUrlForDoc(appState.version, to);
+export default function DocLink({ to, innerRef, ...props }: Props) {
+  const toStatic = useDocUrl(to);
   return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;
 }
-
-export default withAppStateContext(DocLink);

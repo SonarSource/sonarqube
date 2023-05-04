@@ -44,20 +44,20 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/"
       >
         footer.documentation
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
     <li
       className="page-footer-menu-item"
@@ -106,20 +106,20 @@ exports[`should not render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/"
       >
         footer.documentation
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
   </ul>
 </div>
@@ -169,20 +169,20 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/"
       >
         footer.documentation
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
     <li
       className="page-footer-menu-item"
     >
-      <withAppStateContext(DocLink)
+      <DocLink
         to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </withAppStateContext(DocLink)>
+      </DocLink>
     </li>
     <li
       className="page-footer-menu-item"

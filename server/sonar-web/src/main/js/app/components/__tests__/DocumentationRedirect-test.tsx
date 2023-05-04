@@ -25,16 +25,16 @@ import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import DocumentationRedirect from '../DocumentationRedirect';
 
 it('should redirect to static doc for specific version', async () => {
-  renderDocumentationRedirect('land', '9.7.1234');
+  renderDocumentationRedirect('land', '10.0');
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    'https://docs.sonarqube.org/9.7/land'
+    'https://docs.sonarqube.org/10.0/land'
   );
 });
 
 it('should redirect to static doc for latest version', async () => {
-  renderDocumentationRedirect('land', '9.7-SNAPSHOT');
+  renderDocumentationRedirect('land', '10.0-SNAPSHOT');
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
@@ -42,9 +42,9 @@ it('should redirect to static doc for latest version', async () => {
   );
 });
 
-function renderDocumentationRedirect(navigatge: string, version?: string) {
+function renderDocumentationRedirect(navigate: string, version?: string) {
   renderAppRoutes(
-    `documentation/${navigatge}`,
+    `documentation/${navigate}`,
     () => <Route path="/documentation/*" element={<DocumentationRedirect />} />,
     { appState: mockAppState({ version }) }
   );

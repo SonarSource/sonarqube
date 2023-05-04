@@ -20,10 +20,7 @@
 import { DiscreetLink, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import withAppStateContext, {
-  WithAppStateContextProps,
-} from '../../../app/components/app-state/withAppStateContext';
-import { getUrlForDoc } from '../../../helpers/docs';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
@@ -32,14 +29,8 @@ interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
 }
 
-function CleanAsYouCodeWarningOverCompliant({
-  component,
-  appState,
-}: Props & WithAppStateContextProps) {
-  const caycDrawbackUrl = getUrlForDoc(
-    appState.version,
-    '/user-guide/clean-as-you-code/#potential-drawbacks'
-  );
+export default function CleanAsYouCodeWarningOverCompliant({ component }: Props) {
+  const caycDrawbackUrl = useDocUrl('/user-guide/clean-as-you-code/#potential-drawbacks');
 
   return (
     <>
@@ -71,5 +62,3 @@ function CleanAsYouCodeWarningOverCompliant({
     </>
   );
 }
-
-export default withAppStateContext(CleanAsYouCodeWarningOverCompliant);

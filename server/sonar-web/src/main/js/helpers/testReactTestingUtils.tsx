@@ -90,16 +90,22 @@ export function renderAppWithAdminContext(
   );
 }
 
-export function renderComponent(component: React.ReactElement, pathname = '/') {
+export function renderComponent(
+  component: React.ReactElement,
+  pathname = '/',
+  { appState = mockAppState() }: RenderContext = {}
+) {
   function Wrapper({ children }: { children: React.ReactElement }) {
     return (
       <IntlProvider defaultLocale="en" locale="en">
         <HelmetProvider>
-          <MemoryRouter initialEntries={[pathname]}>
-            <Routes>
-              <Route path="*" element={children} />
-            </Routes>
-          </MemoryRouter>
+          <AppStateContextProvider appState={appState}>
+            <MemoryRouter initialEntries={[pathname]}>
+              <Routes>
+                <Route path="*" element={children} />
+              </Routes>
+            </MemoryRouter>
+          </AppStateContextProvider>
         </HelmetProvider>
       </IntlProvider>
     );

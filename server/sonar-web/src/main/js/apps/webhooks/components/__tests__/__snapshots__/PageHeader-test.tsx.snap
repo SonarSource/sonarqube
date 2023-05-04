@@ -21,11 +21,11 @@ exports[`should render correctly 1`] = `
       id="webhooks.description"
       values={
         {
-          "url": <withAppStateContext(DocLink)
+          "url": <DocLink
             to="/project-administration/webhooks/"
           >
             webhooks.documentation_link
-          </withAppStateContext(DocLink)>,
+          </DocLink>,
         }
       }
     />

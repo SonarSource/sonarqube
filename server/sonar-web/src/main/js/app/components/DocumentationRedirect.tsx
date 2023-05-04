@@ -21,14 +21,13 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import Link from '../../components/common/Link';
-import { getUrlForDoc } from '../../helpers/docs';
-import withAppStateContext, { WithAppStateContextProps } from './app-state/withAppStateContext';
+import { useDocUrl } from '../../helpers/docs';
 
 const PAUSE_REDIRECT = 1;
 
-function DocumentationRedirect({ appState }: WithAppStateContextProps) {
+export default function DocumentationRedirect() {
   const location = useLocation();
-  const url = getUrlForDoc(appState.version, location.pathname.replace(/^\/documentation/, ''));
+  const url = useDocUrl(location.pathname.replace(/^\/documentation/, ''));
 
   return (
     <>
@@ -47,5 +46,3 @@ function DocumentationRedirect({ appState }: WithAppStateContextProps) {
     </>
   );
 }
-
-export default withAppStateContext(DocumentationRedirect);

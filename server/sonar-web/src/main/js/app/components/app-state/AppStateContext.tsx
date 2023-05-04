@@ -28,5 +28,6 @@ export const DEFAULT_APP_STATE = {
   qualifiers: [],
   settings: {},
   version: '',
+  documentationUrl: 'https://docs.sonarqube.org/latest',
 };
 export const AppStateContext = React.createContext<AppState>(DEFAULT_APP_STATE);

@@ -43,11 +43,11 @@ exports[`should render correctly: loaded 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             {
-              "link": <withAppStateContext(DocLink)
+              "link": <DocLink
                 to="/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </withAppStateContext(DocLink)>,
+              </DocLink>,
             }
           }
         />
@@ -140,11 +140,11 @@ exports[`should render correctly: loading 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             {
-              "link": <withAppStateContext(DocLink)
+              "link": <DocLink
                 to="/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </withAppStateContext(DocLink)>,
+              </DocLink>,
             }
           }
         />

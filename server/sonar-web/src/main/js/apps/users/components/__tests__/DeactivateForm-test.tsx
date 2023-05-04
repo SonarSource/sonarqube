@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { IntlProvider } from 'react-intl';
 import { deactivateUser } from '../../../../api/users';
 import { mockUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { UserActive } from '../../../../types/users';
 import DeactivateForm from '../DeactivateForm';
 
@@ -41,9 +41,7 @@ it('should deactivate user with anonymize set to true', () => {
 });
 
 function renderDeactivateForm(user: UserActive) {
-  return render(
-    <IntlProvider defaultLocale="en" locale="en">
-      <DeactivateForm onClose={jest.fn()} onUpdateUsers={jest.fn()} user={user} />
-    </IntlProvider>
+  return renderComponent(
+    <DeactivateForm onClose={jest.fn()} onUpdateUsers={jest.fn()} user={user} />
   );
 }

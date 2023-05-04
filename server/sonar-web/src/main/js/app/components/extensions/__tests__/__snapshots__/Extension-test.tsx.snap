@@ -4,6 +4,7 @@ exports[`should render React extensions correctly 1`] = `
 <Extension
   appState={
     {
+      "documentationUrl": "https://docs.sonarqube.org/10.0",
       "edition": "community",
       "productionDatabase": true,
       "qualifiers": [
@@ -66,6 +67,7 @@ exports[`should render React extensions correctly 2`] = `
 <Extension
   appState={
     {
+      "documentationUrl": "https://docs.sonarqube.org/10.0",
       "edition": "community",
       "productionDatabase": true,
       "qualifiers": [

@@ -20,10 +20,7 @@
 import { DiscreetLink, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import withAppStateContext, {
-  WithAppStateContextProps,
-} from '../../../app/components/app-state/withAppStateContext';
-import { getUrlForDoc } from '../../../helpers/docs';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
@@ -32,8 +29,8 @@ interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
 }
 
-function CleanAsYouCodeWarning({ component, appState }: Props & WithAppStateContextProps) {
-  const caycUrl = getUrlForDoc(appState.version, '/user-guide/clean-as-you-code/');
+export default function CleanAsYouCodeWarning({ component }: Props) {
+  const caycUrl = useDocUrl('/user-guide/clean-as-you-code/');
 
   return (
     <>
@@ -65,5 +62,3 @@ function CleanAsYouCodeWarning({ component, appState }: Props & WithAppStateCont
     </>
   );
 }
-
-export default withAppStateContext(CleanAsYouCodeWarning);

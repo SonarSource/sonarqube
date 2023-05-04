@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const VERSION_PARSER = /^(\d+\.\d+).*$/;
+import React from 'react';
+import { AppStateContext } from '../app/components/app-state/AppStateContext';
 
-export function getUrlForDoc(version: string, to: string) {
-  const versionPrefix = VERSION_PARSER.exec(version);
+export function getUrlForDoc(url: string, version: string, to: string) {
   const isSnapshot = version.indexOf('SNAPSHOT') !== -1;
-  const docPrefix =
-    versionPrefix && versionPrefix.length === 2 && !isSnapshot ? versionPrefix[1] : 'latest';
+  const path = to.replace(/^\//, '');
 
-  return `https://docs.sonarqube.org/${docPrefix}${to}`;
+  return isSnapshot
+    ? `${url.replace(url.slice(url.lastIndexOf('/')), '/latest')}/${path}`
+    : `${url}/${path}`;
+}
+
+export function useDocUrl(to: string) {
+  const { version, documentationUrl } = React.useContext(AppStateContext);
+
+  return getUrlForDoc(documentationUrl, version, to);
 }

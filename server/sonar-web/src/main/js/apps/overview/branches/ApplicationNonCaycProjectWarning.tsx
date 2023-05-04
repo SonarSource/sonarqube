@@ -19,11 +19,8 @@
  */
 import { Card, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import withAppStateContext, {
-  WithAppStateContextProps,
-} from '../../../app/components/app-state/withAppStateContext';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { getUrlForDoc } from '../../../helpers/docs';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
 import { QualityGateStatus } from '../../../types/quality-gates';
@@ -34,16 +31,9 @@ interface Props {
   caycStatus: CaycStatus;
 }
 
-function ApplicationNonCaycProjectWarning({
-  projects,
-  caycStatus,
-  appState,
-}: Props & WithAppStateContextProps) {
-  const caycUrl = getUrlForDoc(appState.version, '/user-guide/clean-as-you-code/');
-  const caycDrawbacksUrl = getUrlForDoc(
-    appState.version,
-    '/user-guide/clean-as-you-code/#potential-drawbacks'
-  );
+export default function ApplicationNonCaycProjectWarning({ projects, caycStatus }: Props) {
+  const caycUrl = useDocUrl('/user-guide/clean-as-you-code/');
+  const caycDrawbacksUrl = useDocUrl('/user-guide/clean-as-you-code/#potential-drawbacks');
 
   return (
     <Card className="sw-mt-4 sw-body-sm">
@@ -89,5 +79,3 @@ function ApplicationNonCaycProjectWarning({
     </Card>
   );
 }
-
-export default withAppStateContext(ApplicationNonCaycProjectWarning);
