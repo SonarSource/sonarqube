@@ -84,6 +84,7 @@ import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.source.FileSourceDao;
+import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -120,6 +121,7 @@ public class DaoModule extends Module {
     EsQueueDao.class,
     EventDao.class,
     EventComponentChangeDao.class,
+    ExternalGroupDao.class,
     FileSourceDao.class,
     GroupDao.class,
     GroupMembershipDao.class,

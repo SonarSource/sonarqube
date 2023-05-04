@@ -145,6 +145,8 @@ import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.scim.ScimGroupMapper;
 import org.sonar.db.scim.ScimUserMapper;
 import org.sonar.db.source.FileSourceMapper;
+import org.sonar.db.user.ExternalGroupDto;
+import org.sonar.db.user.ExternalGroupMapper;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
@@ -194,6 +196,7 @@ public class MyBatis {
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
+    confBuilder.loadAlias("ExternalGroup", ExternalGroupDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("KeyWithUuid", KeyWithUuidDto.class);
     confBuilder.loadAlias("Group", GroupDto.class);
@@ -269,6 +272,7 @@ public class MyBatis {
       EsQueueMapper.class,
       EventMapper.class,
       EventComponentChangeMapper.class,
+      ExternalGroupMapper.class,
       FileSourceMapper.class,
       GroupMapper.class,
       GroupMembershipMapper.class,

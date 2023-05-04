@@ -17,33 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github;
+package org.sonar.db.user;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-public class UserIdentityFactoryImpl implements UserIdentityFactory {
+public class ExternalGroupDao implements Dao {
 
-  @Override
-  public UserIdentity create(GsonUser user, @Nullable String email, @Nullable List<GsonTeam> teams) {
-    UserIdentity.Builder builder = UserIdentity.builder()
-      .setProviderId(user.getId())
-      .setProviderLogin(user.getLogin())
-      .setName(generateName(user))
-      .setEmail(email);
-    if (teams != null) {
-      builder.setGroups(teams.stream()
-        .map(GithubTeamConverter::toGroupName)
-        .collect(Collectors.toSet()));
-    }
-    return builder.build();
+  public void insert(DbSession dbSession, ExternalGroupDto externalGroupDto) {
+    mapper(dbSession).insert(externalGroupDto);
   }
 
-  private static String generateName(GsonUser gson) {
-    String name = gson.getName();
-    return name == null || name.isEmpty() ? gson.getLogin() : name;
+  public List<ExternalGroupDto> selectByIdentityProvider(DbSession dbSession, String identityProvider) {
+    return mapper(dbSession).selectByIdentityProvider(identityProvider);
   }
 
+  private static ExternalGroupMapper mapper(DbSession session) {
+    return session.getMapper(ExternalGroupMapper.class);
+  }
 }
