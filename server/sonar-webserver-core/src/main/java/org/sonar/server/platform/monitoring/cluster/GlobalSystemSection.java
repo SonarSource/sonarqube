@@ -62,7 +62,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External Users and Groups Provisioning",
-      commonSystemInformation.getManagedProvider());
+      commonSystemInformation.getManagedInstanceProviderName());
     setAttribute(protobuf, "External User Authentication",
       commonSystemInformation.getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers",

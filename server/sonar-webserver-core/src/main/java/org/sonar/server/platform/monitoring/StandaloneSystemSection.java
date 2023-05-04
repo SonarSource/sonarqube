@@ -91,7 +91,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, NCLOC.getName(), statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
-    setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedProvider());
+    setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedInstanceProviderName());
     setAttribute(protobuf, "External User Authentication", commonSystemInformation.getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers",
       commonSystemInformation.getEnabledIdentityProviders());

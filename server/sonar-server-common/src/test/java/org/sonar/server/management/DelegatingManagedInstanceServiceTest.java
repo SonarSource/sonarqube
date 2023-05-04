@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +39,22 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Mock
   private DbSession dbSession;
+
+  @Test
+  public void getProviderName_whenNotManaged_shouldThrow() {
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(emptySet());
+
+    assertThatThrownBy(() -> managedInstanceService.getProviderName())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("This instance is not managed.");
+  }
+
+  @Test
+  public void getProviderName_whenManaged_shouldReturnName() {
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new AlwaysManagedInstanceService()));
+
+    assertThat(managedInstanceService.getProviderName()).isEqualTo("Always");
+  }
 
   @Test
   public void isInstanceExternallyManaged_whenNoManagedInstanceService_returnsFalse() {
@@ -177,6 +194,11 @@ public class DelegatingManagedInstanceServiceTest {
     }
 
     @Override
+    public String getProviderName() {
+      return "Never";
+    }
+
+    @Override
     public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
       return null;
     }
@@ -202,6 +224,11 @@ public class DelegatingManagedInstanceServiceTest {
     @Override
     public boolean isInstanceExternallyManaged() {
       return true;
+    }
+
+    @Override
+    public String getProviderName() {
+      return "Always";
     }
 
     @Override

@@ -111,7 +111,7 @@ public class GlobalSystemSectionTest {
 
   @Test
   public void toProtobuf_whenInstanceIsNotManaged_shouldWriteNothing() {
-    when(commonSystemInformation.getManagedProvider()).thenReturn(null);
+    when(commonSystemInformation.getManagedInstanceProviderName()).thenReturn(null);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeDoesNotExist(protobuf, "External Users and Groups Provisioning");
@@ -119,7 +119,7 @@ public class GlobalSystemSectionTest {
 
   @Test
   public void toProtobuf_whenInstanceIsManaged_shouldWriteItsProviderName() {
-    when(commonSystemInformation.getManagedProvider()).thenReturn("Okta");
+    when(commonSystemInformation.getManagedInstanceProviderName()).thenReturn("Okta");
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "External Users and Groups Provisioning", "Okta");

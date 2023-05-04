@@ -70,15 +70,9 @@ public class CommonSystemInformation {
       .toList();
   }
 
-  public String getManagedProvider() {
+  public String getManagedInstanceProviderName() {
     if (managedInstanceService.isInstanceExternallyManaged()) {
-      return identityProviderRepository.getAllEnabledAndSorted()
-        .stream()
-        .filter(provider -> provider.getKey().equalsIgnoreCase("saml"))
-        .filter(IdentityProvider::isEnabled)
-        .findFirst()
-        .map(IdentityProvider::getName)
-        .orElse(null);
+      return managedInstanceService.getProviderName();
     }
     return null;
   }

@@ -48,6 +48,13 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
   }
 
   @Override
+  public String getProviderName() {
+    return findManagedInstanceService()
+      .map(ManagedInstanceService::getProviderName)
+      .orElseThrow(() -> NOT_MANAGED_INSTANCE_EXCEPTION);
+  }
+
+  @Override
   public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
     return findManagedInstanceService()
       .map(managedInstanceService -> managedInstanceService.getUserUuidToManaged(dbSession, userUuids))

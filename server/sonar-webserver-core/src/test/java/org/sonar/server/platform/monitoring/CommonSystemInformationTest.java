@@ -121,33 +121,20 @@ public class CommonSystemInformationTest {
   }
 
   @Test
-  public void getManagedProvider_whenInstanceNotManaged_shouldReturnNull() {
+  public void getManagedInstanceProvider_whenInstanceNotManaged_shouldReturnNull() {
     mockIdentityProviders(List.of());
     mockManagedInstance(false);
 
-    assertThat(commonSystemInformation.getManagedProvider())
+    assertThat(commonSystemInformation.getManagedInstanceProviderName())
       .isNull();
   }
 
   @Test
-  public void getManagedProvider_whenInstanceManagedButNoValidProviderDefined_shouldReturnNull() {
-    mockIdentityProviders(List.of());
+  public void getManagedInstanceProvider_whenInstanceManaged_shouldReturnName() {
     mockManagedInstance(true);
 
-    assertThat(commonSystemInformation.getManagedProvider())
-      .isNull();
-  }
-
-  @Test
-  public void getManagedProvider_whenInstanceManagedAndValidProviderDefined_shouldReturnProviderName() {
-    mockIdentityProviders(List.of(
-      new TestIdentityProvider().setKey("saml").setName("Okta").setEnabled(true).setAllowsUsersToSignUp(true),
-      new TestIdentityProvider().setKey("github").setName("GitHub").setEnabled(true).setAllowsUsersToSignUp(true)
-    ));
-    mockManagedInstance(true);
-
-    assertThat(commonSystemInformation.getManagedProvider())
-      .isEqualTo("Okta");
+    assertThat(commonSystemInformation.getManagedInstanceProviderName())
+      .isEqualTo("Provider");
   }
 
   @Test
@@ -170,6 +157,7 @@ public class CommonSystemInformationTest {
 
   private void mockManagedInstance(boolean managed) {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(managed);
+    when(managedInstanceService.getProviderName()).thenReturn("Provider");
   }
 
   private void mockSecurityRealmFactory(String name) {
