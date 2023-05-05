@@ -68,6 +68,10 @@ export default class UserTokensMock {
       return Promise.reject('x_x');
     }
 
+    if (this.tokens.some((t) => t.name === name)) {
+      return Promise.reject('This name is already used');
+    }
+
     const token = {
       name,
       login,
@@ -85,13 +89,7 @@ export default class UserTokensMock {
   };
 
   handleRevokeToken = ({ name }: { name: string; login?: string }) => {
-    const index = this.tokens.findIndex((t) => t.name === name);
-
-    if (index < 0) {
-      return Promise.resolve();
-    }
-
-    this.tokens.splice(index, 1);
+    this.tokens = this.tokens.filter((t) => t.name !== name);
 
     return Promise.resolve();
   };

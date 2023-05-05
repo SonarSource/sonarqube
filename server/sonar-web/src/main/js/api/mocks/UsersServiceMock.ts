@@ -19,12 +19,26 @@
  */
 
 import { isAfter, isBefore } from 'date-fns';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
 import { mockClusterSysInfo, mockIdentityProvider, mockUser } from '../../helpers/testMocks';
 import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
-import { User } from '../../types/users';
+import { ChangePasswordResults, User } from '../../types/users';
 import { getSystemInfo } from '../system';
-import { createUser, getIdentityProviders, searchUsers } from '../users';
+import { addUserToGroup, removeUserFromGroup } from '../user_groups';
+import {
+  UserGroup,
+  changePassword,
+  createUser,
+  deactivateUser,
+  getIdentityProviders,
+  getUserGroups,
+  searchUsers,
+  updateUser,
+} from '../users';
+
+jest.mock('../users');
+jest.mock('../user_groups');
+jest.mock('../system');
 
 const DEFAULT_USERS = [
   mockUser({
@@ -40,16 +54,23 @@ const DEFAULT_USERS = [
     name: 'Alice Merveille',
     lastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-27T17:08:59+0200',
+    groups: ['group1', 'group2', 'group3', 'group4'],
   }),
   mockUser({
     managed: false,
+    local: false,
     login: 'charlie.cox',
     name: 'Charlie Cox',
     lastConnectionDate: '2023-06-25T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-06-20T12:10:59+0200',
+    externalProvider: 'test',
+    externalIdentity: 'ExternalTest',
   }),
   mockUser({
     managed: true,
+    local: false,
+    externalProvider: 'test2',
+    externalIdentity: 'UnknownExternalProvider',
     login: 'denis.villeneuve',
     name: 'Denis Villeneuve',
     lastConnectionDate: '2023-06-20T15:08:59+0200',
@@ -68,14 +89,48 @@ const DEFAULT_USERS = [
   }),
 ];
 
+const DEFAULT_GROUPS: UserGroup[] = [
+  {
+    id: 1001,
+    name: 'test1',
+    description: 'test1',
+    selected: true,
+    default: true,
+  },
+  {
+    id: 1002,
+    name: 'test2',
+    description: 'test2',
+    selected: true,
+    default: false,
+  },
+  {
+    id: 1003,
+    name: 'test3',
+    description: 'test3',
+    selected: false,
+    default: false,
+  },
+];
+
+const DEFAULT_PASSWORD = 'test';
+
 export default class UsersServiceMock {
   isManaged = true;
   users = cloneDeep(DEFAULT_USERS);
+  groups = cloneDeep(DEFAULT_GROUPS);
+  password = DEFAULT_PASSWORD;
   constructor() {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(searchUsers).mockImplementation((p) => this.handleSearchUsers(p));
     jest.mocked(createUser).mockImplementation(this.handleCreateUser);
+    jest.mocked(updateUser).mockImplementation(this.handleUpdateUser);
+    jest.mocked(getUserGroups).mockImplementation(this.handleGetUserGroups);
+    jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
+    jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
+    jest.mocked(changePassword).mockImplementation(this.handleChangePassword);
+    jest.mocked(deactivateUser).mockImplementation(this.handleDeactivateUser);
   }
 
   setIsManaged(managed: boolean) {
@@ -187,6 +242,12 @@ export default class UsersServiceMock {
     scmAccount: string[];
   }) => {
     const { email, local, login, name, scmAccount } = data;
+    if (scmAccount.some((a) => isEmpty(a.trim()))) {
+      return Promise.reject({
+        status: 400,
+        json: () => Promise.resolve({ errors: [{ msg: 'Error: Empty SCM' }] }),
+      });
+    }
     const newUser = mockUser({
       email,
       local,
@@ -198,8 +259,27 @@ export default class UsersServiceMock {
     return this.reply(undefined);
   };
 
+  handleUpdateUser = (data: {
+    email?: string;
+    login: string;
+    name: string;
+    scmAccount: string[];
+  }) => {
+    const { email, login, name, scmAccount } = data;
+    const user = this.users.find((u) => u.login === login);
+    if (!user) {
+      return Promise.reject('No such user');
+    }
+    Object.assign(user, {
+      ...omitBy({ name, email, scmAccount }, isUndefined),
+    });
+    return this.reply({ user });
+  };
+
   handleGetIdentityProviders = (): Promise<{ identityProviders: IdentityProvider[] }> => {
-    return this.reply({ identityProviders: [mockIdentityProvider()] });
+    return this.reply({
+      identityProviders: [mockIdentityProvider({ key: 'test' })],
+    });
   };
 
   handleGetSystemInfo = (): Promise<SysInfoCluster> => {
@@ -218,9 +298,72 @@ export default class UsersServiceMock {
     );
   };
 
+  handleGetUserGroups: typeof getUserGroups = (data) => {
+    const filteredGroups = this.groups
+      .filter((g) => g.name.includes(data.q ?? ''))
+      .filter((g) => {
+        switch (data.selected) {
+          case 'selected':
+            return g.selected;
+          case 'deselected':
+            return !g.selected;
+          default:
+            return true;
+        }
+      });
+    return this.reply({
+      paging: { pageIndex: 1, pageSize: 10, total: filteredGroups.length },
+      groups: filteredGroups,
+    });
+  };
+
+  handleAddUserToGroup: typeof addUserToGroup = ({ name }) => {
+    this.groups = this.groups.map((g) => (g.name === name ? { ...g, selected: true } : g));
+    return this.reply({});
+  };
+
+  handleRemoveUserFromGroup: typeof removeUserFromGroup = ({ name }) => {
+    let isDefault = false;
+    this.groups = this.groups.map((g) => {
+      if (g.name === name) {
+        if (g.default) {
+          isDefault = true;
+          return g;
+        }
+        return { ...g, selected: false };
+      }
+      return g;
+    });
+    return isDefault
+      ? Promise.reject({
+          errors: [{ msg: 'Cannot remove Default group' }],
+        })
+      : this.reply({});
+  };
+
+  handleChangePassword: typeof changePassword = (data) => {
+    if (data.previousPassword !== this.password) {
+      return Promise.reject(ChangePasswordResults.OldPasswordIncorrect);
+    }
+    if (data.password === this.password) {
+      return Promise.reject(ChangePasswordResults.NewPasswordSameAsOld);
+    }
+    this.password = data.password;
+    return this.reply({});
+  };
+
+  handleDeactivateUser: typeof deactivateUser = (data) => {
+    const index = this.users.findIndex((u) => u.login === data.login);
+    const user = this.users.splice(index, 1)[0];
+    user.active = false;
+    return this.reply({ user });
+  };
+
   reset = () => {
     this.isManaged = true;
     this.users = cloneDeep(DEFAULT_USERS);
+    this.groups = cloneDeep(DEFAULT_GROUPS);
+    this.password = DEFAULT_PASSWORD;
   };
 
   reply<T>(response: T): Promise<T> {

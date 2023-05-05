@@ -20,17 +20,17 @@
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { searchUsersGroups } from '../../../api/user_groups';
-import ListFooter from '../../../components/controls/ListFooter';
-import { ManagedFilter } from '../../../components/controls/ManagedFilter';
-import SearchBox from '../../../components/controls/SearchBox';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { useManageProvider } from '../../../components/hooks/useManageProvider';
-import { translate } from '../../../helpers/l10n';
-import { Group, Paging } from '../../../types/types';
-import '../groups.css';
-import Header from './Header';
-import List from './List';
+import { searchUsersGroups } from '../../api/user_groups';
+import ListFooter from '../../components/controls/ListFooter';
+import { ManagedFilter } from '../../components/controls/ManagedFilter';
+import SearchBox from '../../components/controls/SearchBox';
+import Suggestions from '../../components/embed-docs-modal/Suggestions';
+import { useManageProvider } from '../../components/hooks/useManageProvider';
+import { translate } from '../../helpers/l10n';
+import { Group, Paging } from '../../types/types';
+import Header from './components/Header';
+import List from './components/List';
+import './groups.css';
 
 export default function App() {
   const [loading, setLoading] = useState<boolean>(true);

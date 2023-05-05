@@ -53,6 +53,7 @@ import {
   SysInfoCluster,
   SysInfoLogging,
   SysInfoStandalone,
+  UserGroupMember,
 } from '../types/types';
 import { CurrentUser, LoggedInUser, User } from '../types/users';
 
@@ -672,6 +673,16 @@ export function mockUser(overrides: Partial<User> = {}): User {
     login: 'john.doe',
     name: 'John Doe',
     managed: false,
+    ...overrides,
+  };
+}
+
+export function mockUserGroupMember(overrides: Partial<UserGroupMember> = {}): UserGroupMember {
+  return {
+    login: 'john.doe',
+    name: 'John Doe',
+    managed: false,
+    selected: true,
     ...overrides,
   };
 }

@@ -97,14 +97,17 @@ export function updateUser(data: {
   login: string;
   name?: string;
   scmAccount: string[];
-}): Promise<User> {
+}): Promise<{ user: User }> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',
   });
 }
 
-export function deactivateUser(data: { login: string; anonymize?: boolean }): Promise<User> {
+export function deactivateUser(data: {
+  login: string;
+  anonymize?: boolean;
+}): Promise<{ user: User }> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 

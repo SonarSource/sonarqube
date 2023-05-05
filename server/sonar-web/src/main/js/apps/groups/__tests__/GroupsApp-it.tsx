@@ -18,18 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { act } from 'react-dom/test-utils';
 import { byRole, byText } from 'testing-library-selector';
-import GroupsServiceMock from '../../../../api/mocks/GroupsServiceMock';
-import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
 import App from '../GroupsApp';
-
-jest.mock('../../../../api/users');
-jest.mock('../../../../api/system');
-jest.mock('../../../../api/user_groups');
 
 const handler = new GroupsServiceMock();
 
@@ -38,6 +34,8 @@ const ui = {
   infoManageMode: byText(/groups\.page\.managed_description/),
   description: byText('user_groups.page.description'),
   allFilter: byRole('button', { name: 'all' }),
+  selectedFilter: byRole('button', { name: 'selected' }),
+  unselectedFilter: byRole('button', { name: 'unselected' }),
   managedFilter: byRole('button', { name: 'managed' }),
   localFilter: byRole('button', { name: 'local' }),
   searchInput: byRole('searchbox', { name: 'search.search_by_name' }),
@@ -52,10 +50,13 @@ const ui = {
   descriptionInput: byRole('textbox', { name: 'description' }),
   createGroupDialogButton: byRole('button', { name: 'create' }),
   editGroupDialogButton: byRole('button', { name: 'groups.create_group' }),
+  reloadButton: byRole('button', { name: 'reload' }),
+  doneButton: byRole('button', { name: 'done' }),
 
   createGroupDialog: byRole('dialog', { name: 'groups.create_group' }),
   membersViewDialog: byRole('dialog', { name: 'users.list' }),
   membersDialog: byRole('dialog', { name: 'users.update' }),
+  getMembers: () => within(ui.membersDialog.get()).getAllByRole('checkbox'),
 
   managedGroupRow: byRole('row', { name: 'managed-group 1' }),
   managedGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.managed-group' }),
@@ -77,16 +78,19 @@ const ui = {
   }),
 };
 
+beforeEach(() => {
+  handler.reset();
+});
+
 describe('in non managed mode', () => {
   beforeEach(() => {
     handler.setIsManaged(false);
-    handler.reset();
   });
 
   it('should render all groups', async () => {
     renderGroupsApp();
 
-    expect(await ui.localGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
     expect(ui.localGroupRowWithLocalBadge.query()).not.toBeInTheDocument();
   });
@@ -95,7 +99,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.description.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.description.find()).toBeInTheDocument());
     await act(async () => {
       await user.click(ui.createGroupButton.get());
     });
@@ -161,7 +165,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.localGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(await ui.localGroupEditMembersButton.find()).toBeInTheDocument();
 
     await act(async () => {
@@ -169,13 +173,34 @@ describe('in non managed mode', () => {
     });
 
     expect(await ui.membersDialog.find()).toBeInTheDocument();
+
+    expect(ui.getMembers()).toHaveLength(2);
+
+    await user.click(ui.allFilter.get());
+    expect(ui.getMembers()).toHaveLength(3);
+
+    await user.click(ui.unselectedFilter.get());
+    expect(ui.reloadButton.query()).not.toBeInTheDocument();
+    await user.click(ui.getMembers()[0]);
+    expect(await ui.reloadButton.find()).toBeInTheDocument();
+
+    await user.click(ui.selectedFilter.get());
+    expect(ui.getMembers()).toHaveLength(3);
+    expect(ui.reloadButton.query()).not.toBeInTheDocument();
+    await user.click(ui.getMembers()[0]);
+    expect(await ui.reloadButton.find()).toBeInTheDocument();
+    await user.click(ui.reloadButton.get());
+    expect(ui.getMembers()).toHaveLength(2);
+
+    await act(() => user.click(ui.doneButton.get()));
+    expect(ui.membersDialog.query()).not.toBeInTheDocument();
   });
 
   it('should be able search a group', async () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.localGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
 
     await act(async () => {
@@ -190,7 +215,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.localGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(await screen.findAllByRole('row')).toHaveLength(3);
 
     await act(async () => {
@@ -204,12 +229,11 @@ describe('in non managed mode', () => {
 describe('in manage mode', () => {
   beforeEach(() => {
     handler.setIsManaged(true);
-    handler.reset();
   });
 
   it('should not be able to create a group', async () => {
     renderGroupsApp();
-    expect(await ui.createGroupButton.find()).toBeDisabled();
+    await act(async () => expect(await ui.createGroupButton.find()).toBeDisabled());
     expect(ui.infoManageMode.get()).toBeInTheDocument();
   });
 
@@ -217,7 +241,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument());
 
     await act(async () => {
       await user.click(await ui.localFilter.find());
@@ -237,20 +261,21 @@ describe('in manage mode', () => {
   });
 
   it('should not be able to delete or edit a managed group', async () => {
+    const user = userEvent.setup();
     renderGroupsApp();
 
-    expect(await ui.managedGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.managedGroupRow.find()).toBeInTheDocument());
     expect(ui.managedEditButton.query()).not.toBeInTheDocument();
 
     expect(ui.managedGroupEditMembersButton.query()).not.toBeInTheDocument();
 
-    await userEvent.click(ui.managedGroupViewMembersButton.get());
+    await act(() => user.click(ui.managedGroupViewMembersButton.get()));
     expect(await ui.membersViewDialog.find()).toBeInTheDocument();
 
     expect(ui.memberAliceUser.get()).toBeInTheDocument();
     expect(ui.memberBobUser.get()).toBeInTheDocument();
 
-    await userEvent.type(ui.memberSearchInput.get(), 'b');
+    await act(() => user.type(ui.memberSearchInput.get(), 'b'));
 
     expect(await ui.memberBobUser.find()).toBeInTheDocument();
     expect(ui.memberAliceUser.query()).not.toBeInTheDocument();
@@ -259,7 +284,7 @@ describe('in manage mode', () => {
   it('should render list of all groups', async () => {
     renderGroupsApp();
 
-    expect(await ui.allFilter.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.allFilter.find()).toBeInTheDocument());
 
     expect(ui.localGroupRowWithLocalBadge.get()).toBeInTheDocument();
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
