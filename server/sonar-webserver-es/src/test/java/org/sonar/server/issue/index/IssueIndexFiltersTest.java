@@ -838,6 +838,20 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().sonarsourceSecurity(singletonList("buffer-overflow")), "I1");
   }
 
+  @Test
+  public void search_whenFilteringByCodeVariants_shouldReturnRelevantIssues() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setCodeVariants(asList("variant1", "variant2")),
+      newDoc("I2", project.uuid(), file).setCodeVariants(singletonList("variant2")),
+      newDoc("I3", project.uuid(), file).setCodeVariants(singletonList("variant3")),
+      newDoc("I4", project.uuid(), file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().codeVariants(singletonList("variant2")), "I1", "I2");
+  }
+
   private void indexView(String viewUuid, List<String> projects) {
     viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
   }

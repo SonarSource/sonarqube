@@ -116,6 +116,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
@@ -178,7 +179,8 @@ public class SearchActionIT {
       .setAssigneeUuid(simon.getUuid())
       .setTags(asList("bug", "owasp"))
       .setIssueCreationDate(parseDate("2014-09-03"))
-      .setIssueUpdateDate(parseDate("2017-12-04")));
+      .setIssueUpdateDate(parseDate("2017-12-04"))
+      .setCodeVariants(List.of("variant1", "variant2")));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -188,12 +190,12 @@ public class SearchActionIT {
       .extracting(
         Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
         Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate,
-        Issue::getQuickFixAvailable)
+        Issue::getQuickFixAvailable, Issue::getCodeVariantsList)
       .containsExactlyInAnyOrder(
         tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message",
           MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)), "10min",
           simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
-          formatDateTime(issue.getIssueUpdateDate()), false));
+          formatDateTime(issue.getIssueUpdateDate()), false, List.of("variant1", "variant2")));
   }
 
   @Test
@@ -548,6 +550,24 @@ public class SearchActionIT {
       .setParam("additionalFields", "_all")
       .execute();
     execute.assertJson(this.getClass(), "no_issue.json");
+  }
+
+  @Test
+  public void search_by_variants_with_facets() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant1")));
+    db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant2")));
+    db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant1", "variant2")));
+    db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant2", "variant3")));
+    indexPermissionsAndIssues();
+
+    ws.newRequest()
+      .setParam(PARAM_CODE_VARIANTS, "variant2,variant3")
+      .setParam(FACETS, PARAM_CODE_VARIANTS)
+      .execute()
+      .assertJson(this.getClass(), "search_by_variants_with_facets.json");
   }
 
   @Test
@@ -1754,7 +1774,7 @@ public class SearchActionIT {
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10",
-      "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
+      "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();

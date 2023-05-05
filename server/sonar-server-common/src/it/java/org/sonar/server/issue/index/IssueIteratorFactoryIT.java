@@ -68,7 +68,8 @@ public class IssueIteratorFactoryIT {
         .setIssueCreationDate(new Date(1115848800000L))
         .setIssueUpdateDate(new Date(1356994800000L))
         .setIssueCloseDate(null)
-        .setType(2));
+        .setType(2)
+        .setCodeVariants(List.of("variant1", "variant2")));
 
     Map<String, IssueDoc> issuesByKey = issuesByKey();
 
@@ -90,6 +91,7 @@ public class IssueIteratorFactoryIT {
     assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isPositive();
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
+    assertThat(issue.getCodeVariants()).containsOnly("variant1", "variant2");
   }
 
   @Test

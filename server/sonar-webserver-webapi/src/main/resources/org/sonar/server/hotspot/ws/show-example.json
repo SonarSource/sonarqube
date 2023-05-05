@@ -108,5 +108,9 @@
       "active": true
     }
   ],
-  "canChangeStatus": true
+  "canChangeStatus": true,
+  "codeVariants": [
+    "windows",
+    "linux"
+  ]
 }

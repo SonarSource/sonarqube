@@ -75,6 +75,7 @@ message ShowWsResponse {
   optional bool canChangeStatus = 17;
   repeated sonarqube.ws.commons.Flow flows = 19;
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 20;
+  repeated string codeVariants = 21;
 }
 
 message Component {

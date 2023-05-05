@@ -63,6 +63,7 @@ public class IssueQueryTest {
       .newCodeOnReferenceByProjectUuids(List.of("PROJECT"))
       .sort(IssueQuery.SORT_BY_CREATION_DATE)
       .asc(true)
+      .codeVariants(List.of("codeVariant1", "codeVariant2"))
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -88,6 +89,7 @@ public class IssueQueryTest {
     assertThat(query.newCodeOnReferenceByProjectUuids()).containsOnly("PROJECT");
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
+    assertThat(query.codeVariants()).containsOnly("codeVariant1", "codeVariant2");
   }
 
   @Test

@@ -366,4 +366,14 @@ public class IssueDoc extends BaseDoc {
     setField(IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE, b);
     return this;
   }
+
+  @CheckForNull
+  public Collection<String> getCodeVariants() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS);
+  }
+
+  public IssueDoc setCodeVariants(@Nullable Collection<String> codeVariants) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS, codeVariants);
+    return this;
+  }
 }

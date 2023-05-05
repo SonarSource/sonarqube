@@ -139,6 +139,7 @@ public class SearchResponseFormatFormatOperationTest {
     assertThat(issue.getCloseDate()).isEqualTo(formatDateTime(issueDto.getIssueCloseDate()));
     assertThat(issue.getQuickFixAvailable()).isEqualTo(issueDto.isQuickFixAvailable());
     assertThat(issue.getRuleDescriptionContextKey()).isEqualTo(issueDto.getOptionalRuleDescriptionContextKey().orElse(null));
+    assertThat(new ArrayList<>(issue.getCodeVariantsList())).containsExactlyInAnyOrderElementsOf(issueDto.getCodeVariants());
   }
 
   @Test

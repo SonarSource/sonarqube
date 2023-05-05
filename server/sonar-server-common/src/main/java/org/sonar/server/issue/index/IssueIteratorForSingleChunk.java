@@ -82,7 +82,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.issue_type",
     "r.security_standards",
     "c.qualifier",
-    "n.uuid"
+    "n.uuid",
+    "i.code_variants"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -96,7 +97,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
   private static final String ISSUE_KEY_FILTER_SUFFIX = ") ";
 
-  static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final DbSession session;
 
@@ -222,7 +223,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setIsMainBranch(isMainBranch);
       doc.setProjectUuid(projectUuid);
       String tags = rs.getString(20);
-      doc.setTags(IssueIteratorForSingleChunk.TAGS_SPLITTER.splitToList(tags == null ? "" : tags));
+      doc.setTags(STRING_LIST_SPLITTER.splitToList(tags == null ? "" : tags));
       doc.setType(RuleType.valueOf(rs.getInt(21)));
 
       SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(22)));
@@ -239,6 +240,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
       doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
       doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
+      String codeVariants = rs.getString(25);
+      doc.setCodeVariants(STRING_LIST_SPLITTER.splitToList(codeVariants == null ? "" : codeVariants));
       return doc;
     }
 

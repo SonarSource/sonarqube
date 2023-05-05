@@ -93,7 +93,11 @@
         }
       ],
       "quickFixAvailable": false,
-      "ruleDescriptionContextKey": "spring"
+      "ruleDescriptionContextKey": "spring",
+      "codeVariants": [
+        "windows",
+        "linux"
+      ]
     }
   ],
   "components": [

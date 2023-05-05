@@ -644,6 +644,23 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     assertThat(createdAt).isNull();
   }
 
+  @Test
+  public void search_shouldReturnCodeVariantsFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setCodeVariants(asList("variant1", "variant2")),
+      newDoc("I2", project.uuid(), file).setCodeVariants(singletonList("variant2")),
+      newDoc("I3", project.uuid(), file).setCodeVariants(singletonList("variant3")),
+      newDoc("I4", project.uuid(), file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "codeVariants",
+      entry("variant1", 1L),
+      entry("variant2", 2L),
+      entry("variant3", 1L));
+  }
+
   private SearchOptions fixtureForCreatedAtFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);

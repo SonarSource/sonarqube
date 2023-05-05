@@ -161,6 +161,8 @@ message Issue {
   optional string ruleDescriptionContextKey = 37;
 
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 38;
+
+  repeated string codeVariants = 39;
 }
 
 message Transitions {

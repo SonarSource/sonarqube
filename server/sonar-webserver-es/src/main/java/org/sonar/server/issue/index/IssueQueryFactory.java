@@ -151,7 +151,8 @@ public class IssueQueryFactory {
         .createdAt(parseStartingDateOrDateTime(request.getCreatedAt(), timeZone))
         .createdBefore(parseEndingDateOrDateTime(request.getCreatedBefore(), timeZone))
         .facetMode(request.getFacetMode())
-        .timeZone(timeZone);
+        .timeZone(timeZone)
+        .codeVariants(request.getCodeVariants());
 
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);

@@ -104,7 +104,8 @@ public class IssueQueryFactoryTest {
       .setCreatedBefore("2013-04-17T09:08:24+0200")
       .setRules(asList(rule1.getKey().toString(), rule2.getKey().toString()))
       .setSort("CREATION_DATE")
-      .setAsc(true);
+      .setAsc(true)
+      .setCodeVariants(asList("variant1", "variant2"));
 
     IssueQuery query = underTest.create(request);
 
@@ -129,7 +130,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
-
+    assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
   }
 
   @Test

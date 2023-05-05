@@ -181,6 +181,7 @@ public class SearchResponseFormat {
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(dto.parseMessageFormattings()));
     issueBuilder.addAllTags(dto.getTags());
+    issueBuilder.addAllCodeVariants(dto.getCodeVariants());
     Long effort = dto.getEffort();
     if (effort != null) {
       String effortValue = durations.encode(Duration.create(effort));

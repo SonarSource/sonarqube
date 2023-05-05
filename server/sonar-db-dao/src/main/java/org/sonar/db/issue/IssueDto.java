@@ -50,7 +50,7 @@ public final class IssueDto implements Serializable {
   public static final int AUTHOR_MAX_SIZE = 255;
   private static final char STRING_LIST_SEPARATOR = ',';
   private static final Joiner STRING_LIST_JOINER = Joiner.on(STRING_LIST_SEPARATOR).skipNulls();
-  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(STRING_LIST_SEPARATOR).trimResults().omitEmptyStrings();
 
   private int type;
   private String kee;

@@ -105,6 +105,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_CWE = "cwe";
   public static final String FIELD_ISSUE_SQ_SECURITY_CATEGORY = "sonarsourceSecurity";
   public static final String FIELD_ISSUE_VULNERABILITY_PROBABILITY = "vulnerabilityProbability";
+  public static final String FIELD_ISSUE_CODE_VARIANTS = "codeVariants";
 
   /**
    * Whether issue is new code for a branch using the reference branch new code definition.
@@ -177,5 +178,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_SQ_SECURITY_CATEGORY).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_VULNERABILITY_PROBABILITY).disableNorms().build();
     mapping.createBooleanField(FIELD_ISSUE_NEW_CODE_REFERENCE);
+    mapping.keywordFieldBuilder(FIELD_ISSUE_CODE_VARIANTS).disableNorms().build();
   }
 }

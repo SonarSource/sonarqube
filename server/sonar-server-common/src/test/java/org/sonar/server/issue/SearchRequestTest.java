@@ -53,7 +53,8 @@ public class SearchRequestTest {
       .setOwaspAsvs40(asList("1.1.1", "4.2.2"))
       .setOwaspAsvsLevel(2)
       .setPciDss32(asList("1", "4"))
-      .setPciDss40(asList("3", "5"));
+      .setPciDss40(asList("3", "5"))
+      .setCodeVariants(asList("variant1", "variant2"));
 
     assertThat(underTest.getIssues()).containsOnlyOnce("anIssueKey");
     assertThat(underTest.getSeverities()).containsExactly("MAJOR", "MINOR");
@@ -79,6 +80,7 @@ public class SearchRequestTest {
     assertThat(underTest.getOwaspAsvsLevel()).isEqualTo(2);
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
+    assertThat(underTest.getCodeVariants()).containsExactly("variant1", "variant2");
   }
 
   @Test

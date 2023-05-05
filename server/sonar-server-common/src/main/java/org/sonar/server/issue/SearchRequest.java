@@ -69,8 +69,8 @@ public class SearchRequest {
   private List<String> sonarsourceSecurity;
   private List<String> cwe;
   private String timeZone;
-
   private Integer owaspAsvsLevel;
+  private List<String> codeVariants;
 
   public SearchRequest() {
     // nothing to do here
@@ -500,6 +500,16 @@ public class SearchRequest {
 
   public SearchRequest setOwaspAsvsLevel(@Nullable Integer owaspAsvsLevel) {
     this.owaspAsvsLevel = owaspAsvsLevel;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getCodeVariants() {
+    return codeVariants;
+  }
+
+  public SearchRequest setCodeVariants(@Nullable List<String> codeVariants) {
+    this.codeVariants = codeVariants;
     return this;
   }
 }

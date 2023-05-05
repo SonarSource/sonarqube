@@ -1070,6 +1070,21 @@ public class ShowActionIT {
   }
 
   @Test
+  public void response_shouldContainCodeVariants() {
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setCodeVariants(List.of("variant1", "variant2")));
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCodeVariantsList()).containsOnly("variant1", "variant2");
+  }
+
+  @Test
   public void verify_response_example() {
     ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
@@ -1103,7 +1118,8 @@ public class ShowActionIT {
       .setIssueUpdateTime(time)
       .setAuthorLogin(author.getLogin())
       .setAssigneeUuid(author.getUuid())
-      .setKee("AW9mgJw6eFC3pGl94Wrf"));
+      .setKee("AW9mgJw6eFC3pGl94Wrf")
+      .setCodeVariants(List.of("windows", "linux")));
 
     List<Common.Changelog> changelog = IntStream.range(0, 3)
       .mapToObj(i -> Common.Changelog.newBuilder()

@@ -102,6 +102,7 @@ public class IssuesWsParameters {
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
   public static final String PARAM_TIMEZONE = "timeZone";
+  public static final String PARAM_CODE_VARIANTS = "codeVariants";
 
   public static final String FACET_MODE_EFFORT = "effort";
 
