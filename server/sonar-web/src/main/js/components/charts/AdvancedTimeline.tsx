@@ -23,14 +23,14 @@ import { bisector, extent, max } from 'd3-array';
 import {
   NumberValue,
   ScaleLinear,
-  ScalePoint,
-  ScaleTime,
   scaleLinear,
+  ScalePoint,
   scalePoint,
+  ScaleTime,
   scaleTime,
 } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { ThemeProp, themeColor, withTheme } from 'design-system';
+import { themeColor, ThemeProp, withTheme } from 'design-system';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
 import { isDefined } from '../../helpers/types';
@@ -222,7 +222,6 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
     const { zoomSpeed = 1 } = this.props;
     const { maxXRange, xScale } = this.state;
 
-    event.preventDefault();
     const parentBbox = event.currentTarget.getBoundingClientRect();
     const mouseXPos = (event.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
