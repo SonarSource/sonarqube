@@ -37,7 +37,7 @@ interface Props extends AllowedRadioButtonAttributes {
   value: string;
 }
 
-export default function RadioButton({
+export function RadioButton({
   checked,
   children,
   className,

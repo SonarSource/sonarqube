@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { setIssueSeverity } from '../../../api/issues';
-import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
+import { ButtonLink } from '../../../components/controls/buttons';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';

@@ -41,7 +41,7 @@ interface Props {
   title?: string;
 }
 
-export default function Checkbox({
+export function Checkbox({
   checked,
   disabled,
   children,

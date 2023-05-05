@@ -26,12 +26,12 @@ import { INPUT_SIZES } from '../helpers/constants';
 import { translate } from '../helpers/l10n';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys, ThemedProps } from '../types/theme';
-import Checkbox from './Checkbox';
-import { ClipboardBase } from './clipboard';
+import { Checkbox } from './Checkbox';
 import { BaseLink, LinkProps } from './Link';
 import NavLink from './NavLink';
-import RadioButton from './RadioButton';
+import { RadioButton } from './RadioButton';
 import Tooltip from './Tooltip';
+import { ClipboardBase } from './clipboard';
 
 interface Props extends React.HtmlHTMLAttributes<HTMLMenuElement> {
   children?: React.ReactNode;
