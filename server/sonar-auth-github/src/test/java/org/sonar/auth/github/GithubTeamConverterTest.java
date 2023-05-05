@@ -27,9 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GithubTeamConverterTest {
 
   @Test
-  public void toGroup_creates_correct_groupName() {
+  public void toGroupName_withGsonTeam_returnsCorrectGroupName() {
     GsonTeam team = new GsonTeam("team-1", new GsonTeam.GsonOrganization("Org1"));
     assertThat(GithubTeamConverter.toGroupName(team)).isEqualTo("Org1/team-1");
+  }
+
+  @Test
+  public void toGroupName_withGroupAndName_returnsCorrectGroupName() {
+    assertThat(GithubTeamConverter.toGroupName("Org1", "team-1")).isEqualTo("Org1/team-1");
   }
 
   @Test

@@ -31,7 +31,11 @@ public class GithubTeamConverter {
   }
 
   public static String toGroupName(GsonTeam team) {
-    return team.getOrganizationId() + "/" + team.getId();
+    return toGroupName(team.getOrganizationId(), team.getId());
+  }
+
+  public static String toGroupName(String organization, String groupName) {
+    return organization + "/" + groupName;
   }
 
   public static Optional<String> extractOrganizationName(String groupName) {

@@ -19,11 +19,16 @@
  */
 package org.sonar.db.user;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public record ExternalGroupDto(String groupUuid, String externalId, String externalIdentityProvider, @Nullable String name) {
 
   public ExternalGroupDto(String groupUuid, String externalId, String externalIdentityProvider) {
     this(groupUuid, externalId, externalIdentityProvider, null);
+  }
+
+  public String getNameOrThrow() {
+    return Objects.requireNonNull(name);
   }
 }
