@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { byRole } from 'testing-library-selector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
-import { mockRule } from '../../../helpers/testMocks';
+import { mockPaging, mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import routes from '../routes';
 
@@ -119,7 +119,9 @@ it('should list recently added rules', async () => {
   serviceMock.setAdmin();
   serviceMock.setRulesSearchResponse({
     rules: [mockRule({ name: 'Recently Added Rule' })],
-    total: 20,
+    paging: mockPaging({
+      total: 20,
+    }),
   });
 
   renderQualityProfiles();

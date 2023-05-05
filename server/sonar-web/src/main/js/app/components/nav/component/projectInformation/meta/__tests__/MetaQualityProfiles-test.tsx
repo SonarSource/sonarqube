@@ -20,7 +20,11 @@
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { searchRules } from '../../../../../../../api/rules';
-import { mockLanguage, mockQualityProfile } from '../../../../../../../helpers/testMocks';
+import {
+  mockLanguage,
+  mockPaging,
+  mockQualityProfile,
+} from '../../../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
 import { SearchRulesResponse } from '../../../../../../../types/coding-rules';
 import { Dict } from '../../../../../../../types/types';
@@ -40,9 +44,16 @@ it('should render correctly', async () => {
     ts: 10,
     css: 0,
   };
-  jest.mocked(searchRules).mockImplementation(({ qprofile }: { qprofile: string }) => {
-    return Promise.resolve({ total: totals[qprofile] } as SearchRulesResponse);
-  });
+  jest
+    .mocked(searchRules)
+    .mockImplementation(({ qprofile }: { qprofile: string }): Promise<SearchRulesResponse> => {
+      return Promise.resolve({
+        rules: [],
+        paging: mockPaging({
+          total: totals[qprofile],
+        }),
+      });
+    });
 
   renderMetaQualityprofiles();
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getProfileChangelog } from '../../../api/quality-profiles';
+import { ChangelogResponse, getProfileChangelog } from '../../../api/quality-profiles';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
@@ -76,12 +76,12 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
     } = this.props;
 
     getProfileChangelog(query.since, query.to, profile)
-      .then((r: any) => {
+      .then((r: ChangelogResponse) => {
         if (this.mounted) {
           this.setState({
             events: r.events,
-            total: r.total,
-            page: r.p,
+            total: r.paging.total,
+            page: r.paging.pageIndex,
             loading: false,
           });
         }
@@ -101,12 +101,12 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
       } = this.props;
 
       getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
-        .then((r: any) => {
+        .then((r: ChangelogResponse) => {
           if (this.mounted && this.state.events) {
             this.setState(({ events = [] }) => ({
               events: [...events, ...r.events],
-              total: r.total,
-              page: r.p,
+              total: r.paging.total,
+              page: r.paging.pageIndex,
               loading: false,
             }));
           }

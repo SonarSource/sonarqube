@@ -20,11 +20,11 @@
 import { DeferredSpinner } from 'design-system/lib';
 import * as React from 'react';
 import { getUsersInGroup } from '../../../api/user_groups';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import SearchBox from '../../../components/controls/SearchBox';
 import { SelectListFilter } from '../../../components/controls/SelectList';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Group, UserGroupMember } from '../../../types/types';
 
@@ -57,7 +57,7 @@ export default function ViewMembersModal(props: Props) {
       } else {
         setUsers(data.users);
       }
-      setTotal(data.total);
+      setTotal(data.paging.total);
       setLoading(false);
     })();
   }, [query, page]);

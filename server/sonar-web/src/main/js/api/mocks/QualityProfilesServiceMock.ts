@@ -19,24 +19,29 @@
  */
 import { cloneDeep } from 'lodash';
 import { RequestData } from '../../helpers/request';
-import { mockCompareResult, mockQualityProfile, mockRuleDetails } from '../../helpers/testMocks';
+import {
+  mockCompareResult,
+  mockPaging,
+  mockQualityProfile,
+  mockRuleDetails,
+} from '../../helpers/testMocks';
 import { SearchRulesResponse } from '../../types/coding-rules';
 import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
 import {
+  CompareResponse,
+  Profile,
+  ProfileProject,
+  SearchQualityProfilesParameters,
+  SearchQualityProfilesResponse,
   activateRule,
   changeProfileParent,
   compareProfiles,
-  CompareResponse,
   copyProfile,
   createQualityProfile,
   getImporters,
   getProfileInheritance,
   getProfileProjects,
-  Profile,
-  ProfileProject,
   searchQualityProfiles,
-  SearchQualityProfilesParameters,
-  SearchQualityProfilesResponse,
 } from '../quality-profiles';
 import { getRuleDetails, searchRules } from '../rules';
 
@@ -49,10 +54,8 @@ export default class QualityProfilesServiceMock {
 
   comparisonResult: CompareResponse = mockCompareResult();
   searchRulesResponse: SearchRulesResponse = {
-    p: 0,
-    ps: 500,
-    total: 0,
     rules: [],
+    paging: mockPaging(),
   };
 
   constructor() {
@@ -107,10 +110,12 @@ export default class QualityProfilesServiceMock {
 
   resetSearchRulesResponse() {
     this.searchRulesResponse = {
-      p: 0,
-      ps: 500,
-      total: 0,
       rules: [],
+      paging: {
+        pageIndex: 1,
+        pageSize: 500,
+        total: 0,
+      },
     };
   }
 

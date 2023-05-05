@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dict, Rule, RuleActivation } from './types';
+import { Dict, Paging, Rule, RuleActivation } from './types';
 
 export interface RuleRepository {
   key: string;
@@ -33,8 +33,6 @@ export interface GetRulesAppResponse {
 export interface SearchRulesResponse {
   actives?: Dict<RuleActivation[]>;
   facets?: { property: string; values: { count: number; val: string }[] }[];
-  p: number;
-  ps: number;
   rules: Rule[];
-  total: number;
+  paging: Paging;
 }

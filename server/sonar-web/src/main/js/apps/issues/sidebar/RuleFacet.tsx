@@ -52,9 +52,9 @@ export default class RuleFacet extends React.PureComponent<Props> {
         : ISSUE_TYPES.filter((type) => type !== IssueType.SecurityHotspot).join(),
       s: 'name',
       include_external: true,
-    }).then((response) => ({
-      paging: { pageIndex: response.p, pageSize: response.ps, total: response.total },
-      results: response.rules,
+    }).then(({ rules, paging }) => ({
+      results: rules,
+      paging,
     }));
   };
 

@@ -77,7 +77,7 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
       qprofile: profileKey,
       statuses: 'DEPRECATED',
     };
-    return searchRules(data).then((r) => r.total);
+    return searchRules(data).then((r) => r.paging.total);
   }
 
   getDeprecatedRulesCount(profile: { key: string }) {

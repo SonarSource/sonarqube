@@ -21,7 +21,7 @@ import { map } from 'lodash';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { RequestData, getJSON, post, postJSON } from '../helpers/request';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
@@ -171,17 +171,17 @@ export function getExporters(): Promise<any> {
   return getJSON('/api/qualityprofiles/exporters').then((r) => r.exporters);
 }
 
+export interface ChangelogResponse {
+  events: ProfileChangelogEvent[];
+  paging: Paging;
+}
+
 export function getProfileChangelog(
   since: any,
   to: any,
   { language, name: qualityProfile }: Profile,
   page?: number
-): Promise<{
-  events: ProfileChangelogEvent[];
-  p: number;
-  ps: number;
-  total: number;
-}> {
+): Promise<ChangelogResponse> {
   return getJSON('/api/qualityprofiles/changelog', {
     since,
     to,

@@ -252,10 +252,9 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   makeFetchRequest = (query?: RawQuery) =>
     searchRules({ ...this.getSearchParameters(), ...query }).then(
-      ({ actives: rawActives, facets: rawFacets, p, ps, rules, total }) => {
+      ({ actives: rawActives, facets: rawFacets, rules, paging }) => {
         const actives = rawActives && parseActives(rawActives);
         const facets = rawFacets && parseFacets(rawFacets);
-        const paging = { pageIndex: p, pageSize: ps, total };
         return { actives, facets, paging, rules };
       }
     );

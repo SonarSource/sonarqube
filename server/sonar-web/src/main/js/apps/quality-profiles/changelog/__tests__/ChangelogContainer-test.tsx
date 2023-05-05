@@ -20,14 +20,21 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getProfileChangelog } from '../../../../api/quality-profiles';
-import { mockLocation, mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockLocation,
+  mockPaging,
+  mockQualityProfile,
+  mockRouter,
+} from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ChangelogContainer } from '../ChangelogContainer';
 
 beforeEach(() => jest.clearAllMocks());
 
 jest.mock('../../../../api/quality-profiles', () => {
-  const { mockQualityProfileChangelogEvent } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockQualityProfileChangelogEvent, mockPaging } = jest.requireActual(
+    '../../../../helpers/testMocks'
+  );
   return {
     getProfileChangelog: jest.fn().mockResolvedValue({
       events: [
@@ -35,14 +42,19 @@ jest.mock('../../../../api/quality-profiles', () => {
         mockQualityProfileChangelogEvent(),
         mockQualityProfileChangelogEvent(),
       ],
-      total: 6,
-      p: 1,
+      paging: mockPaging({
+        total: 6,
+        pageIndex: 1,
+      }),
     }),
   };
 });
 
 it('should render correctly without events', async () => {
-  (getProfileChangelog as jest.Mock).mockResolvedValueOnce({ events: [] });
+  (getProfileChangelog as jest.Mock).mockResolvedValueOnce({
+    events: [],
+    paging: mockPaging({ total: 0 }),
+  });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

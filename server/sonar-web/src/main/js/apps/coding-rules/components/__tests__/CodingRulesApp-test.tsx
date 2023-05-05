@@ -34,7 +34,7 @@ import { CodingRulesApp } from '../CodingRulesApp';
 jest.mock('../../../../components/common/ScreenPositionHelper');
 
 jest.mock('../../../../api/rules', () => {
-  const { mockRule } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockRule, mockPaging } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getRulesApp: jest.fn().mockResolvedValue({ canWrite: true, repositories: [] }),
     searchRules: jest.fn().mockResolvedValue({
@@ -42,10 +42,12 @@ jest.mock('../../../../api/rules', () => {
       rawActives: [],
       facets: [],
       rawFacets: [],
-      p: 0,
-      ps: 100,
       rules: [mockRule(), mockRule()],
-      total: 0,
+      paging: mockPaging({
+        total: 0,
+        pageIndex: 1,
+        pageSize: 100,
+      }),
     }),
   };
 });

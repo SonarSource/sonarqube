@@ -22,8 +22,8 @@ import * as React from 'react';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules, takeFacet } from '../../../api/rules';
 import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
@@ -117,11 +117,11 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
         if (this.mounted) {
           const [allRules, activatedRules, showProfile] = responses;
           this.setState({
-            activatedTotal: activatedRules.total,
+            activatedTotal: activatedRules.paging.total,
             allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
             activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
             compareToSonarWay: showProfile && showProfile.compareToSonarWay,
-            total: allRules.total,
+            total: allRules.paging.total,
           });
         }
       }

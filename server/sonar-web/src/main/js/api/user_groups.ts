@@ -37,11 +37,10 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<
-  Paging & {
-    users: UserGroupMember[];
-  }
-> {
+}): Promise<{
+  paging: Paging;
+  users: UserGroupMember[];
+}> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 

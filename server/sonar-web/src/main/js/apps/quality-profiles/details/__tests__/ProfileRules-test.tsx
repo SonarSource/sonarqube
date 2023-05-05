@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getQualityProfile } from '../../../../api/quality-profiles';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockPaging, mockQualityProfile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import ProfileRules from '../ProfileRules';
 
@@ -35,7 +35,6 @@ const PROFILE = mockQualityProfile({
 const EDITABLE_PROFILE = { ...PROFILE, actions: { edit: true } };
 
 const apiResponseAll = {
-  total: 253,
   facets: [
     {
       property: 'types',
@@ -47,10 +46,12 @@ const apiResponseAll = {
       ],
     },
   ],
+  paging: mockPaging({
+    total: 253,
+  }),
 };
 
 const apiResponseActive = {
-  total: 68,
   facets: [
     {
       property: 'types',
@@ -62,6 +63,9 @@ const apiResponseActive = {
       ],
     },
   ],
+  paging: mockPaging({
+    total: 68,
+  }),
 };
 
 jest.mock('../../../../api/rules', () => ({
@@ -90,7 +94,7 @@ beforeEach(jest.clearAllMocks);
 
 it('should render the quality profiles rules with sonarway comparison', async () => {
   const wrapper = shallow(<ProfileRules profile={PROFILE} />);
-  const instance = wrapper.instance() as any;
+  const instance = wrapper.instance() as ProfileRules;
   instance.mounted = true;
   instance.loadRules();
   await waitAndUpdate(wrapper);

@@ -21,11 +21,12 @@ import { cloneDeep, countBy, pick, trim } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import {
   mockCurrentUser,
+  mockPaging,
   mockQualityProfile,
   mockRuleDetails,
   mockRuleRepository,
 } from '../../helpers/testMocks';
-import { RuleRepository } from '../../types/coding-rules';
+import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
@@ -328,7 +329,7 @@ export default class CodingRulesMock {
     ps,
     available_since,
     rule_key,
-  }: SearchRulesQuery) => {
+  }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const countFacet = (facets || '').split(',').map((facet: keyof Rule) => {
       const facetCount = countBy(
         this.rules.map((r) => r[FACET_RULE_MAP[facet] || facet] as string)
@@ -348,11 +349,13 @@ export default class CodingRulesMock {
     }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({
-      total: filteredRules.length,
-      p: currentP,
-      ps: currentPs,
       rules: responseRules,
       facets: countFacet,
+      paging: mockPaging({
+        total: filteredRules.length,
+        pageIndex: currentP,
+        pageSize: currentPs,
+      }),
     });
   };
 

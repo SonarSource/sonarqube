@@ -20,12 +20,12 @@
 import { find, without } from 'lodash';
 import * as React from 'react';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Group, UserSelected } from '../../../types/types';
 
@@ -88,7 +88,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
             lastSearchParams: searchParams,
             loading: false,
             users,
-            usersTotalCount: data.total,
+            usersTotalCount: data.paging.total,
             selectedUsers,
           };
         });

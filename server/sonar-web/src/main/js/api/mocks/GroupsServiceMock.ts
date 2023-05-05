@@ -146,9 +146,8 @@ export default class GroupsServiceMock {
     ps?: number;
     q?: string;
     selected?: string;
-  }): Promise<Paging & { users: UserGroupMember[] }> => {
+  }): Promise<{ paging: Paging; users: UserGroupMember[] }> => {
     return this.reply({
-      ...this.paging,
       users: this.users
         .filter((u) => u.name.includes(data.q ?? ''))
         .filter((u) => {
@@ -161,6 +160,7 @@ export default class GroupsServiceMock {
               return true;
           }
         }),
+      paging: { ...this.paging },
     });
   };
 

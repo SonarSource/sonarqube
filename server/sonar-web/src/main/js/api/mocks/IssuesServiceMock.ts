@@ -30,6 +30,7 @@ import {
   mockRule,
   mockRuleDetails,
 } from '../../helpers/testMocks';
+import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
   IssueActions,
@@ -546,7 +547,7 @@ export default class IssuesServiceMock {
     return this.reply(issue.snippets);
   };
 
-  handleSearchRules = (req: SearchRulesQuery) => {
+  handleSearchRules = (req: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const rules = this.rulesList.filter((rule) => {
       const query = req.q?.toLowerCase() || '';
       const nameMatches = rule.name.toLowerCase().includes(query);
@@ -555,10 +556,12 @@ export default class IssuesServiceMock {
       return isTypeRight && (nameMatches || keyMatches);
     });
     return this.reply({
-      p: 1,
-      ps: 30,
       rules,
-      total: rules.length,
+      paging: mockPaging({
+        total: rules.length,
+        pageIndex: 1,
+        pageSize: 30,
+      }),
     });
   };
 
