@@ -19,13 +19,16 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Predicate;
+import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -45,6 +48,7 @@ import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
 import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
+import static org.sonar.server.issue.IssueFieldsSetter.TYPE;
 import static org.sonar.server.issue.IssueFieldsSetter.UNUSED;
 
 public class IssueFieldsSetterTest {
@@ -131,6 +135,20 @@ public class IssueFieldsSetterTest {
     assertThatThrownBy(() -> underTest.setNewAssignee(issue, "another_user_uuid", context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("It's not possible to update the assignee with this method, please use assign()");
+  }
+
+  @Test
+  public void set_type() {
+    issue.setType(RuleType.CODE_SMELL);
+    boolean updated = underTest.setType(issue, RuleType.BUG, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
+    assertThat(issue.manualSeverity()).isFalse();
+    assertThat(issue.mustSendNotifications()).isFalse();
+
+    FieldDiffs.Diff diff = issue.currentChange().get(TYPE);
+    assertThat(diff.oldValue()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(diff.newValue()).isEqualTo(RuleType.BUG);
   }
 
   @Test
@@ -490,6 +508,33 @@ public class IssueFieldsSetterTest {
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
     assertThat(diff.oldValue()).isEqualTo(10L * 8 * 60);
     assertThat(diff.newValue()).isNull();
+  }
+
+  @Test
+  public void setCodeVariants_whenCodeVariantAdded_shouldBeUpdated() {
+    Set<String> currentCodeVariants = new HashSet<>(Arrays.asList("linux"));
+    Set<String> newCodeVariants = new HashSet<>(Arrays.asList("linux", "windows"));
+
+    issue.setCodeVariants(newCodeVariants);
+    boolean updated = underTest.setCodeVariants(issue, currentCodeVariants, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.codeVariants()).contains("linux", "windows");
+
+    FieldDiffs.Diff diff = issue.currentChange().get("code_variants");
+    assertThat(diff.oldValue()).isEqualTo("linux");
+    assertThat(diff.newValue()).isEqualTo("linux windows");
+    assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void setCodeVariants_whenCodeVariantsUnchanged_shouldNotBeUpdated() {
+    Set<String> currentCodeVariants = new HashSet<>(Arrays.asList("linux", "windows"));
+    Set<String> newCodeVariants = new HashSet<>(Arrays.asList("windows", "linux"));
+
+    issue.setCodeVariants(newCodeVariants);
+    boolean updated = underTest.setCodeVariants(issue, currentCodeVariants, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.currentChange()).isNull();
   }
 
   @Test

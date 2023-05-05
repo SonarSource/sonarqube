@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.RuleType;
@@ -64,8 +65,9 @@ public class IssueFieldsSetter {
   public static final String TECHNICAL_DEBT = "technicalDebt";
   public static final String LINE = "line";
   public static final String TAGS = "tags";
+  public static final String CODE_VARIANTS = "code_variants";
 
-  private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
+  private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
 
   public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
     if (!Objects.equals(type, issue.type())) {
@@ -396,8 +398,8 @@ public class IssueFieldsSetter {
     Set<String> oldTags = new HashSet<>(issue.tags());
     if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
-        oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),
-        newTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(newTags));
+        oldTags.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(oldTags),
+        newTags.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(newTags));
       issue.setTags(newTags);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -405,6 +407,32 @@ public class IssueFieldsSetter {
       return true;
     }
     return false;
+  }
+
+  public boolean setCodeVariants(DefaultIssue issue, Set<String> currentCodeVariants, IssueChangeContext context) {
+    Set<String> newCodeVariants = getNewCodeVariants(issue);
+    if (!currentCodeVariants.equals(newCodeVariants)) {
+      issue.setFieldChange(context, CODE_VARIANTS,
+        currentCodeVariants.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(currentCodeVariants),
+        newCodeVariants.isEmpty() ? null : CHANGELOG_LIST_JOINER.join(newCodeVariants));
+      issue.setCodeVariants(newCodeVariants);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  private static Set<String> getNewCodeVariants(DefaultIssue issue) {
+    Set<String> issueCodeVariants = issue.codeVariants();
+    if (issueCodeVariants == null) {
+      return Set.of();
+    }
+    return issueCodeVariants.stream()
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toSet());
   }
 
   public void setIssueComponent(DefaultIssue issue, String newComponentUuid, String newComponentKey, Date updateDate) {

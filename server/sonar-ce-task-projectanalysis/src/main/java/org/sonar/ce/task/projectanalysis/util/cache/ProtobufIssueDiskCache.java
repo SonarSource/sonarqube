@@ -47,7 +47,7 @@ import static java.util.Optional.ofNullable;
 
 public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
   private static final String TAGS_SEPARATOR = ",";
-  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final File file;
   private final System2 system2;
@@ -115,7 +115,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setChecksum(next.hasChecksum() ? next.getChecksum() : null);
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
-    defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.getTags())));
+    defaultIssue.setTags(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getTags())));
+    defaultIssue.setCodeVariants(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getCodeVariants())));
     defaultIssue.setRuleDescriptionContextKey(next.hasRuleDescriptionContextKey() ? next.getRuleDescriptionContextKey() : null);
     defaultIssue.setLocations(next.hasLocations() ? next.getLocations() : null);
     defaultIssue.setIsFromExternalRuleEngine(next.getIsFromExternalRuleEngine());
@@ -167,6 +168,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.authorLogin()).ifPresent(builder::setAuthorLogin);
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));
     ofNullable(defaultIssue.tags()).ifPresent(t -> builder.setTags(String.join(TAGS_SEPARATOR, t)));
+    ofNullable(defaultIssue.codeVariants()).ifPresent(codeVariant -> builder.setCodeVariants(String.join(TAGS_SEPARATOR, codeVariant)));
     ofNullable(defaultIssue.getLocations()).ifPresent(l -> builder.setLocations((DbIssues.Locations) l));
     defaultIssue.getRuleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);
     builder.setIsFromExternalRuleEngine(defaultIssue.isFromExternalRuleEngine());

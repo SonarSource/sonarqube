@@ -201,6 +201,7 @@ public class IssueLifecycle {
     updater.setPastMessage(raw, base.getMessage(), base.getMessageFormattings(), changeContext);
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
+    updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {

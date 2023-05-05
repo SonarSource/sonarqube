@@ -81,6 +81,7 @@ message Issue {
   optional bool isNoLongerNewCodeReferenceIssue = 43;
   optional string ruleDescriptionContextKey = 44;
   optional sonarqube.db.issues.MessageFormattings messageFormattings = 45;
+  optional string codeVariants = 46;
 }
 
 message Comment {
