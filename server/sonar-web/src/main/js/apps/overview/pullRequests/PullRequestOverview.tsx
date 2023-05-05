@@ -42,7 +42,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
+import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
 import { BranchStatusData, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { Component, MeasureEnhanced } from '../../../types/types';
@@ -199,7 +199,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                         defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
                         id="overview.quality_gate.conditions_on_new_code"
                         values={{
-                          link: <Link to={path}>{translate('overview.quality_gate.status')}</Link>,
+                          link: <Link to={path}>{translate('overview.quality_gate')}</Link>,
                         }}
                       />
                     }
