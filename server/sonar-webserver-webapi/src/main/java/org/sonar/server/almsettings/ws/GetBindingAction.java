@@ -35,7 +35,7 @@ import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.almsettings.ws.AlmSettingsSupport.toAlmWs;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -57,12 +57,13 @@ public class GetBindingAction implements AlmSettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("get_binding")
       .setDescription("Get DevOps Platform binding of a given project.<br/>" +
-        "Requires the 'Administer' permission on the project")
+        "Requires the 'Browse' permission on the project")
       .setSince("8.1")
       .setResponseExample(getClass().getResource("example-get_binding.json"))
       .setChangelog(
         new Change("8.6", "Azure binding now contains the project and repository names"),
-        new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"))
+        new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
+        new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"))
       .setHandler(this);
 
     action
@@ -81,7 +82,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(ADMIN, project);
+      userSession.checkProjectPermission(USER, project);
       ProjectAlmSettingDto projectAlmSetting = dbClient.projectAlmSettingDao().selectByProject(dbSession, project)
         .orElseThrow(() -> new NotFoundException(format("Project '%s' is not bound to any DevOps Platform", project.getKey())));
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, projectAlmSetting.getAlmSettingUuid())
