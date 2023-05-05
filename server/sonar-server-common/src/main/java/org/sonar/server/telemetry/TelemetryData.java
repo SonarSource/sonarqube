@@ -43,7 +43,7 @@ public class TelemetryData {
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
-  private final boolean isScimEnabled;
+  private final ManagedInstanceInformation managedInstanceInformation;
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
@@ -63,7 +63,6 @@ public class TelemetryData {
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
-    isScimEnabled = builder.isScimEnabled;
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
@@ -71,6 +70,7 @@ public class TelemetryData {
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
+    managedInstanceInformation = builder.managedInstanceInformation;
   }
 
   public String getServerId() {
@@ -113,8 +113,8 @@ public class TelemetryData {
     return inDocker;
   }
 
-  public boolean isScimEnabled() {
-    return isScimEnabled;
+  public ManagedInstanceInformation getManagedInstanceInformation() {
+    return managedInstanceInformation;
   }
 
   public Optional<Boolean> hasUnanalyzedC() {
@@ -160,7 +160,7 @@ public class TelemetryData {
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
-    private boolean isScimEnabled;
+    private ManagedInstanceInformation managedInstanceInformation;
     private Boolean hasUnanalyzedC;
     private Boolean hasUnanalyzedCpp;
     private Set<String> customSecurityConfigs;
@@ -248,8 +248,8 @@ public class TelemetryData {
       return this;
     }
 
-    public Builder setIsScimEnabled(boolean isEnabled) {
-      this.isScimEnabled = isEnabled;
+    Builder setManagedInstanceInformation(ManagedInstanceInformation managedInstanceInformation) {
+      this.managedInstanceInformation = managedInstanceInformation;
       return this;
     }
 
@@ -281,6 +281,9 @@ public class TelemetryData {
   }
 
   record QualityGate(String uuid, String caycStatus) {
+  }
+
+  record ManagedInstanceInformation(boolean isManaged, @Nullable String provider) {
   }
 
   public static class ProjectStatistics {

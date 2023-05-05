@@ -53,6 +53,7 @@ import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
@@ -101,11 +102,13 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final DockerSupport dockerSupport;
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateFinder qualityGateFinder;
+  private final ManagedInstanceService managedInstanceService;
 
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-    DockerSupport dockerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder) {
+    DockerSupport dockerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
+    ManagedInstanceService managedInstanceService) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -115,6 +118,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.dockerSupport = dockerSupport;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
     this.qualityGateFinder = qualityGateFinder;
+    this.managedInstanceService = managedInstanceService;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -157,12 +161,14 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
 
+
     return data
       .setInstallationVersion(installationVersionProperty.orElse(null))
       .setInDocker(dockerSupport.isRunningInDocker())
-      .setIsScimEnabled(isScimEnabled())
+      .setManagedInstanceInformation(buildManagedInstanceInformation())
       .build();
   }
+
 
   private void resolveUnanalyzedLanguageCode(TelemetryData.Builder data, DbSession dbSession) {
     long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
@@ -358,4 +364,10 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private boolean isScimEnabled() {
     return this.internalProperties.read(SCIM_PROPERTY_ENABLED).map(Boolean::parseBoolean).orElse(false);
   }
+
+  private TelemetryData.ManagedInstanceInformation buildManagedInstanceInformation() {
+    String provider = managedInstanceService.isInstanceExternallyManaged() ? managedInstanceService.getProviderName() : null;
+    return new TelemetryData.ManagedInstanceInformation(managedInstanceService.isInstanceExternallyManaged(), provider);
+  }
+
 }

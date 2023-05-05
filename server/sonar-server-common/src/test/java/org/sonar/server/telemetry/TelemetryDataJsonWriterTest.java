@@ -43,13 +43,11 @@ import org.sonar.core.telemetry.TelemetryExtension;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.telemetry.TelemetryDataJsonWriter.SCIM_PROPERTY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
@@ -233,16 +231,43 @@ public class TelemetryDataJsonWriterTest {
       """.formatted(isInDocker));
   }
 
+  @DataProvider
+  public static Object[][] getManagedInstanceData() {
+    return new Object[][] {
+      {true, "scim"},
+      {true, "github"},
+      {true, "gitlab"},
+      {false, null},
+    };
+  }
+
   @Test
-  @UseDataProvider("getFeatureFlagEnabledStates")
-  public void write_scim_feature_flag(boolean isScimEnabled) {
+  @UseDataProvider("getManagedInstanceData")
+  public void writeTelemetryData_encodesCorrectlyManagedInstanceInformation(boolean isManaged, String provider) {
     TelemetryData data = telemetryBuilder()
-      .setIsScimEnabled(isScimEnabled)
+      .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(isManaged, provider))
       .build();
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" + format("  \"%s\":", SCIM_PROPERTY) + isScimEnabled + "}");
+    if (isManaged) {
+      assertJson(json).isSimilarTo("""
+        {
+        "managedInstanceInformation": {
+          "isManaged": true,
+            "provider": "%s"
+          }
+        }
+        """.formatted(provider));
+    } else {
+      assertJson(json).isSimilarTo("""
+        {
+        "managedInstanceInformation": {
+          "isManaged": false
+          }
+        }
+        """);
+    }
   }
 
   @Test
@@ -478,6 +503,7 @@ public class TelemetryDataJsonWriterTest {
       .setVersion("bar")
       .setMessageSequenceNumber(1L)
       .setPlugins(Collections.emptyMap())
+      .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(false, null))
       .setDatabase(new TelemetryData.Database("H2", "11"));
   }
 
@@ -530,7 +556,7 @@ public class TelemetryDataJsonWriterTest {
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())
-      .map(t -> new Object[]{t})
+      .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 

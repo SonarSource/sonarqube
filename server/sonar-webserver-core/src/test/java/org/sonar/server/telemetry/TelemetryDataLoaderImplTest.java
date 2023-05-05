@@ -52,6 +52,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
@@ -86,7 +87,6 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
-import static org.sonar.server.telemetry.TelemetryDataLoaderImpl.SCIM_PROPERTY_ENABLED;
 
 @RunWith(DataProviderRunner.class)
 public class TelemetryDataLoaderImplTest {
@@ -104,11 +104,12 @@ public class TelemetryDataLoaderImplTest {
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder);
+      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder);
+      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -440,14 +441,16 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
-  @UseDataProvider("getScimFeatureStatues")
-  public void detect_scim_feature_status(String isEnabled) {
-    db.components().insertPublicProject().getMainBranchComponent();
-    when(internalProperties.read(SCIM_PROPERTY_ENABLED)).thenReturn(Optional.ofNullable(isEnabled));
+  @UseDataProvider("getManagedInstanceData")
+  public void managedInstanceData_containsCorrectInformation(boolean isManaged, String provider) {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(isManaged);
+    when(managedInstanceService.getProviderName()).thenReturn(provider);
 
-    TelemetryData data = communityUnderTest.load();
+    TelemetryData data = commercialUnderTest.load();
 
-    assertThat(data.isScimEnabled()).isEqualTo(Boolean.parseBoolean(isEnabled));
+    TelemetryData.ManagedInstanceInformation managedInstance = data.getManagedInstanceInformation();
+    assertThat(managedInstance.isManaged()).isEqualTo(isManaged);
+    assertThat(managedInstance.provider()).isEqualTo(provider);
   }
 
   @Test
@@ -482,5 +485,15 @@ public class TelemetryDataLoaderImplTest {
     result.add("false");
     result.add(null);
     return result;
+  }
+
+  @DataProvider
+  public static Object[][] getManagedInstanceData() {
+    return new Object[][]{
+      {true, "scim"},
+      {true, "github"},
+      {true, "gitlab"},
+      {false, null},
+    };
   }
 }
