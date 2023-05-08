@@ -127,7 +127,8 @@ public class IssuePublisherTest {
       .forRule(JAVA_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL)
       .setQuickFixAvailable(true)
-      .setRuleDescriptionContextKey(ruleDescriptionContextKey);
+      .setRuleDescriptionContextKey(ruleDescriptionContextKey)
+      .setCodeVariants(List.of("variant1", "variant2"));
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
@@ -139,6 +140,7 @@ public class IssuePublisherTest {
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
     assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
+    assertThat(argument.getValue().getCodeVariantsList()).containsExactly("variant1", "variant2");
   }
 
   @Test

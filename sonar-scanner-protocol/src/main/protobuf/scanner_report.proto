@@ -200,6 +200,7 @@ message Issue {
   bool quickFixAvailable = 8;
   optional string ruleDescriptionContextKey = 9;
   repeated MessageFormatting msgFormatting = 10;
+  repeated string codeVariants = 11;
 }
 
 message ExternalIssue {
