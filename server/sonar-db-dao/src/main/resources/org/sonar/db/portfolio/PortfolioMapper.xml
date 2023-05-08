@@ -36,7 +36,8 @@
     pf.kee as portfolioKey,
     p.kee as projectKey,
     pp.created_at as createdAt,
-    ppb.branch_uuid as branchUuid
+    ppb.branch_uuid as branchUuid,
+    pb.uuid as mainBranchUuid
   </sql>
 
   <sql id="portfolioReferenceColumns">
@@ -137,6 +138,7 @@
       <include refid="portfolioProjectColumns"/>
      FROM portfolio_projects pp
      INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
      INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
      LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
      WHERE
@@ -148,6 +150,7 @@
       <include refid="portfolioProjectColumns"/>
      FROM portfolio_projects pp
      INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
      INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
      LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
      WHERE
@@ -161,6 +164,7 @@
       <include refid="portfolioProjectColumns"/>
     FROM portfolio_projects pp
     INNER JOIN projects p on p.uuid = pp.project_uuid
+    INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
     INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
     LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
   </select>
@@ -170,6 +174,7 @@
       <include refid="portfolioProjectColumns"/>
     FROM portfolio_projects pp
        INNER JOIN projects p on p.uuid = pp.project_uuid
+       INNER JOIN project_branches pb on pb.project_uuid = p.uuid and pb.is_main = ${_true}
        INNER JOIN portfolios pf on pp.portfolio_uuid = pf.uuid
        LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
     where

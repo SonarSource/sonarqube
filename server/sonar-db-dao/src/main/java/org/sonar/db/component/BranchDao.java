@@ -87,7 +87,7 @@ public class BranchDao implements Dao {
     if (branchKeys.isEmpty()) {
       return emptyList();
     }
-    return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, branchKeys));
+    return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, partition));
   }
 
   /*
@@ -113,7 +113,7 @@ public class BranchDao implements Dao {
     if (projectUuids.isEmpty()) {
       return List.of();
     }
-    return mapper(dbSession).selectMainBranchesByProjectUuids(projectUuids);
+    return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectMainBranchesByProjectUuids(partition));
   }
 
   public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession) {

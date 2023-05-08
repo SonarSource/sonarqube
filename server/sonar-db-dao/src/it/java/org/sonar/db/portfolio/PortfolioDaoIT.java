@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -46,7 +47,7 @@ import static org.mockito.Mockito.verify;
 public class PortfolioDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1L, 1);
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   private final AuditPersister audit = mock(AuditPersister.class);
   private final PortfolioDao portfolioDao = new PortfolioDao(system2, UuidFactoryFast.getInstance(), audit);
   private final DbSession session = db.getSession();
@@ -443,7 +444,7 @@ public class PortfolioDaoIT {
     PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
     PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("portfolio2");
 
-    ProjectDto app1 = db.components().insertPrivateApplication(c -> c.setUuid("app1")).getProjectDto();
+    ProjectDto app1 = db.components().insertPrivateApplication("app1").getProjectDto();
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio1", app1.getUuid());
     portfolioDao.addReference(session, "portfolio2", app1.getUuid());
@@ -649,27 +650,30 @@ public class PortfolioDaoIT {
 
   @Test
   public void selectAllProjectsInHierarchy() {
-    ProjectDto p1 = db.components().insertPrivateProject("p1").getProjectDto();
-    ProjectDto p2 = db.components().insertPrivateProject("p2").getProjectDto();
-    ProjectDto p3 = db.components().insertPrivateProject("p3").getProjectDto();
-    ProjectDto p4 = db.components().insertPrivateProject("p4").getProjectDto();
+    ProjectData p1 = db.components().insertPrivateProject("p1");
+    ProjectData p2 = db.components().insertPrivateProject("p2");
+    ProjectData p3 = db.components().insertPrivateProject("p3");
+    ProjectData p4 = db.components().insertPrivateProject("p4");
 
     PortfolioDto root = db.components().insertPrivatePortfolioDto("root");
     PortfolioDto child1 = addPortfolio(root, "child1");
     PortfolioDto child11 = addPortfolio(child1, "child11");
     PortfolioDto root2 = db.components().insertPrivatePortfolioDto("root2");
 
-    db.components().addPortfolioProject(root, p1);
-    db.components().addPortfolioProject(child1, p2);
-    db.components().addPortfolioProject(child11, p3);
-    db.components().addPortfolioProject(root2, p4);
+    db.components().addPortfolioProject(root, p1.getProjectDto());
+    db.components().addPortfolioProject(child1, p2.getProjectDto());
+    db.components().addPortfolioProject(child11, p3.getProjectDto());
+    db.components().addPortfolioProject(root2, p4.getProjectDto());
 
-    db.components().addPortfolioProjectBranch(root, p1, "branch1");
+    db.components().addPortfolioProjectBranch(root, p1.getProjectDto(), "branch1");
     session.commit();
 
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, root.getUuid()))
-      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
-      .containsExactlyInAnyOrder(tuple("p1", Set.of("branch1")), tuple("p2", emptySet()), tuple("p3", emptySet()));
+      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids, PortfolioProjectDto::getMainBranchUuid)
+      .containsExactlyInAnyOrder(
+        tuple("p1", Set.of("branch1"), p1.getMainBranchDto().getUuid()),
+        tuple("p2", emptySet(), p2.getMainBranchDto().getUuid()),
+        tuple("p3", emptySet(), p3.getMainBranchDto().getUuid()));
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, "nonexisting")).isEmpty();
   }
 

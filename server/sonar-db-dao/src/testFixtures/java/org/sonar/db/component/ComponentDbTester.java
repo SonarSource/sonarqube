@@ -21,7 +21,6 @@ package org.sonar.db.component;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -105,11 +104,19 @@ public class ComponentDbTester {
   }
 
   public ProjectData insertPublicProject(String uuid) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false);
+    if (useDifferentUuids) {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), defaults(), p -> p.setUuid(uuid));
+    } else {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false);
+    }
   }
 
   public ProjectData insertPublicProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false, defaults(), dtoPopulator);
+    if (useDifferentUuids) {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), dtoPopulator, p -> p.setUuid(uuid));
+    } else {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false, defaults(), dtoPopulator);
+    }
   }
 
   public ProjectData insertPublicProject(ComponentDto componentDto) {
@@ -117,7 +124,11 @@ public class ComponentDbTester {
   }
 
   public ProjectData insertPrivateProject(String uuid) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true);
+    if (useDifferentUuids) {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setUuid(uuid));
+    } else {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true);
+    }
   }
 
   public final ProjectData insertPrivateProject(Consumer<ComponentDto> dtoPopulator) {
@@ -336,6 +347,14 @@ public class ComponentDbTester {
 
   public final ProjectData insertPublicApplication(Consumer<ComponentDto> dtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newApplication().setPrivate(false), false, defaults(), dtoPopulator);
+  }
+
+  public final ProjectData insertPrivateApplication(String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertPrivateApplication(dtoPopulator, p -> p.setUuid(uuid));
+  }
+
+  public final ProjectData insertPrivateApplication(String uuid) {
+    return insertPrivateApplication(defaults(), p -> p.setUuid(uuid));
   }
 
   public final ProjectData insertPrivateApplication(Consumer<ComponentDto> dtoPopulator) {
