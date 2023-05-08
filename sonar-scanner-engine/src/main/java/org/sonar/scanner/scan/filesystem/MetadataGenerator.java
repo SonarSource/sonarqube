@@ -63,7 +63,9 @@ public class MetadataGenerator {
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(is, charset, inputFile.absolutePath(), exclusionsScanner.createCharHandlerFor(inputFile));
       inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(moduleKeyWithBranch, inputFile, metadata.hash()));
+      if(!inputFile.isStatusSet()) {
+        inputFile.setStatus(statusDetection.status(moduleKeyWithBranch, inputFile, metadata.hash()));
+      }
       LOG.debug("'{}' generated metadata{} with charset '{}'", inputFile, inputFile.type() == Type.TEST ? " as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);

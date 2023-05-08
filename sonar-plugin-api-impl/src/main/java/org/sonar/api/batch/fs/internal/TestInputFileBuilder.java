@@ -230,7 +230,7 @@ public class TestInputFileBuilder {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy(), oldRelativePath);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineStartOffsets, originalLineEndOffsets, lastValidOffset)),
-      contents);
+      contents, f -> {});
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
     inputFile.setPublished(publish);

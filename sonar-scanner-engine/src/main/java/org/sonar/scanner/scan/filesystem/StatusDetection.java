@@ -41,11 +41,23 @@ public class StatusDetection {
     this.scmChangedFiles = scmChangedFiles;
   }
 
+  public boolean isScmStatusAvailable() {
+    return scmChangedFiles.isValid();
+  }
+
   InputFile.Status status(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
-    if (scmChangedFiles.isValid()) {
-      return checkChangedWithScm(inputFile);
+    InputFile.Status statusFromScm = findStatusFromScm(inputFile);
+    if (statusFromScm != null) {
+      return statusFromScm;
     }
     return checkChangedWithProjectRepositories(moduleKeyWithBranch, inputFile, hash);
+  }
+
+  InputFile.Status findStatusFromScm(DefaultInputFile inputFile) {
+    if (isScmStatusAvailable()) {
+      return checkChangedWithScm(inputFile);
+    }
+    return null;
   }
 
   private InputFile.Status checkChangedWithProjectRepositories(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {

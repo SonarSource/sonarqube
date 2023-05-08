@@ -68,6 +68,7 @@ public class FileIndexer {
   private final InputComponentStore componentStore;
   private final SensorStrategy sensorStrategy;
   private final LanguageDetection langDetection;
+  private final StatusDetection statusDetection;
   private final ScmChangedFiles scmChangedFiles;
 
   private boolean warnInclusionsAlreadyLogged;
@@ -78,7 +79,7 @@ public class FileIndexer {
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
-    InputFileFilter[] filters, ScmChangedFiles scmChangedFiles) {
+    InputFileFilter[] filters, ScmChangedFiles scmChangedFiles, StatusDetection statusDetection) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -92,6 +93,7 @@ public class FileIndexer {
     this.filters = filters;
     this.projectExclusionFilters = projectExclusionFilters;
     this.scmChangedFiles = scmChangedFiles;
+    this.statusDetection = statusDetection;
   }
 
   void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
@@ -145,7 +147,8 @@ public class FileIndexer {
       scmChangedFiles.getOldRelativeFilePath(realAbsoluteFile)
     );
 
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()));
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
+      f -> f.setStatus(statusDetection.findStatusFromScm(f)));
     if (language != null && language.isPublishAllFiles()) {
       inputFile.setPublished(true);
     }
