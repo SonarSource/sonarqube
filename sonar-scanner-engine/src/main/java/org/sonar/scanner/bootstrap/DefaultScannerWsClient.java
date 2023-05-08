@@ -105,16 +105,17 @@ public class DefaultScannerWsClient implements ScannerWsClient {
       response.close();
       if (hasCredentials) {
         // credentials are not valid
-        throw MessageException.of(format("Not authorized. Please check the properties %s and %s.",
-          CoreProperties.LOGIN, CoreProperties.PASSWORD));
+        throw MessageException.of(format("Not authorized. Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
+          ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
       }
       // not authenticated - see https://jira.sonarsource.com/browse/SONAR-4048
-      throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. Please provide a user token in %s" +
-        " or other credentials in %s and %s.", ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
+      throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. " +
+                                       "Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
+        ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     if (code == HTTP_FORBIDDEN) {
       throw MessageException.of("You're not authorized to analyze this project or the project doesn't exist on SonarQube" +
-        " and you're not authorized to create it. Please contact an administrator.");
+                                " and you're not authorized to create it. Please contact an administrator.");
     }
     if (code == HTTP_BAD_REQUEST) {
       String jsonMsg = tryParseAsJsonError(response.content());
@@ -153,7 +154,7 @@ public class DefaultScannerWsClient implements ScannerWsClient {
       LOG.warn("Analysis executed with this token will fail after the expiration date.");
     }
     analysisWarnings.addUnique(warningMessage + "\nAfter this date, the token can no longer be used to execute the analysis. "
-      + "Please consider generating a new token and updating it in the locations where it is in use.");
+                               + "Please consider generating a new token and updating it in the locations where it is in use.");
   }
 
   /**

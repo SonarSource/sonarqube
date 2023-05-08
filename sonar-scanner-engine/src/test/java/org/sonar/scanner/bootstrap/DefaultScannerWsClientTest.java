@@ -102,8 +102,8 @@ public class DefaultScannerWsClientTest {
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, false,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
         .isInstanceOf(MessageException.class)
-        .hasMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.token or other " +
-          "credentials in sonar.login and sonar.password.");
+        .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
+                    "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
   }
 
   @Test
@@ -115,7 +115,7 @@ public class DefaultScannerWsClientTest {
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
         .isInstanceOf(MessageException.class)
-        .hasMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
+        .hasMessage("Not authorized. Please check the user token in the property 'sonar.token' or the credentials in the properties 'sonar.login' and 'sonar.password'.");
   }
 
   @Test
