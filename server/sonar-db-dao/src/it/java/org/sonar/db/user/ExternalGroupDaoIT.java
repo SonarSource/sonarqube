@@ -69,6 +69,18 @@ public class ExternalGroupDaoIT {
     assertThat(remainingGroups).containsExactlyInAnyOrderElementsOf(insertedGroups);
   }
 
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
+    String filterManagedUser = underTest.getManagedGroupSqlFilter(true);
+    assertThat(filterManagedUser).isEqualTo(" exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)");
+  }
+
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
+    String filterNonManagedUser = underTest.getManagedGroupSqlFilter(false);
+    assertThat(filterNonManagedUser).isEqualTo("not exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)");
+  }
+
   private List<ExternalGroupDto> createAndInsertExternalGroupDtos(String provider, int numberOfGroups) {
     List<ExternalGroupDto> expectedExternalGroupDtos = new ArrayList<>();
     for (int i = 1; i <= numberOfGroups; i++) {

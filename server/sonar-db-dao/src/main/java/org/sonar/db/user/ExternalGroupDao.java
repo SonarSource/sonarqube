@@ -40,4 +40,8 @@ public class ExternalGroupDao implements Dao {
   private static ExternalGroupMapper mapper(DbSession session) {
     return session.getMapper(ExternalGroupMapper.class);
   }
+
+  public String getManagedGroupSqlFilter(boolean filterByManaged) {
+    return String.format("%s exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)", filterByManaged ? "" : "not");
+  }
 }
