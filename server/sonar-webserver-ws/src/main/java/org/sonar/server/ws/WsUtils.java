@@ -33,13 +33,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
-public class WsUtils {
+public interface WsUtils {
 
-  private WsUtils() {
-    // only statics
-  }
-
-  public static void writeProtobuf(Message msg, Request request, Response response) {
+  static void writeProtobuf(Message msg, Request request, Response response) {
     OutputStream output = response.stream().output();
     try {
       if (request.getMediaType().equals(PROTOBUF)) {
@@ -58,11 +54,7 @@ public class WsUtils {
     }
   }
 
-  public static <T> T checkStateWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
-    if (!value.isPresent()) {
-      throw new IllegalStateException(format(message, messageArguments));
-    }
-
-    return value.get();
+  static String createHtmlExternalLink(String url, String text) {
+    return String.format("<a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", url, text);
   }
 }

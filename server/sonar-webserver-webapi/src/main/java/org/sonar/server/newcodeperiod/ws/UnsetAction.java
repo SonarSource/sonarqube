@@ -19,11 +19,11 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -36,7 +36,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.server.newcodeperiod.ws.NewCodeActionSupport.getDocumentationUrl;
+import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 
 public class UnsetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -47,24 +47,24 @@ public class UnsetAction implements NewCodePeriodsWsAction {
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
-  private final Server server;
+  private final String newCodeDefinitionDocumentationUrl;
 
   public UnsetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder,
-    PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao, Server server) {
+    PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao, DocumentationLinkGenerator documentationLinkGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.server = server;
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/defining-new-code/");
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("unset")
       .setPost(true)
-      .setDescription("Unsets the <a href=\"" + getDocumentationUrl(server.getVersion(), "project-administration/defining-new-code/") +
-        "\">new code definition</a> for a branch, project or global.<br>" +
+      .setDescription("Unsets the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
+        " for a branch, project or global.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System' to change the global setting</li>" +

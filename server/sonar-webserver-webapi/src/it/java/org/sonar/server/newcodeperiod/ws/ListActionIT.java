@@ -40,13 +40,14 @@
 
 import java.time.Instant;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -70,6 +71,9 @@ import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
@@ -84,12 +88,18 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
     private ComponentFinder componentFinder = TestComponentFinder.from(db);
     private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
     private NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
-    private Server server = new NewCodeTestServer("9.9.0.65466");
-    private ListAction underTest = new ListAction(dbClient, userSession, componentFinder, dao, server);
-    private WsActionTester ws = new WsActionTester(underTest);
+    private DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
+    private WsActionTester ws;
+
+    @Before
+    public void setup(){
+      when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");
+      ws = new WsActionTester(new ListAction(dbClient, userSession, componentFinder, dao, documentationLinkGenerator));
+    }
 
     @Test
     public void test_definition() {
+
       WebService.Action definition = ws.getDef();
 
       assertThat(definition.description()).contains("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");

@@ -24,11 +24,11 @@ import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -50,7 +50,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
-import static org.sonar.server.newcodeperiod.ws.NewCodeActionSupport.getDocumentationUrl;
+import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 
 public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -71,24 +71,24 @@ public class SetAction implements NewCodePeriodsWsAction {
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
-  private final Server server;
+  private final String newCodeDefinitionDocumentationUrl;
 
   public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider,
-    NewCodePeriodDao newCodePeriodDao, Server server) {
+    NewCodePeriodDao newCodePeriodDao, DocumentationLinkGenerator documentationLinkGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.server = server;
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/defining-new-code/");
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
-      .setDescription("Updates the <a href=\"" + getDocumentationUrl(server.getVersion(), "project-administration/defining-new-code/") +
-        "\">new code definition</a> on different levels:<br>" +
+      .setDescription("Updates the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
+        " on different levels:<br>" +
         BEGIN_LIST +
         BEGIN_ITEM_LIST + "Not providing a project key and a branch key will update the default value at global level. " +
         "Existing projects or branches having a specific new code definition will not be impacted" + END_ITEM_LIST +

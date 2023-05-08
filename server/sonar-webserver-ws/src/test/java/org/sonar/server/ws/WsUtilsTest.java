@@ -84,6 +84,12 @@ public class WsUtilsTest {
   }
 
   @Test
+  public void create_safe_external_link_tag() {
+    assertThat(WsUtils.createHtmlExternalLink("http://google.com", "Google"))
+      .isEqualTo("<a href=\"http://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">Google</a>");
+  }
+
+  @Test
   public void checkRequest_ko() {
     assertThatThrownBy(() -> BadRequestException.checkRequest(false, "Missing param: %s", "foo"))
       .isInstanceOf(BadRequestException.class)

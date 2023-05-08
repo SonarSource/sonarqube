@@ -24,13 +24,14 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.UuidFactoryFast;
@@ -53,6 +54,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -70,10 +72,14 @@ public class SetActionIT {
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
-  private Server server = new NewCodeTestServer("9.9.0.65466");
-  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, editionProvider, dao, server);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
+  private WsActionTester ws;
 
+  @Before
+  public void setup(){
+    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");
+    ws = new WsActionTester(new SetAction(dbClient, userSession, componentFinder, editionProvider, dao, documentationLinkGenerator));
+  }
 
   @Test
   public void test_definition() {

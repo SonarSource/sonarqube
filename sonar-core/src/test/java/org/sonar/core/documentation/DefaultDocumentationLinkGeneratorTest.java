@@ -49,6 +49,7 @@ public class DefaultDocumentationLinkGeneratorTest {
   public void setUp() {
     when(sonarQubeVersion.get().major()).thenReturn(100);
     when(sonarQubeVersion.get().minor()).thenReturn(1000);
+    when(sonarQubeVersion.get().qualifier()).thenReturn("");
     when(configuration.get(DOCUMENTATION_BASE_URL)).thenReturn(Optional.empty());
     documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
   }
@@ -58,6 +59,16 @@ public class DefaultDocumentationLinkGeneratorTest {
     String generatedLink = documentationLinkGenerator.getDocumentationLink(TEST_SUFFIX);
 
     assertThat(generatedLink).isEqualTo(DOCUMENTATION_PUBLIC_URL + "100.1000/documentation/analyzing-source-code/scm-integration/");
+  }
+
+  @Test
+  public void getDocumentationLink_whenSnapshot_returnLatest() {
+    when(sonarQubeVersion.get().qualifier()).thenReturn("SNAPSHOT");
+    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
+
+    String generatedLink = documentationLinkGenerator.getDocumentationLink(TEST_SUFFIX);
+
+    assertThat(generatedLink).isEqualTo(DOCUMENTATION_PUBLIC_URL + "latest/documentation/analyzing-source-code/scm-integration/");
   }
 
   @Test

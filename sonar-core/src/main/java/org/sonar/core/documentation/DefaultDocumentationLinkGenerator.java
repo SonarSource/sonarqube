@@ -41,7 +41,11 @@ public class DefaultDocumentationLinkGenerator implements DocumentationLinkGener
     if (!url.endsWith("/")) {
       url += "/";
     }
-    url += version.major() + "." + version.minor();
+    if (version.qualifier().equals("SNAPSHOT")) {
+      url += "latest";
+    } else {
+      url += version.major() + "." + version.minor();
+    }
     return url;
   }
 
