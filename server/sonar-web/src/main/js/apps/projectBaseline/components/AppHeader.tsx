@@ -47,7 +47,7 @@ export default function AppHeader(props: AppHeaderProps) {
           }}
         />
       </p>
-      <p>
+      <p className="sw-mb-2">
         {canAdmin && (
           <FormattedMessage
             defaultMessage={translate('project_baseline.page.description2')}
@@ -61,6 +61,20 @@ export default function AppHeader(props: AppHeaderProps) {
             }}
           />
         )}
+      </p>
+
+      <p className="sw-mb-2">
+        <FormattedMessage
+          defaultMessage={translate('settings.new_code_period.description3')}
+          id="settings.new_code_period.description3"
+          values={{
+            link: (
+              <DocLink to="/project-administration/defining-new-code/">
+                {translate('settings.new_code_period.description3.link')}
+              </DocLink>
+            ),
+          }}
+        />
       </p>
 
       <p className="sw-mt-4">

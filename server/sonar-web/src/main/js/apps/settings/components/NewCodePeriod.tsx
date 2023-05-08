@@ -151,21 +151,26 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                       <p className="sw-mb-2">
                         {translate('settings.new_code_period.description0')}
                       </p>
+                      <p className="sw-mb-2">
+                        {translate('settings.new_code_period.description1')}
+                      </p>
+                      <p className="sw-mb-2">
+                        {translate('settings.new_code_period.description2')}
+                      </p>
 
                       <p className="sw-mb-2">
                         <FormattedMessage
-                          defaultMessage={translate('settings.new_code_period.description1')}
-                          id="settings.new_code_period.description1"
+                          defaultMessage={translate('settings.new_code_period.description3')}
+                          id="settings.new_code_period.description3"
                           values={{
                             link: (
                               <DocLink to="/project-administration/defining-new-code/">
-                                {translate('settings.new_code_period.description1.link')}
+                                {translate('settings.new_code_period.description3.link')}
                               </DocLink>
                             ),
                           }}
                         />
                       </p>
-                      <p>{translate('settings.new_code_period.description2')}</p>
 
                       <p className="sw-mt-4">
                         <strong>{translate('settings.new_code_period.question')}</strong>

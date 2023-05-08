@@ -102,7 +102,10 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
       title={translate('baseline.reference_branch')}
     >
       <>
-        <p>{translate('baseline.reference_branch.description')}</p>
+        <div>
+          <p className="sw-mb-3">{translate('baseline.reference_branch.description')}</p>
+          <p className="sw-mb-4">{translate('baseline.reference_branch.usecase')}</p>
+        </div>
         {selected && (
           <>
             {settingLevel === 'project' && (

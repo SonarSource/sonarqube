@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Radio from '../../../components/controls/Radio';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -60,20 +60,26 @@ export interface ProjectBaselineSelectorProps {
 function renderGeneralSetting(generalSetting: NewCodePeriod) {
   let setting: string;
   let description: string;
+  let useCase: string;
   if (generalSetting.type === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
     setting = `${translate('baseline.number_days')} (${translateWithParameters(
       'duration.days',
       generalSetting.value || '?'
     )})`;
     description = translate('baseline.number_days.description');
+    useCase = translate('baseline.number_days.usecase');
   } else {
     setting = translate('baseline.previous_version');
     description = translate('baseline.previous_version.description');
+    useCase = translate('baseline.previous_version.usecase');
   }
 
   return (
-    <div className="general-setting">
-      <strong>{setting}</strong>: {description}
+    <div className="general-setting display-flex-start">
+      <span className="sw-font-bold flex-0">{setting}:&nbsp;</span>
+      <span>
+        {description} {useCase}
+      </span>
     </div>
   );
 }
