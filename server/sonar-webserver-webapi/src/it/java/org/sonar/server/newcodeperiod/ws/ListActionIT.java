@@ -81,7 +81,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
     @Rule
     public UserSessionRule userSession = UserSessionRule.standalone();
     @Rule
-    public DbTester db = DbTester.create(System2.INSTANCE);
+    public DbTester db = DbTester.create(System2.INSTANCE, true);
 
     private ComponentDbTester componentDb = new ComponentDbTester(db);
     private DbClient dbClient = db.getDbClient();

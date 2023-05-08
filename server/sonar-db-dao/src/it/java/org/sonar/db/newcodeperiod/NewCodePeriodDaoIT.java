@@ -29,6 +29,8 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +44,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 public class NewCodePeriodDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
@@ -191,8 +193,9 @@ public class NewCodePeriodDaoIT {
 
   @Test
   public void select_branches_referencing() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    BranchDto mainBranch = db.getDbClient().branchDao().selectByUuid(dbSession, project.getUuid()).get();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    BranchDto mainBranch = projectData.getMainBranchDto();
     BranchDto branch1 = db.components().insertProjectBranch(project);
     BranchDto branch2 = db.components().insertProjectBranch(project);
     BranchDto branch3 = db.components().insertProjectBranch(project);
