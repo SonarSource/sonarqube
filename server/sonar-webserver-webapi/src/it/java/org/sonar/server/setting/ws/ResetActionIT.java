@@ -85,7 +85,7 @@ public class ResetActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
   }
 
   @Test
@@ -202,7 +202,7 @@ public class ResetActionIT {
 
   @Test
   public void remove_setting_on_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
@@ -354,7 +354,7 @@ public class ResetActionIT {
   @Test
   public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
     ComponentDto view = db.components().insertPublicPortfolio();
-    ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject(), view));
+    ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject().getMainBranchComponent(), view));
 
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
   }
@@ -373,7 +373,7 @@ public class ResetActionIT {
 
   @Test
   public void fail_when_branch_not_found() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     logInAsProjectAdmin(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     String settingKey = "not_allowed_on_branch";
@@ -391,7 +391,7 @@ public class ResetActionIT {
 
   @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdmin(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
@@ -485,7 +485,7 @@ public class ResetActionIT {
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    return new Random().nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
   }
 
 }

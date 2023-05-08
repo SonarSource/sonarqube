@@ -68,8 +68,8 @@ public class LoadFileHashesAndStatusStepIT {
 
   @Test
   public void loads_file_hashes_for_project_branch() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
 
     ComponentDto dbFile1 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
     ComponentDto dbFile2 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
@@ -96,7 +96,7 @@ public class LoadFileHashesAndStatusStepIT {
 
   @Test
   public void loads_high_number_of_files() {
-    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     List<Component> files = new ArrayList<>(2000);
 
     for (int i = 0; i < 2000; i++) {

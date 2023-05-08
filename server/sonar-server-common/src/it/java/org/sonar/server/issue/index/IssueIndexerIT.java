@@ -108,7 +108,7 @@ public class IssueIndexerIT {
   @Test
   public void verify_indexed_fields() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -142,7 +142,7 @@ public class IssueIndexerIT {
   @Test
   public void verify_security_standards_indexation() {
     RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863", "owaspAsvs-4.0:2.1.1"))));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
     db.issues().insert(rule, project, file);
@@ -173,10 +173,10 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_indexes_the_issues_of_project() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newFileDto(otherProject));
 
     underTest.indexOnAnalysis(project.uuid());
@@ -187,7 +187,7 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_does_not_delete_orphan_docs() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
 
@@ -290,7 +290,7 @@ public class IssueIndexerIT {
   @Test
   public void commitAndIndexIssues_commits_db_transaction_and_adds_issues_to_index() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // insert issues in db without committing
@@ -323,7 +323,7 @@ public class IssueIndexerIT {
   @Test
   public void indexing_errors_during_commitAndIndexIssues_are_recovered() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // insert issues in db without committing
@@ -391,7 +391,7 @@ public class IssueIndexerIT {
   @Test
   public void indexing_recovers_multiple_errors_on_the_same_project() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     db.issues().insert(rule, project, file);
     db.issues().insert(rule, project, file);
@@ -479,7 +479,7 @@ public class IssueIndexerIT {
   @Test
   public void index_issue_in_non_main_branch() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid()).orElseThrow();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
@@ -500,7 +500,7 @@ public class IssueIndexerIT {
   @Test
   public void issue_on_test_file_has_test_scope() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1").setQualifier("UTS"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -516,7 +516,7 @@ public class IssueIndexerIT {
   @Test
   public void issue_on_directory_has_main_code_scope() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     IssueDto issue = db.issues().insert(rule, project, dir);
 
@@ -531,7 +531,7 @@ public class IssueIndexerIT {
   @Test
   public void issue_on_project_has_main_code_scope() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDto issue = db.issues().insert(rule, project, project);
 
     underTest.indexAllIssues();
@@ -550,7 +550,7 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenChangedComponents_shouldReindexOnlyChangedComponents() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(project));
     ComponentDto unchangedComponent = db.components().insertComponent(newFileDto(project));
     ComponentDto ChangedComponent2 = db.components().insertComponent(newFileDto(project));
@@ -568,7 +568,7 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenEmptyUnchangedComponents_shouldReindexEverything() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto changedComponent = db.components().insertComponent(newFileDto(project));
     IssueDto changedIssue1 = db.issues().insert(rule, project, changedComponent);
     IssueDto changedIssue2 = db.issues().insert(rule, project, changedComponent);
@@ -581,7 +581,7 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenChangedComponentWithoutIssue_shouldReindexNothing() {
     db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newFileDto(project));
 
     underTest.indexOnAnalysis(project.uuid(), Set.of());

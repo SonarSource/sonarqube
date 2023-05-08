@@ -98,11 +98,11 @@ public class PullActionIT {
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
     correctRule = db.rules().insertIssueRule();
-    correctProject = db.components().insertPrivateProject();
+    correctProject = db.components().insertPrivateProject().getMainBranchComponent();
     correctFile = db.components().insertComponent(newFileDto(correctProject));
 
     incorrectRule = db.rules().insertIssueRule();
-    incorrectProject = db.components().insertPrivateProject();
+    incorrectProject = db.components().insertPrivateProject().getMainBranchComponent();
     incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
 
     when(taintChecker.getTaintRepositories()).thenReturn(List.of("roslyn.sonaranalyzer.security.cs",
@@ -268,7 +268,7 @@ public class PullActionIT {
 
   @Test
   public void givenIssueOnAnotherBranch_returnOneIssue() throws IOException {
-    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop");
+    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateIssues(correctRule, developBranch, developFile, 1);
     loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());

@@ -104,7 +104,7 @@ public class AsyncIssueIndexingImplTest {
 
   @Test
   public void triggerForProject() {
-    ProjectDto projectDto = dbTester.components().insertPrivateProjectDto();
+    ProjectDto projectDto = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto dto = new BranchDto()
       .setBranchType(BRANCH)
       .setKey("branchName")
@@ -170,7 +170,7 @@ public class AsyncIssueIndexingImplTest {
   public void remove_existing_indexation_for_project_task() {
     String reportTaskUuid = persistReportTasks();
 
-    ProjectDto projectDto = dbTester.components().insertPrivateProjectDto();
+    ProjectDto projectDto = dbTester.components().insertPrivateProject().getProjectDto();
     String branchUuid = "branch_uuid";
     dbTester.components().insertProjectBranch(projectDto, b -> b.setBranchType(BRANCH).setUuid(branchUuid));
 
@@ -182,7 +182,7 @@ public class AsyncIssueIndexingImplTest {
       .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
     dbClient.ceQueueDao().insert(dbTester.getSession(), branchTask);
 
-    ProjectDto anotherProjectDto = dbTester.components().insertPrivateProjectDto();
+    ProjectDto anotherProjectDto = dbTester.components().insertPrivateProject().getProjectDto();
     CeQueueDto taskOnAnotherProject = new CeQueueDto().setUuid("uuid_4").setTaskType(BRANCH_ISSUE_SYNC)
       .setMainComponentUuid(anotherProjectDto.getUuid()).setComponentUuid("another-branchUuid");
     CeActivityDto canceledTaskOnAnotherProject = new CeActivityDto(taskOnAnotherProject).setStatus(Status.CANCELED);

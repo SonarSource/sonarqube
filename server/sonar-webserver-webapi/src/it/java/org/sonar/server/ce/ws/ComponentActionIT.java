@@ -73,7 +73,7 @@ public class ComponentActionIT {
 
   @Test
   public void empty_queue_and_empty_activity() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -86,9 +86,9 @@ public class ComponentActionIT {
 
   @Test
   public void project_tasks() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project1);
     insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
@@ -113,7 +113,7 @@ public class ComponentActionIT {
 
   @Test
   public void search_tasks_by_component_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInWithBrowsePermission(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
@@ -131,7 +131,7 @@ public class ComponentActionIT {
 
   @Test
   public void search_tasks_by_component() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInWithBrowsePermission(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
@@ -149,7 +149,7 @@ public class ComponentActionIT {
 
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS);
     insertActivity("T2", project, CeActivityDto.Status.FAILED);
@@ -171,7 +171,7 @@ public class ComponentActionIT {
 
   @Test
   public void branch_in_activity() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
@@ -192,7 +192,7 @@ public class ComponentActionIT {
 
   @Test
   public void branch_in_queue_analysis() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
@@ -216,7 +216,7 @@ public class ComponentActionIT {
 
   @Test
   public void return_many_tasks_from_same_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     insertQueue("Main", project, IN_PROGRESS);
     String branchName1 = "Branch1";
@@ -244,7 +244,7 @@ public class ComponentActionIT {
 
   @Test
   public void populates_warning_count_of_activities_but_not_warnings() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, privateProject);
     SnapshotDto analysis = db.components().insertSnapshot(privateProject);
     CeActivityDto activity = insertActivity("Branch", privateProject, SUCCESS, analysis);
@@ -277,7 +277,7 @@ public class ComponentActionIT {
 
   @Test
   public void throw_ForbiddenException_if_user_cant_access_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     TestRequest request = ws.newRequest()
@@ -290,7 +290,7 @@ public class ComponentActionIT {
 
   @Test
   public void fail_when_no_component_parameter() {
-    logInWithBrowsePermission(db.components().insertPrivateProject());
+    logInWithBrowsePermission(db.components().insertPrivateProject().getMainBranchComponent());
 
     TestRequest request = ws.newRequest();
     assertThatThrownBy(request::execute)

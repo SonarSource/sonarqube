@@ -147,8 +147,8 @@ public class LiveMeasureDaoIT {
   public void selectForProjectsByMetricUuids() {
     MetricDto metric = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project, metric2).setValue(4.54).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(99.99).setData((String) null));
@@ -164,7 +164,7 @@ public class LiveMeasureDaoIT {
 
   @Test
   public void selectForProjectsByMetricUuids_whenMetricDoesNotMatch_shouldReturnEmptyList() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
     List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), singletonList("_other_"));
     assertThat(selected).isEmpty();
@@ -173,9 +173,9 @@ public class LiveMeasureDaoIT {
   @Test
   public void selectForProjectsByMetricUuids_shouldReturnProjectWithTRKQualifierOnly() {
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().addApplicationProject(application, project, project2);
     underTest.insert(db.getSession(), newLiveMeasure(application, metric).setValue(3.14).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(4.54).setData((String) null));
@@ -272,7 +272,7 @@ public class LiveMeasureDaoIT {
   public void selectTreeByQuery() {
     List<LiveMeasureDto> results = new ArrayList<>();
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     underTest.insert(db.getSession(), newLiveMeasure(file, metric).setValue(3.14));
 
@@ -294,8 +294,8 @@ public class LiveMeasureDaoIT {
     List<LiveMeasureDto> results = new ArrayList<>();
     MetricDto metric = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14));
     underTest.insert(db.getSession(), newLiveMeasure(project, metric2).setValue(4.54));
     underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(99.99));
@@ -316,7 +316,7 @@ public class LiveMeasureDaoIT {
   @Test
   public void scrollSelectByComponentUuidAndMetricKeys_for_empty_metric_set() {
     List<LiveMeasureDto> results = new ArrayList<>();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.scrollSelectByComponentUuidAndMetricKeys(db.getSession(), project.uuid(), Sets.newSet(),
       context -> results.add(context.getResultObject()));
 
@@ -336,7 +336,7 @@ public class LiveMeasureDaoIT {
   @Test
   public void selectMeasure_map_fields() {
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     underTest.insert(db.getSession(), newLiveMeasure(file, metric).setValue(3.14).setData("text_value"));
 
@@ -353,15 +353,15 @@ public class LiveMeasureDaoIT {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertPublicProject();
+    ComponentDto simpleProject = db.components().insertPublicProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject();
+    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject();
+    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
@@ -417,7 +417,7 @@ public class LiveMeasureDaoIT {
   public void insert_data() {
     byte[] data = "text_value".getBytes(StandardCharsets.UTF_8);
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     LiveMeasureDto measure = newLiveMeasure(file, metric).setData(data);
 
@@ -499,8 +499,8 @@ public class LiveMeasureDaoIT {
   public void countProjectsHavingMeasure() {
     MetricDto metric1 = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project1, metric1);
     db.measures().insertLiveMeasure(project2, metric1);
     db.measures().insertLiveMeasure(project1, metric2);
@@ -733,7 +733,7 @@ public class LiveMeasureDaoIT {
   }
 
   private ComponentDto addProjectWithMeasure(String projectKey, MetricDto metric, double metricValue) {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectKey));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectKey)).getMainBranchComponent();
     addMeasureToComponent(project, metric, metricValue, true);
     return project;
   }

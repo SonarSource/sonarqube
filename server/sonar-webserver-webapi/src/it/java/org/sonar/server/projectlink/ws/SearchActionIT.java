@@ -59,7 +59,7 @@ public class SearchActionIT {
 
   @Test
   public void example() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.componentLinks().insertProvidedLink(project, l -> l.setUuid("1").setType("homepage").setName("Homepage").setHref("http://example.org"));
     db.componentLinks().insertCustomLink(project, l -> l.setUuid("2").setType("custom").setName("Custom").setHref("http://example.org/custom"));
     logInAsProjectAdministrator(project);
@@ -73,7 +73,7 @@ public class SearchActionIT {
 
   @Test
   public void request_by_project_id() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
@@ -86,7 +86,7 @@ public class SearchActionIT {
 
   @Test
   public void request_by_project_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
@@ -99,7 +99,7 @@ public class SearchActionIT {
 
   @Test
   public void response_fields() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto homepageLink = db.componentLinks().insertProvidedLink(project);
     ProjectLinkDto customLink = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
@@ -114,8 +114,8 @@ public class SearchActionIT {
 
   @Test
   public void several_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project1);
     ProjectLinkDto link2 = db.componentLinks().insertCustomLink(project2);
     userSession.addProjectPermission(USER, project1);
@@ -130,7 +130,7 @@ public class SearchActionIT {
 
   @Test
   public void request_does_not_fail_when_link_has_no_name() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
@@ -143,7 +143,7 @@ public class SearchActionIT {
 
   @Test
   public void project_administrator_can_search_for_links() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
@@ -156,7 +156,7 @@ public class SearchActionIT {
 
   @Test
   public void project_user_can_search_for_links() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.logIn().addProjectPermission(USER, project);
 
@@ -175,7 +175,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
     failIfNotAProjectWithKey(project, directory);
     failIfNotAProjectWithUuid(project, directory);
@@ -183,7 +183,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     failIfNotAProjectWithKey(project, file);
     failIfNotAProjectWithUuid(project, file);
@@ -199,7 +199,7 @@ public class SearchActionIT {
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> callByKey(project.getKey()))
       .isInstanceOf(ForbiddenException.class);
@@ -207,7 +207,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_when_both_id_and_key_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -219,7 +219,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_when_no_id_nor_key_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -230,7 +230,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_when_using_branch_db_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

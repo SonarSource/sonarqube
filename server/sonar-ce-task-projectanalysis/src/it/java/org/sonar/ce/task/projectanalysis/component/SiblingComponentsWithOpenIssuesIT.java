@@ -64,7 +64,7 @@ public class SiblingComponentsWithOpenIssuesIT {
 
   @Before
   public void setUp() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     metadataHolder.setProject(new Project(project.uuid(), project.getKey(), project.name(), project.description(), Collections.emptyList()));
 
     branch1 = db.components().insertProjectBranch(project, b -> b.setKey("branch1"), b -> b.setBranchType(BranchType.BRANCH));
@@ -158,7 +158,7 @@ public class SiblingComponentsWithOpenIssuesIT {
 
   @Test
   public void should_find_sibling_components_with_open_issues_from_pullrequest() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     setRoot(project);
     setBranch(BranchType.BRANCH);
 
@@ -177,7 +177,7 @@ public class SiblingComponentsWithOpenIssuesIT {
 
   @Test
   public void should_not_find_sibling_components_on_derived_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     setRoot(project);
     setBranch(BranchType.BRANCH);
 

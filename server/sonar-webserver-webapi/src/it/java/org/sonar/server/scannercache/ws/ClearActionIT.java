@@ -62,8 +62,8 @@ public class ClearActionIT {
 
   @Test
   public void should_clear_all_entries() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
-    ProjectDto project2 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = dbTester.components().insertPrivateProject().getProjectDto();
 
     dao.insert(dbTester.getSession(), project1.getUuid(), stringToInputStream("test data"));
     dao.insert(dbTester.getSession(), project2.getUuid(), stringToInputStream("test data"));
@@ -78,10 +78,10 @@ public class ClearActionIT {
 
   @Test
   public void should_clear_project_cache() {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto(cDto -> cDto.setKey("p1"));
+    ProjectDto project1 = dbTester.components().insertPrivateProject(cDto -> cDto.setKey("p1")).getProjectDto();
     BranchDto branch11 = dbTester.components().insertProjectBranch(project1, cdto -> cdto.setKey("b11"));
     BranchDto branch12 = dbTester.components().insertProjectBranch(project1, cdto -> cdto.setKey("b12"));
-    ProjectDto project2 = dbTester.components().insertPrivateProjectDto(cDto -> cDto.setKey("p2"));
+    ProjectDto project2 = dbTester.components().insertPrivateProject(cDto -> cDto.setKey("p2")).getProjectDto();
     BranchDto branch21 = dbTester.components().insertProjectBranch(project2, cdto -> cdto.setKey("b21"));
 
     dao.insert(dbTester.getSession(), branch11.getUuid(), stringToInputStream("test data"));
@@ -101,10 +101,10 @@ public class ClearActionIT {
 
   @Test
   public void should_clear_branch_cache() {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto(cDto -> cDto.setKey("p1"));
+    ProjectDto project1 = dbTester.components().insertPrivateProject(cDto -> cDto.setKey("p1")).getProjectDto();
     BranchDto branch11 = dbTester.components().insertProjectBranch(project1, cdto -> cdto.setKey("b11"));
     BranchDto branch12 = dbTester.components().insertProjectBranch(project1, cdto -> cdto.setKey("b12"));
-    ProjectDto project2 = dbTester.components().insertPrivateProjectDto(cDto -> cDto.setKey("p2"));
+    ProjectDto project2 = dbTester.components().insertPrivateProject(cDto -> cDto.setKey("p2")).getProjectDto();
     BranchDto branch21 = dbTester.components().insertProjectBranch(project2, cdto -> cdto.setKey("b21"));
 
     dao.insert(dbTester.getSession(), branch11.getUuid(), stringToInputStream("test data"));
@@ -134,7 +134,7 @@ public class ClearActionIT {
 
   @Test
   public void fail_if_not_global_admin() throws IOException {
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     dao.insert(dbTester.getSession(), "branch1", stringToInputStream("test data"));
     DbInputStream branchDataIs = dao.selectData(dbTester.getSession(), "branch1");
     assertThat(branchDataIs).isNotNull();

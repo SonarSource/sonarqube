@@ -91,8 +91,8 @@ public class ActivityStatusActionIT {
   public void status_for_a_project_as_project_admin() {
     String projectKey = "project-key";
     String anotherProjectKey = "another-project-key";
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
-    ComponentDto anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey)).getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -117,7 +117,7 @@ public class ActivityStatusActionIT {
   @Test
   public void add_pending_time() {
     String projectKey = "project-key";
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(system2.now()).thenReturn(2000L);
@@ -155,7 +155,7 @@ public class ActivityStatusActionIT {
   @Test
   public void throw_ForbiddenException_if_not_administrator_of_requested_project() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     String dbKey = project.getKey();
     assertThatThrownBy(() -> callByComponentKey(dbKey))

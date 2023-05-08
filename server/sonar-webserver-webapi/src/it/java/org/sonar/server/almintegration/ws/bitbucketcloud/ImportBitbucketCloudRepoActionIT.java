@@ -140,7 +140,7 @@ public class ImportBitbucketCloudRepoActionIT {
       dto.setUserUuid(user.getUuid());
     });
     Repository repo = getGsonBBCRepo();
-    db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY));
+    db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY)).getMainBranchComponent();
 
     when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
 

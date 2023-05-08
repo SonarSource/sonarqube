@@ -132,8 +132,8 @@ public class SuggestionsActionIT {
 
   @Test
   public void test_example_json_response() {
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
-    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
+    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint")).getMainBranchComponent();
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
@@ -150,7 +150,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
@@ -175,7 +175,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
 
@@ -199,7 +199,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
 
@@ -215,7 +215,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_favorites() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -240,7 +240,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_favorites_without_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -256,7 +256,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed_favorites() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -282,7 +282,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
@@ -300,10 +300,10 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_order_results() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Alpha"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Bravo"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Charlie"));
-    ComponentDto project4 = db.components().insertPrivateProject(p -> p.setName("Delta"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Alpha")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Bravo")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Charlie")).getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPrivateProject(p -> p.setName("Delta")).getMainBranchComponent();
     doReturn(asList(project4, project2)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -330,7 +330,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_return_empty_qualifiers() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     componentIndexer.indexOnAnalysis(project.branchUuid());
     userSessionRule.addProjectPermission(USER, project);
 
@@ -348,7 +348,7 @@ public class SuggestionsActionIT {
   @Test
   public void suggestions_should_filter_allowed_qualifiers() {
     resourceTypes.setAllQualifiers(PROJECT, FILE, UNIT_TEST_FILE);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     componentIndexer.indexOnAnalysis(project.branchUuid());
     userSessionRule.addProjectPermission(USER, project);
 
@@ -364,7 +364,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void exact_match_in_one_qualifier() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -389,7 +389,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_not_return_suggestion_on_non_existing_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -410,7 +410,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void must_not_search_if_no_valid_tokens_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getMainBranchComponent();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -436,7 +436,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getMainBranchComponent();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -455,7 +455,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_contain_component_names() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project1")).getMainBranchComponent();
     componentIndexer.indexOnAnalysis(project1.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project1);
 
@@ -472,7 +472,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_mark_recently_browsed_items() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("ProjectTest"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("ProjectTest")).getMainBranchComponent();
     ComponentDto file1 = newFileDto(project).setName("File1");
     ComponentDto file2 = newFileDto(project).setName("File2");
     componentIndexer.indexOnAnalysis(project.branchUuid());
@@ -492,8 +492,8 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_mark_favorite_items() {
-    ComponentDto favouriteProject = db.components().insertPrivateProject(p -> p.setName("Project1"));
-    ComponentDto nonFavouriteProject = db.components().insertPublicProject(p -> p.setName("Project2"));
+    ComponentDto favouriteProject = db.components().insertPrivateProject(p -> p.setName("Project1")).getMainBranchComponent();
+    ComponentDto nonFavouriteProject = db.components().insertPublicProject(p -> p.setName("Project2")).getMainBranchComponent();
 
     doReturn(singletonList(favouriteProject)).when(favoriteFinder).list();
     componentIndexer.indexOnAnalysis(favouriteProject.branchUuid());
@@ -513,7 +513,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_return_empty_qualifiers() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     componentIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
@@ -531,10 +531,10 @@ public class SuggestionsActionIT {
   public void should_only_provide_project_for_certain_qualifiers() {
     String query = randomAlphabetic(10);
 
-    ComponentDto app = db.components().insertPublicApplication(v -> v.setName(query));
+    ComponentDto app = db.components().insertPublicApplication(v -> v.setName(query)).getMainBranchComponent();
     ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view).setName(query));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query)).getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
     ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
@@ -559,7 +559,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     componentIndexer.indexAll();
@@ -678,7 +678,7 @@ public class SuggestionsActionIT {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
-      .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)))
+      .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)).getMainBranchComponent())
       .collect(Collectors.toList());
 
     componentIndexer.indexAll();

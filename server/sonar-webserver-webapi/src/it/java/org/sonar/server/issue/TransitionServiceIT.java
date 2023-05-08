@@ -63,7 +63,7 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -76,7 +76,7 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions_returns_empty_list_on_external_issue() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -89,7 +89,7 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -102,7 +102,7 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions_returns_nothing_when_not_logged() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -114,7 +114,7 @@ public class TransitionServiceIT {
 
   @Test
   public void do_transition() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -128,7 +128,7 @@ public class TransitionServiceIT {
 
   @Test
   public void do_transition_fail_on_external_issue() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));

@@ -87,7 +87,7 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() {
     String uuid = "COMPONENT_UUID";
-    db.components().insertPrivateProject((t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
+    db.components().insertPrivateProject((t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name")).getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     CeQueueDto dto = new CeQueueDto();

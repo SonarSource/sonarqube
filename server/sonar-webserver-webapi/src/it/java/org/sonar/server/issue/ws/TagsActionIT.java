@@ -81,7 +81,7 @@ public class TagsActionIT {
   @Test
   public void search_tags() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
@@ -95,7 +95,7 @@ public class TagsActionIT {
 
   @Test
   public void search_tags_ignores_hotspots() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     Consumer<IssueDto> setTags = issue -> issue.setTags(asList("tag1", "tag2"));
@@ -111,7 +111,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
@@ -124,7 +124,7 @@ public class TagsActionIT {
   public void search_tags_by_query_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(asList("tag1", "tag12", "tag4", "tag5")));
     indexIssues();
@@ -142,8 +142,8 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_project() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
     indexIssues();
@@ -157,7 +157,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_branch_equals_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
@@ -172,7 +172,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
@@ -187,7 +187,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_branch_not_exist_fall_back_to_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
@@ -202,7 +202,7 @@ public class TagsActionIT {
   @Test
   public void search_all_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
@@ -218,8 +218,8 @@ public class TagsActionIT {
   public void search_tags_by_project_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(singletonList("tag2")));
     db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
@@ -234,7 +234,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_portfolio() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
@@ -248,7 +248,7 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_portfolio_ignores_hotspots() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto issueRule = db.rules().insertIssueRule();
@@ -263,8 +263,8 @@ public class TagsActionIT {
 
   @Test
   public void search_tags_by_application() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
@@ -277,8 +277,8 @@ public class TagsActionIT {
 
   @Test
   public void search_tags_by_application_ignores_hotspots() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto issueRule = db.rules().insertIssueRule();
@@ -294,7 +294,7 @@ public class TagsActionIT {
   @Test
   public void return_limited_size() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
@@ -310,8 +310,8 @@ public class TagsActionIT {
   @Test
   public void do_not_return_issues_without_permission() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
@@ -336,7 +336,7 @@ public class TagsActionIT {
 
   @Test
   public void fail_when_project_parameter_does_not_match_a_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     indexIssues();
     permissionIndexer.allowOnlyAnyone(project, project);
@@ -353,7 +353,7 @@ public class TagsActionIT {
   @Test
   public void json_example() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();

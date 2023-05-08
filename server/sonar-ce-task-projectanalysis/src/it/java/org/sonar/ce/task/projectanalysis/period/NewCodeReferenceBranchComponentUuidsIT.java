@@ -61,7 +61,7 @@ public class NewCodeReferenceBranchComponentUuidsIT {
   public void setUp() {
     analysisMetadataHolder.setProject(project);
 
-    ComponentDto projectDto = db.components().insertPublicProject();
+    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     when(project.getUuid()).thenReturn(projectDto.uuid());
     branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch1"));
     branch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch2"));

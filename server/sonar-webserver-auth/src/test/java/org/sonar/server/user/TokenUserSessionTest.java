@@ -43,7 +43,7 @@ public class TokenUserSessionTest {
 
   @Test
   public void token_can_be_retrieved_from_the_session() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 
@@ -59,8 +59,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasProjectsPermission_for_UserToken() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 
@@ -74,8 +74,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasProjectsPermission_for_ProjecAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 
@@ -90,8 +90,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasProjectsPermission_for_ProjectAnalysisToken_with_global_permission() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 
@@ -115,8 +115,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasGlobalPermission_for_ProjecAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 
@@ -132,7 +132,7 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasGlobalPermission_for_GlobalAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
 

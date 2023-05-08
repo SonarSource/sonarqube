@@ -52,8 +52,8 @@ public class RoleDaoIT {
   public void setUp() {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    project1 = db.components().insertPrivateProject();
-    project2 = db.components().insertPrivateProject();
+    project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    project2 = db.components().insertPrivateProject().getMainBranchComponent();
   }
 
   @Test
@@ -113,7 +113,7 @@ public class RoleDaoIT {
   public void delete_all_group_permissions_by_group_uuid() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnGroup(group1, "admin");
     db.users().insertProjectPermissionOnGroup(group1, "profileadmin", project);
     db.users().insertPermissionOnGroup(group1, "gateadmin");

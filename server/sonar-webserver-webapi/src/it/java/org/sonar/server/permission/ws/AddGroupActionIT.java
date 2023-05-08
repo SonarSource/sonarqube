@@ -123,7 +123,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertPrivateProject(A_PROJECT_UUID, c -> c.setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject(A_PROJECT_UUID, c -> c.setKey(A_PROJECT_KEY)).getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -169,7 +169,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -177,7 +177,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -185,7 +185,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newSubPortfolio(project));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -220,7 +220,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void adding_a_project_permission_fails_if_component_is_not_a_project() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
@@ -290,7 +290,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
@@ -322,7 +322,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void adding_project_permission_fails_if_not_administrator_of_project() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     assertThatThrownBy(() -> {
@@ -341,7 +341,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void adding_project_permission_is_allowed_to_project_administrators() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -355,7 +355,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void fails_when_adding_any_permission_to_group_AnyOne_on_a_private_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     permissionService.getAllProjectPermissions()
@@ -375,7 +375,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -389,7 +389,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -404,7 +404,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void no_effect_when_adding_USER_permission_to_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -419,7 +419,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -434,7 +434,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

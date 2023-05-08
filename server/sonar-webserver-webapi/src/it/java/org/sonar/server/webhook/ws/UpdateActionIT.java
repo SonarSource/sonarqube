@@ -88,7 +88,7 @@ public class UpdateActionIT {
 
   @Test
   public void update_a_project_webhook_with_required_fields() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -109,7 +109,7 @@ public class UpdateActionIT {
 
   @Test
   public void update_a_project_webhook_with_all_fields() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -178,7 +178,7 @@ public class UpdateActionIT {
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn();
     TestRequest request = wsActionTester.newRequest()
@@ -207,7 +207,7 @@ public class UpdateActionIT {
 
   @Test
   public void fail_if_url_is_not_valid() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
@@ -221,7 +221,7 @@ public class UpdateActionIT {
 
   @Test
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()

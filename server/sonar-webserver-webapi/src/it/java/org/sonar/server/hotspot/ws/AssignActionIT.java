@@ -121,7 +121,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_to_someone_for_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -138,7 +138,7 @@ public class AssignActionIT {
 
   @Test
   public void unassign_hotspot_for_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
@@ -155,7 +155,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_to_me_for_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -171,7 +171,7 @@ public class AssignActionIT {
 
   @Test
   public void unassign_hotspot_myself_for_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(me).registerComponents(project);
@@ -186,7 +186,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_to_someone_for_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -202,7 +202,7 @@ public class AssignActionIT {
 
   @Test
   public void unassign_hotspot_for_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     UserDto assignee = insertUser(randomAlphanumeric(15));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(assignee.getUuid()));
@@ -218,7 +218,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_to_someone_for_private_project_branch() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
@@ -236,7 +236,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_assignee_does_not_have_access_for_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -253,7 +253,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_assignee_does_not_have_access_for_private_project_branch() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
@@ -272,7 +272,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_to_me_for_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
@@ -288,7 +288,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_hotspot_with_comment() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
@@ -308,7 +308,7 @@ public class AssignActionIT {
 
   @Test
   public void assign_twice_same_user_to_hotspot_does_not_reload() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -327,7 +327,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_assigning_to_not_existing_user() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -344,7 +344,7 @@ public class AssignActionIT {
   @Test
   @UseDataProvider("allIssueStatusesAndResolutionsThatThrowOnAssign")
   public void fail_if_assign_user_to_hotspot_for_which_it_is_forbidden(String status, String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> {
@@ -374,7 +374,7 @@ public class AssignActionIT {
   @Test
   @UseDataProvider("allIssueStatusesAndResolutionsThatDoNotThrowOnAssign")
   public void fail_if_assign_user_to_hotspot_for_which_it_is_allowed(String status, String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> {
       h.setStatus(status);
@@ -398,7 +398,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_not_authenticated() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -414,7 +414,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_missing_browse_permission() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -430,7 +430,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_if_hotspot_does_not_exist() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
@@ -445,7 +445,7 @@ public class AssignActionIT {
   @Test
   @UseDataProvider("allRuleTypesWithStatusesExceptHotspot")
   public void fail_if_trying_to_assign_issue(RuleType ruleType, String status) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(ruleType);
     IssueDto issue = dbTester.issues().insertIssue(rule, project, file, i -> i
@@ -479,7 +479,7 @@ public class AssignActionIT {
 
   @Test
   public void fail_with_NotFoundException_if_hotspot_is_closed() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto issue = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));

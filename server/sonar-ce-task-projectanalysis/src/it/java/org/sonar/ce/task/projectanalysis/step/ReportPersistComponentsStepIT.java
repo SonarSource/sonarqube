@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -495,14 +494,14 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
   }
 
   private ComponentDto prepareProject(Consumer<ComponentDto> populators) {
-    ComponentDto dto = db.components().insertPrivateProject(populators);
+    ComponentDto dto = db.components().insertPrivateProject(populators).getMainBranchComponent();
     analysisMetadataHolder.setProject(Project.from(dto));
     analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
     return dto;
   }
 
   private ComponentDto prepareBranch(String branchName) {
-    ComponentDto projectDto = db.components().insertPublicProject();
+    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branchDto = db.components().insertProjectBranch(projectDto, b -> b.setKey(branchName));
     analysisMetadataHolder.setProject(Project.from(projectDto));
     analysisMetadataHolder.setBranch(new TestBranch(branchName));

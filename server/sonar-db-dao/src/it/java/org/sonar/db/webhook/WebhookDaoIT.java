@@ -52,7 +52,7 @@ public class WebhookDaoIT {
 
   @Test
   public void select_global_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertGlobalWebhook();
     webhookDbTester.insertGlobalWebhook();
     webhookDbTester.insertWebhook(projectDto);
@@ -65,7 +65,7 @@ public class WebhookDaoIT {
 
   @Test
   public void select_global_webhooks_returns_empty_list_if_there_are_no_global_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
 
@@ -163,7 +163,7 @@ public class WebhookDaoIT {
 
   @Test
   public void cleanWebhooksOfAProject() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);

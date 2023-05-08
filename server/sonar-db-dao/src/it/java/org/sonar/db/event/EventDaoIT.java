@@ -124,7 +124,7 @@ public class EventDaoIT {
 
   @Test
   public void select_by_analysis_uuids() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project));
     SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project));
     SnapshotDto a42 = dbTester.components().insertSnapshot(newAnalysis(project));

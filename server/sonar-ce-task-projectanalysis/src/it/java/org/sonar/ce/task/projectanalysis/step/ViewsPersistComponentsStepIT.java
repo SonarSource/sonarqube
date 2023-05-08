@@ -21,13 +21,10 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -49,7 +46,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -167,7 +163,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
    */
   @Test
   public void execute_whenApplicationDoesNotExistsAndTryingToInsertItInComponentsTable_throwException() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     treeRootHolder.setRoot(
       createViewBuilder(APPLICATION)

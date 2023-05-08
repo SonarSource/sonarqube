@@ -398,17 +398,17 @@ public class PermissionIndexerTest {
   }
 
   private ComponentDto createUnindexedPublicProject() {
-    return db.components().insertPublicProject();
+    return db.components().insertPublicProject().getMainBranchComponent();
   }
 
   private ComponentDto createAndIndexPrivateProject() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     fooIndexer.indexOnAnalysis(project.uuid());
     return project;
   }
 
   private ComponentDto createAndIndexPublicProject() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     fooIndexer.indexOnAnalysis(project.uuid());
     return project;
   }

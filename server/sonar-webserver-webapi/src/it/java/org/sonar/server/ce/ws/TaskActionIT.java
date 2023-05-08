@@ -78,9 +78,9 @@ public class TaskActionIT {
 
   @Before
   public void setUp() {
-    privateProject = db.components().insertPrivateProject();
+    privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(ADMIN, privateProject);
-    publicProject = db.components().insertPublicProject();
+    publicProject = db.components().insertPublicProject().getMainBranchComponent();
   }
 
   @Test
@@ -159,7 +159,7 @@ public class TaskActionIT {
   @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));

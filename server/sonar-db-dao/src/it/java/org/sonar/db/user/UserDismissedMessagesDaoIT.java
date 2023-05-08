@@ -42,7 +42,7 @@ public class UserDismissedMessagesDaoIT {
 
   @Test
   public void insert_user_dismissed_message() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     UserDismissedMessageDto dto = newDto(project, user);
 
@@ -61,7 +61,7 @@ public class UserDismissedMessagesDaoIT {
   @Test
   public void selectByUserAndProjectAndMessageType_returns_object_if_record_found() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessage(user, project, CeTaskMessageType.GENERIC);
 
     Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user, project, CeTaskMessageType.GENERIC);
@@ -75,7 +75,7 @@ public class UserDismissedMessagesDaoIT {
   @Test
   public void selectByUserAndProjectAndMessageType_returns_absent_if_no_record_found() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessage(user, project, CeTaskMessageType.GENERIC);
 
     Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user, project, SUGGEST_DEVELOPER_EDITION_UPGRADE);
@@ -87,8 +87,8 @@ public class UserDismissedMessagesDaoIT {
   public void selectByUserUuid_returns_all_dismissed_messages_of_a_user() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessage(user1, project1, CeTaskMessageType.GENERIC);
     db.users().insertUserDismissedMessage(user1, project2, CeTaskMessageType.GENERIC);
     UserDismissedMessageDto dto1 = db.users().insertUserDismissedMessage(user2, project1, CeTaskMessageType.GENERIC);
@@ -108,8 +108,8 @@ public class UserDismissedMessagesDaoIT {
   public void deleteByUserUuid_removes_dismiss_warning_data_of_a_user() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessage(user1, project1, CeTaskMessageType.GENERIC);
     db.users().insertUserDismissedMessage(user1, project2, CeTaskMessageType.GENERIC);
     db.users().insertUserDismissedMessage(user2, project1, CeTaskMessageType.GENERIC);
@@ -125,8 +125,8 @@ public class UserDismissedMessagesDaoIT {
   public void deleteByUserUuid_removes_dismissed_messages_of_that_type() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     UserDismissedMessageDto dto1 = db.users().insertUserDismissedMessage(user1, project1, CeTaskMessageType.GENERIC);
     db.users().insertUserDismissedMessage(user1, project2, SUGGEST_DEVELOPER_EDITION_UPGRADE);
     db.users().insertUserDismissedMessage(user2, project1, SUGGEST_DEVELOPER_EDITION_UPGRADE);

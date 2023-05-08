@@ -61,14 +61,14 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_has_no_effect_if_project_has_no_file() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
 
     underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultContext -> fail("handler should not be called"));
   }
 
   @Test
   public void scrollAllFilesForFileMove_ignores_files_with_null_path() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoPath = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
@@ -86,7 +86,7 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_ignores_files_without_source() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoSource = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
@@ -102,7 +102,7 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_files_of_project() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir1 = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
     ComponentDto dir2 = db.components().insertComponent(ComponentTesting.newDirectory(dir1, "path2"));
     ComponentAndSource file1 = insertFileAndSource(project, FILE);
@@ -120,7 +120,7 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_large_number_of_files_and_uts() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     List<ComponentAndSource> files = IntStream.range(0, 300 + random.nextInt(500))
       .mapToObj(i -> {
         String qualifier = random.nextBoolean() ? FILE : UNIT_TEST_FILE;
@@ -139,7 +139,7 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_unit_tests_of_project() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
@@ -152,7 +152,7 @@ public class ScrollForFileMoveComponentDaoIT {
   @Test
   @UseDataProvider("branchTypes")
   public void scrollAllFilesForFileMove_scrolls_files_and_unit_tests_of_branch(BranchType branchType) {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(branchType));
     ComponentAndSource file = insertFileAndSource(branch, FILE);
     ComponentAndSource ut = insertFileAndSource(branch, UNIT_TEST_FILE);
@@ -175,7 +175,7 @@ public class ScrollForFileMoveComponentDaoIT {
 
   @Test
   public void scrollAllFilesForFileMove_ignores_non_file_and_non_ut_component_with_source() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
     db.fileSources().insertFileSource(project);
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     db.fileSources().insertFileSource(dir);
@@ -185,7 +185,7 @@ public class ScrollForFileMoveComponentDaoIT {
     db.fileSources().insertFileSource(portfolio);
     ComponentDto subView = db.components().insertSubView(portfolio);
     db.fileSources().insertFileSource(subView);
-    ComponentDto application = random.nextBoolean() ? db.components().insertPrivateApplication() : db.components().insertPublicApplication();
+    ComponentDto application = random.nextBoolean() ? db.components().insertPrivateApplication().getMainBranchComponent() : db.components().insertPublicApplication().getMainBranchComponent();
     db.fileSources().insertFileSource(application);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 

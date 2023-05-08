@@ -179,7 +179,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_on_project_key() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(q -> q.setLanguage(XOO2.getKey()));
@@ -196,7 +196,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_on_project_key_and_default() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(q -> q.setLanguage(XOO2.getKey()));
@@ -217,7 +217,7 @@ public class SearchActionIT {
   public void empty_when_filtering_on_project_and_no_language_installed() {
     WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
 
@@ -308,8 +308,8 @@ public class SearchActionIT {
 
   @Test
   public void statistics_on_projects() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     db.qualityProfiles().associateWithProject(project1, profileOnXoo1);
@@ -382,7 +382,7 @@ public class SearchActionIT {
       .forEach(rule -> db.qualityProfiles().activateRule(sonarWayCs, rule));
     // project
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProjectDto())
+      .mapToObj(i -> db.components().insertPrivateProject().getProjectDto())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, myBuProfile));
     // User
     UserDto user = db.users().insertUser();

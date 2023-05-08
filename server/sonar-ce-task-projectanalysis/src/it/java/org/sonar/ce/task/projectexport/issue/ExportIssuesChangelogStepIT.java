@@ -78,8 +78,8 @@ public class ExportIssuesChangelogStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto projectDto = dbTester.components().insertPublicProject(p -> p.setUuid(PROJECT_UUID));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
+    ComponentDto projectDto = dbTester.components().insertPublicProject(p -> p.setUuid(PROJECT_UUID)).getMainBranchComponent();
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(projectDto));
     when(projectHolder.branches()).thenReturn(newArrayList(
       new BranchDto().setBranchType(BranchType.BRANCH).setKey("master").setProjectUuid(PROJECT_UUID).setUuid(PROJECT_UUID)));
 

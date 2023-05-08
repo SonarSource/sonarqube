@@ -141,7 +141,7 @@ public class PropertiesDaoIT {
     String projectUuid = randomAlphabetic(8);
     String projectKey = randomAlphabetic(4);
     String projectName = randomAlphabetic(4);
-    db.components().insertPrivateProject(projectUuid);
+    db.components().insertPrivateProject(projectUuid).getMainBranchComponent();
 
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null,
@@ -615,8 +615,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void select_component_properties_by_ids() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     String key = "key";
@@ -644,8 +644,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void select_properties_by_keys_and_component_ids() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     String key = "key";
@@ -675,8 +675,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void select_by_key_and_matching_value() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(null, project1.getKey(), project1.name(), project1.qualifier(), newComponentPropertyDto("key", "value", project1));
     db.properties().insertProperties(null, project2.getKey(), project2.name(), project2.qualifier(), newComponentPropertyDto("key", "value", project2));
     db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto("key", "value"));
@@ -694,9 +694,9 @@ public class PropertiesDaoIT {
   public void selectByKeyAndUserUuidAndComponentQualifier() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(user1.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
       newPropertyDto("key", "1", project1, user1));
     db.properties().insertProperties(user1.getLogin(), project1.getKey(), project2.name(), project2.qualifier(),
@@ -1057,8 +1057,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void delete_by_user() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", "VALUE", project.uuid(), user.getUuid(), user.getLogin(), project.getKey(), project.name());
@@ -1077,8 +1077,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void delete_by_matching_login() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", user.getLogin(), project.uuid(), null, null, project.getKey(), project.name());
@@ -1097,8 +1097,8 @@ public class PropertiesDaoIT {
 
   @Test
   public void delete_by_key_and_value() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     insertProperty("KEY", "VALUE", null, null, null, null, null);
     insertProperty("KEY", "VALUE", project.uuid(), null, null, project.getKey(), project.name());
     insertProperty("KEY", "VALUE", null, "100", "login", null, null);
@@ -1295,7 +1295,7 @@ public class PropertiesDaoIT {
   }
 
   private ComponentDto insertPrivateProject(String projectKey) {
-    return db.components().insertPrivateProject(t -> t.setKey(projectKey));
+    return db.components().insertPrivateProject(t -> t.setKey(projectKey)).getMainBranchComponent();
   }
 
   private static Consumer<UserDto> withEmail(String login) {

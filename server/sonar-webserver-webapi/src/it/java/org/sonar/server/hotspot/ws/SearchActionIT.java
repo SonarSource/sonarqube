@@ -342,7 +342,7 @@ public class SearchActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_project_is_neither_a_project_nor_an_application() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     ComponentDto portfolio = dbTester.components().insertPrivatePortfolio();
@@ -359,7 +359,7 @@ public class SearchActionIT {
 
   @Test
   public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     TestRequest request = newRequest(project);
 
@@ -370,7 +370,7 @@ public class SearchActionIT {
 
   @Test
   public void fails_with_ForbiddenException_if_application_is_private_and_not_allowed() {
-    ComponentDto application = dbTester.components().insertPrivateApplication();
+    ComponentDto application = dbTester.components().insertPrivateApplication().getMainBranchComponent();
     userSessionRule.registerComponents(application);
     TestRequest request = newRequest(application);
 
@@ -381,7 +381,7 @@ public class SearchActionIT {
 
   @Test
   public void succeeds_on_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
 
     SearchWsResponse response = newRequest(project)
@@ -393,7 +393,7 @@ public class SearchActionIT {
 
   @Test
   public void succeeds_on_public_application() {
-    ComponentDto application = dbTester.components().insertPublicApplication();
+    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
     userSessionRule.registerApplication(application);
 
     SearchWsResponse response = newRequest(application)
@@ -405,7 +405,7 @@ public class SearchActionIT {
 
   @Test
   public void succeeds_on_private_project_with_permission() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(USER, project);
 
@@ -418,7 +418,7 @@ public class SearchActionIT {
 
   @Test
   public void succeeds_on_private_application_with_permission() {
-    ComponentDto application = dbTester.components().insertPrivateApplication();
+    ComponentDto application = dbTester.components().insertPrivateApplication().getMainBranchComponent();
     userSessionRule.logIn().registerApplication(application).addProjectPermission(USER, application);
 
     SearchWsResponse response = newRequest(application)
@@ -430,7 +430,7 @@ public class SearchActionIT {
 
   @Test
   public void does_not_fail_if_rule_of_hotspot_does_not_exist_in_DB() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     indexPermissions();
@@ -457,7 +457,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_no_hotspot_component_nor_rule_when_project_has_no_hotspot() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -477,7 +477,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspot_components_when_project_has_hotspots() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -509,7 +509,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_single_component_when_all_hotspots_are_on_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     IssueDto[] hotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
@@ -533,8 +533,8 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_of_specified_project() {
-    ComponentDto project1 = dbTester.components().insertPublicProject();
-    ComponentDto project2 = dbTester.components().insertPublicProject();
+    ComponentDto project1 = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project1, project2);
     indexPermissions();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
@@ -571,7 +571,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_only_hotspots_to_review_or_reviewed_of_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -597,10 +597,10 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_of_specified_application() {
-    ComponentDto application1 = dbTester.components().insertPublicApplication();
-    ComponentDto application2 = dbTester.components().insertPublicApplication();
-    ComponentDto project1 = dbTester.components().insertPublicProject();
-    ComponentDto project2 = dbTester.components().insertPublicProject();
+    ComponentDto application1 = dbTester.components().insertPublicApplication().getMainBranchComponent();
+    ComponentDto application2 = dbTester.components().insertPublicApplication().getMainBranchComponent();
+    ComponentDto project1 = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = dbTester.components().insertPublicProject().getMainBranchComponent();
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application1));
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, application2));
     indexViews();
@@ -641,10 +641,10 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_of_specified_application_branch() {
-    ComponentDto application = dbTester.components().insertPublicApplication();
+    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
     ComponentDto applicationBranch = dbTester.components().insertProjectBranch(application, b -> b.setKey("appBranch"));
-    ComponentDto project1 = dbTester.components().insertPublicProject();
-    ComponentDto project2 = dbTester.components().insertPublicProject();
+    ComponentDto project1 = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = dbTester.components().insertPublicProject().getMainBranchComponent();
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application));
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, applicationBranch));
     indexViews();
@@ -685,7 +685,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspot_of_branch_or_pullRequest() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("branch"));
@@ -736,7 +736,7 @@ public class SearchActionIT {
   @Test
   @UseDataProvider("onlyMineParamValues")
   public void returns_hotspots_of_specified_project_assigned_to_current_user_if_only_mine_is_set(String onlyMineParameter, boolean shouldFilter) {
-    ComponentDto project1 = dbTester.components().insertPublicProject();
+    ComponentDto project1 = dbTester.components().insertPublicProject().getMainBranchComponent();
     String assigneeUuid = this.userSessionRule.logIn().registerComponents(project1).getUuid();
 
     indexPermissions();
@@ -785,7 +785,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_hotspots_provided_with_onlyMine_param() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(USER, project);
@@ -800,7 +800,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_user_not_authenticated_with_onlyMine_param() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     userSessionRule.anonymous();
 
@@ -814,7 +814,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotpots_with_any_status_if_no_status_nor_resolution_parameter() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -832,7 +832,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotpots_reviewed_as_safe_and_fixed_if_status_is_REVIEWED_and_resolution_is_not_set() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -851,7 +851,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotpots_reviewed_as_safe_if_status_is_REVIEWED_and_resolution_is_SAFE() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -870,7 +870,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotpots_reviewed_as_fixed_if_status_is_REVIEWED_and_resolution_is_FIXED() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -889,7 +889,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_only_unresolved_hotspots_when_status_is_TO_REVIEW() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -931,7 +931,7 @@ public class SearchActionIT {
   @Test
   @UseDataProvider("validStatusesAndResolutions")
   public void returns_fields_of_hotspot(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -980,7 +980,7 @@ public class SearchActionIT {
   @Test
   @UseDataProvider("allSQCategories")
   public void returns_SQCategory_and_VulnerabilityProbability_of_rule(Set<String> securityStandards, SQCategory expected) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1013,7 +1013,7 @@ public class SearchActionIT {
 
   @Test
   public void does_not_fail_when_hotspot_has_none_of_the_nullable_fields() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1041,7 +1041,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_details_of_components() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(project, "donut/acme"));
@@ -1090,7 +1090,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_branch_field_of_components_of_branch() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.registerComponents(project, branch);
@@ -1126,7 +1126,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_pullRequest_field_of_components_of_pullRequest() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
@@ -1163,7 +1163,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_uuid() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1200,7 +1200,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_ordered_by_file_path_then_line_then_key() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project).setPath("b/c/a"));
@@ -1233,7 +1233,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspot_with_secondary_locations() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1278,7 +1278,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_first_page_with_100_results_by_default() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1303,7 +1303,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_specified_page_with_100_results_by_default() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1314,7 +1314,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_specified_page_with_specified_number_of_results() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1371,7 +1371,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_empty_if_none_of_hotspot_keys_exist() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1390,7 +1390,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_specified_hotspots() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1413,7 +1413,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_sonarsourceSecurity_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1435,7 +1435,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_cwes() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1457,7 +1457,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_owaspTop10_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1479,7 +1479,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_pciDss_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1510,7 +1510,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_owaspAsvs_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1541,7 +1541,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_owaspAsvs_level() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1596,7 +1596,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_owasp2021Top10_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1618,7 +1618,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_sansTop25_category() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1640,7 +1640,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_specified_files() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
@@ -1662,7 +1662,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1717,7 +1717,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true_and_branch_uses_reference_branch() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1761,7 +1761,7 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1792,7 +1792,7 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pr = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -1824,9 +1824,9 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ComponentDto application = dbTester.components().insertPublicApplication();
-    ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto project2 = dbTester.components().insertPublicProject();
+    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     dbTester.components().addApplicationProject(application, project);
     dbTester.components().addApplicationProject(application, project2);
@@ -1869,12 +1869,12 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ProjectDto application = dbTester.components().insertPublicApplicationDto();
+    ProjectDto application = dbTester.components().insertPublicApplication().getProjectDto();
     BranchDto applicationBranch = dbTester.components().insertProjectBranch(application, branchDto -> branchDto.setKey("application_branch_1"));
-    ProjectDto project = dbTester.components().insertPublicProjectDto();
+    ProjectDto project = dbTester.components().insertPublicProject().getProjectDto();
     BranchDto projectBranch = dbTester.components().insertProjectBranch(project, branchDto -> branchDto.setKey("project_1_branch_1"));
 
-    ProjectDto project2 = dbTester.components().insertPublicProjectDto();
+    ProjectDto project2 = dbTester.components().insertPublicProject().getProjectDto();
     BranchDto project2Branch = dbTester.components().insertProjectBranch(project2, branchDto -> branchDto.setKey("project_2_branch_1"));
 
     dbTester.components().addApplicationProject(application, project);
@@ -1928,7 +1928,7 @@ public class SearchActionIT {
     ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
       .setLongName("test-project")
-      .setKey("com.sonarsource:test-project"));
+      .setKey("com.sonarsource:test-project")).getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto fileWithHotspot = dbTester.components().insertComponent(newFileDto(project)
@@ -1963,7 +1963,7 @@ public class SearchActionIT {
 
   @Test
   public void returns_hotspots_with_ruleKey() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));

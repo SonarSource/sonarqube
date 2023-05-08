@@ -250,18 +250,18 @@ public class ComponentActionIT {
   @Test
   public void return_canBrowseAllChildProjects_when_component_is_an_application() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto application1 = db.components().insertPrivateApplication();
-    ComponentDto project11 = db.components().insertPrivateProject();
-    ComponentDto project12 = db.components().insertPrivateProject();
+    ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project11 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project12 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.registerApplication(
       toProjectDto(application1, 1L),
       toProjectDto(project11, 1L),
       toProjectDto(project12, 1L));
     userSession.addProjectPermission(UserRole.USER, application1, project11, project12);
 
-    ComponentDto application2 = db.components().insertPrivateApplication();
-    ComponentDto project21 = db.components().insertPrivateProject();
-    ComponentDto project22 = db.components().insertPrivateProject();
+    ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project21 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project22 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.registerApplication(
       toProjectDto(application2, 1L),
       toProjectDto(project21, 1L),
@@ -298,7 +298,7 @@ public class ComponentActionIT {
   @Test
   public void return_component_info_when_file_on_master() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
+    ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample")).getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, main);
     init();
 
@@ -315,7 +315,7 @@ public class ComponentActionIT {
   @Test
   public void return_component_info_when_file_on_branch() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
+    ComponentDto project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample")).getMainBranchComponent();
     String branchName = "feature1";
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName));
     userSession.addProjectPermission(UserRole.USER, project);
@@ -387,7 +387,7 @@ public class ComponentActionIT {
   @Test
   public void return_quality_gate_defined_on_project() {
     db.qualityGates().createDefaultQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.addProjectPermission(UserRole.USER, project);
@@ -399,7 +399,7 @@ public class ComponentActionIT {
   @Test
   public void quality_gate_for_a_branch() {
     db.qualityGates().createDefaultQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
@@ -418,7 +418,7 @@ public class ComponentActionIT {
 
   @Test
   public void return_default_quality_gate() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
@@ -438,13 +438,13 @@ public class ComponentActionIT {
   @Test
   public void return_extensions_for_application() {
     db.qualityGates().createDefaultQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     Page page = Page.builder("my_plugin/app_page")
       .setName("App Page")
       .setScope(COMPONENT)
       .setComponentQualifiers(Qualifier.VIEW, Qualifier.APP)
       .build();
-    ComponentDto application = componentDbTester.insertPublicApplication();
+    ComponentDto application = componentDbTester.insertPublicApplication().getMainBranchComponent();
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.registerComponents(application);
@@ -627,7 +627,7 @@ public class ComponentActionIT {
   @Test
   public void should_return_private_flag_for_project() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     init();
 
     userSession.logIn()
@@ -639,7 +639,7 @@ public class ComponentActionIT {
   @Test
   public void should_return_public_flag_for_project() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     init();
 
     userSession.logIn()
@@ -651,7 +651,7 @@ public class ComponentActionIT {
   @Test
   public void canApplyPermissionTemplate_is_true_if_logged_in_as_administrator() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     init(createPages());
 
     userSession.logIn()
@@ -668,7 +668,7 @@ public class ComponentActionIT {
   @Test
   public void canUpdateProjectVisibilityToPrivate_is_true_if_logged_in_as_project_administrator() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     init(createPages());
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -712,7 +712,7 @@ public class ComponentActionIT {
       .setKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");
-    componentDbTester.insertPrivateProject(project);
+    componentDbTester.insertPrivateProject(project).getMainBranchComponent();
     SnapshotDto analysis = newAnalysis(project)
       .setCreatedAt(parseDateTime("2016-12-06T11:44:00+0200").getTime())
       .setProjectVersion("6.3")
@@ -726,7 +726,7 @@ public class ComponentActionIT {
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project), qualityGateDto);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project), qualityGateDto);
     userSession.logIn(user)
       .addProjectPermission(UserRole.USER, project)
       .addProjectPermission(UserRole.ADMIN, project);
@@ -775,7 +775,7 @@ public class ComponentActionIT {
       .setName("Polop")
       .setDescription("test project")
       .setQualifier(Qualifiers.PROJECT)
-      .setScope(Scopes.PROJECT));
+      .setScope(Scopes.PROJECT)).getMainBranchComponent();
   }
 
   private void init(Page... pages) {

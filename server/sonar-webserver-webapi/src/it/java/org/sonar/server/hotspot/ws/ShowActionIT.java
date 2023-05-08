@@ -158,7 +158,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("ruleTypesButHotspot")
   public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(RuleType ruleType) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(ruleType);
     IssueDto notAHotspot = dbTester.issues().insertIssue(rule, project, file, i -> i.setType(ruleType));
@@ -179,7 +179,7 @@ public class ShowActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_issue_is_hotspot_is_closed() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(Issue.STATUS_CLOSED));
@@ -192,7 +192,7 @@ public class ShowActionIT {
 
   @Test
   public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -206,7 +206,7 @@ public class ShowActionIT {
 
   @Test
   public void succeeds_on_hotspot_with_flow() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
     DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder()
@@ -265,7 +265,7 @@ public class ShowActionIT {
 
   @Test
   public void succeeds_on_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -280,7 +280,7 @@ public class ShowActionIT {
 
   @Test
   public void succeeds_on_private_project_with_permission() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -296,7 +296,7 @@ public class ShowActionIT {
 
   @Test
   public void return_canChangeStatus_false_on_public_project_when_anonymous() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -312,7 +312,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
   public void return_canChangeStatus_false_on_public_project_when_authenticated_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project);
     if (permission != null) {
       userSessionRule.addProjectPermission(permission, project);
@@ -331,7 +331,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
   public void return_canChangeStatus_true_on_public_project_when_authenticated_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     if (permission != null) {
@@ -361,7 +361,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
   public void return_canChangeStatus_false_on_private_project_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule
       .registerComponents(project)
       .logIn()
@@ -383,7 +383,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
   public void return_canChangeStatus_false_on_private_project_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule
       .registerComponents(project)
       .logIn()
@@ -417,7 +417,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("statusAndResolutionCombinations")
   public void returns_status_and_resolution(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -447,7 +447,7 @@ public class ShowActionIT {
 
   @Test
   public void dispatch_description_sections_of_advanced_rule_in_relevant_field() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -481,7 +481,7 @@ public class ShowActionIT {
 
   @Test
   public void fallbacks_to_default_section_in_case_of_legacy_rule() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -505,7 +505,7 @@ public class ShowActionIT {
 
   @Test
   public void ignore_default_section_if_root_cause_provided() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -541,7 +541,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_html_description_for_custom_rules() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -570,7 +570,7 @@ public class ShowActionIT {
 
   @Test
   public void handles_null_description_for_custom_rules() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -588,7 +588,7 @@ public class ShowActionIT {
 
   @Test
   public void handle_given_description_section_with_3_contexts_return_one_alphabetically() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -624,7 +624,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_hotspot_component_and_rule() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -643,7 +643,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_no_textRange_when_locations_have_none() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -660,7 +660,7 @@ public class ShowActionIT {
   @Test
   @UseDataProvider("randomTextRangeValues")
   public void returns_textRange(int startLine, int endLine, int startOffset, int endOffset) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -681,7 +681,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_no_assignee_when_user_does_not_exist() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -696,7 +696,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_assignee_details_when_user_exists() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -718,7 +718,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_no_avatar_if_assignee_has_no_email() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -735,7 +735,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_inactive_when_assignee_is_inactive() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -752,7 +752,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_author_login_when_user_does_not_exist() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -769,7 +769,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_author_details_when_user_exists() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -790,7 +790,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_no_avatar_if_author_has_no_email() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -807,7 +807,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_inactive_if_author_is_inactive() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -835,7 +835,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_textRange_missing_fields() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -860,7 +860,7 @@ public class ShowActionIT {
   @UseDataProvider("allSQCategoryAndVulnerabilityProbability")
   public void returns_securityCategory_and_vulnerabilityProbability_of_rule(Set<String> standards,
     SQCategory expected) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT, t -> t.setSecurityStandards(standards));
@@ -896,7 +896,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_project_twice_when_hotspot_on_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, project,
@@ -914,7 +914,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_branch_but_no_pullRequest_on_component_and_project_on_non_main_branch() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(project.uuid(), branch);
@@ -936,7 +936,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_pullRequest_but_no_branch_on_component_and_project_on_pullRequest() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project,
       t -> t.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
@@ -959,7 +959,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_hotspot_changelog_and_comments() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -996,7 +996,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_user_details_of_users_from_ChangelogAndComments() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1020,7 +1020,7 @@ public class ShowActionIT {
 
   @Test
   public void returns_user_of_users_from_ChangelogAndComments_and_assignee_and_author() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1050,7 +1050,7 @@ public class ShowActionIT {
 
   @Test
   public void do_not_duplicate_user_if_author_assignee_ChangeLogComment_user() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -1074,7 +1074,7 @@ public class ShowActionIT {
     ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
       .setLongName("test-project")
-      .setKey("com.sonarsource:test-project"));
+      .setKey("com.sonarsource:test-project")).getMainBranchComponent();
     userSessionRule.registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
 

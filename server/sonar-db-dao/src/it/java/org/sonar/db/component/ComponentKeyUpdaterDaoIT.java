@@ -95,7 +95,7 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_branches_too() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -121,7 +121,7 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_pull_requests_too() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String pullRequestKey1 = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
@@ -184,9 +184,9 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   private void populateSomeData() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A")).getMainBranchComponent();
     ComponentDto directory1 = db.components().insertComponent(newDirectory(project1, "/src/org/struts").setUuid("B"));
     db.components().insertComponent(ComponentTesting.newFileDto(project1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
-    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D"));
+    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D")).getMainBranchComponent();
   }
 }

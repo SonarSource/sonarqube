@@ -54,7 +54,7 @@ public class DeleteActionIT {
 
   @Test
   public void no_response() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
@@ -66,7 +66,7 @@ public class DeleteActionIT {
 
   @Test
   public void remove_custom_link() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
@@ -77,8 +77,8 @@ public class DeleteActionIT {
 
   @Test
   public void keep_links_of_another_project() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto customLink1 = db.componentLinks().insertCustomLink(project1);
     ProjectLinkDto customLink2 = db.componentLinks().insertCustomLink(project2);
     userSession.logIn().addProjectPermission(ADMIN, project1, project2);
@@ -91,7 +91,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_when_delete_provided_link() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
@@ -111,7 +111,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_anonymous() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.anonymous();
 
@@ -121,7 +121,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_not_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.logIn();
 

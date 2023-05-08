@@ -97,7 +97,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     addGroupToTemplate(group1, template2, UserRole.USER);
     addGroupToTemplate(group2, template2, UserRole.USER);
 
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);

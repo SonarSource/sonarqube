@@ -76,7 +76,7 @@ public class SearchBitbucketCloudReposActionIT {
       dto.setPersonalAccessToken("abc:xyz");
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()
@@ -105,8 +105,8 @@ public class SearchBitbucketCloudReposActionIT {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("B"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("A"));
+    ProjectDto project1 = db.components().insertPrivateProject(p -> p.setKey("B")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(p -> p.setKey("A")).getProjectDto();
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project1, s -> s.setAlmRepo("repo-slug-2"));
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project2, s -> s.setAlmRepo("repo-slug-2"));
 
@@ -133,7 +133,7 @@ public class SearchBitbucketCloudReposActionIT {
       dto.setPersonalAccessToken("abc:xyz");
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()

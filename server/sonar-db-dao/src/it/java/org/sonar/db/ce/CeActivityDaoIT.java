@@ -780,22 +780,22 @@ public class CeActivityDaoIT {
     insert("TASK_1", REPORT, MAINCOMPONENT_1, SUCCESS);
     insert("TASK_2", REPORT, MAINCOMPONENT_1, FAILED);
 
-    ProjectDto projectDto1 = db.components().insertPrivateProjectDto(
+    ProjectDto projectDto1 = db.components().insertPrivateProject(
       branchDto -> branchDto.setNeedIssueSync(false), c -> {
       }, p -> {
-      });
+      }).getProjectDto();
     insert("TASK_3", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto1.getUuid(), projectDto1.getUuid(), SUCCESS);
 
-    ProjectDto projectDto2 = db.components().insertPrivateProjectDto(branchDto -> branchDto.setNeedIssueSync(false), c -> {
+    ProjectDto projectDto2 = db.components().insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(false), c -> {
     }, p -> {
-    });
+    }).getProjectDto();
     insert("TASK_4", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto2.getUuid(), projectDto2.getUuid(), SUCCESS);
 
     assertThat(underTest.hasAnyFailedOrCancelledIssueSyncTask(db.getSession())).isFalse();
 
-    ProjectDto projectDto3 = db.components().insertPrivateProjectDto(branchDto -> branchDto.setNeedIssueSync(false), c -> {
+    ProjectDto projectDto3 = db.components().insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(false), c -> {
     }, p -> {
-    });
+    }).getProjectDto();
     insert("TASK_5", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto3.getUuid(), projectDto3.getUuid(), SUCCESS);
 
     BranchDto projectBranch1 = db.components()

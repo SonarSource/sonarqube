@@ -134,7 +134,7 @@ public class ServerUserSessionTest {
   @Test
   public void checkComponentUuidPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
     UserSession session = newUserSession(user);
 
@@ -144,9 +144,9 @@ public class ServerUserSessionTest {
   @Test
   public void checkChildProjectsPermission_succeeds_if_user_has_permissions_on_all_application_child_projects() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     db.components().addApplicationProject(application, project);
 
     UserSession underTest = newUserSession(user);
@@ -157,7 +157,7 @@ public class ServerUserSessionTest {
   @Test
   public void checkChildProjectsPermission_succeeds_if_component_is_not_an_application() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserSession underTest = newUserSession(user);
 
@@ -167,8 +167,8 @@ public class ServerUserSessionTest {
   @Test
   public void checkChildProjectsPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     db.components().addApplicationProject(application, project);
     // add computed project
     db.components().insertComponent(newProjectCopy(project, application));
@@ -195,7 +195,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasPermission_for_logged_in_user() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
@@ -249,12 +249,12 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasChildProjectsPermission_for_logged_in_user() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
 
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     db.components().addApplicationProject(application, project1);
     // add computed project
     db.components().insertComponent(newProjectCopy(project1, application));
@@ -270,9 +270,9 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasChildProjectsPermission_for_anonymous_user() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnAnyone(UserRole.USER);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     db.components().addApplicationProject(application, project);
     // add computed project
     db.components().insertComponent(newProjectCopy(project, application));
@@ -285,8 +285,8 @@ public class ServerUserSessionTest {
   public void hasChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
     db.users().insertPermissionOnAnyone(UserRole.USER);
 
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     db.components().addApplicationProject(application, project);
 
     UserSession session = newAnonymousSession();
@@ -301,11 +301,11 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasPortfolioChildProjectsPermission_for_logged_in_user() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ComponentDto project5 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project5 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
     UserSession session = newUserSession(user);
@@ -352,7 +352,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasPortfolioChildProjectsPermission_for_anonymous_user() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     db.users().insertPermissionOnAnyone(UserRole.USER);
 
@@ -370,7 +370,7 @@ public class ServerUserSessionTest {
   public void hasPortfolioChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
     db.users().insertPermissionOnAnyone(UserRole.USER);
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto portfolio = db.components().insertPublicPortfolio();
     db.components().addPortfolioProject(portfolio, project);
 
@@ -386,7 +386,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_without_permissions() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -396,7 +396,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_global_permissions() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone("p1", publicProject);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -407,7 +407,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_group_permissions() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(db.users().insertGroup(), "p1", publicProject);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -418,7 +418,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_user_permissions() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p1", publicProject);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -430,7 +430,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_without_permissions() {
     UserDto user = db.users().insertUser();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
 
     ServerUserSession underTest = newUserSession(user);
 
@@ -441,7 +441,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_group_permissions() {
     UserDto user = db.users().insertUser();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(db.users().insertGroup(), "p1", privateProject);
 
     ServerUserSession underTest = newUserSession(user);
@@ -453,7 +453,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_user_permissions() {
     UserDto user = db.users().insertUser();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p1", privateProject);
 
     ServerUserSession underTest = newUserSession(user);
@@ -464,7 +464,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_public_projects() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone("p1", publicProject);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -474,7 +474,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_public_projects() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     GroupDto group = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group, "p1", publicProject);
 
@@ -485,7 +485,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_private_projects() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     GroupDto group = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group, "p1", privateProject);
 
@@ -497,7 +497,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_user_on_public_projects() {
     UserDto user = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, "p1", publicProject);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -508,7 +508,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_user_on_private_projects() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, "p1", project);
 
     ServerUserSession underTest = newAnonymousSession();
@@ -519,7 +519,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_logged_in_user() {
     UserDto user = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, publicProject);
 
     UserSession underTest = newUserSession(user);
@@ -536,7 +536,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_anonymous_user() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone(UserRole.ADMIN, publicProject);
 
     UserSession underTest = newAnonymousSession();
@@ -560,8 +560,8 @@ public class ServerUserSessionTest {
 
   @Test
   public void keepAuthorizedComponents_returns_empty_list_if_no_permissions_are_granted() {
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserSession underTest = newAnonymousSession();
 
@@ -570,8 +570,8 @@ public class ServerUserSessionTest {
 
   @Test
   public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject);
 
     UserSession underTest = newAnonymousSession();
@@ -583,7 +583,7 @@ public class ServerUserSessionTest {
   @Test
   public void keepAuthorizedComponents_on_branches() {
     UserDto user = db.users().insertUser();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
     ComponentDto privateBranchProject = db.components().insertProjectBranch(privateProject);
 
@@ -595,12 +595,12 @@ public class ServerUserSessionTest {
 
   @Test
   public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_logged_in_user() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ComponentDto project5 = db.components().insertPrivateProject();
-    ComponentDto project6 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project5 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project6 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
     UserSession underTest = newUserSession(user);
@@ -611,10 +611,10 @@ public class ServerUserSessionTest {
     ComponentDto subPortfolio = db.components().insertComponent(newSubPortfolio(portfolio));
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, subPortfolio);
 
-    ComponentDto app = db.components().insertPrivateApplication();
+    ComponentDto app = db.components().insertPrivateApplication().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, app);
 
-    ComponentDto app2 = db.components().insertPrivateApplication();
+    ComponentDto app2 = db.components().insertPrivateApplication().getMainBranchComponent();
 
     // Add public project1 to private portfolio
     db.components().addPortfolioProject(portfolio, project1);
@@ -661,17 +661,17 @@ public class ServerUserSessionTest {
 
   @Test
   public void keepAuthorizedComponents_filters__files_with_granted_permissions_for_logged_in_user() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
     UserSession underTest = newUserSession(user);
 
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
-    ComponentDto file1Project1 = db.components().insertFile(db.components().getProjectDto(project1));
-    ComponentDto file2Project1 = db.components().insertFile(db.components().getProjectDto(project1));
+    ComponentDto file1Project1 = db.components().insertFile(db.components().getProjectDtoByMainBranch(project1));
+    ComponentDto file2Project1 = db.components().insertFile(db.components().getProjectDtoByMainBranch(project1));
 
-    ComponentDto file1Project2 = db.components().insertFile(db.components().getProjectDto(project2));
+    ComponentDto file1Project2 = db.components().insertFile(db.components().getProjectDtoByMainBranch(project2));
 
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, List.of(file1Project1, file2Project1, file1Project2))).containsExactly(file1Project1, file2Project1);
   }
@@ -735,7 +735,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasComponentPermission_on_branch_checks_permissions_of_its_project() {
     UserDto user = db.users().insertUser();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(privateProject, b -> b.setKey("feature/foo"));
     ComponentDto fileInBranch = db.components().insertComponent(newChildComponent("fileUuid", branch, branch).setMainBranchProjectUuid(privateProject.uuid()));
 
@@ -751,50 +751,50 @@ public class ServerUserSessionTest {
 
   @Test
   public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndNoUser() {
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
     List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(UserRole.USER, projectDto);
 
-    assertThat(projectDtos).containsExactly(db.components().getProjectDto(publicProject));
+    assertThat(projectDtos).containsExactly(db.components().getProjectDtoByMainBranch(publicProject));
   }
 
   @Test
   public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndAnUser() {
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
     List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(UserRole.USER, projectDto);
 
-    assertThat(projectDtos).containsExactly(db.components().getProjectDto(publicProject));
+    assertThat(projectDtos).containsExactly(db.components().getProjectDtoByMainBranch(publicProject));
   }
 
   @Test
   public void keepAuthorizedProjects_shouldAcceptsOnlyPrivateProject_whenCalledWithGoodPermissionAndAnUser() {
     String permission = "aNewPermission";
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(userDto, permission, privateProject);
-    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
+    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject().getMainBranchComponent();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
     List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(permission, projectDto);
 
-    assertThat(projectDtos).containsExactly(db.components().getProjectDto(privateProject));
+    assertThat(projectDtos).containsExactly(db.components().getProjectDtoByMainBranch(privateProject));
   }
 
   @Test
   public void keepAuthorizedProjects_shouldRejectPrivateAndPublicProject_whenCalledWithWrongPermissionAndNoUser() {
     String permission = "aNewPermission";
     UserDto userDto = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(userDto, permission, privateProject);
-    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
+    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject().getMainBranchComponent();
 
     Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
     List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(permission, projectDto);
@@ -803,7 +803,7 @@ public class ServerUserSessionTest {
   }
 
   private ProjectDto getProjectDto(ComponentDto publicProject) {
-    return db.components().getProjectDto(publicProject);
+    return db.components().getProjectDtoByMainBranch(publicProject);
   }
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {

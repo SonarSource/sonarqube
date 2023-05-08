@@ -59,8 +59,8 @@ public class UserPermissionChangerIT {
   public void setUp() {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    privateProject = db.components().insertPrivateProject();
-    publicProject = db.components().insertPublicProject();
+    privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    publicProject = db.components().insertPublicProject().getMainBranchComponent();
   }
 
   @Test
@@ -274,7 +274,7 @@ public class UserPermissionChangerIT {
 
   @Test
   public void remove_project_permission_from_user() {
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, privateProject);
     db.users().insertProjectPermissionOnUser(user1, UserRole.USER, privateProject);

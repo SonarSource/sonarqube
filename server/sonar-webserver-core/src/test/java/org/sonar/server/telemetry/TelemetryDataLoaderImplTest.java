@@ -156,7 +156,7 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project1, lines, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(80d));
@@ -167,7 +167,7 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(project1, developmentCostDto, m -> m.setData("50").setValue(null));
     db.measures().insertLiveMeasure(project1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(80d));
@@ -188,15 +188,15 @@ public class TelemetryDataLoaderImplTest {
     db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
-    db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDto(project1));
-    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDto(project2));
+    db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDtoByMainBranch(project1));
+    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDtoByMainBranch(project2));
 
     // quality gates
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
     // link one project to a non-default QG
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
 
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
@@ -271,7 +271,7 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project, lines, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(80d));
@@ -367,8 +367,8 @@ public class TelemetryDataLoaderImplTest {
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
     MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project1, unanalyzedC);
     db.measures().insertLiveMeasure(project2, unanalyzedC);
     db.measures().insertLiveMeasure(project2, unanalyzedCpp);
@@ -384,8 +384,8 @@ public class TelemetryDataLoaderImplTest {
     when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
     MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project1, unanalyzedC);
     db.measures().insertLiveMeasure(project2, unanalyzedCpp);
 
@@ -432,7 +432,7 @@ public class TelemetryDataLoaderImplTest {
   @Test
   public void undetected_alm_ci_slm_data() {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
-    db.components().insertPublicProject();
+    db.components().insertPublicProject().getMainBranchComponent();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
       .extracting(TelemetryData.ProjectStatistics::getDevopsPlatform, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
@@ -442,7 +442,7 @@ public class TelemetryDataLoaderImplTest {
   @Test
   @UseDataProvider("getScimFeatureStatues")
   public void detect_scim_feature_status(String isEnabled) {
-    db.components().insertPublicProject();
+    db.components().insertPublicProject().getMainBranchComponent();
     when(internalProperties.read(SCIM_PROPERTY_ENABLED)).thenReturn(Optional.ofNullable(isEnabled));
 
     TelemetryData data = communityUnderTest.load();
@@ -452,7 +452,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void default_quality_gate_sent_with_project() {
-    db.components().insertPublicProject();
+    db.components().insertPublicProject().getMainBranchComponent();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("anything").setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(qualityGate);
     TelemetryData data = communityUnderTest.load();

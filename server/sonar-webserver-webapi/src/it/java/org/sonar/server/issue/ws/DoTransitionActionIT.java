@@ -117,7 +117,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void do_transition() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -136,7 +136,7 @@ public class DoTransitionActionIT {
   @Test
   public void do_transition_is_not_distributed_for_pull_request() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
@@ -154,7 +154,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void fail_if_external_issue() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insertIssueRule(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insertIssue(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -167,7 +167,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void fail_if_hotspot() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertHotspotRule();
     IssueDto hotspot = db.issues().insertHotspot(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
@@ -197,7 +197,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void fail_if_no_transition_param() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -209,7 +209,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void fail_if_not_enough_permission_to_access_issue() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -221,7 +221,7 @@ public class DoTransitionActionIT {
 
   @Test
   public void fail_if_not_enough_permission_to_apply_transition() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));

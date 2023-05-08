@@ -77,7 +77,7 @@ public class IssueSnippetsActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject("projectUuid");
+    project = db.components().insertPrivateProject("projectUuid").getMainBranchComponent();
 
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString()))

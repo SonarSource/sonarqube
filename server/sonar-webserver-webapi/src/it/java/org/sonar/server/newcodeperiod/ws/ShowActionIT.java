@@ -87,7 +87,7 @@ public class ShowActionIT {
 
   @Test
   public void throw_FE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -98,7 +98,7 @@ public class ShowActionIT {
 
   @Test
   public void throw_FE_if_project_issue_admin() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectIssueAdmin(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -120,7 +120,7 @@ public class ShowActionIT {
 
   @Test
   public void show_project_setting() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     tester.insert(new NewCodePeriodDto()
@@ -137,7 +137,7 @@ public class ShowActionIT {
 
   @Test
   public void show_branch_setting() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
@@ -158,7 +158,7 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_project_setting() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION));
 
@@ -171,7 +171,7 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_branch_setting_from_project() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
@@ -191,7 +191,7 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_branch_setting_from_global() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.NUMBER_OF_DAYS).setValue("3"));
@@ -217,7 +217,7 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_if_branch_not_found() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectScan(project);
 
     tester.insert(project.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");

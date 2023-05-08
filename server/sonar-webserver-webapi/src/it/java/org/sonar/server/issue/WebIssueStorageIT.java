@@ -64,7 +64,7 @@ public class WebIssueStorageIT {
 
   @Test
   public void load_component_id_from_db() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     String componentUuid = underTest.component(db.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).uuid();
@@ -74,7 +74,7 @@ public class WebIssueStorageIT {
 
   @Test
   public void load_project_id_from_db() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     String projectUuid = underTest.project(db.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).uuid();
@@ -85,7 +85,7 @@ public class WebIssueStorageIT {
   @Test
   public void insert_new_issues() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
 
@@ -134,7 +134,7 @@ public class WebIssueStorageIT {
   @Test
   public void update_issues() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
 
@@ -217,7 +217,7 @@ public class WebIssueStorageIT {
   @Test
   public void rule_uuid_is_set_on_updated_issue() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
     DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();
@@ -231,7 +231,7 @@ public class WebIssueStorageIT {
   @Test
   public void rule_uuid_is_not_set_on_updated_issue_when_rule_is_removed() {
     RuleDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
     DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();

@@ -67,9 +67,9 @@ public class GetActionIT {
 
   @Test
   public void get_data_for_project() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto branch = dbTester.components().insertProjectBranch(project1);
-    ProjectDto project2 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project2 = dbTester.components().insertPrivateProject().getProjectDto();
 
     dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
     dao.insert(dbTester.getSession(), branch.getUuid(), stringToCompressedInputStream("test data2"));
@@ -87,7 +87,7 @@ public class GetActionIT {
 
   @Test
   public void get_uncompressed_data_for_project() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
 
     dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
 
@@ -103,7 +103,7 @@ public class GetActionIT {
 
   @Test
   public void get_data_for_branch() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto branch = dbTester.components().insertProjectBranch(project1);
 
     dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
@@ -130,7 +130,7 @@ public class GetActionIT {
 
   @Test
   public void return_not_found_if_branch_mixed_with_pr() {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto branch = dbTester.components().insertProjectBranch(project1);
 
     userSession.logIn().addProjectPermission(SCAN, project1);
@@ -143,7 +143,7 @@ public class GetActionIT {
 
   @Test
   public void return_not_found_if_cache_not_found() {
-    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
 
     userSession.logIn().addProjectPermission(SCAN, project1);
     TestRequest request = wsTester
@@ -154,7 +154,7 @@ public class GetActionIT {
 
   @Test
   public void fail_if_no_permissions() {
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.CODEVIEWER, project);
     TestRequest request = wsTester
       .newRequest()

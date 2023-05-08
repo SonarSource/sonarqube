@@ -74,7 +74,7 @@ public class TokenRenewActionIT {
 
   @Test
   public void missing_project_admin_permission_should_fail() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     TestRequest request = ws.newRequest().setParam("project", project.getKey());
 
@@ -85,7 +85,7 @@ public class TokenRenewActionIT {
 
   @Test
   public void should_add_token_when_no_token_yet_and_return_204() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -99,7 +99,7 @@ public class TokenRenewActionIT {
 
   @Test
   public void handle_whenApplicationKeyPassed_shouldAddTokenAndReturn204() {
-    ProjectDto application = db.components().insertPrivateApplicationDto();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, application);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -113,7 +113,7 @@ public class TokenRenewActionIT {
 
   @Test
   public void should_replace_existing_token_when__token_already_present_and_update_update_at() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 

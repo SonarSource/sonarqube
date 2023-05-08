@@ -73,7 +73,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void no_errors_no_warnings() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
@@ -85,7 +85,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void allows_unauthenticated_access() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.registerComponents(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -101,7 +101,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_main() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
@@ -132,7 +132,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
@@ -163,7 +163,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> {
@@ -197,7 +197,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_per_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
@@ -257,7 +257,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void response_contains_branch_or_pullRequest_for_branch_or_pullRequest_only() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
@@ -294,7 +294,7 @@ public class AnalysisStatusActionIT {
   @Test
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("com.github.kevinsawicki:http-request-parent")
-      .setName("HttpRequest"));
+      .setName("HttpRequest")).getMainBranchComponent();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
     CeTaskMessageDto ceTaskMessage = new CeTaskMessageDto()

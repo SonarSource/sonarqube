@@ -34,7 +34,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -85,9 +84,9 @@ public class SearchActionIT {
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
-    db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY"));
-    db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
+    db.components().insertPrivateProject(p -> p.setKey("project-_%-key")).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY")).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters")).getMainBranchComponent();
 
     SearchWsResponse response = call(SearchRequest.builder().setQuery("JeCt-_%-k").build());
 
@@ -97,8 +96,8 @@ public class SearchActionIT {
   @Test
   public void search_private_projects() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey("private-key"));
-    db.components().insertPublicProject(p -> p.setKey("public-key"));
+    db.components().insertPrivateProject(p -> p.setKey("private-key")).getMainBranchComponent();
+    db.components().insertPublicProject(p -> p.setKey("public-key")).getMainBranchComponent();
 
     SearchWsResponse response = call(SearchRequest.builder().setVisibility("private").build());
 
@@ -108,8 +107,8 @@ public class SearchActionIT {
   @Test
   public void search_public_projects() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey("private-key"));
-    db.components().insertPublicProject(p -> p.setKey("public-key"));
+    db.components().insertPrivateProject(p -> p.setKey("private-key")).getMainBranchComponent();
+    db.components().insertPublicProject(p -> p.setKey("public-key")).getMainBranchComponent();
 
     SearchWsResponse response = call(SearchRequest.builder().setVisibility("public").build());
 
@@ -119,7 +118,7 @@ public class SearchActionIT {
   @Test
   public void search_projects_when_no_qualifier_set() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
     db.components().insertPublicPortfolio();
 
     SearchWsResponse response = call(SearchRequest.builder().build());
@@ -130,8 +129,8 @@ public class SearchActionIT {
   @Test
   public void search_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2)).getMainBranchComponent();
     db.components().insertPublicPortfolio();
 
     ComponentDto directory = newDirectory(project, "dir");
@@ -146,7 +145,7 @@ public class SearchActionIT {
   @Test
   public void search_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("VW")).build());
@@ -157,7 +156,7 @@ public class SearchActionIT {
   @Test
   public void search_projects_and_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(asList("TRK", "VW")).build());
@@ -168,9 +167,9 @@ public class SearchActionIT {
   @Test
   public void search_all() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_3));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_3)).getMainBranchComponent();
     SearchWsResponse response = call(SearchRequest.builder().build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY_1, PROJECT_KEY_2, PROJECT_KEY_3);
@@ -183,12 +182,12 @@ public class SearchActionIT {
     long inBetween = 2_000_000_000L;
     long recentTime = 3_000_000_000L;
 
-    ComponentDto oldProject = db.components().insertPublicProject();
+    ComponentDto oldProject = db.components().insertPublicProject().getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
     ComponentDto branch = db.components().insertProjectBranch(oldProject);
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(inBetween));
 
-    ComponentDto recentProject = db.components().insertPublicProject();
+    ComponentDto recentProject = db.components().insertPublicProject().getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(recentTime));
     db.commit();
 
@@ -211,7 +210,7 @@ public class SearchActionIT {
 
   @Test
   public void does_not_return_branches_when_searching_by_key() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addPermission(ADMINISTER);
 
@@ -226,7 +225,7 @@ public class SearchActionIT {
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
       int j = i;
-      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + i, p -> p.setKey("project-key-" + j).setName("Project Name " + j)));
+      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + i, p -> p.setKey("project-key-" + j).setName("Project Name " + j)).getMainBranchComponent());
     }
 
     SearchWsResponse response = call(SearchRequest.builder().setPage(2).setPageSize(3).build());
@@ -236,8 +235,8 @@ public class SearchActionIT {
   @Test
   public void provisioned_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto provisionedProject = db.components().insertPrivateProject();
-    ComponentDto analyzedProject = db.components().insertPrivateProject();
+    ComponentDto provisionedProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto analyzedProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshot(newAnalysis(analyzedProject));
 
     SearchWsResponse response = call(SearchRequest.builder().setOnProvisionedOnly(true).build());
@@ -250,9 +249,9 @@ public class SearchActionIT {
   @Test
   public void search_by_component_keys() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto jdk = db.components().insertPrivateProject();
-    ComponentDto sonarqube = db.components().insertPrivateProject();
-    ComponentDto sonarlint = db.components().insertPrivateProject();
+    ComponentDto jdk = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto sonarlint = db.components().insertPrivateProject().getMainBranchComponent();
 
     SearchWsResponse result = call(SearchRequest.builder()
       .setProjects(Arrays.asList(jdk.getKey(), sonarqube.getKey()))
@@ -347,8 +346,8 @@ public class SearchActionIT {
   @Test
   public void json_example() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false));
-    ComponentDto privateProject = db.components().insertPrivateProject("project-uuid-2", p->p.setName("Project Name 1").setKey("project-key-2"));
+    ComponentDto publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false)).getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject("project-uuid-2", p -> p.setName("Project Name 1").setKey("project-key-2")).getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject)
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime())
       .setRevision("cfb82f55c6ef32e61828c4cb3db2da12795fd767"));

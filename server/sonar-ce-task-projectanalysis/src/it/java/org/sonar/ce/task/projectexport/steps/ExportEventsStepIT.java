@@ -71,9 +71,9 @@ public class ExportEventsStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
+    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     componentRepository.register(1, projectDto.uuid(), false);
-    projectHolder.setProjectDto(dbTester.components().getProjectDto(projectDto));
+    projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(projectDto));
   }
 
   @Test

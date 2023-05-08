@@ -206,7 +206,7 @@ public class CurrentActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setKey("death-star-key"));
+    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setKey("death-star-key")).getMainBranchComponent();
     UserDto obiwan = db.users().insertUser(user -> user
       .setLogin("obiwan.kenobi")
       .setName("Obiwan Kenobi")
@@ -221,7 +221,7 @@ public class CurrentActionIT {
       .logIn(obiwan)
       .addPermission(SCAN)
       .addPermission(ADMINISTER_QUALITY_PROFILES)
-      .addProjectPermission(USER, db.components().getProjectDto(componentDto));
+      .addProjectPermission(USER, db.components().getProjectDtoByMainBranch(componentDto));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 

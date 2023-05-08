@@ -61,7 +61,7 @@ public class WebhookDeliveryActionIT {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveryAction underTest = new WebhookDeliveryAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertPrivateProject(c -> c.setKey("my-project"));
+    project = db.components().insertPrivateProject(c -> c.setKey("my-project")).getMainBranchComponent();
   }
 
   @Test

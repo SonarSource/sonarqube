@@ -41,8 +41,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
@@ -74,7 +72,7 @@ public class LiveMeasureTreeUpdaterImplIT {
   @Before
   public void setUp() {
     // insert project and file structure
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));

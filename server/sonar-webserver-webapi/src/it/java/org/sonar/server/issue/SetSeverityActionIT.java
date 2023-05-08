@@ -129,7 +129,7 @@ public class SetSeverityActionIT {
 
   private IssueDto newIssue() {
     RuleDto rule = db.rules().insert(newRule());
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return IssueTesting.newIssue(rule, project, file);
   }

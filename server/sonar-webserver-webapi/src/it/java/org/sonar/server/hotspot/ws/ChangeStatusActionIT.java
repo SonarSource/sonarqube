@@ -241,7 +241,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validStatusAndResolutions")
   public void fails_with_NotFoundException_if_hotspot_is_closed(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto closedHotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
@@ -271,7 +271,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("ruleTypesButHotspot")
   public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(String status, @Nullable String resolution, RuleType ruleType) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(ruleType);
     IssueDto notAHotspot = dbTester.issues().insert(IssueTesting.newIssue(rule, project, file).setType(ruleType));
@@ -294,7 +294,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("anyPublicProjectPermissionButHotspotAdmin")
   public void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(String permission) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(permission, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -324,7 +324,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("anyPrivateProjectPermissionButHotspotAdmin")
   public void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(String permission) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(permission, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -356,7 +356,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validStatusAndResolutions")
   public void succeeds_on_public_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -368,7 +368,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validStatusAndResolutions")
   public void succeeds_on_private_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -380,7 +380,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validStatusAndResolutions")
   public void no_effect_and_success_if_hotspot_already_has_specified_status_and_resolution(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -396,7 +396,7 @@ public class ChangeStatusActionIT {
   public void success_to_change_hostpot_to_review_into_reviewed_status(String resolution, String expectedTransitionKey, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -443,7 +443,7 @@ public class ChangeStatusActionIT {
   public void success_to_change_reviewed_hotspot_back_to_to_review(String resolution, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
 
@@ -492,7 +492,7 @@ public class ChangeStatusActionIT {
     String newStatus, @Nullable String newResolution, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
 
@@ -549,7 +549,7 @@ public class ChangeStatusActionIT {
   public void do_not_persist_comment_if_no_status_change(String status, @Nullable String resolution) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));

@@ -54,7 +54,7 @@ public class PurgeDaoWithAuditIT {
 
   @Test
   public void delete_project_persist_audit_with_uuid_and_name() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTestWithPersister.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 

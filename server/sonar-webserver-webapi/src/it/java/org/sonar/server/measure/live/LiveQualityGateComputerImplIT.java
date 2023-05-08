@@ -66,7 +66,7 @@ public class LiveQualityGateComputerImplIT {
 
   @Test
   public void loadQualityGate_returns_hardcoded_gate_for_pull_requests() {
-    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
     MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));
@@ -83,7 +83,7 @@ public class LiveQualityGateComputerImplIT {
 
   @Test
   public void loadQualityGate_on_branch_returns_default_gate() {
-    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
 
     MetricDto metric = db.measures().insertMetric();

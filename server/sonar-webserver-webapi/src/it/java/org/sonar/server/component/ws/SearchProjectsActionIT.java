@@ -240,7 +240,7 @@ public class SearchProjectsActionIT {
       p -> p.setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
 
-    db.components().insertProjectBranch(db.components().getProjectDto(project1), branchDto -> branchDto.setNeedIssueSync(true));
+    db.components().insertProjectBranch(db.components().getProjectDtoByMainBranch(project1), branchDto -> branchDto.setNeedIssueSync(true));
 
     ComponentDto project2 = insertProject(
       c -> c.setKey(KEY_PROJECT_EXAMPLE_002).setName("My Project 2"),
@@ -1184,15 +1184,15 @@ public class SearchProjectsActionIT {
   @Test
   public void sort_by_last_analysis_date() {
     userSession.logIn();
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("project1"));
+    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("project1")).getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project1);
-    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("project2"));
+    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("project2")).getMainBranchComponent();
     db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(40_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project2);
-    ComponentDto project3 = db.components().insertPublicProject(p -> p.setKey("project3"));
+    ComponentDto project3 = db.components().insertPublicProject(p -> p.setKey("project3")).getMainBranchComponent();
     db.components().insertSnapshot(project3, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project3);
-    ComponentDto project4 = db.components().insertPublicProject(p -> p.setKey("project4"));
+    ComponentDto project4 = db.components().insertPublicProject(p -> p.setKey("project4")).getMainBranchComponent();
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project4);
@@ -1208,15 +1208,15 @@ public class SearchProjectsActionIT {
   @Test
   public void return_last_analysis_date() {
     userSession.logIn();
-    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project1, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
     db.components().insertSnapshot(project1, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project1);
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project2);
     // No snapshot on project 3
-    ComponentDto project3 = db.components().insertPublicProject();
+    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project3);
     index();
 
@@ -1233,15 +1233,15 @@ public class SearchProjectsActionIT {
   public void return_leak_period_date() {
     when(editionProviderMock.get()).thenReturn(Optional.of(Edition.ENTERPRISE));
     userSession.logIn();
-    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project1, snapshot -> snapshot.setPeriodDate(10_000_000_000L));
     authorizationIndexerTester.allowOnlyAnyone(project1);
     // No leak period
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project2, snapshot -> snapshot.setPeriodDate(null));
     authorizationIndexerTester.allowOnlyAnyone(project2);
     // No snapshot on project 3
-    ComponentDto project3 = db.components().insertPublicProject();
+    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project3);
 
     MetricDto leakProjects = db.measures().insertMetric(c -> c.setKey(LEAK_PROJECTS_KEY).setValueType(DATA.name()));
@@ -1265,9 +1265,9 @@ public class SearchProjectsActionIT {
   @Test
   public void return_visibility_flag() {
     userSession.logIn();
-    ComponentDto privateProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(privateProject);
-    ComponentDto publicProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPrivateProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(publicProject);
     index();
 
@@ -1281,7 +1281,7 @@ public class SearchProjectsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     index();
@@ -1377,7 +1377,7 @@ public class SearchProjectsActionIT {
 
   private ComponentDto insertProject(Consumer<ComponentDto> componentConsumer, Consumer<ProjectDto> projectConsumer,
     Measure... measures) {
-    ComponentDto project = db.components().insertPublicProject(componentConsumer, projectConsumer);
+    ComponentDto project = db.components().insertPublicProject(componentConsumer, projectConsumer).getMainBranchComponent();
     Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(project, m.metric, m.consumer));
     return project;
   }
@@ -1387,7 +1387,7 @@ public class SearchProjectsActionIT {
   }
 
   private ComponentDto insertApplication(Consumer<ComponentDto> componentConsumer, Measure... measures) {
-    ComponentDto application = db.components().insertPublicApplication(componentConsumer);
+    ComponentDto application = db.components().insertPublicApplication(componentConsumer).getMainBranchComponent();
     Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(application, m.metric, m.consumer));
     return application;
   }

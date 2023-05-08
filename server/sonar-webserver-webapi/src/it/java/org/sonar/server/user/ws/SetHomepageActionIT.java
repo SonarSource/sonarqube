@@ -78,7 +78,7 @@ public class SetHomepageActionIT {
 
   @Test
   public void set_project_homepage() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -97,7 +97,7 @@ public class SetHomepageActionIT {
 
   @Test
   public void set_branch_homepage() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser();
@@ -185,7 +185,7 @@ public class SetHomepageActionIT {
 
   @Test
   public void set_application_homepage() {
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 

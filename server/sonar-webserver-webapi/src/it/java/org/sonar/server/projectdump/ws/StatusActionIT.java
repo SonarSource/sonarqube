@@ -279,7 +279,7 @@ public class StatusActionIT {
 
   @Test
   public void fail_when_using_branch_id() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> {
@@ -291,7 +291,7 @@ public class StatusActionIT {
   }
 
   private ProjectDto insertProject(String uuid, String key) {
-    return db.components().insertPrivateProjectDto(c -> c.setBranchUuid(uuid).setUuid(uuid).setKey(key));
+    return db.components().insertPrivateProject(c -> c.setBranchUuid(uuid).setUuid(uuid).setKey(key)).getProjectDto();
   }
 
   private void insertSnapshot(ProjectDto projectDto, boolean last) {

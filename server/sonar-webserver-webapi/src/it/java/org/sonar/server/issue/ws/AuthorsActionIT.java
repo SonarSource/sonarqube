@@ -82,7 +82,7 @@ public class AuthorsActionIT {
   public void search_authors() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
@@ -100,7 +100,7 @@ public class AuthorsActionIT {
   public void search_authors_by_query() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
@@ -121,8 +121,8 @@ public class AuthorsActionIT {
   public void search_authors_by_project() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project1, project2);
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
@@ -152,7 +152,7 @@ public class AuthorsActionIT {
   public void search_authors_by_portfolio() {
     String leia = "leia.organa";
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
@@ -170,8 +170,8 @@ public class AuthorsActionIT {
   @Test
   public void search_authors_by_application() {
     String leia = "leia.organa";
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
@@ -191,7 +191,7 @@ public class AuthorsActionIT {
     String han = "han.solo";
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(han));
@@ -212,7 +212,7 @@ public class AuthorsActionIT {
   @Test
   public void should_ignore_authors_of_hotspot() {
     String luke = "luke.skywalker";
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project);
     db.issues().insertHotspot(project, project, issue -> issue
       .setAuthorLogin(luke));
@@ -239,7 +239,7 @@ public class AuthorsActionIT {
   @Test
   public void fail_when_project_is_not_a_project() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     permissionIndexer.allowOnlyAnyone(project);
 
@@ -267,7 +267,7 @@ public class AuthorsActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionIndexer.allowOnlyAnyone(project);
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));

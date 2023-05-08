@@ -67,10 +67,10 @@ public class ExportSettingsStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    dbTester.components().insertPublicProject(PROJECT);
-    dbTester.components().insertPublicProject(ANOTHER_PROJECT);
+    dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
+    dbTester.components().insertPublicProject(ANOTHER_PROJECT).getMainBranchComponent();
     dbTester.commit();
-    projectHolder.setProjectDto(dbTester.components().getProjectDto(PROJECT));
+    projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(PROJECT));
     componentRepository.register(1, PROJECT.uuid(), false);
   }
 

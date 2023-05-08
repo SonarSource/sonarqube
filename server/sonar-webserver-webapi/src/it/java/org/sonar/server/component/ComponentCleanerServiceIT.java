@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.ResourceType;
@@ -87,8 +86,8 @@ public class ComponentCleanerServiceIT {
 
   @Test
   public void delete_component_from_db() {
-    ComponentDto componentDto1 = db.components().insertPublicProject();
-    ComponentDto componentDto2 = db.components().insertPublicProject();
+    ComponentDto componentDto1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto componentDto2 = db.components().insertPublicProject().getMainBranchComponent();
 
     mockResourceTypeAsValidProject();
 
@@ -101,7 +100,7 @@ public class ComponentCleanerServiceIT {
 
   @Test
   public void fail_with_IAE_if_project_non_deletable() {
-    ComponentDto componentDto1 = db.components().insertPublicProject();
+    ComponentDto componentDto1 = db.components().insertPublicProject().getMainBranchComponent();
     mockResourceTypeAsNonDeletable();
     dbSession.commit();
 
@@ -129,7 +128,7 @@ public class ComponentCleanerServiceIT {
   }
 
   private ProjectDto insertApplication(ProjectDto project) {
-    ProjectDto app = db.components().insertPublicApplicationDto();
+    ProjectDto app = db.components().insertPublicApplication().getProjectDto();
     db.components().addApplicationProject(app, project);
     return app;
   }
@@ -150,13 +149,13 @@ public class ComponentCleanerServiceIT {
 
   @Test
   public void delete_webhooks_from_projects() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     WebhookDto webhook1 = db.webhooks().insertWebhook(project1);
     db.webhookDelivery().insert(webhook1);
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     WebhookDto webhook2 = db.webhooks().insertWebhook(project2);
     db.webhookDelivery().insert(webhook2);
-    ProjectDto projectNotToBeDeleted = db.components().insertPrivateProjectDto();
+    ProjectDto projectNotToBeDeleted = db.components().insertPrivateProject().getProjectDto();
     WebhookDto webhook3 = db.webhooks().insertWebhook(projectNotToBeDeleted);
     db.webhookDelivery().insert(webhook3);
 
@@ -185,7 +184,7 @@ public class ComponentCleanerServiceIT {
   }
 
   private DbData insertProjectData() {
-    ComponentDto componentDto = db.components().insertPublicProject();
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = dbClient.projectDao().selectByUuid(dbSession, componentDto.uuid()).get();
     BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.getUuid()).get();
 

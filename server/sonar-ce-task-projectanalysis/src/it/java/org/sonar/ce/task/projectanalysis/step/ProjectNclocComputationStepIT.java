@@ -47,7 +47,7 @@ public class ProjectNclocComputationStepIT {
   @Test
   public void test_computing_branch_ncloc() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(200d));
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));

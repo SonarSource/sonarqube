@@ -65,7 +65,7 @@ public class UpdateEventActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
     db.events().insertEvent(newEvent(analysis)
       .setUuid("E1")
@@ -249,7 +249,7 @@ public class UpdateEventActionIT {
   }
 
   private SnapshotDto createAnalysisAndLogInAsProjectAdministrator(String version) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion(version));
     logInAsProjectAdministrator(project);
     return analysis;

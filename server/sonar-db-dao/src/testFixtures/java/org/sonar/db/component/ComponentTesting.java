@@ -232,12 +232,12 @@ public class ComponentTesting {
       .setBranchType(branchType);
   }
 
-  public static BranchDto newMainBranchDto(ComponentDto branchComponent) {
+  public static BranchDto newMainBranchDto(ComponentDto branchComponent, String projectUUid) {
     return new BranchDto()
       .setKey(DEFAULT_MAIN_BRANCH_NAME)
       .setIsMain(true)
       .setUuid(branchComponent.uuid())
-      .setProjectUuid(branchComponent.uuid())
+      .setProjectUuid(projectUUid)
       .setBranchType(BranchType.BRANCH);
   }
 

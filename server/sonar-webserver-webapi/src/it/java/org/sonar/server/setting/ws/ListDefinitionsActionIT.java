@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -83,7 +82,7 @@ public class ListDefinitionsActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
   }
 
   @Test

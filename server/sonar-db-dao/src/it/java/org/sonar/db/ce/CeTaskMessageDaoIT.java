@@ -139,7 +139,7 @@ public class CeTaskMessageDaoIT {
   @Test
   public void selectNonDismissedByUserAndTask_returns_non_dismissed_messages() {
     UserDto user = dbTester.users().insertUser();
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     dbTester.users().insertUserDismissedMessage(user, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     String taskUuid = "17ae66e6-fe83-4c80-b704-4b04e9c5abe8";
     CeTaskMessageDto msg1 = insertMessage(taskUuid, 1, 1_222_333L);

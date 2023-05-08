@@ -24,10 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,7 +62,7 @@ public class AppActionIT {
 
   @Test
   public void file_info() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.logIn("john").addProjectPermission(USER, project);
@@ -91,7 +89,7 @@ public class AppActionIT {
 
   @Test
   public void file_on_module() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.logIn("john").addProjectPermission(USER, project);
@@ -118,7 +116,7 @@ public class AppActionIT {
 
   @Test
   public void file_without_measures() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.logIn("john").addProjectPermission(USER, project);
 
@@ -134,7 +132,7 @@ public class AppActionIT {
 
   @Test
   public void file_with_measures() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
@@ -169,7 +167,7 @@ public class AppActionIT {
 
   @Test
   public void get_by_component() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, project));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
@@ -191,7 +189,7 @@ public class AppActionIT {
 
   @Test
   public void canMarkAsFavorite_is_true_when_logged() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -206,7 +204,7 @@ public class AppActionIT {
 
   @Test
   public void canMarkAsFavorite_is_false_when_not_logged() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -221,7 +219,7 @@ public class AppActionIT {
 
   @Test
   public void component_is_favorite() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
     db.favorites().add(project, userSession.getUuid(), userSession.getLogin());
 
@@ -237,7 +235,7 @@ public class AppActionIT {
 
   @Test
   public void component_is_not_favorite() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -252,7 +250,7 @@ public class AppActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -296,7 +294,7 @@ public class AppActionIT {
 
   @Test
   public void component_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -327,7 +325,7 @@ public class AppActionIT {
 
   @Test
   public void component_and_pull_request_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
@@ -358,7 +356,7 @@ public class AppActionIT {
 
   @Test
   public void fail_if_component_and_pull_request_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -374,7 +372,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_component_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     TestRequest request = ws.newRequest()
@@ -385,7 +383,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_branch_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
@@ -399,7 +397,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_missing_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     TestRequest request = ws.newRequest()

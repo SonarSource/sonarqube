@@ -77,7 +77,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
   public void setUp() {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY);
     underTest = createStep(defaultOrgCeTask);
-    project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY));
+    project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY)).getMainBranchComponent();
   }
 
   @Test
@@ -213,7 +213,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   @Test
   public void execute_fails_with_MessageException_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getKey())
@@ -227,7 +227,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   @Test
   public void execute_sets_branch_even_if_MessageException_is_thrown_because_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getKey())
@@ -242,7 +242,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   @Test
   public void execute_sets_analysis_date_even_if_MessageException_is_thrown_because_projectKey_is_different_from_componentKey_in_CE_task() {
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getKey())
@@ -258,7 +258,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   @Test
   public void execute_does_not_fail_when_report_has_a_quality_profile_that_does_not_exist_anymore() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
     metadataBuilder
       .setProjectKey(project.getKey());

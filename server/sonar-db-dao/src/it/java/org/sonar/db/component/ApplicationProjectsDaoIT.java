@@ -79,9 +79,9 @@ public class ApplicationProjectsDaoIT {
 
   @Test
   public void select_project_branches_from_application_branch() {
-    var project = db.components().insertPublicProjectDto(p -> p.setKey("project"));
+    var project = db.components().insertPublicProject(p -> p.setKey("project")).getProjectDto();
     var projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
-    var app = db.components().insertPrivateApplicationDto(a -> a.setKey("app1"));
+    var app = db.components().insertPrivateApplication(a -> a.setKey("app1")).getProjectDto();
     var appBranch = db.components().insertProjectBranch(app, b -> b.setKey("app-branch"));
     db.components().addApplicationProject(app, project);
     underTest.addProjectBranchToAppBranch(dbSession, app.getUuid(), appBranch.getUuid(), project.getUuid(), projectBranch.getUuid());

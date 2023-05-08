@@ -107,7 +107,7 @@ public class SearchEventsActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)).getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
@@ -126,7 +126,7 @@ public class SearchEventsActionIT {
   @Test
   public void events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -156,7 +156,7 @@ public class SearchEventsActionIT {
 
   @Test
   public void does_not_return_old_events() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     insertIssue(project, analysis);
@@ -190,11 +190,11 @@ public class SearchEventsActionIT {
 
   @Test
   public void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project1);
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project1);
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project2);
 
     SnapshotDto a1 = insertAnalysis(project1, 1_500_000_000_000L);
@@ -232,7 +232,7 @@ public class SearchEventsActionIT {
   @Test
   public void fail_when_not_loggued() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> {
       ws.newRequest()

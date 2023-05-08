@@ -74,7 +74,7 @@ public class DeleteActionIT {
 
   @Test
   public void delete_profile_by_language_and_name() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile1 = createProfile();
     QProfileDto profile2 = createProfile();
     db.qualityProfiles().associateWithProject(project, profile1);

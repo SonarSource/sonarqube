@@ -161,7 +161,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_global_scan_permission() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.addPermission(SCAN);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -175,7 +175,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -189,7 +189,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission_passing_login() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse responseWithLogin = newRequest(user.getLogin(), TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -284,7 +284,7 @@ public class GenerateActionIT {
   @Test
   public void fail_if_projectAnalysisToken_created_without_project_permission() {
     userLogin();
-    String projectKey = db.components().insertPublicProject().getKey();
+    String projectKey = db.components().insertPublicProject().getMainBranchComponent().getKey();
 
     assertThatThrownBy(() -> newRequest(null, "token 1", PROJECT_ANALYSIS_TOKEN, projectKey))
       .isInstanceOf(ForbiddenException.class)

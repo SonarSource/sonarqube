@@ -140,7 +140,7 @@ public class AddCommentActionIT {
   @Test
   @UseDataProvider("ruleTypesByHotspot")
   public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(RuleType ruleType) {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
     IssueDto notAHotspot = dbTester.issues().insertIssue(rule, project, file, i -> i.setType(ruleType));
@@ -162,7 +162,7 @@ public class AddCommentActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_hotspot_is_closed() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
@@ -176,7 +176,7 @@ public class AddCommentActionIT {
 
   @Test
   public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
@@ -191,7 +191,7 @@ public class AddCommentActionIT {
 
   @Test
   public void succeeds_on_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
@@ -203,7 +203,7 @@ public class AddCommentActionIT {
 
   @Test
   public void succeeds_on_private_project_with_permission() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project).addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
@@ -218,7 +218,7 @@ public class AddCommentActionIT {
   public void persists_comment_if_hotspot_status_changes_and_transition_done(String currentStatus, @Nullable String currentResolution) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();

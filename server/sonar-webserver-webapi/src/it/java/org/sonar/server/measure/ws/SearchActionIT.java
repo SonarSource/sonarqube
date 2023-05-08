@@ -37,7 +37,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Measures.SearchWsResponse;
 
@@ -69,9 +68,9 @@ public class SearchActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_1").setName("Project 1"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_2").setName("Project 2"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_3").setName("Project 3"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_1").setName("Project 1")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_2").setName("Project 2")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_3").setName("Project 3")).getMainBranchComponent();
 
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
@@ -105,7 +104,7 @@ public class SearchActionIT {
 
   @Test
   public void return_measures() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d));
@@ -121,7 +120,7 @@ public class SearchActionIT {
 
   @Test
   public void return_best_value() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto matchBestValue = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()).setBestValue(15.5d));
     db.measures().insertLiveMeasure(project, matchBestValue, m -> m.setValue(15.5d));
@@ -144,7 +143,7 @@ public class SearchActionIT {
 
   @Test
   public void return_measures_on_new_code_period() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey("new_metric").setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(10d));
@@ -163,9 +162,9 @@ public class SearchActionIT {
   public void sort_by_metric_key_then_project_name() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey("coverage").setValueType(FLOAT.name()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("C"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("A"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("B"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("C")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("A")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("B")).getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
     userSession.addProjectPermission(UserRole.USER, project3);
@@ -202,7 +201,7 @@ public class SearchActionIT {
 
   @Test
   public void return_measures_on_application() {
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, application);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(application, coverage, m -> m.setValue(15.5d));
@@ -237,8 +236,8 @@ public class SearchActionIT {
   @Test
   public void only_returns_authorized_projects() {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
     db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
     Arrays.stream(new ComponentDto[] {project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
@@ -251,7 +250,7 @@ public class SearchActionIT {
   @Test
   public void does_not_return_branch_when_using_db_key() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(10d));
     userSession.addProjectPermission(UserRole.USER, project);
@@ -263,7 +262,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_no_metric() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
 
     assertThatThrownBy(() -> call(singletonList(project.uuid()), null))
@@ -273,7 +272,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_empty_metric() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
 
     assertThatThrownBy(() -> call(singletonList(project.uuid()), emptyList()))
@@ -283,7 +282,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_unknown_metric() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
@@ -313,7 +312,7 @@ public class SearchActionIT {
   @Test
   public void fail_if_more_than_100_project_keys() {
     List<String> keys = IntStream.rangeClosed(1, 101)
-      .mapToObj(i -> db.components().insertPrivateProject())
+      .mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
       .collect(Collectors.toList());
     MetricDto metric = db.measures().insertMetric();
@@ -326,7 +325,7 @@ public class SearchActionIT {
   @Test
   public void does_not_fail_on_100_projects() {
     List<String> keys = IntStream.rangeClosed(1, 100)
-      .mapToObj(i -> db.components().insertPrivateProject())
+      .mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
       .collect(Collectors.toList());
     MetricDto metric = db.measures().insertMetric();
@@ -336,7 +335,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "dir"));
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
@@ -348,7 +347,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();

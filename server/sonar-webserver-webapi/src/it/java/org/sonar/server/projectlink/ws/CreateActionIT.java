@@ -62,7 +62,7 @@ public class CreateActionIT {
 
   @Test
   public void example_with_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -77,7 +77,7 @@ public class CreateActionIT {
 
   @Test
   public void example_with_id() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -92,7 +92,7 @@ public class CreateActionIT {
 
   @Test
   public void require_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     createAndTest(project);
@@ -100,7 +100,7 @@ public class CreateActionIT {
 
   @Test
   public void with_long_name() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
     String longName = StringUtils.leftPad("", 60, "a");
     String expectedType = StringUtils.leftPad("", 20, "a");
@@ -159,7 +159,7 @@ public class CreateActionIT {
   @Test
   public void fail_if_anonymous() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.registerComponents(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -173,7 +173,7 @@ public class CreateActionIT {
   @Test
   public void fail_if_not_project_admin() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -185,7 +185,7 @@ public class CreateActionIT {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
     failIfNotAProjectWithKey(project, directory);
     failIfNotAProjectWithUuid(project, directory);
@@ -193,7 +193,7 @@ public class CreateActionIT {
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     failIfNotAProjectWithKey(project, file);
     failIfNotAProjectWithUuid(project, file);
@@ -209,7 +209,7 @@ public class CreateActionIT {
 
   @Test
   public void fail_when_using_branch_db_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

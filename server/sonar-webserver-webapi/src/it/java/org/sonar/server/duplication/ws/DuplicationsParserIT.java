@@ -44,7 +44,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void empty_list_when_no_data() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     assertThat(parser.parse(db.getSession(), file, null, null, null)).isEmpty();
@@ -52,7 +52,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplication_on_same_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
       format("<duplications>\n" +
@@ -80,7 +80,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplication_on_same_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
@@ -109,10 +109,10 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplications_on_different_project() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto fileOnProject2 = db.components().insertComponent(newFileDto(project2));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
       format("<duplications>\n" +
@@ -149,11 +149,11 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplications_on_many_blocks() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1)
       .setKey("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java")
       .setLongName("CommandExecutor"));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2)
       .setKey("com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java")
       .setLongName("CommandExecutor"));
@@ -181,7 +181,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplication_on_not_existing_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
       format("<duplications>\n" +
@@ -209,8 +209,8 @@ public class DuplicationsParserIT {
 
   @Test
   public void compare_duplications() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto currentFile = db.components().insertComponent(newFileDto(project1));
     ComponentDto fileOnSameProject = db.components().insertComponent(newFileDto(project1));
     ComponentDto fileOnDifferentProject = db.components().insertComponent(newFileDto(project2));
@@ -231,7 +231,7 @@ public class DuplicationsParserIT {
     assertThat(comparator.compare(Duplication.newComponent(fileOnDifferentProject, 5, 2),
       Duplication.newComponent(fileOnSameProject, 2, 2))).isOne();
     // Files on 2 different projects
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     assertThat(comparator.compare(Duplication.newComponent(fileOnDifferentProject, 5, 2),
       Duplication.newComponent(project3, 2, 2))).isOne();
 
@@ -249,7 +249,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplication_on_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -284,7 +284,7 @@ public class DuplicationsParserIT {
 
   @Test
   public void duplication_on_pull_request() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));

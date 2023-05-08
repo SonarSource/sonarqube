@@ -79,10 +79,10 @@ public class AuthorizationDaoIT {
       .mapToObj(i -> db.users().insertUser().getUuid())
       .collect(MoreCollectors.toSet());
     randomPublicProjectUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToObj(i -> db.components().insertPublicProject().uuid())
+      .mapToObj(i -> db.components().insertPublicProject().getMainBranchComponent().uuid())
       .collect(MoreCollectors.toSet());
     randomPrivateProjectUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToObj(i -> db.components().insertPrivateProject().uuid())
+      .mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent().uuid())
       .collect(MoreCollectors.toSet());
   }
 
@@ -94,7 +94,7 @@ public class AuthorizationDaoIT {
    */
   @Test
   public void selectGlobalPermissions_for_logged_in_user() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertMember(group1, user);
     db.users().insertPermissionOnUser(user, "perm1");
     db.users().insertProjectPermissionOnUser(user, "perm42", project);
@@ -284,8 +284,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_public_project_if_user_is_granted_project_permission_directly() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
@@ -301,8 +301,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_public_project_if_user_is_granted_project_permission_by_group() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
@@ -319,8 +319,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_public_project_if_group_AnyOne_is_granted_project_permission_directly() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone(randomPermission, project);
 
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), null, randomPermission))
@@ -379,8 +379,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_private_project_if_user_is_granted_project_permission_directly() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
@@ -396,8 +396,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_private_project_if_user_is_granted_project_permission_by_group() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
@@ -414,9 +414,9 @@ public class AuthorizationDaoIT {
 
   @Test
   public void user_should_be_authorized() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser("u1");
     GroupDto group = db.users().insertGroup();
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project2);
@@ -437,9 +437,9 @@ public class AuthorizationDaoIT {
 
   @Test
   public void group_should_be_authorized() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user1 = db.users().insertUser("u1");
     GroupDto group = db.users().insertGroup();
     db.users().insertMembers(group, user1);
@@ -457,8 +457,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void anonymous_should_be_authorized() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user1 = db.users().insertUser("u1");
     GroupDto group = db.users().insertGroup();
     db.users().insertMembers(group, user1);
@@ -473,7 +473,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_should_be_able_to_handle_lots_of_projects() {
-    List<ComponentDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject()).toList();
+    List<ComponentDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject().getMainBranchComponent()).toList();
 
     Collection<String> uuids = projects.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, uuids, null, UserRole.USER))
@@ -482,7 +482,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_if_user_set_is_empty_on_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), UserRole.USER, project.uuid()))
       .isEmpty();
@@ -490,7 +490,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_non_existent_users() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPublicProject() : db.components().insertPrivateProject();
+    ComponentDto project = random.nextBoolean() ? db.components().insertPublicProject().getMainBranchComponent() : db.components().insertPrivateProject().getMainBranchComponent();
     Set<String> randomNonExistingUserUuidsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> Uuids.createFast())
       .collect(MoreCollectors.toSet());
@@ -501,7 +501,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_any_users_for_public_project_without_any_permission_in_DB_and_permission_USER() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserUuids, UserRole.USER, project.uuid()))
       .containsAll(randomExistingUserUuids);
@@ -509,7 +509,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_any_users_for_public_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserUuids, UserRole.CODEVIEWER, project.uuid()))
       .containsAll(randomExistingUserUuids);
@@ -517,7 +517,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_users_on_public_project_without_any_permission_in_DB() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserUuids, randomPermission, project.uuid()))
       .isEmpty();
@@ -525,8 +525,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_user_if_granted_project_permission_directly_on_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
@@ -542,8 +542,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_user_if_granted_project_permission_by_group_on_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
@@ -560,8 +560,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_does_not_return_user_if_granted_project_permission_by_AnyOne_on_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnAnyone(randomPermission, project);
 
@@ -577,7 +577,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserUuids, UserRole.USER, project.uuid()))
       .isEmpty();
@@ -585,7 +585,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserUuids, UserRole.CODEVIEWER, project.uuid()))
       .isEmpty();
@@ -593,7 +593,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_users_and_any_permission_on_private_project_without_any_permission_in_DB() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     PermissionsTestHelper.ALL_PERMISSIONS
       .forEach(perm -> {
@@ -606,8 +606,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_user_if_granted_project_permission_directly_on_private_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
@@ -623,8 +623,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_user_if_granted_project_permission_by_group_on_private_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
@@ -641,9 +641,9 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keep_authorized_users_returns_empty_list_for_role_and_project_for_anonymous() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user1 = db.users().insertUser("u1");
     UserDto user2 = db.users().insertUser("u2");
     UserDto user3 = db.users().insertUser("u3");
@@ -722,10 +722,10 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissionsOfAnonymous_returns_permissions_of_anonymous_user_on_specified_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone("p1", project);
     db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p2", project);
-    ComponentDto otherProject = db.components().insertPublicProject();
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone("p3", otherProject);
 
     assertThat(underTest.selectProjectPermissionsOfAnonymous(dbSession, project.uuid())).containsOnly("p1");
@@ -743,7 +743,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_public_project_through_anonymous_permissions() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnAnyone("p1", project);
     db.users().insertProjectPermissionOnAnyone("p2", project);
 
@@ -752,7 +752,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(db.users().insertUser(), UserRole.ISSUE_ADMIN, project);
 
@@ -761,7 +761,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_project_through_group_membership() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(group1, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ISSUE_ADMIN, project);
     db.users().insertMember(group1, user);
@@ -771,7 +771,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_private_project_through_all_possible_configurations() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project);
     db.users().insertMember(group1, user);
@@ -781,7 +781,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_public_project_through_all_possible_configurations() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(user, "p1", project);
     db.users().insertProjectPermissionOnAnyone("p2", project);
     db.users().insertProjectPermissionOnGroup(group1, "p3", project);
@@ -792,8 +792,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_filters_projects_authorized_to_logged_in_user_by_direct_permission() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
 
@@ -806,8 +806,8 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_filters_projects_authorized_to_logged_in_user_by_group_permission() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
@@ -822,7 +822,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_empty_list_if_input_is_empty() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, Collections.emptySet(), user.getUuid(), UserRole.USER))
@@ -835,7 +835,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_empty_list_if_input_does_not_reference_existing_projects() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet("does_not_exist"), user.getUuid(), UserRole.USER))
@@ -844,7 +844,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedProjectUuids_returns_public_projects_if_permission_USER_or_CODEVIEWER() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     // logged-in user
@@ -964,7 +964,7 @@ public class AuthorizationDaoIT {
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     db.users().insertMember(administratorGroup3, user4);
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     // user5 is only project level administer
     UserDto user5 = db.users().insertUser(withEmail("user5"));
@@ -1015,7 +1015,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedLoginsOnProject_return_correct_users_on_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     UserDto user1 = db.users().insertUser();
 
@@ -1039,7 +1039,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedLoginsOnProject_return_correct_users_on_private_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     GroupDto userGroup = db.users().insertGroup("USERS");
     GroupDto adminGroup = db.users().insertGroup("ADMIN");
@@ -1081,7 +1081,7 @@ public class AuthorizationDaoIT {
 
   @Test
   public void keepAuthorizedLoginsOnProject_return_correct_users_on_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, c -> c.setBranchType(BranchType.BRANCH));
 
     GroupDto userGroup = db.users().insertGroup("USERS");

@@ -41,7 +41,7 @@ public class ComponentUuidFactoryImplIT {
 
   @Test
   public void getOrCreateForKey_when_existingComponentsInDbForMainBranch_should_load() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentUuidFactory underTest = new ComponentUuidFactoryImpl(db.getDbClient(), db.getSession(), project.getKey(), mainBranch);
 
@@ -50,7 +50,7 @@ public class ComponentUuidFactoryImplIT {
 
   @Test
   public void getOrCreateForKey_when_existingComponentsInDbForNonMainBranch_should_load() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("b1"));
     when(mockedBranch.getType()).thenReturn(BranchType.BRANCH);
     when(mockedBranch.isMain()).thenReturn(false);
@@ -63,7 +63,7 @@ public class ComponentUuidFactoryImplIT {
 
   @Test
   public void getOrCreateForKey_when_existingComponentsInDbForPr_should_load() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr1"));
     when(mockedBranch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(mockedBranch.isMain()).thenReturn(false);

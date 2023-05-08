@@ -105,7 +105,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void test_json_example() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto gateDetailsMetric = insertGateDetailMetric();
 
@@ -127,7 +127,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_past_status_when_project_is_referenced_by_past_analysis_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setLast(false)
       .setPeriodMode("last_version")
@@ -157,7 +157,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -178,7 +178,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_past_status_when_branch_is_referenced_by_past_analysis_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
       .setLast(false)
@@ -209,7 +209,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -230,7 +230,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
@@ -255,7 +255,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
@@ -281,7 +281,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_undefined_status_if_specified_analysis_is_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -296,7 +296,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_undefined_status_if_project_is_not_analyzed() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusResponse result = ws.newRequest()
@@ -309,7 +309,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void project_administrator_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.ADMIN, project);
@@ -321,7 +321,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void project_user_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -333,7 +333,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void check_cayc_compliant_flag() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     var qg = db.qualityGates().insertBuiltInQualityGate();
     db.qualityGates().setDefaultQualityGate(qg);
     when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), eq(project.uuid()))).thenReturn(COMPLIANT);
@@ -350,7 +350,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void user_with_project_scan_permission_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.SCAN, project);
@@ -363,7 +363,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void user_with_global_scan_permission_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addPermission(GlobalPermission.SCAN);
@@ -387,7 +387,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.logIn();
@@ -400,7 +400,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -413,7 +413,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_branch_key_and_pull_request_id_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -437,7 +437,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);

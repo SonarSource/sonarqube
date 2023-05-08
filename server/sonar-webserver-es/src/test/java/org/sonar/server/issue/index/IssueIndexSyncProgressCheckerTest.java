@@ -257,7 +257,7 @@ public class IssueIndexSyncProgressCheckerTest {
   public void checkIfAnyComponentsNeedIssueSync_single_view_subview_or_app() {
     ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
 
-    ComponentDto app = db.components().insertPublicApplication();
+    ComponentDto app = db.components().insertPublicApplication().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertSubView(view);
 
@@ -307,9 +307,9 @@ public class IssueIndexSyncProgressCheckerTest {
 
   private ProjectDto insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {
     ProjectDto projectDto = db.components()
-      .insertPrivateProjectDto(branchDto -> branchDto.setNeedIssueSync(needIssueSync), c -> {
+      .insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(needIssueSync), c -> {
       }, p -> {
-      });
+      }).getProjectDto();
     IntStream.range(0, numberOfBranches).forEach(
       i -> db.components().insertProjectBranch(projectDto, branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
     return projectDto;

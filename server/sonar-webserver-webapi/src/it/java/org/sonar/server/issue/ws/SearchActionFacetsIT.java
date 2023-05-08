@@ -92,7 +92,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void display_all_facets() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     UserDto user = db.users().insertUser();
@@ -129,7 +129,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void display_projects_facet() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
@@ -148,9 +148,9 @@ public class SearchActionFacetsIT {
 
   @Test
   public void projects_facet_is_sticky() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto project3 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project3));
@@ -173,7 +173,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void display_directory_facet_using_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src/main/java/dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     RuleDto rule = db.rules().insertIssueRule();
@@ -194,7 +194,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void fail_to_display_directory_facet_when_no_project_is_set() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     RuleDto rule = db.rules().insertIssueRule();
@@ -213,7 +213,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void display_files_facet_with_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project));
@@ -236,7 +236,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void fail_to_display_fileUuids_facet_when_no_project_is_set() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
@@ -255,7 +255,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void check_facets_max_size_for_issues() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     Random random = new Random();
     IntStream.rangeClosed(1, 110)
       .forEach(index -> {
@@ -309,7 +309,7 @@ public class SearchActionFacetsIT {
     RuleDto rule = db.rules().insertIssueRule();
     IntStream.rangeClosed(1, 110)
       .forEach(i -> {
-        ComponentDto project = db.components().insertPublicProject();
+        ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
         db.issues().insertIssue(rule, project, project);
       });
     indexPermissions();
@@ -325,8 +325,8 @@ public class SearchActionFacetsIT {
 
   @Test
   public void display_zero_valued_facets_for_selected_items_having_no_issue() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project1));
     RuleDto rule1 = db.rules().insertIssueRule();
@@ -389,7 +389,7 @@ public class SearchActionFacetsIT {
 
   @Test
   public void assigned_to_me_facet_is_sticky_relative_to_assignees() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();

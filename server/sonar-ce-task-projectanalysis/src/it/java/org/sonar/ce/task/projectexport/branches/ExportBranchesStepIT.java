@@ -109,13 +109,13 @@ public class ExportBranchesStepIT {
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).setCreatedAt(createdAt);
+    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent().setCreatedAt(createdAt);
     for (BranchDto branch : branches) {
       createdAt = DateUtils.addMinutes(createdAt, 10);
       dbTester.components().insertProjectBranch(PROJECT, branch).setCreatedAt(createdAt);
     }
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(projectDto));
   }
 
   @Test

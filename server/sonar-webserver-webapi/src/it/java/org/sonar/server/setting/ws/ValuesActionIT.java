@@ -84,7 +84,7 @@ public class ValuesActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
   }
 
   @Test
@@ -792,7 +792,7 @@ public class ValuesActionIT {
 
   @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 

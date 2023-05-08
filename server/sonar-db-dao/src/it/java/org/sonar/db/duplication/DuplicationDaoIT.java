@@ -49,7 +49,7 @@ public class DuplicationDaoIT {
 
   @Test
   public void selectCandidates_returns_block_from_last_snapshot_only_of_component_with_language_and_if_not_specified_analysis() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto fooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
     ComponentDto fooFile1 = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
     ComponentDto disabledFooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(false));
@@ -108,13 +108,13 @@ public class DuplicationDaoIT {
 
   @Test
   public void select_component() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1);
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis2 = db.components().insertSnapshot(project2);
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis3 = db.components().insertSnapshot(project3);
-    ComponentDto project4 = db.components().insertPrivateProject();
+    ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
     insert(project1, analysis1, "bb", 0, 0, 0);
     insert(project2, analysis2, "aa", 0, 1, 2);
     insert(project3, analysis3, "bb", 0, 0, 0);

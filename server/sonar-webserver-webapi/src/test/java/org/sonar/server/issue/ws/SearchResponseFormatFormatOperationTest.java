@@ -269,20 +269,20 @@ public class SearchResponseFormatFormatOperationTest {
   }
 
   private SearchResponseData newSearchResponseDataMainBranch() {
-    ComponentDto projectDto = db.components().insertPublicProject();
+    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), projectDto.uuid()).get();
     return newSearchResponseData(projectDto, branchDto);
   }
 
   private SearchResponseData newSearchResponseDataBranch(String name) {
-    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name));
     ComponentDto branchComponent = db.components().getComponentDto(branch);
     return newSearchResponseData(branchComponent, branch);
   }
 
   private SearchResponseData newSearchResponseDataPr(String name) {
-    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name).setBranchType(BranchType.PULL_REQUEST));
     ComponentDto branchComponent = db.components().getComponentDto(branch);
     return newSearchResponseData(branchComponent, branch);

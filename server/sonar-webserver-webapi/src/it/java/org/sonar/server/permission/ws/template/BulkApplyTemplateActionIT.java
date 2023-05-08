@@ -51,7 +51,6 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -104,10 +103,10 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
   @Test
   public void bulk_apply_template_by_template_uuid() {
     // this project should not be applied the template
-    db.components().insertPrivateProject();
+    db.components().insertPrivateProject().getMainBranchComponent();
 
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -145,8 +144,8 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void bulk_apply_template_by_template_name() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -159,10 +158,10 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void apply_template_by_qualifiers() {
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -219,9 +218,9 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void apply_template_by_project_keys() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto untouchedProject = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto untouchedProject = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -236,9 +235,9 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void apply_template_by_provisioned_only() {
-    ComponentDto provisionedProject1 = db.components().insertPrivateProject();
-    ComponentDto provisionedProject2 = db.components().insertPrivateProject();
-    ComponentDto analyzedProject = db.components().insertPrivateProject();
+    ComponentDto provisionedProject1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto provisionedProject2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto analyzedProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshot(newAnalysis(analyzedProject));
     loginAsAdmin();
 
@@ -254,9 +253,9 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void apply_template_by_analyzed_before() {
-    ComponentDto oldProject1 = db.components().insertPrivateProject();
-    ComponentDto oldProject2 = db.components().insertPrivateProject();
-    ComponentDto recentProject = db.components().insertPrivateProject();
+    ComponentDto oldProject1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto oldProject2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto recentProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshot(oldProject1, a -> a.setCreatedAt(parseDate("2015-02-03").getTime()));
     db.components().insertSnapshot(oldProject2, a -> a.setCreatedAt(parseDate("2016-12-11").getTime()));
     db.components().insertSnapshot(recentProject, a -> a.setCreatedAt(System.currentTimeMillis()));
@@ -274,9 +273,9 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
   @Test
   public void apply_template_by_visibility() {
-    ComponentDto privateProject1 = db.components().insertPrivateProject();
-    ComponentDto privateProject2 = db.components().insertPrivateProject();
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto privateProject1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto privateProject2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()

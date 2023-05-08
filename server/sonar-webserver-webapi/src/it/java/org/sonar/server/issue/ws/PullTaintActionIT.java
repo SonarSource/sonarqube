@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -104,11 +103,11 @@ public class PullTaintActionIT {
     db.getDbClient().ruleRepositoryDao().insert(db.getSession(), List.of(repository));
     correctRule = db.rules().insertIssueRule(r -> r.setRepositoryKey("javasecurity").setRuleKey("S1000").setSeverity(3));
 
-    correctProject = db.components().insertPrivateProject();
+    correctProject = db.components().insertPrivateProject().getMainBranchComponent();
     correctFile = db.components().insertComponent(newFileDto(correctProject));
 
     incorrectRule = db.rules().insertIssueRule();
-    incorrectProject = db.components().insertPrivateProject();
+    incorrectProject = db.components().insertPrivateProject().getMainBranchComponent();
     incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
 
     when(taintChecker.getTaintRepositories()).thenReturn(List.of("roslyn.sonaranalyzer.security.cs",
@@ -268,7 +267,7 @@ public class PullTaintActionIT {
 
   @Test
   public void givenTaintOnAnotherBranch_returnOneTaint() throws IOException {
-    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop");
+    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateTaints(correctRule, developBranch, developFile, 1);
     loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());

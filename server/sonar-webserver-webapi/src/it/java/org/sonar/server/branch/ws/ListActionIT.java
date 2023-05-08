@@ -97,7 +97,7 @@ public class ListActionIT {
 
   @Test
   public void test_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube")).getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -126,7 +126,7 @@ public class ListActionIT {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube")).getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -153,7 +153,7 @@ public class ListActionIT {
 
   @Test
   public void main_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
@@ -167,7 +167,7 @@ public class ListActionIT {
 
   @Test
   public void main_branch_with_specified_name() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.getDbClient().branchDao().updateBranchName(db.getSession(), project.uuid(), "head");
     db.commit();
     userSession.logIn().addProjectPermission(USER, project);
@@ -183,7 +183,7 @@ public class ListActionIT {
 
   @Test
   public void test_project_with_branches() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(USER, project);
@@ -202,7 +202,7 @@ public class ListActionIT {
 
   @Test
   public void status_on_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
@@ -220,7 +220,7 @@ public class ListActionIT {
   public void response_contains_date_of_last_analysis() {
     Long lastAnalysisBranch = dateToLong(parseDateTime("2017-04-01T00:00:00+0100"));
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
@@ -247,7 +247,7 @@ public class ListActionIT {
 
   @Test
   public void application_branches() {
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     db.components().insertProjectBranch(application, b -> b.setKey("feature/bar"));
     db.components().insertProjectBranch(application, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(USER, application);
@@ -273,7 +273,7 @@ public class ListActionIT {
 
   @Test
   public void fail_if_not_a_reference_on_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(USER, project);
     TestRequest request = ws.newRequest().setParam("project", file.getKey());

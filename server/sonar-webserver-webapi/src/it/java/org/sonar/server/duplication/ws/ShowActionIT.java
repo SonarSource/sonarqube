@@ -89,7 +89,7 @@ public class ShowActionIT {
 
   @Test
   public void return_file_with_missing_duplication_data() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
@@ -105,7 +105,7 @@ public class ShowActionIT {
 
   @Test
   public void duplications_by_file_key_and_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -159,7 +159,7 @@ public class ShowActionIT {
 
   @Test
   public void duplications_by_file_key_and_pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
@@ -221,7 +221,7 @@ public class ShowActionIT {
 
   @Test
   public void fail_if_user_is_not_allowed_to_access_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     TestRequest request = newBaseRequest().setParam("key", file.getKey());
 
@@ -243,7 +243,7 @@ public class ShowActionIT {
   }
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     String xml = "<duplications>\n" +

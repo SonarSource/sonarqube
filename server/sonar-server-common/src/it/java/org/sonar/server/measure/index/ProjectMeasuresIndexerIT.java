@@ -124,7 +124,7 @@ public class ProjectMeasuresIndexerIT {
    */
   @Test
   public void indexOnStartup_indexes_provisioned_projects() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.indexOnStartup(emptySet());
 
@@ -133,7 +133,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnStartup_ignores_non_main_branches() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnStartup(emptySet());
@@ -143,9 +143,9 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnStartup_indexes_all_applications() {
-    ComponentDto application1 = db.components().insertPrivateApplication();
-    ComponentDto application2 = db.components().insertPrivateApplication();
-    ComponentDto application3 = db.components().insertPrivateApplication();
+    ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto application3 = db.components().insertPrivateApplication().getMainBranchComponent();
 
     underTest.indexOnStartup(emptySet());
 
@@ -155,13 +155,13 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnStartup_indexes_projects_and_applications() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
 
-    ComponentDto application1 = db.components().insertPrivateApplication();
-    ComponentDto application2 = db.components().insertPrivateApplication();
-    ComponentDto application3 = db.components().insertPrivateApplication();
+    ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto application3 = db.components().insertPrivateApplication().getMainBranchComponent();
 
     underTest.indexOnStartup(emptySet());
 
@@ -172,8 +172,8 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnAnalysis_indexes_provisioned_project() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.indexOnAnalysis(project1.uuid());
 
@@ -182,8 +182,8 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnAnalysis_indexes_provisioned_application() {
-    ComponentDto app1 = db.components().insertPrivateApplication();
-    ComponentDto app2 = db.components().insertPrivateApplication();
+    ComponentDto app1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto app2 = db.components().insertPrivateApplication().getMainBranchComponent();
 
     underTest.indexOnAnalysis(app1.uuid());
 
@@ -192,7 +192,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void update_index_when_project_key_is_updated() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     IndexingResult result = indexProject(project, PROJECT_KEY_UPDATE);
 
@@ -203,7 +203,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void update_index_when_project_is_created() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
 
@@ -214,11 +214,11 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void update_index_when_project_tags_are_updated() {
-    ComponentDto project = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("foo"));
+    ComponentDto project = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("foo")).getMainBranchComponent();
     indexProject(project, PROJECT_CREATION);
     assertThatProjectHasTag(project, "foo");
 
-    ProjectDto projectDto = db.components().getProjectDto(project);
+    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
     projectDto.setTagsString("bar");
     db.getDbClient().projectDao().updateTags(db.getSession(), projectDto);
     // TODO change indexing?
@@ -231,7 +231,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void delete_doc_from_index_when_project_is_deleted() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     indexProject(project, PROJECT_CREATION);
     assertThatIndexContainsOnly(project);
 
@@ -246,8 +246,8 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void do_nothing_if_no_projects_and_apps_to_index() {
     // this project should not be indexed
-    db.components().insertPrivateProject();
-    db.components().insertPrivateApplication();
+    db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateApplication().getMainBranchComponent();
 
     underTest.index(db.getSession(), emptyList());
 
@@ -256,7 +256,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void errors_during_indexing_are_recovered() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     es.lockWrites(TYPE_PROJECT_MEASURES);
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
@@ -281,7 +281,7 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void non_main_branches_are_not_indexed_during_analysis() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnAnalysis(branch.uuid());

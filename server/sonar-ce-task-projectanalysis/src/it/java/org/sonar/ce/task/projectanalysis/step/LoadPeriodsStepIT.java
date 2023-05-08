@@ -38,9 +38,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -104,7 +102,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   @Before
   public void setUp() {
     logTester.setLevel(Level.TRACE);
-    project = dbTester.components().insertPublicProject();
+    project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
@@ -312,7 +310,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_exist_in_DB() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
     setupRoot(project, project.uuid(), "any-string");
 
@@ -323,7 +321,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_belong_to_current_project() {
-    ComponentDto otherProject = dbTester.components().insertPublicProject();
+    ComponentDto otherProject = dbTester.components().insertPublicProject().getMainBranchComponent();
     SnapshotDto otherProjectAnalysis = dbTester.components().insertSnapshot(otherProject);
     setBranchPeriod(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, otherProjectAnalysis.getUuid());
     setupRoot(project);

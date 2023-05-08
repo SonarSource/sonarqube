@@ -102,12 +102,12 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void search_for_users_with_permission_on_project() {
     // User has permission on project
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(newUserDto());
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
     // User has permission on another project
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto userHavePermissionOnAnotherProject = db.users().insertUser(newUserDto());
     db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, UserRole.ISSUE_ADMIN, anotherProject);
 
@@ -129,7 +129,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_name() {
     // User with permission on project
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
@@ -150,7 +150,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_email() {
     // User with permission on project
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
@@ -167,7 +167,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_login() {
     // User with permission on project
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
@@ -306,7 +306,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
@@ -332,7 +332,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     UserDto user = db.users().insertUser(newUserDto());
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

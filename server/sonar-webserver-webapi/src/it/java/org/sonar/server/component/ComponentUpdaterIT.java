@@ -239,7 +239,7 @@ public class ComponentUpdaterIT {
   @Test
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getMainBranchComponent(), user.getUuid(), user.getLogin()));
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -281,7 +281,7 @@ public class ComponentUpdaterIT {
 
   @Test
   public void fail_when_project_key_already_exists() {
-    ComponentDto existing = db.components().insertPrivateProject();
+    ComponentDto existing = db.components().insertPrivateProject().getMainBranchComponent();
 
     DbSession session = db.getSession();
     NewComponent newComponent = NewComponent.newComponentBuilder()
@@ -320,7 +320,7 @@ public class ComponentUpdaterIT {
   @Test
   public void create_shouldFail_whenCreatingProjectWithExistingKeyButDifferentCase() {
     String existingKey = randomAlphabetic(5).toUpperCase();
-    db.components().insertPrivateProject(component -> component.setKey(existingKey));
+    db.components().insertPrivateProject(component -> component.setKey(existingKey)).getMainBranchComponent();
     String newKey = existingKey.toLowerCase();
 
     NewComponent newComponent = NewComponent.newComponentBuilder()

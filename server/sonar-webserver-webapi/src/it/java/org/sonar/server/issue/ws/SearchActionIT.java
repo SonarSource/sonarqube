@@ -161,7 +161,7 @@ public class SearchActionIT {
   public void response_contains_all_fields_except_additional_fields() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     UserDto simon = db.users().insertUser();
     RuleDto rule = newIssueRule();
@@ -200,7 +200,7 @@ public class SearchActionIT {
   public void response_contains_correct_actions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = newIssueRule();
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
@@ -234,7 +234,7 @@ public class SearchActionIT {
 
   @Test
   public void issue_on_external_rule() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo"));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
@@ -250,7 +250,7 @@ public class SearchActionIT {
 
   @Test
   public void issue_on_external_adhoc_rule_without_metadata() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true)
@@ -276,7 +276,7 @@ public class SearchActionIT {
 
   @Test
   public void issue_on_external_adhoc_rule_with_metadata() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO,
@@ -303,7 +303,7 @@ public class SearchActionIT {
 
   @Test
   public void issue_with_cross_file_locations() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     ComponentDto anotherFile = db.components().insertComponent(newFileDto(project));
@@ -358,7 +358,7 @@ public class SearchActionIT {
   public void issue_with_comments() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = newIssueRule();
@@ -406,7 +406,7 @@ public class SearchActionIT {
   public void issue_with_comment_hidden() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = newIssueRule();
@@ -447,7 +447,7 @@ public class SearchActionIT {
   @Test
   public void load_additional_fields() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = newIssueRule();
@@ -465,7 +465,7 @@ public class SearchActionIT {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
     grantPermissionToAnyone(project, ISSUE_ADMIN);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
@@ -488,7 +488,7 @@ public class SearchActionIT {
   @Test
   public void search_by_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -509,7 +509,7 @@ public class SearchActionIT {
   @Test
   public void search_adhoc_issue_by_rule_key_returns_correct_rule_name() {
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true)
       .setIsAdHoc(true)
@@ -532,7 +532,7 @@ public class SearchActionIT {
   @Test
   public void search_by_non_existing_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -553,7 +553,7 @@ public class SearchActionIT {
   @Test
   public void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -578,7 +578,7 @@ public class SearchActionIT {
   @Test
   public void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -596,7 +596,7 @@ public class SearchActionIT {
   public void filter_by_assigned_to_me() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid("PROJECT_ID"));
+    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid("PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -642,7 +642,7 @@ public class SearchActionIT {
   public void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     SnapshotDto snapshotDto = db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
@@ -696,7 +696,7 @@ public class SearchActionIT {
   public void filter_by_leak_period_without_a_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     SnapshotDto snapshotDto = db.components().insertSnapshot(project);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -736,7 +736,7 @@ public class SearchActionIT {
   public void filter_by_leak_period_has_no_effect_on_prs() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
@@ -782,7 +782,7 @@ public class SearchActionIT {
   public void return_empty_when_login_is_unknown() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -831,7 +831,7 @@ public class SearchActionIT {
     userSession.logIn(poy);
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -860,7 +860,7 @@ public class SearchActionIT {
 
   @Test
   public void search_by_author() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("leia"));
@@ -892,7 +892,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_test_scope() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -933,7 +933,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_main_scope() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -974,7 +974,7 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_scope_always_returns_all_scope_facet_values() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -1007,7 +1007,7 @@ public class SearchActionIT {
   @Test
   public void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newIssue(rule, project, file)
@@ -1036,7 +1036,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_owaspAsvs40() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "owaspAsvs-4.0:12.3.1"))
@@ -1069,7 +1069,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_owaspAsvs40_with_level() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
     RuleDto issueRule1 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:1.7.2", "owaspAsvs-4.0:12.3.1")));
@@ -1118,7 +1118,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_pciDss32() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "pciDss-3.2:10.1"))
@@ -1151,7 +1151,7 @@ public class SearchActionIT {
 
   @Test
   public void multiple_categories_pciDss32() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // Rule 1
@@ -1236,7 +1236,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_pciDss40() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-4.0:6.5.3", "pciDss-4.0:10.1"))
@@ -1269,7 +1269,7 @@ public class SearchActionIT {
 
   @Test
   public void multiple_categories_pciDss40() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // Rule 1
@@ -1346,7 +1346,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_cwe() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
@@ -1371,7 +1371,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_owasp() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1", "owaspTop10-2021:a2"))
@@ -1396,7 +1396,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_owasp_2021() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1", "owaspTop10-2021:a2"))
@@ -1421,7 +1421,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_sansTop25() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:266", "cwe:732", "owaspTop10:a5"))
@@ -1446,7 +1446,7 @@ public class SearchActionIT {
 
   @Test
   public void only_vulnerabilities_are_returned_by_sonarsource_security() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
@@ -1471,7 +1471,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspots_are_not_returned_by_default() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG));
@@ -1489,7 +1489,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspots_are_not_returned_by_issues_param() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto issueRule = db.rules().insertIssueRule();
     IssueDto bugIssue = db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.BUG));
@@ -1510,7 +1510,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspots_are_not_returned_by_cwe() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
@@ -1536,7 +1536,7 @@ public class SearchActionIT {
   @Test
   public void security_hotspots_are_not_returned_by_assignees() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
@@ -1559,7 +1559,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspots_are_not_returned_by_rule() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, file);
@@ -1574,7 +1574,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspots_are_not_returned_by_issues_param_only() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertHotspotRule();
     List<IssueDto> hotspots = IntStream.range(1, 2 + new Random().nextInt(10))
@@ -1593,7 +1593,7 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_trying_to_filter_issues_by_hotspots() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto hotspotRule = newHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, file);
@@ -1610,7 +1610,7 @@ public class SearchActionIT {
 
   @Test
   public void security_hotspot_are_ignored_when_filtering_by_severities() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto issueRule = db.rules().insertIssueRule();
     IssueDto bugIssue = db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
@@ -1672,7 +1672,7 @@ public class SearchActionIT {
   @Test
   public void paging() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
@@ -1861,7 +1861,7 @@ public class SearchActionIT {
     UserDto john = db.users().insertUser();
     userSession.logIn(john);
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     for (Consumer<IssueDto> populator : populators) {
       db.issues().insertIssue(rule, project, file, populator);

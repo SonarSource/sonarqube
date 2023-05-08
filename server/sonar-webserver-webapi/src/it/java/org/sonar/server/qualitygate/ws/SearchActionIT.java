@@ -65,9 +65,9 @@ public class SearchActionIT {
 
   @Test
   public void search_projects_of_a_quality_gate() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project), qualityGate);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
@@ -92,8 +92,8 @@ public class SearchActionIT {
   @Test
   public void return_all_projects() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto unassociatedProject = db.components().insertPublicProjectDto();
-    ProjectDto associatedProject = db.components().insertPublicProjectDto();
+    ProjectDto unassociatedProject = db.components().insertPublicProject().getProjectDto();
+    ProjectDto associatedProject = db.components().insertPublicProject().getProjectDto();
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
@@ -111,8 +111,8 @@ public class SearchActionIT {
   @Test
   public void return_only_associated_project() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto associatedProject = db.components().insertPublicProjectDto();
-    ProjectDto unassociatedProject = db.components().insertPublicProjectDto();
+    ProjectDto associatedProject = db.components().insertPublicProject().getProjectDto();
+    ProjectDto unassociatedProject = db.components().insertPublicProject().getProjectDto();
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
@@ -129,8 +129,8 @@ public class SearchActionIT {
   @Test
   public void return_only_unassociated_project() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto associatedProject = db.components().insertPublicProjectDto();
-    ProjectDto unassociatedProject = db.components().insertPublicProjectDto();
+    ProjectDto associatedProject = db.components().insertPublicProject().getProjectDto();
+    ProjectDto unassociatedProject = db.components().insertPublicProject().getProjectDto();
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
@@ -147,8 +147,8 @@ public class SearchActionIT {
   @Test
   public void return_only_authorized_projects() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     // User can only see project1 1
     db.users().insertProjectPermissionOnUser(user, USER, project1);
@@ -168,9 +168,9 @@ public class SearchActionIT {
   @Test
   public void test_paging() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
-    ProjectDto project3 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
     db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
 
     // Return partial result on first page
@@ -233,7 +233,7 @@ public class SearchActionIT {
   public void test_pagination_on_many_pages() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     for (int i = 0; i < 20; i++) {
-      ProjectDto project = db.components().insertPublicProjectDto();
+      ProjectDto project = db.components().insertPublicProject().getProjectDto();
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
@@ -256,7 +256,7 @@ public class SearchActionIT {
   public void test_pagination_on_one_page() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     for (int i = 0; i < 20; i++) {
-      ProjectDto project = db.components().insertPublicProjectDto();
+      ProjectDto project = db.components().insertPublicProject().getProjectDto();
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
     userSession.addPermission(ADMINISTER_QUALITY_GATES);

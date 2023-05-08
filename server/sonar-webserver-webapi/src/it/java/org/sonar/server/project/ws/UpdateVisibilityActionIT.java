@@ -192,7 +192,7 @@ public class UpdateVisibilityActionIT {
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
     ComponentDto file = ComponentTesting.newFileDto(project);
     dbTester.components().insertComponents(dir, file);
-    ComponentDto application = dbTester.components().insertPublicApplication();
+    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
     ComponentDto portfolio = dbTester.components().insertPrivatePortfolio();
     ComponentDto subView = ComponentTesting.newSubPortfolio(portfolio);
     ComponentDto projectCopy = newProjectCopy("foo", project, subView);
@@ -220,7 +220,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_throws_ForbiddenException_if_user_has_no_permission_on_specified_component() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
 
@@ -231,7 +231,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_throws_ForbiddenException_if_user_has_all_permissions_but_ADMIN_on_specified_component() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project);
@@ -246,7 +246,7 @@ public class UpdateVisibilityActionIT {
   @Test
   public void execute_throws_ForbiddenException_if_user_has_ADMIN_permission_but_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
@@ -259,7 +259,7 @@ public class UpdateVisibilityActionIT {
   @Test
   public void execute_throws_ForbiddenException_if_user_has_global_ADMIN_permission_even_if_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     userSessionRule.setSystemAdministrator().addProjectPermission(UserRole.ADMIN, project);
     request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, "private");
@@ -352,7 +352,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_deletes_all_permissions_to_Anyone_on_specified_project_when_new_visibility_is_private() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
@@ -367,7 +367,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_does_not_delete_all_permissions_to_AnyOne_on_specified_project_if_already_private() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
@@ -382,7 +382,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_deletes_all_permissions_USER_and_BROWSE_of_specified_project_when_new_visibility_is_public() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
@@ -397,7 +397,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_does_not_delete_permissions_USER_and_BROWSE_of_specified_project_when_new_component_is_already_public() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
@@ -438,7 +438,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_grants_USER_and_CODEVIEWER_permissions_to_any_user_with_at_least_one_permission_when_making_project_private() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     UserDto user3 = dbTester.users().insertUser();
@@ -461,7 +461,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_grants_USER_and_CODEVIEWER_permissions_to_any_group_with_at_least_one_permission_when_making_project_private() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
     GroupDto group3 = dbTester.users().insertGroup();
@@ -528,7 +528,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void update_an_application_to_private() {
-    ComponentDto application = dbTester.components().insertPublicApplication();
+    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
     GroupDto group = dbTester.users().insertGroup();
     dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, application);
     UserDto user = dbTester.users().insertUser();
@@ -548,7 +548,7 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void update_an_application_to_public() {
-    ComponentDto portfolio = dbTester.components().insertPrivateApplication();
+    ComponentDto portfolio = dbTester.components().insertPrivateApplication().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.ADMIN, portfolio);
     GroupDto group = dbTester.users().insertGroup();
     dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
@@ -690,6 +690,6 @@ public class UpdateVisibilityActionIT {
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
-    return random.nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
+    return random.nextBoolean() ? dbTester.components().insertPublicProject().getMainBranchComponent() : dbTester.components().insertPrivateProject().getMainBranchComponent();
   }
 }

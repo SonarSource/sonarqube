@@ -144,7 +144,7 @@ public class DeleteActionIT {
     addAdmin();
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = componentTester.insertPrivateProject();
+    ComponentDto project = componentTester.insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
     loginAsAdmin();
 

@@ -62,7 +62,7 @@ public class AssignActionIT {
 
   @Before
   public void setUp() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     context = new ActionContext(issue, issueChangeContext, project);
   }
 

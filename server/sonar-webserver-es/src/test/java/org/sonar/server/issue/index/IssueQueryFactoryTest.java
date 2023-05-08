@@ -80,7 +80,7 @@ public class IssueQueryFactoryTest {
   public void create_from_parameters() {
     String ruleAdHocName = "New Name";
     UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
@@ -135,7 +135,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void create_with_rule_key_that_does_not_exist_in_the_db() {
     db.users().insertUser(u -> u.setLogin("joanna"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newFileDto(project));
     newRule(RuleKey.of("findbugs", "NullReference"));
     SearchRequest request = new SearchRequest()
@@ -151,7 +151,7 @@ public class IssueQueryFactoryTest {
   public void in_new_code_period_start_date_is_exclusive() {
     long newCodePeriodStart = addDays(new Date(), -14).getTime();
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(newCodePeriodStart));
@@ -171,7 +171,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void new_code_period_does_not_rely_on_date_for_reference_branch_with_analysis_after_sonarqube_94() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
@@ -309,9 +309,9 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void application_search_project_issues() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     userSession.registerApplication(application, project1, project2);
@@ -323,9 +323,9 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void application_search_project_issues_returns_empty_if_user_cannot_access_child_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
 
@@ -338,15 +338,15 @@ public class IssueQueryFactoryTest {
   public void application_search_project_issues_in_new_code_with_and_without_analysis_after_sonarqube_94() {
     Date now = new Date();
     when(clock.millis()).thenReturn(now.getTime());
-    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
-    ComponentDto project3 = db.components().insertPublicProject();
-    ComponentDto project4 = db.components().insertPublicProject();
+    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPublicProject().getMainBranchComponent();
     SnapshotDto analysis2 = db.components().insertSnapshot(project4,
       s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
     db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
@@ -381,7 +381,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_on_project_tree_by_default() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(project.uuid()));
 
@@ -392,7 +392,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void onComponentOnly_restricts_search_to_specified_componentKeys() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SearchRequest request = new SearchRequest()
       .setComponents(asList(project.getKey()))
       .setOnComponentOnly(true);
@@ -406,7 +406,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_in_directory_tree() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "src/main/java/foo"));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(dir.uuid()));
@@ -419,7 +419,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_by_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(file.uuid()));
@@ -431,7 +431,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_by_test_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(file.uuid()));
@@ -443,7 +443,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issue_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
@@ -462,7 +462,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_file_issue_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -490,7 +490,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issue_on_component_only_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -505,7 +505,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issues_from_main_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertProjectBranch(project);
 
     assertThat(underTest.create(new SearchRequest()
@@ -522,9 +522,9 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponents(newProjectCopy(project1, application));
     db.components().insertComponents(newProjectCopy(project2, application));
     userSession.registerApplication(application, project1, project2)
@@ -539,16 +539,16 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key_and_branch() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app")).getMainBranchComponent();
     String branchName1 = "app-branch1";
     String branchName2 = "app-branch2";
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey(branchName1));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(branchName2));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1")).getMainBranchComponent();
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
     db.components().insertComponent(newFileDto(project1Branch1, project1.uuid()));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2")).getMainBranchComponent();
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));
@@ -635,8 +635,8 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void fail_if_several_components_provided_with_in_new_code_period() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     SearchRequest searchRequest = new SearchRequest()
       .setInNewCodePeriod(true)

@@ -471,10 +471,10 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
 
   @Test
   public void getPciDssReport_aggregation_on_portfolio() {
-    ComponentDto portfolio1 = db.components().insertPrivateApplication();
-    ComponentDto portfolio2 = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     indexIssues(
       newDocForProject("openvul1", project1).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
@@ -518,10 +518,10 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
 
   @Test
   public void getOwaspAsvsReport_aggregation_on_portfolio() {
-    ComponentDto portfolio1 = db.components().insertPrivateApplication();
-    ComponentDto portfolio2 = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     indexIssues(
       newDocForProject("openvul1", project1).setOwaspAsvs40(asList("2.1.1", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
@@ -647,9 +647,9 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
 
   @Test
   public void getCWETop25Report_aggregation_on_portfolio() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     indexIssues(
       newDocForProject("openvul1", project1).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)

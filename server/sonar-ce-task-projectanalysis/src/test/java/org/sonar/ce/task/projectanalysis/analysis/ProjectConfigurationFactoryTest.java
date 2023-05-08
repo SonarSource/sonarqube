@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
@@ -47,7 +46,7 @@ public class ProjectConfigurationFactoryTest {
 
   @Test
   public void return_project_settings() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("1").setValue("val1"),
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
@@ -63,7 +62,7 @@ public class ProjectConfigurationFactoryTest {
   @Test
   public void project_settings_override_global_settings() {
     settings.setProperty("key", "value");
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("key").setValue("value2"));
 

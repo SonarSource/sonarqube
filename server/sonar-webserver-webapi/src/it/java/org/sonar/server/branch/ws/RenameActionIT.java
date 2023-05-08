@@ -89,7 +89,7 @@ public class RenameActionIT {
   @Test
   public void fail_if_no_administer_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -102,7 +102,7 @@ public class RenameActionIT {
   @Test
   public void rename() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -122,7 +122,7 @@ public class RenameActionIT {
   @Test
   public void rename_with_same_name() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -147,7 +147,7 @@ public class RenameActionIT {
   @Test
   public void fail_if_name_already_used() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.ADMIN, project);
     db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 

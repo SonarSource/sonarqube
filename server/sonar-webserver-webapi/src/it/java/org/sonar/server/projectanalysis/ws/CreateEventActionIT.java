@@ -79,7 +79,7 @@ public class CreateEventActionIT {
 
   @Test
   public void json_example() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setUuid("A2"));
     db.commit();
     uuidFactory = mock(UuidFactory.class);
@@ -98,7 +98,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_event_in_db() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     when(system.now()).thenReturn(123_456_789L);
     logInAsProjectAdministrator(project);
@@ -120,7 +120,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_event_in_branch() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
 
@@ -144,7 +144,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_event_as_project_admin() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -155,7 +155,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_version_event() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -167,7 +167,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_other_event_with_ws_response() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -185,7 +185,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_event_without_description() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -198,7 +198,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_event_on_application() {
-    ProjectDto application = db.components().insertPrivateApplicationDto();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(application);
     logInAsProjectAdministrator(application);
 
@@ -210,7 +210,7 @@ public class CreateEventActionIT {
 
   @Test
   public void create_2_version_events_on_same_project() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto firstAnalysis = db.components().insertSnapshot(project);
     SnapshotDto secondAnalysis = db.components().insertSnapshot(project);
     db.commit();
@@ -225,7 +225,7 @@ public class CreateEventActionIT {
 
   @Test
   public void fail_if_not_blank_name() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -245,7 +245,7 @@ public class CreateEventActionIT {
 
   @Test
   public void fail_if_2_version_events_on_the_same_analysis() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
     call(VERSION.name(), "5.6.3", analysis.getUuid());
@@ -257,7 +257,7 @@ public class CreateEventActionIT {
 
   @Test
   public void fail_if_2_other_events_on_same_analysis_with_same_name() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
     call(OTHER.name(), "Project Import", analysis.getUuid());
@@ -269,7 +269,7 @@ public class CreateEventActionIT {
 
   @Test
   public void fail_if_category_other_than_authorized() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -283,7 +283,7 @@ public class CreateEventActionIT {
 
   @Test
   public void fail_if_create_version_event_on_application() {
-    ProjectDto application = db.components().insertPrivateApplicationDto();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(application);
     logInAsProjectAdministrator(application);
 

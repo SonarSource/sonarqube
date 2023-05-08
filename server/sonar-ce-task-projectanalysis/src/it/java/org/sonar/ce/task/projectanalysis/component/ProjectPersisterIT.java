@@ -74,8 +74,8 @@ public class ProjectPersisterIT {
 
   @Test
   public void update_description() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
-      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC"));
+    ProjectDto p1 = dbTester.components().insertPublicProject(
+      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC")).getProjectDto();
 
     assertProject("OLD_DESC", ROOT.getName(), p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
@@ -84,8 +84,8 @@ public class ProjectPersisterIT {
 
   @Test
   public void update_name() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
-      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription()));
+    ProjectDto p1 = dbTester.components().insertPublicProject(
+      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription())).getProjectDto();
 
     assertProject(ROOT.getDescription(), "OLD_NAME", p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
@@ -94,8 +94,8 @@ public class ProjectPersisterIT {
 
   @Test
   public void dont_update() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
-      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription(ROOT.getDescription()));
+    ProjectDto p1 = dbTester.components().insertPublicProject(
+      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription(ROOT.getDescription())).getProjectDto();
 
     assertProject(ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());

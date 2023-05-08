@@ -83,11 +83,11 @@ public class DeleteActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(almSetting, project);
     // Second setting having a project bound on it, should not be impacted by the deletion of the first one
     AlmSettingDto anotherAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(anotherAlmSetting2, anotherProject);
 
     ws.newRequest()

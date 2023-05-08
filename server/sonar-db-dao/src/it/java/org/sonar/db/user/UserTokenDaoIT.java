@@ -69,7 +69,7 @@ public class UserTokenDaoIT {
   @Test
   public void insert_project_analysis_token() {
     UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
-    ComponentDto project = db.components().insertPublicProject(projectAnalysisToken.getProjectUuid());
+    ComponentDto project = db.components().insertPublicProject(projectAnalysisToken.getProjectUuid()).getMainBranchComponent();
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
 
     UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());

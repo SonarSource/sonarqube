@@ -120,7 +120,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
   public void insert_copied_issue() {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-1";
@@ -184,7 +184,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
 
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-2";
@@ -230,7 +230,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-3";
@@ -289,7 +289,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
   public void update_conflicting_issue() {
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
@@ -324,7 +324,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     session.commit();
     String issueKey = "ISSUE-4";
@@ -362,7 +362,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
 
   @Test
   public void close_issue() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,
@@ -396,7 +396,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-5";
@@ -449,7 +449,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-6";
@@ -498,7 +498,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     when(system2.now()).thenReturn(NOW);
     String issueKey = "ISSUE-7";
@@ -549,7 +549,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
 
   @Test
   public void add_comment() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,
@@ -590,7 +590,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
 
   @Test
   public void add_change() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,

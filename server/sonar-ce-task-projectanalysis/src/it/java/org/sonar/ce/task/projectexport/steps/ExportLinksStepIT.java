@@ -72,8 +72,8 @@ public class ExportLinksStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto project = db.components().insertPublicProject(PROJECT);
-    when(projectHolder.projectDto()).thenReturn(db.components().getProjectDto(project));
+    ComponentDto project = db.components().insertPublicProject(PROJECT).getMainBranchComponent();
+    when(projectHolder.projectDto()).thenReturn(db.components().getProjectDtoByMainBranch(project));
     when(componentRepository.getRef(PROJECT_UUID)).thenReturn(1L);
   }
 
@@ -89,7 +89,7 @@ public class ExportLinksStepIT {
   public void export_links() {
     ProjectLinkDto link1 = db.componentLinks().insertCustomLink(PROJECT);
     ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(PROJECT);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject());
+    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getMainBranchComponent());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -106,7 +106,7 @@ public class ExportLinksStepIT {
     db.componentLinks().insertCustomLink(PROJECT);
     db.componentLinks().insertProvidedLink(PROJECT);
     db.componentLinks().insertProvidedLink(PROJECT);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject());
+    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getMainBranchComponent());
 
     dumpWriter.failIfMoreThan(2, DumpElement.LINKS);
 

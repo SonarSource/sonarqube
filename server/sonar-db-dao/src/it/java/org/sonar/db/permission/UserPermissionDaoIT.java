@@ -60,7 +60,7 @@ public class UserPermissionDaoIT {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserPermissionDto global1 = addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
     UserPermissionDto global2 = addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user2);
     UserPermissionDto global3 = addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user2);
@@ -111,8 +111,8 @@ public class UserPermissionDaoIT {
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     UserPermissionDto perm1 = addProjectPermission(UserRole.USER, user1, project1);
     UserPermissionDto perm2 = addProjectPermission(UserRole.ISSUE_ADMIN, user1, project1);
     UserPermissionDto perm3 = addProjectPermission(UserRole.ISSUE_ADMIN, user2, project1);
@@ -160,7 +160,7 @@ public class UserPermissionDaoIT {
 
   @Test
   public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_global_permissions() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
       // Add permission on project to be sure projects are excluded
@@ -186,7 +186,7 @@ public class UserPermissionDaoIT {
     });
     String lastLogin = "login" + (DEFAULT_PAGE_SIZE + 1);
     UserDto lastUser = db.getDbClient().userDao().selectByLogin(dbSession, lastLogin);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnUser(lastUser, GlobalPermission.SCAN.getKey(), project);
 
     PermissionQuery query = PermissionQuery.builder()
@@ -203,7 +203,7 @@ public class UserPermissionDaoIT {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     addProjectPermission(UserRole.USER, user2, project1);
     addProjectPermission(UserRole.USER, user1, project1);
     addProjectPermission(UserRole.ADMIN, user1, project1);
@@ -219,8 +219,8 @@ public class UserPermissionDaoIT {
   public void countUsersByProjectPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
     addProjectPermission(UserRole.USER, user1, project1);
     addProjectPermission(UserRole.ISSUE_ADMIN, user1, project1);
@@ -246,8 +246,8 @@ public class UserPermissionDaoIT {
   public void selectUserUuidsByQuery() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addProjectPermission(UserRole.USER, user1, project1);
     addProjectPermission(UserRole.USER, user2, project1);
     addProjectPermission(UserRole.ISSUE_ADMIN, user2, project1);
@@ -279,8 +279,8 @@ public class UserPermissionDaoIT {
   public void selectUserUuidsByQueryAndScope_with_global_scope() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addProjectPermission(UserRole.USER, user1, project1);
     addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user1);
     addProjectPermission(UserRole.ISSUE_ADMIN, user2, project2);
@@ -296,8 +296,8 @@ public class UserPermissionDaoIT {
   public void selectUserUuidsByQueryAndScope_with_project_scope() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addProjectPermission(UserRole.USER, user1, project1);
     addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user1);
     addProjectPermission(UserRole.ISSUE_ADMIN, user2, project2);
@@ -350,8 +350,8 @@ public class UserPermissionDaoIT {
   public void deleteGlobalPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission("perm1", user1);
     addGlobalPermission("perm2", user1);
     addProjectPermission("perm1", user1, project1);
@@ -381,8 +381,8 @@ public class UserPermissionDaoIT {
   public void deleteProjectPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission("perm", user1);
     addProjectPermission("perm", user1, project1);
     addProjectPermission("perm", user1, project2);
@@ -401,8 +401,8 @@ public class UserPermissionDaoIT {
   public void deleteProjectPermissions() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission("perm", user1);
     addProjectPermission("perm", user1, project1);
     addProjectPermission("perm", user2, project1);
@@ -418,7 +418,7 @@ public class UserPermissionDaoIT {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     UserDto user3 = insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission("perm1", user1);
     addGlobalPermission("perm2", user2);
     addGlobalPermission("perm3", user1);
@@ -435,9 +435,9 @@ public class UserPermissionDaoIT {
   public void selectProjectPermissionsOfUser() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     addGlobalPermission("perm1", user1);
     addProjectPermission("perm2", user1, project1);
     addProjectPermission("perm3", user1, project1);
@@ -498,7 +498,7 @@ public class UserPermissionDaoIT {
   public void deleteByUserId() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.SCAN);
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey(), project);
@@ -587,7 +587,7 @@ public class UserPermissionDaoIT {
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    return new Random().nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
   }
 
   private UserDto insertUser(Consumer<UserDto> populateUserDto) {

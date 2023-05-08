@@ -143,7 +143,7 @@ public class PersistPushEventsStepIT {
 
   @Test
   public void store_push_events_for_branch() {
-    var project = db.components().insertPrivateProject();
+    var project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project, b -> b.setUuid("uuid_1"));
 
     protoIssueCache.newAppender()

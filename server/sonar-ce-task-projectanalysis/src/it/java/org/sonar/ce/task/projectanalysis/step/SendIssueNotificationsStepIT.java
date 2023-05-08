@@ -705,7 +705,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     if(branchType == PULL_REQUEST) {
       branch = newBranchComponent(project, newBranchDto(project, PULL_REQUEST, project.uuid()));
     } else {
-      branch = newBranchComponent(project, newMainBranchDto(project).setKey(BRANCH_NAME));
+      branch = newBranchComponent(project, newMainBranchDto(project, project.uuid()).setKey(BRANCH_NAME));
     }
     ComponentDto file = newFileDto(branch, project.uuid());
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(

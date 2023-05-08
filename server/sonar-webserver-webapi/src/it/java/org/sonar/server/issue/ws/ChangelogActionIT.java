@@ -73,7 +73,7 @@ public class ChangelogActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     file = db.components().insertComponent(newFileDto(project));
   }
 

@@ -209,7 +209,7 @@ public class ProjectsInWarningDaemonTest {
   }
 
   private ComponentDto insertProjectInWarning(MetricDto qualityGateStatus) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.measures().insertLiveMeasure(project, qualityGateStatus, lm -> lm.setData(WARN.name()).setValue(null));
     authorizationIndexerTester.allowOnlyAnyone(project);
     projectMeasuresIndexer.indexOnAnalysis(project.uuid());

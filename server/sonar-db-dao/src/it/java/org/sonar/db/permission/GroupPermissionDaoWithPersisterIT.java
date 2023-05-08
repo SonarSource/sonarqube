@@ -99,7 +99,7 @@ public class GroupPermissionDaoWithPersisterIT {
 
   @Test
   public void groupProjectPermissionDeleteByComponentWithoutAffectedRowsIsNotPersisted() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.deleteByRootComponentUuid(dbSession, project);
 
@@ -127,7 +127,7 @@ public class GroupPermissionDaoWithPersisterIT {
 
   @Test
   public void groupProjectPermissionDeleteByComponentAndGroupWithoutAffectedRowsIsNotPersisted() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.deleteByRootComponentUuidForAnyOne(dbSession, project);
 
@@ -156,7 +156,7 @@ public class GroupPermissionDaoWithPersisterIT {
   @Test
   public void groupProjectPermissionDeleteByComponentAndPermissionWithoutAffectedRowsIsNotPersisted() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     GroupPermissionDto dto = getGroupPermission(group, project);
 
     underTest.deleteByRootComponentUuidAndPermission(dbSession, dto.getRole(), project);
@@ -173,13 +173,13 @@ public class GroupPermissionDaoWithPersisterIT {
 
   private void addGroupPermission() {
     group = db.users().insertGroup(g -> g.setUuid("guuid").setName("gname"));
-    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey"));
+    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey")).getMainBranchComponent();
     dto = getGroupPermission(group, project);
     underTest.insert(dbSession, dto, project, null);
   }
 
   private void addGroupPermissionWithoutGroup() {
-    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey"));
+    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey")).getMainBranchComponent();
     dto = getGroupPermission(project);
     underTest.insert(dbSession, dto, project, null);
   }

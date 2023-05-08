@@ -71,7 +71,7 @@ public class DeleteCommentActionIT {
   public void delete_comment_from_hotspot_private_project() {
     UserDto userDeletingOwnComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userDeletingOwnComment, "Some comment");
@@ -91,7 +91,7 @@ public class DeleteCommentActionIT {
   public void delete_comment_from_hotspot_public_project() {
     UserDto userAddingComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userAddingComment, "Some comment");
@@ -137,7 +137,7 @@ public class DeleteCommentActionIT {
     UserDto userTryingToDelete = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
@@ -157,7 +157,7 @@ public class DeleteCommentActionIT {
     UserDto userTryingToDelete = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");

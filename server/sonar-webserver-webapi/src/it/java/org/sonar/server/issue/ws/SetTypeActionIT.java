@@ -141,7 +141,7 @@ public class SetTypeActionIT {
   @Test
   public void set_type_is_not_distributed_for_pull_request() {
     RuleDto rule = dbTester.rules().insertIssueRule();
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
@@ -256,7 +256,7 @@ public class SetTypeActionIT {
 
   private IssueDto newIssueWithProject(RuleType type) {
     RuleDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     return issueDbTester.insert(rule, project, file, i -> i.setType(type));
   }

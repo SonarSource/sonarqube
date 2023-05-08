@@ -71,13 +71,13 @@ public class ViewIndexerIT {
   @Test
   public void index_on_startup() {
     // simple view
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view1 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view1, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project1, view1));
     // view with subview
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
@@ -103,13 +103,13 @@ public class ViewIndexerIT {
   @Test
   public void index_root_view() {
     // simple view
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view1 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view1, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project1, view1));
     // view with subview
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
@@ -144,8 +144,8 @@ public class ViewIndexerIT {
 
   @Test
   public void index_application() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.index(application.uuid());
@@ -159,8 +159,8 @@ public class ViewIndexerIT {
 
   @Test
   public void index_application_on_startup() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.indexOnStartup(emptySet());
@@ -174,8 +174,8 @@ public class ViewIndexerIT {
 
   @Test
   public void index_application_with_indexAll() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.indexAll();
@@ -189,14 +189,14 @@ public class ViewIndexerIT {
 
   @Test
   public void index_application_branch() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app")).getMainBranchComponent();
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1")).getMainBranchComponent();
     ComponentDto project1Branch = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2")).getMainBranchComponent();
     ComponentDto project2Branch = db.components().insertProjectBranch(project2);
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("prj3"));
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("prj3")).getMainBranchComponent();
     ComponentDto project3Branch = db.components().insertProjectBranch(project3);
     db.components().insertComponent(newProjectCopy(project1Branch, applicationBranch1));
     db.components().insertComponent(newProjectCopy(project2Branch, applicationBranch1));

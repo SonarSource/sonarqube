@@ -61,8 +61,8 @@ public class GroupPermissionChangerIT {
   @Before
   public void setUp() {
     group = db.users().insertGroup("a-group");
-    privateProject = db.components().insertPrivateProject();
-    publicProject = db.components().insertPublicProject();
+    privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    publicProject = db.components().insertPublicProject().getMainBranchComponent();
   }
 
   @Test

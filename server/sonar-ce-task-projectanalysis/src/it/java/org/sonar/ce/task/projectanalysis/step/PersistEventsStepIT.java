@@ -188,7 +188,7 @@ public class PersistEventsStepIT extends BaseStepTest {
 
   @Test
   public void keep_one_event_by_version() {
-    ComponentDto projectDto = dbTester.components().insertPublicProject();
+    ComponentDto projectDto = dbTester.components().insertPublicProject().getMainBranchComponent();
     EventDto[] existingEvents = new EventDto[] {
       dbTester.events().insertEvent(newVersionEventDto(projectDto, 120_000_000L, "1.3-SNAPSHOT")),
       dbTester.events().insertEvent(newVersionEventDto(projectDto, 130_000_000L, "1.4")),

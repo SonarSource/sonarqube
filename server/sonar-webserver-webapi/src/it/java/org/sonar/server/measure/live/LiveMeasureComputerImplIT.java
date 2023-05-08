@@ -84,7 +84,7 @@ public class LiveMeasureComputerImplIT {
     metric1 = db.measures().insertMetric();
     metric2 = db.measures().insertMetric();
 
-    project = db.components().insertPublicProject();
+    project = db.components().insertPublicProject().getMainBranchComponent();
     branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
     db.measures().insertLiveMeasure(project, metric2, lm -> lm.setValue(1d));
 
@@ -115,7 +115,7 @@ public class LiveMeasureComputerImplIT {
   public void refreshes_quality_gate() {
     SnapshotDto snapshot = markProjectAsAnalyzed(project);
     when(componentIndex.getAllUuids()).thenReturn(Set.of(project.uuid()));
-    when(qGateComputer.loadQualityGate(db.getSession(), db.components().getProjectDto(project), branch)).thenReturn(qualityGate);
+    when(qGateComputer.loadQualityGate(db.getSession(), db.components().getProjectDtoByMainBranch(project), branch)).thenReturn(qualityGate);
 
     liveMeasureComputer.refresh(db.getSession(), List.of(project));
 
@@ -136,7 +136,7 @@ public class LiveMeasureComputerImplIT {
     MetricDto alertStatusMetric = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
     db.measures().insertLiveMeasure(project, alertStatusMetric, lm -> lm.setData("OK"));
 
-    when(qGateComputer.loadQualityGate(db.getSession(), db.components().getProjectDto(project), branch)).thenReturn(qualityGate);
+    when(qGateComputer.loadQualityGate(db.getSession(), db.components().getProjectDtoByMainBranch(project), branch)).thenReturn(qualityGate);
     when(qGateComputer.refreshGateStatus(eq(project), eq(qualityGate), any(MeasureMatrix.class), eq(configuration))).thenReturn(newQualityGate);
 
     List<QGChangeEvent> qgChangeEvents = liveMeasureComputer.refresh(db.getSession(), List.of(project));
@@ -144,7 +144,7 @@ public class LiveMeasureComputerImplIT {
     assertThat(qgChangeEvents).hasSize(1);
     assertThat(qgChangeEvents.get(0).getBranch()).isEqualTo(branch);
     assertThat(qgChangeEvents.get(0).getAnalysis()).isEqualTo(snapshot);
-    assertThat(qgChangeEvents.get(0).getProject()).isEqualTo(db.components().getProjectDto(project));
+    assertThat(qgChangeEvents.get(0).getProject()).isEqualTo(db.components().getProjectDtoByMainBranch(project));
     assertThat(qgChangeEvents.get(0).getPreviousStatus()).contains(Metric.Level.OK);
     assertThat(qgChangeEvents.get(0).getProjectConfiguration()).isEqualTo(configuration);
     assertThat(qgChangeEvents.get(0).getQualityGateSupplier().get()).contains(newQualityGate);

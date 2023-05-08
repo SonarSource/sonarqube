@@ -64,7 +64,7 @@ public class IssueChangeEventServiceImplTest {
 
   @Test
   public void distributeIssueChangeEvent_singleIssueChange_severityChange() {
-    ComponentDto componentDto = db.components().insertPublicProject();
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
@@ -75,7 +75,7 @@ public class IssueChangeEventServiceImplTest {
 
   @Test
   public void distributeIssueChangeEvent_singleIssueChange_typeChange() {
-    ComponentDto componentDto = db.components().insertPublicProject();
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
@@ -86,7 +86,7 @@ public class IssueChangeEventServiceImplTest {
 
   @Test
   public void distributeIssueChangeEvent_singleIssueChange_transitionChanges() {
-    ComponentDto componentDto = db.components().insertPublicProject();
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
@@ -104,7 +104,7 @@ public class IssueChangeEventServiceImplTest {
 
   @Test
   public void distributeIssueChangeEvent_singleIssueChange_severalChanges() {
-    ComponentDto componentDto = db.components().insertPublicProject();
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
@@ -117,17 +117,17 @@ public class IssueChangeEventServiceImplTest {
   public void distributeIssueChangeEvent_bulkIssueChange() {
     RuleDto rule = db.rules().insert();
 
-    ComponentDto componentDto1 = db.components().insertPublicProject();
+    ComponentDto componentDto1 = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project1 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto1.uuid()).get();
     BranchDto branch1 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project1.getUuid()).get();
     IssueDto issue1 = db.issues().insert(rule, project1, componentDto1, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
-    ComponentDto componentDto2 = db.components().insertPublicProject();
+    ComponentDto componentDto2 = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project2 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto2.uuid()).get();
     BranchDto branch2 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project2.getUuid()).get();
     IssueDto issue2 = db.issues().insert(rule, project2, componentDto2, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
-    ComponentDto componentDto3 = db.components().insertPublicProject();
+    ComponentDto componentDto3 = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project3 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto3.uuid()).get();
     BranchDto branch3 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project3.getUuid()).get();
     IssueDto issue3 = db.issues().insert(rule, project3, componentDto3, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
@@ -188,7 +188,7 @@ public class IssueChangeEventServiceImplTest {
   public void doNotDistributeIssueChangeEvent_forPullRequestIssues() {
     RuleDto rule = db.rules().insert();
 
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(project.uuid()));

@@ -137,7 +137,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_a_report_on_existing_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
@@ -206,7 +206,7 @@ public class ReportSubmitterIT {
   @Test
   public void do_no_add_favorite_when_already_100_favorite_projects_and_no_project_creator_permission_on_permission_template() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getMainBranchComponent(), user.getUuid(), user.getLogin()));
     userSession
       .logIn(user)
       .addPermission(GlobalPermission.SCAN)
@@ -237,7 +237,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void user_with_scan_permission_is_allowed_to_submit_a_report_on_existing_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addPermission(SCAN);
     mockSuccessfulPrepareSubmitCall();
 
@@ -248,7 +248,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
@@ -274,7 +274,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void fail_if_project_key_already_exists_as_other_component() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
@@ -302,7 +302,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
-    ComponentDto component = db.components().insertPrivateProject(PROJECT_UUID);
+    ComponentDto component = db.components().insertPrivateProject(PROJECT_UUID).getMainBranchComponent();
     userSession.addProjectPermission(SCAN.getKey(), component);
     mockSuccessfulPrepareSubmitCall();
 

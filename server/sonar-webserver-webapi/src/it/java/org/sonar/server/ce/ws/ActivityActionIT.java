@@ -97,8 +97,8 @@ public class ActivityActionIT {
   @Test
   public void get_all_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
     insertActivity("T1", project1, SUCCESS, analysisProject1);
     insertActivity("T2", project2, FAILED, null);
@@ -128,8 +128,8 @@ public class ActivityActionIT {
   @Test
   public void filter_by_status() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -145,8 +145,8 @@ public class ActivityActionIT {
   @Test
   public void filter_by_max_executed_at_exclude() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -161,7 +161,7 @@ public class ActivityActionIT {
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project, SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
@@ -175,7 +175,7 @@ public class ActivityActionIT {
   @Test
   public void filter_on_current_activities() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", project, SUCCESS);
     insertActivity("T2", project, FAILED);
@@ -203,8 +203,8 @@ public class ActivityActionIT {
   @Test
   public void limit_results() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -225,7 +225,7 @@ public class ActivityActionIT {
   @Test
   public void remove_queued_already_completed() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
 
     insertActivity("T1", project1, SUCCESS);
     insertQueue("T1", project1, IN_PROGRESS);
@@ -243,8 +243,8 @@ public class ActivityActionIT {
   @Test
   public void return_warnings_count_on_queue_and_activity_but_no_warnings_list() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -273,8 +273,8 @@ public class ActivityActionIT {
 
   @Test
   public void project_administrator_can_access_his_project_activity_using_component_key() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     // no need to be a system admin
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
     insertActivity("T1", project1, SUCCESS);
@@ -290,7 +290,7 @@ public class ActivityActionIT {
 
   @Test
   public void return_401_if_user_is_not_logged_in() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.anonymous();
 
     TestRequest request = ws.newRequest().setParam("componentId", project.uuid());
@@ -301,9 +301,9 @@ public class ActivityActionIT {
 
   @Test
   public void search_activity_by_component_name() {
-    ComponentDto struts = db.components().insertPrivateProject(c -> c.setName("old apache struts"));
-    ComponentDto zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper"));
-    ComponentDto eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse"));
+    ComponentDto struts = db.components().insertPrivateProject(c -> c.setName("old apache struts")).getMainBranchComponent();
+    ComponentDto zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper")).getMainBranchComponent();
+    ComponentDto eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse")).getMainBranchComponent();
     db.components().insertSnapshot(struts);
     db.components().insertSnapshot(zookeeper);
     db.components().insertSnapshot(eclipse);
@@ -331,7 +331,7 @@ public class ActivityActionIT {
 
   @Test
   public void search_activity_returns_application() {
-    ComponentDto apacheApp = db.components().insertPublicApplication(a -> a.setName("Apache App"));
+    ComponentDto apacheApp = db.components().insertPublicApplication(a -> a.setName("Apache App")).getMainBranchComponent();
     db.components().insertSnapshot(apacheApp);
     logInAsSystemAdministrator();
     insertActivity("T2", apacheApp, SUCCESS);
@@ -344,7 +344,7 @@ public class ActivityActionIT {
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     insertQueue("T1", project, IN_PROGRESS);
 
     ActivityResponse result = call(
@@ -359,7 +359,7 @@ public class ActivityActionIT {
   @Test
   public void search_task_id_in_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project, SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
@@ -386,7 +386,7 @@ public class ActivityActionIT {
   @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchName = "branch1";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
@@ -428,7 +428,7 @@ public class ActivityActionIT {
   @Test
   public void pull_request_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
@@ -527,7 +527,7 @@ public class ActivityActionIT {
   @Test
   public void throws_IAE_if_page_is_higher_than_available() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
 
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project1, SUCCESS);
@@ -581,9 +581,9 @@ public class ActivityActionIT {
   @Test
   public void filter_out_duplicate_tasks_in_progress_and_success() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     insertQueue("T2", project2, IN_PROGRESS);
     insertQueue("T3", project3, IN_PROGRESS);
     insertActivity("T1", project1, SUCCESS);

@@ -411,9 +411,9 @@ public class BranchDaoIT {
 
   @Test
   public void selectByBranchKeys() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
-    ProjectDto project3 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
 
     BranchDto branch1 = db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
     BranchDto branch2 = db.components().insertProjectBranch(project2, b -> b.setKey("branch2"));
@@ -532,7 +532,7 @@ public class BranchDaoIT {
 
   @Test
   public void selectByUuids() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     ComponentDto branch3 = db.components().insertProjectBranch(project);
@@ -548,8 +548,8 @@ public class BranchDaoIT {
 
   @Test
   public void selectByProjectUuid() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto branch1 = db.components().insertProjectBranch(project1);
     ComponentDto branch2 = db.components().insertProjectBranch(project1);
@@ -566,7 +566,7 @@ public class BranchDaoIT {
 
   @Test
   public void selectByUuid() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
 
@@ -579,17 +579,17 @@ public class BranchDaoIT {
 
   @Test
   public void countPrAndBranchByProjectUuid() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH).setKey("p1-branch-1"));
     db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH).setKey("p1-branch-2"));
     db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-1"));
     db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-2"));
     db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-3"));
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project2, b -> b.setBranchType(PULL_REQUEST).setKey("p2-pr-1"));
 
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setKey("p3-branch-1"));
 
     MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey("unanalyzed_c"));
@@ -610,14 +610,14 @@ public class BranchDaoIT {
 
   @Test
   public void selectProjectUuidsWithIssuesNeedSync() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ProjectDto project1Dto = db.components().getProjectDto(project1);
-    ProjectDto project2Dto = db.components().getProjectDto(project2);
-    ProjectDto project3Dto = db.components().getProjectDto(project3);
-    ProjectDto project4Dto = db.components().getProjectDto(project4);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1Dto = db.components().getProjectDtoByMainBranch(project1);
+    ProjectDto project2Dto = db.components().getProjectDtoByMainBranch(project2);
+    ProjectDto project3Dto = db.components().getProjectDtoByMainBranch(project3);
+    ProjectDto project4Dto = db.components().getProjectDtoByMainBranch(project4);
 
     BranchDto branch1 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(true));
     BranchDto branch2 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(false));
@@ -633,13 +633,13 @@ public class BranchDaoIT {
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isFalse();
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(false));
 
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isTrue();
 
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(true));
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isTrue();
   }
@@ -648,7 +648,7 @@ public class BranchDaoIT {
   public void countByTypeAndCreationDate() {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isZero();
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
@@ -666,7 +666,7 @@ public class BranchDaoIT {
     assertThat(underTest.countByNeedIssueSync(dbSession, false)).isZero();
 
     // master branch with flag set to false
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     // branches & PRs
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
@@ -684,7 +684,7 @@ public class BranchDaoIT {
   public void countAll() {
     assertThat(underTest.countAll(dbSession)).isZero();
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
@@ -698,7 +698,7 @@ public class BranchDaoIT {
 
   @Test
   public void selectBranchNeedingIssueSync() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
 
@@ -709,7 +709,7 @@ public class BranchDaoIT {
 
   @Test
   public void selectBranchNeedingIssueSyncForProject() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
 
@@ -720,7 +720,7 @@ public class BranchDaoIT {
 
   @Test
   public void updateAllNeedIssueSync() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
 
@@ -737,7 +737,7 @@ public class BranchDaoIT {
 
   @Test
   public void updateAllNeedIssueSyncForProject() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
 
@@ -754,7 +754,7 @@ public class BranchDaoIT {
 
   @Test
   public void updateNeedIssueSync() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
     String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
 
@@ -774,9 +774,9 @@ public class BranchDaoIT {
   public void doAnyOfComponentsNeedIssueSync() {
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, emptyList())).isFalse();
 
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ProjectDto projectDto = db.components().getProjectDto(project1);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project1);
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     BranchDto projectBranch1 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     BranchDto projectBranch2 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
@@ -791,14 +791,14 @@ public class BranchDaoIT {
 
   @Test
   public void doAnyOfComponentsNeedIssueSync_test_more_than_1000() {
-    List<String> componentKeys = IntStream.range(0, 1100).mapToObj(value -> db.components().insertPrivateProject())
+    List<String> componentKeys = IntStream.range(0, 1100).mapToObj(value -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
       .collect(Collectors.toList());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isFalse();
 
-    ComponentDto project = db.components().insertPrivateProject();
-    ProjectDto projectDto = db.components().getProjectDto(project);
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
 
     componentKeys.add(project.getKey());
@@ -817,7 +817,7 @@ public class BranchDaoIT {
   @Test
   @UseDataProvider("booleanValues")
   public void isBranchNeedIssueSync_shouldReturnCorrectValue(boolean needIssueSync) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchUuid = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.BRANCH).setNeedIssueSync(needIssueSync)).uuid();
 
     assertThat(underTest.isBranchNeedIssueSync(dbSession, branchUuid)).isEqualTo(needIssueSync);

@@ -114,7 +114,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void throw_FE_if_no_project_permission() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
 
       assertThatThrownBy(() -> ws.newRequest()
         .setParam("project", project.getKey())
@@ -125,7 +125,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void list_only_branches() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
 
       createBranches(project, 5, BranchType.BRANCH);
       createBranches(project, 3, BranchType.PULL_REQUEST);
@@ -148,7 +148,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void list_inherited_global_settings() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
       tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.SPECIFIC_ANALYSIS).setValue("uuid"));
 
       createBranches(project, 5, BranchType.BRANCH);
@@ -175,8 +175,8 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void list_inherited_project_settings() {
-      ComponentDto projectWithOwnSettings = componentDb.insertPublicProject();
-      ComponentDto projectWithGlobalSettings = componentDb.insertPublicProject();
+      ComponentDto projectWithOwnSettings = componentDb.insertPublicProject().getMainBranchComponent();
+      ComponentDto projectWithGlobalSettings = componentDb.insertPublicProject().getMainBranchComponent();
       tester.insert(new NewCodePeriodDto()
         .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
         .setValue("global_uuid"));
@@ -228,7 +228,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void list_branch_and_inherited_global_settings() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
       ComponentDto branchWithOwnSettings = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("OWN_SETTINGS"));
       componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("GLOBAL_SETTINGS"));
 
@@ -279,7 +279,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void list_branch_and_inherited_project_settings() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
       ComponentDto branchWithOwnSettings = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("OWN_SETTINGS"));
       componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_SETTINGS"));
 
@@ -335,7 +335,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
     @Test
     public void verify_specific_analysis_effective_value() {
-      ComponentDto project = componentDb.insertPublicProject();
+      ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
       ComponentDto branch = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_BRANCH"));
 
       SnapshotDto analysis = componentDb.insertSnapshot(newAnalysis(project)

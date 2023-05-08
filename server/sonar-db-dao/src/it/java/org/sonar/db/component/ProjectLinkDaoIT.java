@@ -44,7 +44,7 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void select_by_id() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
       .setName("Home")
@@ -64,11 +64,11 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void select_by_project_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link1 = db.componentLinks().insertProvidedLink(project);
     ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project);
     ProjectLinkDto link3 = db.componentLinks().insertProvidedLink(project);
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto otherLink = db.componentLinks().insertProvidedLink(otherProject);
 
     assertThat(underTest.selectByProjectUuid(db.getSession(), project.uuid()))
@@ -82,10 +82,10 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void select_by_project_uuids() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link1 = db.componentLinks().insertProvidedLink(project1);
     ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project1);
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link3 = db.componentLinks().insertProvidedLink(project2);
 
     assertThat(underTest.selectByProjectUuids(db.getSession(), asList(project1.uuid(), project2.uuid())))
@@ -99,7 +99,7 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void insert() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = ProjectLinkTesting.newProvidedLinkDto()
       .setUuid("ABCD")
       .setProjectUuid(project.uuid())
@@ -125,7 +125,7 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void update() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
       .setType("ci")
@@ -134,7 +134,7 @@ public class ProjectLinkDaoIT {
     // Force dates to be in the past
     db.executeUpdateSql("UPDATE project_links SET created_at=" + PAST + " ,updated_at=" + PAST);
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.update(db.getSession(), link
       .setProjectUuid(project2.uuid())
       .setType("homepage")
@@ -154,7 +154,7 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void delete() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
 
     underTest.delete(db.getSession(), link.getUuid());

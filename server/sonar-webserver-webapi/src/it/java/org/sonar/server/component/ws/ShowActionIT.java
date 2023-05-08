@@ -135,7 +135,7 @@ public class ShowActionIT {
 
   @Test
   public void show_with_ancestors_when_not_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.addProjectPermission(USER, project);
@@ -148,7 +148,7 @@ public class ShowActionIT {
 
   @Test
   public void show_without_ancestors_when_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(project.getKey());
@@ -159,7 +159,7 @@ public class ShowActionIT {
 
   @Test
   public void show_with_last_analysis_date() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshots(
       newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false),
       newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false),
@@ -173,7 +173,7 @@ public class ShowActionIT {
 
   @Test
   public void show_with_new_code_period_date() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshots(
       newAnalysis(project).setPeriodDate(1_000_000_000L).setLast(false),
       newAnalysis(project).setPeriodDate(2_000_000_000L).setLast(false),
@@ -188,7 +188,7 @@ public class ShowActionIT {
 
   @Test
   public void show_with_ancestors_and_analysis_date() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -203,7 +203,7 @@ public class ShowActionIT {
 
   @Test
   public void should_return_visibility_for_private_project() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, privateProject);
 
     ShowWsResponse result = newRequest(privateProject.getKey());
@@ -213,7 +213,7 @@ public class ShowActionIT {
 
   @Test
   public void should_return_visibility_for_public_project() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     userSession.registerComponents(publicProject);
 
     ShowWsResponse result = newRequest(publicProject.getKey());
@@ -232,7 +232,7 @@ public class ShowActionIT {
 
   @Test
   public void display_version() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     db.components().insertSnapshot(project, s -> s.setProjectVersion("1.1"));
@@ -248,7 +248,7 @@ public class ShowActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -273,7 +273,7 @@ public class ShowActionIT {
 
   @Test
   public void dont_show_branch_if_main_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = ws.newRequest()
@@ -288,7 +288,7 @@ public class ShowActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequest = "pr-1234";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
@@ -318,14 +318,14 @@ public class ShowActionIT {
     ComponentDto subview = db.components().insertSubView(portfolio1);
 
     String pullRequestKey1 = randomAlphanumeric(100);
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1)
       .setNeedIssueSync(true));
     ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch1, "dir", project1.uuid()));
     ComponentDto file = db.components().insertComponent(newFileDto(project1.uuid(), branch1, directory));
     userSession.addProjectBranchMapping(project1.uuid(), branch1);
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName2 = randomAlphanumeric(248);
     ComponentDto branch2 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(true).setKey(branchName2));
     String branchName3 = randomAlphanumeric(248);
@@ -333,7 +333,7 @@ public class ShowActionIT {
     userSession.addProjectBranchMapping(project2.uuid(), branch2);
     userSession.addProjectBranchMapping(project2.uuid(), branch3);
 
-    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     String pullRequestKey4 = randomAlphanumeric(100);
     ComponentDto branch4 = db.components().insertProjectBranch(project3, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey4).setNeedIssueSync(false));
     ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectoryOnBranch(branch4, "dir", project3.uuid()));
@@ -414,7 +414,7 @@ public class ShowActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -438,12 +438,12 @@ public class ShowActionIT {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
-      .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
-      .setKey("com.sonarsource:java-markdown")
-      .setName("Java Markdown")
-      .setDescription("Java Markdown Project")
-      .setQualifier(Qualifiers.PROJECT),
-      p -> p.setTagsString("language, plugin"));
+        .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
+        .setKey("com.sonarsource:java-markdown")
+        .setName("Java Markdown")
+        .setDescription("Java Markdown Project")
+        .setQualifier(Qualifiers.PROJECT),
+      p -> p.setTagsString("language, plugin")).getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setProjectVersion("1.1")

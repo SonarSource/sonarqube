@@ -96,7 +96,7 @@ public class CreateActionIT {
   @Test
   public void create_a_webhook_with_400_length_project_key() {
     String longProjectKey = generateStringWithLength(400);
-    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey));
+    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey)).getMainBranchComponent();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -149,7 +149,7 @@ public class CreateActionIT {
 
   @Test
   public void create_a_webhook_on_project() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -181,7 +181,7 @@ public class CreateActionIT {
 
   @Test
   public void fail_if_crossing_maximum_quantity_of_webhooks_on_this_project() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     for (int i = 0; i < 10; i++) {
       webhookDbTester.insertWebhook(project);
     }
@@ -257,7 +257,7 @@ public class CreateActionIT {
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
     TestRequest request = wsActionTester.newRequest()
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)

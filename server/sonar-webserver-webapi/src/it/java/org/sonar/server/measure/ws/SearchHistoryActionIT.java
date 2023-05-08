@@ -106,7 +106,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void empty_response() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.getKey())
@@ -125,7 +125,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void analyses_but_no_measure() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     analysis = db.components().insertSnapshot(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
@@ -202,7 +202,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void pagination_applies_to_analyses() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
@@ -226,7 +226,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void inclusive_from_and_to_dates() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
@@ -293,7 +293,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     userSession.addProjectBranchMapping(project.uuid(), branch);
@@ -317,7 +317,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.uuid(), branch);
@@ -365,9 +365,9 @@ public class SearchHistoryActionIT {
 
   @Test
   public void fail_if_not_enough_permissions_for_application() {
-    ComponentDto application = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     userSession.logIn()
       .registerApplication(
@@ -412,7 +412,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -445,7 +445,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void json_example() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)

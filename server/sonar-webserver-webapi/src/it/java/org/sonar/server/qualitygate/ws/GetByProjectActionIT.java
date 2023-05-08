@@ -69,7 +69,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void json_example() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     logInAsProjectUser(project);
@@ -86,7 +86,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void default_quality_gate() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(dbQualityGate);
     logInAsProjectUser(project);
@@ -102,7 +102,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void project_quality_gate_over_default() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto defaultDbQualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(defaultDbQualityGate);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
@@ -120,7 +120,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void get_by_project_key() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
@@ -135,7 +135,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void get_with_project_admin_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -149,7 +149,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void get_with_project_user_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -165,7 +165,7 @@ public class GetByProjectActionIT {
   public void fail_when_insufficient_permission() {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(dbQualityGate);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     assertThatThrownBy(() -> ws.newRequest()

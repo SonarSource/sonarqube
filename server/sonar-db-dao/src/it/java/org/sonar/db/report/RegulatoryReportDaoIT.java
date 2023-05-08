@@ -56,7 +56,7 @@ public class RegulatoryReportDaoIT {
   public void prepare() {
     rule = db.rules().insertRule();
     hotspotRule = db.rules().insertHotspotRule();
-    project = db.components().insertPrivateProject(t -> t.setBranchUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    project = db.components().insertPrivateProject(t -> t.setBranchUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
     file = db.components().insertComponent(newFileDto(project).setUuid(FILE_UUID).setKey(FILE_KEY));
   }
 
@@ -76,7 +76,7 @@ public class RegulatoryReportDaoIT {
 
     // not returned
     IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CLOSED").setResolution(null));
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto otherFile = db.components().insertComponent(newFileDto(otherProject));
     IssueDto issue5 = db.issues().insertIssue(rule, otherProject, otherFile);
 

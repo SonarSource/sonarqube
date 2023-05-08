@@ -385,7 +385,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void peek_populates_name_and_key_for_existing_component_and_main_component() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     CeTask task = submit(CeTaskTypes.REPORT, project, branch);
 

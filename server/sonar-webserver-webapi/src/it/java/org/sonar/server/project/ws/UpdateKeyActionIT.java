@@ -120,7 +120,7 @@ public class UpdateKeyActionIT {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertPrivateProject();
+    return db.components().insertPrivateProject().getMainBranchComponent();
   }
 
   private String call(@Nullable String key, @Nullable String newKey) {

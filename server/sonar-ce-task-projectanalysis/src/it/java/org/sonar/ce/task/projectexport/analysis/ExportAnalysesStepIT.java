@@ -108,11 +108,11 @@ public class ExportAnalysesStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
+    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     componentRepository.register(1, projectDto.uuid(), false);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), Set.of(DIR, FILE), true);
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(projectDto));
   }
 
   @Test

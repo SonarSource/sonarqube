@@ -68,7 +68,7 @@ public class ReindexActionIT {
 
   @Test
   public void reindex_project() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -101,7 +101,7 @@ public class ReindexActionIT {
 
   @Test
   public void fail_if_not_authorized() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.addProjectPermission(UserRole.USER, project);
 
     TestRequest testRequest = tester.newRequest().setParam("project", project.getKey());

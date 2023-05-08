@@ -169,7 +169,7 @@ public class ListActionIT {
     WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
     WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
     // insert a project-specific webhook, that should not be returned when listing global webhooks
-    webhookDbTester.insertWebhook(componentDbTester.insertPrivateProjectDto());
+    webhookDbTester.insertWebhook(componentDbTester.insertPrivateProject().getProjectDto());
 
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
@@ -185,7 +185,7 @@ public class ListActionIT {
 
   @Test
   public void list_project_webhooks_when_project_key_param_is_provided() {
-    ProjectDto project1 = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project1 = componentDbTester.insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
@@ -249,7 +249,7 @@ public class ListActionIT {
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     TestRequest request = wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, project.getKey());
     userSession.logIn();

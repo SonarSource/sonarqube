@@ -78,7 +78,7 @@ public class ExportLiveMeasuresStepIT {
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("metric1").setValueType(INT.name()));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
@@ -101,7 +101,7 @@ public class ExportLiveMeasuresStepIT {
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
@@ -120,7 +120,7 @@ public class ExportLiveMeasuresStepIT {
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
@@ -139,7 +139,7 @@ public class ExportLiveMeasuresStepIT {
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("new_metric").setValueType(INT.name()));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(7.0d).setData("test"));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
@@ -173,7 +173,7 @@ public class ExportLiveMeasuresStepIT {
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(null).setData((String) null));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
@@ -203,6 +203,6 @@ public class ExportLiveMeasuresStepIT {
   }
 
   private ComponentDto createProject(boolean enabled) {
-    return dbTester.components().insertPrivateProject(p -> p.setEnabled(enabled));
+    return dbTester.components().insertPrivateProject(p -> p.setEnabled(enabled)).getMainBranchComponent();
   }
 }

@@ -33,7 +33,6 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -58,7 +57,7 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
 
     assertThatThrownBy(() -> {
@@ -72,7 +71,7 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void return_file_data_from_single_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
@@ -87,7 +86,7 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void return_file_data_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     // File on branch
@@ -144,7 +143,7 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void throw_ForbiddenException_if_no_scan_permission_on_sonarqube() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     assertThatThrownBy(() -> underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey())))

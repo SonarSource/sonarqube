@@ -267,14 +267,14 @@ public class WebhookQGChangeEventListenerIT {
   }
 
   public ProjectAndBranch insertMainBranch() {
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto branch = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), project.getUuid()).get();
     dbTester.commit();
     return new ProjectAndBranch(project, branch);
   }
 
   public ProjectAndBranch insertBranch(BranchType type, String branchKey) {
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     BranchDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(type));
     return new ProjectAndBranch(project, branch);
   }

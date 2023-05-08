@@ -108,12 +108,12 @@ public class ExportMeasuresStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    String projectUuid = dbTester.components().insertPublicProject(PROJECT).uuid();
+    String projectUuid = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent().uuid();
     componentRepository.register(1, projectUuid, false);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), List.of(FILE, ANOTHER_PROJECT), true);
     dbTester.getDbClient().metricDao().insert(dbTester.getSession(), NCLOC, DISABLED_METRIC, NEW_NCLOC);
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(PROJECT));
     when(projectHolder.branches()).thenReturn(BRANCHES);
   }
 

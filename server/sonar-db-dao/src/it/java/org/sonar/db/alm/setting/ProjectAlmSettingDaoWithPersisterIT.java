@@ -58,7 +58,7 @@ public class ProjectAlmSettingDaoWithPersisterIT {
   @Test
   public void insertAndUpdateExistingBindingArePersisted() {
     AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
     underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
@@ -94,7 +94,7 @@ public class ProjectAlmSettingDaoWithPersisterIT {
   @Test
   public void deleteByProjectIsPersisted() {
     AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
     underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
@@ -111,7 +111,7 @@ public class ProjectAlmSettingDaoWithPersisterIT {
 
   @Test
   public void deleteByWithoutAffectedRowsProjectIsNotPersisted() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     underTest.deleteByProject(dbSession, project);
 

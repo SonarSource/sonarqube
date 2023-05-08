@@ -55,8 +55,8 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void filter_by_name() {
-    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setName("ignored project"));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("Project Shiny name"));
+    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setName("ignored project")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("Project Shiny name")).getMainBranchComponent();
     index(ignoredProject, project);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny").build(), new SearchOptions());
@@ -66,9 +66,9 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void filter_by_key_with_exact_match() {
-    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setKey("ignored-project"));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("shiny-project"));
-    db.components().insertPrivateProject(p -> p.setKey("another-shiny-project"));
+    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setKey("ignored-project")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("shiny-project")).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey("another-shiny-project")).getMainBranchComponent();
     index(ignoredProject, project);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny-project").build(), new SearchOptions());
@@ -78,7 +78,7 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void filter_by_qualifier() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     index(project);
     index(portfolio);
@@ -90,9 +90,9 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void order_by_name_case_insensitive() {
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("PROJECT 2"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("project 3"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project 1"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("PROJECT 2")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("project 3")).getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project 1")).getMainBranchComponent();
     index(project1, project2, project3);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions());
@@ -103,7 +103,7 @@ public class ComponentIndexSearchTest {
   @Test
   public void paginate_results() {
     List<ComponentDto> projects = IntStream.range(0, 9)
-      .mapToObj(i -> db.components().insertPrivateProject(p -> p.setName("project " + i)))
+      .mapToObj(i -> db.components().insertPrivateProject(p -> p.setName("project " + i)).getMainBranchComponent())
       .toList();
     index(projects.toArray(new ComponentDto[0]));
 
@@ -114,9 +114,9 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void filter_unauthorized_components() {
-    ComponentDto unauthorizedProject = db.components().insertPrivateProject();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto unauthorizedProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     indexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);

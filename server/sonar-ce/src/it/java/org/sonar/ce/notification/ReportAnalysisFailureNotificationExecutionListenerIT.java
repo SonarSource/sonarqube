@@ -159,7 +159,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   @Test
   public void onEnd_fails_with_IAE_if_component_is_not_a_project() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(project, randomAlphanumeric(12)));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newPortfolio());
@@ -196,7 +196,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
-    dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
+    dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid)).getMainBranchComponent();
 
     Duration randomDuration = randomDuration();
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
@@ -304,7 +304,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   }
 
   private ComponentDto initMocksToPassConditions(String taskUuid, int createdAt, @Nullable Long executedAt) {
-    ComponentDto project = random.nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
+    ComponentDto project = random.nextBoolean() ? dbTester.components().insertPrivateProject().getMainBranchComponent() : dbTester.components().insertPublicProject().getMainBranchComponent();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(project.uuid(), null, null)));
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);

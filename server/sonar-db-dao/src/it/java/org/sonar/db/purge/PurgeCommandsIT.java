@@ -99,7 +99,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void purgeAnalyses_deletes_duplications() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(project);
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(project);
     SnapshotDto analysis3 = dbTester.components().insertSnapshot(project);
@@ -135,7 +135,7 @@ public class PurgeCommandsIT {
   @UseDataProvider("projects")
   public void deleteComponents_delete_tree_of_components_of_a_project(ComponentDto project) {
     dbTester.components().insertComponent(project);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     Stream.of(project, otherProject).forEach(prj -> {
       ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "a"));
       ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "b"));
@@ -183,8 +183,8 @@ public class PurgeCommandsIT {
     ComponentDto otherView = dbTester.components().insertPrivatePortfolio();
     Stream.of(view, otherView).forEach(vw -> {
       dbTester.components().insertSubView(vw);
-      dbTester.components().insertComponent(newProjectCopy(dbTester.components().insertPrivateProject(), vw));
-      dbTester.components().insertComponent(newProjectCopy(dbTester.components().insertPrivateProject(), vw));
+      dbTester.components().insertComponent(newProjectCopy(dbTester.components().insertPrivateProject().getMainBranchComponent(), vw));
+      dbTester.components().insertComponent(newProjectCopy(dbTester.components().insertPrivateProject().getMainBranchComponent(), vw));
     });
 
     underTest.deleteComponents(view.uuid());
@@ -194,7 +194,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteComponents_does_not_delete_child_tables() {
-    ComponentDto component = dbTester.components().insertPrivateProject();
+    ComponentDto component = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(component));
     SnapshotDto analysis = dbTester.components().insertSnapshot(component);
     dbTester.events().insertEvent(analysis);
@@ -212,7 +212,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteProjects() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), project.getKey()).get();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
@@ -237,7 +237,7 @@ public class PurgeCommandsIT {
   @UseDataProvider("projectsAndViews")
   public void deleteAnalyses_by_rootUuid_all_analyses_of_specified_root_uuid(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     Stream.of(projectOrView, otherProject).forEach(p -> {
       dbTester.components().insertSnapshot(p, t -> t.setLast(false));
       dbTester.components().insertSnapshot(p, t -> t.setLast(true));
@@ -255,7 +255,7 @@ public class PurgeCommandsIT {
   @UseDataProvider("projectsAndViews")
   public void deleteAnalyses_by_rootUuid_deletes_event_component_changes(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
       insertRandomEventComponentChange(projectOrView);
@@ -274,7 +274,7 @@ public class PurgeCommandsIT {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
     int count = 7;
@@ -301,7 +301,7 @@ public class PurgeCommandsIT {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
     int count = 5;
@@ -329,7 +329,7 @@ public class PurgeCommandsIT {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
     int count = 5;
@@ -352,7 +352,7 @@ public class PurgeCommandsIT {
   @UseDataProvider("projectsAndViews")
   public void deleteAbortedAnalyses_deletes_only_analyse_with_unprocessed_status(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     Stream.of(projectOrView, otherProject)
       .forEach(p -> {
         dbTester.components().insertSnapshot(p, t -> t.setStatus(STATUS_PROCESSED).setLast(false));
@@ -482,7 +482,7 @@ public class PurgeCommandsIT {
   @UseDataProvider("projects")
   public void deleteOutdatedProperties_deletes_properties_by_component_uuid(ComponentDto project) {
     ComponentDto component = dbTester.components().insertComponent(project);
-    ComponentDto anotherComponent = dbTester.components().insertPublicProject();
+    ComponentDto anotherComponent = dbTester.components().insertPublicProject().getMainBranchComponent();
     int count = 4;
     IntStream.range(0, count).forEach(i -> {
       insertRandomProperty(component);
@@ -502,7 +502,7 @@ public class PurgeCommandsIT {
     RuleDto rule2 = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
-    ComponentDto otherProject = dbTester.components().insertPrivateProject();
+    ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto otherFile = dbTester.components().insertComponent(newFileDto(otherProject));
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
@@ -563,7 +563,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deletePermissions_deletes_permissions_of_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
@@ -575,7 +575,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deletePermissions_deletes_permissions_of_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
@@ -599,7 +599,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteNewCodePeriodsByRootUuid_deletes_branch_new_code_periods() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
@@ -621,7 +621,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteNewCodePeriodsByRootUuid_deletes_project_new_code_periods() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
@@ -643,7 +643,7 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteNewCodePeriodsByRootUuid_should_not_delete_any_if_root_uuid_is_null() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
@@ -667,8 +667,8 @@ public class PurgeCommandsIT {
   public void deleteUserDismissedMessages_deletes_dismissed_warnings_on_project_for_all_users() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
-    ProjectDto anotherProject = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
+    ProjectDto anotherProject = dbTester.components().insertPrivateProject().getProjectDto();
     dbTester.users().insertUserDismissedMessage(user1, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     dbTester.users().insertUserDismissedMessage(user2, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     dbTester.users().insertUserDismissedMessage(user1, anotherProject, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
@@ -684,8 +684,8 @@ public class PurgeCommandsIT {
     var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
     var portfolio2 = dbTester.components().insertPrivatePortfolioDto();
     dbTester.components().insertPrivatePortfolio();
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
-    ProjectDto anotherProject = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
+    ProjectDto anotherProject = dbTester.components().insertPrivateProject().getProjectDto();
 
     dbTester.components().addPortfolioProject(portfolio1, project, anotherProject);
     dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
@@ -706,7 +706,7 @@ public class PurgeCommandsIT {
   public void deleteProjectInPortfolios_deletes_project_and_branch_from_portfolios_if_root_is_project_only_selecting_a_single_branch() {
     var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
     dbTester.components().insertPrivatePortfolio();
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
 
     dbTester.components().addPortfolioProject(portfolio1, project);
     dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
@@ -723,7 +723,7 @@ public class PurgeCommandsIT {
   @Test
   public void deleteProjectInPortfolios_deletes_branch_from_portfolios_if_root_is_branch() {
     var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
-    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
 
     dbTester.components().addPortfolioProject(portfolio1, project);
     dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");

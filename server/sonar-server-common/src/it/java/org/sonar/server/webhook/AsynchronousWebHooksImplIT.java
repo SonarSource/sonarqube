@@ -62,7 +62,7 @@ public class AsynchronousWebHooksImplIT {
 
   @Test
   public void send_global_webhooks() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
     webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
 

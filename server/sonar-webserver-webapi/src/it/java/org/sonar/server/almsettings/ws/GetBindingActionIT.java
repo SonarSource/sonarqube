@@ -57,7 +57,7 @@ public class GetBindingActionIT {
   @Before
   public void before() {
     user = db.users().insertUser();
-    project = db.components().insertPrivateProjectDto();
+    project = db.components().insertPrivateProject().getProjectDto();
   }
 
   @Test
@@ -99,7 +99,7 @@ public class GetBindingActionIT {
   @Test
   public void get_gitlab_project_binding() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, project);

@@ -45,7 +45,7 @@ public class DbLineHashVersionIT {
 
   @Test
   public void hasLineHashWithSignificantCode_should_return_true() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
     db.fileSources().insertFileSource(file, dto -> dto.setLineHashesVersion(LineHashVersion.WITH_SIGNIFICANT_CODE.getDbValue()));
@@ -71,7 +71,7 @@ public class DbLineHashVersionIT {
 
   @Test
   public void hasLineHashWithSignificantCode_should_return_false_if_pr_reference_has_file_but_it_is_not_in_db() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
@@ -86,7 +86,7 @@ public class DbLineHashVersionIT {
 
   @Test
   public void hasLineHashWithSignificantCode_should_return_true_if_pr_reference_has_file_and_it_is_in_db() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     db.fileSources().insertFileSource(file, dto -> dto.setLineHashesVersion(LineHashVersion.WITH_SIGNIFICANT_CODE.getDbValue()));
 
@@ -102,7 +102,7 @@ public class DbLineHashVersionIT {
 
   @Test
   public void should_cache_line_hash_version_from_db() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
     db.fileSources().insertFileSource(file, dto -> dto.setLineHashesVersion(LineHashVersion.WITH_SIGNIFICANT_CODE.getDbValue()));

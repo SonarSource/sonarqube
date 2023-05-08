@@ -71,7 +71,7 @@ public class IssueMapperIT {
 
   @Before
   public void setUp() {
-    project = dbTester.components().insertPrivateProject();
+    project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     file = ComponentTesting.newFileDto(project);
     dbTester.getDbClient().componentDao().insert(dbSession, file, true);
     file2 = ComponentTesting.newFileDto(project).setUuid("file2 uuid");
@@ -511,7 +511,7 @@ public class IssueMapperIT {
   }
 
   private ComponentDto randomComponent() {
-    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir));
     ComponentDto[] components = new ComponentDto[] {project, dir, file};

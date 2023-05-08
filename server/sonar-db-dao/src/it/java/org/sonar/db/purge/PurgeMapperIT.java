@@ -67,7 +67,7 @@ public class PurgeMapperIT {
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    return new Random().nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
   }
 
   @Test
@@ -80,7 +80,7 @@ public class PurgeMapperIT {
 
   @Test
   public void selectRootAndSubviewsByProjectUuid_returns_application_with_specified_uuid() {
-    ComponentDto view = db.components().insertPublicApplication();
+    ComponentDto view = db.components().insertPublicApplication().getMainBranchComponent();
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
@@ -99,7 +99,7 @@ public class PurgeMapperIT {
 
   @Test
   public void selectRootAndSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
@@ -109,7 +109,7 @@ public class PurgeMapperIT {
 
   @Test
   public void selectRootAndSubviewsByProjectUuid_does_not_return_directory_with_specified_uuid() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(privateProject, "A/B"));
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(directory.uuid()))
@@ -118,7 +118,7 @@ public class PurgeMapperIT {
 
   @Test
   public void selectRootAndSubviewsByProjectUuid_does_not_return_file_with_specified_uuid() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(privateProject));
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(file.uuid()))
@@ -136,7 +136,7 @@ public class PurgeMapperIT {
 
   @Test
   public void selectRootAndSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto technicalCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 

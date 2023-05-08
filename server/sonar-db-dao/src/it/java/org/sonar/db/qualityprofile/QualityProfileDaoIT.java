@@ -233,9 +233,9 @@ public class QualityProfileDaoIT {
   public void test_deleteProjectAssociationsByProfileUuids() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
-    ProjectDto project3 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
 
     db.qualityProfiles().associateWithProject(project1, profile1);
     db.qualityProfiles().associateWithProject(project2, profile1);
@@ -252,7 +252,7 @@ public class QualityProfileDaoIT {
   @Test
   public void deleteProjectAssociationsByProfileUuids_does_nothing_if_empty_uuids() {
     QProfileDto profile = db.qualityProfiles().insert();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.qualityProfiles().associateWithProject(project, profile);
 
     underTest.deleteProjectAssociationsByProfileUuids(dbSession, Collections.emptyList());
@@ -626,8 +626,8 @@ public class QualityProfileDaoIT {
   public void countProjectsByProfileKey() {
     QProfileDto profileWithoutProjects = db.qualityProfiles().insert();
     QProfileDto profileWithProjects = db.qualityProfiles().insert();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     db.qualityProfiles().associateWithProject(project1, profileWithProjects);
     db.qualityProfiles().associateWithProject(project2, profileWithProjects);
@@ -639,8 +639,8 @@ public class QualityProfileDaoIT {
 
   @Test
   public void test_selectAssociatedToProjectAndLanguage() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
     QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
@@ -653,8 +653,8 @@ public class QualityProfileDaoIT {
 
   @Test
   public void test_selectAssociatedToProjectUuidAndLanguages() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
     QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
@@ -675,9 +675,9 @@ public class QualityProfileDaoIT {
 
   @Test
   public void test_selectQProfileUuidsByProjectUuid() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
-    ProjectDto project3 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
     QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     QProfileDto cProfile = db.qualityProfiles().insert(p -> p.setLanguage("c"));
@@ -698,9 +698,9 @@ public class QualityProfileDaoIT {
 
   @Test
   public void test_selectQProfilesByProjectUuid() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
-    ProjectDto project3 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
     QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     QProfileDto cProfile = db.qualityProfiles().insert(p -> p.setLanguage("c"));
@@ -719,7 +719,7 @@ public class QualityProfileDaoIT {
 
   @Test
   public void test_updateProjectProfileAssociation() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto javaProfile1 = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     QProfileDto javaProfile2 = db.qualityProfiles().insert(p -> p.setLanguage("java"));
@@ -746,20 +746,20 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_selected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
-    db.components().insertPrivateProject(t -> t.setName("Project4 name"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
+    db.components().insertPrivateProject(t -> t.setName("Project4 name")).getMainBranchComponent();
     db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project1), profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project2), profile1);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project3), profile2);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project3), profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectSelectedProjects(dbSession, profile1, null))
@@ -774,17 +774,17 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_deselected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project1), profile1);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project2), profile2);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectDeselectedProjects(dbSession, profile1, null))
@@ -799,18 +799,18 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_project_associations() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
     db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project1), profile1);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(project2), profile2);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectProjectAssociations(dbSession, profile1, null))
@@ -879,7 +879,7 @@ public class QualityProfileDaoIT {
 
   @Test
   public void selectProjectAssociations_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
 
     List<ProjectQprofileAssociationDto> results = underTest.selectProjectAssociations(dbSession, qProfileDto, "key");
@@ -889,9 +889,9 @@ public class QualityProfileDaoIT {
 
   @Test
   public void selectSelectedProjects_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
-    db.qualityProfiles().associateWithProject(db.components().getProjectDto(privateProject), qProfileDto);
+    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(privateProject), qProfileDto);
 
     List<ProjectQprofileAssociationDto> results = underTest.selectSelectedProjects(dbSession, qProfileDto, "key");
 
@@ -900,7 +900,7 @@ public class QualityProfileDaoIT {
 
   @Test
   public void selectDeselectedProjects_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
 
     List<ProjectQprofileAssociationDto> results = underTest.selectDeselectedProjects(dbSession, qProfileDto, "key");

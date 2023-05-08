@@ -32,7 +32,7 @@ public class ComponentIndexFactoryIT {
 
   @Test
   public void creates_and_loads_instance() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentIndex index = factory.create(db.getSession(), List.of(project));
 
     assertThat(index.getAllUuids()).containsOnly(project.uuid());

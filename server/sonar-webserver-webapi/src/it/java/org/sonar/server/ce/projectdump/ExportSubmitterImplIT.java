@@ -65,7 +65,7 @@ public class ExportSubmitterImplIT {
 
   @Test
   public void submitProjectExport_submits_task_with_project_uuid_and_submitterLogin_if_present() {
-    ComponentDto projectDto = db.components().insertPrivateProject();
+    ComponentDto projectDto = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.submitProjectExport(projectDto.getKey(), SOME_SUBMITTER_UUID);
 
@@ -76,7 +76,7 @@ public class ExportSubmitterImplIT {
 
   @Test
   public void submitProjectExport_submits_task_with_project_uuid_and_no_submitterLogin_if_null() {
-    ComponentDto projectDto = db.components().insertPrivateProject();
+    ComponentDto projectDto = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.submitProjectExport(projectDto.getKey(), null);
 

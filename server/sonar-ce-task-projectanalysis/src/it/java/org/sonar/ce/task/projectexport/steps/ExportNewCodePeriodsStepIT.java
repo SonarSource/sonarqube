@@ -89,14 +89,14 @@ public class ExportNewCodePeriodsStepIT {
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
+    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectDto, branch).setCreatedAt(createdAt));
 
-    ComponentDto anotherProjectDto = dbTester.components().insertPublicProject(ANOTHER_PROJECT);
+    ComponentDto anotherProjectDto = dbTester.components().insertPublicProject(ANOTHER_PROJECT).getMainBranchComponent();
     ANOTHER_PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(anotherProjectDto, branch).setCreatedAt(createdAt));
 
     dbTester.commit();
-    projectHolder.setProjectDto(dbTester.components().getProjectDto(PROJECT));
+    projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(PROJECT));
   }
 
   @Test

@@ -432,7 +432,7 @@ public class PropertiesDaoWithPersisterIT {
     when(auditPersister.isTrackedProperty(ANOTHER_KEY)).thenReturn(false);
     when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
 
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
 
     if (value == null) {

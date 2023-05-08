@@ -46,7 +46,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(project, dir));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project, dir));
@@ -88,7 +88,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications_without_sub_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
@@ -129,7 +129,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications_with_a_removed_component() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -164,7 +164,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications_with_a_component_without_details() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -203,7 +203,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications_on_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -248,7 +248,7 @@ public class ShowResponseBuilderIT {
 
   @Test
   public void write_duplications_on_pull_request() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));

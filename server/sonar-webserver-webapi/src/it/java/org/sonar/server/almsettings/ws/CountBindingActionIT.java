@@ -56,8 +56,8 @@ public class CountBindingActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(almSetting, project1);
     db.almSettings().insertGitHubProjectAlmSetting(almSetting, project2);
 
@@ -74,7 +74,7 @@ public class CountBindingActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertAzureProjectAlmSetting(almSetting, project1);
 
     CountBindingWsResponse response = ws.newRequest()
@@ -118,9 +118,9 @@ public class CountBindingActionIT {
         .setKey("GitHub Server - Dev Team")
         .setAppId("12345")
         .setPrivateKey("54684654"));
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProjectDto());
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProjectDto());
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProjectDto());
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProject().getProjectDto());
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProject().getProjectDto());
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, db.components().insertPrivateProject().getProjectDto());
 
     String response = ws.newRequest()
       .setParam("almSetting", githubAlmSetting.getKey())

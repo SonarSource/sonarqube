@@ -82,7 +82,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void add_permission_to_project_referenced_by_its_id() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -97,7 +97,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void add_permission_to_project_referenced_by_its_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     newRequest()
@@ -141,7 +141,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -149,7 +149,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -157,7 +157,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newSubPortfolio(project));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -192,7 +192,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_component_is_not_a_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
@@ -246,7 +246,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() {
-    db.components().insertPrivateProject();
+    db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
@@ -276,7 +276,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void adding_project_permission_fails_if_not_administrator_of_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     TestRequest request = newRequest()
@@ -290,7 +290,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void adding_project_permission_fails_if_user_doesnt_exist_and_not_administrator_of_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     TestRequest request = newRequest()
@@ -303,7 +303,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void adding_project_permission_fails_if_not_administrator_of_project_and_login_param_is_missing() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     TestRequest request = newRequest()
@@ -319,7 +319,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
    */
   @Test
   public void adding_project_permission_is_allowed_to_project_administrators() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -334,7 +334,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void no_effect_when_adding_USER_permission_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -348,7 +348,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -362,7 +362,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

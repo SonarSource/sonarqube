@@ -144,7 +144,7 @@ public class QProfileFactoryImplIT {
   @Test
   public void delete_removes_custom_profile_from_project_associations() {
     QProfileDto profile = createCustomProfile();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.qualityProfiles().associateWithProject(project, profile);
 
     underTest.delete(dbSession, asList(profile));
@@ -170,7 +170,7 @@ public class QProfileFactoryImplIT {
   @Test
   public void delete_builtin_profile_associated_to_project() {
     RulesProfileDto builtInProfile = createBuiltInProfile();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = associateBuiltInProfile(builtInProfile);
     db.qualityProfiles().associateWithProject(project, profile);
     assertThat(db.getDbClient().qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage())).isNotNull();

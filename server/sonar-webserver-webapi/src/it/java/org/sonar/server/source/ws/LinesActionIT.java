@@ -78,7 +78,7 @@ public class LinesActionIT {
 
   @Test
   public void show_source() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
     setUserWithValidPermission(file, privateProject);
 
@@ -91,7 +91,7 @@ public class LinesActionIT {
 
   @Test
   public void fail_to_show_source_if_no_source_found() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = insertFile(privateProject);
     setUserWithValidPermission(file, privateProject);
 
@@ -104,7 +104,7 @@ public class LinesActionIT {
 
   @Test
   public void show_paginated_lines() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
     setUserWithValidPermission(file, privateProject);
 
@@ -119,7 +119,7 @@ public class LinesActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -145,7 +145,7 @@ public class LinesActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String pullRequestKey = randomAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -191,7 +191,7 @@ public class LinesActionIT {
 
   @Test
   public void fail_when_file_is_removed() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = newFileDto(privateProject).setKey("file-key").setEnabled(false);
     db.components().insertComponents(file);
     setUserWithValidPermission(file, privateProject);
@@ -203,7 +203,7 @@ public class LinesActionIT {
 
   @Test
   public void check_permission() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
 
     userSession.logIn("login");
@@ -218,7 +218,7 @@ public class LinesActionIT {
 
   @Test
   public void display_deprecated_fields() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
     setUserWithValidPermission(file, privateProject);
 
@@ -235,7 +235,7 @@ public class LinesActionIT {
     dataBuilder.addLines(DbFileSources.Line.newBuilder().setLine(2).setScmDate(2000L).build());
     // only this line should be considered as new
     dataBuilder.addLines(DbFileSources.Line.newBuilder().setLine(3).setScmDate(3000L).build());
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     insertPeriod(project, 2000L);
     ComponentDto file = insertFileWithData(dataBuilder.build(), project);
     setUserWithValidPermission(file, project);
@@ -248,7 +248,7 @@ public class LinesActionIT {
 
   @Test
   public void use_deprecated_overall_coverage_fields_if_exists() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedOverallLineHits(1)
@@ -270,7 +270,7 @@ public class LinesActionIT {
 
   @Test
   public void use_deprecated_ut_coverage_fields_if_exists() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedUtLineHits(1)
@@ -289,7 +289,7 @@ public class LinesActionIT {
 
   @Test
   public void use_deprecated_it_coverage_fields_if_exists() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedItLineHits(1)
@@ -305,7 +305,7 @@ public class LinesActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -320,7 +320,7 @@ public class LinesActionIT {
 
   @Test
   public void fail_when_uuid_and_branch_params_are_used_together() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -335,7 +335,7 @@ public class LinesActionIT {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
@@ -348,7 +348,7 @@ public class LinesActionIT {
 
   @Test
   public void hide_scmAuthors() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     userSession.registerComponents(publicProject);
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
@@ -365,7 +365,7 @@ public class LinesActionIT {
 
   @Test
   public void show_scmAuthors() {
-    ComponentDto publicProject = db.components().insertPublicProject();
+    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
       .registerComponents(publicProject);

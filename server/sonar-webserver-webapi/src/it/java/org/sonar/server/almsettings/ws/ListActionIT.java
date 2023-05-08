@@ -88,7 +88,7 @@ public class ListActionIT {
   @Test
   public void list_is_ordered_by_alm_key() {
     UserDto user = db.users().insertUser();
-    db.components().insertPrivateProject();
+    db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     db.almSettings().insertGitHubAlmSetting(almSetting -> almSetting.setKey("GitHub1"));
     db.almSettings().insertGitHubAlmSetting(almSetting -> almSetting.setKey("GitHub2"));
@@ -112,7 +112,7 @@ public class ListActionIT {
   @Test
   public void fail_when_project_does_not_exist() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(ADMIN, project);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -126,7 +126,7 @@ public class ListActionIT {
   @Test
   public void fail_when_missing_administer_permission_on_private_project() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -140,7 +140,7 @@ public class ListActionIT {
   @Test
   public void fail_when_missing_administer_permission_on_public_project() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(SCAN, project);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -165,7 +165,7 @@ public class ListActionIT {
   @Test
   public void json_example_with_administer_permission() {
     UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(ADMIN, project);
     initAlmSetting();
 

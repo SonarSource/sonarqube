@@ -84,7 +84,7 @@ public class DismissAnalysisWarningActionIT {
 
   @Test
   public void return_403_if_user_has_no_browse_permission_on_private_project() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -98,7 +98,7 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void return_204_on_success() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -118,7 +118,7 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void is_idempotent() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -142,7 +142,7 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void returns_400_if_warning_is_not_dismissable() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -159,7 +159,7 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void returns_404_if_warning_does_not_exist() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);

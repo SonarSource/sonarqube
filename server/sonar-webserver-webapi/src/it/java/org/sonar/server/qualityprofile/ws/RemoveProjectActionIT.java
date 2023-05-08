@@ -91,7 +91,7 @@ public class RemoveProjectActionIT {
   public void remove_profile_from_project() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileLang1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profileLang2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_2));
     db.qualityProfiles().associateWithProject(project, profileLang1);
@@ -109,7 +109,7 @@ public class RemoveProjectActionIT {
   public void removal_does_not_fail_if_profile_is_not_associated_to_project() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     TestResponse response = call(project, profile);
@@ -121,7 +121,7 @@ public class RemoveProjectActionIT {
 
   @Test
   public void project_administrator_can_remove_profile() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     db.qualityProfiles().associateWithProject(project, profile);
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
@@ -134,7 +134,7 @@ public class RemoveProjectActionIT {
 
   @Test
   public void as_qprofile_editor_and_global_admin() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     db.qualityProfiles().associateWithProject(project, profile);
     UserDto user = db.users().insertUser();
@@ -149,7 +149,7 @@ public class RemoveProjectActionIT {
 
   @Test
   public void as_qprofile_editor_fail_if_not_project_nor_global_admin() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     db.qualityProfiles().associateWithProject(project, profile);
     UserDto user = db.users().insertUser();
@@ -164,7 +164,7 @@ public class RemoveProjectActionIT {
   @Test
   public void fail_if_not_enough_permissions() {
     userSession.logIn(db.users().insertUser());
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     assertThatThrownBy(() -> call(project, profile))
@@ -175,7 +175,7 @@ public class RemoveProjectActionIT {
   @Test
   public void fail_if_not_logged_in() {
     userSession.anonymous();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert();
 
     assertThatThrownBy(() -> call(project, profile))
@@ -201,7 +201,7 @@ public class RemoveProjectActionIT {
   @Test
   public void fail_if_profile_does_not_exist() {
     logInAsProfileAdmin();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> {
       ws.newRequest()

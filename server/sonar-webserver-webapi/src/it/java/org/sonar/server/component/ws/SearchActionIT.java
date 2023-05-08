@@ -120,8 +120,8 @@ public class SearchActionIT {
 
   @Test
   public void search_by_key_query() {
-    ComponentDto p1 = db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
-    ComponentDto p2 = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
+    ComponentDto p1 = db.components().insertPrivateProject(p -> p.setKey("project-_%-key")).getMainBranchComponent();
+    ComponentDto p2 = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters")).getMainBranchComponent();
 
     insertProjectsAuthorizedForUser(List.of(p1, p2));
     SearchWsResponse response = call(new SearchRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
@@ -134,7 +134,7 @@ public class SearchActionIT {
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
       int j = i;
-      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + j, p -> p.setKey("project-key-" + j).setName("Project Name " + j)));
+      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + j, p -> p.setKey("project-key-" + j).setName("Project Name " + j)).getMainBranchComponent());
     }
     insertProjectsAuthorizedForUser(componentDtoList);
 
@@ -145,8 +145,8 @@ public class SearchActionIT {
 
   @Test
   public void return_only_projects_on_which_user_has_browse_permission() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
 
     setBrowsePermissionOnUserAndIndex(List.of(project1));
@@ -160,7 +160,7 @@ public class SearchActionIT {
 
   @Test
   public void return_project_key() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir1 = newDirectory(project, "dir1").setKey("dir1");
     ComponentDto dir2 = newDirectory(project, "dir2").setKey("dir2");
     ComponentDto dir3 = newDirectory(project, "dir3").setKey("dir3");
@@ -175,7 +175,7 @@ public class SearchActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     setBrowsePermissionOnUserAndIndex(List.of(project, branch));
 
@@ -204,7 +204,7 @@ public class SearchActionIT {
   @Test
   public void test_json_example() {
     db.components().insertComponent(newPortfolio());
-    ComponentDto project = db.components().insertPrivateProject("project-uuid", p -> p.setName("Project Name").setKey("project-key"));
+    ComponentDto project = db.components().insertPrivateProject("project-uuid", p -> p.setName("Project Name").setKey("project-key")).getMainBranchComponent();
     ComponentDto directory = newDirectory(project, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     ComponentDto view = newPortfolio();
     db.components().insertComponents(directory, view);

@@ -116,7 +116,7 @@ public class SearchMyProjectsActionIT {
   @Test
   public void return_only_first_1000_projects() {
     IntStream.range(0, 1_010).forEach(i -> {
-      ComponentDto project = db.components().insertPrivateProject();
+      ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     });
 
@@ -127,9 +127,9 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void sort_projects_by_name() {
-    ComponentDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name"));
-    ComponentDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name"));
-    ComponentDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name"));
+    ComponentDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name")).getMainBranchComponent();
+    ComponentDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getMainBranchComponent();
+    ComponentDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getMainBranchComponent();
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
@@ -144,7 +144,7 @@ public class SearchMyProjectsActionIT {
   public void paginate_projects() {
     for (int i = 0; i < 10; i++) {
       int j = i;
-      ComponentDto project = db.components().insertPrivateProject(p -> p.setName("project-" + j));
+      ComponentDto project = db.components().insertPrivateProject(p -> p.setName("project-" + j)).getMainBranchComponent();
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
@@ -185,7 +185,7 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
 
@@ -216,7 +216,7 @@ public class SearchMyProjectsActionIT {
   public void admin_via_groups_and_users() {
     ComponentDto jdk7 = insertJdk7();
     ComponentDto cLang = insertClang();
-    ComponentDto sonarqube = db.components().insertPrivateProject();
+    ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
 
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
@@ -249,14 +249,14 @@ public class SearchMyProjectsActionIT {
   private ComponentDto insertClang() {
     return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_01, p -> p
       .setName("Clang")
-      .setKey("clang"));
+      .setKey("clang")).getMainBranchComponent();
   }
 
   private ComponentDto insertJdk7() {
     return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_02, p -> p
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
-      .setDescription("JDK"));
+      .setDescription("JDK")).getMainBranchComponent();
   }
 
   private ComponentDto insertPortfolio() {

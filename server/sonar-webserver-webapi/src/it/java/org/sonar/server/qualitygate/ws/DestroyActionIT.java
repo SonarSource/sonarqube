@@ -94,8 +94,8 @@ public class DestroyActionIT {
   public void delete_quality_gate_and_any_association_to_any_project() {
     db.qualityGates().createDefaultQualityGate();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto prj1 = db.components().insertPublicProjectDto();
-    ProjectDto prj2 = db.components().insertPublicProjectDto();
+    ProjectDto prj1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto prj2 = db.components().insertPublicProject().getProjectDto();
     db.qualityGates().associateProjectToQualityGate(prj1, qualityGate);
     db.qualityGates().associateProjectToQualityGate(prj2, qualityGate);
     userSession.addPermission(ADMINISTER_QUALITY_GATES);

@@ -79,7 +79,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     Collection<QProfileDto> profiles = Collections.singleton(qualityProfileDto);
 
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.qualityProfiles().associateWithProject(project, qualityProfileDto);
 
     underTest.distributeRuleChangeEvent(profiles, of(activeRuleChange), "xoo");
@@ -104,7 +104,7 @@ public class QualityProfileChangeEventServiceImplTest {
   @Test
   public void distributeRuleChangeEvent_when_project_has_only_default_quality_profiles() {
     String language = "xoo";
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto templateRule = insertTemplateRule();
     QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
     RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");

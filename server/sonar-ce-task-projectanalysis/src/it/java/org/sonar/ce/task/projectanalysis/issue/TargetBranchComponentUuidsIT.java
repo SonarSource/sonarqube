@@ -59,7 +59,7 @@ public class TargetBranchComponentUuidsIT {
     analysisMetadataHolder.setProject(project);
     analysisMetadataHolder.setBranch(branch);
 
-    ComponentDto projectDto = db.components().insertPublicProject();
+    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     when(project.getUuid()).thenReturn(projectDto.uuid());
     branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey(BRANCH_KEY));
     ComponentDto pr1branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(PR_KEY)

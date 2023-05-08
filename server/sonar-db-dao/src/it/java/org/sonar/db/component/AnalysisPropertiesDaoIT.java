@@ -182,7 +182,7 @@ public class AnalysisPropertiesDaoIT {
     final String analysisPropertyKey = "key";
     for (int i = 0; i < 7; i++) {
       String uuid = "uuid" + i;
-      ProjectDto project = dbTester.components().insertPrivateProjectDto(p -> p.setUuid(uuid).setBranchUuid(uuid));
+      ProjectDto project = dbTester.components().insertPrivateProject(p -> p.setUuid(uuid).setBranchUuid(uuid)).getProjectDto();
       dbTester.components().insertSnapshot(project, s -> s.setLast(true).setUuid(uuid));
       // branches shouldn't be taken into account
       dbTester.components().insertProjectBranch(project);

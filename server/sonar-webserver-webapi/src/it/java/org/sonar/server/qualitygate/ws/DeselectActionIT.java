@@ -60,7 +60,7 @@ public class DeselectActionIT {
   public void deselect_by_key() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(project, qualityGate);
 
     ws.newRequest()
@@ -73,7 +73,7 @@ public class DeselectActionIT {
   @Test
   public void project_admin() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(project, qualityGate);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -88,10 +88,10 @@ public class DeselectActionIT {
   public void other_project_should_not_be_updated() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(project, qualityGate);
     // Another project
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(anotherProject, qualityGate);
 
     ws.newRequest()
@@ -106,7 +106,7 @@ public class DeselectActionIT {
   public void default_is_used() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(project, qualityGate);
 
     ws.newRequest()
@@ -128,7 +128,7 @@ public class DeselectActionIT {
 
   @Test
   public void fail_when_anonymous() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.anonymous();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -139,7 +139,7 @@ public class DeselectActionIT {
 
   @Test
   public void fail_when_not_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -151,7 +151,7 @@ public class DeselectActionIT {
   @Test
   public void fail_when_not_quality_gates_admin() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
     assertThatThrownBy(() -> ws.newRequest()

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -117,7 +116,7 @@ public class RemoveActionIT {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertPrivateProject(PROJECT_UUID, c -> c.setKey(PROJECT_KEY));
+    return db.components().insertPrivateProject(PROJECT_UUID, c -> c.setKey(PROJECT_KEY)).getMainBranchComponent();
   }
 
   private ComponentDto insertProjectAndPermissions() {

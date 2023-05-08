@@ -43,12 +43,12 @@ public class ProjectQgateAssociationDaoIT {
   public void select_all_projects_by_query() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate2);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project3), qualityGate2);
 
     List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate1)
@@ -65,12 +65,12 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void select_all_projects_by_query_should_have_deterministic_order() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key1"));
-    ComponentDto project2 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key2"));
-    ComponentDto project3 = db.components().insertPrivateProject(d -> d.setName("p2").setKey("key3"));
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate1);
+    ComponentDto project1 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key1")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key2")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(d -> d.setName("p2").setKey("key3")).getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project3), qualityGate1);
 
     List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate1)
@@ -84,11 +84,11 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void select_projects_by_query() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate);
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -110,11 +110,11 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void search_by_project_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Project Three"));
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate);
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Project Three")).getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate);
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -134,9 +134,9 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void sorted_by_project_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Project Three"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One")).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two")).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Project Three")).getMainBranchComponent();
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -151,16 +151,16 @@ public class ProjectQgateAssociationDaoIT {
 
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ComponentDto project5 = db.components().insertPrivateProject();
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate2);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project4), qualityGate2);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project5), qualityGate1);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project5 = db.components().insertPrivateProject().getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project3), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project4), qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project5), qualityGate1);
 
     List<ProjectQgateAssociationDto> result = underTest.selectAll(dbSession);
 
@@ -176,7 +176,7 @@ public class ProjectQgateAssociationDaoIT {
 
   @Test
   public void select_qgate_uuid_is_absent() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project.uuid());
 
@@ -187,10 +187,10 @@ public class ProjectQgateAssociationDaoIT {
   public void select_qgate_uuid() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate2);
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project2), qualityGate2);
 
     Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project1.uuid());
 
@@ -200,7 +200,7 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void delete_by_project_uuid() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
 
@@ -214,7 +214,7 @@ public class ProjectQgateAssociationDaoIT {
   @Test
   public void delete_by_qgate_uuid() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
 
@@ -229,7 +229,7 @@ public class ProjectQgateAssociationDaoIT {
   public void update_project_qgate_association() {
     QualityGateDto firstQualityGate = db.qualityGates().insertQualityGate();
     QualityGateDto secondQualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     db.qualityGates().associateProjectToQualityGate(project, firstQualityGate);
 

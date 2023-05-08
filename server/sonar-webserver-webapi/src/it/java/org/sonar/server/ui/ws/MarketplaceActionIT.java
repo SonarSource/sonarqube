@@ -116,7 +116,7 @@ public class MarketplaceActionIT {
   }
 
   private void setNcloc(double ncloc) {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.getDbClient().projectDao().updateNcloc(db.getSession(), project.uuid(), (long) ncloc);
     db.commit();
   }

@@ -123,7 +123,7 @@ public class SetSeverityActionIT {
   @Test
   public void set_severity_is_not_distributed_for_pull_request() {
     RuleDto rule = dbTester.rules().insertIssueRule();
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)

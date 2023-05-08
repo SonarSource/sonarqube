@@ -61,7 +61,7 @@ public class TokenActionIT {
 
   @Test
   public void missing_project_permission_should_fail() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     TestRequest request = ws.newRequest().setParam("project", project.getKey());
 
@@ -72,7 +72,7 @@ public class TokenActionIT {
 
   @Test
   public void should_generate_token() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -83,7 +83,7 @@ public class TokenActionIT {
 
   @Test
   public void handle_whenApplicationKeyPassed_shouldReturnToken() {
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.USER, application);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -95,7 +95,7 @@ public class TokenActionIT {
 
   @Test
   public void should_reuse_generated_token() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 

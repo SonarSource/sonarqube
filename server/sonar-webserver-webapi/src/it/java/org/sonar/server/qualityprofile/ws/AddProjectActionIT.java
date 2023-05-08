@@ -86,7 +86,7 @@ public class AddProjectActionIT {
   @Test
   public void add_project_on_profile() {
     logInAsProfileAdmin();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     TestResponse response = call(project, profile);
@@ -101,7 +101,7 @@ public class AddProjectActionIT {
     UserDto user = db.users().insertUser();
     QProfileDto qualityProfile = db.qualityProfiles().insert(qp -> qp.setLanguage(LANGUAGE_1));
     db.qualityProfiles().addUserPermission(qualityProfile, user);
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     call(project, qualityProfile);
@@ -114,7 +114,7 @@ public class AddProjectActionIT {
   public void change_association() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     // two profiles on same language
     QProfileDto profile1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profile2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
@@ -130,7 +130,7 @@ public class AddProjectActionIT {
   @Test
   public void changing_association_does_not_change_other_language_associations() {
     logInAsProfileAdmin();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile1Language1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profile2Language2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_2));
     QProfileDto profile3Language1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
@@ -145,7 +145,7 @@ public class AddProjectActionIT {
 
   @Test
   public void project_administrator_can_change_profile() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
 
@@ -158,7 +158,7 @@ public class AddProjectActionIT {
   @Test
   public void throw_ForbiddenException_if_not_project_nor_global_administrator() {
     userSession.logIn(db.users().insertUser());
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     assertThatThrownBy(() -> call(project, profile))
@@ -169,7 +169,7 @@ public class AddProjectActionIT {
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert();
 
     assertThatThrownBy(() -> call(project, profile))
@@ -195,7 +195,7 @@ public class AddProjectActionIT {
   @Test
   public void throw_NotFoundException_if_profile_does_not_exist() {
     logInAsProfileAdmin();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> {
       tester.newRequest()

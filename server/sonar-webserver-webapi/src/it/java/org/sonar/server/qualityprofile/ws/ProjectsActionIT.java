@@ -53,10 +53,10 @@ public class ProjectsActionIT {
 
   @Test
   public void list_authorized_projects_only() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    associateProjectsWithProfile(qualityProfile, db.components().getProjectDto(project1), db.components().getProjectDto(project2));
+    associateProjectsWithProfile(qualityProfile, db.components().getProjectDtoByMainBranch(project1), db.components().getProjectDtoByMainBranch(project2));
     // user only sees project1
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project1);
@@ -78,10 +78,10 @@ public class ProjectsActionIT {
 
   @Test
   public void paginate() {
-    ProjectDto project1 = db.components().insertPublicProjectDto(p -> p.setName("Project One"));
-    ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
-    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
+    ProjectDto project1 = db.components().insertPublicProject(p -> p.setName("Project One")).getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject(p -> p.setName("Project Two")).getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject(p -> p.setName("Project Three")).getProjectDto();
+    ProjectDto project4 = db.components().insertPublicProject(p -> p.setName("Project Four")).getProjectDto();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2, project3, project4);
 
@@ -186,8 +186,8 @@ public class ProjectsActionIT {
 
   @Test
   public void show_unselected() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1);
 
@@ -206,10 +206,10 @@ public class ProjectsActionIT {
 
   @Test
   public void show_all() {
-    ProjectDto project1 = db.components().insertPublicProjectDto();
-    ProjectDto project2 = db.components().insertPublicProjectDto();
-    ProjectDto project3 = db.components().insertPublicProjectDto();
-    ProjectDto project4 = db.components().insertPublicProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project4 = db.components().insertPublicProject().getProjectDto();
     QProfileDto qualityProfile1 = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile1, project1, project2);
     QProfileDto qualityProfile2 = db.qualityProfiles().insert();
@@ -243,11 +243,11 @@ public class ProjectsActionIT {
 
   @Test
   public void filter_on_name_and_key() {
-    ProjectDto project1 = db.components().insertPublicProjectDto(p -> p.setName("Project One"));
-    ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
-    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
-    db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
-    ProjectDto project5 = db.components().insertPublicProjectDto(p -> p.setKey("Project the fifth"));
+    ProjectDto project1 = db.components().insertPublicProject(p -> p.setName("Project One")).getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject(p -> p.setName("Project Two")).getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject(p -> p.setName("Project Three")).getProjectDto();
+    db.components().insertPublicProject(p -> p.setName("Project Four")).getProjectDto();
+    ProjectDto project5 = db.components().insertPublicProject(p -> p.setKey("Project the fifth")).getProjectDto();
 
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2);
@@ -280,7 +280,7 @@ public class ProjectsActionIT {
 
   @Test
   public void return_deprecated_uuid_field() {
-    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project);
 

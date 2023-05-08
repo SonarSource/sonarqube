@@ -95,7 +95,7 @@ public class UserPermissionDaoWithPersisterIT {
   @Test
   public void userProjectPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
 
@@ -117,7 +117,7 @@ public class UserPermissionDaoWithPersisterIT {
   @Test
   public void userProjectPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.deleteProjectPermission(dbSession, user, ADMINISTER.getKey(), project);
 
@@ -143,7 +143,7 @@ public class UserPermissionDaoWithPersisterIT {
   @Test
   public void userApplicationPermissionIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    ComponentDto application = db.components().insertPublicApplication();
+    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), application.uuid());
     underTest.insert(dbSession, dto, application, user, null);
 
@@ -157,7 +157,7 @@ public class UserPermissionDaoWithPersisterIT {
   @Test
   public void deleteUserPermissionOfAnyUserIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
     underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN.getKey(), project);
@@ -171,7 +171,7 @@ public class UserPermissionDaoWithPersisterIT {
 
   @Test
   public void deleteUserPermissionOfAnyUserWithoutAffectedRowsIsNotPersisted() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN.getKey(), project);
 
@@ -182,7 +182,7 @@ public class UserPermissionDaoWithPersisterIT {
   @Test
   public void deleteUserPermissionByUserUuidIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
     underTest.deleteByUserUuid(dbSession, user);

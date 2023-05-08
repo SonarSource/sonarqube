@@ -104,7 +104,7 @@ public class UnsetActionIT {
 
   @Test
   public void throw_NFE_if_branch_not_found() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -119,7 +119,7 @@ public class UnsetActionIT {
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -150,7 +150,7 @@ public class UnsetActionIT {
 
   @Test
   public void delete_project_period() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -161,8 +161,8 @@ public class UnsetActionIT {
 
   @Test
   public void delete_project_period_twice() {
-    ComponentDto project1 = componentDb.insertPublicProject();
-    ComponentDto project2 = componentDb.insertPublicProject();
+    ComponentDto project1 = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto project2 = componentDb.insertPublicProject().getMainBranchComponent();
     db.newCodePeriods().insert(project1.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
     db.newCodePeriods().insert(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
@@ -181,7 +181,7 @@ public class UnsetActionIT {
 
   @Test
   public void delete_branch_period() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
     db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
@@ -199,7 +199,7 @@ public class UnsetActionIT {
 
   @Test
   public void delete_branch_and_project_period_in_community_edition() {
-    ComponentDto project = componentDb.insertPublicProject();
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
 
     db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
     db.newCodePeriods().insert(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");

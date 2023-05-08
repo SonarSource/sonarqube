@@ -129,11 +129,11 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_portfolios() {
-    ComponentDto portfolio1 = db.components().insertPrivateApplication();
-    ComponentDto portfolio2 = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     IssueDoc issueOnProject1 = newDocForProject(project1);
     IssueDoc issueOnFile = newDoc(file, project1.uuid());
@@ -165,8 +165,8 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void do_not_return_issues_from_project_branch_when_filtering_by_portfolios() {
-    ComponentDto portfolio = db.components().insertPrivateApplication();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto portfolio = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project);
     ComponentDto fileOnProjectBranch = db.components().insertComponent(newFileDto(projectBranch));
     indexView(portfolio.uuid(), singletonList(project.uuid()));
@@ -184,7 +184,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_one_issue_by_project_and_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto anotherbBranch = db.components().insertProjectBranch(project);
 
@@ -206,7 +206,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void issues_from_branch_component_children() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid())).setMainBranchProjectUuid(project.uuid());
@@ -224,7 +224,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void issues_from_main_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     IssueDoc issueOnProject = newDocForProject(project);
@@ -241,7 +241,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void branch_issues_are_ignored_when_no_branch_param() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     IssueDoc projectIssue = newDocForProject(project);
@@ -253,11 +253,11 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_main_application() {
-    ComponentDto application1 = db.components().insertPrivateApplication();
-    ComponentDto application2 = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     indexView(application1.uuid(), singletonList(project1.uuid()));
     indexView(application2.uuid(), singletonList(project2.uuid()));
 
@@ -277,12 +277,12 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_application_branch() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP)).getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(application);
     ComponentDto branch2 = db.components().insertProjectBranch(application);
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     indexView(branch1.uuid(), singletonList(project1.uuid()));
     indexView(branch2.uuid(), singletonList(project2.uuid()));
 
@@ -303,14 +303,14 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_application_branch_having_project_branches() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app")).getMainBranchComponent();
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1")).getMainBranchComponent();
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
     ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1)).setMainBranchProjectUuid(project1.uuid());
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2")).getMainBranchComponent();
     indexView(applicationBranch1.uuid(), asList(project1Branch1.uuid(), project2.uuid()));
     indexView(applicationBranch2.uuid(), singletonList(project1Branch2.uuid()));
 

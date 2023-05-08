@@ -67,7 +67,7 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insert(Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
@@ -136,7 +136,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertIssue(RuleDto ruleDto, Consumer<IssueDto>... populators) {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(ruleDto, project, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
@@ -203,7 +203,7 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insertHotspot(Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)
       .setType(SECURITY_HOTSPOT)

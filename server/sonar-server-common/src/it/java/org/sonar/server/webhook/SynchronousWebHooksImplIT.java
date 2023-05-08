@@ -74,13 +74,13 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void isEnabled_returns_false_if_no_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     assertThat(underTest.isEnabled(projectDto)).isFalse();
   }
 
   @Test
   public void isEnabled_returns_true_if_one_valid_global_webhook() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
 
     assertThat(underTest.isEnabled(projectDto)).isTrue();
@@ -88,7 +88,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void isEnabled_returns_true_if_one_valid_project_webhook() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
 
     assertThat(underTest.isEnabled(projectDto)).isTrue();
@@ -96,7 +96,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void do_nothing_if_no_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
@@ -107,7 +107,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void populates_log_statistics_even_if_no_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
 
@@ -119,7 +119,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void send_global_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
     webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
     webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
     caller.enqueueSuccess(NOW, 200, 1_234);
@@ -143,7 +143,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void send_project_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
     caller.enqueueSuccess(NOW, 200, 1_234);
 
@@ -158,7 +158,7 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void send_global_and_project_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newWebhook(projectDto).setName("1First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
     webhookDbTester.insert(newWebhook(projectDto).setName("2Second").setUrl("http://url2"), projectDto.getKey(), projectDto.getName());
     webhookDbTester.insert(newGlobalWebhook().setName("3Third").setUrl("http://url3"), null, null);

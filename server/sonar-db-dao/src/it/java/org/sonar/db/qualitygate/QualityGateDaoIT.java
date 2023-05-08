@@ -112,7 +112,7 @@ public class QualityGateDaoIT {
 
   @Test
   public void select_by_project_uuid() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
@@ -127,7 +127,7 @@ public class QualityGateDaoIT {
 
   @Test
   public void selectQualityGateFindings_returns_all_quality_gate_details_for_project() {
-    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(gate);

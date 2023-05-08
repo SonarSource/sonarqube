@@ -57,7 +57,7 @@ public class RawActionIT {
 
   @Test
   public void raw_from_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
@@ -75,7 +75,7 @@ public class RawActionIT {
 
   @Test
   public void raw_from_branch_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -106,7 +106,7 @@ public class RawActionIT {
 
   @Test
   public void fail_on_unknown_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -122,7 +122,7 @@ public class RawActionIT {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -137,7 +137,7 @@ public class RawActionIT {
 
   @Test
   public void fail_when_wrong_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 

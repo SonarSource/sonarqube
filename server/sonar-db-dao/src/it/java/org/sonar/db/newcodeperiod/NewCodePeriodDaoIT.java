@@ -191,7 +191,7 @@ public class NewCodePeriodDaoIT {
 
   @Test
   public void select_branches_referencing() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     BranchDto mainBranch = db.getDbClient().branchDao().selectByUuid(dbSession, project.getUuid()).get();
     BranchDto branch1 = db.components().insertProjectBranch(project);
     BranchDto branch2 = db.components().insertProjectBranch(project);

@@ -98,7 +98,7 @@ public class PullRequestFileMoveDetectionStepIT {
 
   @Before
   public void setUp() throws Exception {
-    project = dbTester.components().insertPrivateProject();
+    project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     branch = dbTester.components().insertProjectBranch(project, branchDto -> branchDto.setUuid(BRANCH_UUID).setKey(TARGET_BRANCH));
     treeRootHolder.setRoot(builder(Component.Type.PROJECT, Integer.parseInt(ROOT_REF)).setUuid(project.uuid()).build());
   }

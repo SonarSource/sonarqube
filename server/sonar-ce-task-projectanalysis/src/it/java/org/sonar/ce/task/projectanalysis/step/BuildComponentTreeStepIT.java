@@ -233,7 +233,7 @@ public class BuildComponentTreeStepIT {
   @Test
   public void return_existing_uuids() {
     setAnalysisMetadataHolder();
-    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY)).getMainBranchComponent();
     ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
     insertComponent(directory.setKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
     insertComponent(newFileDto(project, directory, "DEFG")
@@ -273,7 +273,7 @@ public class BuildComponentTreeStepIT {
 
   @Test
   public void generate_keys_when_using_existing_branch() {
-    ComponentDto projectDto = dbTester.components().insertPublicProject();
+    ComponentDto projectDto = dbTester.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto componentDto = dbTester.components().insertProjectBranch(projectDto, b -> b.setKey(branchName));
     Branch branch = mock(Branch.class);
@@ -359,7 +359,7 @@ public class BuildComponentTreeStepIT {
   @Test
   public void set_base_project_snapshot_when_last_snapshot_exist() {
     setAnalysisMetadataHolder();
-    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY)).getMainBranchComponent();
     insertSnapshot(newAnalysis(project).setLast(true));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -382,7 +382,7 @@ public class BuildComponentTreeStepIT {
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_projectVersion_to_previous_analysis_when_not_set(@Nullable String previousAnalysisProjectVersion) {
     setAnalysisMetadataHolder();
-    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY)).getMainBranchComponent();
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 

@@ -50,7 +50,7 @@ public class ComponentIndexImplIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProject().getMainBranchComponent();
     dir1 = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     dir2 = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java2"));
     file11 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir1));

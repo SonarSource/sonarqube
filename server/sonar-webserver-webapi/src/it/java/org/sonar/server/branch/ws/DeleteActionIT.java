@@ -62,7 +62,7 @@ public class DeleteActionIT {
 
   @Test
   public void delete_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -102,7 +102,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
@@ -127,7 +127,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_branch_is_main() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     db.executeUpdateSql("UPDATE project_branches set KEE = 'main'");
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 

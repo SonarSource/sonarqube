@@ -141,7 +141,7 @@ public class NewIssuesNotificationIT {
   public void set_statistics() {
     UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
     UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
@@ -183,7 +183,7 @@ public class NewIssuesNotificationIT {
   public void set_statistics_when_no_issues_created_on_current_analysis() {
     UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
     UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
@@ -226,7 +226,7 @@ public class NewIssuesNotificationIT {
 
     UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
     UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
@@ -285,7 +285,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void set_assignee() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
@@ -312,7 +312,7 @@ public class NewIssuesNotificationIT {
     UserDto user6 = db.users().insertUser();
     UserDto user7 = db.users().insertUser();
     UserDto user8 = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
@@ -346,7 +346,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void add_only_5_components_with_biggest_issue_counts() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
@@ -386,7 +386,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void add_only_5_rules_with_biggest_issue_counts() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("Java"));

@@ -135,7 +135,7 @@ public class ShowActionIT {
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProjectDto())
+      .mapToObj(i -> db.components().insertPrivateProject().getProjectDto())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
@@ -327,7 +327,7 @@ public class ShowActionIT {
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProjectDto())
+      .mapToObj(i -> db.components().insertPrivateProject().getProjectDto())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ws = new WsActionTester(

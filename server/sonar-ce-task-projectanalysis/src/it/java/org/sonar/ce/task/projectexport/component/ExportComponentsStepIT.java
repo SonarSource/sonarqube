@@ -99,10 +99,10 @@ public class ExportComponentsStepIT {
 
   @Test
   public void export_components_including_project() {
-    dbTester.components().insertPublicProject(PROJECT);
+    dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE, true);
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(PROJECT));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -116,10 +116,10 @@ public class ExportComponentsStepIT {
 
   @Test
   public void execute_register_all_components_uuids_as_their_id_in_ComponentRepository() {
-    dbTester.components().insertPublicProject(PROJECT);
+    dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE, true);
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(PROJECT));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -130,10 +130,10 @@ public class ExportComponentsStepIT {
 
   @Test
   public void throws_ISE_if_error() {
-    dbTester.components().insertPublicProject(PROJECT);
+    dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE, true);
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
+    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(PROJECT));
     dumpWriter.failIfMoreThan(1, DumpElement.COMPONENTS);
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))

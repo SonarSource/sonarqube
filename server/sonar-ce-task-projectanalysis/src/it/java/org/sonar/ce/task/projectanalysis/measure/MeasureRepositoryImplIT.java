@@ -138,7 +138,7 @@ public class MeasureRepositoryImplIT {
 
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
     SnapshotDto lastAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(true));
     SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));

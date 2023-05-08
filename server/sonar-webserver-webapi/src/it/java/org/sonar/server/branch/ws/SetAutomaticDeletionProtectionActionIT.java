@@ -105,7 +105,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_if_no_administer_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -119,7 +119,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_when_attempting_to_set_main_branch_as_included_in_purge() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -135,7 +135,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void set_purge_exclusion() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -158,7 +158,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_on_non_boolean_value_parameter() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -185,7 +185,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_if_branch_does_not_exist() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()

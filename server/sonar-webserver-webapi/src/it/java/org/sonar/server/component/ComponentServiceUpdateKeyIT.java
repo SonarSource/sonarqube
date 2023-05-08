@@ -70,7 +70,7 @@ public class ComponentServiceUpdateKeyIT {
     dbSession.commit();
 
     logInAsProjectAdministrator(project);
-    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample2:root");
+    underTest.updateKey(dbSession, componentDb.getProjectDtoByMainBranch(project), "sample2:root");
     dbSession.commit();
 
     // Check project key has been updated
@@ -105,7 +105,7 @@ public class ComponentServiceUpdateKeyIT {
     dbSession.commit();
 
     logInAsProjectAdministrator(provisionedProject);
-    underTest.updateKey(dbSession, componentDb.getProjectDto(provisionedProject), "provisionedProject2");
+    underTest.updateKey(dbSession, componentDb.getProjectDtoByMainBranch(provisionedProject), "provisionedProject2");
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.getKey(), "provisionedProject2");
@@ -117,7 +117,7 @@ public class ComponentServiceUpdateKeyIT {
     ComponentDto project = insertSampleProject();
     userSession.logIn("john").addProjectPermission(UserRole.USER, project);
 
-    ProjectDto projectDto = componentDb.getProjectDto(project);
+    ProjectDto projectDto = componentDb.getProjectDtoByMainBranch(project);
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample2:root"))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -125,10 +125,10 @@ public class ComponentServiceUpdateKeyIT {
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
     ComponentDto project = insertSampleProject();
-    ComponentDto anotherProject = componentDb.insertPrivateProject();
+    ComponentDto anotherProject = componentDb.insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = componentDb.getProjectDto(project);
+    ProjectDto projectDto = componentDb.getProjectDtoByMainBranch(project);
     String anotherProjectDbKey = anotherProject.getKey();
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto,
       anotherProjectDbKey))
@@ -141,7 +141,7 @@ public class ComponentServiceUpdateKeyIT {
     ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = componentDb.getProjectDto(project);
+    ProjectDto projectDto = componentDb.getProjectDtoByMainBranch(project);
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -152,7 +152,7 @@ public class ComponentServiceUpdateKeyIT {
     ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = componentDb.getProjectDto(project);
+    ProjectDto projectDto = componentDb.getProjectDtoByMainBranch(project);
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample?root"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -163,7 +163,7 @@ public class ComponentServiceUpdateKeyIT {
   }
 
   private ComponentDto insertProject(String key) {
-    return componentDb.insertPrivateProject(c -> c.setKey(key));
+    return componentDb.insertPrivateProject(c -> c.setKey(key)).getMainBranchComponent();
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {

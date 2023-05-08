@@ -82,7 +82,7 @@ public class DeleteActionIT {
 
   @Test
   public void global_administrator_deletes_project_by_key() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
@@ -93,7 +93,7 @@ public class DeleteActionIT {
 
   @Test
   public void project_administrator_deletes_the_project_by_key() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
@@ -104,7 +104,7 @@ public class DeleteActionIT {
 
   @Test
   public void project_deletion_also_ensure_that_homepage_on_this_project_if_it_exists_is_cleared() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
     UserDto insert = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     dbSession.commit();
@@ -125,7 +125,7 @@ public class DeleteActionIT {
 
   @Test
   public void project_deletion_also_ensure_that_webhooks_on_this_project_if_they_exists_are_deleted() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
@@ -147,7 +147,7 @@ public class DeleteActionIT {
 
   @Test
   public void return_403_if_not_project_admin_nor_org_admin() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
 
     userSessionRule.logIn()
       .addProjectPermission(UserRole.CODEVIEWER, project)
@@ -161,7 +161,7 @@ public class DeleteActionIT {
 
   @Test
   public void return_401_if_not_logged_in() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
 
     userSessionRule.anonymous();
 

@@ -205,9 +205,9 @@ public class UserUpdaterUpdateTest {
   public void update_default_assignee_when_updating_login() {
     createDefaultGroup();
     UserDto oldUser = db.users().insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(oldUser.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()));

@@ -158,8 +158,8 @@ public class WebhookDaoWithPersisterIT {
 
   @Test
   public void deleteProjectWebhooksIsPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p ->
-      p.setUuid("puuid").setName("pname").setKey("pkey"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProject(p ->
+      p.setUuid("puuid").setName("pname").setKey("pkey")).getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
 
     underTest.deleteByProject(dbSession, projectDto);
@@ -175,7 +175,7 @@ public class WebhookDaoWithPersisterIT {
 
   @Test
   public void deleteProjectWebhooksWithoutAffectedRowsIsNotPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p -> p.setUuid("puuid").setName("pname"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProject(p -> p.setUuid("puuid").setName("pname")).getProjectDto();
 
     underTest.deleteByProject(dbSession, projectDto);
 

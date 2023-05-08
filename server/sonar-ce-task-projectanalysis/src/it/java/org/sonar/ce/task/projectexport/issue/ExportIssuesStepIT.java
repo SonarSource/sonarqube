@@ -377,9 +377,9 @@ public class ExportIssuesStepIT {
   }
 
   private ProjectDto createProject() {
-    ComponentDto projectDto = dbTester.components().insertPrivateProject(c -> c.setKey(PROJECT_KEY).setUuid(SOME_PROJECT_UUID));
+    ComponentDto projectDto = dbTester.components().insertPrivateProject(c -> c.setKey(PROJECT_KEY).setUuid(SOME_PROJECT_UUID)).getMainBranchComponent();
     dbTester.commit();
-    return dbTester.components().getProjectDto(projectDto);
+    return dbTester.components().getProjectDtoByMainBranch(projectDto);
   }
 
   private IssueDto createBaseIssueDto(RuleDto ruleDto, String componentUuid) {

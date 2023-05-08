@@ -238,7 +238,7 @@ public class FileMoveDetectionStepIT {
   @Before
   public void setUp() throws Exception {
     logTester.setLevel(Level.DEBUG);
-    project = dbTester.components().insertPrivateProject();
+    project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     treeRootHolder.setRoot(builder(Component.Type.PROJECT, ROOT_REF).setUuid(project.uuid()).build());
   }
 

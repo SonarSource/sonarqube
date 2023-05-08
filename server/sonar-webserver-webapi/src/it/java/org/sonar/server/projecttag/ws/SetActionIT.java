@@ -67,7 +67,7 @@ public class SetActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProjectDto();
+    project = db.components().insertPrivateProject().getProjectDto();
     userSession.addProjectPermission(ADMIN, project);
   }
 
@@ -83,8 +83,8 @@ public class SetActionIT {
 
   @Test
   public void reset_tags() {
-    project = db.components().insertPrivateProjectDto(c -> {
-    }, p -> p.setTagsString("platform,scanner"));
+    project = db.components().insertPrivateProject(c -> {
+    }, p -> p.setTagsString("platform,scanner")).getProjectDto();
     userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "");
@@ -94,8 +94,8 @@ public class SetActionIT {
 
   @Test
   public void override_existing_tags() {
-    project = db.components().insertPrivateProjectDto(c -> {
-    }, p -> p.setTagsString("marketing,languages"));
+    project = db.components().insertPrivateProject(c -> {
+    }, p -> p.setTagsString("marketing,languages")).getProjectDto();
     userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "finance,offshore,platform");

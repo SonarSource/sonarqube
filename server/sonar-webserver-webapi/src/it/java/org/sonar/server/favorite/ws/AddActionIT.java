@@ -67,7 +67,7 @@ public class AddActionIT {
 
   @Test
   public void add_a_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
@@ -87,7 +87,7 @@ public class AddActionIT {
 
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> call(project.getKey()))
@@ -104,7 +104,7 @@ public class AddActionIT {
 
   @Test
   public void fail_when_user_is_not_authenticated() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> call(project.getKey()))
       .isInstanceOf(UnauthorizedException.class);
@@ -112,7 +112,7 @@ public class AddActionIT {
 
   @Test
   public void fail_on_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
@@ -124,7 +124,7 @@ public class AddActionIT {
 
   @Test
   public void fail_on_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
@@ -136,7 +136,7 @@ public class AddActionIT {
 
   @Test
   public void fail_on_unit_test_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto unitTestFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);

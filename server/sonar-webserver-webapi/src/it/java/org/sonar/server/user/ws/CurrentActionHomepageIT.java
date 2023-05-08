@@ -114,7 +114,7 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("enterpriseAndAbove")
   public void return_homepage_when_set_to_an_application(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, application);
 
@@ -129,7 +129,7 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("enterpriseAndAbove")
   public void return_default_homepage_when_set_to_an_application_but_no_rights_on_this_application(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user);
 
@@ -144,7 +144,7 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("allEditions")
   public void return_homepage_when_set_to_a_project(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, project);
 
@@ -159,7 +159,7 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("allEditions")
   public void return_default_homepage_when_set_to_a_project_but_no_rights_on_this_project(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     userSessionRule.logIn(user);
 
@@ -172,7 +172,7 @@ public class CurrentActionHomepageIT {
 
   @Test
   public void return_homepage_when_set_to_a_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
@@ -210,7 +210,7 @@ public class CurrentActionHomepageIT {
   @Test
   public void fallback_when_edition_is_null() {
     setPlatformEdition(null);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user.getLogin());
 
@@ -236,7 +236,7 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("belowEnterprise")
   public void fallback_when_user_homepage_application_and_edition_below_enterprise(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user.getLogin());
 

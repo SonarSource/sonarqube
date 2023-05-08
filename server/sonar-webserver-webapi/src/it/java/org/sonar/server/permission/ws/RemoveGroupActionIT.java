@@ -95,7 +95,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void remove_project_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
@@ -131,7 +131,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void remove_with_project_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
@@ -187,7 +187,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -195,7 +195,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -203,7 +203,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newSubPortfolio(project));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -251,7 +251,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
@@ -288,7 +288,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void removing_project_permission_fails_if_not_administrator_of_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     assertThatThrownBy(() -> {
@@ -306,7 +306,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
    */
   @Test
   public void removing_project_permission_is_allowed_to_project_administrators() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
 
@@ -322,7 +322,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void no_effect_when_removing_any_permission_from_group_AnyOne_on_a_private_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionService.getAllProjectPermissions()
       .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -341,7 +341,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_removing_USER_permission_from_group_AnyOne_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> {
@@ -357,7 +357,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void fail_when_removing_CODEVIEWER_permission_from_group_AnyOne_on_a_public_project() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> {
@@ -374,7 +374,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void fail_when_removing_USER_permission_from_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> {
@@ -391,7 +391,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void fail_when_removing_CODEVIEWER_permission_from_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> {
@@ -408,7 +408,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

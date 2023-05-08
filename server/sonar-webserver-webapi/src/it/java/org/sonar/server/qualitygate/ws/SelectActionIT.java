@@ -58,7 +58,7 @@ public class SelectActionIT {
   public void select_by_key() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ws.newRequest()
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
@@ -73,7 +73,7 @@ public class SelectActionIT {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto initialQualityGate = db.qualityGates().insertQualityGate();
     QualityGateDto secondQualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ws.newRequest()
       .setParam(PARAM_GATE_NAME, initialQualityGate.getName())
@@ -92,7 +92,7 @@ public class SelectActionIT {
   public void select_same_quality_gate_for_project_twice() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto initialQualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ws.newRequest()
       .setParam(PARAM_GATE_NAME, initialQualityGate.getName())
@@ -110,7 +110,7 @@ public class SelectActionIT {
   @Test
   public void project_admin() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     ws.newRequest()
@@ -125,7 +125,7 @@ public class SelectActionIT {
   public void gate_administrator_can_associate_a_gate_to_a_project() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ws.newRequest()
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
@@ -138,7 +138,7 @@ public class SelectActionIT {
   @Test
   public void fail_when_no_quality_gate() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, "unknown")
@@ -162,7 +162,7 @@ public class SelectActionIT {
   @Test
   public void fail_when_anonymous() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.anonymous();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -175,7 +175,7 @@ public class SelectActionIT {
   @Test
   public void fail_when_not_project_admin() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -188,7 +188,7 @@ public class SelectActionIT {
   @Test
   public void fail_when_not_quality_gates_admin() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
     assertThatThrownBy(() -> ws.newRequest()

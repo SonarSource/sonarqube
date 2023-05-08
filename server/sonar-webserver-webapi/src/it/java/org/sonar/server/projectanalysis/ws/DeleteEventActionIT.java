@@ -73,7 +73,7 @@ public class DeleteEventActionIT {
 
   @Test
   public void delete_version_event() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(false));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
@@ -86,7 +86,7 @@ public class DeleteEventActionIT {
 
   @Test
   public void fail_if_version_for_last_analysis() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(true));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);

@@ -88,7 +88,7 @@ public class ComponentActionIT {
 
   @Test
   public void provided_project() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
@@ -101,7 +101,7 @@ public class ComponentActionIT {
 
   @Test
   public void without_additional_fields() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
@@ -118,7 +118,7 @@ public class ComponentActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     String branchName = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
@@ -143,7 +143,7 @@ public class ComponentActionIT {
 
   @Test
   public void branch_not_set_if_main_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
@@ -160,7 +160,7 @@ public class ComponentActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.uuid(), branch);
@@ -184,7 +184,7 @@ public class ComponentActionIT {
 
   @Test
   public void new_issue_count_measures_are_transformed_in_pr() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.uuid(), branch);
@@ -222,7 +222,7 @@ public class ComponentActionIT {
 
   @Test
   public void new_issue_count_measures_are_not_transformed_if_they_dont_exist_in_pr() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.uuid(), branch);
@@ -245,7 +245,7 @@ public class ComponentActionIT {
 
   @Test
   public void reference_key_in_the_response() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(USER, view);
     db.components().insertSnapshot(view);
@@ -259,7 +259,7 @@ public class ComponentActionIT {
 
   @Test
   public void use_deprecated_component_id_parameter() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
@@ -274,7 +274,7 @@ public class ComponentActionIT {
 
   @Test
   public void metric_without_a_domain() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     MetricDto metricWithoutDomain = db.measures().insertMetric(m -> m
       .setValueType("INT")
@@ -295,7 +295,7 @@ public class ComponentActionIT {
 
   @Test
   public void use_best_values() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m
@@ -317,7 +317,7 @@ public class ComponentActionIT {
 
   @Test
   public void fail_when_a_metric_is_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project);
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType("INT"));
@@ -330,7 +330,7 @@ public class ComponentActionIT {
 
   @Test
   public void fail_when_empty_metric_keys_parameter() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project);
 
@@ -342,7 +342,7 @@ public class ComponentActionIT {
   @Test
   public void fail_when_not_enough_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertSnapshot(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
@@ -366,7 +366,7 @@ public class ComponentActionIT {
 
   @Test
   public void fail_when_component_is_removed() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
@@ -383,7 +383,7 @@ public class ComponentActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -401,7 +401,7 @@ public class ComponentActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project,
       s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())

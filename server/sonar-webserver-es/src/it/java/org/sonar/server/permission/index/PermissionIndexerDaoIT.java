@@ -74,12 +74,12 @@ public class PermissionIndexerDaoIT {
 
   @Before
   public void setUp() {
-    publicProject = componentDbTester.insertPublicProject();
-    privateProject1 = componentDbTester.insertPrivateProject();
-    privateProject2 = componentDbTester.insertPrivateProject();
+    publicProject = componentDbTester.insertPublicProject().getMainBranchComponent();
+    privateProject1 = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    privateProject2 = componentDbTester.insertPrivateProject().getMainBranchComponent();
     view1 = componentDbTester.insertPublicPortfolio();
     view2 = componentDbTester.insertPublicPortfolio();
-    application = componentDbTester.insertPublicApplication();
+    application = componentDbTester.insertPublicApplication().getMainBranchComponent();
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
     group = userDbTester.insertGroup();
@@ -164,7 +164,7 @@ public class PermissionIndexerDaoIT {
   public void select_by_projects_with_high_number_of_projects() {
     List<String> projectUuids = new ArrayList<>();
     for (int i = 0; i < 3500; i++) {
-      ComponentDto project = dbTester.components().insertPrivateProject(Integer.toString(i));
+      ComponentDto project = dbTester.components().insertPrivateProject(Integer.toString(i)).getMainBranchComponent();
       projectUuids.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()
         .setUuid(Uuids.createFast())

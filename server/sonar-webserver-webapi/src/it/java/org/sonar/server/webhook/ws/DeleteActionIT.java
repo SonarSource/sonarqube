@@ -89,7 +89,7 @@ public class DeleteActionIT {
   @Test
   public void delete_a_project_webhook() {
 
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
@@ -151,7 +151,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
-    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn();
     TestRequest request = wsActionTester.newRequest()

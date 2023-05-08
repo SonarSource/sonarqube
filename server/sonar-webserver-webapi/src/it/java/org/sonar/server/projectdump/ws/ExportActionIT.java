@@ -65,7 +65,7 @@ public class ExportActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject(PROJECT_ID, p -> p.setKey(PROJECT_KEY).setName(PROJECT_NAME));
+    project = db.components().insertPrivateProject(PROJECT_ID, p -> p.setKey(PROJECT_KEY).setName(PROJECT_NAME)).getMainBranchComponent();
   }
 
   @Test

@@ -298,10 +298,10 @@ public class TreeActionIT {
     String appBranchName = "app-branch";
     String projectBranchName = "project-branch";
 
-    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
+    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key")).getMainBranchComponent();
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(appBranchName));
 
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key")).getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + project.getKey()).setMainBranchProjectUuid(application.uuid()));
@@ -324,7 +324,7 @@ public class TreeActionIT {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    ComponentDto project = db.components().insertPrivateProject("project-uuid");
+    ComponentDto project = db.components().insertPrivateProject("project-uuid").getMainBranchComponent();
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()
@@ -359,7 +359,7 @@ public class TreeActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -382,7 +382,7 @@ public class TreeActionIT {
 
   @Test
   public void dont_show_branch_if_main_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
 
@@ -397,7 +397,7 @@ public class TreeActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestId = "pr-123";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
@@ -419,7 +419,7 @@ public class TreeActionIT {
 
   @Test
   public void fail_when_not_enough_privileges() {
-    ComponentDto project = db.components().insertPrivateProject("project-uuid");
+    ComponentDto project = db.components().insertPrivateProject("project-uuid").getMainBranchComponent();
     userSession.logIn()
       .addProjectPermission(UserRole.CODEVIEWER, project);
     db.commit();
@@ -512,7 +512,7 @@ public class TreeActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
@@ -541,7 +541,7 @@ public class TreeActionIT {
         .setKey("MY_PROJECT_KEY")
         .setName("Project Name")
         .setBranchUuid("MY_PROJECT_ID"),
-      p -> p.setTagsString("abc,def"));
+      p -> p.setTagsString("abc,def")).getMainBranchComponent();
     db.components().insertSnapshot(project);
 
     Date now = new Date();

@@ -115,7 +115,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void nothing_to_do_when_link_already_exists() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonarqube.org"));
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
@@ -179,7 +179,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void update_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
@@ -200,7 +200,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void delete_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
@@ -218,7 +218,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void not_delete_custom_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
     db.componentLinks().insertCustomLink(project);
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());

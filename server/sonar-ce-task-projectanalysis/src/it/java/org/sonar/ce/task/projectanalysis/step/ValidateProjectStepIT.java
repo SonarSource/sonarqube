@@ -66,7 +66,7 @@ public class ValidateProjectStepIT {
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
-    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY)).getMainBranchComponent();
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(PAST_ANALYSIS_TIME));
     db.getSession().commit();
 
@@ -79,7 +79,7 @@ public class ValidateProjectStepIT {
   public void fail_if_analysis_date_is_before_last_analysis() {
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 
-    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY)).getMainBranchComponent();
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
     db.getSession().commit();
 
@@ -95,7 +95,7 @@ public class ValidateProjectStepIT {
 
   @Test
   public void fail_when_project_key_is_invalid() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("inv$lid!"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("inv$lid!")).getMainBranchComponent();
     db.components().insertSnapshot(project, a -> a.setCreatedAt(PAST_ANALYSIS_TIME));
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
       .setUuid(project.uuid())

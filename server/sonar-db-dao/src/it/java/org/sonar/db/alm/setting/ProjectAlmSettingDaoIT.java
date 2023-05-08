@@ -55,8 +55,8 @@ public class ProjectAlmSettingDaoIT {
   public void select_by_project() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSettingDto, project);
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, githubAlmSettingDto.getKey(), anotherProject.getName(),
       anotherProject.getKey());
@@ -77,11 +77,11 @@ public class ProjectAlmSettingDaoIT {
   public void select_by_alm_setting_and_slugs() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto bitbucketProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
     bitbucketProjectAlmSettingDto.setAlmSlug("slug1");
     underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    ProjectAlmSettingDto bitbucketProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
+    ProjectAlmSettingDto bitbucketProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProject().getProjectDto());
     bitbucketProjectAlmSettingDto2.setAlmSlug("slug2");
     when(uuidFactory.create()).thenReturn(A_UUID + 1);
     underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
@@ -105,11 +105,11 @@ public class ProjectAlmSettingDaoIT {
   public void select_by_alm_setting_and_repos() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
     githubProjectAlmSettingDto.setAlmRepo("repo1");
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
+    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProject().getProjectDto());
     githubProjectAlmSettingDto2.setAlmRepo("repo2");
     when(uuidFactory.create()).thenReturn(A_UUID + 1);
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
@@ -133,7 +133,7 @@ public class ProjectAlmSettingDaoIT {
   public void select_alm_type_and_url_by_project() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
     assertThat(underTest.selectAlmTypeAndUrlByProject(dbSession))
@@ -145,7 +145,7 @@ public class ProjectAlmSettingDaoIT {
   public void update_existing_binding() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
@@ -168,9 +168,9 @@ public class ProjectAlmSettingDaoIT {
   public void deleteByProject() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, anotherProject);
 
     underTest.deleteByProject(dbSession, project);
@@ -183,13 +183,13 @@ public class ProjectAlmSettingDaoIT {
   public void deleteByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project1 = db.components().insertPrivateProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project1);
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project2);
 
     AlmSettingDto githubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting1, anotherProject);
 
     underTest.deleteByAlmSetting(dbSession, githubAlmSetting);

@@ -81,7 +81,7 @@ public class SearchGitlabReposActionIT {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("some-pat");
     });
-    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto);
 
     AlmIntegrations.SearchGitlabReposWsResponse response = ws.newRequest()
@@ -124,16 +124,16 @@ public class SearchGitlabReposActionIT {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("some-pat");
     });
-    ProjectDto projectDto1 = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto1 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto1);
 
-    ProjectDto projectDto2 = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto2 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto2, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("2"));
 
-    ProjectDto projectDto3 = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto3 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto3, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("3"));
 
-    ProjectDto projectDto4 = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto4 = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto4, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("3"));
 
     AlmIntegrations.SearchGitlabReposWsResponse response = ws.newRequest()
@@ -168,7 +168,7 @@ public class SearchGitlabReposActionIT {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto);
 
     AlmIntegrations.SearchGitlabReposWsResponse response = ws.newRequest()
@@ -250,7 +250,7 @@ public class SearchGitlabReposActionIT {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("some-pat");
     });
-    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto);
 
     WebService.Action def = ws.getDef();

@@ -150,14 +150,14 @@ public class CheckAnyonePermissionsAtStartupTest {
   private void createPublicProjectsWithNonAnyoneGroupPermissions() {
     GroupDto group = dbTester.users().insertGroup();
     IntStream.rangeClosed(1, 3).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
       dbTester.users().insertProjectPermissionOnGroup(group, "perm-" + i, project);
     });
   }
 
   private void createPublicProjects(int projectCount, boolean includeAnyonePerm) {
     IntStream.rangeClosed(1, projectCount).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
       if (includeAnyonePerm) {
         dbTester.users().insertProjectPermissionOnAnyone("perm-" + i, project);
       }

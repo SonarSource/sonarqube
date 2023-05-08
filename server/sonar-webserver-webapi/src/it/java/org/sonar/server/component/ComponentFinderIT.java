@@ -89,7 +89,7 @@ public class ComponentFinderIT {
 
   @Test
   public void fail_to_getByUuidOrKey_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     String branchUuid = branch.uuid();
@@ -110,7 +110,7 @@ public class ComponentFinderIT {
 
   @Test
   public void fail_to_getByUuid_on_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     String branchUuid = branch.uuid();
@@ -140,7 +140,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertPrivateProject(c -> c.setKey("project-key"));
+    db.components().insertPrivateProject(c -> c.setKey("project-key")).getMainBranchComponent();
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
@@ -149,7 +149,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_by_key_and_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -161,7 +161,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_by_key_and_pull_request() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -173,7 +173,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_optional_by_key_and_optional_branch_or_pull_request() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -199,7 +199,7 @@ public class ComponentFinderIT {
 
   @Test
   public void fail_when_pull_request_branch_provided() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
 
     String projectKey = project.getKey();
@@ -210,14 +210,14 @@ public class ComponentFinderIT {
 
   @Test
   public void get_by_key_and_branch_accept_main_branch() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), DEFAULT_MAIN_BRANCH_NAME).uuid()).isEqualTo(project.uuid());
   }
 
   @Test
   public void fail_to_get_by_key_and_branch_when_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
@@ -229,7 +229,7 @@ public class ComponentFinderIT {
 
   @Test
   public void get_main_branch_name_when_selecting_any_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     // Copy project ComponentDto and rename it to be used by the branch
     ComponentDto project2 = project.copy();
@@ -244,7 +244,7 @@ public class ComponentFinderIT {
 
   @Test
   public void ignore_component_parent_name_when_not_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory)
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")

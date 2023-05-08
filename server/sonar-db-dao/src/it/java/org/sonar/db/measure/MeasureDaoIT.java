@@ -66,7 +66,7 @@ public class MeasureDaoIT {
   @Test
   public void test_selectLastMeasure() {
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     SnapshotDto lastAnalysis = insertAnalysis(project.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project.uuid(), false);
@@ -87,7 +87,7 @@ public class MeasureDaoIT {
   @Test
   public void test_selectMeasure() {
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     SnapshotDto lastAnalysis = insertAnalysis(project.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project.uuid(), false);
@@ -110,14 +110,14 @@ public class MeasureDaoIT {
 
   @Test
   public void test_selects() {
-    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project1, "path"));
     db.components().insertComponent(newFileDto(dir).setUuid("C1"));
     db.components().insertComponent(newFileDto(dir).setUuid("C2"));
     SnapshotDto lastAnalysis = insertAnalysis(project1.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project1.uuid(), false);
 
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto project2LastAnalysis = insertAnalysis(project2.uuid(), true);
 
     // project 1
@@ -164,7 +164,7 @@ public class MeasureDaoIT {
 
   @Test
   public void select_past_measures_with_several_analyses() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     long lastAnalysisDate = parseDate("2017-01-25").getTime();
     long previousAnalysisDate = lastAnalysisDate - 10_000_000_000L;
     long oldAnalysisDate = lastAnalysisDate - 100_000_000_000L;

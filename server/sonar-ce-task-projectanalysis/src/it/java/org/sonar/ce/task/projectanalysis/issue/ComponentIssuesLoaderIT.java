@@ -77,7 +77,7 @@ public class ComponentIssuesLoaderIT {
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_by_issue_based_on_first_row() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -96,7 +96,7 @@ public class ComponentIssuesLoaderIT {
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_with_null_line_if_first_row_has_no_line_diff() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -115,7 +115,7 @@ public class ComponentIssuesLoaderIT {
 
   @Test
   public void loadClosedIssues_returns_only_closed_issues_with_close_date() {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -183,7 +183,7 @@ public class ComponentIssuesLoaderIT {
   }
 
   private void loadClosedIssues_returns_only_closed_issues_with_close_date_is_from_30_days_ago(ComponentIssuesLoader underTest) {
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date[] issueDates = new Date[] {
