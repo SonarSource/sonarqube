@@ -59,6 +59,16 @@ public class ExternalGroupDaoIT {
     assertThat(savedGroup).containsExactlyInAnyOrderElementsOf(expectedGroups);
   }
 
+  @Test
+  public void deleteByGroupUuid_deletesTheGroup() {
+    List<ExternalGroupDto> insertedGroups = createAndInsertExternalGroupDtos("provider1", 3);
+
+    ExternalGroupDto toRemove = insertedGroups.remove(0);
+    underTest.deleteByGroupUuid(dbSession, toRemove.groupUuid());
+    List<ExternalGroupDto> remainingGroups = underTest.selectByIdentityProvider(dbSession, "provider1");
+    assertThat(remainingGroups).containsExactlyInAnyOrderElementsOf(insertedGroups);
+  }
+
   private List<ExternalGroupDto> createAndInsertExternalGroupDtos(String provider, int numberOfGroups) {
     List<ExternalGroupDto> expectedExternalGroupDtos = new ArrayList<>();
     for (int i = 1; i <= numberOfGroups; i++) {

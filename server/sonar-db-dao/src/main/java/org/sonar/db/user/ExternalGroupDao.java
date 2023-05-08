@@ -33,6 +33,10 @@ public class ExternalGroupDao implements Dao {
     return mapper(dbSession).selectByIdentityProvider(identityProvider);
   }
 
+  public void deleteByGroupUuid(DbSession dbSession, String groupUuid) {
+    mapper(dbSession).deleteByGroupUuid(groupUuid);
+  }
+
   private static ExternalGroupMapper mapper(DbSession session) {
     return session.getMapper(ExternalGroupMapper.class);
   }

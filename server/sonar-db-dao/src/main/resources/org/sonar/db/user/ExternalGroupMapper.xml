@@ -27,4 +27,8 @@
     WHERE eg.external_identity_provider=#{identityProvider,jdbcType=VARCHAR}
   </select>
 
+  <delete id="deleteByGroupUuid" parameterType="String">
+    delete from external_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

@@ -42,6 +42,7 @@ import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsDao;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.scim.ScimGroupDao;
+import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
@@ -92,6 +93,7 @@ public class GroupServiceTest {
     when(dbClient.qProfileEditGroupsDao()).thenReturn(mock(QProfileEditGroupsDao.class));
     when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(mock(QualityGateGroupPermissionsDao.class));
     when(dbClient.scimGroupDao()).thenReturn(mock(ScimGroupDao.class));
+    when(dbClient.externalGroupDao()).thenReturn(mock(ExternalGroupDao.class));
     when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
   }
 
@@ -327,6 +329,7 @@ public class GroupServiceTest {
     verify(dbClient.qProfileEditGroupsDao()).deleteByGroup(dbSession, groupDto);
     verify(dbClient.qualityGateGroupPermissionsDao()).deleteByGroup(dbSession, groupDto);
     verify(dbClient.scimGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
+    verify(dbClient.externalGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.groupDao()).deleteByUuid(dbSession, groupDto.getUuid(), groupDto.getName());
   }
 }

@@ -20,11 +20,15 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ExternalGroupMapper {
 
   void insert(ExternalGroupDto externalGroupDto);
 
   List<ExternalGroupDto> selectByIdentityProvider(String identityProvider);
+
+  void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
+
 
 }

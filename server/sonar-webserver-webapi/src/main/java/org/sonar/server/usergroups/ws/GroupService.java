@@ -59,6 +59,7 @@ public class GroupService {
     removeGroupFromQualityProfileEdit(dbSession, group);
     removeGroupFromQualityGateEdit(dbSession, group);
     removeGroupScimLink(dbSession, group);
+    removeExternalGroupMapping(dbSession, group);
     removeGroup(dbSession, group);
   }
 
@@ -156,6 +157,10 @@ public class GroupService {
 
   private void removeGroupScimLink(DbSession dbSession, GroupDto group) {
     dbClient.scimGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
+  }
+
+  private void removeExternalGroupMapping(DbSession dbSession, GroupDto group) {
+    dbClient.externalGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
 
   private void removeGroup(DbSession dbSession, GroupDto group) {
