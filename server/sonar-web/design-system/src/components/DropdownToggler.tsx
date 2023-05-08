@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import EscKeydownHandler from './EscKeydownHandler';
+import FocusOutHandler from './FocusOutHandler';
 import OutsideClickHandler from './OutsideClickHandler';
 import { Popup } from './popups';
 
@@ -36,7 +37,9 @@ export function DropdownToggler(props: Props) {
       overlay={
         open ? (
           <OutsideClickHandler onClickOutside={onRequestClose}>
-            <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>
+            <FocusOutHandler onFocusOut={onRequestClose}>
+              <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>
+            </FocusOutHandler>
           </OutsideClickHandler>
         ) : undefined
       }

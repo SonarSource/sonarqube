@@ -190,6 +190,14 @@ export const DangerButtonSecondary: React.FC<ButtonProps> = styled(Button)`
   --border: ${themeBorder('default', 'dangerButtonSecondaryBorder')};
 `;
 
+export const WrapperButton: React.FC<ButtonProps> = styled(Button)`
+  --background: none;
+  --backgroundHover: none;
+  --color: none;
+  --focus: ${themeColor('button', OPACITY_20_PERCENT)};
+  --border: none;
+`;
+
 interface ThirdPartyProps extends Omit<ButtonProps, 'Icon'> {
   iconPath: string;
   name: string;

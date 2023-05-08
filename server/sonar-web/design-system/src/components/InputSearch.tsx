@@ -96,7 +96,7 @@ export function InputSearch({
     if (autoFocus && input.current) {
       input.current.focus();
     }
-  });
+  }, [autoFocus]);
 
   const changeValue = (newValue: string) => {
     if (newValue.length === 0 || !minLength || minLength <= newValue.length) {
