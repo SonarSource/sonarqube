@@ -17,15 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  activateGithubProvisioning,
-  deactivateGithubProvisioning,
-  resetSettingValue,
-  setSettingValue,
-} from '../../../../api/settings';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import DocLink from '../../../../components/common/DocLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
@@ -42,10 +35,7 @@ import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
-import useGithubConfiguration, {
-  GITHUB_ENABLED_FIELD,
-  GITHUB_JIT_FIELDS,
-} from './hook/useGithubConfiguration';
+import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -82,6 +72,10 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     setNewGithubProvisioningStatus,
     hasGithubProvisioningConfigChange,
     resetJitSetting,
+    saveGroup,
+    changeProvisioning,
+    toggleEnable,
+    hasLegacyConfiguration,
   } = useGithubConfiguration(definitions, props.onReload);
 
   const hasDifferentProvider = provider !== undefined && provider !== Provider.Github;
@@ -92,40 +86,6 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
 
   const handleCancelConfiguration = () => {
     setShowEditModal(false);
-  };
-
-  const handleConfirmChangeProvisioning = async () => {
-    if (newGithubProvisioningStatus && newGithubProvisioningStatus !== githubProvisioningStatus) {
-      await activateGithubProvisioning();
-      await reload();
-    } else {
-      if (newGithubProvisioningStatus !== githubProvisioningStatus) {
-        await deactivateGithubProvisioning();
-      }
-      await handleSaveGroup();
-    }
-  };
-
-  const handleSaveGroup = async () => {
-    await Promise.all(
-      GITHUB_JIT_FIELDS.map(async (settingKey) => {
-        const value = values[settingKey];
-        if (value.newValue !== undefined) {
-          if (isEmpty(value.newValue) && typeof value.newValue !== 'boolean') {
-            await resetSettingValue({ keys: value.definition.key });
-          } else {
-            await setSettingValue(value.definition, value.newValue);
-          }
-        }
-      })
-    );
-    await reload();
-  };
-
-  const handleToggleEnable = async () => {
-    const value = values[GITHUB_ENABLED_FIELD];
-    await setSettingValue(value.definition, !enabled);
-    await reload();
   };
 
   return (
@@ -141,11 +101,29 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
           </div>
         )}
       </div>
-      {!hasConfiguration ? (
+      {!hasConfiguration && !hasLegacyConfiguration && (
         <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
           {translate('settings.authentication.github.form.not_configured')}
         </div>
-      ) : (
+      )}
+      {!hasConfiguration && hasLegacyConfiguration && (
+        <div className="big-padded">
+          <Alert variant="warning">
+            <FormattedMessage
+              id="settings.authentication.github.form.legacy_configured"
+              defaultMessage={translate('settings.authentication.github.form.legacy_configured')}
+              values={{
+                documentation: (
+                  <DocLink to="/instance-administration/authentication/github">
+                    {translate('documentation')}
+                  </DocLink>
+                ),
+              }}
+            />
+          </Alert>
+        </div>
+      )}
+      {hasConfiguration && (
         <>
           <div className="spacer-bottom big-padded bordered display-flex-space-between">
             <div>
@@ -163,7 +141,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
               </p>
               <Button
                 className="spacer-top"
-                onClick={handleToggleEnable}
+                onClick={toggleEnable}
                 disabled={githubProvisioningStatus}
               >
                 {enabled
@@ -189,7 +167,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 if (newGithubProvisioningStatus !== githubProvisioningStatus) {
                   setShowConfirmProvisioningModal(true);
                 } else {
-                  await handleSaveGroup();
+                  await saveGroup();
                 }
               }}
             >
@@ -312,7 +290,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
               )}
               {showConfirmProvisioningModal && (
                 <ConfirmModal
-                  onConfirm={() => handleConfirmChangeProvisioning()}
+                  onConfirm={() => changeProvisioning()}
                   header={translate(
                     'settings.authentication.github.confirm',
                     newGithubProvisioningStatus ? 'auto' : 'jit'
@@ -344,6 +322,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
           onClose={handleCancelConfiguration}
           create={!hasConfiguration}
           onReload={reload}
+          hasLegacyConfiguration={hasLegacyConfiguration}
         />
       )}
     </div>

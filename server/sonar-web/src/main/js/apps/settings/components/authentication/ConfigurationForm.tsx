@@ -42,6 +42,7 @@ interface Props {
   onReload: () => Promise<void>;
   tab: AuthenticationTabs;
   excludedField: string[];
+  hasLegacyConfiguration?: boolean;
 }
 
 interface ErrorValue {
@@ -50,7 +51,16 @@ interface ErrorValue {
 }
 
 export default function ConfigurationForm(props: Props) {
-  const { create, loading, values, setNewValue, canBeSave, tab, excludedField } = props;
+  const {
+    create,
+    loading,
+    values,
+    setNewValue,
+    canBeSave,
+    tab,
+    excludedField,
+    hasLegacyConfiguration,
+  } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
 
   const headerLabel = translate('settings.authentication.form', create ? 'create' : 'edit', tab);
@@ -104,10 +114,13 @@ export default function ConfigurationForm(props: Props) {
             loading={loading}
             ariaLabel={translate('settings.authentication.form.loading')}
           >
-            <Alert variant="info">
+            <Alert variant={hasLegacyConfiguration ? 'warning' : 'info'}>
               <FormattedMessage
-                id="settings.authentication.help"
-                defaultMessage={translate('settings.authentication.help')}
+                id={`settings.authentication.${hasLegacyConfiguration ? 'legacy_help' : 'help'}`}
+                defaultMessage={translate(
+                  `settings.authentication.${hasLegacyConfiguration ? 'legacy_help' : 'help'}`,
+                  tab
+                )}
                 values={{
                   link: (
                     <DocLink
@@ -123,6 +136,8 @@ export default function ConfigurationForm(props: Props) {
               if (excludedField.includes(val.key)) {
                 return null;
               }
+
+              const isSet = hasLegacyConfiguration ? false : !val.isNotSet;
               return (
                 <div key={val.key}>
                   <AuthenticationFormField
@@ -130,7 +145,7 @@ export default function ConfigurationForm(props: Props) {
                     definition={val.definition}
                     mandatory={val.mandatory}
                     onFieldChange={setNewValue}
-                    isNotSet={val.isNotSet}
+                    isNotSet={!isSet}
                     error={errors[val.key]?.message}
                   />
                 </div>
