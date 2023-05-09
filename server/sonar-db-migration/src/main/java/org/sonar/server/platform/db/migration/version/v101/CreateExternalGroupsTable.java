@@ -30,13 +30,10 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 
 public class CreateExternalGroupsTable extends CreateTableChange {
 
-  @VisibleForTesting
   static final String TABLE_NAME = "external_groups";
   @VisibleForTesting
   static final String GROUP_UUID_COLUMN_NAME = "group_uuid";
-  @VisibleForTesting
   static final String EXTERNAL_GROUP_ID_COLUMN_NAME = "external_group_id";
-  @VisibleForTesting
   static final String EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME = "external_identity_provider";
 
   public CreateExternalGroupsTable(Database db) {

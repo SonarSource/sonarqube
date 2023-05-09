@@ -56,6 +56,7 @@ public class DbVersion101 implements DbVersion {
       .add(10_1_012, "Drop column 'project_key' in 'user_tokens", DropProjectKeyInUserTokens.class)
       .add(10_1_013, "Increase size of 'ce_queue.task_type' from 15 to 40 characters", IncreaseTaskTypeColumnSizeInCeQueue.class)
       .add(10_1_014, "Increase size of 'ce_activity.task_type' from 15 to 40 characters", IncreaseTaskTypeColumnSizeInCeActivity.class)
-      .add(10_1_015, "Add 'external_groups' table.", CreateExternalGroupsTable.class);
+      .add(10_1_015, "Add 'external_groups' table.", CreateExternalGroupsTable.class)
+      .add(10_1_016, "Add index on 'external_groups(external_identity_provider, external_id).", CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable.class);
   }
 }
