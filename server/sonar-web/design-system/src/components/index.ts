@@ -32,6 +32,7 @@ export * from './DuplicationsIndicator';
 export { FailedQGConditionLink } from './FailedQGConditionLink';
 export { FlagMessage } from './FlagMessage';
 export * from './GenericAvatar';
+export * from './HighlightedSection';
 export { InputSearch } from './InputSearch';
 export * from './InteractiveIcon';
 export * from './Link';

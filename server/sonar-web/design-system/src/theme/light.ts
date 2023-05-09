@@ -447,8 +447,9 @@ export const lightTheme = {
     newCodeLegend: [...COLORS.indigo[300], 0.15],
     newCodeLegendBorder: COLORS.indigo[200],
 
-    // hotspot
-    hotspotStatus: COLORS.blueGrey[25],
+    // highlighted section
+    highlightedSection: COLORS.blueGrey[25],
+    highlightedSectionBorder: COLORS.blueGrey[100],
 
     // activity comments
     activityCommentPipe: COLORS.tangerine[200],
