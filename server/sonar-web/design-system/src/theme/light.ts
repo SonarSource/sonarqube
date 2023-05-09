@@ -493,6 +493,9 @@ export const lightTheme = {
     // flag message
     flagMessageBackground: secondary.darker,
 
+    // info message
+    infoBackground: COLORS.blue[900],
+
     // banner message
     bannerMessage: COLORS.red[900],
 
