@@ -165,7 +165,7 @@ public class GitHubSettings {
         .index(index++)
         .build(),
       PropertyDefinition.builder(APP_ID)
-        .name("GitHub App ID")
+        .name("App ID")
         .description("The App ID is found on your GitHub App's page on GitHub at Settings > Developer Settings > GitHub Apps.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

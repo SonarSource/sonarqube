@@ -74,7 +74,7 @@ export default function useGithubConfiguration(
   }, [hasGithubProvisioning]);
 
   const enabled = values[GITHUB_ENABLED_FIELD]?.value === 'true';
-  const appId = values[GITHUB_APP_ID_FIELD]?.value;
+  const appId = values[GITHUB_APP_ID_FIELD]?.value as string;
   const url = values[GITHUB_API_URL_FIELD]?.value;
 
   const reload = useCallback(async () => {

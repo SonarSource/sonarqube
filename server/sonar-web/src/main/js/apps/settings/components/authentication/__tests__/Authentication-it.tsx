@@ -349,7 +349,8 @@ describe('Github tab', () => {
     await user.click(github.confirmProvisioningButton.get());
 
     expect(await github.githubProvisioningButton.find()).toBeChecked();
-    expect(await github.saveGithubProvisioning.find()).toBeDisabled();
+    expect(github.disableConfigButton.get()).toBeDisabled();
+    expect(github.saveGithubProvisioning.get()).toBeDisabled();
   });
 });
 

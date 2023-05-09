@@ -36,7 +36,7 @@ import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
@@ -149,7 +149,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
         <>
           <div className="spacer-bottom big-padded bordered display-flex-space-between">
             <div>
-              <h5>{appId}</h5>
+              <h5>{translateWithParameters('settings.authentication.github.appid_x', appId)}</h5>
               <p>{url}</p>
               <p className="big-spacer-top big-spacer-bottom">
                 {enabled ? (
@@ -161,7 +161,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   translate('settings.authentication.form.not_enabled')
                 )}
               </p>
-              <Button className="spacer-top" onClick={handleToggleEnable}>
+              <Button
+                className="spacer-top"
+                onClick={handleToggleEnable}
+                disabled={githubProvisioningStatus}
+              >
                 {enabled
                   ? translate('settings.authentication.form.disable')
                   : translate('settings.authentication.form.enable')}
