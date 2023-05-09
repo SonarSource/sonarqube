@@ -89,14 +89,14 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final AlmPatsDbTester almPatsDbtester;
   private final AuditDbTester auditDbTester;
 
-  private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
+  private DbTester(System2 system2, boolean useDifferentProjectUuids, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
     this.system2 = system2;
     this.auditPersister = auditPersister;
 
     initDbClient();
     this.userTester = new UserDbTester(this);
-    this.componentTester = new ComponentDbTester(this);
+    this.componentTester = new ComponentDbTester(this, useDifferentProjectUuids);
     this.componentLinkTester = new ProjectLinkDbTester(this);
     this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
@@ -120,23 +120,35 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null, new NoOpAuditPersister());
+    return create(false);
+  }
+
+  public static DbTester create(boolean useDifferentProjectUuids) {
+    return new DbTester(System2.INSTANCE, useDifferentProjectUuids, null, new NoOpAuditPersister());
   }
 
   public static DbTester create(AuditPersister auditPersister) {
-    return new DbTester(System2.INSTANCE, null, auditPersister);
+    return new DbTester(System2.INSTANCE, false, null, auditPersister);
   }
 
   public static DbTester create(System2 system2, AuditPersister auditPersister) {
-    return new DbTester(system2, null, auditPersister);
+    return new DbTester(system2, false, null, auditPersister);
   }
 
   public static DbTester create(System2 system2) {
-    return new DbTester(system2, null, new NoOpAuditPersister());
+    return new DbTester(system2, false, null, new NoOpAuditPersister());
+  }
+
+  public static DbTester create(System2 system2, boolean useDifferentProjectUuids) {
+    return new DbTester(system2, useDifferentProjectUuids, null, new NoOpAuditPersister());
   }
 
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+    return createWithExtensionMappers(system2, false, firstMapperClass, otherMapperClasses);
+  }
+
+  public static DbTester createWithExtensionMappers(System2 system2, boolean useDifferentProjectUuids, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
+    return new DbTester(system2, useDifferentProjectUuids, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
   private void initDbClient() {

@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -302,8 +303,9 @@ public class ComponentDbTester {
     addPortfolioProject(portfolio.uuid(), projectUuids);
   }
 
-  public void addPortfolioProject(ComponentDto portfolio, ComponentDto... projects) {
-    addPortfolioProject(portfolio, Arrays.stream(projects).map(ComponentDto::uuid).toArray(String[]::new));
+  public void addPortfolioProject(ComponentDto portfolio, ComponentDto... mainBranches) {
+    List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(db.getSession(), Arrays.stream(mainBranches).map(ComponentDto::uuid).toList());
+    addPortfolioProject(portfolio, branchDtos.stream().map(BranchDto::getProjectUuid).toArray(String[]::new));
   }
 
   public void addPortfolioProject(PortfolioDto portfolioDto, ProjectDto... projects) {
@@ -540,30 +542,5 @@ public class ComponentDbTester {
   public static <T> Consumer<T> defaults() {
     return t -> {
     };
-  }
-
-  public class ProjectData {
-    private final BranchDto mainBranchDto;
-    private final ComponentDto mainBranchComponent;
-    private final ProjectDto projectDto;
-
-
-    public ProjectData(ProjectDto projectDto, BranchDto mainBranchDto, ComponentDto mainBranchComponent) {
-      this.mainBranchDto = mainBranchDto;
-      this.mainBranchComponent = mainBranchComponent;
-      this.projectDto = projectDto;
-    }
-
-    public ComponentDto getMainBranchComponent() {
-      return mainBranchComponent;
-    }
-
-    public ProjectDto getProjectDto() {
-      return projectDto;
-    }
-
-    public BranchDto getMainBranchDto() {
-      return mainBranchDto;
-    }
   }
 }
