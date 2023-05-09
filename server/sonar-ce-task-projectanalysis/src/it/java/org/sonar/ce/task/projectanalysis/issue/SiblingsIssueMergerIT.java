@@ -105,7 +105,7 @@ public class SiblingsIssueMergerIT {
     copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader),
       tracker,
       issueLifecycle);
-    projectDto = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY).setUuid(PROJECT_UUID)).getMainBranchComponent();
+    projectDto = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY).setUuid(PROJECT_UUID).setBranchUuid(PROJECT_UUID)).getMainBranchComponent();
     branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));

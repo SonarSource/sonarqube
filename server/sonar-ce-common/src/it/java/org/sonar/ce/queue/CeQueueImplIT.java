@@ -239,7 +239,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_project_and_branch_exists() {
-    ComponentDto project = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setUuid("PROJECT_1").setBranchUuid("PROJECT_1")).getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(branch1.uuid(), project.uuid()), null);

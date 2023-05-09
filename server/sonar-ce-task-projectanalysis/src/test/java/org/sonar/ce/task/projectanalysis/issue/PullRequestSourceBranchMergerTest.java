@@ -88,7 +88,7 @@ public class PullRequestSourceBranchMergerTest {
       issueLifecycle,
       sourceBranchInputFactory);
 
-    ComponentDto projectDto = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY).setUuid(PROJECT_UUID)).getMainBranchComponent();
+    ComponentDto projectDto = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY).setUuid(PROJECT_UUID).setBranchUuid(PROJECT_UUID)).getMainBranchComponent();
     ComponentDto branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));

@@ -42,6 +42,7 @@ import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationUnitDto;
@@ -151,9 +152,8 @@ public class PurgeCommandsIT {
   }
 
   @Test
-  @UseDataProvider("projects")
-  public void deleteNonMainBranchComponentsByProjectUuid_shouldDeletesAllBranchesOfAProjectExceptMainBranch(ComponentDto project) {
-    dbTester.components().insertComponent(project);
+  public void deleteNonMainBranchComponentsByProjectUuid_shouldDeletesAllBranchesOfAProjectExceptMainBranch() {
+    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
 
     ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "a"));

@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -478,10 +479,11 @@ public class ComponentDbTester {
   }
 
   @SafeVarargs
-  public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
-    BranchDto branchDto = ComponentTesting.newBranchDto(project.uuid(), BRANCH);
+  public final ComponentDto insertProjectBranch(ComponentDto mainBranchComponent, Consumer<BranchDto>... dtoPopulators) {
+    BranchDto mainBranch = dbClient.branchDao().selectByUuid(db.getSession(), mainBranchComponent.branchUuid()).orElseThrow(IllegalArgumentException::new);
+    BranchDto branchDto = ComponentTesting.newBranchDto(mainBranch.getProjectUuid(), BRANCH);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
-    return insertProjectBranch(project, branchDto);
+    return insertProjectBranch(mainBranchComponent, branchDto);
   }
 
   @SafeVarargs

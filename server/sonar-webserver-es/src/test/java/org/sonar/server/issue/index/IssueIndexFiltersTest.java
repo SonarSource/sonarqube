@@ -374,7 +374,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   public void filter_by_created_after_by_project_branches() {
     Date now = new Date();
 
-    ComponentDto project1 = newPrivateProjectDto();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDoc project1Issue1 = newDocForProject(project1).setFuncCreationDate(addDays(now, -10));
     IssueDoc project1Issue2 = newDocForProject(project1).setFuncCreationDate(addDays(now, -20));
 
@@ -382,7 +382,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     IssueDoc project1Branch1Issue1 = newDoc(project1Branch1, project1.uuid()).setFuncCreationDate(addDays(now, -10));
     IssueDoc project1Branch1Issue2 = newDoc(project1Branch1, project1.uuid()).setFuncCreationDate(addDays(now, -20));
 
-    ComponentDto project2 = newPrivateProjectDto();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     IssueDoc project2Issue1 = newDocForProject(project2).setFuncCreationDate(addDays(now, -15));
     IssueDoc project2Issue2 = newDocForProject(project2).setFuncCreationDate(addDays(now, -30));
@@ -441,7 +441,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_new_code_reference_branches() {
-    ComponentDto project1 = newPrivateProjectDto();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDoc project1Issue1 = newDocForProject(project1).setIsNewCodeReference(true);
     IssueDoc project1Issue2 = newDocForProject(project1).setIsNewCodeReference(false);
 
@@ -449,7 +449,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     IssueDoc project1Branch1Issue1 = newDoc(project1Branch1, project1.uuid()).setIsNewCodeReference(false);
     IssueDoc project1Branch1Issue2 = newDoc(project1Branch1, project1.uuid()).setIsNewCodeReference(true);
 
-    ComponentDto project2 = newPrivateProjectDto();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     IssueDoc project2Issue1 = newDocForProject(project2).setIsNewCodeReference(true);
     IssueDoc project2Issue2 = newDocForProject(project2).setIsNewCodeReference(false);
