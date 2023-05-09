@@ -17,15 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
-import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { isBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
+import { MetricKey } from '../../types/metrics';
 import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
 import { Component, StandardSecurityCategories } from '../../types/types';
@@ -86,7 +94,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     standards,
   } = props;
 
-  const scrollableRef = React.useRef(null);
+  const theme = useTheme();
 
   React.useEffect(() => {
     if (!selectedHotspot) {
@@ -102,7 +110,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   }, [selectedHotspot]);
 
   return (
-    <div id="security_hotspots">
+    <>
       <Suggestions suggestions="security_hotspots" />
       <Helmet title={translate('hotspots.page')} />
       <A11ySkipTarget anchor="security_hotspots_main" />
@@ -116,32 +124,28 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
         onBranch={isBranch(branchLike)}
         onChangeFilters={props.onChangeFilters}
       />
+      <LargeCenteredLayout id={MetricKey.security_hotspots}>
+        <PageContentFontWrapper>
+          <div className="sw-grid sw-grid-cols-12 sw-w-full">
+            <DeferredSpinner className="sw-mt-3" loading={loading} />
 
-      {loading && (
-        <div className="layout-page">
-          <div className="layout-page-side-inner">
-            <DeferredSpinner className="big-spacer-top" />
-          </div>
-        </div>
-      )}
-
-      {!loading &&
-        (hotspots.length === 0 || !selectedHotspot ? (
-          <EmptyHotspotsPage
-            filtered={
-              filters.assignedToMe ||
-              (isBranch(branchLike) && filters.inNewCodePeriod) ||
-              filters.status !== HotspotStatusFilter.TO_REVIEW
-            }
-            filterByFile={Boolean(filterByFile)}
-            isStaticListOfHotspots={isStaticListOfHotspots}
-          />
-        ) : (
-          <div className="layout-page">
-            <ScreenPositionHelper className="layout-page-side-outer">
-              {({ top }) => (
-                <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
-                  <div className="layout-page-side-inner">
+            {!loading &&
+              (hotspots.length === 0 || !selectedHotspot ? (
+                <EmptyHotspotsPage
+                  filtered={
+                    filters.assignedToMe ||
+                    (isBranch(branchLike) && filters.inNewCodePeriod) ||
+                    filters.status !== HotspotStatusFilter.TO_REVIEW
+                  }
+                  filterByFile={Boolean(filterByFile)}
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                />
+              ) : (
+                <>
+                  <FilterbarStyled
+                    theme={theme}
+                    className="sw-col-span-4 sw-rounded-t-1 sw-mt-0 sw-z-filterbar"
+                  >
                     {filterByCategory || filterByCWE || filterByFile ? (
                       <HotspotSimpleList
                         filterByCategory={filterByCategory}
@@ -172,24 +176,40 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                         statusFilter={filters.status}
                       />
                     )}
-                  </div>
-                </div>
-              )}
-            </ScreenPositionHelper>
+                  </FilterbarStyled>
 
-            <main className="layout-page-main">
-              <HotspotViewer
-                component={component}
-                hotspotKey={selectedHotspot.key}
-                hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-                onSwitchStatusFilter={props.onSwitchStatusFilter}
-                onUpdateHotspot={props.onUpdateHotspot}
-                onLocationClick={props.onLocationClick}
-                selectedHotspotLocation={selectedHotspotLocation}
-              />
-            </main>
+                  <main className="sw-col-span-8">
+                    <HotspotViewer
+                      component={component}
+                      hotspotKey={selectedHotspot.key}
+                      hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                      onSwitchStatusFilter={props.onSwitchStatusFilter}
+                      onUpdateHotspot={props.onUpdateHotspot}
+                      onLocationClick={props.onLocationClick}
+                      selectedHotspotLocation={selectedHotspotLocation}
+                    />
+                  </main>
+                </>
+              ))}
           </div>
-        ))}
-    </div>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </>
   );
 }
+
+const FilterbarStyled = styled.div(
+  (props) => `
+position: sticky;
+box-sizing: border-box;
+overflow-x: hidden;
+overflow-y: auto;
+background-color: ${themeColor('filterbar')(props)};
+border-right: ${themeBorder('default', 'filterbarBorder')(props)};
+// ToDo set proper hegiht
+height: calc(100vh - ${'100px'});
+
+&.border-left {
+  border-left: ${themeBorder('default', 'filterbarBorder')(props)};
+}`
+);
