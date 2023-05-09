@@ -31,9 +31,11 @@ import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 import org.sonar.xoo.checks.Check;
+import org.sonar.xoo.rule.variant.HotspotWithCodeVariantsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
+import org.sonar.xoo.rule.variant.IssueWithCodeVariantsSensor;
 
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -231,6 +233,9 @@ public class XooRulesDefinition implements RulesDefinition {
     hotspot
       .setDebtRemediationFunction(hotspot.debtRemediationFunctions().constantPerIssue("2min"));
 
+    NewRule variants = repo.createRule(IssueWithCodeVariantsSensor.RULE_KEY).setName("Find issues with code variants");
+    addAllDescriptionSections(variants, "Search for a given variant in Xoo files");
+
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 3))) {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
@@ -277,6 +282,12 @@ public class XooRulesDefinition implements RulesDefinition {
       .setActivatedByDefault(false)
       .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hotspotWithSingleContext, "Search for Security Hotspots with single context in Xoo files");
+
+    NewRule hotspotWithCodeVariants = repo.createRule(HotspotWithCodeVariantsSensor.RULE_KEY)
+      .setName("Find security hotspots with code variants")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setActivatedByDefault(false);
+    addAllDescriptionSections(hotspotWithCodeVariants, "Search for a given variant in Xoo files");
 
     repo.done();
   }

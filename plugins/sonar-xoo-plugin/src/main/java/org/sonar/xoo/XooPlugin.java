@@ -43,11 +43,8 @@ import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
 import org.sonar.xoo.rule.HasTagSensor;
-import org.sonar.xoo.rule.MultilineHotspotSensor;
-import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
-import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
-import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.MarkAsUnchangedSensor;
+import org.sonar.xoo.rule.MultilineHotspotSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
@@ -82,6 +79,11 @@ import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.rule.XooSonarWayProfile;
+import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
+import org.sonar.xoo.rule.variant.HotspotWithCodeVariantsSensor;
+import org.sonar.xoo.rule.variant.IssueWithCodeVariantsSensor;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooIgnoreCommand;
 import org.sonar.xoo.scm.XooScmProvider;
@@ -176,6 +178,7 @@ public class XooPlugin implements Plugin {
       HotspotWithoutContextSensor.class,
       HotspotWithContextsSensor.class,
       HotspotWithSingleContextSensor.class,
+      HotspotWithCodeVariantsSensor.class,
 
       // Coverage
       UtCoverageSensor.class,
@@ -191,7 +194,8 @@ public class XooPlugin implements Plugin {
       XooPostJob.class,
       XooIssueFilter.class,
       XooIgnoreCommand.class,
-      SignificantCodeSensor.class);
+      SignificantCodeSensor.class,
+      IssueWithCodeVariantsSensor.class);
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
       context.addExtension(MeasureSensor.class);
