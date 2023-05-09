@@ -28,6 +28,7 @@ export { CommentIcon } from './CommentIcon';
 export { DirectoryIcon } from './DirectoryIcon';
 export { ExecutionFlowIcon } from './ExecutionFlowIcon';
 export { FileIcon } from './FileIcon';
+export { FilterIcon } from './FilterIcon';
 export { FlagErrorIcon } from './FlagErrorIcon';
 export { FlagInfoIcon } from './FlagInfoIcon';
 export { FlagSuccessIcon } from './FlagSuccessIcon';

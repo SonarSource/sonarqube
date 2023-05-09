@@ -34,6 +34,7 @@ export { FailedQGConditionLink } from './FailedQGConditionLink';
 export { FlagMessage } from './FlagMessage';
 export * from './GenericAvatar';
 export * from './HighlightedSection';
+export { HotspotRating } from './HotspotRating';
 export { InputSearch } from './InputSearch';
 export * from './InputSelect';
 export * from './InteractiveIcon';

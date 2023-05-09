@@ -18,40 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export enum DuplicationEnum {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-  F = 'F',
-}
+import { FilterIcon as Icon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-export type DuplicationLabel = keyof typeof DuplicationEnum;
-
-export enum MetricsEnum {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-}
-
-export type MetricsLabel = keyof typeof MetricsEnum;
-
-export enum SizeEnum {
-  XS = 'XS',
-  S = 'S',
-  M = 'M',
-  L = 'L',
-  XL = 'XL',
-}
-export type SizeLabel = keyof typeof SizeEnum;
-
-export enum HotspotRatingEnum {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
-
-export type HotspotRatingLabel = keyof typeof HotspotRatingEnum;
+export const FilterIcon = OcticonHoc(Icon, 'FilterIcon');

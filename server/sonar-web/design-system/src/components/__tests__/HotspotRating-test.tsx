@@ -17,41 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { HotspotRatingEnum } from '../../types/measures';
+import { HotspotRating } from '../HotspotRating';
 
-export enum DuplicationEnum {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-  F = 'F',
+it('should render HotspotRating with default LOW rating', () => {
+  renderHotspotRating(undefined, 'label');
+  expect(screen.getByLabelText('label')).toMatchSnapshot();
+});
+
+it.each(Object.values(HotspotRatingEnum))(
+  'should render HotspotRating with %s rating',
+  (rating) => {
+    renderHotspotRating(rating, 'label');
+    expect(screen.getByLabelText('label')).toMatchSnapshot();
+  }
+);
+
+function renderHotspotRating(rating?: HotspotRatingEnum, label?: string) {
+  return render(<HotspotRating aria-label={label} rating={rating} />);
 }
-
-export type DuplicationLabel = keyof typeof DuplicationEnum;
-
-export enum MetricsEnum {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-}
-
-export type MetricsLabel = keyof typeof MetricsEnum;
-
-export enum SizeEnum {
-  XS = 'XS',
-  S = 'S',
-  M = 'M',
-  L = 'L',
-  XL = 'XL',
-}
-export type SizeLabel = keyof typeof SizeEnum;
-
-export enum HotspotRatingEnum {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
-
-export type HotspotRatingLabel = keyof typeof HotspotRatingEnum;
