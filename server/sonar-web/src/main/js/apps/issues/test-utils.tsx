@@ -76,9 +76,11 @@ export const ui = {
   projectFacet: byRole('button', { name: 'issues.facet.projects' }),
   clearProjectFacet: byRole('button', { name: 'clear_x_filter.issues.facet.projects' }),
   assigneeFacet: byRole('button', { name: 'issues.facet.assignees' }),
+  codeVariantsFacet: byRole('button', { name: 'issues.facet.codeVariants' }),
   clearAssigneeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.assignees' }),
   authorFacet: byRole('button', { name: 'issues.facet.authors' }),
   clearAuthorFacet: byRole('button', { name: 'clear_x_filter.issues.facet.authors' }),
+  clearCodeVariantsFacet: byRole('button', { name: 'clear_x_filter.issues.facet.codeVariants' }),
 
   dateInputMonthSelect: byRole('combobox', { name: 'Month:' }),
   dateInputYearSelect: byRole('combobox', { name: 'Year:' }),

@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
-import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import {
@@ -417,6 +417,35 @@ describe('issues app', () => {
       expect(ui.issueItem5.get()).toBeInTheDocument();
       expect(ui.issueItem6.get()).toBeInTheDocument();
       expect(ui.issueItem7.get()).toBeInTheDocument();
+    });
+
+    it('should properly filter by code variants', async () => {
+      const user = userEvent.setup();
+      renderProjectIssuesApp();
+      await waitOnDataLoaded();
+
+      await user.click(ui.codeVariantsFacet.get());
+      await user.click(screen.getByRole('checkbox', { name: /variant 1/ }));
+
+      expect(ui.issueItem1.query()).not.toBeInTheDocument();
+      expect(ui.issueItem7.get()).toBeInTheDocument();
+
+      // Clear filter
+      await user.click(ui.clearCodeVariantsFacet.get());
+      expect(ui.issueItem1.get()).toBeInTheDocument();
+    });
+
+    it('should properly hide the code variants filter if no issue has any code variants', async () => {
+      issuesHandler.setIssueList([
+        {
+          issue: mockRawIssue(),
+          snippets: {},
+        },
+      ]);
+      renderProjectIssuesApp();
+      await waitOnDataLoaded();
+
+      expect(ui.codeVariantsFacet.query()).not.toBeInTheDocument();
     });
 
     it('should allow to set creation date', async () => {

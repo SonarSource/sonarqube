@@ -246,6 +246,7 @@ export interface Issue {
   assigneeName?: string;
   author?: string;
   branch?: string;
+  codeVariants?: string[];
   comments?: IssueComment[];
   component: string;
   componentEnabled?: boolean;

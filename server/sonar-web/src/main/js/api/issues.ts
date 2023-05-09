@@ -35,6 +35,7 @@ type FacetName =
   | 'assigned_to_me'
   | 'assignees'
   | 'author'
+  | 'codeVariants'
   | 'createdAt'
   | 'cwe'
   | 'directories'

@@ -64,7 +64,7 @@ import {
 } from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike, isProject } from '../../../types/component';
 import {
   ASSIGNEE_ME,
   Facet,
@@ -128,6 +128,7 @@ export interface State {
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: Dict<boolean>;
+  showVariantsFilter: boolean;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
   openRuleDetails?: RuleDetails;
@@ -146,6 +147,7 @@ export interface State {
 const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
 const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
+const VARIANTS_FACET = 'codeVariants';
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -178,6 +180,7 @@ export class App extends React.PureComponent<Props, State> {
         standards: shouldOpenStandardsFacet({}, query),
         types: true,
       },
+      showVariantsFilter: false,
       query,
       referencedComponentsById: {},
       referencedComponentsByKey: {},
@@ -212,7 +215,7 @@ export class App extends React.PureComponent<Props, State> {
     addWhitePageClass();
     addSideBarClass();
     this.attachShortcuts();
-    this.fetchFirstIssues();
+    this.fetchFirstIssues(true);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -226,7 +229,7 @@ export class App extends React.PureComponent<Props, State> {
       !areQueriesEqual(prevQuery, query) ||
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
-      this.fetchFirstIssues();
+      this.fetchFirstIssues(false);
       this.setState({ checkAll: false });
     } else if (openIssue && openIssue.key !== this.state.selected) {
       this.setState({
@@ -439,15 +442,23 @@ export class App extends React.PureComponent<Props, State> {
     });
   };
 
-  fetchIssues = (additional: RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
+  fetchIssues = (
+    additional: RawQuery,
+    requestFacets = false,
+    firstRequest = false
+  ): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
-    const facets = requestFacets
+    let facets = requestFacets
       ? Object.keys(openFacets)
           .filter((facet) => facet !== STANDARDS && openFacets[facet])
           .join(',')
       : undefined;
+
+    if (firstRequest && isProject(component?.qualifier)) {
+      facets = facets ? `${facets},${VARIANTS_FACET}` : VARIANTS_FACET;
+    }
 
     const parameters: Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike),
@@ -475,7 +486,7 @@ export class App extends React.PureComponent<Props, State> {
     return this.fetchIssuesHelper(parameters);
   };
 
-  fetchFirstIssues() {
+  fetchFirstIssues(firstRequest: boolean) {
     const prevQuery = this.props.location.query;
     const openIssueKey = getOpen(this.props.location.query);
     let fetchPromise;
@@ -492,7 +503,7 @@ export class App extends React.PureComponent<Props, State> {
         return pageIssues.some((issue) => issue.key === openIssueKey);
       });
     } else {
-      fetchPromise = this.fetchIssues({}, true);
+      fetchPromise = this.fetchIssues({}, true, firstRequest);
     }
 
     return fetchPromise.then(
@@ -503,10 +514,13 @@ export class App extends React.PureComponent<Props, State> {
           if (issues.length > 0) {
             selected = openIssue ? openIssue.key : issues[0].key;
           }
-          this.setState({
+          this.setState(({ showVariantsFilter }) => ({
             cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
             effortTotal,
             facets: parseFacets(facets),
+            showVariantsFilter: firstRequest
+              ? Boolean(facets.find((f) => f.property === VARIANTS_FACET)?.values.length)
+              : showVariantsFilter,
             loading: false,
             locationsNavigator: true,
             issues,
@@ -520,7 +534,7 @@ export class App extends React.PureComponent<Props, State> {
             selected,
             selectedFlowIndex: 0,
             selectedLocationIndex: undefined,
-          });
+          }));
         }
         return issues;
       },
@@ -786,7 +800,7 @@ export class App extends React.PureComponent<Props, State> {
   handleBulkChangeDone = () => {
     this.setState({ checkAll: false });
     this.refreshBranchStatus();
-    this.fetchFirstIssues();
+    this.fetchFirstIssues(false);
     this.handleCloseBulkChange();
   };
 
@@ -891,7 +905,19 @@ export class App extends React.PureComponent<Props, State> {
 
   renderFacets() {
     const { component, currentUser, branchLike } = this.props;
-    const { query } = this.state;
+    const {
+      query,
+      facets,
+      loadingFacets,
+      myIssues,
+      openFacets,
+      showVariantsFilter,
+      referencedComponentsById,
+      referencedComponentsByKey,
+      referencedLanguages,
+      referencedRules,
+      referencedUsers,
+    } = this.state;
 
     return (
       <div className="layout-page-filters">
@@ -912,19 +938,20 @@ export class App extends React.PureComponent<Props, State> {
           branchLike={branchLike}
           component={component}
           createdAfterIncludesTime={this.createdAfterIncludesTime()}
-          facets={this.state.facets}
+          facets={facets}
           loadSearchResultCount={this.loadSearchResultCount}
-          loadingFacets={this.state.loadingFacets}
-          myIssues={this.state.myIssues}
+          loadingFacets={loadingFacets}
+          myIssues={myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
-          openFacets={this.state.openFacets}
+          openFacets={openFacets}
+          showVariantsFilter={showVariantsFilter}
           query={query}
-          referencedComponentsById={this.state.referencedComponentsById}
-          referencedComponentsByKey={this.state.referencedComponentsByKey}
-          referencedLanguages={this.state.referencedLanguages}
-          referencedRules={this.state.referencedRules}
-          referencedUsers={this.state.referencedUsers}
+          referencedComponentsById={referencedComponentsById}
+          referencedComponentsByKey={referencedComponentsByKey}
+          referencedLanguages={referencedLanguages}
+          referencedRules={referencedRules}
+          referencedUsers={referencedUsers}
         />
       </div>
     );

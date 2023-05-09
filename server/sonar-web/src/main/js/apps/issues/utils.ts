@@ -34,6 +34,7 @@ import {
 import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
+import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
 import { UserBase } from '../../types/users';
@@ -44,6 +45,7 @@ export interface Query {
   assigned: boolean;
   assignees: string[];
   author: string[];
+  codeVariants: string[];
   createdAfter: Date | undefined;
   createdAt: string;
   createdBefore: Date | undefined;
@@ -111,6 +113,7 @@ export function parseQuery(query: RawQuery): Query {
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
     types: parseAsArray(query.types, parseAsString),
+    codeVariants: parseAsArray(query.codeVariants, parseAsString),
   };
 }
 
@@ -157,6 +160,7 @@ export function serializeQuery(query: Query): RawQuery {
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
+    codeVariants: serializeStringArray(query.codeVariants),
   };
 
   return cleanQuery(filter);
@@ -182,7 +186,7 @@ export function parseFacets(facets: RawFacet[]): Dict<Facet> {
 }
 
 export function formatFacetStat(stat: number | undefined) {
-  return stat && formatMeasure(stat, 'SHORT_INT');
+  return stat && formatMeasure(stat, MetricType.ShortInteger);
 }
 
 export const searchAssignees = (

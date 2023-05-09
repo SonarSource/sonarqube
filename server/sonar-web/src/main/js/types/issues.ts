@@ -109,6 +109,7 @@ export interface RawIssue {
   tags?: string[];
   assignee?: string;
   author?: string;
+  codeVariants?: string[];
   comments?: Comment[];
   creationDate: string;
   component: string;

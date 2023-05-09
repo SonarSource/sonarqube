@@ -418,6 +418,7 @@ export default class IssuesServiceMock {
           ruleStatus: 'DEPRECATED',
           quickFixAvailable: true,
           tags: ['unused'],
+          codeVariants: ['variant 1', 'variant 2'],
           project: 'org.project2',
           assignee: 'email1@sonarsource.com',
           author: 'email3@sonarsource.com',
@@ -477,7 +478,7 @@ export default class IssuesServiceMock {
 
     this.list = cloneDeep(this.defaultList);
 
-    (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);
+    jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
     (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
     (getIssueFlowSnippets as jest.Mock).mockImplementation(this.handleGetIssueFlowSnippets);
@@ -648,6 +649,27 @@ export default class IssuesServiceMock {
           ],
         };
       }
+      if (name === 'codeVariants') {
+        return {
+          property: 'codeVariants',
+          values: this.list.reduce((acc, { issue }) => {
+            if (issue.codeVariants?.length) {
+              issue.codeVariants.forEach((codeVariant) => {
+                const item = acc.find(({ val }) => val === codeVariant);
+                if (item) {
+                  item.count++;
+                } else {
+                  acc.push({
+                    val: codeVariant,
+                    count: 1,
+                  });
+                }
+              });
+            }
+            return acc;
+          }, [] as RawFacet['values']),
+        };
+      }
       if (name === 'projects') {
         return {
           property: name,
@@ -757,7 +779,18 @@ export default class IssuesServiceMock {
       .filter(
         (item) =>
           !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10')
-      );
+      )
+      .filter((item) => {
+        if (!query.codeVariants) {
+          return true;
+        }
+        if (!item.issue.codeVariants) {
+          return false;
+        }
+        return item.issue.codeVariants.some((codeVariant) =>
+          query.codeVariants?.split(',').includes(codeVariant)
+        );
+      });
 
     // Splice list items according to paging using a fixed page size
     const pageIndex = query.p || 1;
