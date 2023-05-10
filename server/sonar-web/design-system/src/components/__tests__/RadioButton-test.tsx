@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import RadioButton from '../RadioButton';
+import { RadioButton } from '../RadioButton';
 
 const value = 'value';
 
