@@ -256,7 +256,7 @@ public class GitHubSettingsTest {
         "Client Secret",
         "App ID",
         "Private Key",
-        "Allow users to sign-up",
+        "Allow users to sign up",
         "Synchronize teams as groups",
         "The API url for a GitHub instance.",
         "The WEB url for a GitHub instance.",

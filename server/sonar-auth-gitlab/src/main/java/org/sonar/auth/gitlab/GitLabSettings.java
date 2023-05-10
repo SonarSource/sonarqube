@@ -110,7 +110,7 @@ public class GitLabSettings {
         .index(4)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP)
-        .name("Allow users to sign-up")
+        .name("Allow users to sign up")
         .description("Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

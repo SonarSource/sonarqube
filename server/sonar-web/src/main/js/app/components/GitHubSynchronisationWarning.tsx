@@ -57,7 +57,7 @@ function GitHubSynchronisationWarning(props: WrappedComponentProps) {
         case TaskStatuses.Failed:
           setMessage(
             translateWithParameters(
-              'settings.authentication.github.background_task.synchronisation_failed',
+              'settings.authentication.github.background_task.synchronization_failed',
               formattedDate,
               errorMessage ?? ''
             )
@@ -67,7 +67,7 @@ function GitHubSynchronisationWarning(props: WrappedComponentProps) {
         case TaskStatuses.Success:
           setMessage(
             translateWithParameters(
-              'settings.authentication.github.background_task.synchronisation_successful',
+              'settings.authentication.github.background_task.synchronization_successful',
               formattedDate
             )
           );
@@ -76,7 +76,7 @@ function GitHubSynchronisationWarning(props: WrappedComponentProps) {
         case TaskStatuses.InProgress:
           setMessage(
             translateWithParameters(
-              'settings.authentication.github.background_task.synchronisation_in_progress',
+              'settings.authentication.github.background_task.synchronization_in_progress',
               formattedDate
             )
           );

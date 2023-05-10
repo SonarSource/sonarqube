@@ -179,7 +179,7 @@ export const definitions: ExtendedSettingDefinition[] = [
   },
   {
     key: 'sonar.auth.bitbucket.allowUsersToSignUp',
-    name: 'Allow users to sign-up',
+    name: 'Allow users to sign up',
     description:
       "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate.",
     type: SettingType.BOOLEAN,
@@ -191,7 +191,7 @@ export const definitions: ExtendedSettingDefinition[] = [
   },
   {
     key: 'sonar.auth.github.allowUsersToSignUp',
-    name: 'Allow users to sign-up',
+    name: 'Allow users to sign up',
     description:
       "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.",
     type: SettingType.BOOLEAN,
@@ -223,7 +223,7 @@ export const definitions: ExtendedSettingDefinition[] = [
   },
   {
     key: 'sonar.auth.gitlab.allowUsersToSignUp',
-    name: 'Allow users to sign-up',
+    name: 'Allow users to sign up',
     description:
       "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.",
     type: SettingType.BOOLEAN,

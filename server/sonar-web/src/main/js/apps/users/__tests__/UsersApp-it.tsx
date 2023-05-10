@@ -125,9 +125,9 @@ const ui = {
   confirmPassword: byLabelText('my_profile.password.confirm', { selector: 'input', exact: false }),
   tokenNameInput: byRole('textbox', { name: 'users.tokens.name' }),
   deleteUserCheckbox: byRole('checkbox', { name: 'users.delete_user' }),
-  githubProvisioningInProgress: byRole('status', { name: /synchronisation_in_progress/ }),
-  githubProvisioningSuccess: byRole('status', { name: /synchronisation_successful/ }),
-  githubProvisioningAlert: byRole('alert', { name: /synchronisation_failed/ }),
+  githubProvisioningInProgress: byRole('status', { name: /synchronization_in_progress/ }),
+  githubProvisioningSuccess: byRole('status', { name: /synchronization_successful/ }),
+  githubProvisioningAlert: byRole('alert', { name: /synchronization_failed/ }),
 };
 
 beforeEach(() => {
