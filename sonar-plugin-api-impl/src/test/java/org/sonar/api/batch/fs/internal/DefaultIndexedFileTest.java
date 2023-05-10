@@ -35,4 +35,12 @@ public class DefaultIndexedFileTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessageEndingWith("length (401) is longer than the maximum authorized (400)");
   }
+
+  @Test
+  public void sanitize_shouldThrow_whenRelativePathIsInvalid() {
+    String invalidPath = "./../foo/bar";
+    Assertions.assertThatThrownBy(() -> DefaultIndexedFile.checkSanitize(invalidPath))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(invalidPath);
+  }
 }
