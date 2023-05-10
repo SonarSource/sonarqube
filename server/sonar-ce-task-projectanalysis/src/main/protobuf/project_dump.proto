@@ -126,6 +126,7 @@ message Issue {
   optional string ruleDescriptionContextKey = 24;
 
   repeated MessageFormatting messageFormattings = 25;
+  string codeVariants = 26;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb

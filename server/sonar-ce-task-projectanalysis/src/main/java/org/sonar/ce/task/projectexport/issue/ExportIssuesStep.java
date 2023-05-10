@@ -60,7 +60,7 @@ public class ExportIssuesStep implements ComputationStep {
     " i.resolution, i.severity, i.manual_severity, i.gap, effort," +
     " i.assignee, i.author_login, i.tags, i.issue_creation_date," +
     " i.issue_update_date, i.issue_close_date, i.locations, i.project_uuid," +
-    " i.rule_description_context_key, i.message_formattings " +
+    " i.rule_description_context_key, i.message_formattings, i.code_variants " +
     " from issues i" +
     " join rules r on r.uuid = i.rule_uuid and r.status <> ?" +
     " join components p on p.uuid = i.project_uuid" +
@@ -147,7 +147,8 @@ public class ExportIssuesStep implements ComputationStep {
       .setIssueCreatedAt(rs.getLong(19))
       .setIssueUpdatedAt(rs.getLong(20))
       .setIssueClosedAt(rs.getLong(21))
-      .setProjectUuid(rs.getString(23));
+      .setProjectUuid(rs.getString(23))
+      .setCodeVariants(emptyIfNull(rs, 26));
     Optional.ofNullable(rs.getString(24)).ifPresent(builder::setRuleDescriptionContextKey);
     setLocations(builder, rs, issueUuid);
     setMessageFormattings(builder, rs, issueUuid);

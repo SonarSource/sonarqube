@@ -27,6 +27,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -228,7 +229,8 @@ public class ExportIssuesStepIT {
       .setRuleDescriptionContextKey("test_rule_description_context_key")
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
-      .setIssueCloseTime(741L);
+      .setIssueCloseTime(741L)
+      .setCodeVariants(List.of("v1", "v2"));
 
     // fields tested separately and/or required to match SQL request
     issueDto
@@ -265,6 +267,7 @@ public class ExportIssuesStepIT {
     assertThat(issue.getLocations()).isNotEmpty();
     assertThat(issue.getMessageFormattingsList())
       .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
+    assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());
   }
 
   @Test
