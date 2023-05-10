@@ -59,6 +59,7 @@ export * from './Text';
 export { ToggleButton } from './ToggleButton';
 export { TopBar } from './TopBar';
 export * from './buttons';
+export { ClipboardIconButton } from './clipboard';
 export * from './icons';
 export * from './layouts';
 export * from './popups';

@@ -85,7 +85,7 @@ const StyledMutedText = styled(StyledText)`
   color: ${themeColor('dropdownMenuSubTitle')};
 `;
 
-const StyledPageTitle = styled(StyledText)`
+export const StyledPageTitle = styled(StyledText)`
   ${tw`sw-text-base`}
   color: ${themeColor('facetHeader')};
 `;
