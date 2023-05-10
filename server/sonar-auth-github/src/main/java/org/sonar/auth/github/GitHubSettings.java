@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.format;
@@ -60,10 +62,12 @@ public class GitHubSettings {
   private final Configuration configuration;
 
   private final InternalProperties internalProperties;
+  private final DbClient dbClient;
 
-  public GitHubSettings(Configuration configuration, InternalProperties internalProperties) {
+  public GitHubSettings(Configuration configuration, InternalProperties internalProperties, DbClient dbClient) {
     this.configuration = configuration;
     this.internalProperties = internalProperties;
+    this.dbClient = dbClient;
   }
 
   String clientId() {
@@ -119,8 +123,17 @@ public class GitHubSettings {
   public void setProvisioning(boolean enableProvisioning) {
     if (enableProvisioning) {
       checkGithubConfigIsCompleteForProvisioning();
+    } else {
+      removeExternalGroupsForGithub();
     }
     internalProperties.write(PROVISIONING, String.valueOf(enableProvisioning));
+  }
+
+  private void removeExternalGroupsForGithub() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.externalGroupDao().deleteByExternalIdentityProvider(dbSession, GitHubIdentityProvider.KEY);
+      dbSession.commit();
+    }
   }
 
   private void checkGithubConfigIsCompleteForProvisioning() {

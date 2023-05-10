@@ -64,7 +64,7 @@ public class IntegrationTest {
   // load settings with default values
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
   private InternalProperties internalProperties = new InternalPropertiesImpl(db.getDbClient());
-  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig(), internalProperties);
+  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig(), internalProperties, db.getDbClient());
   private UserIdentityFactoryImpl userIdentityFactory = new UserIdentityFactoryImpl();
   private ScribeGitHubApi scribeApi = new ScribeGitHubApi(gitHubSettings);
   private GitHubRestClient gitHubRestClient = new GitHubRestClient(gitHubSettings);

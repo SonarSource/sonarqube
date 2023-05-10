@@ -22,6 +22,7 @@ package org.sonar.auth.github;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.db.DbClient;
 import org.sonar.server.property.InternalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class GitHubIdentityProviderTest {
 
   private MapSettings settings = new MapSettings();
   private InternalProperties internalProperties = mock(InternalProperties.class);
-  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig(), internalProperties);
+  private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig(), internalProperties, mock(DbClient.class));
   private UserIdentityFactoryImpl userIdentityFactory = mock(UserIdentityFactoryImpl.class);
   private ScribeGitHubApi scribeApi = new ScribeGitHubApi(gitHubSettings);
   private GitHubRestClient gitHubRestClient = new GitHubRestClient(gitHubSettings);

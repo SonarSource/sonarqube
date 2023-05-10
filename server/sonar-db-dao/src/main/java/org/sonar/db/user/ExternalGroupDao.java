@@ -53,4 +53,8 @@ public class ExternalGroupDao implements Dao {
   public String getManagedGroupSqlFilter(boolean filterByManaged) {
     return String.format("%s exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)", filterByManaged ? "" : "not");
   }
+
+  public void deleteByExternalIdentityProvider(DbSession dbSession, String externalIdentityProvider) {
+    mapper(dbSession).deleteByExternalIdentityProvider(externalIdentityProvider);
+  }
 }

@@ -34,4 +34,6 @@ public interface ExternalGroupMapper {
   Optional<ExternalGroupDto> selectByExternalIdAndIdentityProvider(@Param("externalId") String externalId, @Param("identityProvider") String identityProvider);
 
   void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
+
+  void deleteByExternalIdentityProvider(String externalIdentityProvider);
 }

@@ -34,6 +34,7 @@ public class ExternalGroupDaoIT {
   private static final String GROUP_UUID = "uuid";
   private static final String EXTERNAL_ID = "external_id";
   private static final String EXTERNAL_IDENTITY_PROVIDER = "external_identity_provider";
+  private static final String PROVIDER = "provider1";
 
   @Rule
   public final DbTester db = DbTester.create();
@@ -69,9 +70,9 @@ public class ExternalGroupDaoIT {
 
   @Test
   public void selectByIdentityProvider_returnOnlyGroupForTheIdentityProvider() {
-    List<ExternalGroupDto> expectedGroups = createAndInsertExternalGroupDtos("provider1", 3);
+    List<ExternalGroupDto> expectedGroups = createAndInsertExternalGroupDtos(PROVIDER, 3);
     createAndInsertExternalGroupDtos("provider2", 1);
-    List<ExternalGroupDto> savedGroup = underTest.selectByIdentityProvider(dbSession, "provider1");
+    List<ExternalGroupDto> savedGroup = underTest.selectByIdentityProvider(dbSession, PROVIDER);
     assertThat(savedGroup).containsExactlyInAnyOrderElementsOf(expectedGroups);
   }
 
@@ -96,12 +97,23 @@ public class ExternalGroupDaoIT {
 
   @Test
   public void deleteByGroupUuid_deletesTheGroup() {
-    List<ExternalGroupDto> insertedGroups = createAndInsertExternalGroupDtos("provider1", 3);
+    List<ExternalGroupDto> insertedGroups = createAndInsertExternalGroupDtos(PROVIDER, 3);
 
     ExternalGroupDto toRemove = insertedGroups.remove(0);
     underTest.deleteByGroupUuid(dbSession, toRemove.groupUuid());
-    List<ExternalGroupDto> remainingGroups = underTest.selectByIdentityProvider(dbSession, "provider1");
+    List<ExternalGroupDto> remainingGroups = underTest.selectByIdentityProvider(dbSession, PROVIDER);
     assertThat(remainingGroups).containsExactlyInAnyOrderElementsOf(insertedGroups);
+  }
+
+  @Test
+  public void deleteByExternalIdentityProvider_onlyDeletesGroupOfTheRequestedProvider() {
+    createAndInsertExternalGroupDtos(PROVIDER, 3);
+    List<ExternalGroupDto> groupsProvider2 = createAndInsertExternalGroupDtos("provider2", 3);
+
+    underTest.deleteByExternalIdentityProvider(dbSession, PROVIDER);
+
+    assertThat(underTest.selectByIdentityProvider(dbSession, PROVIDER)).isEmpty();
+    assertThat(underTest.selectByIdentityProvider(dbSession, "provider2")).containsExactlyInAnyOrderElementsOf(groupsProvider2);
   }
 
   @Test

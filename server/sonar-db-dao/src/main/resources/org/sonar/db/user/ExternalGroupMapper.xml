@@ -50,4 +50,8 @@
     delete from external_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByExternalIdentityProvider" parameterType="String">
+    delete from external_groups where external_identity_provider = #{externalIdentityProvider, jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

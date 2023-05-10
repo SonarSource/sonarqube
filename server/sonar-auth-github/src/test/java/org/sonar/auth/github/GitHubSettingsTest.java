@@ -20,11 +20,14 @@
 package org.sonar.auth.github;
 
 import java.util.Optional;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.property.InternalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,11 +37,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GitHubSettingsTest {
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
   private InternalProperties internalProperties = mock(InternalProperties.class);
 
-  private GitHubSettings underTest = new GitHubSettings(settings.asConfig(), internalProperties);
+  private GitHubSettings underTest = new GitHubSettings(settings.asConfig(), internalProperties, db.getDbClient());
 
   @Test
   public void is_enabled() {
@@ -133,10 +138,21 @@ public class GitHubSettingsTest {
   }
 
   @Test
-  public void setProvisioning_whenPassedFalse_delegatesToInternalPropertiesWrite() {
+  public void setProvisioning_whenPassedFalse_delegatesToInternalPropertiesWriteAndCleansUpExternalGroups() {
+    GroupDto groupDto = createGithubManagedGroup();
+
     underTest.setProvisioning(false);
+
     verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.FALSE.toString());
+    assertThat(db.getDbClient().externalGroupDao().selectByGroupUuid(db.getSession(), groupDto.getUuid())).isEmpty();
   }
+
+  private GroupDto createGithubManagedGroup() {
+    GroupDto groupDto = db.users().insertGroup();
+    db.users().markGroupAsGithubManaged(groupDto.getUuid());
+    return groupDto;
+  }
+
 
   @Test
   public void return_client_id() {
