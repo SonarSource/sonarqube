@@ -82,7 +82,7 @@ public class ReportSubmitterIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
 
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
