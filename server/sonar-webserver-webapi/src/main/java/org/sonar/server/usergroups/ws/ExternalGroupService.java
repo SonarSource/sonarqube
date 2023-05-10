@@ -20,12 +20,16 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.GroupDto;
 
 public class ExternalGroupService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExternalGroupService.class);
 
   private final DbClient dbClient;
   private final GroupService groupService;
@@ -36,7 +40,7 @@ public class ExternalGroupService {
   }
 
   public void createOrUpdateExternalGroup(DbSession dbSession, GroupRegistration groupRegistration) {
-    Optional<GroupDto> groupDto = retrieveGroupByItsExternalInformation(dbSession, groupRegistration);
+    Optional<GroupDto> groupDto = retrieveGroupByExternalInformation(dbSession, groupRegistration);
     if (groupDto.isPresent()) {
       updateExternalGroup(dbSession, groupDto.get(), groupRegistration.name());
     } else {
@@ -44,13 +48,14 @@ public class ExternalGroupService {
     }
   }
 
-  private Optional<GroupDto> retrieveGroupByItsExternalInformation(DbSession dbSession, GroupRegistration groupRegistration) {
-    Optional<ExternalGroupDto> externalGroupDto =
-      dbClient.externalGroupDao().selectByExternalIdAndIdentityProvider(dbSession, groupRegistration.externalId(), groupRegistration.externalIdentityProvider());
+  private Optional<GroupDto> retrieveGroupByExternalInformation(DbSession dbSession, GroupRegistration groupRegistration) {
+    Optional<ExternalGroupDto> externalGroupDto = dbClient.externalGroupDao().selectByExternalIdAndIdentityProvider(dbSession, groupRegistration.externalId(),
+      groupRegistration.externalIdentityProvider());
     return externalGroupDto.flatMap(existingExternalGroupDto -> Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, existingExternalGroupDto.groupUuid())));
   }
 
   private void updateExternalGroup(DbSession dbSession, GroupDto groupDto, String newName) {
+    LOG.debug("Updating external group: {} with new name {}", groupDto.getName(), newName);
     groupService.updateGroup(dbSession, groupDto, newName);
   }
 
@@ -61,7 +66,13 @@ public class ExternalGroupService {
 
   private GroupDto findOrCreateLocalGroup(DbSession dbSession, GroupRegistration groupRegistration) {
     Optional<GroupDto> groupDto = groupService.findGroup(dbSession, groupRegistration.name());
-    return groupDto.orElseGet(() -> groupService.createGroup(dbSession, groupRegistration.name(), null));
+    if (groupDto.isPresent()) {
+      LOG.debug("Marking existing local group {} as managed group.", groupDto.get().getName());
+      return groupDto.get();
+    } else {
+      LOG.debug("Creating new group {}", groupRegistration.name());
+      return groupService.createGroup(dbSession, groupRegistration.name(), null);
+    }
   }
 
   private void createExternalGroup(DbSession dbSession, String groupUuid, GroupRegistration groupRegistration) {
