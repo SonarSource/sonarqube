@@ -238,7 +238,7 @@ public class GitHubSettingsTest {
         "Enabled",
         "Client ID",
         "Client Secret",
-        "GitHub App ID",
+        "App ID",
         "Private Key",
         "Allow users to sign-up",
         "Synchronize teams as groups",
