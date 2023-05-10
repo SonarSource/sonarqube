@@ -44,7 +44,7 @@ public class UpdateAzureActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private static String AZURE_URL = "https://ado.sonarqube.com/";
 

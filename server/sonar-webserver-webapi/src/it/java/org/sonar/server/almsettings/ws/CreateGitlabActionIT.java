@@ -47,7 +47,7 @@ public class CreateGitlabActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private static String GITLAB_URL = "gitlab.com/api/v4";
 

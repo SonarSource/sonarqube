@@ -75,7 +75,7 @@ public class ImportBitbucketCloudRepoActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public final I18nRule i18n = new I18nRule();
 
@@ -84,7 +84,7 @@ public class ImportBitbucketCloudRepoActionIT {
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
-    mock(DefaultBranchNameResolver.class));
+    mock(DefaultBranchNameResolver.class), true);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);

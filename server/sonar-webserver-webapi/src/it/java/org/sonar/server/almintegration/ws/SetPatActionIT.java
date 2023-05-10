@@ -44,7 +44,7 @@ public class SetPatActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final WsActionTester ws = new WsActionTester(new SetPatAction(db.getDbClient(), userSession));
 

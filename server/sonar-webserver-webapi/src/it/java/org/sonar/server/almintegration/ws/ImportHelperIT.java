@@ -24,8 +24,9 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.ProjectTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -34,19 +35,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonarqube.ws.Projects.CreateWsResponse;
 
 public class ImportHelperIT {
 
+  private static final AlmSettingDto ALM_SETTING_WITH_WEBHOOK_SECRET = newGithubAlmSettingDto().setWebhookSecret("webhook_secret");
   private final System2 system2 = System2.INSTANCE;
-  private final ComponentDto componentDto = ComponentTesting.newPublicProjectDto();
+  private final ProjectDto projectDto = ProjectTesting.newPublicProjectDto();
   private final Request request = mock(Request.class);
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
 
   private final ImportHelper underTest = new ImportHelper(db.getDbClient(), userSession);
 
@@ -65,7 +69,7 @@ public class ImportHelperIT {
 
   @Test
   public void it_throws_exception_on_get_alm_setting_when_key_is_not_found() {
-    when(request.mandatoryParam("almSetting")).thenReturn("key");
+    when(request.mandatoryParam(ImportHelper.PARAM_ALM_SETTING)).thenReturn("key");
     assertThatThrownBy(() -> underTest.getAlmSetting(request))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("DevOps Platform Setting 'key' not found");
@@ -80,11 +84,21 @@ public class ImportHelperIT {
 
   @Test
   public void it_returns_create_response() {
-    CreateWsResponse response = ImportHelper.toCreateResponse(componentDto);
+    CreateWsResponse response = ImportHelper.toCreateResponse(projectDto);
     CreateWsResponse.Project project = response.getProject();
 
     assertThat(project).extracting(CreateWsResponse.Project::getKey, CreateWsResponse.Project::getName,
         CreateWsResponse.Project::getQualifier)
-      .containsExactly(componentDto.getKey(), componentDto.name(), componentDto.qualifier());
+      .containsExactly(projectDto.getKey(), projectDto.getName(), projectDto.getQualifier());
+  }
+
+  @Test
+  public void getAlmSetting_whenAlmSettingExists_shouldReturnActualAlmSetting(){
+    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
+    when( request.mandatoryParam(ImportHelper.PARAM_ALM_SETTING)).thenReturn(almSettingDto.getKey());
+
+    AlmSettingDto result = underTest.getAlmSetting(request);
+
+    assertThat(result.getUuid()).isEqualTo(almSettingDto.getUuid());
   }
 }

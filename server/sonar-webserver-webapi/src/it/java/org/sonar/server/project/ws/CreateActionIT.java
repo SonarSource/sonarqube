@@ -90,7 +90,7 @@ public class CreateActionIT {
     new CreateAction(
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
-        projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver),
+        projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true),
       projectDefaultVisibility));
 
   @Before

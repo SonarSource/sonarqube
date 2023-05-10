@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.github;
 
+import java.util.Optional;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClient.Repository;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
@@ -32,10 +33,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -124,15 +126,17 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       Repository repository = githubApplicationClient.getRepository(url, accessToken, githubOrganization, repositoryKey)
         .orElseThrow(() -> new NotFoundException(String.format("GitHub repository '%s' not found", repositoryKey)));
 
-      ComponentDto componentDto = createProject(dbSession, repository, repository.getDefaultBranch());
-      populatePRSetting(dbSession, repository, componentDto, almSettingDto);
-      componentUpdater.commitAndIndex(dbSession, componentDto);
+      ComponentCreationData componentCreationData = createProject(dbSession, repository, repository.getDefaultBranch());
+      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
-      return toCreateResponse(componentDto);
+      populatePRSetting(dbSession, repository, projectDto, almSettingDto);
+      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+
+      return toCreateResponse(projectDto);
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, Repository repo, String mainBranchName) {
+  private ComponentCreationData createProject(DbSession dbSession, Repository repo, String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getFullName());
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
@@ -141,18 +145,19 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
         .setPrivate(visibility)
         .setQualifier(PROJECT)
         .build(),
-      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {});
+      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {
+      });
   }
 
-  private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
+  private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repo.getFullName())
       .setAlmSlug(null)
-      .setProjectUuid(componentDto.uuid())
+      .setProjectUuid(projectDto.getUuid())
       .setSummaryCommentEnabled(true)
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
-      componentDto.name(), componentDto.getKey());
+      projectDto.getName(), projectDto.getKey());
   }
 }

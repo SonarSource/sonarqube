@@ -32,10 +32,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
@@ -108,11 +109,12 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       Project gitlabProject = gitlabHttpClient.getProject(gitlabUrl, pat, gitlabProjectId);
 
       Optional<String> almMainBranchName = getAlmDefaultBranch(pat, gitlabProjectId, gitlabUrl);
-      ComponentDto componentDto = createProject(dbSession, gitlabProject, almMainBranchName.orElse(null));
-      populateMRSetting(dbSession, gitlabProjectId, componentDto, almSettingDto);
-      componentUpdater.commitAndIndex(dbSession, componentDto);
+      ComponentCreationData componentCreationData = createProject(dbSession, gitlabProject, almMainBranchName.orElse(null));
+      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+      populateMRSetting(dbSession, gitlabProjectId, projectDto, almSettingDto);
+      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
-      return ImportHelper.toCreateResponse(componentDto);
+      return ImportHelper.toCreateResponse(projectDto);
     }
   }
 
@@ -121,18 +123,18 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
     return almMainBranch.map(GitLabBranch::getName);
   }
 
-  private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ComponentDto componentDto, AlmSettingDto almSettingDto) {
+  private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ProjectDto projectDto, AlmSettingDto almSettingDto) {
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
-        .setProjectUuid(componentDto.branchUuid())
+        .setProjectUuid(projectDto.getUuid())
         .setAlmSettingUuid(almSettingDto.getUuid())
         .setAlmRepo(gitlabProjectId.toString())
         .setAlmSlug(null)
         .setMonorepo(false),
       almSettingDto.getKey(),
-      componentDto.name(), componentDto.getKey());
+      projectDto.getName(), projectDto.getKey());
   }
 
-  private ComponentDto createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
+  private ComponentCreationData createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(gitlabProject.getPathWithNamespace());
 

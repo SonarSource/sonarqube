@@ -51,7 +51,7 @@ public class ListDefinitionsActionIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final WsActionTester ws = new WsActionTester(new ListDefinitionsAction(db.getDbClient(), userSession));
 

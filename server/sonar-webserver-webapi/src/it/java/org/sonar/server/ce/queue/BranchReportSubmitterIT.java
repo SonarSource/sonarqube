@@ -46,6 +46,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -178,8 +179,11 @@ public class BranchReportSubmitterIT {
     ComponentDto createdBranch = createButDoNotInsertBranch(nonExistingProject);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(nonExistingProject.getKey());
     when(branchSupportDelegate.createComponentKey(nonExistingProject.getKey(), randomCharacteristics)).thenReturn(componentKey);
-    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin()), any()))
+    ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
+    when(componentCreationData.mainBranchComponent())
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject).getMainBranchComponent());
+    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin()), any()))
+      .thenReturn(componentCreationData);
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), any())).thenReturn(createdBranch);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingProject.getKey()))).thenReturn(true);
     String taskUuid = mockSuccessfulPrepareSubmitCall();

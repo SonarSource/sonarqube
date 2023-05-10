@@ -52,7 +52,7 @@ public class CreateGithubActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final Encryption encryption = mock(Encryption.class);
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);

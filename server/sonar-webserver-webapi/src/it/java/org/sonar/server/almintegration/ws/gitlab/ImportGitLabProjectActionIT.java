@@ -71,13 +71,13 @@ public class ImportGitLabProjectActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver);
+    defaultBranchNameResolver, true);
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);

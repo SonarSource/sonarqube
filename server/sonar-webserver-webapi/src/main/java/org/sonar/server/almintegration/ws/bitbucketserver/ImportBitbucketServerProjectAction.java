@@ -33,10 +33,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -126,13 +127,14 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
 
       String defaultBranchName = getDefaultBranchName(pat, projectKey, repoSlug, url);
 
-      ComponentDto componentDto = createProject(dbSession, repo, defaultBranchName);
+      ComponentCreationData componentCreationData = createProject(dbSession, repo, defaultBranchName);
+      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
-      populatePRSetting(dbSession, repo, componentDto, almSettingDto);
+      populatePRSetting(dbSession, repo, projectDto, almSettingDto);
 
-      componentUpdater.commitAndIndex(dbSession, componentDto);
+      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
-      return toCreateResponse(componentDto);
+      return toCreateResponse(projectDto);
     }
   }
 
@@ -142,7 +144,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     return defaultBranch.map(Branch::getName).orElse(null);
   }
 
-  private ComponentDto createProject(DbSession dbSession, Repository repo, @Nullable String defaultBranchName) {
+  private ComponentCreationData createProject(DbSession dbSession, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getKey(), repo.getSlug());
     NewComponent newProject = newComponentBuilder()
@@ -158,15 +160,15 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     });
   }
 
-  private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
+  private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto componentDto, AlmSettingDto almSettingDto) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repo.getProject().getKey())
       .setAlmSlug(repo.getSlug())
-      .setProjectUuid(componentDto.uuid())
+      .setProjectUuid(componentDto.getUuid())
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
-      componentDto.name(), componentDto.getKey());
+      componentDto.getName(), componentDto.getKey());
   }
 
 }

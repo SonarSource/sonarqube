@@ -51,7 +51,7 @@ public class ListActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
   private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, componentFinder));

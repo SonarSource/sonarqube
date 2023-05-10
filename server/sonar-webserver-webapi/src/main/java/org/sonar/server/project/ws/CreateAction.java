@@ -117,14 +117,14 @@ public class CreateAction implements ProjectsWsAction {
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-        .setKey(request.getProjectKey())
-        .setName(request.getName())
-        .setPrivate(changeToPrivate)
-        .setQualifier(PROJECT)
-        .build(),
+          .setKey(request.getProjectKey())
+          .setName(request.getName())
+          .setPrivate(changeToPrivate)
+          .setQualifier(PROJECT)
+          .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null,
         userSession.isLoggedIn() ? userSession.getLogin() : null,
-        request.getMainBranchKey());
+        request.getMainBranchKey()).mainBranchComponent();
       return toCreateResponse(componentDto);
     }
   }

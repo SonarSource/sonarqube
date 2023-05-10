@@ -49,7 +49,7 @@ public class UpdateBitbucketCloudActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final Encryption encryption = mock(Encryption.class);
 

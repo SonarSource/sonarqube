@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
@@ -63,13 +63,13 @@ public class ImportHelper {
     return requireNonNull(userSession.getUuid(), "User UUID cannot be null");
   }
 
-  public static CreateWsResponse toCreateResponse(ComponentDto componentDto) {
+  public static CreateWsResponse toCreateResponse(ProjectDto projectDto) {
     return newBuilder()
       .setProject(Project.newBuilder()
-        .setKey(componentDto.getKey())
-        .setName(componentDto.name())
-        .setQualifier(componentDto.qualifier())
-        .setVisibility(Visibility.getLabel(componentDto.isPrivate())))
+        .setKey(projectDto.getKey())
+        .setName(projectDto.getName())
+        .setQualifier(projectDto.getQualifier())
+        .setVisibility(Visibility.getLabel(projectDto.isPrivate())))
       .build();
   }
 }

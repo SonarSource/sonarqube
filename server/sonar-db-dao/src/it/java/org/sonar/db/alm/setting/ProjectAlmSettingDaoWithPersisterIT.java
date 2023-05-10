@@ -49,7 +49,7 @@ public class ProjectAlmSettingDaoWithPersisterIT {
 
   private final TestSystem2 system2 = new TestSystem2().setNow(A_DATE);
   @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister);
+  public final DbTester db = DbTester.create(system2, auditPersister, true);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();

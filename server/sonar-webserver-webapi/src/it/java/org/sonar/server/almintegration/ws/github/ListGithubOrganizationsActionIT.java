@@ -72,7 +72,7 @@ public class ListGithubOrganizationsActionIT {
   private final GithubApplicationClientImpl appClient = mock(GithubApplicationClientImpl.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final WsActionTester ws = new WsActionTester(new ListGithubOrganizationsAction(db.getDbClient(), settings, userSession, appClient));
 

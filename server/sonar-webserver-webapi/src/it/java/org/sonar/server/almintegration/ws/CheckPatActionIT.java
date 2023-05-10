@@ -55,7 +55,7 @@ public class CheckPatActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final AzureDevOpsHttpClient azureDevOpsPrHttpClient = mock(AzureDevOpsHttpClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);

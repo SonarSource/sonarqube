@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -149,6 +150,15 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public static DbTester createWithExtensionMappers(System2 system2, boolean useDifferentProjectUuids, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
     return new DbTester(system2, useDifferentProjectUuids, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+  }
+
+  public static DbTester create(TestSystem2 system2, AuditPersister auditPersister, boolean useDifferentProjectUuids) {
+    return new DbTester(system2, useDifferentProjectUuids, null, auditPersister);
+
+  }
+
+  public static DbTester create(AuditPersister auditPersister, boolean useDifferentProjectUuids) {
+    return new DbTester(System2.INSTANCE, useDifferentProjectUuids, null, auditPersister);
   }
 
   private void initDbClient() {

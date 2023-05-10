@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketcloud;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
@@ -30,10 +31,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -116,20 +118,21 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
       Repository repo = bitbucketCloudRestClient.getRepo(pat, workspace, repoSlug);
 
-      ComponentDto componentDto = createProject(dbSession, workspace, repo, repo.getMainBranch().getName());
+      ComponentCreationData componentCreationData = createProject(dbSession, workspace, repo, repo.getMainBranch().getName());
+      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
-      populatePRSetting(dbSession, repo, componentDto, almSettingDto);
+      populatePRSetting(dbSession, repo, projectDto, almSettingDto);
 
-      componentUpdater.commitAndIndex(dbSession, componentDto);
+      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
-      return toCreateResponse(componentDto);
+      return toCreateResponse(projectDto);
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, String workspace, Repository repo, @Nullable String defaultBranchName) {
+  private ComponentCreationData createProject(DbSession dbSession, String workspace, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(workspace, repo.getSlug());
-    NewComponent newProject = newComponentBuilder()
+    NewComponent mainBranch = newComponentBuilder()
       .setKey(uniqueProjectKey)
       .setName(repo.getName())
       .setPrivate(visibility)
@@ -138,19 +141,19 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
     String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
     String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
 
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName, p -> {
+    return componentUpdater.createWithoutCommit(dbSession, mainBranch, userUuid, userLogin, defaultBranchName, p -> {
     });
   }
 
-  private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
+  private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       // Bitbucket Cloud PR decoration reads almRepo
       .setAlmRepo(repo.getSlug())
-      .setProjectUuid(componentDto.uuid())
+      .setProjectUuid(projectDto.getUuid())
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
-      componentDto.name(), componentDto.getKey());
+      projectDto.getName(), projectDto.getKey());
   }
 
 }

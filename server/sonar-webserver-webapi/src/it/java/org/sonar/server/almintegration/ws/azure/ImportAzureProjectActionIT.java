@@ -75,7 +75,7 @@ public class ImportAzureProjectActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public final I18nRule i18n = new I18nRule();
 
@@ -85,7 +85,7 @@ public class ImportAzureProjectActionIT {
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver);
+    defaultBranchNameResolver, true);
 
   private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);

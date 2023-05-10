@@ -65,7 +65,7 @@ public class UpdateGithubActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(auditPersister);
+  public DbTester db = DbTester.create(auditPersister, true);
 
   private final Encryption encryption = mock(Encryption.class);
 

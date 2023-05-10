@@ -43,7 +43,7 @@ public class AlmPatDaoIT {
   private static final String A_UUID = "SOME_UUID";
   private TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);

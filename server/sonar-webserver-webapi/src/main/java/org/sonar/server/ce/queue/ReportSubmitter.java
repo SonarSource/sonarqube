@@ -168,7 +168,7 @@ public class ReportSubmitter {
       .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();
     return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userName, c -> {
-    });
+    }).mainBranchComponent();
   }
 
   private Visibility getDefaultVisibility(DbSession dbSession) {

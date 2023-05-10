@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -70,10 +71,12 @@ public class ComponentUpdaterIT {
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
+  private final Configuration config = mock(Configuration.class);
+
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver);
+    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true);
 
   @Before
   public void before() {
@@ -82,14 +85,14 @@ public class ComponentUpdaterIT {
 
   @Test
   public void persist_and_index_when_creating_project() {
-    NewComponent project = NewComponent.newComponentBuilder()
+    NewComponent mainBranchComponent = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(true)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
+    ComponentCreationData returned = underTest.create(db.getSession(), mainBranchComponent, null, null);
 
-    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.mainBranchComponent().uuid());
     assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
@@ -97,19 +100,19 @@ public class ComponentUpdaterIT {
     assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
-    assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
+    assertThat(loaded.isPrivate()).isEqualTo(mainBranchComponent.isPrivate());
     assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isPresent();
 
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
 
-    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.mainBranchComponent().uuid());
     assertThat(branch).isPresent();
     assertThat(branch.get().getKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
-    assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
-    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
+    assertThat(branch.get().getUuid()).isEqualTo(returned.mainBranchComponent().uuid());
+    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.projectDto().getUuid());
   }
 
   @Test
@@ -121,7 +124,7 @@ public class ComponentUpdaterIT {
       .setPrivate(true)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
     assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo("main-branch-global");
@@ -136,7 +139,7 @@ public class ComponentUpdaterIT {
       .setPrivate(true)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null, customBranchName);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null, customBranchName).mainBranchComponent();
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
     assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo(customBranchName);
@@ -149,7 +152,7 @@ public class ComponentUpdaterIT {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(true)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
@@ -161,7 +164,7 @@ public class ComponentUpdaterIT {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(false)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
@@ -174,7 +177,7 @@ public class ComponentUpdaterIT {
       .setQualifier(VIEW)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), view, null, null);
+    ComponentDto returned = underTest.create(db.getSession(), view, null, null).mainBranchComponent();
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getKey()).isEqualTo("view-key");
@@ -193,20 +196,20 @@ public class ComponentUpdaterIT {
       .setQualifier(APP)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), application, null, null);
+    ComponentCreationData returned = underTest.create(db.getSession(), application, null, null);
 
-    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.mainBranchComponent().uuid());
     assertThat(loaded.getKey()).isEqualTo("app-key");
     assertThat(loaded.name()).isEqualTo("app-name");
     assertThat(loaded.qualifier()).isEqualTo("APP");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
-    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.mainBranchComponent().uuid());
     assertThat(branch).isPresent();
     assertThat(branch.get().getKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
-    assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
-    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
+    assertThat(branch.get().getUuid()).isEqualTo(returned.mainBranchComponent().uuid());
+    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.projectDto().getUuid());
   }
 
   @Test
@@ -216,7 +219,7 @@ public class ComponentUpdaterIT {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    ComponentDto dto = underTest.create(db.getSession(), project, userUuid, "user-login");
+    ComponentDto dto = underTest.create(db.getSession(), project, userUuid, "user-login").mainBranchComponent();
 
     verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, userUuid);
   }
@@ -231,7 +234,7 @@ public class ComponentUpdaterIT {
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
       .thenReturn(true);
 
-    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin());
+    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin()).mainBranchComponent();
 
     assertThat(db.favorites().hasFavorite(dto, userDto.getUuid())).isTrue();
   }
@@ -250,7 +253,7 @@ public class ComponentUpdaterIT {
     ComponentDto dto = underTest.create(db.getSession(),
       project,
       user.getUuid(),
-      user.getLogin());
+      user.getLogin()).mainBranchComponent();
 
     assertThat(db.favorites().hasFavorite(dto, user.getUuid())).isFalse();
   }
@@ -262,7 +265,7 @@ public class ComponentUpdaterIT {
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null, null);
+      null, null).mainBranchComponent();
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
@@ -274,7 +277,7 @@ public class ComponentUpdaterIT {
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null, null);
+      null, null).mainBranchComponent();
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
@@ -320,7 +323,7 @@ public class ComponentUpdaterIT {
   @Test
   public void create_shouldFail_whenCreatingProjectWithExistingKeyButDifferentCase() {
     String existingKey = randomAlphabetic(5).toUpperCase();
-    db.components().insertPrivateProject(component -> component.setKey(existingKey)).getMainBranchComponent();
+    db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
 
     NewComponent newComponent = NewComponent.newComponentBuilder()
@@ -329,7 +332,7 @@ public class ComponentUpdaterIT {
       .build();
 
     DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null).mainBranchComponent())
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
   }
@@ -338,7 +341,7 @@ public class ComponentUpdaterIT {
   public void create_createsComponentWithMasterBranchName() {
     String componentNameAndKey = "createApplicationOrPortfolio";
     ComponentDto app = underTest.create(db.getSession(), NewComponent.newComponentBuilder().setName(componentNameAndKey)
-      .setKey(componentNameAndKey).setQualifier("APP").build(), null, null, null);
+      .setKey(componentNameAndKey).setQualifier("APP").build(), null, null, null).mainBranchComponent();
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
     assertThat(branch).isPresent();
