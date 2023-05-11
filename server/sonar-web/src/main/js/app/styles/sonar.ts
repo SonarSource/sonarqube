@@ -21,6 +21,7 @@
  * The esbuild postcss plugin fails to handle CSS `@import`
  */
 import '../../../../../public/fonts/Inter/inter.css';
+import '../../../../../public/fonts/Ubuntu/Ubuntu.css';
 
 import './components/badges.css';
 import './components/boxed-group.css';
