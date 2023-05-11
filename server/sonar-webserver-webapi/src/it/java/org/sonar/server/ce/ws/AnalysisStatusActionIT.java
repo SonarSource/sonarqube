@@ -30,9 +30,11 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -66,14 +68,14 @@ public class AnalysisStatusActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   DbClient dbClient = db.getDbClient();
   WsActionTester ws = new WsActionTester(new AnalysisStatusAction(userSession, dbClient, TestComponentFinder.from(db)));
 
   @Test
   public void no_errors_no_warnings() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
@@ -85,10 +87,11 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void allows_unauthenticated_access() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
+    userSession.registerProjects(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
     createTaskMessage(activity, WARNING_IN_MAIN);
     createTaskMessage(activity, "Dismissible warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
@@ -101,11 +104,12 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_main() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessage = createTaskMessage(activity, WARNING_IN_MAIN);
     CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "Dismissible warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
@@ -120,8 +124,8 @@ public class AnalysisStatusActionIT {
         tuple(taskMessageDismissible.getUuid(), taskMessageDismissible.getMessage(), true));
 
     SnapshotDto analysis2 = db.components().insertSnapshot(project);
-    insertActivity("task-uuid" + counter++, project, SUCCESS, analysis2, REPORT);
-    insertActivity("task-uuid" + counter++, project, SUCCESS, null, "PROJECT_EXPORT");
+    insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis2, REPORT);
+    insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, null, "PROJECT_EXPORT");
 
     Ce.AnalysisStatusWsResponse response2 = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -132,10 +136,10 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, branch, SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessage = createTaskMessage(activity, WARNING_IN_BRANCH);
@@ -163,10 +167,10 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_for_last_analysis_of_pull_request() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> {
+    BranchDto pullRequest = db.components().insertProjectBranch(project, b -> {
       b.setBranchType(BranchType.PULL_REQUEST);
       b.setKey(PULL_REQUEST);
     });
@@ -197,23 +201,24 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void return_warnings_per_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto warningInMainMessage = createTaskMessage(activity, WARNING_IN_MAIN);
 
-    ComponentDto branchWithWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
+    BranchDto branchWithWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branchWithWarning);
     CeActivityDto branchActivity = insertActivity("task-uuid" + counter++, branchWithWarning, SUCCESS, branchAnalysis, REPORT);
     CeTaskMessageDto warningInBranchMessage = createTaskMessage(branchActivity, WARNING_IN_BRANCH);
 
-    ComponentDto branchWithoutWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
+    BranchDto branchWithoutWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
     SnapshotDto branchWithoutWarningAnalysis = db.components().insertSnapshot(branchWithoutWarning);
     insertActivity("task-uuid" + counter++, branchWithoutWarning, SUCCESS, branchWithoutWarningAnalysis, REPORT);
 
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> {
+    BranchDto pullRequest = db.components().insertProjectBranch(project, b -> {
       b.setBranchType(BranchType.PULL_REQUEST);
       b.setKey(PULL_REQUEST);
     });
@@ -257,7 +262,7 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void response_contains_branch_or_pullRequest_for_branch_or_pullRequest_only() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
@@ -293,10 +298,11 @@ public class AnalysisStatusActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("com.github.kevinsawicki:http-request-parent")
-      .setName("HttpRequest")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("com.github.kevinsawicki:http-request-parent")
+      .setName("HttpRequest"));
+    ProjectDto project = projectData.getProjectDto();
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto ceTaskMessage = new CeTaskMessageDto()
       .setUuid("AU-Tpxb--iU5OvuD2FLy")
       .setTaskUuid(activity.getUuid())
@@ -357,11 +363,11 @@ public class AnalysisStatusActionIT {
     return ceTaskMessageDto;
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis, String taskType) {
+  private CeActivityDto insertActivity(String taskUuid, BranchDto branch, CeActivityDto.Status status, @Nullable SnapshotDto analysis, String taskType) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(taskType);
-    queueDto.setComponentUuid(component.uuid());
-    queueDto.setMainComponentUuid(component.uuid());
+    queueDto.setComponentUuid(branch.getUuid());
+    queueDto.setMainComponentUuid(branch.getUuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
@@ -369,7 +375,7 @@ public class AnalysisStatusActionIT {
     activityDto.setAnalysisUuid(analysis == null ? null : analysis.getUuid());
     activityDto.setExecutedAt((long) counter++);
     activityDto.setTaskType(taskType);
-    activityDto.setComponentUuid(component.uuid());
+    activityDto.setComponentUuid(branch.getUuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.getSession().commit();
     return activityDto;

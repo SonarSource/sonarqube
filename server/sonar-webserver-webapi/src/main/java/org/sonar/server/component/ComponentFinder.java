@@ -145,7 +145,7 @@ public class ComponentFinder {
       return dbClient.branchDao().selectByPullRequestKey(dbSession, projectUuid, pullRequestKey)
         .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' in project '%s' not found", pullRequestKey, projectKey)));
     }
-    return dbClient.branchDao().selectByUuid(dbSession, projectUuid)
+    return dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, projectUuid)
       .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", projectKey)));
   }
 
