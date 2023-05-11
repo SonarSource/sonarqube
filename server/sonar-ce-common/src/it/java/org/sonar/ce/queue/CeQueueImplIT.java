@@ -315,7 +315,7 @@ public class CeQueueImplIT {
   public void massSubmit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_does_not_create_task_when_there_is_many_pending_task_for_same_main_component() {
     String mainComponentUuid = randomAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
-    String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
+    String[] uuids = IntStream.range(0, 7)
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
       .map(CeQueueDto::getUuid)
       .toArray(String[]::new);

@@ -369,11 +369,10 @@ public class InternalPropertiesDaoIT {
 
   @Test
   public void selectByKeys_throws_IAE_when_keys_contains_null() {
-    Random random = new Random();
     Set<String> keysIncludingANull = Stream.of(
-      IntStream.range(0, random.nextInt(10)).mapToObj(i -> "b_" + i),
+      IntStream.range(0, 10).mapToObj(i -> "b_" + i),
       Stream.of((String) null),
-      IntStream.range(0, random.nextInt(10)).mapToObj(i -> "a_" + i))
+      IntStream.range(0, 10).mapToObj(i -> "a_" + i))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
