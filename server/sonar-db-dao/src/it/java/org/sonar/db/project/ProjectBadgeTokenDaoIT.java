@@ -44,7 +44,7 @@ public class ProjectBadgeTokenDaoIT {
   private final System2 system2 = new TestSystem2().setNow(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final AuditPersister auditPersister = spy(AuditPersister.class);
   private final UuidFactory uuidFactory = mock(UuidFactory.class);

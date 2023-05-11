@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectBadgeTokenDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
@@ -47,7 +48,7 @@ public class TokenRenewActionIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -74,9 +75,9 @@ public class TokenRenewActionIT {
 
   @Test
   public void missing_project_admin_permission_should_fail() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
 
-    TestRequest request = ws.newRequest().setParam("project", project.getKey());
+    TestRequest request = ws.newRequest().setParam("project", project.getProjectDto().getKey());
 
     Assertions.assertThatThrownBy(request::execute)
       .hasMessage("Insufficient privileges")
