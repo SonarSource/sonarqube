@@ -119,7 +119,7 @@ public class PurgeDaoIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -1084,32 +1084,33 @@ public class PurgeDaoIT {
     return EventComponentChangeDto.ChangeCategory.values()[new Random().nextInt(EventComponentChangeDto.ChangeCategory.values().length)];
   }
 
-  private ComponentDto insertProjectWithBranchAndRelatedData() {
+  private ProjectDto insertProjectWithBranchAndRelatedData() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto dir = db.components().insertComponent(newDirectory(branch, "path"));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir));
-    db.issues().insert(rule, branch, file);
-    db.issues().insert(rule, branch, dir);
-    return project;
+    ProjectData project = db.components().insertPublicProject();
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+    ComponentDto branchComponent = db.components().getComponentDto(branch);
+    ComponentDto dir = db.components().insertComponent(newDirectory(branchComponent, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branchComponent, dir));
+    db.issues().insert(rule, branchComponent, file);
+    db.issues().insert(rule, branchComponent, dir);
+    return project.getProjectDto();
   }
 
   @Test
   public void delete_branch_content_when_deleting_project() {
-    ComponentDto anotherLivingProject = insertProjectWithBranchAndRelatedData();
+    ProjectDto anotherLivingProject = insertProjectWithBranchAndRelatedData();
     int projectEntryCount = db.countRowsOfTable("components");
     int issueCount = db.countRowsOfTable("issues");
     int branchCount = db.countRowsOfTable("project_branches");
     Collection<BranchDto> anotherLivingProjectBranches = db.getDbClient().branchDao()
-      .selectByComponent(db.getSession(), anotherLivingProject);
+      .selectByProject(db.getSession(), anotherLivingProject);
     insertPropertyFor(anotherLivingProjectBranches);
 
     assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size());
 
-    ComponentDto projectToDelete = insertProjectWithBranchAndRelatedData();
+    ProjectDto projectToDelete = insertProjectWithBranchAndRelatedData();
     Collection<BranchDto> projectToDeleteBranches = db.getDbClient().branchDao()
-      .selectByComponent(db.getSession(), projectToDelete);
+      .selectByProject(db.getSession(), projectToDelete);
     insertPropertyFor(projectToDeleteBranches);
 
     assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size() + projectToDeleteBranches.size());
@@ -1117,7 +1118,7 @@ public class PurgeDaoIT {
     assertThat(db.countRowsOfTable("issues")).isGreaterThan(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
 
-    underTest.deleteProject(dbSession, projectToDelete.uuid(), projectToDelete.qualifier(), projectToDelete.name(), projectToDelete.getKey());
+    underTest.deleteProject(dbSession, projectToDelete.getUuid(), projectToDelete.getQualifier(), projectToDelete.getName(), projectToDelete.getKey());
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("components")).isEqualTo(projectEntryCount);
