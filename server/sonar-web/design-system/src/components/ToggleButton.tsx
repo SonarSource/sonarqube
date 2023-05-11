@@ -87,8 +87,8 @@ const OptionButton = styled(ButtonSecondary)<{ selected: boolean }>`
   color: ${(props) => (props.selected ? themeContrast('toggleHover') : themeContrast('toggle'))};
   border: none;
   height: auto;
-  overflow: hidden;
   ${tw`sw-rounded-0`};
+  ${tw`sw-truncate`};
 
   &:first-of-type {
     ${tw`sw-rounded-l-2`};

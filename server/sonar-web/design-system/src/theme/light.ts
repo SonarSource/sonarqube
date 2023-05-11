@@ -349,6 +349,7 @@ export const lightTheme = {
 
     // facets
     facetHeader: COLORS.blueGrey[600],
+    facetHeaderDisabled: COLORS.blueGrey[400],
     facetItemSelected: COLORS.indigo[50],
     facetItemSelectedHover: COLORS.indigo[100],
     facetItemSelectedBorder: primary.light,

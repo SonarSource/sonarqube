@@ -38,6 +38,10 @@ it('should render all options', async () => {
 
   expect(screen.getAllByRole('radio')).toHaveLength(3);
 
+  await user.click(screen.getByText('first'));
+
+  expect(onChange).not.toHaveBeenCalled();
+
   await user.click(screen.getByText('has counter'));
 
   expect(onChange).toHaveBeenCalledWith(3);

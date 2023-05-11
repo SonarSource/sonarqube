@@ -30,6 +30,8 @@ export { Dropdown } from './Dropdown';
 export * from './DropdownMenu';
 export { DropdownToggler } from './DropdownToggler';
 export * from './DuplicationsIndicator';
+export * from './FacetBox';
+export * from './FacetItem';
 export { FailedQGConditionLink } from './FailedQGConditionLink';
 export { FlagMessage } from './FlagMessage';
 export * from './GenericAvatar';
