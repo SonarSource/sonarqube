@@ -319,6 +319,7 @@ export default class SecurityHotspotServiceMock {
         key: 'test-2',
         status: HotspotStatus.TO_REVIEW,
         message: "'2' is a magic number.",
+        codeVariants: ['variant 1', 'variant 2'],
       }),
     ];
     this.canChangeStatus = true;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -80,6 +80,15 @@ beforeEach(() => {
 
 afterEach(() => {
   handler.reset();
+});
+
+describe('rendering', () => {
+  it('should render code variants correctly', async () => {
+    renderSecurityHotspotsApp(
+      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-2'
+    );
+    expect(await screen.findAllByText('variant 1, variant 2')).toHaveLength(2);
+  });
 });
 
 it('should navigate when comming from SonarLint', async () => {
@@ -188,7 +197,9 @@ it('should be able to change the status of a hotspot', async () => {
   await user.click(screen.getByRole('textbox', { name: 'hotspots.status.add_comment' }));
   await user.keyboard(comment);
 
-  await user.click(ui.changeStatus.get());
+  await act(async () => {
+    await user.click(ui.changeStatus.get());
+  });
 
   expect(setSecurityHotspotStatus).toHaveBeenLastCalledWith('test-1', {
     comment: 'COMMENT-TEXT',
@@ -218,7 +229,10 @@ it('should remember the comment when toggling change status panel for the same s
   await user.keyboard(comment);
 
   // Close the panel
-  await user.keyboard('{Escape}');
+  await act(async () => {
+    await user.keyboard('{Escape}');
+  });
+
   // Check panel is closed
   expect(ui.panel.query()).not.toBeInTheDocument();
 

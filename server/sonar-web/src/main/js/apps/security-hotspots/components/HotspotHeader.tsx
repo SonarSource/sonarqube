@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import Link from '../../../components/common/Link';
+import Tooltip from '../../../components/controls/Tooltip';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { translate } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
@@ -52,9 +53,19 @@ export function HotspotHeader(props: HotspotHeaderProps) {
           hotspot={hotspot}
           onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
         />
-        <div className="display-flex-end">
-          <div className="display-inline-flex-center it__hs-assignee">
-            <div className="big-spacer-right">{`${translate('assignee')}: `}</div>
+        <div className="display-flex-end display-flex-column abs-width-240">
+          {hotspot.codeVariants && hotspot.codeVariants.length > 0 && (
+            <Tooltip overlay={hotspot.codeVariants.join(', ')}>
+              <div className="spacer-bottom display-flex-center">
+                <div>{translate('issues.facet.codeVariants')}:</div>
+                <div className="text-bold spacer-left spacer-right text-ellipsis">
+                  {hotspot.codeVariants.join(', ')}
+                </div>
+              </div>
+            </Tooltip>
+          )}
+          <div className="display-flex-center it__hs-assignee">
+            <div className="big-spacer-right">{translate('assignee')}:</div>
             <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
           </div>
         </div>

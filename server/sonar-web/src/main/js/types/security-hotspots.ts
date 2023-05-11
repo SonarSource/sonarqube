@@ -87,6 +87,7 @@ export interface Hotspot {
   authorUser: UserBase;
   canChangeStatus: boolean;
   changelog: IssueChangelog[];
+  codeVariants?: string[];
   comment: HotspotComment[];
   component: HotspotComponent;
   creationDate: string;
