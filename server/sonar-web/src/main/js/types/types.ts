@@ -625,12 +625,14 @@ export interface SnippetsByComponent {
 export interface SourceLine {
   code?: string;
   conditions?: number;
+  coverageBlock?: number;
   coverageStatus?: SourceLineCoverageStatus;
   coveredConditions?: number;
   duplicated?: boolean;
   isNew?: boolean;
   line: number;
   lineHits?: number;
+  newCodeBlock?: number;
   scmAuthor?: string;
   scmDate?: string;
   scmRevision?: string;

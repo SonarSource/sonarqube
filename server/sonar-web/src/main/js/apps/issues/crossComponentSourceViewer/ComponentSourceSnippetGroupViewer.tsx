@@ -62,7 +62,6 @@ interface Props {
   isLastOccurenceOfPrimaryComponent: boolean;
   issue: TypeIssue;
   issuesByLine: IssuesByLine;
-  lastSnippetGroup: boolean;
   loadDuplications: (component: string, line: SourceLine) => void;
   locations: FlowLocation[];
   onIssueSelect: (issueKey: string) => void;
@@ -256,8 +255,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   render() {
-    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, lastSnippetGroup, snippetGroup } =
-      this.props;
+    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
 
     const snippetLines = linesForSnippets(snippets, {
@@ -320,7 +318,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             </IssueSourceViewerScrollContext.Consumer>
           )}
 
-        {snippetLines.map((snippet, index) => (
+        {snippetLines.map(({ snippet, sourcesMap }, index) => (
           <SnippetViewer
             key={snippets[index].index}
             renderAdditionalChildInLine={this.renderIssuesList}
@@ -332,8 +330,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             highlightedLocationMessage={this.props.highlightedLocationMessage}
             highlightedSymbols={this.state.highlightedSymbols}
             index={snippets[index].index}
-            issue={this.props.issue}
-            lastSnippetOfLastGroup={lastSnippetGroup && index === snippets.length - 1}
             loadDuplications={this.loadDuplications}
             locations={this.props.locations}
             locationsByLine={getLocationsByLine(
@@ -345,6 +341,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             renderDuplicationPopup={this.renderDuplicationPopup}
             snippet={snippet}
             className={classNames({ 'sw-mt-2': index !== 0 })}
+            snippetSourcesMap={sourcesMap}
           />
         ))}
       </>

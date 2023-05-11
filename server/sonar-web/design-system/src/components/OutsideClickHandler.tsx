@@ -27,7 +27,7 @@ interface Props {
   onClickOutside: () => void;
 }
 
-export default class OutsideClickHandler extends React.Component<Props> {
+export class OutsideClickHandler extends React.Component<Props> {
   mounted = false;
 
   componentDidMount() {

@@ -27,8 +27,8 @@ import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import loadIssues from '../helpers/loadIssues';
 import SourceViewer from '../SourceViewer';
+import loadIssues from '../helpers/loadIssues';
 
 jest.mock('../../../api/components');
 jest.mock('../../../api/issues');
@@ -110,8 +110,8 @@ it('should show a permalink on line number', async () => {
   });
 
   expect(
-    lowerRowScreen.getByRole('button', {
-      name: 'component_viewer.copy_permalink',
+    lowerRowScreen.getByRole('menuitem', {
+      name: 'source_viewer.copy_permalink',
     })
   ).toBeInTheDocument();
 });
@@ -204,15 +204,10 @@ it('should show SCM information', async () => {
     })
   );
 
-  expect(
-    await firstRowScreen.findByRole('heading', { level: 4, name: 'author' })
-  ).toBeInTheDocument();
-  expect(
-    firstRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.commited_on' })
-  ).toBeInTheDocument();
-  expect(
-    firstRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
+  // After using miui component the tooltip is appearing outside of the row
+  expect(await screen.findAllByText('author')).toHaveLength(4);
+  expect(screen.getAllByText('source_viewer.tooltip.scm.commited_on')).toHaveLength(3);
+  expect(screen.getAllByText('source_viewer.tooltip.scm.revision')).toHaveLength(7);
 
   row = screen.getByRole('row', { name: /\* SonarQube$/ });
   expect(row).toBeInTheDocument();
@@ -225,48 +220,26 @@ it('should show SCM information', async () => {
   row = await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ });
   expect(row).toBeInTheDocument();
   const fourthRowScreen = within(row);
-  await user.click(
-    fourthRowScreen.getByRole('button', {
-      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
-    })
-  );
-
-  expect(
-    await fourthRowScreen.findByRole('heading', { level: 4, name: 'author' })
-  ).toBeInTheDocument();
-  expect(
-    fourthRowScreen.queryByRole('heading', {
-      level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on',
-    })
-  ).not.toBeInTheDocument();
-  expect(
-    fourthRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
+  await act(async () => {
+    await user.click(
+      fourthRowScreen.getByRole('button', {
+        name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
+      })
+    );
+  });
 
   // SCM with no date no author
   row = await screen.findByRole('row', { name: /\* 5$/ });
   expect(row).toBeInTheDocument();
   const fithRowScreen = within(row);
   expect(fithRowScreen.getByText('…')).toBeInTheDocument();
-  await user.click(
-    fithRowScreen.getByRole('button', {
-      name: 'source_viewer.click_for_scm_info.5',
-    })
-  );
-
-  expect(
-    fithRowScreen.queryByRole('heading', { level: 4, name: 'author' })
-  ).not.toBeInTheDocument();
-  expect(
-    fithRowScreen.queryByRole('heading', {
-      level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on',
-    })
-  ).not.toBeInTheDocument();
-  expect(
-    fithRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
+  await act(async () => {
+    await user.click(
+      fithRowScreen.getByRole('button', {
+        name: 'source_viewer.click_for_scm_info.5',
+      })
+    );
+  });
 
   // No SCM Popup
   row = await screen.findByRole('row', {
@@ -369,16 +342,19 @@ it('should show duplication block', async () => {
     duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block')
   ).toBeInTheDocument();
 
-  await user.click(
-    duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' })
-  );
+  await act(async () => {
+    await user.click(
+      duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' })
+    );
+  });
 
-  expect(duplicateLine.getAllByRole('link', { name: 'foo:test2.js' })[0]).toBeInTheDocument();
+  expect(screen.getByRole('tooltip')).toBeVisible();
 
   await act(async () => {
-    await user.keyboard('[Escape]');
+    await user.click(document.body);
   });
-  expect(duplicateLine.queryByRole('link', { name: 'foo:test2.js' })).not.toBeInTheDocument();
+
+  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 });
 
 it('should highlight symbol', async () => {

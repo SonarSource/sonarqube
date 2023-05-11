@@ -20,13 +20,15 @@
 import classNames from 'classnames';
 import {
   CodeViewerExpander,
+  SonarCodeColorizer,
   ThemeProp,
   UnfoldDownIcon,
   UnfoldUpIcon,
   themeColor,
   withTheme,
 } from 'design-system';
-import * as React from 'react';
+import { debounce, throttle } from 'lodash';
+import React from 'react';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
@@ -39,13 +41,11 @@ import {
   Duplication,
   ExpandDirection,
   FlowLocation,
-  Issue,
+  LineMap,
   LinearIssueLocation,
   SourceLine,
   SourceViewerFile,
 } from '../../../types/types';
-import './SnippetViewer.css';
-import { LINES_BELOW_ISSUE } from './utils';
 
 export interface SnippetViewerProps {
   component: SourceViewerFile;
@@ -58,8 +58,6 @@ export interface SnippetViewerProps {
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[];
   index: number;
-  issue: Pick<Issue, 'key' | 'textRange' | 'line'>;
-  lastSnippetOfLastGroup: boolean;
   loadDuplications?: (line: SourceLine) => void;
   locations: FlowLocation[];
   locationsByLine: { [line: number]: LinearIssueLocation[] };
@@ -68,154 +66,142 @@ export interface SnippetViewerProps {
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   snippet: SourceLine[];
   className?: string;
+  snippetSourcesMap?: LineMap;
 }
 
-class SnippetViewer extends React.PureComponent<SnippetViewerProps & ThemeProp> {
-  expandBlock = (direction: ExpandDirection) => () =>
-    this.props.expandBlock(this.props.index, direction);
+type Props = SnippetViewerProps & ThemeProp;
 
-  renderLine({
-    displayDuplications,
-    displaySCM,
-    index,
-    issueLocations,
-    line,
-    snippet,
-    symbols,
-    verticalBuffer,
-  }: {
-    displayDuplications: boolean;
-    displaySCM?: boolean;
-    index: number;
-    issueLocations: LinearIssueLocation[];
-    line: SourceLine;
-    snippet: SourceLine[];
-    symbols: string[];
-    verticalBuffer: number;
-  }) {
-    const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, this.props.locations);
+function SnippetViewer(props: Props) {
+  const expandBlock = (direction: ExpandDirection) => () => {
+    props.expandBlock(props.index, direction);
+  };
 
-    const { displayLineNumberOptions, duplications, duplicationsByLine } = this.props;
-    const duplicationsCount = duplications ? duplications.length : 0;
-    const lineDuplications =
-      (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
+  const { component, displaySCM, locationsByLine, snippet, theme, className } = props;
 
-    const firstLineNumber = snippet && snippet.length ? snippet[0].line : 0;
-    const noop = () => {};
+  const { displayLineNumberOptions, duplications, duplicationsByLine, snippetSourcesMap } = props;
+  const duplicationsCount = duplications ? duplications.length : 0;
 
-    return (
-      <Line
-        displayCoverage={true}
-        displayDuplications={displayDuplications}
-        displayIssues={false}
-        displayLineNumberOptions={displayLineNumberOptions}
-        displayLocationMarkers={true}
-        displaySCM={displaySCM}
-        duplications={lineDuplications}
-        duplicationsCount={duplicationsCount}
-        firstLineNumber={firstLineNumber}
-        highlighted={false}
-        highlightedLocationMessage={optimizeLocationMessage(
-          this.props.highlightedLocationMessage,
-          secondaryIssueLocations
+  const firstLineNumber = snippet?.length ? snippet[0].line : 0;
+  const noop = () => {
+    /* noop */
+  };
+  const lastLine = component.measures?.lines && parseInt(component.measures.lines, 10);
+
+  const symbols = symbolsByLine(snippet);
+
+  const displayDuplications =
+    Boolean(props.loadDuplications) && snippet.some((s) => !!s.duplicated);
+
+  const borderColor = themeColor('codeLineBorder')({ theme });
+
+  const THROTTLE_SHORT_DELAY = 10;
+  const [hoveredLine, setHoveredLine] = React.useState<SourceLine | undefined>();
+
+  const onLineMouseEnter = React.useMemo(
+    () =>
+      throttle(
+        (hoveredLine: number) =>
+          snippetSourcesMap ? setHoveredLine(snippetSourcesMap[hoveredLine]) : undefined,
+        THROTTLE_SHORT_DELAY
+      ),
+    [snippetSourcesMap]
+  );
+
+  const onLineMouseLeave = React.useMemo(
+    () =>
+      debounce(
+        (line: number) =>
+          setHoveredLine((hoveredLine) => (hoveredLine?.line === line ? undefined : hoveredLine)),
+        THROTTLE_SHORT_DELAY
+      ),
+    []
+  );
+
+  return (
+    <div
+      className={classNames('it__source-viewer-code', className)}
+      style={{ border: `1px solid ${borderColor}` }}
+    >
+      <SonarCodeColorizer>
+        {snippet[0].line > 1 && (
+          <CodeViewerExpander
+            direction="UP"
+            className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
+            onClick={expandBlock('up')}
+          >
+            <UnfoldUpIcon aria-label={translate('source_viewer.expand_above')} />
+          </CodeViewerExpander>
         )}
-        highlightedSymbols={optimizeHighlightedSymbols(symbols, this.props.highlightedSymbols)}
-        issueLocations={issueLocations}
-        issues={[]}
-        key={line.line}
-        last={false}
-        line={line}
-        loadDuplications={this.props.loadDuplications || noop}
-        onIssueSelect={noop}
-        onIssueUnselect={noop}
-        onIssuesClose={noop}
-        onIssuesOpen={noop}
-        onLocationSelect={this.props.onLocationSelect}
-        onSymbolClick={this.props.handleSymbolClick}
-        openIssues={false}
-        previousLine={index > 0 ? snippet[index - 1] : undefined}
-        renderDuplicationPopup={this.props.renderDuplicationPopup}
-        secondaryIssueLocations={secondaryIssueLocations}
-        verticalBuffer={verticalBuffer}
-      >
-        {this.props.renderAdditionalChildInLine && this.props.renderAdditionalChildInLine(line)}
-      </Line>
-    );
-  }
+        <table className="sw-w-full">
+          <tbody>
+            {snippet.map((line, index) => {
+              const secondaryIssueLocations = getSecondaryIssueLocationsForLine(
+                line,
+                props.locations
+              );
+              const lineDuplications =
+                (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
 
-  render() {
-    const {
-      component,
-      displaySCM,
-      issue,
-      lastSnippetOfLastGroup,
-      locationsByLine,
-      snippet,
-      theme,
-      className,
-    } = this.props;
-    const lastLine =
-      component.measures && component.measures.lines && parseInt(component.measures.lines, 10);
-
-    const symbols = symbolsByLine(snippet);
-
-    const bottomLine = snippet[snippet.length - 1].line;
-    const issueLine = issue.textRange ? issue.textRange.endLine : issue.line;
-
-    const verticalBuffer =
-      lastSnippetOfLastGroup && issueLine
-        ? Math.max(0, LINES_BELOW_ISSUE - (bottomLine - issueLine))
-        : 0;
-
-    const displayDuplications =
-      Boolean(this.props.loadDuplications) && snippet.some((s) => !!s.duplicated);
-
-    const borderColor = themeColor('codeLineBorder')({ theme });
-
-    return (
-      <div
-        className={classNames('source-viewer-code', className)}
-        style={{ border: `1px solid ${borderColor}` }}
-      >
-        <div>
-          {snippet[0].line > 1 && (
-            <CodeViewerExpander
-              direction="UP"
-              className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
-              onClick={this.expandBlock('up')}
-            >
-              <UnfoldUpIcon aria-label={translate('source_viewer.expand_above')} />
-            </CodeViewerExpander>
-          )}
-          <table>
-            <tbody>
-              {snippet.map((line, index) =>
-                this.renderLine({
-                  displayDuplications,
-                  displaySCM,
-                  index,
-                  issueLocations: locationsByLine[line.line] || [],
-                  line,
-                  snippet,
-                  symbols: symbols[line.line],
-                  verticalBuffer: index === snippet.length - 1 ? verticalBuffer : 0,
-                })
-              )}
-            </tbody>
-          </table>
-          {(!lastLine || snippet[snippet.length - 1].line < lastLine) && (
-            <CodeViewerExpander
-              className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
-              onClick={this.expandBlock('down')}
-              direction="DOWN"
-            >
-              <UnfoldDownIcon aria-label={translate('source_viewer.expand_below')} />
-            </CodeViewerExpander>
-          )}
-        </div>
-      </div>
-    );
-  }
+              const displayCoverageUnderline = hoveredLine?.coverageBlock === line.coverageBlock;
+              const displayNewCodeUnderline = hoveredLine?.newCodeBlock === line.line;
+              return (
+                <Line
+                  displayCoverage={true}
+                  displayCoverageUnderline={displayCoverageUnderline}
+                  displayNewCodeUnderline={displayNewCodeUnderline}
+                  displayDuplications={displayDuplications}
+                  displayIssues={false}
+                  displayLineNumberOptions={displayLineNumberOptions}
+                  displayLocationMarkers={true}
+                  displaySCM={displaySCM}
+                  duplications={lineDuplications}
+                  duplicationsCount={duplicationsCount}
+                  firstLineNumber={firstLineNumber}
+                  highlighted={false}
+                  highlightedLocationMessage={optimizeLocationMessage(
+                    props.highlightedLocationMessage,
+                    secondaryIssueLocations
+                  )}
+                  highlightedSymbols={optimizeHighlightedSymbols(
+                    symbols[line.line],
+                    props.highlightedSymbols
+                  )}
+                  issueLocations={locationsByLine[line.line] || []}
+                  issues={[]}
+                  key={line.line}
+                  line={line}
+                  loadDuplications={props.loadDuplications ?? noop}
+                  onIssueSelect={noop}
+                  onIssueUnselect={noop}
+                  onIssuesClose={noop}
+                  onIssuesOpen={noop}
+                  onLocationSelect={props.onLocationSelect}
+                  onSymbolClick={props.handleSymbolClick}
+                  openIssues={false}
+                  previousLine={index > 0 ? snippet[index - 1] : undefined}
+                  renderDuplicationPopup={props.renderDuplicationPopup}
+                  secondaryIssueLocations={secondaryIssueLocations}
+                  onLineMouseEnter={onLineMouseEnter}
+                  onLineMouseLeave={onLineMouseLeave}
+                >
+                  {props.renderAdditionalChildInLine?.(line)}
+                </Line>
+              );
+            })}
+          </tbody>
+        </table>
+        {(!lastLine || snippet[snippet.length - 1].line < lastLine) && (
+          <CodeViewerExpander
+            className="sw-flex sw-justify-start sw-items-center sw-py-1 sw-px-2"
+            onClick={expandBlock('down')}
+            direction="DOWN"
+          >
+            <UnfoldDownIcon aria-label={translate('source_viewer.expand_below')} />
+          </CodeViewerExpander>
+        )}
+      </SonarCodeColorizer>
+    </div>
+  );
 }
 
 export default withTheme(SnippetViewer);

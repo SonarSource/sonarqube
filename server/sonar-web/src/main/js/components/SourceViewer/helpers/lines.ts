@@ -42,3 +42,16 @@ export function optimizeLocationMessage(
     ? highlightedLocationMessage
     : undefined;
 }
+
+/**
+ * Parse lineCode HTML and return text nodes content only
+ */
+export const getLineCodeAsPlainText = (lineCode?: string) => {
+  if (!lineCode) {
+    return '';
+  }
+  const domParser = new DOMParser();
+  const domDoc = domParser.parseFromString(lineCode, 'text/html');
+  const bodyElements = domDoc.getElementsByTagName('body');
+  return bodyElements.length && bodyElements[0].textContent ? bodyElements[0].textContent : '';
+};

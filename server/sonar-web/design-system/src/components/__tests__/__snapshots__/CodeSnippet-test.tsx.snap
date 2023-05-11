@@ -112,7 +112,7 @@ exports[`should show full size when multiline with no editting 1`] = `
   background: rgb(252,252,253);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 400;
 }
 
@@ -136,7 +136,7 @@ exports[`should show full size when multiline with no editting 1`] = `
   color: rgb(109,111,119);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-style: italic;
 }
 
@@ -146,7 +146,7 @@ exports[`should show full size when multiline with no editting 1`] = `
   color: rgb(152,29,150);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 700;
 }
 
@@ -353,7 +353,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
   background: rgb(252,252,253);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 400;
 }
 
@@ -377,7 +377,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
   color: rgb(109,111,119);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-style: italic;
 }
 
@@ -387,7 +387,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
   color: rgb(152,29,150);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 700;
 }
 

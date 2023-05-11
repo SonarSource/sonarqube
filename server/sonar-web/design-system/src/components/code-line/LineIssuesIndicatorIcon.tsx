@@ -17,18 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { LineNumber, LineNumberProps } from '../LineNumber';
+import styled from '@emotion/styled';
+import { memo } from 'react';
+import tw from 'twin.macro';
+import { IssueTypeIcon } from '../icons/IssueTypeIcon';
 
-it('should render correctly', () => {
-  expect(shallowRender({ displayOptions: false, line: { line: 12 } })).toMatchSnapshot(
-    'no options'
-  );
-});
+export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';
 
-function shallowRender(props: Partial<LineNumberProps> = {}) {
-  return shallow(
-    <LineNumber displayOptions={true} firstLineNumber={10} line={{ line: 20 }} {...props} />
+interface Props {
+  issuesCount: number;
+  mostImportantIssueType: IssueType;
+}
+
+function LineIssueIndicatorIconFunc({ issuesCount, mostImportantIssueType }: Props) {
+  return (
+    <>
+      <IssueTypeIcon type={mostImportantIssueType} />
+      {issuesCount > 1 && <IssueIndicatorCounter>{issuesCount}</IssueIndicatorCounter>}
+    </>
   );
 }
+
+export const LineIssuesIndicatorIcon = memo(LineIssueIndicatorIconFunc);
+
+const IssueIndicatorCounter = styled.span`
+  font-size: 0.5rem;
+  line-height: 0.5rem;
+
+  ${tw`sw-ml-1/2`}
+  ${tw`sw-align-top`}
+`;

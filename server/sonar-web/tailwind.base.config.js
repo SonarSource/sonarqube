@@ -34,6 +34,7 @@ module.exports = {
     },
     // Define font sizes
     fontSize: {
+      code: ['0.875rem', '1.125rem'], // 14px / 18px
       sm: ['0.875rem', '1.25rem'], // 14px / 20px
       base: ['1rem', '1.5rem'], // 16px / 24px
       md: ['1.313rem', '1.75rem'], // 21px / 28px

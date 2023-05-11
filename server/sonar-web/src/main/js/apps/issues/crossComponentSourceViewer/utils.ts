@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isDefined } from '../../../helpers/types';
 import { ComponentQualifier } from '../../../types/component';
 import {
   ExpandDirection,
@@ -134,18 +135,36 @@ export function createSnippets(params: {
   return hasSecondaryLocations ? ranges.sort((a, b) => a.start - b.start) : ranges;
 }
 
+function decorateWithUnderlineFlags(line: SourceLine, sourcesMap: LineMap) {
+  const previousLine = sourcesMap[line.line - 1];
+  const decoratedLine = { ...line };
+  if (isDefined(line.coverageStatus)) {
+    decoratedLine.coverageBlock =
+      line.coverageStatus === previousLine?.coverageStatus ? previousLine.coverageBlock : line.line;
+  }
+  if (line.isNew) {
+    decoratedLine.newCodeBlock = previousLine?.isNew ? previousLine.newCodeBlock : line.line;
+  }
+  return decoratedLine;
+}
+
 export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
-  return snippets
-    .map((snippet) => {
-      const lines = [];
-      for (let i = snippet.start; i <= snippet.end; i++) {
-        if (componentLines[i]) {
-          lines.push(componentLines[i]);
-        }
+  return snippets.reduce<Array<{ snippet: SourceLine[]; sourcesMap: LineMap }>>((acc, snippet) => {
+    const snippetSources = [];
+    const snippetSourcesMap: LineMap = {};
+    for (let idx = snippet.start; idx <= snippet.end; idx++) {
+      if (isDefined(componentLines[idx])) {
+        const line = decorateWithUnderlineFlags(componentLines[idx], snippetSourcesMap);
+        snippetSourcesMap[line.line] = line;
+        snippetSources.push(line);
       }
-      return lines;
-    })
-    .filter((snippet) => snippet.length > 0);
+    }
+
+    if (snippetSources.length > 0) {
+      acc.push({ snippet: snippetSources, sourcesMap: snippetSourcesMap });
+    }
+    return acc;
+  }, []);
 }
 
 export function groupLocationsByComponent(

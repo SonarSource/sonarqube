@@ -302,7 +302,7 @@ describe('navigation', () => {
     expect(ui.fixContent.get()).toBeInTheDocument();
 
     await user.click(ui.codeTab.get());
-    expect(ui.codeContent.get()).toHaveClass('source-table');
+    expect(ui.codeContent.get()).toBeInTheDocument();
   });
 
   it('should be able to navigate the hotspot list with keyboard', async () => {

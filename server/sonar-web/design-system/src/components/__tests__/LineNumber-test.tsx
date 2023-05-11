@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { BranchLike } from '../../types/branch-like';
-import { SourceViewerFile } from '../../types/types';
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { FCProps } from '../../types/misc';
+import { LineNumber } from '../code-line/LineNumber';
 
-interface SourceViewerContextShape {
-  branchLike?: BranchLike;
-  file: SourceViewerFile;
-}
+it('should a popup when clicked', async () => {
+  const { user } = setupWithProps();
 
-export const SourceViewerContext = React.createContext<SourceViewerContextShape>({
-  branchLike: {} as BranchLike,
-  file: {} as SourceViewerFile,
+  expect(screen.getByRole('button', { name: 'aria-label' })).toBeVisible();
+
+  await user.click(screen.getByRole('button', { name: 'aria-label' }));
+  expect(screen.getByText('Popup')).toBeVisible();
 });
 
-export function useSourceViewerContext() {
-  return React.useContext(SourceViewerContext);
+function setupWithProps(props: Partial<FCProps<typeof LineNumber>> = {}) {
+  return render(
+    <LineNumber
+      ariaLabel="aria-label"
+      displayOptions={true}
+      firstLineNumber={1}
+      lineNumber={16}
+      popup={<div>Popup</div>}
+      {...props}
+    />
+  );
 }

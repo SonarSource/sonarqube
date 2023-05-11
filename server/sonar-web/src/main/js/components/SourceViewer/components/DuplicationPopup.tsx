@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  DiscreetLink,
+  DuplicationHighlight,
+  FlagMessage,
+  StandoutLink as Link,
+  QualifierIcon,
+} from 'design-system';
 import { groupBy, sortBy } from 'lodash';
-import * as React from 'react';
-import Link from '../../../components/common/Link';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { Alert } from '../../../components/ui/Alert';
+import React, { Fragment, PureComponent } from 'react';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { Dict, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../types/types';
 import { WorkspaceContextShape } from '../../workspace/context';
 
@@ -35,11 +40,12 @@ interface Props {
   branchLike: BranchLike | undefined;
   duplicatedFiles?: Dict<DuplicatedFile>;
   inRemovedComponent: boolean;
+  duplicationHeader: string;
   openComponent: WorkspaceContextShape['openComponent'];
   sourceViewerFile: SourceViewerFile;
 }
 
-export default class DuplicationPopup extends React.PureComponent<Props> {
+export default class DuplicationPopup extends PureComponent<Props> {
   shouldLink() {
     const { branchLike } = this.props;
     return !isPullRequest(branchLike);
@@ -64,22 +70,27 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
 
   renderDuplication(file: DuplicatedFile, children: React.ReactNode, line?: number) {
     return this.shouldLink() ? (
-      <a
+      <DiscreetLink
         data-key={file.key}
         data-line={line}
-        href="#"
         onClick={this.handleFileClick}
         title={file.name}
+        to={{}}
       >
         {children}
-      </a>
+      </DiscreetLink>
     ) : (
       children
     );
   }
 
   render() {
-    const { duplicatedFiles = {}, sourceViewerFile } = this.props;
+    const {
+      duplicatedFiles = {},
+      sourceViewerFile,
+      duplicationHeader,
+      inRemovedComponent,
+    } = this.props;
 
     const groupedBlocks = groupBy(this.props.blocks, '_ref');
     let duplications = Object.keys(groupedBlocks).map((fileRef) => {
@@ -90,7 +101,6 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     });
 
     // first duplications in the same file
-    // then duplications in the same sub-project
     // then duplications in the same project
     // then duplications in other projects
     duplications = sortBy(
@@ -100,23 +110,24 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     );
 
     return (
-      <div className="source-viewer-bubble-popup abs-width-400">
-        {this.props.inRemovedComponent && (
-          <Alert variant="warning">
+      <div className="sw-w-abs-400">
+        {inRemovedComponent && (
+          <FlagMessage
+            ariaLabel={translate('duplications.dups_found_on_deleted_resource')}
+            variant="warning"
+          >
             {translate('duplications.dups_found_on_deleted_resource')}
-          </Alert>
+          </FlagMessage>
         )}
         {duplications.length > 0 && (
           <>
-            <h6 className="spacer-bottom">
-              {translate('component_viewer.transition.duplication')}
-            </h6>
+            <DuplicationHighlight>{duplicationHeader}</DuplicationHighlight>
             {duplications.map((duplication) => (
-              <div className="spacer-top text-ellipsis" key={duplication.file.key}>
-                <div className="component-name">
+              <div className="sw-my-2 sw-truncate" key={duplication.file.key}>
+                <div className="sw-flex sw-flex-wrap sw-body-sm">
                   {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
-                    <div className="component-name-parent">
-                      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+                    <div className="sw-mr-4">
+                      <QualifierIcon className="sw-mr-1" qualifier={ComponentQualifier.Project} />
                       <Link to={getProjectUrl(duplication.file.project)}>
                         {duplication.file.projectName}
                       </Link>
@@ -124,23 +135,21 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
                   )}
 
                   {duplication.file.key !== this.props.sourceViewerFile.key && (
-                    <div className="component-name-path">
+                    <div className="sw-mr-2">
                       {this.renderDuplication(
                         duplication.file,
                         <>
                           <span>{collapsedDirFromPath(duplication.file.name)}</span>
-                          <span className="component-name-file">
-                            {fileFromPath(duplication.file.name)}
-                          </span>
+                          <span>{fileFromPath(duplication.file.name)}</span>
                         </>
                       )}
                     </div>
                   )}
 
-                  <div className="component-name-path">
+                  <div>
                     {'Lines: '}
                     {duplication.blocks.map((block, index) => (
-                      <React.Fragment key={index}>
+                      <Fragment key={index}>
                         {this.renderDuplication(
                           duplication.file,
                           <>
@@ -151,7 +160,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
                           block.from
                         )}
                         {index < duplication.blocks.length - 1 && ', '}
-                      </React.Fragment>
+                      </Fragment>
                     ))}
                   </div>
                 </div>

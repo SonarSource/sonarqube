@@ -23,7 +23,6 @@ import classNames from 'classnames';
 import React from 'react';
 import tw from 'twin.macro';
 import { INPUT_SIZES } from '../helpers/constants';
-import { translate } from '../helpers/l10n';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys, ThemedProps } from '../types/theme';
 import { Checkbox } from './Checkbox';
@@ -196,14 +195,15 @@ interface ItemCopyProps {
   children?: React.ReactNode;
   className?: string;
   copyValue: string;
+  tooltipOverlay: React.ReactNode;
 }
 
 export function ItemCopy(props: ItemCopyProps) {
-  const { children, className, copyValue } = props;
+  const { children, className, copyValue, tooltipOverlay } = props;
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={translate('copied_action')} visible={copySuccess}>
+        <Tooltip overlay={tooltipOverlay} visible={copySuccess}>
           <li role="none">
             <ItemButtonStyled
               className={className}

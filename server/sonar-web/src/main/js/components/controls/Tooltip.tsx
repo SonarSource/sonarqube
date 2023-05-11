@@ -44,6 +44,7 @@ export interface TooltipProps {
   // default behavior of tabbing (other changes should be done outside of this component to make it work)
   // See example DocumentationTooltip
   isInteractive?: boolean;
+  classNameInner?: string;
 }
 
 interface Measurements {
@@ -394,11 +395,12 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   renderOverlay() {
     const isVisible = this.isVisible();
-    const { classNameSpace = 'tooltip', isInteractive, overlay } = this.props;
-
+    const { classNameSpace = 'tooltip', isInteractive, overlay, classNameInner } = this.props;
     return (
       <div
-        className={classNames(`${classNameSpace}-inner sw-font-sans`, { hidden: !isVisible })}
+        className={classNames(`${classNameSpace}-inner sw-font-sans`, classNameInner, {
+          hidden: !isVisible,
+        })}
         id={this.id}
         role="tooltip"
         aria-hidden={!isInteractive || !isVisible}

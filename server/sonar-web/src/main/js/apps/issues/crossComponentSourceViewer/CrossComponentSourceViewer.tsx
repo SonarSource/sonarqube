@@ -21,6 +21,7 @@ import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
+import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -31,7 +32,6 @@ import {
   duplicationsByLine as getDuplicationsByLine,
   issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
-import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { WorkspaceContext } from '../../../components/workspace/context';
@@ -175,10 +175,11 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
           <DuplicationPopup
             blocks={filterDuplicationBlocksByLine(blocks, line)}
             branchLike={this.props.branchLike}
-            duplicatedFiles={duplicatedFiles}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
+            duplicatedFiles={duplicatedFiles}
             openComponent={openComponent}
             sourceViewerFile={component}
+            duplicationHeader={translate('component_viewer.transition.duplication')}
           />
         )}
       </WorkspaceContext.Consumer>
@@ -234,7 +235,6 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
                 issue={issue}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
                 isLastOccurenceOfPrimaryComponent={i === lastOccurenceOfPrimaryComponent}
-                lastSnippetGroup={i === locationsByComponent.length - 1}
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}
                 onIssueSelect={this.props.onIssueSelect}

@@ -74,7 +74,7 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
 
     if (this.container && this.props.component.line) {
       const row = this.container.querySelector(
-        `.source-line[data-line-number="${this.props.component.line}"]`
+        `.it__source-line[data-line-number="${this.props.component.line}"]`
       );
       if (row) {
         row.scrollIntoView({ block: 'center' });

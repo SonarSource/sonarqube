@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byRole, byText } from 'testing-library-selector';
+import { byRole } from 'testing-library-selector';
 import {
   componentsHandler,
   issuesHandler,
@@ -47,9 +47,7 @@ const ui = {
 
   scmInfoLine60: byRole('button', {
     name: 'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.1',
-    expanded: false,
   }),
-  scmInfoExpanded: byText('80f564becc0c0a1c9abaa006eca83a4fd278c3f0'),
 };
 
 describe('issues source viewer', () => {
@@ -83,9 +81,9 @@ describe('issues source viewer', () => {
     expect(ui.line199.query()).not.toBeInTheDocument(); // Expand should only expand a few lines, not all of them
 
     // Show SCM info for newly expanded line
-    expect(ui.scmInfoExpanded.query()).not.toBeInTheDocument();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     await user.click(ui.scmInfoLine60.get());
-    expect(ui.scmInfoExpanded.get()).toBeInTheDocument();
+    expect(screen.getByRole('tooltip')).toBeVisible();
   });
 
   it('should expand all lines', async () => {

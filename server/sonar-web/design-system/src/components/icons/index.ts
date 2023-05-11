@@ -53,6 +53,7 @@ export { OverviewQGPassedIcon } from './OverviewQGPassedIcon';
 export { PencilIcon } from './PencilIcon';
 export { ProjectIcon } from './ProjectIcon';
 export { PullRequestIcon } from './PullRequestIcon';
+export { QualifierIcon } from './QualifierIcon';
 export { RefreshIcon } from './RefreshIcon';
 export { RequiredIcon } from './RequiredIcon';
 export { SecurityHotspotIcon } from './SecurityHotspotIcon';

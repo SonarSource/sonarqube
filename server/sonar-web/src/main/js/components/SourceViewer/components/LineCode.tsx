@@ -17,35 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
-import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/IssueSourceViewerScrollContext';
-import { MessageFormatting } from '../../../types/issues';
-import { LinearIssueLocation, SourceLine } from '../../../types/types';
-import LocationIndex from '../../common/LocationIndex';
-import Tooltip from '../../controls/Tooltip';
-import { IssueMessageHighlighting } from '../../issue/IssueMessageHighlighting';
 import {
-  highlightIssueLocations,
-  highlightSymbol,
-  splitByTokens,
-  Token,
-} from '../helpers/highlight';
+  CoveredUnderline,
+  CoveredUnderlineLabel,
+  LineCodeLayer,
+  LineCodeLayers,
+  LineCodePreFormatted,
+  LineMarker,
+  LineToken,
+  NewCodeUnderline,
+  NewCodeUnderlineLabel,
+  UncoveredUnderline,
+  UncoveredUnderlineLabel,
+  UnderlineLabels,
+} from 'design-system';
+import React, { PureComponent, ReactNode } from 'react';
+import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/IssueSourceViewerScrollContext';
+import { translate } from '../../../helpers/l10n';
+import { LinearIssueLocation, SourceLine } from '../../../types/types';
+import { Token, getHighlightedTokens } from '../helpers/highlight';
 
 interface Props {
-  className?: string;
+  displayCoverageUnderline?: boolean;
   displayLocationMarkers?: boolean;
+  displayNewCodeUnderlineLabel?: boolean;
+  hideLocationIndex?: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
   issueLocations: LinearIssueLocation[];
   line: SourceLine;
   onLocationSelect: ((index: number) => void) | undefined;
-  onSymbolClick: (symbols: Array<string>) => void;
-  padding?: number;
+  onSymbolClick: (symbols: string[]) => void;
+  previousLine?: SourceLine;
   secondaryIssueLocations: LinearIssueLocation[];
 }
 
-export default class LineCode extends React.PureComponent<React.PropsWithChildren<Props>> {
+export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
   symbols?: NodeListOf<HTMLElement>;
 
   nodeNodeRef = (el: HTMLElement | null) => {
@@ -83,9 +90,46 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
     }
   };
 
-  renderToken(tokens: Token[]) {
-    const { highlightedLocationMessage, secondaryIssueLocations } = this.props;
-    const renderedTokens: React.ReactNode[] = [];
+  addLineMarker = (marker: number, index: number, leadingMarker: boolean, markerIndex: number) => {
+    const { highlightedLocationMessage, secondaryIssueLocations, hideLocationIndex } = this.props;
+    const selected =
+      highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
+    const loc = secondaryIssueLocations.find((loc) => loc.index === marker);
+    const message = loc?.text;
+    const isLeading = leadingMarker && markerIndex === 0;
+    return (
+      <IssueSourceViewerScrollContext.Consumer>
+        {(ctx) => (
+          <LineMarker
+            hideLocationIndex={hideLocationIndex}
+            index={marker}
+            key={`${marker}-${index}`}
+            leading={isLeading}
+            message={message}
+            onLocationSelect={this.props.onLocationSelect}
+            ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}
+            selected={selected}
+          />
+        )}
+      </IssueSourceViewerScrollContext.Consumer>
+    );
+  };
+
+  addLineToken = (token: Token, index: number) => {
+    return (
+      <LineToken
+        className={token.className}
+        hasMarker={token.markers.length > 0}
+        key={`${token.text}-${index}`}
+        {...token.modifiers}
+      >
+        {token.text}
+      </LineToken>
+    );
+  };
+
+  renderTokens = (tokens: Token[]) => {
+    const renderedTokens: ReactNode[] = [];
 
     // track if the first marker is displayed before the source code
     // set `false` for the first token in a row
@@ -93,122 +137,87 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
 
     tokens.forEach((token, index) => {
       if (this.props.displayLocationMarkers && token.markers.length > 0) {
-        token.markers.forEach((marker) => {
-          const selected =
-            highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
-          const loc = secondaryIssueLocations.find((loc) => loc.index === marker);
-          const message = loc?.text;
-          const messageFormattings = loc?.textFormatting;
-          renderedTokens.push(
-            this.renderMarker(marker, message, messageFormattings, selected, leadingMarker)
-          );
+        token.markers.forEach((marker, markerIndex) => {
+          renderedTokens.push(this.addLineMarker(marker, index, leadingMarker, markerIndex));
         });
       }
-      renderedTokens.push(
-        // eslint-disable-next-line react/no-array-index-key
-        <span className={token.className} key={index}>
-          {token.text}
-        </span>
-      );
+
+      renderedTokens.push(this.addLineToken(token, index));
 
       // keep leadingMarker truthy if previous token has only whitespaces
       leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
     });
+
     return renderedTokens;
-  }
-
-  renderMarker(
-    index: number,
-    message: string | undefined,
-    messageFormattings: MessageFormatting[] | undefined,
-    selected: boolean,
-    leading: boolean
-  ) {
-    const { onLocationSelect } = this.props;
-    const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
-
-    return (
-      <Tooltip
-        key={`marker-${index}`}
-        overlay={
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        }
-        placement="top"
-      >
-        <LocationIndex
-          leading={leading}
-          onClick={onClick}
-          selected={selected}
-          aria-current={selected ? 'location' : false}
-        >
-          <IssueSourceViewerScrollContext.Consumer>
-            {(ctx) => (
-              <span ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}>
-                {index + 1}
-              </span>
-            )}
-          </IssueSourceViewerScrollContext.Consumer>
-        </LocationIndex>
-      </Tooltip>
-    );
-  }
+  };
 
   render() {
     const {
+      displayCoverageUnderline,
+      displayNewCodeUnderlineLabel,
       children,
-      className,
       highlightedLocationMessage,
       highlightedSymbols,
       issueLocations,
       line,
-      padding,
+      previousLine,
       secondaryIssueLocations,
     } = this.props;
 
-    const container = document.createElement('div');
-    container.innerHTML = this.props.line.code || '';
-
-    let tokens = splitByTokens(container.childNodes);
-
-    if (highlightedSymbols) {
-      highlightedSymbols.forEach((symbol) => {
-        tokens = highlightSymbol(tokens, symbol);
-      });
-    }
-
-    if (issueLocations.length > 0) {
-      tokens = highlightIssueLocations(tokens, issueLocations);
-    }
-
-    if (secondaryIssueLocations) {
-      tokens = highlightIssueLocations(tokens, secondaryIssueLocations, 'issue-location');
-
-      if (highlightedLocationMessage) {
-        const location = secondaryIssueLocations.find(
-          (location) => location.index === highlightedLocationMessage.index
-        );
-        if (location) {
-          tokens = highlightIssueLocations(tokens, [location], 'selected');
-        }
-      }
-    }
-
-    const renderedTokens = this.renderToken(tokens);
-
-    const style = padding ? { paddingBottom: `${padding}px` } : undefined;
+    const displayCoverageUnderlineLabel =
+      displayCoverageUnderline && line.coverageBlock === line.line;
+    const previousLineHasUnderline =
+      previousLine?.isNew ||
+      (previousLine?.coverageStatus && previousLine.coverageBlock === line.coverageBlock);
 
     return (
-      <td
-        className={classNames('source-line-code code', className)}
+      <LineCodeLayers
+        className="js-source-line-code it__source-line-code"
         data-line-number={line.line}
-        style={style}
       >
-        <div className="source-line-code-inner">
-          <pre ref={this.nodeNodeRef}>{renderedTokens}</pre>
-        </div>
+        {(displayCoverageUnderlineLabel || displayNewCodeUnderlineLabel) && (
+          <UnderlineLabels aria-hidden={true} transparentBackground={previousLineHasUnderline}>
+            {displayCoverageUnderlineLabel && line.coverageStatus === 'covered' && (
+              <CoveredUnderlineLabel>
+                {translate('source_viewer.coverage.covered')}
+              </CoveredUnderlineLabel>
+            )}
+            {displayCoverageUnderlineLabel &&
+              (line.coverageStatus === 'uncovered' ||
+                line.coverageStatus === 'partially-covered') && (
+                <UncoveredUnderlineLabel>
+                  {translate('source_viewer.coverage', line.coverageStatus)}
+                </UncoveredUnderlineLabel>
+              )}
+            {displayNewCodeUnderlineLabel && (
+              <NewCodeUnderlineLabel>{translate('source_viewer.new_code')}</NewCodeUnderlineLabel>
+            )}
+          </UnderlineLabels>
+        )}
+        {line.isNew && <NewCodeUnderline aria-hidden={true} data-testid="new-code-underline" />}
+        {displayCoverageUnderline && line.coverageStatus === 'covered' && (
+          <CoveredUnderline aria-hidden={true} data-testid="covered-underline" />
+        )}
+        {displayCoverageUnderline &&
+          (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered') && (
+            <UncoveredUnderline aria-hidden={true} data-testid="uncovered-underline" />
+          )}
 
-        {children}
-      </td>
+        <LineCodeLayer className="sw-px-3">
+          <LineCodePreFormatted ref={this.nodeNodeRef}>
+            {this.renderTokens(
+              getHighlightedTokens({
+                code: line.code,
+                highlightedLocationMessage,
+                highlightedSymbols,
+                issueLocations,
+                secondaryIssueLocations,
+              })
+            )}
+          </LineCodePreFormatted>
+          {children}
+        </LineCodeLayer>
+      </LineCodeLayers>
     );
   }
 }

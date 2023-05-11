@@ -19,7 +19,7 @@ exports[`renders correctly 1`] = `
   background: rgb(252,252,253);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 400;
 }
 
@@ -43,7 +43,7 @@ exports[`renders correctly 1`] = `
   color: rgb(109,111,119);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-style: italic;
 }
 
@@ -53,7 +53,7 @@ exports[`renders correctly 1`] = `
   color: rgb(152,29,150);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 700;
 }
 
@@ -127,7 +127,7 @@ exports[`should display edit functions 1`] = `
   background: rgb(252,252,253);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 400;
 }
 
@@ -151,7 +151,7 @@ exports[`should display edit functions 1`] = `
   color: rgb(109,111,119);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-style: italic;
 }
 
@@ -161,7 +161,7 @@ exports[`should display edit functions 1`] = `
   color: rgb(152,29,150);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 700;
 }
 
@@ -321,7 +321,7 @@ exports[`should handle multiple lines of code 1`] = `
   background: rgb(252,252,253);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 400;
 }
 
@@ -345,7 +345,7 @@ exports[`should handle multiple lines of code 1`] = `
   color: rgb(109,111,119);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-style: italic;
 }
 
@@ -355,7 +355,7 @@ exports[`should handle multiple lines of code 1`] = `
   color: rgb(152,29,150);
   font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
   font-weight: 700;
 }
 

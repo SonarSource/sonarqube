@@ -255,3 +255,34 @@ export const CodeViewerExpander = styled(BareButton)<CodeViewerExpanderProps>`
   border-bottom: ${(props) =>
     props.direction === 'UP' ? themeBorder('default', 'codeLineBorder') : 'none'};
 `;
+
+export const IssueIndicatorButton = styled(BareButton)`
+  color: ${themeColor('codeLineMeta')};
+  text-decoration: none;
+
+  ${tw`sw-whitespace-nowrap`}
+`;
+
+export const DuplicationBlock = styled(BareButton)`
+  background-color: ${themeColor('codeLineDuplication')};
+  outline: none;
+
+  ${tw`sw-block`}
+  ${tw`sw-w-1 sw-h-full`}
+  ${tw`sw-ml-1/2`}
+  ${tw`sw-cursor-pointer`}
+`;
+
+export const LineSCMStyled = styled(BareButton)`
+  outline: none;
+
+  ${tw`sw-pr-2`}
+  ${tw`sw-truncate`}
+  ${tw`sw-whitespace-nowrap`}
+  ${tw`sw-cursor-pointer`}
+  ${tw`sw-w-full sw-h-full`}
+
+&:hover {
+    color: ${themeColor('codeLineMetaHover')};
+  }
+`;

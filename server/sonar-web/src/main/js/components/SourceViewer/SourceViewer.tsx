@@ -42,6 +42,9 @@ import {
 } from '../../types/types';
 import { Alert } from '../ui/Alert';
 import { WorkspaceContext } from '../workspace/context';
+import SourceViewerCode from './SourceViewerCode';
+import { SourceViewerContext } from './SourceViewerContext';
+import SourceViewerHeader from './SourceViewerHeader';
 import DuplicationPopup from './components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -57,9 +60,6 @@ import {
 } from './helpers/indexing';
 import { LINES_TO_LOAD } from './helpers/lines';
 import loadIssues from './helpers/loadIssues';
-import SourceViewerCode from './SourceViewerCode';
-import { SourceViewerContext } from './SourceViewerContext';
-import SourceViewerHeader from './SourceViewerHeader';
 import './styles.css';
 
 export interface Props {
@@ -487,10 +487,11 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
           <DuplicationPopup
             blocks={filterDuplicationBlocksByLine(blocks, line)}
             branchLike={this.props.branchLike}
-            duplicatedFiles={duplicatedFiles}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
+            duplicatedFiles={duplicatedFiles}
             openComponent={openComponent}
             sourceViewerFile={component}
+            duplicationHeader={translate('component_viewer.transition.duplication')}
           />
         )}
       </WorkspaceContext.Consumer>

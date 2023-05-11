@@ -169,8 +169,6 @@ export default function HotspotSnippetContainerRenderer(
             highlightedLocationMessage={highlightedLocation}
             highlightedSymbols={highlightedSymbols}
             index={0}
-            issue={hotspot}
-            lastSnippetOfLastGroup={false}
             locations={secondaryLocations}
             locationsByLine={primaryLocations}
             onLocationSelect={props.onLocationSelect}

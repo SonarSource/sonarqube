@@ -19,7 +19,7 @@
  */
 import EscKeydownHandler from './EscKeydownHandler';
 import { FocusOutHandler } from './FocusOutHandler';
-import OutsideClickHandler from './OutsideClickHandler';
+import { OutsideClickHandler } from './OutsideClickHandler';
 import { Popup } from './popups';
 
 type PopupProps = Popup['props'];

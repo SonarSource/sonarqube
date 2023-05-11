@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
-import IssueIcon from '../../../components/icons/IssueIcon';
 import { sortByType } from '../../../helpers/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue, SourceLine } from '../../../types/types';
-import { ButtonPlain } from '../../controls/buttons';
+
+const MOUSE_LEAVE_DELAY = 0.25;
 
 export interface LineIssuesIndicatorProps {
   issues: Issue[];
@@ -37,12 +37,9 @@ export interface LineIssuesIndicatorProps {
 export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const { issues, issuesOpen, line } = props;
   const hasIssues = issues.length > 0;
-  const className = classNames('source-meta', 'source-line-issues', {
-    'source-line-with-issues': hasIssues,
-  });
 
   if (!hasIssues) {
-    return <td className={className} data-line-number={line.line} />;
+    return <LineMeta />;
   }
 
   const mostImportantIssue = sortByType(issues)[0];
@@ -71,14 +68,20 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   }
 
   return (
-    <td className={className} data-line-number={line.line}>
-      <Tooltip overlay={tooltipContent}>
-        <ButtonPlain aria-label={tooltipContent} aria-expanded={issuesOpen} onClick={props.onClick}>
-          <IssueIcon type={mostImportantIssue.type} />
-          {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-        </ButtonPlain>
+    <LineMeta className="it__source-line-with-issues" data-line-number={line.line}>
+      <Tooltip mouseLeaveDelay={MOUSE_LEAVE_DELAY} overlay={tooltipContent}>
+        <IssueIndicatorButton
+          aria-label={tooltipContent}
+          aria-expanded={issuesOpen}
+          onClick={props.onClick}
+        >
+          <LineIssuesIndicatorIcon
+            issuesCount={issues.length}
+            mostImportantIssueType={mostImportantIssue.type}
+          />
+        </IssueIndicatorButton>
       </Tooltip>
-    </td>
+    </LineMeta>
   );
 }
 

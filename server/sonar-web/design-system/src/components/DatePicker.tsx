@@ -47,7 +47,7 @@ import { FocusOutHandler } from './FocusOutHandler';
 import { InputField } from './InputField';
 import { InputSelect } from './InputSelect';
 import { InteractiveIcon } from './InteractiveIcon';
-import OutsideClickHandler from './OutsideClickHandler';
+import { OutsideClickHandler } from './OutsideClickHandler';
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from './icons';
 import { CloseIcon } from './icons/CloseIcon';
 import { Popup } from './popups';

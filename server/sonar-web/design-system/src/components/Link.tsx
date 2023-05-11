@@ -207,3 +207,10 @@ export const StandoutLink = styled(StyledBaseLink)`
   }
 `;
 StandoutLink.displayName = 'StandoutLink';
+
+export const IssueIndicatorLink = styled(BaseLink)`
+  color: ${themeColor('codeLineMeta')};
+  text-decoration: none;
+
+  ${tw`sw-whitespace-nowrap`}
+`;

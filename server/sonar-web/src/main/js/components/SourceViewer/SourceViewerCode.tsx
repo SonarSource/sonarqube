@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SonarCodeColorizer } from 'design-system/lib';
+import { noop } from 'lodash';
 import * as React from 'react';
 import { Button } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
@@ -152,6 +154,10 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     return (
       <Line
         displayAllIssues={this.props.displayAllIssues}
+        displayNewCodeUnderline={false}
+        displayCoverageUnderline={false}
+        onLineMouseEnter={noop}
+        onLineMouseLeave={noop}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}
         displayIssues={displayIssues}
@@ -172,7 +178,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         issueLocations={this.getIssueLocationsForLine(line)}
         issues={issuesForLine}
         key={line.line || line.code}
-        last={index === this.props.sources.length - 1 && !this.props.hasSourcesAfter}
         line={line}
         loadDuplications={this.props.loadDuplications}
         onIssueSelect={this.props.onIssueSelect}
@@ -217,63 +222,71 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     const hasFileIssues = displayIssues && issues.some((issue) => !issue.textRange);
 
     return (
-      <div className="source-viewer-code">
-        {this.props.hasSourcesBefore && (
-          <div className="source-viewer-more-code">
-            {this.props.loadingSourcesBefore ? (
-              <div className="js-component-viewer-loading-before">
-                <i className="spinner" />
-                <span className="note spacer-left">
-                  {translate('source_viewer.loading_more_code')}
-                </span>
-              </div>
-            ) : (
-              <Button
-                className="js-component-viewer-source-before"
-                onClick={this.props.loadSourcesBefore}
-              >
-                {translate('source_viewer.load_more_code')}
-              </Button>
-            )}
-          </div>
-        )}
+      <SonarCodeColorizer>
+        <div className="it__source-viewer-code">
+          {this.props.hasSourcesBefore && (
+            <div className="source-viewer-more-code">
+              {this.props.loadingSourcesBefore ? (
+                <div className="js-component-viewer-loading-before">
+                  <i className="spinner" />
+                  <span className="note spacer-left">
+                    {translate('source_viewer.loading_more_code')}
+                  </span>
+                </div>
+              ) : (
+                <Button
+                  className="js-component-viewer-source-before"
+                  onClick={this.props.loadSourcesBefore}
+                >
+                  {translate('source_viewer.load_more_code')}
+                </Button>
+              )}
+            </div>
+          )}
 
-        <table className="source-table">
-          <tbody>
-            {hasFileIssues &&
-              this.renderLine({
-                line: ZERO_LINE,
-                index: -1,
-                displayCoverage,
-                displayDuplications,
-                displayIssues,
-              })}
-            {sources.map((line, index) =>
-              this.renderLine({ line, index, displayCoverage, displayDuplications, displayIssues })
-            )}
-          </tbody>
-        </table>
+          <table className="source-table">
+            <tbody>
+              {hasFileIssues &&
+                this.renderLine({
+                  line: ZERO_LINE,
+                  index: -1,
+                  displayCoverage,
+                  displayDuplications,
+                  displayIssues,
+                })}
+              {sources.map((line, index) =>
+                this.renderLine({
+                  line,
+                  index,
+                  displayCoverage,
+                  displayDuplications,
+                  displayIssues,
+                })
+              )}
+            </tbody>
+          </table>
 
-        {this.props.hasSourcesAfter && (
-          <div className="source-viewer-more-code">
-            {this.props.loadingSourcesAfter ? (
-              <div className="js-component-viewer-loading-after">
-                <i className="spinner" />
-                <span className="note spacer-left">
-                  {translate('source_viewer.loading_more_code')}
-                </span>
-              </div>
-            ) : (
-              <Button
-                className="js-component-viewer-source-after"
-                onClick={this.props.loadSourcesAfter}
-              >
-                {translate('source_viewer.load_more_code')}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+          {this.props.hasSourcesAfter && (
+            <div className="source-viewer-more-code">
+              {this.props.loadingSourcesAfter ? (
+                <div className="js-component-viewer-loading-after">
+                  <i className="spinner" />
+                  <span className="note spacer-left">
+                    {translate('source_viewer.loading_more_code')}
+                  </span>
+                </div>
+              ) : (
+                <Button
+                  className="js-component-viewer-source-after"
+                  onClick={this.props.loadSourcesAfter}
+                >
+                  {translate('source_viewer.load_more_code')}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </SonarCodeColorizer>
     );
   }
 }

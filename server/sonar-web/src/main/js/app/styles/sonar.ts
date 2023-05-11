@@ -46,5 +46,4 @@ import './init/tables.css';
 import './init/type.css';
 import './mixins.css';
 import './print.css';
-import './sonar-colorizer.css';
 import './style.css';

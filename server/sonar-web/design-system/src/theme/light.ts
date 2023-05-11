@@ -220,6 +220,16 @@ export const lightTheme = {
     codeLineIssueLocationSelected: [...danger.lighter, 0.5],
     codeLineIssueMessageTooltip: secondary.darker,
 
+    // code syntax highlight
+    codeSyntaxBody: COLORS.codeSyntaxLight.body,
+    codeSyntaxAnnotations: COLORS.codeSyntaxLight.annotations,
+    codeSyntaxConstants: COLORS.codeSyntaxLight.constants,
+    codeSyntaxComments: COLORS.codeSyntaxLight.comments,
+    codeSyntaxKeyword: COLORS.codeSyntaxLight.keyword,
+    codeSyntaxString: COLORS.codeSyntaxLight.string,
+    codeSyntaxKeywordLight: COLORS.codeSyntaxLight['keyword-light'],
+    codeSyntaxPreprocessingDirective: COLORS.codeSyntaxLight['preprocessing-directive'],
+
     // checkbox
     checkboxHover: COLORS.indigo[50],
     checkboxCheckedHover: primary.light,
@@ -248,6 +258,7 @@ export const lightTheme = {
     // tooltip
     tooltipBackground: COLORS.blueGrey[600],
     tooltipSeparator: secondary.dark,
+    tooltipHighlight: secondary.default,
 
     // avatar
     avatarBackground: COLORS.white,

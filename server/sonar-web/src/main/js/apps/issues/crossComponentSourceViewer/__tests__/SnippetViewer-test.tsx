@@ -22,7 +22,6 @@ import { range } from 'lodash';
 import * as React from 'react';
 import { byRole } from 'testing-library-selector';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
-import { mockIssue } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import SnippetViewer, { SnippetViewerProps } from '../SnippetViewer';
 
@@ -102,8 +101,6 @@ function renderSnippetViewer(props: Partial<SnippetViewerProps> = {}) {
       highlightedLocationMessage={{ index: 0, text: '' }}
       highlightedSymbols={[]}
       index={0}
-      issue={mockIssue()}
-      lastSnippetOfLastGroup={false}
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
