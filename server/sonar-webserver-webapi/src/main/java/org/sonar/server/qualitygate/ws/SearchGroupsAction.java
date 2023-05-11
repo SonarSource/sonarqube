@@ -75,7 +75,6 @@ public class SearchGroupsAction implements QualityGatesWsAction {
         "  <li>Edit right on the specified quality gate</li>" +
         "</ul>")
       .setHandler(this)
-      .setInternal(true)
       .addSelectionModeParam()
       .addSearchQuery("sonar", "group names")
       .addPagingParams(25)

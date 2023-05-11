@@ -45,7 +45,6 @@ public class RemoveUserAction extends AbstractUserAction {
         "</ul>")
       .setHandler(this)
       .setPost(true)
-      .setInternal(true)
       .setSince("9.2");
 
     super.defineGateAndUserParameters(action);

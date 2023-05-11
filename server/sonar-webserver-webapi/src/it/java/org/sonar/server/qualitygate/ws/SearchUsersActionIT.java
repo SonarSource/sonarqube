@@ -64,7 +64,6 @@ public class SearchUsersActionIT {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("search_users");
     assertThat(def.isPost()).isFalse();
-    assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key)
       .containsExactlyInAnyOrder("gateName", "selected", "q", "p", "ps");
   }

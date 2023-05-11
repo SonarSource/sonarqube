@@ -80,7 +80,6 @@ public class SearchUsersAction implements QualityGatesWsAction {
         "  <li>Edit right on the specified quality gate</li>" +
         "</ul>")
       .setHandler(this)
-      .setInternal(true)
       .addSearchQuery("freddy", "names", "logins")
       .addSelectionModeParam()
       .addPagingParams(25)

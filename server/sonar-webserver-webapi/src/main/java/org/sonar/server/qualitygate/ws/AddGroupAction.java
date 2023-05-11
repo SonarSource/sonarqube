@@ -49,7 +49,6 @@ public class AddGroupAction extends AbstractGroupAction {
         "</ul>")
       .setHandler(this)
       .setPost(true)
-      .setInternal(true)
       .setSince("9.2");
 
     super.defineGateAndGroupParameters(action);

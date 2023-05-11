@@ -63,7 +63,6 @@ public class AddGroupActionIT {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("add_group");
     assertThat(def.isPost()).isTrue();
-    assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("groupName", "gateName");
   }
 

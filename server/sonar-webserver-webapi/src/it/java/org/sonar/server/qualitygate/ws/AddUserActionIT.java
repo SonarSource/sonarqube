@@ -59,7 +59,6 @@ public class AddUserActionIT {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("add_user");
     assertThat(def.isPost()).isTrue();
-    assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("login", "gateName");
   }
 

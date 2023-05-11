@@ -56,7 +56,6 @@ public class RemoveUserActionIT {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("remove_user");
     assertThat(def.isPost()).isTrue();
-    assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("login", "gateName");
   }
 

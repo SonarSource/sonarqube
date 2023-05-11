@@ -64,7 +64,6 @@ public class SearchGroupsActionIT {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("search_groups");
     assertThat(def.isPost()).isFalse();
-    assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key)
       .containsExactlyInAnyOrder("gateName", "selected", "q", "p", "ps");
   }
