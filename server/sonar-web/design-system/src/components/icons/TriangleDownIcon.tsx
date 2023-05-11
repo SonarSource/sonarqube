@@ -17,38 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum Key {
-  ArrowLeft = 'ArrowLeft',
-  ArrowUp = 'ArrowUp',
-  ArrowRight = 'ArrowRight',
-  ArrowDown = 'ArrowDown',
+import { TriangleDownIcon as Octicon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-  Alt = 'Alt',
-  Option = 'Option',
-  Backspace = 'Backspace',
-  CapsLock = 'CapsLock',
-  Meta = 'Meta',
-  Control = 'Control',
-  Command = 'Command',
-  Delete = 'Delete',
-  End = 'End',
-  Enter = 'Enter',
-  Escape = 'Escape',
-  Home = 'Home',
-  PageDown = 'PageDown',
-  PageUp = 'PageUp',
-  Shift = 'Shift',
-  Space = ' ',
-  Tab = 'Tab',
-}
-
-export function isShortcut(event: KeyboardEvent): boolean {
-  return event.ctrlKey || event.metaKey;
-}
-
-const INPUT_TAGS = ['INPUT', 'SELECT', 'TEXTAREA', 'UBCOMMENT'];
-
-export function isInput(event: KeyboardEvent): boolean {
-  const { tagName } = event.target as HTMLElement;
-  return INPUT_TAGS.includes(tagName);
-}
+export const TriangleDownIcon = OcticonHoc(Octicon);

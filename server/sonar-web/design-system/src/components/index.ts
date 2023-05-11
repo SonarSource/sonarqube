@@ -40,6 +40,7 @@ export { HotspotRating } from './HotspotRating';
 export { InputSearch } from './InputSearch';
 export * from './InputSelect';
 export * from './InteractiveIcon';
+export * from './KeyboardHint';
 export * from './Link';
 export { StandoutLink as Link } from './Link';
 export * from './MainAppBar';

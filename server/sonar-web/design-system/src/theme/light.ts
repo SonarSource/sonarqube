@@ -472,6 +472,9 @@ export const lightTheme = {
 
     // project analyse page
     almCardBorder: COLORS.grey[100],
+
+    // Keyboard hint
+    keyboardHintKey: COLORS.blueGrey[100],
   },
 
   // contrast colors to be used for text when using a color background with the same name
@@ -657,6 +660,9 @@ export const lightTheme = {
     newsTag: COLORS.blueGrey[500],
     roadmap: COLORS.blueGrey[600],
     roadmapContent: COLORS.blueGrey[500],
+
+    // Keyboard hint
+    keyboardHintKey: COLORS.blueGrey[500],
   },
 
   // predefined shadows
