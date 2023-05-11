@@ -88,6 +88,11 @@ public class ExportAction implements QProfileWsAction {
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
       .setPossibleValues(LanguageParamUtils.getOrderedLanguageKeys(languages));
 
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setInternal(true)
+            .setRequired(true);
+
     Set<String> exporterKeys = Arrays.stream(languages.all())
       .map(language -> exporters.exportersForLanguage(language.getKey()))
       .flatMap(Collection::stream)

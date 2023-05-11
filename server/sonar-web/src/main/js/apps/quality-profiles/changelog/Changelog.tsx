@@ -30,6 +30,7 @@ import ChangesList from './ChangesList';
 
 interface Props {
   events: ProfileChangelogEvent[];
+  organization: string;
 }
 
 export default function Changelog(props: Props) {
@@ -74,7 +75,7 @@ export default function Changelog(props: Props) {
         </td>
 
         <td className="quality-profile-changelog-rule-cell">
-          <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
+          <Link to={getRulesUrl({ rule_key: event.ruleKey }, props.organization)}>{event.ruleName}</Link>
         </td>
 
         <td>{event.params && <ChangesList changes={event.params} />}</td>

@@ -104,10 +104,11 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleProfileExtend = async (name: string) => {
-    const { profile: parentProfile } = this.props;
+    const { profile: parentProfile,organization } = this.props;
 
     const data = {
       language: parentProfile.language,
+      organization: organization,
       name,
     };
 
@@ -141,7 +142,6 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
       if (this.mounted) {
         this.setState({ loading: false, openModal: undefined });
-        this.props.router.replace(PROFILE_PATH);
         this.props.updateProfiles();
       }
     } catch {
@@ -150,9 +150,9 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleSetDefaultClick = () => {
-    const { profile } = this.props;
+    const { profile, organization } = this.props;
     if (profile.activeRuleCount > 0) {
-      setDefaultProfile(profile).then(this.props.updateProfiles, () => {
+      setDefaultProfile(profile, organization).then(this.props.updateProfiles, () => {
         /* noop */
       });
     }
@@ -307,6 +307,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileCopy}
             profile={profile}
+            organization={this.props.organization}
           />
         )}
 
@@ -317,6 +318,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileExtend}
             profile={profile}
+            organization={this.props.organization}
           />
         )}
 
@@ -327,6 +329,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileRename}
             profile={profile}
+            organization={this.props.organization}
           />
         )}
 
@@ -336,6 +339,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             onClose={this.handleCloseModal}
             onDelete={this.handleProfileDelete}
             profile={profile}
+            organization={this.props.organization}
           />
         )}
       </>

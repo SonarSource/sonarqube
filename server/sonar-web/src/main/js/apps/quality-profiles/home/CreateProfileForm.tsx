@@ -138,7 +138,6 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
         this.props.onCreate(profile);
       } else if (action === ProfileActionModals.Extend) {
         const { profile } = await createQualityProfile({ language, name, organization });
-
         const parentProfile = this.props.profiles.find((p) => p.key === parent);
         if (parentProfile) {
           await changeProfileParent(profile, parentProfile);
@@ -146,9 +145,8 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
         this.props.onCreate(profile);
       } else {
-        const data = new FormData(event.currentTarget);
         const { organization } = this.props;
-        const { profile } = await createQualityProfile({data, organization});
+        const { profile } = await createQualityProfile({language, name, organization});
         this.props.onCreate(profile);
       }
     } finally {

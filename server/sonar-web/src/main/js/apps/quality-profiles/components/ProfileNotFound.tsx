@@ -20,13 +20,19 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
-import { PROFILE_PATH } from '../constants';
+import { getOrgProfilePath } from '../utils';
 
-export default function ProfileNotFound() {
+export interface ProfileNotFoundProps {
+  organization: string;
+  language: string;
+  name: string;
+}
+
+export default function ProfileNotFound(props: ProfileNotFoundProps) {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <NavLink end={true} to={PROFILE_PATH}>
+        <NavLink end={true} to={getOrgProfilePath(props.organization)}>
           {translate('quality_profiles.page')}
         </NavLink>
       </div>

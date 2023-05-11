@@ -32,6 +32,7 @@ public class RuleExtensionForIndexingDto {
   private String pluginName;
   private String pluginRuleKey;
   private String tags;
+  private String organizationUuid;
 
   public String getPluginName() {
     return pluginName;
@@ -75,5 +76,12 @@ public class RuleExtensionForIndexingDto {
   public Set<String> getTagsAsSet() {
     return ImmutableSet.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags));
   }
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
 
+  public RuleExtensionForIndexingDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
+  }
 }

@@ -98,7 +98,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
-
+  private static final String PARAM_ORGANIZATION = "organization";
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
   private static final String[] POSSIBLE_FACETS = new String[]{
     FACET_LANGUAGES,
@@ -162,6 +162,11 @@ public class SearchAction implements RulesWsAction {
       .setPossibleValues(POSSIBLE_FACETS)
       .setExampleValue(format("%s,%s", POSSIBLE_FACETS[0], POSSIBLE_FACETS[1]));
 
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setInternal(true)
+            .setRequired(true);
+
     WebService.NewParam paramFields = action.createParam(FIELDS)
       .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives.")
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
@@ -177,7 +182,6 @@ public class SearchAction implements RulesWsAction {
     RuleWsSupport.defineGenericRuleSearchParameters(action);
     RuleWsSupport.defineIsExternalParam(action);
   }
-
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -375,22 +379,24 @@ public class SearchAction implements RulesWsAction {
   private static SearchRequest toSearchWsRequest(Request request) {
     request.mandatoryParamAsBoolean(ASCENDING);
     return new SearchRequest()
-      .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
-      .setF(request.paramAsStrings(FIELDS))
-      .setFacets(request.paramAsStrings(FACETS))
-      .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-      .setP("" + request.mandatoryParamAsInt(PAGE))
-      .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
-      .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
-      .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
-      .setStatuses(request.paramAsStrings(PARAM_STATUSES))
-      .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTypes(request.paramAsStrings(PARAM_TYPES))
-      .setCwe(request.paramAsStrings(PARAM_CWE))
-      .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
-      .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
-      .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+            .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
+            .setF(request.paramAsStrings(FIELDS))
+            .setFacets(request.paramAsStrings(FACETS))
+            .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
+            .setP("" + request.mandatoryParamAsInt(PAGE))
+            .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
+            .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
+            .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
+            .setStatuses(request.paramAsStrings(PARAM_STATUSES))
+            .setTags(request.paramAsStrings(PARAM_TAGS))
+            .setTypes(request.paramAsStrings(PARAM_TYPES))
+            .setCwe(request.paramAsStrings(PARAM_CWE))
+            .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+            .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
+            .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
+            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+            .setOrganization(request.mandatoryParam(PARAM_ORGANIZATION));
+
   }
 
   static class SearchResult {
@@ -478,6 +484,7 @@ public class SearchAction implements RulesWsAction {
     private List<String> owaspTop10For2021;
     private List<String> sansTop25;
     private List<String> sonarsourceSecurity;
+    private String organization;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -620,6 +627,15 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
       this.sonarsourceSecurity = sonarsourceSecurity;
+      return this;
+    }
+
+    public String getOrganization(){
+      return  organization;
+    }
+
+    public SearchRequest setOrganization(String organization){
+      this.organization = organization;
       return this;
     }
   }

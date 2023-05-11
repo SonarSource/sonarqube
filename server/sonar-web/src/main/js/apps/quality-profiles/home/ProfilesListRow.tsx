@@ -36,18 +36,18 @@ export interface ProfilesListRowProps {
 }
 
 export function ProfilesListRow(props: ProfilesListRowProps) {
-  const { profile, isComparable } = props;
+  const { profile, isComparable, organization } = props;
 
   const offset = 25 * (profile.depth - 1);
   const activeRulesUrl = getRulesUrl({
     qprofile: profile.key,
     activation: 'true',
-  });
+  },profile.organization);
   const deprecatedRulesUrl = getRulesUrl({
     qprofile: profile.key,
     activation: 'true',
     statuses: 'DEPRECATED',
-  });
+  },profile.organization);
 
   return (
     <tr

@@ -25,6 +25,7 @@ import { Profile } from '../types';
 import { isStagnant } from '../utils';
 
 interface Props {
+  organization: string;
   profiles: Profile[];
 }
 
@@ -50,6 +51,7 @@ export default function EvolutionStagnant(props: Props) {
               <ProfileLink
                 className="link-no-underline"
                 language={profile.language}
+                organization={props.organization}
                 name={profile.name}
               >
                 {profile.name}

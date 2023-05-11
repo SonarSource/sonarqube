@@ -76,6 +76,10 @@ export const getProfilePath = (name: string, language: string, organization: str
   search: queryToSearch({ name, language }),
 });
 
+export const getOrgProfilePath = (organization: string) => ({
+  pathname: `/organizations/${organization}/quality_profiles/`
+});
+
 export const getProfileComparePath = (name: string, language: string, organization: string, withKey?: string) => {
   const query = { language, name };
   if (withKey) {
@@ -111,3 +115,6 @@ export const getProfileChangelogPath = (
 export const isProfileComparePath = (pathname: string): boolean => {
   return pathname === PROFILE_COMPARE_PATH;
 };
+
+export const getProfilesPath = (organization: string) =>
+  organization ? `/organizations/${organization}/quality_profiles` : '/profiles';

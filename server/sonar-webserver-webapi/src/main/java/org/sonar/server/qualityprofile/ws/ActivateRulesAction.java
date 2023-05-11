@@ -49,6 +49,8 @@ public class ActivateRulesAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;
 
+  public static final String PARAM_ORGANIZATION = "organization";
+
   public ActivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, QProfileRules qProfileRules, QProfileWsSupport wsSupport, DbClient dbClient) {
     this.ruleQueryFactory = ruleQueryFactory;
     this.userSession = userSession;
@@ -80,6 +82,11 @@ public class ActivateRulesAction implements QProfileWsAction {
     activate.createParam(PARAM_TARGET_SEVERITY)
       .setDescription("Severity to set on the activated rules")
       .setPossibleValues(Severity.ALL);
+
+    activate.createParam(PARAM_ORGANIZATION)
+            .setRequired(true)
+            .setDescription("Organization key")
+            .setExampleValue("my-org");
   }
 
   @Override

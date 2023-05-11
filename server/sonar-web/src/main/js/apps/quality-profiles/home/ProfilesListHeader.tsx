@@ -21,20 +21,19 @@ import * as React from 'react';
 import Select from '../../../components/controls/Select';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { PROFILE_PATH } from '../constants';
-import { getProfilesForLanguagePath } from '../utils';
+import { getProfilesForLanguagePath, getProfilesPath } from '../utils';
 
 interface Props {
   currentFilter?: string;
   languages: Array<{ key: string; name: string }>;
   router: Router;
+  organization: string | null;
 }
 
 export class ProfilesListHeader extends React.PureComponent<Props> {
   handleChange = (option: { value: string } | null) => {
-    const { router } = this.props;
-
-    router.replace(!option ? PROFILE_PATH : getProfilesForLanguagePath(option.value));
+     const { organization, router } = this.props;
+    router.replace(!option ? getProfilesPath(organization) : getProfilesForLanguagePath(option.value, organization));
   };
 
   render() {

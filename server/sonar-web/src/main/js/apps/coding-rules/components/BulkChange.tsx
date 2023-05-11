@@ -32,6 +32,7 @@ interface Props {
   query: Query;
   referencedProfiles: Dict<Profile>;
   total: number;
+  organization: string;
 }
 
 interface State {
@@ -136,6 +137,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
           <BulkChangeModal
             action={this.state.action}
             onClose={this.closeModal}
+            organization={this.props.organization}
             profile={this.state.profile}
             query={this.props.query}
             referencedProfiles={this.props.referencedProfiles}

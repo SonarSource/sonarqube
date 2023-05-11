@@ -223,6 +223,7 @@ export class App extends React.PureComponent<Props, State> {
     facets: this.getFacetsToFetch().join(),
     ps: PAGE_SIZE,
     s: 'name',
+    organization : this.props.organization.kee,
     ...this.props.location.query,
   });
 
@@ -548,7 +549,7 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       paging && (
-        <BulkChange query={query} referencedProfiles={referencedProfiles} total={paging.total} />
+        <BulkChange query={query} referencedProfiles={referencedProfiles} total={paging.total} organization={this.props.organization.kee}/>
       )
     );
   };
@@ -641,6 +642,7 @@ export class App extends React.PureComponent<Props, State> {
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
                   onFilterChange={this.handleFilterChange}
+                  organization={this.props.organization.kee}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
                   ruleKey={openRule.key}

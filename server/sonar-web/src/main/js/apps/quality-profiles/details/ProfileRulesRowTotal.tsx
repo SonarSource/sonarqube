@@ -27,11 +27,13 @@ interface Props {
   count: number | null;
   qprofile: string;
   total: number | null;
+  organization: string;
 }
 
 export default function ProfileRulesRowTotal(props: Props) {
-  const activeRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'true' });
-  const inactiveRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'false' });
+  const {organization} = props;
+  const activeRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'true' }, organization);
+  const inactiveRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'false'}, organization);
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
     inactiveCount = props.total - props.count;

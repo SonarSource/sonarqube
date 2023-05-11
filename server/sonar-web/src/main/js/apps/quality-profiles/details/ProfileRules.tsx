@@ -37,6 +37,7 @@ const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 interface Props {
   profile: Profile;
+  organization: string;
 }
 
 interface ByType {
@@ -91,6 +92,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     return getQualityProfile({
       compareToSonarWay: true,
       profile: this.props.profile,
+      organization: this.props.organization
     });
   }
 
@@ -99,6 +101,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
       languages: this.props.profile.language,
       facets: 'types',
       ps: 1,
+      organization: this.props.organization
     });
   }
 
@@ -108,6 +111,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
       facets: 'types',
       ps: 1,
       qprofile: this.props.profile.key,
+      organization: this.props.organization
     });
   }
 
@@ -141,11 +145,10 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { profile } = this.props;
+    const { profile, organization } = this.props;
     const { compareToSonarWay } = this.state;
-    const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
+    const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' }, organization);
     const { actions = {} } = profile;
-
     return (
       <div className="boxed-group quality-profile-rules">
         <div className="quality-profile-rules-distribution">
@@ -164,11 +167,13 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
                 count={this.state.activatedTotal}
                 qprofile={profile.key}
                 total={this.state.total}
+                organization={organization}
               />
               {TYPES.map((type) => (
                 <ProfileRulesRowOfType
                   count={this.getRulesCountForType(type)}
                   key={type}
+                  organization={organization}
                   qprofile={profile.key}
                   total={this.getRulesTotalForType(type)}
                   type={type}
@@ -201,12 +206,14 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
         {profile.activeDeprecatedRuleCount > 0 && (
           <ProfileRulesDeprecatedWarning
             activeDeprecatedRules={profile.activeDeprecatedRuleCount}
+            organization={organization}
             profile={profile.key}
           />
         )}
         {compareToSonarWay != null && compareToSonarWay.missingRuleCount > 0 && (
           <ProfileRulesSonarWayComparison
             language={profile.language}
+            organization={organization}
             profile={profile.key}
             sonarWayMissingRules={compareToSonarWay.missingRuleCount}
             sonarway={compareToSonarWay.profile}

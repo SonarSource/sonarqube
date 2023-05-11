@@ -50,6 +50,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 
 public class RuleIndexer implements ResilientIndexer {
@@ -183,8 +184,7 @@ public class RuleIndexer implements ResilientIndexer {
   }
 
   private static EsQueueDto createQueueDtoForRule(String ruleUuid, OrganizationDto organization) {
-//    String docId = RuleExtensionDoc.idOf(ruleUuid, RuleExtensionScope.organization(organization));
-//    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, ruleUuid);
-    throw new IllegalStateException("To be implemented");
+    String docId = RuleExtensionDoc.idOf(ruleUuid, RuleExtensionScope.organization(organization));
+    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, ruleUuid);
   }
 }

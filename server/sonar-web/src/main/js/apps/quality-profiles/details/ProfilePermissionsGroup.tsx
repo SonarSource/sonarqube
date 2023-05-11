@@ -60,13 +60,13 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
   };
 
   handleDelete = () => {
-    const { group, profile } = this.props;
+    const { group, organization, profile } = this.props;
 
     return removeGroup({
       group: group.name,
       language: profile.language,
       qualityProfile: profile.name,
-      organization: this.props.organization,
+      organization
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(group);

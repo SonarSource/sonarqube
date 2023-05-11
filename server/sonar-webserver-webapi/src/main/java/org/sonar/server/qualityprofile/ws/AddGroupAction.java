@@ -32,6 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDto;
 import org.sonar.db.user.GroupDto;
+import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_GROUP;
@@ -79,6 +80,11 @@ public class AddGroupAction implements QProfileWsAction {
       .setDescription("Quality profile language")
       .setRequired(true)
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
+
+    action.createParam(ComponentsWsParameters.PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setInternal(true)
+            .setRequired(true);
 
     action.createParam(PARAM_GROUP)
       .setDescription("Group name")
