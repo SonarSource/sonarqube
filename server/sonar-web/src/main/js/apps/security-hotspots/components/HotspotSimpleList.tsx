@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { Badge, SubnavigationAccordion, themeColor } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
-import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
+import { translate } from '../../../helpers/l10n';
 import { fileFromPath } from '../../../helpers/path';
 import { ComponentQualifier } from '../../../types/component';
 import { SecurityStandard, Standards } from '../../../types/security';
@@ -49,45 +51,43 @@ export interface HotspotSimpleListProps {
   standards: Standards;
 }
 
-export default class HotspotSimpleList extends React.Component<HotspotSimpleListProps> {
-  componentDidMount() {
-    addSideBarClass();
-  }
+export default function HotspotSimpleList(props: HotspotSimpleListProps) {
+  const {
+    filterByCategory,
+    filterByCWE,
+    filterByFile,
+    hotspots,
+    hotspotsTotal,
+    loadingMore,
+    selectedHotspot,
+    standards,
+    onLocationClick,
+    selectedHotspotLocation,
+  } = props;
 
-  componentWillUnmount() {
-    removeSideBarClass();
-  }
+  const categoryLabel =
+    filterByCategory &&
+    SECURITY_STANDARD_RENDERER[filterByCategory.standard](standards, filterByCategory.category);
 
-  render() {
-    const {
-      filterByCategory,
-      filterByCWE,
-      filterByFile,
-      hotspots,
-      hotspotsTotal,
-      loadingMore,
-      selectedHotspot,
-      selectedHotspotLocation,
-      standards,
-    } = this.props;
+  const cweLabel =
+    filterByCWE && SECURITY_STANDARD_RENDERER[SecurityStandard.CWE](standards, filterByCWE);
 
-    const categoryLabel =
-      filterByCategory &&
-      SECURITY_STANDARD_RENDERER[filterByCategory.standard](standards, filterByCategory.category);
-
-    const cweLabel =
-      filterByCWE && SECURITY_STANDARD_RENDERER[SecurityStandard.CWE](standards, filterByCWE);
-
-    return (
-      <div className="hotspots-list-single-category huge-spacer-bottom">
-        <h1 className="hotspot-list-header bordered-bottom">
-          <SecurityHotspotIcon className="spacer-right" />
-          {translateWithParameters('hotspots.list_title', hotspotsTotal)}
-        </h1>
-        <div className="big-spacer-bottom">
-          <div className="hotspot-category">
-            <div className="hotspot-category-header">
-              <strong className="flex-1 spacer-right break-word">
+  return (
+    <StyledContainer>
+      <span className="sw-body-sm">
+        <FormattedMessage
+          id="hotspots.list_title"
+          defaultMessage={translate('hotspots.list_title')}
+          values={{
+            0: <strong className="sw-body-sm-highlight">{hotspotsTotal}</strong>,
+          }}
+        />
+      </span>
+      <div className="sw-mt-8 sw-mb-4">
+        <SubnavigationAccordion
+          header={
+            <SubNavigationContainer className="sw-flex sw-justify-between">
+              <div className="sw-flex sw-items-center">
                 {filterByFile ? (
                   <Tooltip overlay={filterByFile}>
                     <span>
@@ -105,30 +105,39 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
                     {cweLabel}
                   </>
                 )}
-              </strong>
-            </div>
-            <ul>
-              {hotspots.map((h) => (
-                <li data-hotspot-key={h.key} key={h.key}>
-                  <HotspotListItem
-                    hotspot={h}
-                    onClick={this.props.onHotspotClick}
-                    onLocationClick={this.props.onLocationClick}
-                    selected={h.key === selectedHotspot.key}
-                    selectedHotspotLocation={selectedHotspotLocation}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <ListFooter
-          count={hotspots.length}
-          loadMore={!loadingMore ? this.props.onLoadMore : undefined}
-          loading={loadingMore}
-          total={hotspotsTotal}
-        />
+              </div>
+              <Badge variant="counter">{hotspots.length}</Badge>
+            </SubNavigationContainer>
+          }
+          id="hotspot-category"
+          expanded={true}
+        >
+          {hotspots.map((hotspot) => (
+            <HotspotListItem
+              hotspot={hotspot}
+              key={hotspot.key}
+              onClick={props.onHotspotClick}
+              selected={hotspot.key === selectedHotspot.key}
+              onLocationClick={onLocationClick}
+              selectedHotspotLocation={selectedHotspotLocation}
+            />
+          ))}
+        </SubnavigationAccordion>
       </div>
-    );
-  }
+      <ListFooter
+        count={hotspots.length}
+        loadMore={!loadingMore ? props.onLoadMore : undefined}
+        loading={loadingMore}
+        total={hotspotsTotal}
+      />
+    </StyledContainer>
+  );
 }
+
+const SubNavigationContainer = styled.div`
+  width: calc(100% - 1.5rem);
+`;
+
+const StyledContainer = withTheme(styled.div`
+  background-color: ${themeColor('subnavigation')};
+`);
