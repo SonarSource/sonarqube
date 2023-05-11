@@ -30,58 +30,6 @@ public class GithubBinding {
     //nothing to do
   }
 
-  public static class GsonAppInstallation {
-    @SerializedName("id")
-    long id;
-    @SerializedName("account")
-    GsonAppOrgAccount account;
-
-    public GsonAppInstallation() {
-      // even if empty constructor is not required for Gson, it is strongly
-      // recommended:
-      // http://stackoverflow.com/a/18645370/229031
-    }
-
-    public GsonAppInstallation(long id, GsonAppOrgAccount account) {
-      this.id = id;
-      this.account = account;
-    }
-
-    public long getId() {
-      return id;
-    }
-
-    public GsonAppOrgAccount getAccount() {
-      return account;
-    }
-  }
-
-  public static class GsonAppOrgAccount {
-    @SerializedName("login")
-    String name;
-    @SerializedName("type")
-    String type;
-
-    public GsonAppOrgAccount() {
-      // even if empty constructor is not required for Gson, it is strongly
-      // recommended:
-      // http://stackoverflow.com/a/18645370/229031
-    }
-
-    public GsonAppOrgAccount(String name, String type) {
-      this.name = name;
-      this.type = type;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String getType() {
-      return type;
-    }
-  }
-
   public static class GsonInstallations {
     @SerializedName("total_count")
     int totalCount;
@@ -102,7 +50,6 @@ public class GithubBinding {
     String targetType;
     @SerializedName("permissions")
     Permissions permissions;
-
     @SerializedName("account")
     GsonAccount account;
 
@@ -138,15 +85,22 @@ public class GithubBinding {
     public static class Permissions {
       @SerializedName("checks")
       String checks;
+      @SerializedName("members")
+      String members;
 
-      public Permissions(String checks) {
+      public Permissions(String checks, String members) {
         this.checks = checks;
+        this.members = members;
       }
 
       public Permissions() {
         // even if empty constructor is not required for Gson, it is strongly
         // recommended:
         // http://stackoverflow.com/a/18645370/229031
+      }
+
+      public String getMembers() {
+        return members;
       }
 
       public String getChecks() {
@@ -159,11 +113,21 @@ public class GithubBinding {
       long id;
       @SerializedName("login")
       String login;
+      @SerializedName("type")
+      String type;
 
       public GsonAccount() {
         // even if empty constructor is not required for Gson, it is strongly
         // recommended:
         // http://stackoverflow.com/a/18645370/229031
+      }
+
+      public String getLogin() {
+        return login;
+      }
+
+      public String getType() {
+        return type;
       }
     }
   }
