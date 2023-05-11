@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -81,7 +82,10 @@ public class RenameAction implements BranchWsAction {
       checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
-      dbClient.branchDao().updateBranchName(dbSession, project.getUuid(), newBranchName);
+      BranchDto mainBranchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid())
+        .orElseThrow(() -> new NotFoundException("Cannot find main branch for project: " + project.getUuid()));
+
+      dbClient.branchDao().updateBranchName(dbSession, mainBranchDto.getUuid(), newBranchName);
       dbSession.commit();
       response.noContent();
     }

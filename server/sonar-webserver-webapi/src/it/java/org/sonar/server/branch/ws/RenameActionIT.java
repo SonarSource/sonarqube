@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -43,7 +44,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class RenameActionIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -102,8 +103,8 @@ public class RenameActionIT {
   @Test
   public void rename() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     tester.newRequest()
@@ -112,18 +113,18 @@ public class RenameActionIT {
       .execute();
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
-    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid());
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid());
     assertThat(mainBranch.get().getKey()).isEqualTo("master");
 
-    Optional<BranchDto> unchangedBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid());
+    Optional<BranchDto> unchangedBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.getUuid());
     assertThat(unchangedBranch.get().getKey()).isEqualTo("branch");
   }
 
   @Test
   public void rename_with_same_name() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     tester.newRequest()
@@ -137,17 +138,17 @@ public class RenameActionIT {
       .execute();
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
-    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid());
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid());
     assertThat(mainBranch.get().getKey()).isEqualTo("master");
 
-    Optional<BranchDto> unchangedBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid());
+    Optional<BranchDto> unchangedBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.getUuid());
     assertThat(unchangedBranch.get().getKey()).isEqualTo("branch");
   }
 
   @Test
   public void fail_if_name_already_used() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.addProjectPermission(UserRole.ADMIN, project);
     db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 

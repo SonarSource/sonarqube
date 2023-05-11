@@ -76,7 +76,7 @@ public class CreateActionIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

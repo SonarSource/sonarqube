@@ -28,8 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,7 +45,7 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 public class SetAutomaticDeletionProtectionActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -105,7 +105,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_if_no_administer_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -119,8 +119,8 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_when_attempting_to_set_main_branch_as_included_in_purge() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
@@ -135,8 +135,8 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void set_purge_exclusion() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     tester.newRequest()
@@ -146,11 +146,11 @@ public class SetAutomaticDeletionProtectionActionIT {
       .execute();
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
-    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid());
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid());
     assertThat(mainBranch.get().getKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     assertThat(mainBranch.get().isExcludeFromPurge()).isTrue();
 
-    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid());
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.getUuid());
     assertThat(branchDto.get().getKey()).isEqualTo("branch1");
     assertThat(branchDto.get().isExcludeFromPurge()).isTrue();
   }
@@ -158,7 +158,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_on_non_boolean_value_parameter() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -185,7 +185,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   @Test
   public void fail_if_branch_does_not_exist() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
