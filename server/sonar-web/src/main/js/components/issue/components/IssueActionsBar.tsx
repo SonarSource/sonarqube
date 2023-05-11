@@ -27,6 +27,7 @@ import {
   IssueType as IssueTypeEnum,
 } from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
+import Tooltip from '../../controls/Tooltip';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';
@@ -162,7 +163,18 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
             />
           )}
         </div>
-        <div className="list-inline">
+        <div className="display-flex-end list-inline">
+          {issue.codeVariants && issue.codeVariants.length > 0 && (
+            <div className="issue-meta">
+              <Tooltip overlay={issue.codeVariants.join(', ')}>
+                <span className="issue-meta-label">
+                  {issue.codeVariants.length > 1
+                    ? translateWithParameters('issue.x_code_variants', issue.codeVariants.length)
+                    : translate('issue.1_code_variant')}
+                </span>
+              </Tooltip>
+            </div>
+          )}
           <div className="issue-meta js-issue-tags">
             <IssueTags
               canSetTags={canSetTags}

@@ -122,6 +122,13 @@ describe('rendering', () => {
     ).toBeInTheDocument();
     expect(ui.changelogRow('assign', 'luke.skywalker', 'darth.vader').get()).toBeInTheDocument();
   });
+
+  it('should correctly render any code variants', () => {
+    const { ui } = getPageObject();
+    renderIssue({ issue: mockIssue(false, { codeVariants: ['variant 1', 'variant 2'] }) });
+    expect(ui.variants(2).get()).toBeInTheDocument();
+    expect(findTooltipWithContent('variant 1, variant 2', undefined, 'div')).toBeInTheDocument();
+  });
 });
 
 describe('updating', () => {
@@ -337,6 +344,7 @@ function getPageObject() {
     whyLink: byRole('link', { name: 'issue.why_this_issue.long' }),
     checkbox: byRole('checkbox'),
     issueMessageBtn: byRole('button', { name: 'This is an issue' }),
+    variants: (n: number) => byText(`issue.x_code_variants.${n}`),
 
     // Changelog
     toggleChangelogBtn: byRole('button', {

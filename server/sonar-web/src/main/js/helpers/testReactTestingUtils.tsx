@@ -254,8 +254,12 @@ export function dateInputEvent(user: UserEvent) {
 }
 /* eslint-enable testing-library/no-node-access */
 
-export function findTooltipWithContent(text: Matcher, target?: HTMLElement) {
+export function findTooltipWithContent(
+  text: Matcher,
+  target?: HTMLElement,
+  selector = 'svg > desc'
+) {
   return target
-    ? within(target).getByText(text, { selector: 'svg > desc' })
-    : screen.getByText(text, { selector: 'svg > desc' });
+    ? within(target).getByText(text, { selector })
+    : screen.getByText(text, { selector });
 }
