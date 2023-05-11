@@ -382,16 +382,16 @@ public class ComponentDbTester {
     return new ProjectData(getProjectDtoByMainBranch(component), branchDto, component);
   }
 
-  public void addApplicationProject(ComponentDto application, ComponentDto... projects) {
-    for (ComponentDto project : projects) {
-      dbClient.applicationProjectsDao().addProject(dbSession, application.uuid(), project.uuid());
+  public void addApplicationProject(ProjectDto application, ProjectDto... projects) {
+    for (ProjectDto project : projects) {
+      dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
     }
     db.commit();
   }
 
-  public void addApplicationProject(ProjectDto application, ProjectDto... projects) {
-    for (ProjectDto project : projects) {
-      dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
+  public void addApplicationProject(ProjectData application, ProjectData... projects) {
+    for (ProjectData project : projects) {
+      dbClient.applicationProjectsDao().addProject(dbSession, application.getProjectDto().getUuid(), project.getProjectDto().getUuid());
     }
     db.commit();
   }
@@ -459,6 +459,10 @@ public class ComponentDbTester {
 
   public SnapshotDto insertSnapshot(ProjectDto project) {
     return insertSnapshot(project, defaults());
+  }
+
+  public SnapshotDto insertSnapshot(ProjectData project, Consumer<SnapshotDto> consumer) {
+    return insertSnapshot(project.getProjectDto(), consumer);
   }
 
   public SnapshotDto insertSnapshot(ProjectDto project, Consumer<SnapshotDto> consumer) {

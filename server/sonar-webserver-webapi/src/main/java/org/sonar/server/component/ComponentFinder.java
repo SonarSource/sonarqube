@@ -150,7 +150,7 @@ public class ComponentFinder {
   }
 
   public BranchDto getMainBranch(DbSession dbSession, ProjectDto projectDto) {
-    return dbClient.branchDao().selectByUuid(dbSession, projectDto.getUuid())
+    return dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, projectDto.getUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
   }
 

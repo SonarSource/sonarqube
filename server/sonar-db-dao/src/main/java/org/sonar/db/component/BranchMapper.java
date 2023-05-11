@@ -74,4 +74,6 @@ public interface BranchMapper {
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
   Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
+
+  List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Set<String> projectUuids);
 }

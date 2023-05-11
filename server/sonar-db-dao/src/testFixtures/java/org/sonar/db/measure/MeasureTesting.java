@@ -37,13 +37,17 @@ public class MeasureTesting {
   }
 
   public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
+    return newMeasureDto(metricDto, component.uuid(), analysis);
+  }
+
+  public static MeasureDto newMeasureDto(MetricDto metricDto, String branchUuid, SnapshotDto analysis) {
     checkNotNull(metricDto.getUuid());
     checkNotNull(metricDto.getKey());
-    checkNotNull(component.uuid());
+    checkNotNull(branchUuid);
     checkNotNull(analysis.getUuid());
     return new MeasureDto()
       .setMetricUuid(metricDto.getUuid())
-      .setComponentUuid(component.uuid())
+      .setComponentUuid(branchUuid)
       .setAnalysisUuid(analysis.getUuid());
   }
 

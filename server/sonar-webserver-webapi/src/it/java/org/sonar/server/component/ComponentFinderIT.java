@@ -24,7 +24,9 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
@@ -256,5 +258,24 @@ public class ComponentFinderIT {
     ComponentDto retrievedFile = underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, null);
     assertThat(retrievedFile.name()).isEqualTo(file.name());
     assertThat(retrievedFile.longName()).isEqualTo(file.longName());
+  }
+
+  @Test
+  public void getMainBranch_whenMainBranchExist_shouldReturnMainBranchForProject() {
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
+
+    BranchDto mainBranch = underTest.getMainBranch(dbSession, projectDto);
+
+    assertThat(mainBranch).isNotNull();
+    assertThat(mainBranch.isMain()).isTrue();
+  }
+
+  @Test
+  public void getMainBranch_whenMainBranchDoesNotExist_shouldThrowException() {
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setUuid("uuid");
+
+    assertThatThrownBy(() -> underTest.getMainBranch(dbSession, projectDto))
+      .isInstanceOf(IllegalStateException.class);
   }
 }

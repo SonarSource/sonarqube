@@ -95,7 +95,7 @@ public class BranchDao implements Dao {
    */
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
     BranchDto branchDto = mapper(dbSession).selectByUuid(component.branchUuid());
-    if(branchDto == null) {
+    if (branchDto == null) {
       return List.of();
     }
     return mapper(dbSession).selectByProjectUuid(branchDto.getProjectUuid());
@@ -109,7 +109,14 @@ public class BranchDao implements Dao {
     return mapper(dbSession).selectMainBranchByProjectUuid(projectUuid);
   }
 
-  public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession){
+  public List<BranchDto> selectMainBranchesByProjectUuids(DbSession dbSession, Set<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return List.of();
+    }
+    return mapper(dbSession).selectMainBranchesByProjectUuids(projectUuids);
+  }
+
+  public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession) {
     return mapper(dbSession).countPrBranchAnalyzedLanguageByProjectUuid();
   }
 

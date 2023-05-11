@@ -160,6 +160,10 @@ public class ComponentTesting {
     return newPortfolio(Uuids.createFast()).setQualifier(Qualifiers.APP);
   }
 
+  public static ComponentDto newProjectCopy(ProjectData project, ProjectData view) {
+    return newProjectCopy(Uuids.createFast(), project.getMainBranchComponent(), view.getMainBranchComponent());
+  }
+
   public static ComponentDto newProjectCopy(ComponentDto project, ComponentDto view) {
     return newProjectCopy(Uuids.createFast(), project, view);
   }

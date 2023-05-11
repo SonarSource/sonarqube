@@ -36,6 +36,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
 
 import static java.util.Arrays.asList;
@@ -173,19 +174,19 @@ public class LiveMeasureDaoIT {
   @Test
   public void selectForProjectsByMetricUuids_shouldReturnProjectWithTRKQualifierOnly() {
     MetricDto metric = db.measures().insertMetric();
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     db.components().addApplicationProject(application, project, project2);
-    underTest.insert(db.getSession(), newLiveMeasure(application, metric).setValue(3.14).setData((String) null));
-    underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(4.54).setData((String) null));
-    underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(5.56).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(application.getMainBranchComponent(), metric).setValue(3.14).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(project.getMainBranchComponent(), metric).setValue(4.54).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(project2.getMainBranchComponent(), metric).setValue(5.56).setData((String) null));
 
     List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), List.of(metric.getUuid()));
 
     assertThat(selected)
       .extracting(LiveMeasureDto::getProjectUuid)
-      .containsExactlyInAnyOrder(project.uuid(), project2.uuid());
+      .containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
   }
 
   @Test

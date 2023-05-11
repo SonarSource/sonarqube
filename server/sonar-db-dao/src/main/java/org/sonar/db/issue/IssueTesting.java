@@ -43,23 +43,23 @@ public class IssueTesting {
     // only statics
   }
 
-  public static IssueDto newIssue(RuleDto rule, ComponentDto project, ComponentDto file) {
-    checkArgument(project.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a project");
-    return newIssue(rule, project.uuid(), project.getKey(), file);
+  public static IssueDto newIssue(RuleDto rule, ComponentDto branch, ComponentDto file) {
+    checkArgument(branch.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a branch that belongs to a project");
+    return newIssue(rule, branch.uuid(), branch.getKey(), file);
   }
 
   public static IssueDto newIssue(RuleDto rule, ProjectDto project, ComponentDto file) {
     return newIssue(rule, project.getUuid(), project.getKey(), file);
   }
 
-  public static IssueDto newIssue(RuleDto rule, String projectUuid, String projectKey, ComponentDto file) {
-    //checkArgument(file.branchUuid().equals(projectUuid), "The file doesn't belong to the project");
+  public static IssueDto newIssue(RuleDto rule, String branchUuid, String projectKey, ComponentDto file) {
+    //checkArgument(file.branchUuid().equals(branchUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
       .setType(rule.getType())
-      .setProjectUuid(projectUuid)
+      .setProjectUuid(branchUuid)
       .setProjectKey(projectKey)
       .setComponent(file)
       .setStatus(Issue.STATUS_OPEN)

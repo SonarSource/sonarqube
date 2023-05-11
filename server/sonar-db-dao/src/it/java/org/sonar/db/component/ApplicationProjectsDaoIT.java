@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,12 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApplicationProjectsDaoIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
-  private UuidFactoryFast uuids = UuidFactoryFast.getInstance();
-  private TestSystem2 system2 = new TestSystem2();
-  private DbSession dbSession = db.getSession();
-  private ApplicationProjectsDao underTest = new ApplicationProjectsDao(system2, uuids);
+  private final UuidFactoryFast uuids = UuidFactoryFast.getInstance();
+  private final TestSystem2 system2 = new TestSystem2();
+  private final DbSession dbSession = db.getSession();
+  private final ApplicationProjectsDao underTest = new ApplicationProjectsDao(system2, uuids);
 
   @Before
   public void before() {
@@ -79,10 +80,10 @@ public class ApplicationProjectsDaoIT {
 
   @Test
   public void select_project_branches_from_application_branch() {
-    var project = db.components().insertPublicProject(p -> p.setKey("project")).getProjectDto();
-    var projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
-    var app = db.components().insertPrivateApplication(a -> a.setKey("app1")).getProjectDto();
-    var appBranch = db.components().insertProjectBranch(app, b -> b.setKey("app-branch"));
+    ProjectDto project = db.components().insertPublicProject(p -> p.setKey("project")).getProjectDto();
+    BranchDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
+    ProjectDto app = db.components().insertPrivateApplication(a -> a.setKey("app1")).getProjectDto();
+    BranchDto appBranch = db.components().insertProjectBranch(app, b -> b.setKey("app-branch"));
     db.components().addApplicationProject(app, project);
     underTest.addProjectBranchToAppBranch(dbSession, app.getUuid(), appBranch.getUuid(), project.getUuid(), projectBranch.getUuid());
     assertThat(underTest.selectProjectBranchesFromAppBranchUuid(dbSession, appBranch.getUuid())).extracting(BranchDto::getKey).containsOnly("project-branch");
@@ -112,16 +113,32 @@ public class ApplicationProjectsDaoIT {
     assertThat(underTest.selectProjects(dbSession, "uuid")).extracting(ProjectDto::getUuid).containsOnly("p1");
   }
 
-  @Test
-  public void remove() {
-    insertApplicationProject("uuid", "p1");
-    insertApplicationProject("uuid", "p2");
 
-    underTest.remove(dbSession, "uuid");
-    assertThat(underTest.selectProjects(dbSession, "uuid")).isEmpty();
+  @Test
+  public void selectProjectsMainBranchesOfApplication_whenApplicationDoesNotExist_shouldReturnEmptyList() {
+    insertBranchesForProjectUuids(true, "1");
+
+    List<BranchDto> branchDtos = underTest.selectProjectsMainBranchesOfApplication(dbSession, "1");
+
+    assertThat(branchDtos).isEmpty();
   }
 
-  private String insertApplicationProject(String applicationUuid, String projectUuid) {
+  @Test
+  public void selectProjectsMainBranchesOfApplication_whenApplicationExistWithTwoProjects_shouldReturnTwoBranches() {
+    String appUuid = "appUuid";
+    insertProject("1");
+    insertProject("2");
+    insertBranchesForProjectUuids(false, "1", "2");
+    insertApplicationProjectWithoutProject(appUuid, "1");
+    insertApplicationProjectWithoutProject(appUuid, "2");
+
+    List<BranchDto> branchDtos = underTest.selectProjectsMainBranchesOfApplication(dbSession, appUuid);
+
+    assertThat(branchDtos).hasSize(2);
+    assertThat(branchDtos).extracting(BranchDto::isMain).allMatch(s -> true);
+  }
+
+  private void insertApplicationProject(String applicationUuid, String projectUuid) {
     String uuid = uuids.create();
     db.executeInsert(
       "app_projects",
@@ -130,17 +147,20 @@ public class ApplicationProjectsDaoIT {
       "project_uuid", projectUuid,
       "created_at", 1000L);
     insertProject(projectUuid);
-    return uuid;
+  }
+
+  private void insertApplicationProjectWithoutProject(String applicationUuid, String projectUuid) {
+    String uuid = uuids.create();
+    db.executeInsert(
+      "app_projects",
+      "uuid", uuid,
+      "application_uuid", applicationUuid,
+      "project_uuid", projectUuid,
+      "created_at", 1000L);
   }
 
   private void insertProject(String projectUuid) {
-    db.executeInsert("projects",
-      "uuid", projectUuid,
-      "kee", projectUuid,
-      "qualifier", "TRK",
-      "private", true,
-      "updated_at", 1000L,
-      "created_at", 1000L);
+    db.components().insertPrivateProject(c -> {}, p -> p.setUuid(projectUuid));
   }
 
   private void insertApplication(String appUuid) {
@@ -154,6 +174,10 @@ public class ApplicationProjectsDaoIT {
   }
 
   private void insertBranch(String projectUuid, String branchKey) {
+    insertBranch(projectUuid, branchKey, false);
+  }
+
+  private void insertBranch(String projectUuid, String branchKey, boolean isMain) {
     db.executeInsert("project_branches",
       "uuid", branchKey,
       "branch_type", "BRANCH",
@@ -162,7 +186,13 @@ public class ApplicationProjectsDaoIT {
       "NEED_ISSUE_SYNC", true,
       "updated_at", 1000L,
       "created_at", 1000L,
-      "is_main", false);
+      "is_main", isMain);
+  }
+
+  private void insertBranchesForProjectUuids(boolean mainBranch, String... projectUuids) {
+    for (String uuid : projectUuids) {
+      insertBranch(uuid, "key" + uuid + mainBranch, mainBranch);
+    }
   }
 
 }

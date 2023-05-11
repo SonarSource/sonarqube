@@ -43,6 +43,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -316,14 +317,14 @@ public class ProjectDaoIT {
   }
   @Test
   public void selectAllProjectUuids_shouldOnlyReturnProjectWithTRKQualifier() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     db.components().addApplicationProject(application, project, project2);
 
     List<String> projectUuids = projectDao.selectAllProjectUuids(db.getSession());
 
-    assertThat(projectUuids).containsExactlyInAnyOrder(project.uuid(), project2.uuid());
+    assertThat(projectUuids).containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
   }
 
   private void insertDefaultQualityProfile(String language) {

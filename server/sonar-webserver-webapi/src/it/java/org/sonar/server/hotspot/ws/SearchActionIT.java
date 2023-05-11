@@ -51,6 +51,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -1824,9 +1825,9 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ComponentDto application = dbTester.components().insertPublicApplication().getMainBranchComponent();
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ProjectData application = dbTester.components().insertPublicApplication();
+    ProjectData project = dbTester.components().insertPublicProject();
+    ProjectData project2 = dbTester.components().insertPublicProject();
 
     dbTester.components().addApplicationProject(application, project);
     dbTester.components().addApplicationProject(application, project2);
@@ -1836,27 +1837,27 @@ public class SearchActionIT {
 
     indexViews();
 
-    userSessionRule.registerApplication(application, project, project2);
+    userSessionRule.registerApplication(application.getProjectDto(), project.getProjectDto(), project2.getProjectDto());
     indexPermissions();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(referenceDate).setLast(true));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto afterRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setIssueCreationTime(referenceDate + 1000));
     IssueDto atRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setType(SECURITY_HOTSPOT).setIssueCreationTime(referenceDate));
     IssueDto beforeRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setIssueCreationTime(referenceDate - 1000));
 
-    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2.getMainBranchComponent()));
     IssueDto project2Issue = dbTester.issues().insertHotspot(rule, project2, file2, t -> t.setIssueCreationTime(referenceDate - 1000));
 
     indexIssues();
 
-    SearchWsResponse responseAll = newRequest(application)
+    SearchWsResponse responseAll = newRequest(application.getMainBranchComponent())
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
 
-    SearchWsResponse responseOnLeak = newRequest(application,
+    SearchWsResponse responseOnLeak = newRequest(application.getMainBranchComponent(),
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())

@@ -203,4 +203,13 @@
       application_branch_uuid=#{applicationBranchUuid,jdbcType=VARCHAR}
   </delete>
 
+
+  <select id="selectProjectsMainBranchesOfApplication" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="branchColumns"/>
+    from project_branches pb
+    where
+    pb.project_uuid IN ( select project_uuid from app_projects where application_uuid = #{applicationUuid, jdbcType=VARCHAR} )
+    and is_main = ${_true}
+  </select>
+
 </mapper>

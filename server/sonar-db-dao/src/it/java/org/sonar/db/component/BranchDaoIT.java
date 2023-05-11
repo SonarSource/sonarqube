@@ -50,7 +50,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.linesOf;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -112,8 +111,6 @@ public class BranchDaoIT {
     dto2.setBranchType(BranchType.BRANCH);
     dto2.setKey("branch");
     underTest.insert(dbSession, dto2);
-
-    int a = 12124;
 
     underTest.updateBranchName(dbSession, "U1", "master");
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "master").get();
@@ -853,5 +850,48 @@ public class BranchDaoIT {
     underTest.insert(dbSession, dto);
 
     assertThat(underTest.selectMainBranchByProjectUuid(dbSession, "U1")).isEmpty();
+  }
+
+  @Test
+  public void selectMainBranchesByProjectUuids_whenNoUuidsPassed_shouldReturnEmpty() {
+    insertBranchesForProjectUuids(true, "1");
+
+    List<BranchDto> branchDtos = underTest.selectMainBranchesByProjectUuids(dbSession, Set.of());
+
+    assertThat(branchDtos).isEmpty();
+  }
+
+  @Test
+  public void selectMainBranchesByProjectUuids_whenOneUuidPassedAndTwoBranchesInDatabase_shouldReturnOneBranch() {
+    insertBranchesForProjectUuids(true, "1", "2");
+
+    List<BranchDto> branchDtos = underTest.selectMainBranchesByProjectUuids(dbSession, Set.of("1"));
+
+    assertThat(branchDtos).hasSize(1);
+    assertThat(branchDtos).extracting(BranchDto::getProjectUuid).allMatch(s -> s.equals("1"));
+  }
+
+  @Test
+  public void selectMainBranchesByProjectUuids_whenTenUuidsPassedAndTenBranchesInDatabase_shouldReturnAllBranches() {
+    String[] projectUuids = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+    insertBranchesForProjectUuids(true, projectUuids);
+    insertBranchesForProjectUuids(false, projectUuids);
+
+    List<BranchDto> branchDtos = underTest.selectMainBranchesByProjectUuids(dbSession, Set.of(projectUuids));
+
+    assertThat(branchDtos).hasSize(10);
+    assertThat(branchDtos).extracting(BranchDto::isMain).allMatch(b -> true);
+  }
+
+  private void insertBranchesForProjectUuids(boolean mainBranch, String... uuids) {
+    for (String uuid : uuids) {
+      BranchDto dto = new BranchDto();
+      dto.setProjectUuid(uuid);
+      dto.setUuid(uuid + "-uuid" + mainBranch);
+      dto.setIsMain(mainBranch);
+      dto.setBranchType(BranchType.BRANCH);
+      dto.setKey("feature-" + uuid + mainBranch);
+      underTest.insert(dbSession, dto);
+    }
   }
 }

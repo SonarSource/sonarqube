@@ -486,9 +486,8 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> branchUuids;
 
     if (appBranch.isMain()) {
-      // TODO assuming project uuid matches main branch uuid
-      branchUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, appBranch.getProjectUuid()).stream()
-        .map(ProjectDto::getUuid)
+      branchUuids = dbClient.applicationProjectsDao().selectProjectsMainBranchesOfApplication(dbSession, appBranch.getProjectUuid()).stream()
+        .map(BranchDto::getUuid)
         .collect(Collectors.toSet());
     } else {
       branchUuids = dbClient.applicationProjectsDao().selectProjectBranchesFromAppBranchUuid(dbSession, appBranch.getUuid()).stream()

@@ -30,6 +30,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -173,6 +174,10 @@ public class IssueDbTester {
       .setResolution(null);
     stream(populators).forEach(p -> p.accept(issue));
     return insertHotspot(issue);
+  }
+
+  public final IssueDto insertHotspot(RuleDto rule, ProjectData project, ComponentDto file, Consumer<IssueDto>... populators) {
+    return insertHotspot(rule, project.getMainBranchComponent(), file, populators);
   }
 
   public final IssueDto insertHotspot(ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {

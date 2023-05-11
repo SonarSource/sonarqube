@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -144,14 +145,14 @@ public class ServerUserSessionTest {
   @Test
   public void checkChildProjectsPermission_succeeds_if_user_has_permissions_on_all_application_child_projects() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project.getMainBranchComponent());
+    ProjectData application = db.components().insertPrivateApplication();
     db.components().addApplicationProject(application, project);
 
     UserSession underTest = newUserSession(user);
 
-    assertThat(underTest.checkChildProjectsPermission(UserRole.USER, application)).isSameAs(underTest);
+    assertThat(underTest.checkChildProjectsPermission(UserRole.USER, application.getMainBranchComponent())).isSameAs(underTest);
   }
 
   @Test
@@ -167,15 +168,15 @@ public class ServerUserSessionTest {
   @Test
   public void checkChildProjectsPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
+    ProjectData application = db.components().insertPrivateApplication();
     db.components().addApplicationProject(application, project);
     // add computed project
     db.components().insertComponent(newProjectCopy(project, application));
 
     UserSession underTest = newUserSession(user);
 
-    assertThatForbiddenExceptionIsThrown(() -> underTest.checkChildProjectsPermission(UserRole.USER, application));
+    assertThatForbiddenExceptionIsThrown(() -> underTest.checkChildProjectsPermission(UserRole.USER, application.getMainBranchComponent()));
   }
 
   @Test
@@ -249,44 +250,44 @@ public class ServerUserSessionTest {
 
   @Test
   public void test_hasChildProjectsPermission_for_logged_in_user() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1.getMainBranchComponent());
 
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectData application = db.components().insertPrivateApplication();
     db.components().addApplicationProject(application, project1);
     // add computed project
-    db.components().insertComponent(newProjectCopy(project1, application));
+    db.components().insertComponent(newProjectCopy(project1.getMainBranchComponent(), application.getMainBranchComponent()));
 
     UserSession session = newUserSession(user);
-    assertThat(session.hasChildProjectsPermission(UserRole.USER, application)).isTrue();
+    assertThat(session.hasChildProjectsPermission(UserRole.USER, application.getMainBranchComponent())).isTrue();
 
     db.components().addApplicationProject(application, project2);
-    db.components().insertComponent(newProjectCopy(project2, application));
+    db.components().insertComponent(newProjectCopy(project2.getMainBranchComponent(), application.getMainBranchComponent()));
 
-    assertThat(session.hasChildProjectsPermission(UserRole.USER, application)).isFalse();
+    assertThat(session.hasChildProjectsPermission(UserRole.USER, application.getMainBranchComponent())).isFalse();
   }
 
   @Test
   public void test_hasChildProjectsPermission_for_anonymous_user() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     db.users().insertPermissionOnAnyone(UserRole.USER);
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    db.components().addApplicationProject(application, project);
+    ProjectData application = db.components().insertPrivateApplication();
+    db.components().addApplicationProject(application.getProjectDto(), project.getProjectDto());
     // add computed project
-    db.components().insertComponent(newProjectCopy(project, application));
+    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), application.getMainBranchComponent()));
 
     UserSession session = newAnonymousSession();
-    assertThat(session.hasChildProjectsPermission(UserRole.USER, application)).isFalse();
+    assertThat(session.hasChildProjectsPermission(UserRole.USER, application.getProjectDto())).isFalse();
   }
 
   @Test
   public void hasChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
     db.users().insertPermissionOnAnyone(UserRole.USER);
 
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    ProjectDto application = db.components().insertPublicApplication().getProjectDto();
     db.components().addApplicationProject(application, project);
 
     UserSession session = newAnonymousSession();
@@ -295,7 +296,7 @@ public class ServerUserSessionTest {
     assertThat(session.hasChildProjectsPermission(UserRole.USER, application)).isTrue();
 
     // change privacy of the project without updating the cache
-    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.uuid(), true);
+    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.getUuid(), true);
     assertThat(session.hasChildProjectsPermission(UserRole.USER, application)).isTrue();
   }
 
@@ -599,8 +600,8 @@ public class ServerUserSessionTest {
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project4 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project5 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project6 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project5 = db.components().insertPrivateProject();
+    ProjectData project6 = db.components().insertPrivateProject();
 
     UserDto user = db.users().insertUser();
     UserSession underTest = newUserSession(user);
@@ -611,10 +612,10 @@ public class ServerUserSessionTest {
     ComponentDto subPortfolio = db.components().insertComponent(newSubPortfolio(portfolio));
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, subPortfolio);
 
-    ComponentDto app = db.components().insertPrivateApplication().getMainBranchComponent();
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, app);
+    ProjectData app = db.components().insertPrivateApplication();
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, app.getMainBranchComponent());
 
-    ComponentDto app2 = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectData app2 = db.components().insertPrivateApplication();
 
     // Add public project1 to private portfolio
     db.components().addPortfolioProject(portfolio, project1);
@@ -636,25 +637,25 @@ public class ServerUserSessionTest {
     var copyProject3 = db.components().insertComponent(newProjectCopy(project3, portfolio));
 
     // Add private project5 with USER permissions to app
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project5);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project5.getMainBranchComponent());
     db.components().addApplicationProject(app, project5);
     var copyProject5 = db.components().insertComponent(newProjectCopy(project5, app));
-    db.components().addPortfolioReference(portfolio, app.uuid());
+    db.components().addPortfolioReference(portfolio, app.getProjectDto().getUuid());
 
     // Add private project6 to private app2
     db.components().addApplicationProject(app2, project6);
     var copyProject6 = db.components().insertComponent(newProjectCopy(project6, app2));
-    db.components().addPortfolioReference(portfolio, app2.uuid());
+    db.components().addPortfolioReference(portfolio, app2.getMainBranchComponent().uuid());
 
     assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, List.of(portfolio))).isEmpty();
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, List.of(portfolio))).containsExactly(portfolio);
 
-    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(app, subPortfolio, app2))).isEmpty();
-    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio);
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(app.getMainBranchComponent(), subPortfolio, app2.getMainBranchComponent()))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(app.getMainBranchComponent(), subPortfolio, app2.getMainBranchComponent()))).containsExactly(app.getMainBranchComponent(), subPortfolio);
 
-    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).isEmpty();
-    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2,
-      project4, project5);
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(project1, project2, project3, project4, project5.getMainBranchComponent(), project6.getMainBranchComponent()))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(project1, project2, project3, project4, project5.getMainBranchComponent(), project6.getMainBranchComponent()))).containsExactly(project1, project2,
+      project4, project5.getMainBranchComponent());
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, Arrays.asList(copyProject1, copyProject2, copyProject3, copyProject4, copyProject5, copyProject6)))
       .containsExactly(copyProject1, copyProject2, copyProject4, copyProject5);
   }
