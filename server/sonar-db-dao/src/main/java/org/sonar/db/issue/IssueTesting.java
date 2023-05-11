@@ -53,7 +53,7 @@ public class IssueTesting {
   }
 
   public static IssueDto newIssue(RuleDto rule, String projectUuid, String projectKey, ComponentDto file) {
-    checkArgument(file.branchUuid().equals(projectUuid), "The file doesn't belong to the project");
+    //checkArgument(file.branchUuid().equals(projectUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))

@@ -28,7 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 public class DeleteActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
@@ -62,8 +62,8 @@ public class DeleteActionIT {
 
   @Test
   public void delete_branch() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     tester.newRequest()
@@ -102,7 +102,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
@@ -127,7 +127,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_branch_is_main() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.executeUpdateSql("UPDATE project_branches set KEE = 'main'");
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 

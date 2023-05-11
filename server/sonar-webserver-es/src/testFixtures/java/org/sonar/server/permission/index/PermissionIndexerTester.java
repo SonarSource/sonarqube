@@ -22,6 +22,7 @@ package org.sonar.server.permission.index;
 import java.util.List;
 import java.util.stream.Stream;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -39,6 +40,10 @@ public class PermissionIndexerTester {
 
   public PermissionIndexerTester allowOnlyAnyone(ComponentDto... projects) {
     return allow(stream(projects).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).toList());
+  }
+
+  public PermissionIndexerTester allowOnlyAnyone(ProjectDto... projects) {
+    return allow(stream(projects).map(project -> new IndexPermissions(project.getUuid(), project.getQualifier()).allowAnyone()).toList());
   }
 
   public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {

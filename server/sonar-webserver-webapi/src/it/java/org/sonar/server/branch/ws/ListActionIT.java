@@ -26,10 +26,13 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -65,7 +68,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ListActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -97,19 +100,20 @@ public class ListActionIT {
 
   @Test
   public void test_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
+    ProjectDto project = projectData.getProjectDto();
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
+      newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), qualityGateStatus, m -> m.setData("ERROR"));
 
-    ComponentDto branch = db.components()
+    BranchDto branch = db.components()
       .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     RuleDto rule = db.rules().insert();
-    db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, project, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
 
     indexIssues();
 
@@ -126,19 +130,20 @@ public class ListActionIT {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
+    ProjectDto project = projectData.getProjectDto();
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
+      newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.measures().insertLiveMeasure(projectData.getMainBranchDto(), qualityGateStatus, m -> m.setData("ERROR"));
 
-    ComponentDto branch = db.components()
+    BranchDto branch = db.components()
       .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     RuleDto rule = db.rules().insert();
-    db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, project, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
     indexIssues();
 
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
@@ -153,7 +158,7 @@ public class ListActionIT {
 
   @Test
   public void main_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
@@ -167,8 +172,9 @@ public class ListActionIT {
 
   @Test
   public void main_branch_with_specified_name() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.getDbClient().branchDao().updateBranchName(db.getSession(), project.uuid(), "head");
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    db.getDbClient().branchDao().updateBranchName(db.getSession(), projectData.getMainBranchDto().getUuid(), "head");
     db.commit();
     userSession.logIn().addProjectPermission(USER, project);
 
@@ -183,7 +189,7 @@ public class ListActionIT {
 
   @Test
   public void test_project_with_branches() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(USER, project);
@@ -202,9 +208,9 @@ public class ListActionIT {
 
   @Test
   public void status_on_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     ListWsResponse response = ws.newRequest()
@@ -220,9 +226,9 @@ public class ListActionIT {
   public void response_contains_date_of_last_analysis() {
     Long lastAnalysisBranch = dateToLong(parseDateTime("2017-04-01T00:00:00+0100"));
 
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
+    BranchDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch2).setCreatedAt(lastAnalysisBranch));
     db.commit();
@@ -247,7 +253,7 @@ public class ListActionIT {
 
   @Test
   public void application_branches() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
     db.components().insertProjectBranch(application, b -> b.setKey("feature/bar"));
     db.components().insertProjectBranch(application, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(USER, application);

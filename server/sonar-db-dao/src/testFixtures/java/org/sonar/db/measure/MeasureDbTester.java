@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -53,6 +54,15 @@ public class MeasureDbTester {
   @SafeVarargs
   public final LiveMeasureDto insertLiveMeasure(ComponentDto component, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
     LiveMeasureDto dto = newLiveMeasure(component, metric);
+    Arrays.stream(consumers).forEach(c -> c.accept(dto));
+    dbClient.liveMeasureDao().insert(dbSession, dto);
+    dbSession.commit();
+    return dto;
+  }
+
+  @SafeVarargs
+  public final LiveMeasureDto insertLiveMeasure(BranchDto branchDto, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
+    LiveMeasureDto dto = newLiveMeasure(branchDto, metric);
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     dbClient.liveMeasureDao().insert(dbSession, dto);
     dbSession.commit();
