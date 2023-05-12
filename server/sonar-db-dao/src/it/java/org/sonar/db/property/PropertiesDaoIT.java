@@ -462,7 +462,7 @@ public class PropertiesDaoIT {
     insertProperty("global.one", "one", null, null, null, null, null);
     insertProperty("global.two", "two", null, null, null, null, null);
 
-    List<PropertyDto> properties = underTest.selectGlobalProperties();
+    List<PropertyDto> properties = underTest.selectGlobalProperties(db.getSession());
     assertThat(properties.size())
       .isEqualTo(2);
 
@@ -480,7 +480,7 @@ public class PropertiesDaoIT {
   public void selectGlobalProperties_supports_all_values(String dbValue, String expected) {
     insertProperty("global.one", dbValue, null, null, null, null, null);
 
-    List<PropertyDto> dtos = underTest.selectGlobalProperties();
+    List<PropertyDto> dtos = underTest.selectGlobalProperties(db.getSession());
     assertThat(dtos)
       .hasSize(1);
 
@@ -524,7 +524,7 @@ public class PropertiesDaoIT {
     ComponentDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.uuid(), null, null, projectDto.getKey(), projectDto.name());
 
-    List<PropertyDto> dtos = underTest.selectComponentProperties(projectDto.uuid());
+    List<PropertyDto> dtos = underTest.selectComponentProperties(db.getSession(), projectDto.uuid());
     assertThat(dtos).hasSize(1);
 
     assertThat(dtos.iterator().next())
@@ -547,7 +547,7 @@ public class PropertiesDaoIT {
   public void selectProjectProperty() {
     insertProperty("project.one", "one", "uuid10", null, null, "component", "component");
 
-    PropertyDto property = underTest.selectProjectProperty("uuid10", "project.one");
+    PropertyDto property = underTest.selectProjectProperty(db.getSession(), "uuid10", "project.one");
 
     assertThat(property)
       .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
@@ -611,35 +611,6 @@ public class PropertiesDaoIT {
 
     assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet("unknown")))
       .isEmpty();
-  }
-
-  @Test
-  public void select_component_properties_by_ids() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    UserDto user = db.users().insertUser();
-
-    String key = "key";
-    String anotherKey = "anotherKey";
-    insertProperties(null, null, null, newGlobalPropertyDto().setKey(key));
-    insertProperties(null, project.getKey(), project.name(), newComponentPropertyDto(project).setKey(key));
-    insertProperties(null, project2.getKey(), project2.name(), newComponentPropertyDto(project2).setKey(key),
-      newComponentPropertyDto(project2).setKey(anotherKey));
-    insertProperties(user.getLogin(), null, null, newUserPropertyDto(user).setKey(key));
-
-    newUserPropertyDto(user).setKey(key);
-
-    assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet(project.uuid())))
-      .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
-    assertThat(underTest.selectComponentProperties(session, (project.uuid())))
-      .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
-    assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet(project.uuid(), project2.uuid())))
-      .extracting("key", "componentUuid").containsOnly(
-        tuple(key, project.uuid()),
-        tuple(key, project2.uuid()),
-        tuple(anotherKey, project2.uuid()));
-
-    assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet("uuid123456789"))).isEmpty();
   }
 
   @Test
@@ -928,100 +899,6 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void delete_project_property() {
-    insertPrivateProject("A");
-    insertPrivateProject("B");
-    insertPrivateProject("C");
-    String uuid1 = insertProperty("global.one", "one", null, null, null, null, null);
-    String uuid2 = insertProperty("global.two", "two", null, null, null, null, null);
-    String uuid3 = insertProperty("struts.one", "one", "project1", null, null, "project1", "project1");
-    String uuid4 = insertProperty("commonslang.one", "one", "project2", null, null, "project2", "project2");
-    String uuid5 = insertProperty("user.one", "one", null, "100", "login", null, null);
-    String uuid6 = insertProperty("user.two", "two", null, "100", "login", null, null);
-    String uuid7 = insertProperty("other.one", "one", "project3", null, null, "project3", "project3");
-
-    underTest.deleteProjectProperty("struts.one", "project1", "project1", "project1", Qualifiers.PROJECT);
-
-    assertThatPropertiesRowByUuid(uuid1)
-      .hasKey("global.one")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("one");
-    assertThatPropertiesRowByUuid(uuid2)
-      .hasKey("global.two")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("two");
-    assertThatPropertiesRowByUuid(uuid3)
-      .doesNotExist();
-    assertThatPropertiesRowByUuid(uuid4)
-      .hasKey("commonslang.one")
-      .hasComponentUuid("project2")
-      .hasNoUserUuid()
-      .hasTextValue("one");
-    assertThatPropertiesRowByUuid(uuid5)
-      .hasKey("user.one")
-      .hasNoComponentUuid()
-      .hasUserUuid("100")
-      .hasTextValue("one");
-    assertThatPropertiesRowByUuid(uuid6)
-      .hasKey("user.two")
-      .hasNoComponentUuid()
-      .hasUserUuid("100")
-      .hasTextValue("two");
-    assertThatPropertiesRowByUuid(uuid7)
-      .hasKey("other.one")
-      .hasComponentUuid("project3")
-      .hasNoUserUuid()
-      .hasTextValue("one");
-  }
-
-  @Test
-  public void delete_project_properties() {
-    String uuid1 = insertProperty("sonar.profile.java", "Sonar Way", "uuid1", null, null,
-      "component", "component");
-    String uuid2 = insertProperty("sonar.profile.java", "Sonar Way", "uuid2", null, null,
-      "component", "component");
-
-    String uuid3 = insertProperty("sonar.profile.java", "Sonar Way", null, null, null,
-      "component", "component");
-
-    String uuid4 = insertProperty("sonar.profile.js", "Sonar Way", "uuid1", null, null,
-      "component", "component");
-    String uuid5 = insertProperty("sonar.profile.js", "Sonar Way", "uuid2", null, null,
-      "component", "component");
-    String uuid6 = insertProperty("sonar.profile.js", "Sonar Way", null, null, null,
-      "component", "component");
-
-    underTest.deleteProjectProperties("sonar.profile.java", "Sonar Way");
-
-    assertThatPropertiesRowByUuid(uuid1)
-      .doesNotExist();
-    assertThatPropertiesRowByUuid(uuid2)
-      .doesNotExist();
-    assertThatPropertiesRowByUuid(uuid3)
-      .hasKey("sonar.profile.java")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("Sonar Way");
-    assertThatPropertiesRowByUuid(uuid4)
-      .hasKey("sonar.profile.js")
-      .hasComponentUuid("uuid1")
-      .hasNoUserUuid()
-      .hasTextValue("Sonar Way");
-    assertThatPropertiesRowByUuid(uuid5)
-      .hasKey("sonar.profile.js")
-      .hasComponentUuid("uuid2")
-      .hasNoUserUuid()
-      .hasTextValue("Sonar Way");
-    assertThatPropertiesRowByUuid(uuid6)
-      .hasKey("sonar.profile.js")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("Sonar Way");
-  }
-
-  @Test
   public void deleteGlobalProperty() {
     // global
     String uuid1 = insertProperty("global.key", "new_global", null, null, null, null, null);
@@ -1032,7 +909,8 @@ public class PropertiesDaoIT {
     // user
     String uuid4 = insertProperty("user.key", "new_user", null, "100", "login", null, null);
 
-    underTest.deleteGlobalProperty("to_be_deleted");
+    underTest.deleteGlobalProperty("to_be_deleted", db.getSession());
+    db.getSession().commit();
 
     assertThatPropertiesRowByUuid(uuid1)
       .hasKey("global.key")
@@ -1056,46 +934,6 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void delete_by_user() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
-    UserDto user = db.users().insertUser();
-    UserDto anotherUser = db.users().insertUser();
-    insertProperty("KEY_11", "VALUE", project.uuid(), user.getUuid(), user.getLogin(), project.getKey(), project.name());
-    insertProperty("KEY_12", "VALUE", project.uuid(), user.getUuid(), user.getLogin(), project.getKey(), project.name());
-    insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getUuid(), anotherUser.getLogin(), project.getKey(), project.name());
-    insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getUuid(), user.getLogin(), anotherProject.getKey(), anotherProject.name());
-
-    underTest.deleteByUser(session, user.getUuid(), user.getLogin());
-
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), session))
-      .hasSize(1)
-      .extracting(PropertyDto::getUserUuid).containsOnly(anotherUser.getUuid());
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), session))
-      .isEmpty();
-  }
-
-  @Test
-  public void delete_by_matching_login() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
-    UserDto user = db.users().insertUser();
-    UserDto anotherUser = db.users().insertUser();
-    insertProperty("KEY_11", user.getLogin(), project.uuid(), null, null, project.getKey(), project.name());
-    insertProperty("KEY_12", user.getLogin(), project.uuid(), null, null, project.getKey(), project.name());
-    insertProperty("KEY_11", anotherUser.getLogin(), project.uuid(), null, null, project.getKey(), project.name());
-    insertProperty("KEY_11", user.getLogin(), anotherProject.uuid(), null, null, anotherProject.getKey(), anotherProject.name());
-
-    underTest.deleteByMatchingLogin(session, user.getLogin(), newArrayList("KEY_11", "KEY_12"));
-
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), session))
-      .hasSize(1)
-      .extracting(PropertyDto::getValue).containsOnly(anotherUser.getLogin());
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), session))
-      .isEmpty();
-  }
-
-  @Test
   public void delete_by_key_and_value() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
@@ -1114,58 +952,6 @@ public class PropertiesDaoIT {
     assertThat(db.select("select prop_key as \"key\", text_value as \"value\", component_uuid as \"projectUuid\", user_uuid as \"userUuid\" from properties"))
       .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userUuid"))
       .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), "100"));
-  }
-
-  @Test
-  public void saveGlobalProperties_insert_property_if_does_not_exist_in_db() {
-    underTest.saveGlobalProperties(mapOf(
-      "null_value_property", null,
-      "empty_value_property", "",
-      "text_value_property", "dfdsfsd",
-      "4000_char_value_property", VALUE_SIZE_4000,
-      "clob_value_property", VALUE_SIZE_4001));
-
-    assertThatPropertiesRow("null_value_property")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .isEmpty()
-      .hasCreatedAt(INITIAL_DATE);
-    assertThatPropertiesRow("empty_value_property")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .isEmpty()
-      .hasCreatedAt(INITIAL_DATE + 1);
-    assertThatPropertiesRow("text_value_property")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("dfdsfsd")
-      .hasCreatedAt(INITIAL_DATE + 2);
-    assertThatPropertiesRow("4000_char_value_property")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue(VALUE_SIZE_4000)
-      .hasCreatedAt(INITIAL_DATE + 3);
-    assertThatPropertiesRow("clob_value_property")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasClobValue(VALUE_SIZE_4001)
-      .hasCreatedAt(INITIAL_DATE + 4);
-  }
-
-  @Test
-  public void saveGlobalProperties_delete_and_insert_new_value_when_property_exists_in_db() {
-    String uuid = insertProperty("to_be_updated", "old_value", null, null, null, null, null);
-
-    underTest.saveGlobalProperties(ImmutableMap.of("to_be_updated", "new value"));
-
-    assertThatPropertiesRowByUuid(uuid)
-      .doesNotExist();
-
-    assertThatPropertiesRow("to_be_updated")
-      .hasNoComponentUuid()
-      .hasNoUserUuid()
-      .hasTextValue("new value")
-      .hasCreatedAt(INITIAL_DATE + 1);
   }
 
   private static Map<String, String> mapOf(String... values) {

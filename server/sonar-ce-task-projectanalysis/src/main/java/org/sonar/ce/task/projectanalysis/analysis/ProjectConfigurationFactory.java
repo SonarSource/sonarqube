@@ -24,6 +24,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.setting.ChildSettings;
 
 @ComputeEngineSide
@@ -47,8 +48,10 @@ public class ProjectConfigurationFactory {
   }
 
   private void addSettings(Settings settings, String componentUuid) {
-    dbClient.propertiesDao()
-      .selectComponentProperties(componentUuid)
-      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    try (DbSession session = dbClient.openSession(false)) {
+      dbClient.propertiesDao()
+        .selectComponentProperties(session, componentUuid)
+        .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    }
   }
 }

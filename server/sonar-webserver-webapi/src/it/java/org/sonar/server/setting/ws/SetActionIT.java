@@ -1212,7 +1212,7 @@ public class SetActionIT {
   }
 
   private void assertComponentSetting(String key, String value, String componentUuid) {
-    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(componentUuid, key);
+    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(db.getSession(), componentUuid, key);
 
     assertThat(result)
       .isNotNull()

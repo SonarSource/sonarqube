@@ -69,37 +69,8 @@ public class ReadOnlyPropertiesDaoTest {
   }
 
   @Test
-  public void deleteProjectProperties() {
-    underTest.deleteProjectProperties(null, null);
-
-    assertNoInteraction();
-
-  }
-
-  @Test
-  public void deleteProjectProperties1() {
-    underTest.deleteProjectProperties(null, null, dbSession);
-
-    assertNoInteraction();
-  }
-
-  @Test
   public void deleteGlobalProperty() {
-    underTest.deleteGlobalProperty(null);
-
-    assertNoInteraction();
-  }
-
-  @Test
-  public void deleteGlobalProperty1() {
     underTest.deleteGlobalProperty(null, dbSession);
-
-    assertNoInteraction();
-  }
-
-  @Test
-  public void insertGlobalProperties() {
-    underTest.saveGlobalProperties(null);
 
     assertNoInteraction();
   }

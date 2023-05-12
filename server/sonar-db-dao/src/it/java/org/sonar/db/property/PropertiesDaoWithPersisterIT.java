@@ -241,60 +241,6 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedProjectPropertyIsPersisted() {
-    when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
-    PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, null);
-    underTest.saveProperty(propertyDto);
-
-    underTest.deleteProjectProperty(KEY, PROJECT_UUID, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
-
-    verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
-    PropertyNewValue newValue = newValueCaptor.getValue();
-    assertThat(newValue)
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
-        PropertyNewValue::getComponentName)
-      .containsExactly(KEY, null, null,
-        null, PROJECT_UUID, PROJECT_KEY, PROJECT_NAME);
-    assertThat(newValue.toString()).doesNotContain("userLogin");
-  }
-
-  @Test
-  public void deleteTrackedProjectPropertyWithoutAffectedRowsIsNotPersisted() {
-    underTest.deleteProjectProperty(KEY, PROJECT_UUID, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
-
-    verifyNoInteractions(auditPersister);
-  }
-
-  @Test
-  public void deleteTrackedProjectPropertiesIsPersisted() {
-    when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
-    PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, null);
-    underTest.saveProperty(propertyDto);
-
-    underTest.deleteProjectProperties(KEY, VALUE);
-
-    verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
-    PropertyNewValue newValue = newValueCaptor.getValue();
-    assertThat(newValue)
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
-        PropertyNewValue::getComponentName)
-      .containsExactly(KEY, VALUE, null, null,
-        null, null, null);
-    assertThat(newValue.toString()).doesNotContain("projectUuid");
-  }
-
-  @Test
-  public void deleteTrackedProjectPropertiesWithoutAffectedRowsIsNotPersisted() {
-    underTest.deleteProjectProperties(KEY, VALUE);
-
-    verifyNoInteractions(auditPersister);
-  }
-
-  @Test
   public void deleteTrackedGlobalPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     PropertyDto propertyDto = getPropertyDto(KEY, null, null);
@@ -317,69 +263,6 @@ public class PropertiesDaoWithPersisterIT {
   @Test
   public void deleteTrackedGlobalPropertyWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteGlobalProperty(KEY, session);
-
-    verifyNoInteractions(auditPersister);
-  }
-
-  @Test
-  public void deletePropertyByUserIsPersisted() {
-    UserDto user = setUserProperties(VALUE);
-    underTest.deleteByUser(session, user.getUuid(), user.getLogin());
-
-    verify(auditPersister, times(2)).deleteProperty(any(), newValueCaptor.capture(), eq(false));
-    List<PropertyNewValue> newValues = newValueCaptor.getAllValues();
-    assertThat(newValues.get(0))
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
-      .containsExactly(KEY, null, user.getUuid(),
-        user.getLogin(), null, null);
-    assertThat(newValues.get(0).toString()).contains("userUuid");
-    assertThat(newValues.get(1))
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
-        PropertyNewValue::getComponentName)
-      .containsExactly(SECURED_KEY, null, user.getUuid(),
-        user.getLogin(), null, null, null);
-    assertThat(newValues.get(1).toString()).doesNotContain("value");
-  }
-
-  @Test
-  public void deletePropertyByUserWithoutAffectedRowsIsNotPersisted() {
-    underTest.deleteByUser(session, USER_UUID, USER_LOGIN);
-
-    verifyNoInteractions(auditPersister);
-  }
-
-  @Test
-  public void deletePropertyByUserLoginIsPersisted() {
-    UserDto user = setUserProperties(null);
-    underTest.deleteByMatchingLogin(session, user.getLogin(), newArrayList(KEY, ANOTHER_KEY, SECURED_KEY));
-
-    verify(auditPersister, times(2)).deleteProperty(any(), newValueCaptor.capture(), eq(false));
-    List<PropertyNewValue> newValues = newValueCaptor.getAllValues();
-    assertThat(newValues.get(0))
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
-        PropertyNewValue::getComponentName)
-      .containsExactly(KEY, null, null,
-        user.getLogin(), null, null, null);
-    assertThat(newValues.get(0).toString()).contains("userLogin");
-    assertThat(newValues.get(1))
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
-        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
-        PropertyNewValue::getComponentName)
-      .containsExactly(SECURED_KEY, null, null,
-        user.getLogin(), null, null, null);
-    assertThat(newValues.get(1).toString()).doesNotContain("value");
-  }
-
-  @Test
-  public void deletePropertyByUserLoginWithoutAffectedRowsIsNotPersisted() {
-    underTest.deleteByMatchingLogin(session, USER_LOGIN, newArrayList(KEY, ANOTHER_KEY, SECURED_KEY));
 
     verifyNoInteractions(auditPersister);
   }

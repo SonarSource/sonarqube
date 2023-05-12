@@ -129,12 +129,6 @@ public class PropertiesDao implements Dao {
     return res;
   }
 
-  public List<PropertyDto> selectGlobalProperties() {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectGlobalProperties(session);
-    }
-  }
-
   public List<PropertyDto> selectGlobalProperties(DbSession session) {
     return getMapper(session).selectGlobalProperties();
   }
@@ -155,19 +149,6 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByComponentUuids(singletonList(componentUuid));
   }
 
-  public List<PropertyDto> selectComponentProperties(String componentUuid) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectComponentProperties(session, componentUuid);
-    }
-  }
-
-  @CheckForNull
-  public PropertyDto selectProjectProperty(String projectUuid, String propertyKey) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return selectProjectProperty(session, projectUuid, propertyKey);
-    }
-  }
-
   @CheckForNull
   public PropertyDto selectProjectProperty(DbSession dbSession, String projectUuid, String propertyKey) {
     return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setComponentUuid(projectUuid));
@@ -184,10 +165,6 @@ public class PropertiesDao implements Dao {
   public List<PropertyDto> selectPropertiesByKeysAndComponentUuids(DbSession session, Collection<String> keys, Collection<String> componentUuids) {
     return executeLargeInputs(keys, partitionKeys -> executeLargeInputs(componentUuids,
       partitionComponentUuids -> getMapper(session).selectByKeysAndComponentUuids(partitionKeys, partitionComponentUuids)));
-  }
-
-  public List<PropertyDto> selectPropertiesByComponentUuids(DbSession session, Collection<String> componentUuids) {
-    return executeLargeInputs(componentUuids, getMapper(session)::selectByComponentUuids);
   }
 
   public List<PropertyDto> selectByKeyAndMatchingValue(DbSession session, String key, String value) {
@@ -284,13 +261,6 @@ public class PropertiesDao implements Dao {
     return deletedRows;
   }
 
-  public void deleteProjectProperty(String key, String projectUuid, String projectKey, String projectName, String qualifier) {
-    try (DbSession session = mybatis.openSession(false)) {
-      deleteProjectProperty(session, key, projectUuid, projectKey, projectName, qualifier);
-      session.commit();
-    }
-  }
-
   public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
     String projectName, String qualifier) {
     int deletedRows = getMapper(session).deleteProjectProperty(key, projectUuid);
@@ -298,21 +268,6 @@ public class PropertiesDao implements Dao {
     if (deletedRows > 0) {
       auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectKey, projectName, qualifier,
         null), false);
-    }
-  }
-
-  public void deleteProjectProperties(String key, String value, DbSession session) {
-    int deletedRows = getMapper(session).deleteProjectProperties(key, value);
-
-    if (deletedRows > 0) {
-      auditPersister.deleteProperty(session, new PropertyNewValue(key, value), false);
-    }
-  }
-
-  public void deleteProjectProperties(String key, String value) {
-    try (DbSession session = mybatis.openSession(false)) {
-      deleteProjectProperties(key, value, session);
-      session.commit();
     }
   }
 
@@ -324,52 +279,11 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void deleteGlobalProperty(String key) {
-    try (DbSession session = mybatis.openSession(false)) {
-      deleteGlobalProperty(key, session);
-      session.commit();
-    }
-  }
-
-  public void deleteByUser(DbSession dbSession, String userUuid, String userLogin) {
-    List<String> uuids = getMapper(dbSession).selectUuidsByUser(userUuid);
-
-    persistDeletedProperties(dbSession, userUuid, userLogin, uuids);
-
-    executeLargeInputsWithoutOutput(uuids, subList -> getMapper(dbSession).deleteByUuids(subList));
-  }
-
-  public void deleteByMatchingLogin(DbSession dbSession, String login, List<String> propertyKeys) {
-    List<String> uuids = getMapper(dbSession).selectIdsByMatchingLogin(login, propertyKeys);
-
-    persistDeletedProperties(dbSession, null, login, uuids);
-
-    executeLargeInputsWithoutOutput(uuids, list -> getMapper(dbSession).deleteByUuids(list));
-  }
-
   public void deleteByKeyAndValue(DbSession dbSession, String key, String value) {
     int deletedRows = getMapper(dbSession).deleteByKeyAndValue(key, value);
 
     if (deletedRows > 0) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(key, value), false);
-    }
-  }
-
-  public void saveGlobalProperties(Map<String, String> properties) {
-    try (DbSession session = mybatis.openSession(false)) {
-      PropertiesMapper mapper = getMapper(session);
-      properties.forEach((key, value) -> {
-        int affectedRows = save(mapper, key, null, null, value);
-
-        if (auditPersister.isTrackedProperty(key)) {
-          if (affectedRows > 0) {
-            auditPersister.updateProperty(session, new PropertyNewValue(key, value), false);
-          } else {
-            auditPersister.addProperty(session, new PropertyNewValue(key, value), false);
-          }
-        }
-      });
-      session.commit();
     }
   }
 
@@ -387,17 +301,5 @@ public class PropertiesDao implements Dao {
 
   private static PropertiesMapper getMapper(DbSession session) {
     return session.getMapper(PropertiesMapper.class);
-  }
-
-  private void persistDeletedProperties(DbSession dbSession, @Nullable String userUuid, String userLogin, List<String> uuids) {
-    if (!uuids.isEmpty()) {
-      List<PropertyDto> properties = executeLargeInputs(uuids, subList -> getMapper(dbSession).selectByUuids(subList));
-
-      properties
-        .stream()
-        .filter(p -> auditPersister.isTrackedProperty(p.getKey()))
-        .forEach(p -> auditPersister.deleteProperty(dbSession,
-          new PropertyNewValue(p.getKey(), userUuid, userLogin), false));
-    }
   }
 }

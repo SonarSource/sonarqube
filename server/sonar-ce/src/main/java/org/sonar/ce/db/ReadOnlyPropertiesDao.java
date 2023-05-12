@@ -55,38 +55,13 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteProjectProperty(String key, String projectUuid, String projectKey, String projectName, String qualifier) {
-    // do nothing
-  }
-
-  @Override
   public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
     String projectName, String qualifier) {
     // do nothing
   }
 
   @Override
-  public void deleteProjectProperties(String key, String value, DbSession session) {
-    // do nothing
-  }
-
-  @Override
-  public void deleteProjectProperties(String key, String value) {
-    // do nothing
-  }
-
-  @Override
   public void deleteGlobalProperty(String key, DbSession session) {
-    // do nothing
-  }
-
-  @Override
-  public void deleteGlobalProperty(String key) {
-    // do nothing
-  }
-
-  @Override
-  public void saveGlobalProperties(Map<String, String> properties) {
     // do nothing
   }
 
