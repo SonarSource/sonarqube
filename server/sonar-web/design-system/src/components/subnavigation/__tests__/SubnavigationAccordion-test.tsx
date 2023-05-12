@@ -24,33 +24,51 @@ import { FCProps } from '../../../types/misc';
 import { SubnavigationAccordion } from '../SubnavigationAccordion';
 
 it('should have correct style and html structure', () => {
-  setupWithProps();
+  setupWithProps({ expanded: false });
 
   expect(screen.getByRole('button', { expanded: false })).toBeVisible();
   expect(screen.queryByText('Foo')).not.toBeInTheDocument();
 });
 
 it('should display expanded', () => {
-  setupWithProps({ initExpanded: true });
+  setupWithProps({ expanded: true });
 
   expect(screen.getByRole('button', { expanded: true })).toBeVisible();
   expect(screen.getByText('Foo')).toBeVisible();
 });
 
-it('should toggle expand', async () => {
-  const user = userEvent.setup();
+it('should display expanded by default', () => {
   setupWithProps();
 
-  expect(screen.queryByText('Foo')).not.toBeInTheDocument();
-  await user.click(screen.getByRole('button'));
+  expect(screen.getByRole('button')).toBeVisible();
   expect(screen.getByText('Foo')).toBeVisible();
-  await user.click(screen.getByRole('button'));
-  expect(screen.queryByText('Foo')).not.toBeInTheDocument();
+});
+
+it('should toggle expand', async () => {
+  const user = userEvent.setup();
+  const onSetExpanded = jest.fn();
+  setupWithProps({ onSetExpanded, expanded: false });
+
+  expect(onSetExpanded).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', { expanded: false }));
+
+  expect(onSetExpanded).toHaveBeenCalledWith(true);
+});
+
+it('should toggle collapse', async () => {
+  const user = userEvent.setup();
+  const onSetExpanded = jest.fn();
+  setupWithProps({ onSetExpanded, expanded: true });
+
+  expect(onSetExpanded).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', { expanded: true }));
+
+  expect(onSetExpanded).toHaveBeenCalledWith(false);
 });
 
 function setupWithProps(props: Partial<FCProps<typeof SubnavigationAccordion>> = {}) {
   return render(
-    <SubnavigationAccordion header="Header" id="test" initExpanded={false} {...props}>
+    <SubnavigationAccordion header="Header" id="test" {...props}>
       <span>Foo</span>
     </SubnavigationAccordion>
   );

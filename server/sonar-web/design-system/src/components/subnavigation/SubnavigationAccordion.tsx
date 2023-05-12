@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ReactNode, useCallback, useState } from 'react';
+import { ReactNode, useCallback } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../../helpers/theme';
 import { BareButton } from '../buttons';
@@ -28,17 +28,17 @@ import { SubnavigationGroup } from './SubnavigationGroup';
 interface Props {
   children: ReactNode;
   className?: string;
+  expanded?: boolean;
   header: ReactNode;
   id: string;
-  initExpanded?: boolean;
+  onSetExpanded?: (expanded: boolean) => void;
 }
 
 export function SubnavigationAccordion(props: Props) {
-  const { children, className, header, id, initExpanded } = props;
-  const [expanded, setExpanded] = useState(initExpanded);
+  const { children, className, header, id, expanded = true, onSetExpanded } = props;
   const toggleExpanded = useCallback(() => {
-    setExpanded((expanded) => !expanded);
-  }, [setExpanded]);
+    onSetExpanded?.(!expanded);
+  }, [expanded, onSetExpanded]);
 
   return (
     <SubnavigationGroup
