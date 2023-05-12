@@ -4068,6 +4068,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-highlight-words@npm:0.16.4":
+  version: 0.16.4
+  resolution: "@types/react-highlight-words@npm:0.16.4"
+  dependencies:
+    "@types/react": "*"
+  checksum: 8b7c1b2b63b8f6d58e181613ba5392755b042bf87c74e65caad7bfc4585566944e9aacda6ee3b1cad222aea6667716c8be8643b39b72ae7b4aaadde063a62d25
+  languageName: node
+  linkType: hard
+
 "@types/react-modal@npm:3.13.1":
   version: 3.13.1
   resolution: "@types/react-modal@npm:3.13.1"
@@ -4519,6 +4528,7 @@ __metadata:
     "@types/react": 17.0.39
     "@types/react-dom": 17.0.11
     "@types/react-helmet": 6.1.6
+    "@types/react-highlight-words": 0.16.4
     "@types/react-modal": 3.13.1
     "@types/react-virtualized": 9.21.21
     "@types/valid-url": 1.0.4
@@ -4574,6 +4584,7 @@ __metadata:
     react-dom: 17.0.2
     react-draggable: 4.4.5
     react-helmet-async: 1.3.0
+    react-highlight-words: 0.20.0
     react-intl: 6.2.5
     react-modal: 3.16.1
     react-router-dom: 6.10.0
@@ -6126,6 +6137,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/user-event": 14.4.3
     "@types/react": 17.0.39
+    "@types/react-highlight-words": 0.16.4
     "@typescript-eslint/parser": 5.57.0
     "@vitejs/plugin-react": 3.1.0
     autoprefixer: 10.4.14
@@ -6159,6 +6171,7 @@ __metadata:
     react-day-picker: 8.6.0
     react-dom: 17.0.2
     react-helmet-async: 1.3.0
+    react-highlight-words: 0.20.0
     react-intl: 6.2.5
     react-router-dom: 6.10.0
     react-select: 5.7.2
@@ -7815,6 +7828,13 @@ __metadata:
   dependencies:
     function-bind: ^1.1.1
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
+  languageName: node
+  linkType: hard
+
+"highlight-words-core@npm:^1.2.0":
+  version: 1.2.2
+  resolution: "highlight-words-core@npm:1.2.2"
+  checksum: 737758a8a572c82919552b031df300016164b7d0db6a819d24bc6c7ca2279d3cd6d03497728930d6402423c7a3fc2f42c628a9b01b025c704a0b56a635377511
   languageName: node
   linkType: hard
 
@@ -9652,6 +9672,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memoize-one@npm:^4.0.0":
+  version: 4.0.3
+  resolution: "memoize-one@npm:4.0.3"
+  checksum: addd18c046542f57440ba70bf8ebd48663d17626cade681f777522ef70900a87ec72c5041bed8ece4f6d40a2cb58803bae388b50a4b740d64f36bcda20c147b7
+  languageName: node
+  linkType: hard
+
 "memoize-one@npm:^6.0.0":
   version: 6.0.0
   resolution: "memoize-one@npm:6.0.0"
@@ -10644,6 +10671,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prop-types@npm:^15.5.8, prop-types@npm:^15.7.0, prop-types@npm:^15.8.1":
+  version: 15.8.1
+  resolution: "prop-types@npm:15.8.1"
+  dependencies:
+    loose-envify: ^1.4.0
+    object-assign: ^4.1.1
+    react-is: ^16.13.1
+  checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
+  languageName: node
+  linkType: hard
+
 "prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
@@ -10652,17 +10690,6 @@ __metadata:
     object-assign: ^4.1.1
     react-is: ^16.8.1
   checksum: 5eef82fdda64252c7e75aa5c8cc28a24bbdece0f540adb60ce67c205cf978a5bd56b83e4f269f91c6e4dcfd80b36f2a2dec24d362e278913db2086ca9c6f9430
-  languageName: node
-  linkType: hard
-
-"prop-types@npm:^15.7.0, prop-types@npm:^15.8.1":
-  version: 15.8.1
-  resolution: "prop-types@npm:15.8.1"
-  dependencies:
-    loose-envify: ^1.4.0
-    object-assign: ^4.1.1
-    react-is: ^16.13.1
-  checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
   languageName: node
   linkType: hard
 
@@ -10797,6 +10824,19 @@ __metadata:
     react: ^16.6.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.6.0 || ^17.0.0 || ^18.0.0
   checksum: 7ca7e47f8af14ea186688b512a87ab912bf6041312b297f92516341b140b3f0f8aedf5a44d226d99e69ed067b0cc106e38aeb9c9b738ffcc63d10721c844db90
+  languageName: node
+  linkType: hard
+
+"react-highlight-words@npm:0.20.0":
+  version: 0.20.0
+  resolution: "react-highlight-words@npm:0.20.0"
+  dependencies:
+    highlight-words-core: ^1.2.0
+    memoize-one: ^4.0.0
+    prop-types: ^15.5.8
+  peerDependencies:
+    react: ^0.14.0 || ^15.0.0 || ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+  checksum: 6794b6fe409ee81390e342ccdb951696e06354d8591b4cac050a6d64dbc77dfc7bb636fee0aabcfda841e57778aa5108fe351e7c1dc27b28abedd36aec8141e7
   languageName: node
   linkType: hard
 

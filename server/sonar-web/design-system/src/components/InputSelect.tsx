@@ -31,6 +31,7 @@ import ReactSelect, {
 import { INPUT_SIZES } from '../helpers';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys } from '../types/theme';
+import { SearchHighlighter } from './SearchHighlighter';
 import { ChevronDownIcon } from './icons';
 
 export interface LabelValueSelectOption<V> {
@@ -43,14 +44,14 @@ interface StyleExtensionProps {
   size?: InputSizeKeys;
 }
 
-type SelectProps<
+export type SelectProps<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 > = NamedProps<Option, IsMulti, Group> & StyleExtensionProps;
 
-function IconOption<
+export function IconOption<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
@@ -64,7 +65,7 @@ function IconOption<
     <components.Option {...props}>
       <div className="sw-flex sw-items-center sw-gap-1">
         {Icon}
-        {label}
+        <SearchHighlighter>{label}</SearchHighlighter>
       </div>
     </components.Option>
   );

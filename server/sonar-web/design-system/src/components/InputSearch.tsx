@@ -21,14 +21,14 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import tw, { theme } from 'twin.macro';
 import { DEBOUNCE_DELAY, INPUT_SIZES } from '../helpers/constants';
 import { Key } from '../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import { InputSizeKeys } from '../types/theme';
-import { DeferredSpinner } from './DeferredSpinner';
+import { DeferredSpinner, Spinner } from './DeferredSpinner';
 import { InteractiveIcon } from './InteractiveIcon';
 import { CloseIcon } from './icons/CloseIcon';
 import { SearchIcon } from './icons/SearchIcon';
@@ -47,8 +47,8 @@ interface Props {
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   onMouseDown?: React.MouseEventHandler<HTMLInputElement>;
-  placeholder: string;
-  searchInputAriaLabel: string;
+  placeholder?: string;
+  searchInputAriaLabel?: string;
   size?: InputSizeKeys;
   tooShortText?: string;
   value?: string;
@@ -75,7 +75,8 @@ export function InputSearch({
   tooShortText,
   searchInputAriaLabel,
   clearIconAriaLabel,
-}: Props) {
+  children,
+}: PropsWithChildren<Props>) {
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
   const debouncedOnChange = useMemo(() => debounce(onChange, DEBOUNCE_DELAY), [onChange]);
@@ -139,22 +140,24 @@ export function InputSearch({
       title={tooShort && tooShortText && isDefined(minLength) ? tooShortText : ''}
     >
       <StyledInputWrapper className="sw-flex sw-items-center">
-        <input
-          aria-label={searchInputAriaLabel}
-          autoComplete="off"
-          className={inputClassName}
-          maxLength={maxLength}
-          onBlur={onBlur}
-          onChange={handleInputChange}
-          onFocus={onFocus}
-          onKeyDown={handleInputKeyDown}
-          placeholder={placeholder}
-          ref={ref}
-          role="searchbox"
-          type="search"
-          value={value}
-        />
-        <DeferredSpinner loading={loading !== undefined ? loading : false}>
+        {children ?? (
+          <input
+            aria-label={searchInputAriaLabel}
+            autoComplete="off"
+            className={inputClassName}
+            maxLength={maxLength}
+            onBlur={onBlur}
+            onChange={handleInputChange}
+            onFocus={onFocus}
+            onKeyDown={handleInputKeyDown}
+            placeholder={placeholder}
+            ref={ref}
+            role="searchbox"
+            type="search"
+            value={value}
+          />
+        )}
+        <DeferredSpinner className="sw-z-normal" loading={loading ?? false}>
           <StyledSearchIcon />
         </DeferredSpinner>
         {value && (
@@ -184,6 +187,12 @@ export const InputSearchWrapper = styled.div`
   ${tw`sw-whitespace-nowrap`}
   ${tw`sw-align-middle`}
   ${tw`sw-h-control`}
+
+  ${Spinner} {
+    top: calc((2.25rem - ${theme('spacing.4')}) / 2);
+    ${tw`sw-left-3`};
+    ${tw`sw-absolute`};
+  }
 `;
 
 export const StyledInputWrapper = styled.div`
@@ -229,6 +238,7 @@ const StyledSearchIcon = styled(SearchIcon)`
 
   ${tw`sw-left-3`}
   ${tw`sw-absolute`}
+  ${tw`sw-z-normal`}
 `;
 
 export const StyledInteractiveIcon = styled(InteractiveIcon)`

@@ -52,3 +52,9 @@ export function isInput(event: KeyboardEvent): boolean {
   const { tagName } = event.target as HTMLElement;
   return INPUT_TAGS.includes(tagName);
 }
+
+export function isTextarea(
+  event: KeyboardEvent
+): event is KeyboardEvent & { target: HTMLTextAreaElement } {
+  return event.target instanceof HTMLTextAreaElement;
+}

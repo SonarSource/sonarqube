@@ -20,10 +20,9 @@
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
-import tw, { theme } from 'twin.macro';
+import tw from 'twin.macro';
 import { translate } from '../helpers/l10n';
 import { themeColor } from '../helpers/theme';
-import { InputSearchWrapper } from './InputSearch';
 
 interface Props {
   children?: React.ReactNode;
@@ -105,7 +104,7 @@ const spinAnimation = keyframes`
   }
 `;
 
-const Spinner = styled.div`
+export const Spinner = styled.div`
   border: 2px solid transparent;
   background: linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
     linear-gradient(90deg, ${themeColor('primary')} 25%, transparent 75% 100%) border-box;
@@ -118,12 +117,6 @@ const Spinner = styled.div`
   ${tw`sw-inline-block`};
   ${tw`sw-box-border`};
   ${tw`sw-rounded-pill`}
-
-  ${InputSearchWrapper}  & {
-    top: calc((2.25rem - ${theme('spacing.4')}) / 2);
-    ${tw`sw-left-3`};
-    ${tw`sw-absolute`};
-  }
 `;
 
 Spinner.defaultProps = { 'aria-label': translate('loading'), role: 'status' };
