@@ -970,10 +970,9 @@ public class IssueIndex {
   private void addAssignedToMeFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
     String uuid = userSession.getUuid();
     if (options.getFacets().contains(ASSIGNED_TO_ME.getName()) && !StringUtils.isEmpty(uuid)) {
-      AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
+      AggregationBuilder aggregation = aggregationHelper.buildTopAggregation(
         ASSIGNED_TO_ME.getName(),
         ASSIGNED_TO_ME.getTopAggregationDef(),
-        ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
         t ->
           // add sub-aggregation to return issue count for current user
