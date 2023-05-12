@@ -29,18 +29,16 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_U
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 class CreateScmAccountsTable extends CreateTableChange {
-  @VisibleForTesting
-  static final String TABLE_NAME = "scm_accounts";
+  static final String SCM_ACCOUNTS_TABLE_NAME = "scm_accounts";
+  static final String SCM_ACCOUNT_COLUMN_NAME = "scm_account";
   @VisibleForTesting
   static final String USER_UUID_COLUMN_NAME = "user_uuid";
-  @VisibleForTesting
-  static final String SCM_ACCOUNT_COLUMN_NAME = "scm_account";
 
   @VisibleForTesting
   static final int SCM_ACCOUNT_SIZE = 255;
 
   public CreateScmAccountsTable(Database db) {
-    super(db, TABLE_NAME);
+    super(db, SCM_ACCOUNTS_TABLE_NAME);
   }
 
   @Override

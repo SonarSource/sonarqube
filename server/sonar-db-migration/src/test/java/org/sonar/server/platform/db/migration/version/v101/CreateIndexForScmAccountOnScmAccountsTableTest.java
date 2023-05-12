@@ -26,7 +26,7 @@ import org.sonar.db.CoreDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForScmAccountOnScmAccountsTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNTS_TABLE_NAME;
 
 public class CreateIndexForScmAccountOnScmAccountsTableTest {
   @Rule
@@ -36,11 +36,11 @@ public class CreateIndexForScmAccountOnScmAccountsTableTest {
 
   @Test
   public void migration_should_create_index() throws SQLException {
-    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
+    db.assertIndexDoesNotExist(SCM_ACCOUNTS_TABLE_NAME, INDEX_NAME);
 
     createIndexForScmAccountOnScmAccountsTable.execute();
 
-    db.assertIndex(TABLE_NAME, INDEX_NAME, SCM_ACCOUNT_COLUMN_NAME);
+    db.assertIndex(SCM_ACCOUNTS_TABLE_NAME, INDEX_NAME, SCM_ACCOUNT_COLUMN_NAME);
   }
 
   @Test
@@ -48,6 +48,6 @@ public class CreateIndexForScmAccountOnScmAccountsTableTest {
     createIndexForScmAccountOnScmAccountsTable.execute();
     createIndexForScmAccountOnScmAccountsTable.execute();
 
-    db.assertIndex(TABLE_NAME, INDEX_NAME, SCM_ACCOUNT_COLUMN_NAME);
+    db.assertIndex(SCM_ACCOUNTS_TABLE_NAME, INDEX_NAME, SCM_ACCOUNT_COLUMN_NAME);
   }
 }

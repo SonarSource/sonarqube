@@ -29,7 +29,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_SIZE;
-import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNTS_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.USER_UUID_COLUMN_NAME;
 
 public class CreateScmAccountsTableTest {
@@ -40,24 +40,24 @@ public class CreateScmAccountsTableTest {
 
   @Test
   public void migration_should_create_a_table() throws SQLException {
-    db.assertTableDoesNotExist(TABLE_NAME);
+    db.assertTableDoesNotExist(SCM_ACCOUNTS_TABLE_NAME);
 
     createScmAccountsTable.execute();
 
-    db.assertTableExists(TABLE_NAME);
-    db.assertColumnDefinition(TABLE_NAME, USER_UUID_COLUMN_NAME, Types.VARCHAR, USER_UUID_SIZE, false);
-    db.assertColumnDefinition(TABLE_NAME, SCM_ACCOUNT_COLUMN_NAME, Types.VARCHAR, SCM_ACCOUNT_SIZE, false);
-    db.assertPrimaryKey(TABLE_NAME, "pk_scm_accounts", USER_UUID_COLUMN_NAME, SCM_ACCOUNT_COLUMN_NAME);
+    db.assertTableExists(SCM_ACCOUNTS_TABLE_NAME);
+    db.assertColumnDefinition(SCM_ACCOUNTS_TABLE_NAME, USER_UUID_COLUMN_NAME, Types.VARCHAR, USER_UUID_SIZE, false);
+    db.assertColumnDefinition(SCM_ACCOUNTS_TABLE_NAME, SCM_ACCOUNT_COLUMN_NAME, Types.VARCHAR, SCM_ACCOUNT_SIZE, false);
+    db.assertPrimaryKey(SCM_ACCOUNTS_TABLE_NAME, "pk_scm_accounts", USER_UUID_COLUMN_NAME, SCM_ACCOUNT_COLUMN_NAME);
   }
 
   @Test
   public void migration_should_be_reentrant() throws SQLException {
-    db.assertTableDoesNotExist(TABLE_NAME);
+    db.assertTableDoesNotExist(SCM_ACCOUNTS_TABLE_NAME);
 
     createScmAccountsTable.execute();
     // re-entrant
     createScmAccountsTable.execute();
 
-    db.assertTableExists(TABLE_NAME);
+    db.assertTableExists(SCM_ACCOUNTS_TABLE_NAME);
   }
 }
