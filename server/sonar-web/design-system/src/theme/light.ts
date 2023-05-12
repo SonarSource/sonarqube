@@ -169,6 +169,9 @@ export const lightTheme = {
 
     // code viewer
     codeLineIssueIndicator: COLORS.blueGrey[400], // Should be blueGrey[300], to be changed once code viewer is reworked
+    codeLineLocationMarker: COLORS.red[200],
+    codeLineLocationMarkerSelected: danger.lighter,
+    codeLineLocationSelected: COLORS.blueGrey[100],
 
     // checkbox
     checkboxHover: COLORS.indigo[50],
@@ -368,6 +371,9 @@ export const lightTheme = {
     subnavigationSeparator: COLORS.grey[50],
     subnavigationSubheading: COLORS.blueGrey[25],
     subnavigationDisabled: COLORS.blueGrey[300],
+    subnavigationExecutionFlow: COLORS.blueGrey[25],
+    subnavigationExecutionFlowBorder: secondary.default,
+    subnavigationExecutionFlowActive: COLORS.indigo[500],
 
     // footer
     footer: COLORS.white,
@@ -526,6 +532,10 @@ export const lightTheme = {
     toggle: secondary.darker,
     toggleHover: secondary.darker,
 
+    // code viewer
+    codeLineLocationMarker: COLORS.red[900],
+    codeLineLocationMarkerSelected: COLORS.red[900],
+
     // code snippet
     codeSnippetHighlight: danger.default,
 
@@ -625,6 +635,7 @@ export const lightTheme = {
 
     // subnavigation sidebar
     subnavigation: secondary.darker,
+    subnavigationExecutionFlow: COLORS.blueGrey[700],
     subnavigationHover: COLORS.blueGrey[700],
     subnavigationSubheading: secondary.dark,
 

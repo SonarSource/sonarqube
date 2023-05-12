@@ -38,6 +38,7 @@ export { FlagWarningIcon } from './FlagWarningIcon';
 export { HelperHintIcon } from './HelperHintIcon';
 export { HomeFillIcon } from './HomeFillIcon';
 export { HomeIcon } from './HomeIcon';
+export { IssueLocationIcon } from './IssueLocationIcon';
 export { LinkIcon } from './LinkIcon';
 export { LockIcon } from './LockIcon';
 export { MainBranchIcon } from './MainBranchIcon';
