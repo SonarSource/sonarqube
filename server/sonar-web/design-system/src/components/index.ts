@@ -71,5 +71,6 @@ export * from './buttons';
 export { ClipboardIconButton } from './clipboard';
 export * from './icons';
 export * from './layouts';
+export * from './modal/Modal';
 export * from './popups';
 export * from './subnavigation';

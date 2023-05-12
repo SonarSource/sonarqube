@@ -22,7 +22,7 @@ import { theme } from 'twin.macro';
 
 export const DEFAULT_LOCALE = 'en';
 export const IS_SSR = typeof window === 'undefined';
-export const REACT_DOM_CONTAINER = '#___gatsby';
+export const REACT_DOM_CONTAINER = '#content';
 
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
@@ -72,3 +72,5 @@ export const CORE_CONCEPTS_WIDTH = 350;
 export const DARK_THEME_ID = 'dark-theme';
 
 export const OPACITY_20_PERCENT = 0.2;
+
+export const OPACITY_75_PERCENT = 0.75;

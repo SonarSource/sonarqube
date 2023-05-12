@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with primary and secondary buttons 1`] = `
+.emotion-0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+<div>
+  <footer
+    class="emotion-0 emotion-1"
+  >
+    <button
+      type="button"
+    >
+      Primary
+    </button>
+    <button
+      type="reset"
+    >
+      Reset
+    </button>
+  </footer>
+</div>
+`;
+
+exports[`should render with secondary button 1`] = `
+.emotion-0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+<div>
+  <footer
+    class="emotion-0 emotion-1"
+  >
+    <button
+      type="button"
+    >
+      Close
+    </button>
+  </footer>
+</div>
+`;

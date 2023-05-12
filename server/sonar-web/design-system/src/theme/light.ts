@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { OPACITY_20_PERCENT } from '../helpers/constants';
+import { OPACITY_20_PERCENT, OPACITY_75_PERCENT } from '../helpers/constants';
 import COLORS from './colors';
 
 const primary = {
@@ -91,6 +91,10 @@ export const lightTheme = {
     // popup
     popup: COLORS.white,
     popupBorder: secondary.default,
+
+    // modal
+    modalContents: COLORS.white,
+    modalOverlay: [...COLORS.blueGrey[900], OPACITY_75_PERCENT],
 
     // dropdown menu
     dropdownMenu: COLORS.white,
