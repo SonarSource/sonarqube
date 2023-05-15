@@ -547,7 +547,7 @@ public class InternalPropertiesDaoIT {
 
   @Test
   public void tryLock_throws_IAE_if_lock_name_length_is_too_long() {
-    String tooLongName = randomAlphabetic(LOCK_NAME_MAX_LENGTH + new Random().nextInt(30));
+    String tooLongName = randomAlphabetic(LOCK_NAME_MAX_LENGTH + 1);
 
     assertThatThrownBy(() -> underTest.tryLock(dbSession, tooLongName, 60))
       .isInstanceOf(IllegalArgumentException.class)
