@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HotspotRatingEnum } from 'design-system';
 import { mockHotspot, mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../helpers/testMocks';
 import {
@@ -26,7 +27,6 @@ import {
   HotspotStatusOption,
   RawHotspot,
   ReviewHistoryType,
-  RiskExposure,
 } from '../../../types/security-hotspots';
 import { FlowLocation, IssueChangelog } from '../../../types/types';
 import {
@@ -43,55 +43,55 @@ import {
 const hotspots = [
   mockRawHotspot({
     key: '3',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     securityCategory: 'object-injection',
     message: 'tfdh',
   }),
   mockRawHotspot({
     key: '5',
-    vulnerabilityProbability: RiskExposure.MEDIUM,
+    vulnerabilityProbability: HotspotRatingEnum.MEDIUM,
     securityCategory: 'xpath-injection',
     message: 'asdf',
   }),
   mockRawHotspot({
     key: '1',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     securityCategory: 'dos',
     message: 'a',
   }),
   mockRawHotspot({
     key: '7',
-    vulnerabilityProbability: RiskExposure.LOW,
+    vulnerabilityProbability: HotspotRatingEnum.LOW,
     securityCategory: 'ssrf',
     message: 'rrrr',
   }),
   mockRawHotspot({
     key: '2',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     securityCategory: 'dos',
     message: 'b',
   }),
   mockRawHotspot({
     key: '8',
-    vulnerabilityProbability: RiskExposure.LOW,
+    vulnerabilityProbability: HotspotRatingEnum.LOW,
     securityCategory: 'ssrf',
     message: 'sssss',
   }),
   mockRawHotspot({
     key: '4',
-    vulnerabilityProbability: RiskExposure.MEDIUM,
+    vulnerabilityProbability: HotspotRatingEnum.MEDIUM,
     securityCategory: 'log-injection',
     message: 'asdf',
   }),
   mockRawHotspot({
     key: '9',
-    vulnerabilityProbability: RiskExposure.LOW,
+    vulnerabilityProbability: HotspotRatingEnum.LOW,
     securityCategory: 'xxe',
     message: 'aaa',
   }),
   mockRawHotspot({
     key: '6',
-    vulnerabilityProbability: RiskExposure.LOW,
+    vulnerabilityProbability: HotspotRatingEnum.LOW,
     securityCategory: 'xss',
     message: 'zzz',
   }),

@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HotspotRatingEnum } from 'design-system';
 import { ComponentQualifier } from './component';
 import { MessageFormatting } from './issues';
 import { FlowLocation, IssueChangelog, IssueChangelogDiff, Paging, TextRange } from './types';
 import { UserBase } from './users';
-
-export enum RiskExposure {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
 
 export enum HotspotStatus {
   TO_REVIEW = 'TO_REVIEW',
@@ -74,7 +69,7 @@ export interface RawHotspot {
   securityCategory: string;
   status: HotspotStatus;
   updateDate: string;
-  vulnerabilityProbability: RiskExposure;
+  vulnerabilityProbability: HotspotRatingEnum;
   flows?: Array<{
     locations?: Array<Omit<FlowLocation, 'componentName'>>;
   }>;
@@ -128,7 +123,7 @@ export interface HotspotRule {
   key: string;
   name: string;
   securityCategory: string;
-  vulnerabilityProbability: RiskExposure;
+  vulnerabilityProbability: HotspotRatingEnum;
 }
 
 export interface HotspotComment {

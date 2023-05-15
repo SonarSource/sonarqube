@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
+import { SubnavigationItem } from 'design-system';
+import React, { useCallback } from 'react';
 import LocationsList from '../../../components/locations/LocationsList';
-import { ComponentQualifier } from '../../../types/component';
 import { RawHotspot } from '../../../types/security-hotspots';
-import { getFilePath, getLocations } from '../utils';
+import { getLocations } from '../utils';
 
-export interface HotspotListItemProps {
+interface HotspotListItemProps {
   hotspot: RawHotspot;
   onClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index?: number) => void;
@@ -38,33 +34,34 @@ export interface HotspotListItemProps {
 export default function HotspotListItem(props: HotspotListItemProps) {
   const { hotspot, selected, selectedHotspotLocation } = props;
   const locations = getLocations(hotspot.flows, undefined);
-  const path = getFilePath(hotspot.component, hotspot.project);
+
+  // Use useCallback instead of useEffect/useRef combination to be notified of the ref changes
+  const itemRef = useCallback(
+    (node) => {
+      if (selected && node) {
+        node.scrollIntoView({
+          block: 'center',
+          behavior: 'smooth',
+        });
+      }
+    },
+    [selected]
+  );
+
+  const handleClick = () => {
+    if (!selected) {
+      props.onClick(hotspot);
+    }
+  };
 
   return (
-    <ButtonPlain
-      aria-current={selected}
-      className={classNames('hotspot-item', { highlight: selected })}
-      onClick={() => !selected && props.onClick(hotspot)}
+    <SubnavigationItem
+      active={selected}
+      innerRef={itemRef}
+      onClick={handleClick}
+      className="sw-flex-col sw-items-start"
     >
-      {/* This is not a real interaction it is only for scrolling */
-      /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <div
-        className={classNames('little-spacer-left text-bold', { 'cursor-pointer': selected })}
-        onClick={selected ? () => props.onLocationClick() : undefined}
-      >
-        <IssueMessageHighlighting
-          message={hotspot.message}
-          messageFormattings={hotspot.messageFormattings}
-        />
-      </div>
-      <div className="display-flex-center big-spacer-top">
-        <QualifierIcon qualifier={ComponentQualifier.File} />
-        <div className="little-spacer-left hotspot-box-filename text-ellipsis" title={path}>
-          {/* <bdi> is used to avoid some cases where the path is wrongly displayed */}
-          {/* because of the parent's direction=rtl */}
-          <bdi>{path}</bdi>
-        </div>
-      </div>
+      <div>{hotspot.message}</div>
       {selected && (
         <LocationsList
           locations={locations}
@@ -74,6 +71,6 @@ export default function HotspotListItem(props: HotspotListItemProps) {
           selectedLocationIndex={selectedHotspotLocation}
         />
       )}
-    </ButtonPlain>
+    </SubnavigationItem>
   );
 }

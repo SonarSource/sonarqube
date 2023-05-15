@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HotspotRatingEnum } from 'design-system';
 import { ComponentQualifier } from '../../types/component';
 import { Standards } from '../../types/security';
 import {
@@ -29,7 +30,6 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure,
 } from '../../types/security-hotspots';
 import { mockFlowLocation, mockUser } from '../testMocks';
 
@@ -42,7 +42,7 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
     status: HotspotStatus.TO_REVIEW,
     resolution: undefined,
     securityCategory: 'command-injection',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     message: "'3' is a magic number.",
     line: 81,
     author: 'Developer 1',
@@ -113,7 +113,7 @@ export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
   return {
     key: 'squid:S2077',
     name: 'That rule',
-    vulnerabilityProbability: RiskExposure.HIGH,
+    vulnerabilityProbability: HotspotRatingEnum.HIGH,
     securityCategory: 'sql-injection',
     ...overrides,
   };

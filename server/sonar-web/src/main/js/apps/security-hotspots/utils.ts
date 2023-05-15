@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HotspotRatingEnum } from 'design-system';
 import { flatten, groupBy, sortBy } from 'lodash';
 import {
   renderCWECategory,
@@ -37,7 +38,6 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure,
 } from '../../types/security-hotspots';
 import {
   Dict,
@@ -48,7 +48,11 @@ import {
 
 const OTHERS_SECURITY_CATEGORY = 'others';
 
-export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
+export const RISK_EXPOSURE_LEVELS = [
+  HotspotRatingEnum.HIGH,
+  HotspotRatingEnum.MEDIUM,
+  HotspotRatingEnum.LOW,
+];
 export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
   SecurityStandard.OWASP_TOP10,

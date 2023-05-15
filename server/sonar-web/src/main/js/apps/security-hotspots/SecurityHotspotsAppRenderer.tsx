@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useTheme } from '@emotion/react';
+import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   LargeCenteredLayout,
@@ -94,21 +94,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     standards,
   } = props;
 
-  const theme = useTheme();
-
-  React.useEffect(() => {
-    if (!selectedHotspot) {
-      return;
-    }
-    // Wait for next tick, in case newly selected hotspot is not yet expanded
-    setTimeout(() => {
-      document.querySelector(`[data-hotspot-key="${selectedHotspot.key}"]`)?.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-      });
-    });
-  }, [selectedHotspot]);
-
   return (
     <>
       <Suggestions suggestions="security_hotspots" />
@@ -142,10 +127,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 />
               ) : (
                 <>
-                  <FilterbarStyled
-                    theme={theme}
-                    className="sw-col-span-4 sw-rounded-t-1 sw-mt-0 sw-z-filterbar"
-                  >
+                  <FilterbarStyled className="sw-col-span-4 sw-rounded-t-1 sw-mt-0 sw-z-filterbar sw-p-4 it__hotspot-list">
                     {filterByCategory || filterByCWE || filterByFile ? (
                       <HotspotSimpleList
                         filterByCategory={filterByCategory}
@@ -198,18 +180,15 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   );
 }
 
-const FilterbarStyled = styled.div(
-  (props) => `
-position: sticky;
-box-sizing: border-box;
-overflow-x: hidden;
-overflow-y: auto;
-background-color: ${themeColor('filterbar')(props)};
-border-right: ${themeBorder('default', 'filterbarBorder')(props)};
-// ToDo set proper hegiht
-height: calc(100vh - ${'100px'});
-
-&.border-left {
-  border-left: ${themeBorder('default', 'filterbarBorder')(props)};
-}`
+const FilterbarStyled = withTheme(
+  styled.div`
+    position: sticky;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: ${themeColor('filterbar')};
+    border-right: ${themeBorder('default', 'filterbarBorder')};
+    // ToDo set proper height
+    height: calc(100vh - ${'100px'});
+  `
 );

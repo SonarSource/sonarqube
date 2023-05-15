@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { HotspotRating, HotspotRatingEnum, SubnavigationHeading, themeColor } from 'design-system';
 import { groupBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
-import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
-import { HotspotStatusFilter, RawHotspot, RiskExposure } from '../../../types/security-hotspots';
+import { translate } from '../../../helpers/l10n';
+import { removeSideBarClass } from '../../../helpers/pages';
+import { HotspotStatusFilter, RawHotspot } from '../../../types/security-hotspots';
 import { Dict, StandardSecurityCategories } from '../../../types/types';
-import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
+import { RISK_EXPOSURE_LEVELS, groupByCategory } from '../utils';
 import HotspotCategory from './HotspotCategory';
-import './HotspotList.css';
 
 interface Props {
   hotspots: RawHotspot[];
@@ -47,7 +48,7 @@ interface Props {
 interface State {
   expandedCategories: Dict<boolean>;
   groupedHotspots: Array<{
-    risk: RiskExposure;
+    risk: HotspotRatingEnum;
     categories: Array<{ key: string; hotspots: RawHotspot[]; title: string }>;
   }>;
 }
@@ -60,10 +61,6 @@ export default class HotspotList extends React.Component<Props, State> {
       expandedCategories: { [props.selectedHotspot.securityCategory]: true },
       groupedHotspots: this.groupHotspots(props.hotspots, props.securityCategories),
     };
-  }
-
-  componentDidMount() {
-    addSideBarClass();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -109,9 +106,14 @@ export default class HotspotList extends React.Component<Props, State> {
   };
 
   handleToggleCategory = (categoryKey: string, value: boolean) => {
-    this.setState(({ expandedCategories }) => ({
-      expandedCategories: { ...expandedCategories, [categoryKey]: value },
-    }));
+    this.setState(({ expandedCategories }) => {
+      return {
+        expandedCategories: {
+          ...expandedCategories,
+          [categoryKey]: value,
+        },
+      };
+    });
   };
 
   render() {
@@ -128,61 +130,74 @@ export default class HotspotList extends React.Component<Props, State> {
     const { expandedCategories, groupedHotspots } = this.state;
 
     return (
-      <div className="huge-spacer-bottom">
-        <h1 className="hotspot-list-header bordered-bottom">
-          <SecurityHotspotIcon className="spacer-right" />
-          {translateWithParameters(
-            isStaticListOfHotspots ? 'hotspots.list_title' : `hotspots.list_title.${statusFilter}`,
-            hotspotsTotal
-          )}
-        </h1>
-        <ul className="big-spacer-bottom big-spacer-top">
+      <StyledContainer>
+        <span className="sw-body-sm">
+          <FormattedMessage
+            id="hotspots.list_title"
+            defaultMessage={
+              isStaticListOfHotspots
+                ? translate('hotspots.list_title')
+                : translate(`hotspots.list_title.${statusFilter}`)
+            }
+            values={{
+              0: <strong className="sw-body-sm-highlight">{hotspotsTotal}</strong>,
+            }}
+          />
+        </span>
+        <div className="sw-mt-8 sw-mb-4">
           {groupedHotspots.map((riskGroup, riskGroupIndex) => {
             const isLastRiskGroup = riskGroupIndex === groupedHotspots.length - 1;
 
             return (
-              <li className="big-spacer-bottom" key={riskGroup.risk}>
-                <div className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom">
-                  <span>{translate('hotspots.risk_exposure')}:</span>
-                  <div className={classNames('hotspot-risk-badge', 'spacer-left', riskGroup.risk)}>
+              <div className="sw-mb-4" key={riskGroup.risk}>
+                <SubnavigationHeading className="sw-px-0">
+                  <div className="sw-flex sw-items-center">
+                    <span className="sw-body-sm-highlight">
+                      {translate('hotspots.risk_exposure')}:
+                    </span>
+                    <HotspotRating className="sw-ml-2 sw-mr-1" rating={riskGroup.risk} />
                     {translate('risk_exposure', riskGroup.risk)}
                   </div>
-                </div>
-                <ul>
-                  {riskGroup.categories.map((cat, categoryIndex) => {
+                </SubnavigationHeading>
+                <div>
+                  {riskGroup.categories.map((category, categoryIndex) => {
                     const isLastCategory = categoryIndex === riskGroup.categories.length - 1;
 
                     return (
-                      <li className="spacer-bottom" key={cat.key}>
+                      <div className="sw-mb-2" key={category.key}>
                         <HotspotCategory
-                          categoryKey={cat.key}
-                          expanded={expandedCategories[cat.key]}
-                          hotspots={cat.hotspots}
-                          onHotspotClick={this.props.onHotspotClick}
-                          onToggleExpand={this.handleToggleCategory}
-                          onLocationClick={this.props.onLocationClick}
-                          selectedHotspot={selectedHotspot}
-                          selectedHotspotLocation={selectedHotspotLocation}
-                          title={cat.title}
+                          expanded={Boolean(expandedCategories[category.key])}
+                          onSetExpanded={this.handleToggleCategory.bind(this, category.key)}
+                          hotspots={category.hotspots}
                           isLastAndIncomplete={
                             isLastRiskGroup && isLastCategory && hotspots.length < hotspotsTotal
                           }
+                          onHotspotClick={this.props.onHotspotClick}
+                          rating={riskGroup.risk}
+                          selectedHotspot={selectedHotspot}
+                          selectedHotspotLocation={selectedHotspotLocation}
+                          onLocationClick={this.props.onLocationClick}
+                          title={category.title}
                         />
-                      </li>
+                      </div>
                     );
                   })}
-                </ul>
-              </li>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
         <ListFooter
           count={hotspots.length}
           loadMore={!loadingMore ? this.props.onLoadMore : undefined}
           loading={loadingMore}
           total={hotspotsTotal}
         />
-      </div>
+      </StyledContainer>
     );
   }
 }
+
+const StyledContainer = withTheme(styled.div`
+  background-color: ${themeColor('subnavigation')};
+`);

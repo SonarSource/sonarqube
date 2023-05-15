@@ -34,7 +34,7 @@ export default function GlobalMessage(props: GlobalMessageProps) {
   const { message } = props;
   return (
     <MessageBox
-      data-test={`global-message__${message.level}`}
+      data-testid={`global-message__${message.level}`}
       level={message.level}
       role={message.level === 'SUCCESS' ? 'status' : 'alert'}
     >

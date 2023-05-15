@@ -43,7 +43,7 @@ import { Component, Dict } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
-import { getLocations, SECURITY_STANDARDS } from './utils';
+import { SECURITY_STANDARDS, getLocations } from './utils';
 
 const PAGE_SIZE = 500;
 interface DispatchProps {
@@ -526,7 +526,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onLocationClick={this.handleLocationClick}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}
-        selectedHotspotLocation={selectedHotspotLocationIndex}
         standards={standards}
       />
     );
