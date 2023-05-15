@@ -21,7 +21,6 @@ import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import selectEvent from 'react-select-event';
 import { byDisplayValue, byRole, byTestId, byText } from 'testing-library-selector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
@@ -52,26 +51,29 @@ const ui = {
   editAssigneeButton: byRole('button', {
     name: 'hotspots.assignee.change_user',
   }),
-  filterAssigneeToMe: byRole('button', {
+  filterAssigneeToMe: byRole('checkbox', {
     name: 'hotspot.filters.assignee.assigned_to_me',
   }),
-  filterSeeAll: byRole('button', { name: 'hotspot.filters.assignee.all' }),
+  clearFilters: byRole('menuitem', { name: 'hotspot.filters.clear' }),
+  filterDropdown: byRole('button', { name: 'hotspot.filters.title' }),
+  filterToReview: byRole('radio', { name: 'hotspot.filters.status.to_review' }),
   filterByStatus: byRole('combobox', { name: 'hotspot.filters.status' }),
   filterByPeriod: byRole('combobox', { name: 'hotspot.filters.period' }),
+  filterNewCode: byRole('checkbox', { name: 'hotspot.filters.period.since_leak_period' }),
   noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
   selectStatus: byRole('button', { name: 'hotspots.status.select_status' }),
   toReviewStatus: byText('hotspots.status_option.TO_REVIEW'),
   changeStatus: byRole('button', { name: 'hotspots.status.change_status' }),
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
   hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
-  hotpostListTitle: byRole('heading', { name: 'hotspots.list_title.TO_REVIEW.4' }),
+  hotpostListTitle: byText('hotspots.list_title'),
   hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
   commentSubmitButton: byRole('button', { name: 'hotspots.comment.submit' }),
   commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
   commentDeleteButton: byRole('button', { name: 'issue.comment.delete' }),
   textboxWithText: (value: string) => byDisplayValue(value),
   activeAssignee: byTestId('assignee-name'),
-  successGlobalMessage: byRole('status'),
+  successGlobalMessage: byTestId('global-message__SUCCESS'),
   currentUserSelectionItem: byText('foo'),
   panel: byTestId('security-hotspot-test'),
   codeTab: byRole('tab', { name: 'hotspots.tabs.code' }),
@@ -82,6 +84,7 @@ const ui = {
   vulnerabilityContent: byText('Assess'),
   fixTab: byRole('tab', { name: 'hotspots.tabs.fix_recommendations' }),
   fixContent: byText('This is how to fix'),
+  showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
 };
 
 const hotspotsHandler = new SecurityHotspotServiceMock();
@@ -98,6 +101,22 @@ describe('rendering', () => {
       'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-2'
     );
     expect(await screen.findAllByText('variant 1, variant 2')).toHaveLength(2);
+  });
+
+  it('should render the simple list when a file is selected', async () => {
+    const user = userEvent.setup();
+    renderSecurityHotspotsApp(
+      `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js`
+    );
+
+    expect(ui.filterDropdown.query()).not.toBeInTheDocument();
+    expect(ui.filterToReview.query()).not.toBeInTheDocument();
+
+    // Drop selection
+    await user.click(ui.showAllHotspotLink.get());
+
+    expect(ui.filterDropdown.get()).toBeInTheDocument();
+    expect(ui.filterToReview.get()).toBeInTheDocument();
   });
 });
 
@@ -292,9 +311,11 @@ it('should be able to filter the hotspot list', async () => {
 
   expect(await ui.hotpostListTitle.find()).toBeInTheDocument();
 
+  await user.click(ui.filterDropdown.get());
   await user.click(ui.filterAssigneeToMe.get());
   expect(ui.noHotspotForFilter.get()).toBeInTheDocument();
-  await selectEvent.select(ui.filterByStatus.get(), ['hotspot.filters.status.to_review']);
+
+  await user.click(ui.filterToReview.get());
 
   expect(getSecurityHotspots).toHaveBeenLastCalledWith({
     inNewCodePeriod: false,
@@ -306,7 +327,8 @@ it('should be able to filter the hotspot list', async () => {
     status: 'TO_REVIEW',
   });
 
-  await selectEvent.select(ui.filterByPeriod.get(), ['hotspot.filters.period.since_leak_period']);
+  await user.click(ui.filterDropdown.get());
+  await user.click(ui.filterNewCode.get());
 
   expect(getSecurityHotspots).toHaveBeenLastCalledWith({
     inNewCodePeriod: true,
@@ -318,7 +340,8 @@ it('should be able to filter the hotspot list', async () => {
     status: 'TO_REVIEW',
   });
 
-  await user.click(ui.filterSeeAll.get());
+  await user.click(ui.filterDropdown.get());
+  await user.click(ui.clearFilters.get());
 
   expect(ui.hotpostListTitle.get()).toBeInTheDocument();
 });

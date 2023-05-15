@@ -62,6 +62,7 @@ export interface SecurityHotspotsAppRendererProps {
   loadingMeasure: boolean;
   loadingMore: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
+  onShowAllHotspots: VoidFunction;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
@@ -92,6 +93,8 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     selectedHotspot,
     selectedHotspotLocation,
     standards,
+    onChangeFilters,
+    onShowAllHotspots,
   } = props;
 
   return (
@@ -100,22 +103,60 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
       <Helmet title={translate('hotspots.page')} />
       <A11ySkipTarget anchor="security_hotspots_main" />
 
-      <FilterBar
-        component={component}
-        filters={filters}
-        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-        isStaticListOfHotspots={isStaticListOfHotspots}
-        loadingMeasure={loadingMeasure}
-        onBranch={isBranch(branchLike)}
-        onChangeFilters={props.onChangeFilters}
-      />
       <LargeCenteredLayout id={MetricKey.security_hotspots}>
         <PageContentFontWrapper>
           <div className="sw-grid sw-grid-cols-12 sw-w-full sw-body-sm">
             <DeferredSpinner className="sw-mt-3" loading={loading} />
 
-            {!loading &&
-              (hotspots.length === 0 || !selectedHotspot ? (
+            <StyledFilterbar className="sw-col-span-4 sw-rounded-t-1 sw-mt-0 sw-z-filterbar sw-p-4 it__hotspot-list">
+              <FilterBar
+                component={component}
+                filters={filters}
+                hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                isStaticListOfHotspots={isStaticListOfHotspots}
+                loadingMeasure={loadingMeasure}
+                onBranch={isBranch(branchLike)}
+                onChangeFilters={onChangeFilters}
+                onShowAllHotspots={onShowAllHotspots}
+              />
+              {hotspots.length > 0 && selectedHotspot && (
+                <>
+                  {filterByCategory || filterByCWE || filterByFile ? (
+                    <HotspotSimpleList
+                      filterByCategory={filterByCategory}
+                      filterByCWE={filterByCWE}
+                      filterByFile={filterByFile}
+                      hotspots={hotspots}
+                      hotspotsTotal={hotspotsTotal}
+                      loadingMore={loadingMore}
+                      onHotspotClick={props.onHotspotClick}
+                      onLoadMore={props.onLoadMore}
+                      onLocationClick={props.onLocationClick}
+                      selectedHotspotLocation={selectedHotspotLocation}
+                      selectedHotspot={selectedHotspot}
+                      standards={standards}
+                    />
+                  ) : (
+                    <HotspotList
+                      hotspots={hotspots}
+                      hotspotsTotal={hotspotsTotal}
+                      isStaticListOfHotspots={isStaticListOfHotspots}
+                      loadingMore={loadingMore}
+                      onHotspotClick={props.onHotspotClick}
+                      onLoadMore={props.onLoadMore}
+                      onLocationClick={props.onLocationClick}
+                      securityCategories={securityCategories}
+                      selectedHotspot={selectedHotspot}
+                      selectedHotspotLocation={selectedHotspotLocation}
+                      statusFilter={filters.status}
+                    />
+                  )}
+                </>
+              )}
+            </StyledFilterbar>
+
+            <main className="sw-col-span-8">
+              {hotspots.length === 0 || !selectedHotspot ? (
                 <EmptyHotspotsPage
                   filtered={
                     filters.assignedToMe ||
@@ -126,53 +167,17 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   isStaticListOfHotspots={isStaticListOfHotspots}
                 />
               ) : (
-                <>
-                  <FilterbarStyled className="sw-col-span-4 sw-rounded-t-1 sw-mt-0 sw-z-filterbar sw-p-4 it__hotspot-list">
-                    {filterByCategory || filterByCWE || filterByFile ? (
-                      <HotspotSimpleList
-                        filterByCategory={filterByCategory}
-                        filterByCWE={filterByCWE}
-                        filterByFile={filterByFile}
-                        hotspots={hotspots}
-                        hotspotsTotal={hotspotsTotal}
-                        loadingMore={loadingMore}
-                        onHotspotClick={props.onHotspotClick}
-                        onLoadMore={props.onLoadMore}
-                        onLocationClick={props.onLocationClick}
-                        selectedHotspotLocation={selectedHotspotLocation}
-                        selectedHotspot={selectedHotspot}
-                        standards={standards}
-                      />
-                    ) : (
-                      <HotspotList
-                        hotspots={hotspots}
-                        hotspotsTotal={hotspotsTotal}
-                        isStaticListOfHotspots={isStaticListOfHotspots}
-                        loadingMore={loadingMore}
-                        onHotspotClick={props.onHotspotClick}
-                        onLoadMore={props.onLoadMore}
-                        onLocationClick={props.onLocationClick}
-                        securityCategories={securityCategories}
-                        selectedHotspot={selectedHotspot}
-                        selectedHotspotLocation={selectedHotspotLocation}
-                        statusFilter={filters.status}
-                      />
-                    )}
-                  </FilterbarStyled>
-
-                  <main className="sw-col-span-8">
-                    <HotspotViewer
-                      component={component}
-                      hotspotKey={selectedHotspot.key}
-                      hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-                      onSwitchStatusFilter={props.onSwitchStatusFilter}
-                      onUpdateHotspot={props.onUpdateHotspot}
-                      onLocationClick={props.onLocationClick}
-                      selectedHotspotLocation={selectedHotspotLocation}
-                    />
-                  </main>
-                </>
-              ))}
+                <HotspotViewer
+                  component={component}
+                  hotspotKey={selectedHotspot.key}
+                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                  onSwitchStatusFilter={props.onSwitchStatusFilter}
+                  onUpdateHotspot={props.onUpdateHotspot}
+                  onLocationClick={props.onLocationClick}
+                  selectedHotspotLocation={selectedHotspotLocation}
+                />
+              )}
+            </main>
           </div>
         </PageContentFontWrapper>
       </LargeCenteredLayout>
@@ -180,9 +185,8 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   );
 }
 
-const FilterbarStyled = withTheme(
+const StyledFilterbar = withTheme(
   styled.div`
-    position: sticky;
     box-sizing: border-box;
     overflow-x: hidden;
     overflow-y: auto;

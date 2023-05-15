@@ -24,7 +24,7 @@ import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-
 import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { Location, withRouter } from '../../components/hoc/withRouter';
+import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
@@ -55,6 +55,7 @@ interface OwnProps {
   currentUser: CurrentUser;
   component: Component;
   location: Location;
+  router: Router;
 }
 
 type Props = DispatchProps & OwnProps;
@@ -410,6 +411,20 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     );
   };
 
+  handleShowAllHotspots = () => {
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: {
+        file: undefined,
+        fileUuid: undefined,
+        hotspots: [],
+        sinceLeakPeriod: undefined,
+        assignedToMe: undefined,
+        id: this.props.component.key,
+      },
+    });
+  };
+
   handleChangeStatusFilter = (status: HotspotStatusFilter) => {
     this.handleChangeFilters({ status });
   };
@@ -519,6 +534,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         loadingMeasure={loadingMeasure}
         loadingMore={loadingMore}
         onChangeFilters={this.handleChangeFilters}
+        onShowAllHotspots={this.handleShowAllHotspots}
         onHotspotClick={this.handleHotspotClick}
         onLoadMore={this.handleLoadMore}
         onSwitchStatusFilter={this.handleChangeStatusFilter}
@@ -526,6 +542,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onLocationClick={this.handleLocationClick}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}
+        selectedHotspotLocation={selectedHotspotLocationIndex}
         standards={standards}
       />
     );

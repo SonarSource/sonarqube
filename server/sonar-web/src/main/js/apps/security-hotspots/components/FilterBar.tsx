@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  CoverageIndicator,
+  DiscreetInteractiveIcon,
+  DiscreetLink,
+  Dropdown,
+  FilterIcon,
+  HelperHintIcon,
+  ItemCheckbox,
+  ItemDangerButton,
+  ItemDivider,
+  ItemHeader,
+  PopupPlacement,
+  ToggleButton,
+  themeBorder,
+} from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Link from '../../../components/common/Link';
-import ButtonToggle from '../../../components/controls/ButtonToggle';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import Select from '../../../components/controls/Select';
 import Measure from '../../../components/measure/Measure';
-import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getProjectSecurityHotspots } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
+import { MetricType } from '../../../types/metrics';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -42,6 +56,7 @@ export interface FilterBarProps {
   loadingMeasure: boolean;
   onBranch: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
+  onShowAllHotspots: VoidFunction;
 }
 
 const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
@@ -54,20 +69,10 @@ const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
   { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') },
 ];
 
-const periodOptions = [
-  { value: true, label: translate('hotspot.filters.period.since_leak_period') },
-  { value: false, label: translate('hotspot.filters.period.overall') },
-];
-
 export enum AssigneeFilterOption {
   ALL = 'all',
   ME = 'me',
 }
-
-const assigneeFilterOptions = [
-  { value: AssigneeFilterOption.ME, label: translate('hotspot.filters.assignee.assigned_to_me') },
-  { value: AssigneeFilterOption.ALL, label: translate('hotspot.filters.assignee.all') },
-];
 
 export function FilterBar(props: FilterBarProps) {
   const {
@@ -75,95 +80,137 @@ export function FilterBar(props: FilterBarProps) {
     component,
     filters,
     hotspotsReviewedMeasure,
-    isStaticListOfHotspots,
     loadingMeasure,
     onBranch,
+    isStaticListOfHotspots,
   } = props;
   const isProject = component.qualifier === ComponentQualifier.Project;
+  const userLoggedIn = isLoggedIn(currentUser);
+  const filtersCount = Number(filters.assignedToMe) + Number(filters.inNewCodePeriod);
+  const isFiltered = Boolean(filtersCount);
 
   return (
-    <div className="filter-bar-outer">
-      <div className="filter-bar">
-        <div className="filter-bar-inner display-flex-center">
-          {isStaticListOfHotspots ? (
-            <Link to={getProjectSecurityHotspots(component.key)}>
-              {translate('hotspot.filters.show_all')}
-            </Link>
-          ) : (
-            <div className="display-flex-space-between width-100">
-              <div className="display-flex-center">
-                <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
-
-                {isLoggedIn(currentUser) && (
-                  <span className="huge-spacer-right">
-                    <ButtonToggle
-                      onCheck={(value: AssigneeFilterOption) =>
-                        props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
-                      }
-                      options={assigneeFilterOptions}
-                      value={
-                        filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL
-                      }
-                    />
-                  </span>
+    <div className="sw-flex sw-flex-col sw-justify-between sw-pb-4 sw-mb-3">
+      {isStaticListOfHotspots ? (
+        <StyledFilterWrapper className="sw-flex sw-px-2 sw-py-4">
+          <FormattedMessage
+            id="hotspot.filters.by_file_or_list_x"
+            values={{
+              show_all_link: (
+                <DiscreetLink
+                  className="sw-ml-1"
+                  onClick={props.onShowAllHotspots}
+                  preventDefault={true}
+                  to={{}}
+                >
+                  {translate('hotspot.filters.show_all')}
+                </DiscreetLink>
+              ),
+            }}
+            defaultMessage={translate('hotspot.filters.by_file_or_list_x')}
+          />
+        </StyledFilterWrapper>
+      ) : (
+        <>
+          {isProject && (
+            <StyledFilterWrapper className="sw-flex sw-px-2 sw-py-4 sw-items-center sw-h-6">
+              <DeferredSpinner loading={loadingMeasure}>
+                {hotspotsReviewedMeasure !== undefined && (
+                  <CoverageIndicator value={hotspotsReviewedMeasure} />
                 )}
-
-                <span className="spacer-right"> {translate('status')} </span>
-                <Select
-                  className="input-medium big-spacer-right"
-                  aria-label={translate('hotspot.filters.status')}
-                  onChange={(option: { value: HotspotStatusFilter }) =>
-                    props.onChangeFilters({ status: option.value })
+                <Measure
+                  className="sw-ml-2 sw-body-sm-highlight"
+                  metricKey={
+                    onBranch && !filters.inNewCodePeriod
+                      ? 'security_hotspots_reviewed'
+                      : 'new_security_hotspots_reviewed'
                   }
-                  options={statusOptions}
-                  isSearchable={false}
-                  value={statusOptions.find((status) => status.value === filters.status)}
+                  metricType={MetricType.Percent}
+                  value={hotspotsReviewedMeasure}
                 />
-
-                {onBranch && (
-                  <Select
-                    className="input-medium big-spacer-right"
-                    aria-label={translate('hotspot.filters.period')}
-                    onChange={(option: { value: boolean }) =>
-                      props.onChangeFilters({ inNewCodePeriod: option.value })
-                    }
-                    options={periodOptions}
-                    isSearchable={false}
-                    value={periodOptions.find((period) => period.value === filters.inNewCodePeriod)}
-                  />
-                )}
-              </div>
-
-              {isProject && (
-                <div className="display-flex-center">
-                  <span className="little-spacer-right">
-                    {translate('metric.security_hotspots_reviewed.name')}
-                  </span>
-                  <HelpTooltip
-                    className="big-spacer-right"
-                    overlay={translate('hotspots.reviewed.tooltip')}
-                  />
-                  <DeferredSpinner loading={loadingMeasure}>
-                    {hotspotsReviewedMeasure && <CoverageRating value={hotspotsReviewedMeasure} />}
-                    <Measure
-                      className="spacer-left huge it__hs-review-percentage"
-                      metricKey={
-                        onBranch && !filters.inNewCodePeriod
-                          ? 'security_hotspots_reviewed'
-                          : 'new_security_hotspots_reviewed'
-                      }
-                      metricType="PERCENT"
-                      value={hotspotsReviewedMeasure}
-                    />
-                  </DeferredSpinner>
-                </div>
-              )}
-            </div>
+                <span className="sw-ml-1 sw-body-sm">
+                  {translate('metric.security_hotspots_reviewed.name')}
+                </span>
+                <HelpTooltip className="sw-ml-1" overlay={translate('hotspots.reviewed.tooltip')}>
+                  <HelperHintIcon aria-label="help-tooltip" />
+                </HelpTooltip>
+              </DeferredSpinner>
+            </StyledFilterWrapper>
           )}
-        </div>
-      </div>
+
+          <StyledFilterWrapper className="sw-flex sw-px-2 sw-py-4 sw-gap-2 sw-justify-between">
+            <ToggleButton
+              aria-label={translate('hotspot.filters.status')}
+              onChange={(status: HotspotStatusFilter) => props.onChangeFilters({ status })}
+              options={statusOptions}
+              value={statusOptions.find((status) => status.value === filters.status)?.value}
+            />
+            {(onBranch || userLoggedIn || isFiltered) && (
+              <Dropdown
+                allowResizing={true}
+                closeOnClick={false}
+                id="filter-hotspots-menu"
+                overlay={
+                  <>
+                    <ItemHeader>{translate('hotspot.filters.title')}</ItemHeader>
+
+                    {onBranch && (
+                      <ItemCheckbox
+                        checked={Boolean(filters.inNewCodePeriod)}
+                        onCheck={(inNewCodePeriod) => props.onChangeFilters({ inNewCodePeriod })}
+                      >
+                        <span className="sw-mx-2">
+                          {translate('hotspot.filters.period.since_leak_period')}
+                        </span>
+                      </ItemCheckbox>
+                    )}
+
+                    {userLoggedIn && (
+                      <ItemCheckbox
+                        checked={Boolean(filters.assignedToMe)}
+                        onCheck={(assignedToMe) => props.onChangeFilters({ assignedToMe })}
+                      >
+                        <span className="sw-mx-2">
+                          {translate('hotspot.filters.assignee.assigned_to_me')}
+                        </span>
+                      </ItemCheckbox>
+                    )}
+
+                    {isFiltered && <ItemDivider />}
+
+                    {isFiltered && (
+                      <ItemDangerButton
+                        onClick={() =>
+                          props.onChangeFilters({
+                            assignedToMe: false,
+                            inNewCodePeriod: false,
+                          })
+                        }
+                      >
+                        {translate('hotspot.filters.clear')}
+                      </ItemDangerButton>
+                    )}
+                  </>
+                }
+                placement={PopupPlacement.BottomRight}
+              >
+                <DiscreetInteractiveIcon
+                  Icon={FilterIcon}
+                  aria-label={translate('hotspot.filters.title')}
+                >
+                  {isFiltered ? filtersCount : null}
+                </DiscreetInteractiveIcon>
+              </Dropdown>
+            )}
+          </StyledFilterWrapper>
+        </>
+      )}
     </div>
   );
 }
+
+const StyledFilterWrapper = withTheme(styled.div`
+  border-bottom: ${themeBorder('default')};
+`);
 
 export default withCurrentUserContext(FilterBar);
