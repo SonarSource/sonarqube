@@ -20,6 +20,7 @@
 
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
+import { getTabId, getTabPanelId } from '../helpers/tabs';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { Badge } from './Badge';
 import { ButtonSecondary } from './buttons';
@@ -38,26 +39,30 @@ export interface ButtonToggleProps<T extends ToggleButtonValueType> {
   label?: string;
   onChange: (value: T) => void;
   options: Array<ToggleButtonsOption<T>>;
+  role?: 'radiogroup' | 'tablist';
   value?: T;
 }
 
 export function ToggleButton<T extends ToggleButtonValueType>(props: ButtonToggleProps<T>) {
-  const { disabled = false, label, options, value } = props;
+  const { disabled = false, label, options, value, role = 'radiogroup' } = props;
+  const isRadioGroup = role === 'radiogroup';
 
   return (
-    <Wrapper aria-label={label} role="radiogroup">
+    <Wrapper aria-label={label} role={role}>
       {options.map((option) => (
         <OptionButton
+          aria-controls={isRadioGroup ? undefined : getTabPanelId(String(option.value))}
           aria-current={option.value === value}
           data-value={option.value}
           disabled={disabled || option.disabled}
+          id={getTabId(String(option.value))}
           key={option.value.toString()}
           onClick={() => {
             if (option.value !== value) {
               props.onChange(option.value);
             }
           }}
-          role="radio"
+          role={isRadioGroup ? 'radio' : 'tab'}
           selected={option.value === value}
         >
           {option.label}

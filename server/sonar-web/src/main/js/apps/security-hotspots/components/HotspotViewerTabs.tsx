@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import { groupBy } from 'lodash';
 import * as React from 'react';
-import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -40,8 +40,8 @@ interface State {
 }
 
 interface Tab {
-  key: TabKeys;
-  label: React.ReactNode;
+  value: TabKeys;
+  label: string;
   content: React.ReactNode;
 }
 
@@ -50,6 +50,7 @@ export enum TabKeys {
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
   FixRecommendation = 'fix',
+  Activity = 'activity',
 }
 
 export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
@@ -114,8 +115,10 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   handleSelectTabs = (tabKey: TabKeys) => {
     const { tabs } = this.state;
-    const currentTab = tabs.find((tab) => tab.key === tabKey)!;
-    this.setState({ currentTab });
+    const currentTab = tabs.find((tab) => tab.value === tabKey);
+    if (currentTab) {
+      this.setState({ currentTab });
+    }
   };
 
   computeTabs() {
@@ -127,40 +130,32 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
     return [
       {
-        key: TabKeys.Code,
+        value: TabKeys.Code,
         label: translate('hotspots.tabs.code'),
-        content: <div className="padded">{codeTabContent}</div>,
+        content: codeTabContent,
       },
       {
-        key: TabKeys.RiskDescription,
+        value: TabKeys.RiskDescription,
         label: translate('hotspots.tabs.risk_description'),
         content: rootCauseDescriptionSections && (
-          <RuleDescription
-            className="big-padded"
-            sections={rootCauseDescriptionSections}
-            isDefault={true}
-          />
+          <RuleDescription sections={rootCauseDescriptionSections} />
         ),
       },
       {
-        key: TabKeys.VulnerabilityDescription,
+        value: TabKeys.VulnerabilityDescription,
         label: translate('hotspots.tabs.vulnerability_description'),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
-            className="big-padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
-            isDefault={true}
           />
         ),
       },
       {
-        key: TabKeys.FixRecommendation,
+        value: TabKeys.FixRecommendation,
         label: translate('hotspots.tabs.fix_recommendations'),
         content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
-            className="big-padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-            isDefault={true}
           />
         ),
       },
@@ -169,7 +164,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   selectNeighboringTab(shift: number) {
     this.setState(({ tabs, currentTab }) => {
-      const index = currentTab && tabs.findIndex((tab) => tab.key === currentTab.key);
+      const index = currentTab && tabs.findIndex((tab) => tab.value === currentTab.value);
 
       if (index !== undefined && index > -1) {
         const newIndex = Math.max(0, Math.min(tabs.length - 1, index + shift));
@@ -186,12 +181,17 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
     const { tabs, currentTab } = this.state;
     return (
       <>
-        <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
+        <ToggleButton
+          role="tablist"
+          value={currentTab.value}
+          options={tabs}
+          onChange={this.handleSelectTabs}
+        />
         <div
-          className="bordered huge-spacer-bottom"
+          aria-labelledby={getTabId(currentTab.value)}
+          className="sw-mt-6"
+          id={getTabPanelId(currentTab.value)}
           role="tabpanel"
-          aria-labelledby={getTabId(currentTab.key)}
-          id={getTabPanelId(currentTab.key)}
         >
           {currentTab.content}
         </div>

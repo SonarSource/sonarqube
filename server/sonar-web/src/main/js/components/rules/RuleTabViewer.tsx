@@ -196,7 +196,6 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
             }
-            isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
             defaultContextKey={ruleDescriptionContextKey}
           />
         ),

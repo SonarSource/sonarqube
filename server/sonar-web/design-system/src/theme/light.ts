@@ -196,6 +196,8 @@ export const lightTheme = {
     codeLineLocationMarker: COLORS.red[200],
     codeLineLocationMarkerSelected: danger.lighter,
     codeLineLocationSelected: COLORS.blueGrey[100],
+    codeLineCoveredUnderline: [...COLORS.green[500], 0.15],
+    codeLineUncoveredUnderline: [...COLORS.red[500], 0.15],
 
     // checkbox
     checkboxHover: COLORS.indigo[50],

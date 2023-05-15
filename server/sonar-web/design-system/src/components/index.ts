@@ -42,6 +42,7 @@ export * from './FlowStep';
 export * from './GenericAvatar';
 export * from './HighlightedSection';
 export { HotspotRating } from './HotspotRating';
+export * from './HtmlFormatter';
 export * from './InputField';
 export { InputSearch } from './InputSearch';
 export * from './InputSelect';

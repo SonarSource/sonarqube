@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './colors';
-export * from './constants';
-export * from './positioning';
-export * from './tabs';
-export * from './theme';
+export function getTabPanelId(key: string | number) {
+  return `tabpanel-${key}`;
+}
+
+export function getTabId(key: string | number) {
+  return `tab-${key}`;
+}

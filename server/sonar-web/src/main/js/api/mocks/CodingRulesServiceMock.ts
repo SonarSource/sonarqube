@@ -52,7 +52,8 @@ const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
   languages: 'lang',
   types: 'type',
 };
-export default class CodingRulesMock {
+
+export default class CodingRulesServiceMock {
   defaultRules: RuleDetails[] = [];
   rules: RuleDetails[] = [];
   qualityProfile: Profile[] = [];
@@ -74,7 +75,8 @@ export default class CodingRulesMock {
 
     const resourceContent = 'Some link <a href="http://example.com">Awsome Reading</a>';
     const introTitle = 'Introduction to this rule';
-    const rootCauseContent = 'This how to fix';
+    const rootCauseContent = 'Root cause';
+    const howToFixContent = 'This is how to fix';
 
     this.defaultRules = [
       mockRuleDetails({
@@ -92,6 +94,7 @@ export default class CodingRulesMock {
         descriptionSections: [
           { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
           { key: RuleDescriptionSections.ROOT_CAUSE, content: rootCauseContent },
+          { key: RuleDescriptionSections.HOW_TO_FIX, content: howToFixContent },
           { key: RuleDescriptionSections.ASSESS_THE_PROBLEM, content: 'Assess' },
           {
             key: RuleDescriptionSections.RESOURCES,

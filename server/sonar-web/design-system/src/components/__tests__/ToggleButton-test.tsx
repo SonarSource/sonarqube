@@ -19,21 +19,19 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getTabPanelId } from '../../helpers';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { ToggleButton, ToggleButtonsOption } from '../ToggleButton';
 
 it('should render all options', async () => {
   const user = userEvent.setup();
-
   const onChange = jest.fn();
-
   const options: Array<ToggleButtonsOption<number>> = [
     { value: 1, label: 'first' },
     { value: 2, label: 'disabled', disabled: true },
     { value: 3, label: 'has counter', counter: 7 },
   ];
-
   renderToggleButtons({ onChange, options, value: 1 });
 
   expect(screen.getAllByRole('radio')).toHaveLength(3);
@@ -45,6 +43,22 @@ it('should render all options', async () => {
   await user.click(screen.getByText('has counter'));
 
   expect(onChange).toHaveBeenCalledWith(3);
+});
+
+it('should work in tablist mode', () => {
+  const onChange = jest.fn();
+  const options: Array<ToggleButtonsOption<number>> = [
+    { value: 1, label: 'first' },
+    { value: 2, label: 'second' },
+    { value: 3, label: 'third' },
+  ];
+  renderToggleButtons({ onChange, options, value: 1, role: 'tablist' });
+
+  expect(screen.getAllByRole('tab')).toHaveLength(3);
+  expect(screen.getByRole('tab', { name: 'second' })).toHaveAttribute(
+    'aria-controls',
+    getTabPanelId(2)
+  );
 });
 
 function renderToggleButtons(props: Partial<FCProps<typeof ToggleButton>> = {}) {

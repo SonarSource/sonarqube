@@ -20,7 +20,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byPlaceholderText, byRole } from 'testing-library-selector';
-import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
+import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
@@ -39,12 +39,12 @@ const ui = {
   availableSinceDateField: byPlaceholderText('date'),
 };
 
-let handler: CodingRulesMock;
+let handler: CodingRulesServiceMock;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollIntoView = jest.fn();
-  handler = new CodingRulesMock();
+  handler = new CodingRulesServiceMock();
 });
 
 afterEach(() => handler.reset());

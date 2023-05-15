@@ -150,8 +150,7 @@
 }
 
 .rule-desc pre,
-.markdown pre,
-.code-difference-scrollable {
+.markdown pre {
   background-color: var(--codeBackground);
   border-radius: 8px;
   border: 1px solid var(--codeBorder);
@@ -159,31 +158,6 @@
   margin-top: 0;
   margin-bottom: 0;
   overflow-x: auto;
-}
-
-.code-difference-container {
-  display: flex;
-  flex-direction: column;
-  width: fit-content;
-  min-width: 100%;
-}
-
-.code-difference-scrollable .code-added {
-  background-color: var(--codeAdded);
-  padding-left: calc(2 * var(--gridSize));
-  padding-right: calc(2 * var(--gridSize));
-  margin-left: calc(-2 * var(--gridSize));
-  margin-right: calc(-2 * var(--gridSize));
-  border-radius: 0;
-}
-
-.code-difference-scrollable .code-removed {
-  background-color: var(--codeRemoved);
-  padding-left: calc(2 * var(--gridSize));
-  padding-right: calc(2 * var(--gridSize));
-  margin-left: calc(-2 * var(--gridSize));
-  margin-right: calc(-2 * var(--gridSize));
-  border-radius: 0;
 }
 
 .rule-desc code,

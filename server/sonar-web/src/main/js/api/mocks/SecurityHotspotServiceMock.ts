@@ -21,12 +21,13 @@ import { cloneDeep, times } from 'lodash';
 import {
   mockHotspot,
   mockHotspotComment,
+  mockHotspotRule,
   mockRawHotspot,
   mockStandards,
 } from '../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { getStandards } from '../../helpers/security-standard';
-import { mockPaging, mockRuleDetails, mockUser } from '../../helpers/testMocks';
+import { mockPaging, mockUser } from '../../helpers/testMocks';
 import {
   Hotspot,
   HotspotAssignRequest,
@@ -36,7 +37,6 @@ import {
 } from '../../types/security-hotspots';
 import { getSources } from '../components';
 import { getMeasures } from '../measures';
-import { getRuleDetails } from '../rules';
 import {
   assignSecurityHotspot,
   commentSecurityHotspot,
@@ -67,7 +67,6 @@ export default class SecurityHotspotServiceMock {
     jest.mocked(assignSecurityHotspot).mockImplementation(this.handleAssignSecurityHotspot);
     jest.mocked(setSecurityHotspotStatus).mockImplementation(this.handleSetSecurityHotspotStatus);
     jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
-    jest.mocked(getRuleDetails).mockResolvedValue({ rule: mockRuleDetails() });
     jest.mocked(getSources).mockResolvedValue(
       times(NUMBER_OF_LINES, (n) =>
         mockSourceLine({
@@ -309,13 +308,23 @@ export default class SecurityHotspotServiceMock {
   reset = () => {
     this.hotspots = [
       mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
         assignee: 'John Doe',
         key: 'b1-test-1',
         message: "'F' is a magic number.",
       }),
-      mockHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
-      mockHotspot({ key: 'test-1', status: HotspotStatus.TO_REVIEW }),
       mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        assignee: 'John Doe',
+        key: 'b1-test-2',
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
+        key: 'test-1',
+        status: HotspotStatus.TO_REVIEW,
+      }),
+      mockHotspot({
+        rule: mockHotspotRule({ key: 'rule2' }),
         key: 'test-2',
         status: HotspotStatus.TO_REVIEW,
         message: "'2' is a magic number.",

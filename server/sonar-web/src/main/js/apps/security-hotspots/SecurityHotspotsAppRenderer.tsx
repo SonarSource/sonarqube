@@ -126,7 +126,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
       />
       <LargeCenteredLayout id={MetricKey.security_hotspots}>
         <PageContentFontWrapper>
-          <div className="sw-grid sw-grid-cols-12 sw-w-full">
+          <div className="sw-grid sw-grid-cols-12 sw-w-full sw-body-sm">
             <DeferredSpinner className="sw-mt-3" loading={loading} />
 
             {!loading &&
