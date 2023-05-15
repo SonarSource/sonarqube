@@ -28,6 +28,7 @@ interface Props {
   profile: string;
   sonarway: string;
   sonarWayMissingRules: number;
+  organization: string;
 }
 
 export default function ProfileRulesSonarWayComparison(props: Props) {
@@ -36,8 +37,7 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
     activation: 'false',
     compareToProfile: props.sonarway,
     languages: props.language,
-  });
-
+  },props.organization);
   return (
     <div className="quality-profile-rules-sonarway-missing clearfix">
       <span className="pull-left">

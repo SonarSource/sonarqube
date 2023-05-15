@@ -61,7 +61,6 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   renderAuthenticated() {
     const currentUser = this.props.currentUser as LoggedInUser;
     const hasOrganizations = this.props.userOrganizations.length > 0;
-    console.log("Pendo Initialized : " + this.props.pendoInitialized);
        if (isLoggedIn(currentUser) && hasOrganizations && !this.props.pendoInitialized) {
          const script = document.createElement('script');
          const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');

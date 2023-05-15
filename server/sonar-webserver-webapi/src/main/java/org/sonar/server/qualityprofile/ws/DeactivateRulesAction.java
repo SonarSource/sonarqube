@@ -46,6 +46,8 @@ public class DeactivateRulesAction implements QProfileWsAction {
   private final QProfileWsSupport wsSupport;
   private final DbClient dbClient;
 
+  public static final String PARAM_ORGANIZATION = "organization";
+
   public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, QProfileRules ruleActivator, QProfileWsSupport wsSupport, DbClient dbClient) {
     this.ruleQueryFactory = ruleQueryFactory;
     this.userSession = userSession;
@@ -73,6 +75,11 @@ public class DeactivateRulesAction implements QProfileWsAction {
       .setDescription("Quality Profile key on which the rule deactivation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_04);
+
+    deactivate.createParam(PARAM_ORGANIZATION)
+            .setRequired(true)
+            .setDescription("Organization key")
+            .setExampleValue("my-org");
   }
 
   @Override

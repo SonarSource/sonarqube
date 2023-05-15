@@ -187,6 +187,11 @@ export function getIssuesUrl(query: Query): To {
   return { pathname, search: queryToSearch(query) };
 }
 
+export function getOrgIssuesUrl(query: Query, organization?: string): Location {
+  const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+  return { pathname, query };
+}
+
 /**
  * Generate URL for a component's issues page
  */

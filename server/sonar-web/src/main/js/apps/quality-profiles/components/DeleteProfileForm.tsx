@@ -29,6 +29,7 @@ export interface DeleteProfileFormProps {
   onClose: () => void;
   onDelete: () => void;
   profile: Profile;
+  organization: string;
 }
 
 export default function DeleteProfileForm(props: DeleteProfileFormProps) {

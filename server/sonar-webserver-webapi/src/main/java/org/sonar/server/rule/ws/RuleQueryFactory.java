@@ -58,7 +58,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 @ServerSide
 public class RuleQueryFactory {
   private final DbClient dbClient;
-
+  private static final String PARAM_ORGANIZATION = "organization";
   public RuleQueryFactory(DbClient dbClient) {
     this.dbClient = dbClient;
   }
@@ -104,6 +104,7 @@ public class RuleQueryFactory {
     query.setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     query.setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25));
     query.setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+    query.setOrganization(dbClient.organizationDao().selectByKey(dbSession,request.mandatoryParam(PARAM_ORGANIZATION)).get());
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {

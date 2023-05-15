@@ -31,7 +31,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
 
   const { key, language, name } = location.query;
 
-  const { profiles } = props;
+  const { profiles, organization } = props;
 
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
@@ -52,7 +52,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
   const profile = filteredProfiles.find((p) => p.name === name);
 
   if (!profile) {
-    return <ProfileNotFound />;
+    return <ProfileNotFound organization={organization} language={language} name={name}/>;
   }
 
   const context: QualityProfilesContextProps = {

@@ -42,6 +42,7 @@ interface Props {
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
+  organization: string;
   referencedProfiles: Dict<Profile>;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleKey: string;
@@ -79,6 +80,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     return getRuleDetails({
       actives: true,
       key: this.props.ruleKey,
+      organization: this.props.organization
     }).then(
       ({ actives, rule }) => {
         if (this.mounted) {
@@ -107,6 +109,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     );
     updateRule({
       key: this.props.ruleKey,
+      organization: this.props.organization,
       tags: tags.join(),
     }).catch(() => {
       if (this.mounted) {
@@ -143,7 +146,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
   };
 
   handleDelete = () => {
-    return deleteRule({ key: this.props.ruleKey }).then(() =>
+    return deleteRule({ key: this.props.ruleKey, organization: this.props.organization }).then(() =>
       this.props.onDelete(this.props.ruleKey)
     );
   };
@@ -155,7 +158,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       return <div className="coding-rule-details" />;
     }
 
-    const { allowCustomRules, canWrite, referencedProfiles } = this.props;
+    const { allowCustomRules, canWrite, referencedProfiles, organization } = this.props;
     const { params = [] } = ruleDetails;
 
     const isCustom = !!ruleDetails.templateKey;
@@ -168,6 +171,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             canWrite={canWrite}
             onFilterChange={this.props.onFilterChange}
             onTagsChange={this.handleTagsChange}
+            organization={organization}
             referencedRepositories={this.props.referencedRepositories}
             ruleDetails={ruleDetails}
           />
@@ -175,6 +179,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           <RuleDetailsDescription
             canWrite={canWrite}
             onChange={this.handleRuleChange}
+            organization={organization}
             ruleDetails={ruleDetails}
           />
 
@@ -187,6 +192,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
               <CustomRuleButton
                 customRule={ruleDetails}
                 onDone={this.handleRuleChange}
+                organization={organization}
                 templateRule={ruleDetails}
               >
                 {({ onClick }) => (
@@ -235,6 +241,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           {ruleDetails.isTemplate && (
             <RuleDetailsCustomRules
               canChange={allowCustomRules && canWrite}
+              organization={organization}
               ruleDetails={ruleDetails}
             />
           )}
@@ -244,13 +251,14 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
               activations={this.state.actives}
               onActivate={this.handleActivate}
               onDeactivate={this.handleDeactivate}
+              organization={organization}
               referencedProfiles={referencedProfiles}
               ruleDetails={ruleDetails}
             />
           )}
 
           {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
-            <RuleDetailsIssues ruleDetails={ruleDetails} />
+            <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />
           )}
         </DeferredSpinner>
       </div>

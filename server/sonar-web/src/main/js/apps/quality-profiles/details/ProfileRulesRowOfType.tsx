@@ -29,19 +29,21 @@ interface Props {
   qprofile: string;
   total: number | null;
   type: string;
+  organization: string;
 }
 
 export default function ProfileRulesRowOfType(props: Props) {
   const activeRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'true',
-    types: props.type,
-  });
+    types: props.type
+  }, props.organization);
+
   const inactiveRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'false',
-    types: props.type,
-  });
+    types: props.type
+  }, props.organization);
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
     inactiveCount = props.total - props.count;

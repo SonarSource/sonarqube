@@ -40,6 +40,10 @@ interface ExtendedRule extends Rule {
   activations: number;
 }
 
+interface Props {
+  organization: string | null;
+}
+
 interface State {
   latestRules?: ExtendedRule[];
   latestRulesTotal?: number;
@@ -73,8 +77,8 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
       f: 'name,langName,actives',
       ps: RULES_LIMIT,
       s: 'createdAt',
+      organization: this.props.organization,
     };
-
     searchRules(data).then(
       ({ actives, rules, total }) => {
         if (this.mounted) {
@@ -95,7 +99,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
       return null;
     }
 
-    const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate });
+    const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate }, this.props.organization);
 
     return (
       <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
@@ -106,7 +110,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
           {this.state.latestRules.map((rule) => (
             <li className="spacer-top" key={rule.key}>
               <div className="text-ellipsis">
-                <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key })}>
+                <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key },this.props.organization)}>
                   {' '}
                   {rule.name}
                 </Link>

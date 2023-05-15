@@ -37,12 +37,12 @@ export interface ProfileDetailsProps {
 }
 
 export function ProfileDetails(props: ProfileDetailsProps) {
-  const { profile } = props;
+  const { profile, organization } = props;
   return (
     <div>
       <div className="quality-profile-grid">
         <div className="quality-profile-grid-left">
-          <ProfileRules profile={profile} />
+          <ProfileRules profile={profile}  organization={organization}/>
           <ProfileExporters exporters={props.exporters} profile={profile} />
           {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
             <ProfilePermissions profile={profile} organization={props.organization}/>
@@ -61,11 +61,12 @@ export function ProfileDetails(props: ProfileDetailsProps) {
           )}
 
           <ProfileInheritance
+            organization={organization}
             profile={profile}
             profiles={props.profiles}
             updateProfiles={props.updateProfiles}
           />
-          <ProfileProjects profile={profile} />
+          <ProfileProjects organization={organization} profile={profile} />
         </div>
       </div>
     </div>

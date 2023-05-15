@@ -74,7 +74,9 @@ public class RuleIndexDefinition implements IndexDefinition {
     FIELD_RULE_UPDATED_AT,
     FIELD_RULE_CREATED_AT,
     FIELD_RULE_KEY);
-
+  public static final IndexRelationType TYPE_RULE_EXTENSION = IndexType.relation(TYPE_RULE, "ruleExtension");
+  public static final String FIELD_RULE_EXTENSION_SCOPE = "ruleExt_scope";
+  public static final String FIELD_RULE_EXTENSION_TAGS = "ruleExt_tags";
   // Active rule fields
   public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
   public static final String FIELD_ACTIVE_RULE_UUID = "activeRule_uuid";

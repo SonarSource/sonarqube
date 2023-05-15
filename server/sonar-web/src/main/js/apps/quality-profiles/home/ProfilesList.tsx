@@ -114,8 +114,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
 
     return (
       <div>
-        <ProfilesListHeader currentFilter={language} languages={languages} />
-
+        <ProfilesListHeader currentFilter={language} languages={languages} organization={this.props.organization} />
         {Object.keys(profilesToShow).length === 0 && (
           <Alert className="spacer-top" variant="warning">
             {translate('no_results')}

@@ -38,6 +38,7 @@ interface Props {
   query: Query;
   referencedProfiles: Dict<Profile>;
   total: number;
+  organization: string;
 }
 
 interface ActivationResult {
@@ -133,6 +134,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         .then(() =>
           method({
             ...data,
+            organization: this.props.organization,
             targetKey: profile,
           })
         )

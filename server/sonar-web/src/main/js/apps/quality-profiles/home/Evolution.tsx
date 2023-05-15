@@ -25,14 +25,15 @@ import EvolutionStagnant from './EvolutionStagnant';
 
 export interface EvolutionProps {
   profiles: Profile[];
+  organization:string;
 }
 
-export default function Evolution({ profiles }: EvolutionProps) {
+export default function Evolution({ profiles, organization }: EvolutionProps) {
   return (
     <div className="quality-profiles-evolution">
-      <EvolutionDeprecated profiles={profiles} />
-      <EvolutionStagnant profiles={profiles} />
-      <EvolutionRules />
+      <EvolutionDeprecated organization={organization} profiles={profiles} />
+      <EvolutionStagnant organization={organization} profiles={profiles} />
+      <EvolutionRules organization={organization}/>
     </div>
   );
 }

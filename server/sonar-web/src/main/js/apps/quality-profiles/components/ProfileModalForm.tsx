@@ -32,6 +32,7 @@ export interface ProfileModalFormProps {
   onClose: () => void;
   onSubmit: (name: string) => void;
   profile: Profile;
+  organization: string;
 }
 
 const LABELS_FOR_ACTION: Dict<{ button: string; header: string }> = {

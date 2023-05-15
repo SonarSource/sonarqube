@@ -32,6 +32,7 @@ interface Props {
   canWrite: boolean | undefined;
   onChange: (newRuleDetails: RuleDetails) => void;
   ruleDetails: RuleDetails;
+  organization: string;
 }
 
 interface State {
@@ -85,6 +86,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     updateRule({
       key: this.props.ruleDetails.key,
+      organization: this.props.organization,
       markdown_note: text,
     }).then(
       (ruleDetails) => {

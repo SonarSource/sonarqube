@@ -37,6 +37,7 @@ interface Props {
   activations: RuleActivation[] | undefined;
   onActivate: () => Promise<void>;
   onDeactivate: () => Promise<void>;
+  organization: string;
   referencedProfiles: Dict<Profile>;
   ruleDetails: RuleDetails;
 }
@@ -48,6 +49,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (key) {
       deactivateRule({
         key,
+        organization: this.props.organization,
         rule: this.props.ruleDetails.key,
       }).then(this.props.onDeactivate, () => {});
     }
@@ -57,17 +59,19 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (key) {
       activateRule({
         key,
+        organization: this.props.organization,
         rule: this.props.ruleDetails.key,
         reset: true,
       }).then(this.props.onActivate, () => {});
     }
   };
 
-  renderInheritedProfile = (activation: RuleActivation, profile: Profile) => {
+  renderInheritedProfile = (activation: RuleActivation, profile: Profile, organization:string) => {
     if (!profile.parentName) {
       return null;
     }
-    const profilePath = getQualityProfileUrl(profile.parentName, profile.language);
+    console.log("organization ->"+organization);
+    const profilePath = getQualityProfileUrl(profile.parentName, profile.language, organization);
     return (
       <div className="coding-rules-detail-quality-profile-inheritance">
         {(activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
@@ -191,7 +195,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   };
 
   renderActivation = (activation: RuleActivation) => {
-    const { activations = [], ruleDetails } = this.props;
+    const { activations = [], ruleDetails, organization } = this.props;
     const profile = this.props.referencedProfiles[activation.qProfile];
     if (!profile) {
       return null;
@@ -202,9 +206,9 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     return (
       <tr data-profile={profile.key} key={profile.key}>
         <td className="coding-rules-detail-quality-profile-name">
-          <Link to={getQualityProfileUrl(profile.name, profile.language)}>{profile.name}</Link>
+          <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>{profile.name}</Link>
           {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
-          {this.renderInheritedProfile(activation, profile)}
+          {this.renderInheritedProfile(activation, profile, this.props.organization)}
         </td>
 
         {this.renderSeverity(activation, parentActivation)}

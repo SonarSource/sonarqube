@@ -25,11 +25,14 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.NewParam;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
+import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_GROUP;
@@ -80,6 +83,8 @@ public class RemoveGroupAction implements QProfileWsAction {
       .setDescription("Group name")
       .setRequired(true)
       .setExampleValue("sonar-administrators");
+
+    createOrganizationParam(action);
   }
 
   @Override
@@ -92,6 +97,14 @@ public class RemoveGroupAction implements QProfileWsAction {
       removeGroup(dbSession, profile, group);
     }
     response.noContent();
+  }
+  public static NewParam createOrganizationParam(NewAction action) {
+    return action
+            .createParam(ComponentsWsParameters.PARAM_ORGANIZATION)
+            .setDescription("Organization key. If no organization is provided, the default organization is used.")
+            .setRequired(true)
+            .setInternal(true)
+            .setExampleValue("my-org");
   }
 
   private void removeGroup(DbSession dbSession, QProfileDto profile, GroupDto group) {

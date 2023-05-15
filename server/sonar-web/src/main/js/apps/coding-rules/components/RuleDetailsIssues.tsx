@@ -27,12 +27,13 @@ import Tooltip from '../../../components/controls/Tooltip';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { getIssuesUrl } from '../../../helpers/urls';
+import { getOrgIssuesUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { RuleDetails } from '../../../types/types';
 
 interface Props extends WithAvailableFeaturesProps {
   ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
+  organization: string;
 }
 
 interface Project {
@@ -69,12 +70,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   fetchIssues = () => {
     const {
       ruleDetails: { key },
+      organization
     } = this.props;
 
     this.setState({ loading: true });
     getFacet(
       {
         resolved: 'false',
+        organization,
         rules: key,
       },
       'projects'
@@ -103,13 +106,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   renderTotal = () => {
     const {
       ruleDetails: { key },
+      organization
     } = this.props;
 
     const { total } = this.state;
     if (total === undefined) {
       return null;
     }
-    const path = getIssuesUrl({ resolved: 'false', rules: key });
+    const path = getOrgIssuesUrl({ resolved: 'false', rules: key }, organization);
 
     const totalItem = (
       <span className="little-spacer-left">
@@ -133,7 +137,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       ruleDetails: { key },
     } = this.props;
 
-    const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key });
+    const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key }, organization);
     return (
       <tr key={project.key}>
         <td className="coding-rules-detail-list-name">{project.name}</td>

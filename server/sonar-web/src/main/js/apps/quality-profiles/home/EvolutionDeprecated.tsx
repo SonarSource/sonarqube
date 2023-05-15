@@ -27,6 +27,7 @@ import { Profile } from '../types';
 
 interface Props {
   profiles: Profile[];
+  organization: string;
 }
 
 interface InheritedRulesInfo {
@@ -120,7 +121,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
           {sortedProfiles.map((profile) => (
             <li className="spacer-top" key={profile.key}>
               <div className="text-ellipsis little-spacer-bottom">
-                <ProfileLink language={profile.language} name={profile.name}>
+                <ProfileLink language={profile.language} name={profile.name} organization={this.props.organization}>
                   {profile.name}
                 </ProfileLink>
               </div>
@@ -129,7 +130,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 {', '}
                 <Link
                   className="link-no-underline"
-                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
+                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key }, this.props.organization)}
                 >
                   {translateWithParameters(
                     'quality_profile.x_rules',

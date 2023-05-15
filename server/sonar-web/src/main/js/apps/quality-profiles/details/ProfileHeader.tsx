@@ -111,7 +111,7 @@ export default function ProfileHeader(props: Props) {
             values={{
               link: (
                 <>
-                  <Link to={getQualityProfileUrl(profile.parentName, profile.language)}>
+                  <Link to={getQualityProfileUrl(profile.parentName, profile.language, organization)}>
                     {profile.parentName}
                   </Link>
                   <HelpTooltip

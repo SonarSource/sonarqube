@@ -109,7 +109,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
           {translate('quality_profiles.intro1')}
           <br />
           {translate('quality_profiles.intro2')}
-          <DocLink className="spacer-left" to="/instance-administration/quality-profiles/">
+          <DocLink className="spacer-left" to="https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles">
             {translate('learn_more')}
           </DocLink>
         </div>
