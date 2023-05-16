@@ -21,11 +21,11 @@ import * as React from 'react';
 import {
   importBitbucketCloudRepository,
   searchForBitbucketCloudRepositories,
-} from '../../../api/alm-integrations';
-import { Location, Router } from '../../../components/hoc/withRouter';
-import { BitbucketCloudRepository } from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
-import { Paging } from '../../../types/types';
+} from '../../../../api/alm-integrations';
+import { Location, Router } from '../../../../components/hoc/withRouter';
+import { BitbucketCloudRepository } from '../../../../types/alm-integration';
+import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Paging } from '../../../../types/types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
 interface Props {

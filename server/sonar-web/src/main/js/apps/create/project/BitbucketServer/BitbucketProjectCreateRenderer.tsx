@@ -18,21 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
+import { Button } from '../../../../components/controls/buttons';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
   BitbucketRepository,
-} from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
+} from '../../../../types/alm-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
+import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
+import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
-import PersonalAccessTokenForm from './PersonalAccessTokenForm';
-import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface BitbucketProjectCreateRendererProps {
   selectedAlmInstance?: AlmSettingsInstance;

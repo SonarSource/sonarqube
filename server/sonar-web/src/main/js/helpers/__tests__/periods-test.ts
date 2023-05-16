@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NewCodePeriodSettingType } from '../../types/types';
-import { getPeriodLabel } from '../periods';
+import { NewCodePeriod, NewCodePeriodSettingType } from '../../types/types';
+import { getPeriodLabel, isNewCodeDefinitionCompliant } from '../periods';
 import { mockPeriod } from '../testMocks';
 
 const formatter = jest.fn((v) => v);
@@ -109,4 +109,20 @@ describe('getPeriodLabel', () => {
     ).toBe('overview.period.previous_version.2019-04-23T02:12:32+0100');
     expect(formatter).toHaveBeenCalledTimes(1);
   });
+});
+
+describe('isNewCodeDefinitionCompliant', () => {
+  it.each([
+    [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '0' }, false],
+    [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '15' }, true],
+    [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' }, false],
+    [{ type: NewCodePeriodSettingType.PREVIOUS_VERSION }, true],
+    [{ type: NewCodePeriodSettingType.REFERENCE_BRANCH }, true],
+    [{ type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS }, true],
+  ])(
+    'should test for new code definition compliance properly',
+    (newCodePeriod: NewCodePeriod, result: boolean) => {
+      expect(isNewCodeDefinitionCompliant(newCodePeriod)).toEqual(result);
+    }
+  );
 });

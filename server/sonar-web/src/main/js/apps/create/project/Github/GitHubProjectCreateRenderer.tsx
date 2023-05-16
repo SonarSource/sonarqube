@@ -21,26 +21,27 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '../../../app/theme';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import ListFooter from '../../../components/controls/ListFooter';
-import Radio from '../../../components/controls/Radio';
-import SearchBox from '../../../components/controls/SearchBox';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
-import CheckIcon from '../../../components/icons/CheckIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { getProjectUrl } from '../../../helpers/urls';
-import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import { ComponentQualifier } from '../../../types/component';
-import { Paging } from '../../../types/types';
-import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
+import { colors } from '../../../../app/theme';
+import Link from '../../../../components/common/Link';
+import ListFooter from '../../../../components/controls/ListFooter';
+import Radio from '../../../../components/controls/Radio';
+import SearchBox from '../../../../components/controls/SearchBox';
+import Select, { LabelValueSelectOption } from '../../../../components/controls/Select';
+import { Button } from '../../../../components/controls/buttons';
+import CheckIcon from '../../../../components/icons/CheckIcon';
+import QualifierIcon from '../../../../components/icons/QualifierIcon';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
+import { getProjectUrl } from '../../../../helpers/urls';
+import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { ComponentQualifier } from '../../../../types/component';
+import { Paging } from '../../../../types/types';
+import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
+import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 
 export interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
@@ -255,44 +256,49 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       )}
 
       {!error && (
-        <DeferredSpinner loading={loadingOrganizations}>
-          <div className="form-field">
-            <label htmlFor="github-choose-organization">
-              {translate('onboarding.create_project.github.choose_organization')}
-            </label>
-            {organizations.length > 0 ? (
-              <Select
-                inputId="github-choose-organization"
-                className="input-super-large"
-                options={organizations.map(orgToOption)}
-                onChange={({ value }: LabelValueSelectOption) => props.onSelectOrganization(value)}
-                value={selectedOrganization ? orgToOption(selectedOrganization) : null}
-              />
-            ) : (
-              !loadingOrganizations && (
-                <Alert className="spacer-top" variant="error">
-                  {canAdmin ? (
-                    <FormattedMessage
-                      id="onboarding.create_project.github.no_orgs_admin"
-                      defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
-                      values={{
-                        link: (
-                          <Link to="/admin/settings?category=almintegration">
-                            {translate(
-                              'onboarding.create_project.github.warning.message_admin.link'
-                            )}
-                          </Link>
-                        ),
-                      }}
-                    />
-                  ) : (
-                    translate('onboarding.create_project.github.no_orgs')
-                  )}
-                </Alert>
-              )
-            )}
-          </div>
-        </DeferredSpinner>
+        <>
+          <InstanceNewCodeDefinitionComplianceWarning />
+          <DeferredSpinner loading={loadingOrganizations}>
+            <div className="form-field">
+              <label htmlFor="github-choose-organization">
+                {translate('onboarding.create_project.github.choose_organization')}
+              </label>
+              {organizations.length > 0 ? (
+                <Select
+                  inputId="github-choose-organization"
+                  className="input-super-large"
+                  options={organizations.map(orgToOption)}
+                  onChange={({ value }: LabelValueSelectOption) =>
+                    props.onSelectOrganization(value)
+                  }
+                  value={selectedOrganization ? orgToOption(selectedOrganization) : null}
+                />
+              ) : (
+                !loadingOrganizations && (
+                  <Alert className="spacer-top" variant="error">
+                    {canAdmin ? (
+                      <FormattedMessage
+                        id="onboarding.create_project.github.no_orgs_admin"
+                        defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
+                        values={{
+                          link: (
+                            <Link to="/admin/settings?category=almintegration">
+                              {translate(
+                                'onboarding.create_project.github.warning.message_admin.link'
+                              )}
+                            </Link>
+                          ),
+                        }}
+                      />
+                    ) : (
+                      translate('onboarding.create_project.github.no_orgs')
+                    )}
+                  </Alert>
+                )
+              )}
+            </div>
+          </DeferredSpinner>
+        </>
       )}
 
       {renderRepositoryList(props)}

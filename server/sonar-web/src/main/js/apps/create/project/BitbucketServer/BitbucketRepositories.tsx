@@ -19,13 +19,13 @@
  */
 import { uniq, without } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
-import { translate } from '../../../helpers/l10n';
+import { ButtonLink } from '../../../../components/controls/buttons';
+import { translate } from '../../../../helpers/l10n';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
   BitbucketRepository,
-} from '../../../types/alm-integration';
+} from '../../../../types/alm-integration';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketRepositoriesProps {

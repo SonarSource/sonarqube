@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AlmSettingsInstanceSelector from '../../../components/devops-platform/AlmSettingsInstanceSelector';
-import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import AlmSettingsInstanceSelector from '../../../../components/devops-platform/AlmSettingsInstanceSelector';
+import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 
 export interface AlmSettingsInstanceDropdownProps {
   almKey: AlmKeys;

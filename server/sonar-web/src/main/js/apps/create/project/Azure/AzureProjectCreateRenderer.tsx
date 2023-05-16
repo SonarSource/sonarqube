@@ -19,23 +19,24 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import SearchBox from '../../../components/controls/SearchBox';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { getGlobalSettingsUrl } from '../../../helpers/urls';
-import { AzureProject, AzureRepository } from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import { Dict } from '../../../types/types';
-import { ALM_INTEGRATION_CATEGORY } from '../../settings/constants';
-import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
+import Link from '../../../../components/common/Link';
+import SearchBox from '../../../../components/controls/SearchBox';
+import { Button } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
+import { getGlobalSettingsUrl } from '../../../../helpers/urls';
+import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
+import { ALM_INTEGRATION_CATEGORY } from '../../../settings/constants';
+import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
+import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
+import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
-import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface AzureProjectCreateRendererProps {
   canAdmin?: boolean;
@@ -164,6 +165,8 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           </div>
         ) : (
           <>
+            <InstanceNewCodeDefinitionComplianceWarning />
+
             <div className="huge-spacer-bottom">
               <SearchBox
                 onChange={props.onSearch}

@@ -21,22 +21,22 @@ import classNames from 'classnames';
 import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createProject, doesComponentExists } from '../../../api/components';
-import { getValue } from '../../../api/settings';
-import DocLink from '../../../components/common/DocLink';
-import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
-import ValidationInput from '../../../components/controls/ValidationInput';
-import { SubmitButton } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../helpers/l10n';
-import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../helpers/projects';
-import { ProjectKeyValidationResult } from '../../../types/component';
-import { GlobalSettingKeys } from '../../../types/settings';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
-import './ManualProjectCreate.css';
-import { PROJECT_NAME_MAX_LEN } from './constants';
+import { createProject, doesComponentExists } from '../../../../api/components';
+import { getValue } from '../../../../api/settings';
+import DocLink from '../../../../components/common/DocLink';
+import ProjectKeyInput from '../../../../components/common/ProjectKeyInput';
+import ValidationInput from '../../../../components/controls/ValidationInput';
+import { SubmitButton } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../../helpers/l10n';
+import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../../helpers/projects';
+import { ProjectKeyValidationResult } from '../../../../types/component';
+import { GlobalSettingKeys } from '../../../../types/settings';
+import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
+import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
+import { PROJECT_NAME_MAX_LEN } from '../constants';
 
 interface Props {
   branchesEnabled: boolean;
@@ -235,94 +235,90 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       <>
         <CreateProjectPageHeader title={translate('onboarding.create_project.setup_manually')} />
 
-        <div className="create-project-manual">
-          <div className="flex-1 huge-spacer-right">
-            <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-              <MandatoryFieldsExplanation className="big-spacer-bottom" />
+        <InstanceNewCodeDefinitionComplianceWarning />
 
-              <ValidationInput
-                className="form-field"
-                description={translate('onboarding.create_project.display_name.description')}
-                error={projectNameError}
-                labelHtmlFor="project-name"
-                isInvalid={projectNameIsInvalid}
-                isValid={projectNameIsValid}
-                label={translate('onboarding.create_project.display_name')}
-                required={true}
-              >
-                <input
-                  className={classNames('input-super-large', {
-                    'is-invalid': projectNameIsInvalid,
-                    'is-valid': projectNameIsValid,
-                  })}
-                  id="project-name"
-                  maxLength={PROJECT_NAME_MAX_LEN}
-                  minLength={1}
-                  onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
-                  type="text"
-                  value={projectName}
-                  autoFocus={true}
-                />
-              </ValidationInput>
-              <ProjectKeyInput
-                error={projectKeyError}
-                label={translate('onboarding.create_project.project_key')}
-                onProjectKeyChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
-                projectKey={projectKey}
-                touched={touched}
-                validating={validatingProjectKey}
+        <form id="create-project-manual" onSubmit={this.handleFormSubmit}>
+          <MandatoryFieldsExplanation className="big-spacer-bottom" />
+
+          <ValidationInput
+            className="form-field"
+            description={translate('onboarding.create_project.display_name.description')}
+            error={projectNameError}
+            labelHtmlFor="project-name"
+            isInvalid={projectNameIsInvalid}
+            isValid={projectNameIsValid}
+            label={translate('onboarding.create_project.display_name')}
+            required={true}
+          >
+            <input
+              className={classNames('input-super-large', {
+                'is-invalid': projectNameIsInvalid,
+                'is-valid': projectNameIsValid,
+              })}
+              id="project-name"
+              maxLength={PROJECT_NAME_MAX_LEN}
+              minLength={1}
+              onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
+              type="text"
+              value={projectName}
+              autoFocus={true}
+            />
+          </ValidationInput>
+          <ProjectKeyInput
+            error={projectKeyError}
+            label={translate('onboarding.create_project.project_key')}
+            onProjectKeyChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
+            projectKey={projectKey}
+            touched={touched}
+            validating={validatingProjectKey}
+          />
+
+          <ValidationInput
+            className="form-field"
+            description={
+              <FormattedMessage
+                id="onboarding.create_project.main_branch_name.description"
+                defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
+                values={{
+                  learn_more: (
+                    <DocLink to="/analyzing-source-code/branches/branch-analysis">
+                      {translate('learn_more')}
+                    </DocLink>
+                  ),
+                }}
               />
+            }
+            error={mainBranchNameError}
+            labelHtmlFor="main-branch-name"
+            isInvalid={mainBranchNameIsInvalid}
+            isValid={mainBranchNameIsValid}
+            label={translate('onboarding.create_project.main_branch_name')}
+            required={true}
+          >
+            <input
+              id="main-branch-name"
+              className={classNames('input-super-large', {
+                'is-invalid': mainBranchNameIsInvalid,
+                'is-valid': mainBranchNameIsValid,
+              })}
+              minLength={1}
+              onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
+              type="text"
+              value={mainBranchName}
+            />
+          </ValidationInput>
 
-              <ValidationInput
-                className="form-field"
-                description={
-                  <FormattedMessage
-                    id="onboarding.create_project.main_branch_name.description"
-                    defaultMessage={translate(
-                      'onboarding.create_project.main_branch_name.description'
-                    )}
-                    values={{
-                      learn_more: (
-                        <DocLink to="/analyzing-source-code/branches/branch-analysis">
-                          {translate('learn_more')}
-                        </DocLink>
-                      ),
-                    }}
-                  />
-                }
-                error={mainBranchNameError}
-                labelHtmlFor="main-branch-name"
-                isInvalid={mainBranchNameIsInvalid}
-                isValid={mainBranchNameIsValid}
-                label={translate('onboarding.create_project.main_branch_name')}
-                required={true}
-              >
-                <input
-                  id="main-branch-name"
-                  className={classNames('input-super-large', {
-                    'is-invalid': mainBranchNameIsInvalid,
-                    'is-valid': mainBranchNameIsValid,
-                  })}
-                  minLength={1}
-                  onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
-                  type="text"
-                  value={mainBranchName}
-                />
-              </ValidationInput>
+          <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
+            {translate('set_up')}
+          </SubmitButton>
+          <DeferredSpinner className="spacer-left" loading={submitting} />
+        </form>
 
-              <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-                {translate('set_up')}
-              </SubmitButton>
-              <DeferredSpinner className="spacer-left" loading={submitting} />
-            </form>
-
-            {branchesEnabled && (
-              <Alert variant="info" display="inline" className="big-spacer-top">
-                {translate('onboarding.create_project.pr_decoration.information')}
-              </Alert>
-            )}
-          </div>
-        </div>
+        {branchesEnabled && (
+          <Alert variant="info" display="inline" className="big-spacer-top">
+            {translate('onboarding.create_project.pr_decoration.information')}
+          </Alert>
+        )}
       </>
     );
   }

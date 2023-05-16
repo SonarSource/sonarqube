@@ -23,16 +23,16 @@ import {
   getBitbucketServerRepositories,
   importBitbucketServerProject,
   searchForBitbucketServerRepositories,
-} from '../../../api/alm-integrations';
-import { Location, Router } from '../../../components/hoc/withRouter';
+} from '../../../../api/alm-integrations';
+import { Location, Router } from '../../../../components/hoc/withRouter';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
   BitbucketRepository,
-} from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+} from '../../../../types/alm-integration';
+import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { DEFAULT_BBS_PAGE_SIZE } from '../constants';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
-import { DEFAULT_BBS_PAGE_SIZE } from './constants';
 
 interface Props {
   canAdmin: boolean;

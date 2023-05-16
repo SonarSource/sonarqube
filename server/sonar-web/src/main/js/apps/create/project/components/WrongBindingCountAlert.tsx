@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { Alert } from '../../../components/ui/Alert';
-import { translate } from '../../../helpers/l10n';
-import { getGlobalSettingsUrl } from '../../../helpers/urls';
-import { AlmKeys } from '../../../types/alm-settings';
-import { ALM_INTEGRATION_CATEGORY } from '../../settings/constants';
+import Link from '../../../../components/common/Link';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
+import { getGlobalSettingsUrl } from '../../../../helpers/urls';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { ALM_INTEGRATION_CATEGORY } from '../../../settings/constants';
 
 export interface WrongBindingCountAlertProps {
   alm: AlmKeys;

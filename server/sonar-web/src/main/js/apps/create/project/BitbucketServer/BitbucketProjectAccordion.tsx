@@ -20,16 +20,16 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '../../../app/theme';
-import Link from '../../../components/common/Link';
-import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
-import Radio from '../../../components/controls/Radio';
-import CheckIcon from '../../../components/icons/CheckIcon';
-import { Alert } from '../../../components/ui/Alert';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProjectUrl, queryToSearch } from '../../../helpers/urls';
-import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
-import { CreateProjectModes } from './types';
+import { colors } from '../../../../app/theme';
+import Link from '../../../../components/common/Link';
+import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
+import Radio from '../../../../components/controls/Radio';
+import CheckIcon from '../../../../components/icons/CheckIcon';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
+import { CreateProjectModes } from '../types';
 
 export interface BitbucketProjectAccordionProps {
   disableRepositories: boolean;

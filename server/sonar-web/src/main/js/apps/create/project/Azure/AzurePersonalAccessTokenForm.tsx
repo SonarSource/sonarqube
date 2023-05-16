@@ -20,13 +20,13 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { SubmitButton } from '../../../components/controls/buttons';
-import ValidationInput from '../../../components/controls/ValidationInput';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+import Link from '../../../../components/common/Link';
+import ValidationInput from '../../../../components/controls/ValidationInput';
+import { SubmitButton } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { translate } from '../../../../helpers/l10n';
+import { AlmSettingsInstance } from '../../../../types/alm-settings';
 
 export interface AzurePersonalAccessTokenFormProps {
   almSetting: AlmSettingsInstance;

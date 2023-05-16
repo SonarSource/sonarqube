@@ -18,51 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { BitbucketCloudRepository } from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
-import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
-import PersonalAccessTokenForm from './PersonalAccessTokenForm';
-import WrongBindingCountAlert from './WrongBindingCountAlert';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
+import { GitlabProject } from '../../../../types/alm-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Paging } from '../../../../types/types';
+import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
+import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
+import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 
-export interface BitbucketCloudProjectCreateRendererProps {
-  importingSlug?: string;
-  isLastPage: boolean;
+export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;
+  importingGitlabProjectId?: string;
   loading: boolean;
   loadingMore: boolean;
-  onImport: (repositorySlug: string) => void;
+  onImport: (gitlabProjectId: string) => void;
   onLoadMore: () => void;
   onPersonalAccessTokenCreated: () => void;
   onSearch: (searchQuery: string) => void;
-  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
-  repositories?: BitbucketCloudRepository[];
+  projects?: GitlabProject[];
+  projectsPaging: Paging;
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;
-  showPersonalAccessTokenForm: boolean;
-  almInstances: AlmSettingsInstance[];
+  almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
+  showPersonalAccessTokenForm?: boolean;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
-export default function BitbucketCloudProjectCreateRenderer(
-  props: BitbucketCloudProjectCreateRendererProps
-) {
+export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
   const {
-    almInstances,
-    importingSlug,
-    isLastPage,
-    selectedAlmInstance,
     canAdmin,
+    importingGitlabProjectId,
     loading,
     loadingMore,
-    repositories,
+    projects,
+    projectsPaging,
     resetPat,
     searching,
     searchQuery,
+    selectedAlmInstance,
+    almInstances,
     showPersonalAccessTokenForm,
   } = props;
 
@@ -75,15 +74,15 @@ export default function BitbucketCloudProjectCreateRenderer(
               alt="" // Should be ignored by screen readers
               className="spacer-right"
               height="24"
-              src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+              src={`${getBaseUrl()}/images/alm/gitlab.svg`}
             />
-            {translate('onboarding.create_project.bitbucketcloud.title')}
+            {translate('onboarding.create_project.gitlab.title')}
           </span>
         }
       />
 
       <AlmSettingsInstanceDropdown
-        almKey={AlmKeys.BitbucketCloud}
+        almKey={AlmKeys.GitLab}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}
@@ -92,7 +91,7 @@ export default function BitbucketCloudProjectCreateRenderer(
       {loading && <i className="spinner" />}
 
       {!loading && !selectedAlmInstance && (
-        <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} canAdmin={!!canAdmin} />
+        <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
@@ -104,16 +103,16 @@ export default function BitbucketCloudProjectCreateRenderer(
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
           />
         ) : (
-          <BitbucketCloudSearchForm
-            importingSlug={importingSlug}
-            isLastPage={isLastPage}
+          <GitlabProjectSelectionForm
+            importingGitlabProjectId={importingGitlabProjectId}
             loadingMore={loadingMore}
-            searchQuery={searchQuery}
-            searching={searching}
             onImport={props.onImport}
-            onSearch={props.onSearch}
             onLoadMore={props.onLoadMore}
-            repositories={repositories}
+            onSearch={props.onSearch}
+            projects={projects}
+            projectsPaging={projectsPaging}
+            searching={searching}
+            searchQuery={searchQuery}
           />
         ))}
     </>

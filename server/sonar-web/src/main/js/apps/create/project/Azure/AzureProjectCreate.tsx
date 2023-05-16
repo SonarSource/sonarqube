@@ -25,13 +25,13 @@ import {
   importAzureRepository,
   searchAzureRepositories,
   setAlmPersonalAccessToken,
-} from '../../../api/alm-integrations';
-import { Location, Router } from '../../../components/hoc/withRouter';
-import { AzureProject, AzureRepository } from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
-import { Dict } from '../../../types/types';
+} from '../../../../api/alm-integrations';
+import { Location, Router } from '../../../../components/hoc/withRouter';
+import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
+import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
+import { tokenExistedBefore } from '../utils';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
-import { tokenExistedBefore } from './utils';
 
 interface Props {
   canAdmin: boolean;

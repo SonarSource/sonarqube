@@ -398,7 +398,7 @@ export interface MyProject {
 }
 
 export interface NewCodePeriod {
-  type?: NewCodePeriodSettingType;
+  type: NewCodePeriodSettingType;
   value?: string;
   effectiveValue?: string;
   inherited?: boolean;

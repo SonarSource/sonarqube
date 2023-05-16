@@ -21,8 +21,9 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { createProject, doesComponentExists } from '../../../../api/components';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import ManualProjectCreate from '../ManualProjectCreate';
+import ManualProjectCreate from '../manual/ManualProjectCreate';
 
 jest.mock('../../../../api/components', () => ({
   createProject: jest.fn().mockResolvedValue({ project: { key: 'bar', name: 'Bar' } }),
@@ -35,8 +36,15 @@ jest.mock('../../../../api/settings', () => ({
   getValue: jest.fn().mockResolvedValue({ value: 'main' }),
 }));
 
+let newCodePeriodHandler: NewCodePeriodsServiceMock;
+
+beforeAll(() => {
+  newCodePeriodHandler = new NewCodePeriodsServiceMock();
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
+  newCodePeriodHandler.reset();
 });
 
 it('should show branch information', async () => {

@@ -26,6 +26,7 @@ import { byLabelText, byText } from 'testing-library-selector';
 import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import CreateProjectPage from '../CreateProjectPage';
 
@@ -36,6 +37,7 @@ const original = window.location;
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
+let newCodePeriodHandler: NewCodePeriodsServiceMock;
 
 const ui = {
   githubCreateProjectButton: byText('onboarding.create_project.select_method.github'),
@@ -50,12 +52,14 @@ beforeAll(() => {
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
+  newCodePeriodHandler = new NewCodePeriodsServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
   almSettingsHandler.reset();
+  newCodePeriodHandler.reset();
 });
 
 afterAll(() => {

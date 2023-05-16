@@ -26,6 +26,7 @@ import { byLabelText, byRole, byText } from 'testing-library-selector';
 import { searchAzureRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
@@ -34,6 +35,7 @@ jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
+let newCodePeriodHandler: NewCodePeriodsServiceMock;
 
 const ui = {
   azureCreateProjectButton: byText('onboarding.create_project.select_method.azure'),
@@ -46,12 +48,14 @@ const ui = {
 beforeAll(() => {
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
+  newCodePeriodHandler = new NewCodePeriodsServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
   almSettingsHandler.reset();
+  newCodePeriodHandler.reset();
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {

@@ -20,15 +20,15 @@
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import ListFooter from '../../../components/controls/ListFooter';
-import { Alert } from '../../../components/ui/Alert';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
-import { AzureProject, AzureRepository } from '../../../types/alm-integration';
-import { Dict } from '../../../types/types';
+import Link from '../../../../components/common/Link';
+import ListFooter from '../../../../components/controls/ListFooter';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { queryToSearch } from '../../../../helpers/urls';
+import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
+import { Dict } from '../../../../types/types';
+import { CreateProjectModes } from '../types';
 import AzureProjectAccordion from './AzureProjectAccordion';
-import { CreateProjectModes } from './types';
 
 export interface AzureProjectsListProps {
   importing: boolean;

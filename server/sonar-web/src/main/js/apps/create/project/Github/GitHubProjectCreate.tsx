@@ -25,12 +25,12 @@ import {
   getGithubOrganizations,
   getGithubRepositories,
   importGithubRepository,
-} from '../../../api/alm-integrations';
-import { Location, Router } from '../../../components/hoc/withRouter';
-import { getHostUrl } from '../../../helpers/urls';
-import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import { Paging } from '../../../types/types';
+} from '../../../../api/alm-integrations';
+import { Location, Router } from '../../../../components/hoc/withRouter';
+import { getHostUrl } from '../../../../helpers/urls';
+import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Paging } from '../../../../types/types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 
 interface Props {

@@ -19,19 +19,20 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import SearchBox from '../../../components/controls/SearchBox';
-import { Alert } from '../../../components/ui/Alert';
-import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
+import Link from '../../../../components/common/Link';
+import SearchBox from '../../../../components/controls/SearchBox';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
+import { queryToSearch } from '../../../../helpers/urls';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
   BitbucketRepository,
-} from '../../../types/alm-integration';
+} from '../../../../types/alm-integration';
+import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
+import { CreateProjectModes } from '../types';
 import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
-import { CreateProjectModes } from './types';
 
 export interface BitbucketImportRepositoryFormProps {
   disableRepositories: boolean;
@@ -79,6 +80,8 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
 
   return (
     <div className="create-project-import-bbs">
+      <InstanceNewCodeDefinitionComplianceWarning />
+
       <SearchBox
         onChange={props.onSearch}
         placeholder={translate('onboarding.create_project.search_repositories_by_name')}

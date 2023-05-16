@@ -23,15 +23,15 @@ import { FormattedMessage } from 'react-intl';
 import {
   checkPersonalAccessTokenIsValid,
   setAlmPersonalAccessToken,
-} from '../../../api/alm-integrations';
-import { SubmitButton } from '../../../components/controls/buttons';
-import ValidationInput from '../../../components/controls/ValidationInput';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
-import { tokenExistedBefore } from './utils';
+} from '../../../../api/alm-integrations';
+import ValidationInput from '../../../../components/controls/ValidationInput';
+import { SubmitButton } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
+import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { tokenExistedBefore } from '../utils';
 
 interface Props {
   almSetting: AlmSettingsInstance;

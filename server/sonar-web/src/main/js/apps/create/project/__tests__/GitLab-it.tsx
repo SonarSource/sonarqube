@@ -25,7 +25,10 @@ import { byLabelText, byRole, byText } from 'testing-library-selector';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import { mockNewCodePeriod } from '../../../../helpers/mocks/new-code-period';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
@@ -33,6 +36,7 @@ jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
+let newCodePeriodHandler: NewCodePeriodsServiceMock;
 
 const ui = {
   gitlabCreateProjectButton: byText('onboarding.create_project.select_method.gitlab'),
@@ -46,12 +50,14 @@ const ui = {
 beforeAll(() => {
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
+  newCodePeriodHandler = new NewCodePeriodsServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
   almSettingsHandler.reset();
+  newCodePeriodHandler.reset();
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {
@@ -175,6 +181,24 @@ it('should show no result message when there are no projects', async () => {
 
   expect(screen.getByRole('alert')).toHaveTextContent(
     'onboarding.create_project.gitlab.no_projects'
+  );
+});
+
+it('should display a warning if the instance default new code definition is not CaYC compliant', async () => {
+  const user = userEvent.setup();
+  newCodePeriodHandler.setNewCodePeriod(
+    mockNewCodePeriod({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' })
+  );
+  renderCreateProject();
+  await act(async () => {
+    await user.click(ui.gitlabCreateProjectButton.get());
+    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  });
+
+  expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
+  expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
+  expect(screen.getByRole('alert')).toHaveTextContent(
+    'onboarding.create_project.new_code_option.warning.title'
   );
 });
 

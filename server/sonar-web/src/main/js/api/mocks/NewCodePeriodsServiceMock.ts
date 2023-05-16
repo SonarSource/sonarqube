@@ -93,6 +93,10 @@ export default class NewCodePeriodsServiceMock {
     return this.reply({ newCodePeriods: this.#listBranchesNewCode });
   };
 
+  setNewCodePeriod = (newCodePeriod: NewCodePeriod) => {
+    this.#newCodePeriod = newCodePeriod;
+  };
+
   reset = () => {
     this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
     this.#listBranchesNewCode = cloneDeep(this.#defaultListBranchesNewCode);

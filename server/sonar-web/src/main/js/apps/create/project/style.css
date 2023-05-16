@@ -33,11 +33,6 @@
   filter: grayscale(100%);
 }
 
-.create-project-manual {
-  display: flex !important;
-  justify-content: space-between;
-}
-
 .create-project-azdo-repo {
   width: 410px;
   min-height: 40px;

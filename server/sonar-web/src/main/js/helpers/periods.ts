@@ -20,7 +20,7 @@
 import { parseDate } from '../helpers/dates';
 import { translate, translateWithParameters } from '../helpers/l10n';
 import { ApplicationPeriod } from '../types/application';
-import { NewCodePeriodSettingType, Period } from '../types/types';
+import { NewCodePeriod, NewCodePeriodSettingType, Period } from '../types/types';
 
 export function getPeriodLabel(
   period: Period | undefined,
@@ -67,4 +67,20 @@ export function isApplicationPeriod(
   period: Period | ApplicationPeriod
 ): period is ApplicationPeriod {
   return (period as ApplicationPeriod).project !== undefined;
+}
+
+const MIN_NUMBER_OF_DAYS = 1;
+const MAX_NUMBER_OF_DAYS = 90;
+
+export function isNewCodeDefinitionCompliant(newCodePeriod: NewCodePeriod) {
+  switch (newCodePeriod.type) {
+    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
+      return (
+        newCodePeriod.value !== undefined &&
+        MIN_NUMBER_OF_DAYS <= +newCodePeriod.value &&
+        +newCodePeriod.value <= MAX_NUMBER_OF_DAYS
+      );
+    default:
+      return true;
+  }
 }
