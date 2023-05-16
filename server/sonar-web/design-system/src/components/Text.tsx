@@ -105,3 +105,15 @@ export const LightPrimary = styled.span`
 export const PageContentFontWrapper = styled.div`
   color: ${themeColor('pageContent')};
 `;
+
+export const Highlight = styled.strong`
+  color: ${themeColor('pageContentDark')};
+
+  ${tw`sw-body-sm-highlight`}
+`;
+
+export const Note = styled.span`
+  color: ${themeColor('pageContentLight')};
+
+  ${tw`sw-body-sm`}
+`;

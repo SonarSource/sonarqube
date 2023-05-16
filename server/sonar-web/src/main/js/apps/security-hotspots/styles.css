@@ -60,9 +60,3 @@
     margin-left: 0;
   }
 }
-
-#security_hotspots .hotspot-content {
-  max-width: 962px; /* 1280px - 300px - 18px */
-  background: white;
-  box-sizing: border-box;
-}

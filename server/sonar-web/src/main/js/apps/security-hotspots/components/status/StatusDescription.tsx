@@ -18,35 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import classNames from 'classnames';
+import { LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 
 export interface StatusDescriptionProps {
   statusOption: HotspotStatusOption;
-  showTitle?: boolean;
-  statusInBadge?: boolean;
 }
 
 export default function StatusDescription(props: StatusDescriptionProps) {
-  const { statusOption, showTitle, statusInBadge = true } = props;
+  const { statusOption } = props;
 
   return (
-    <Container>
+    <div>
       <h3>
-        {showTitle && `${translate('status')}: `}
-        <div className={classNames({ badge: statusInBadge })}>
+        <LightPrimary className="sw-body-sm-highlight">
+          {`${translate('status')}: `}
           {translate('hotspots.status_option', statusOption)}
-        </div>
+        </LightPrimary>
       </h3>
-      <div className="little-spacer-top">
-        {translate('hotspots.status_option', statusOption, 'description')}
-      </div>
-    </Container>
+      <Description className="sw-mt-1">
+        <LightLabel className="sw-body-sm">
+          {translate('hotspots.status_option', statusOption, 'description')}
+        </LightLabel>
+      </Description>
+    </div>
   );
 }
 
-const Container = styled.div`
-  width: 350px;
+const Description = styled.div`
+  max-width: 360px;
 `;

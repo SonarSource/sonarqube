@@ -39,6 +39,7 @@ export * from './FacetItem';
 export { FailedQGConditionLink } from './FailedQGConditionLink';
 export { FlagMessage } from './FlagMessage';
 export * from './FlowStep';
+export * from './FormField';
 export * from './GenericAvatar';
 export * from './HighlightedSection';
 export { HotspotRating } from './HotspotRating';

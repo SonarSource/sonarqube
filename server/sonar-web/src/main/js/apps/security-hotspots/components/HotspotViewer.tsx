@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
+import { Standards } from '../../../types/security';
 import {
   Hotspot,
   HotspotStatusFilter,
@@ -33,11 +34,11 @@ import HotspotViewerRenderer from './HotspotViewerRenderer';
 interface Props {
   component: Component;
   hotspotKey: string;
-  hotspotsReviewedMeasure?: string;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   onLocationClick: (index: number) => void;
   selectedHotspotLocation?: number;
+  standards?: Standards;
 }
 
 interface State {
@@ -45,7 +46,6 @@ interface State {
   ruleDescriptionSections?: RuleDescriptionSection[];
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
-  showStatusUpdateSuccessModal: boolean;
 }
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
@@ -56,7 +56,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.commentTextRef = React.createRef<HTMLTextAreaElement>();
-    this.state = { loading: false, showStatusUpdateSuccessModal: false };
+    this.state = { loading: false };
   }
 
   componentDidMount() {
@@ -98,7 +98,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     const { hotspotKey } = this.props;
 
     if (statusUpdate) {
-      this.setState({ lastStatusChangedTo: statusOption, showStatusUpdateSuccessModal: true });
+      this.setState({ lastStatusChangedTo: statusOption });
       await this.props.onUpdateHotspot(hotspotKey);
     } else {
       await this.fetchHotspot();
@@ -123,35 +123,21 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     }
   };
 
-  handleCloseStatusUpdateSuccessModal = () => {
-    this.setState({ showStatusUpdateSuccessModal: false });
-  };
-
   render() {
-    const { component, hotspotsReviewedMeasure, selectedHotspotLocation } = this.props;
-    const {
-      hotspot,
-      ruleDescriptionSections,
-      lastStatusChangedTo,
-      loading,
-      showStatusUpdateSuccessModal,
-    } = this.state;
+    const { component, selectedHotspotLocation, standards } = this.props;
+    const { hotspot, ruleDescriptionSections, loading } = this.state;
 
     return (
       <HotspotViewerRenderer
+        standards={standards}
         component={component}
         commentTextRef={this.commentTextRef}
         hotspot={hotspot}
         ruleDescriptionSections={ruleDescriptionSections}
-        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-        lastStatusChangedTo={lastStatusChangedTo}
         loading={loading}
-        onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
-        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
         onShowCommentForm={this.handleScrollToCommentForm}
         onUpdateHotspot={this.handleHotspotUpdate}
         onLocationClick={this.props.onLocationClick}
-        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
         selectedHotspotLocation={selectedHotspotLocation}
       />
     );

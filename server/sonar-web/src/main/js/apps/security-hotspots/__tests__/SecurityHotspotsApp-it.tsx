@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, within } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -44,13 +44,7 @@ jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/issues');
 
 const ui = {
-  inputAssignee: byRole('searchbox', { name: 'hotspots.assignee.select_user' }),
-  selectStatusButton: byRole('button', {
-    name: 'hotspots.status.select_status',
-  }),
-  editAssigneeButton: byRole('button', {
-    name: 'hotspots.assignee.change_user',
-  }),
+  inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
   filterAssigneeToMe: byRole('checkbox', {
     name: 'hotspot.filters.assignee.assigned_to_me',
   }),
@@ -61,7 +55,7 @@ const ui = {
   filterByPeriod: byRole('combobox', { name: 'hotspot.filters.period' }),
   filterNewCode: byRole('checkbox', { name: 'hotspot.filters.period.since_leak_period' }),
   noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
-  selectStatus: byRole('button', { name: 'hotspots.status.select_status' }),
+  reviewButton: byRole('button', { name: 'hotspots.status.review' }),
   toReviewStatus: byText('hotspots.status_option.TO_REVIEW'),
   changeStatus: byRole('button', { name: 'hotspots.status.change_status' }),
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
@@ -72,7 +66,7 @@ const ui = {
   commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
   commentDeleteButton: byRole('button', { name: 'issue.comment.delete' }),
   textboxWithText: (value: string) => byDisplayValue(value),
-  activeAssignee: byTestId('assignee-name'),
+  activeAssignee: byRole('combobox', { name: 'hotspots.assignee.change_user' }),
   successGlobalMessage: byTestId('global-message__SUCCESS'),
   currentUserSelectionItem: byText('foo'),
   panel: byTestId('security-hotspot-test'),
@@ -145,7 +139,7 @@ describe('CRUD', () => {
 
     expect(await ui.activeAssignee.find()).toHaveTextContent('John Doe');
 
-    await user.click(ui.editAssigneeButton.get());
+    await user.click(ui.activeAssignee.get());
     await user.click(ui.currentUserSelectionItem.get());
 
     expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.foo`);
@@ -156,13 +150,13 @@ describe('CRUD', () => {
     const user = userEvent.setup();
     renderSecurityHotspotsApp();
 
-    await user.click(await ui.editAssigneeButton.find());
+    await user.click(await ui.activeAssignee.find());
     await user.click(ui.inputAssignee.get());
 
     await user.keyboard('User');
 
     expect(searchUsers).toHaveBeenLastCalledWith({ q: 'User' });
-    await user.keyboard('{ArrowDown}{Enter}');
+    await user.keyboard('{Enter}');
     expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.User John`);
   });
 
@@ -172,9 +166,9 @@ describe('CRUD', () => {
 
     renderSecurityHotspotsApp();
 
-    expect(await ui.selectStatus.find()).toBeInTheDocument();
+    expect(await ui.reviewButton.find()).toBeInTheDocument();
 
-    await user.click(ui.selectStatus.get());
+    await user.click(ui.reviewButton.get());
     await user.click(ui.toReviewStatus.get());
 
     await user.click(screen.getByRole('textbox', { name: 'hotspots.status.add_comment' }));
@@ -196,31 +190,7 @@ describe('CRUD', () => {
   it('should not be able to change the status if does not have edit permissions', async () => {
     hotspotsHandler.setHotspotChangeStatusPermission(false);
     renderSecurityHotspotsApp();
-    expect(await ui.selectStatus.find()).toBeDisabled();
-  });
-
-  it('should remember the comment when toggling change status panel for the same security hotspot', async () => {
-    const user = userEvent.setup();
-    renderSecurityHotspotsApp();
-
-    await user.click(await ui.selectStatusButton.find());
-    const comment = 'This is a comment';
-
-    const commentSection = within(ui.panel.get()).getByRole('textbox');
-    await user.click(commentSection);
-    await user.keyboard(comment);
-
-    // Close the panel
-    await act(async () => {
-      await user.keyboard('{Escape}');
-    });
-
-    // Check panel is closed
-    expect(ui.panel.query()).not.toBeInTheDocument();
-
-    await user.click(ui.selectStatusButton.get());
-
-    expect(await screen.findByText(comment)).toBeInTheDocument();
+    expect(await ui.reviewButton.find()).toBeDisabled();
   });
 
   it('should be able to add, edit and remove own comments', async () => {

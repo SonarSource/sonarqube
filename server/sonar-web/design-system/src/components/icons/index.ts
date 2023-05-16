@@ -53,6 +53,7 @@ export { PencilIcon } from './PencilIcon';
 export { ProjectIcon } from './ProjectIcon';
 export { PullRequestIcon } from './PullRequestIcon';
 export { RefreshIcon } from './RefreshIcon';
+export { RequiredIcon } from './RequiredIcon';
 export { SecurityHotspotIcon } from './SecurityHotspotIcon';
 export { SeparatorCircleIcon } from './SeparatorCircleIcon';
 export { SeverityBlockerIcon } from './SeverityBlockerIcon';

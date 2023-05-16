@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system';
 import * as React from 'react';
 import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
@@ -43,19 +44,21 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
   }
 
   return (
-    <div className="display-flex-column display-flex-center huge-spacer-top">
+    <div className="sw-items-center sw-justify-center sw-flex-col sw-flex sw-pt-16">
       <img
         alt={translate('hotspots.page')}
-        className="huge-spacer-top"
+        className="sw-mt-8"
         height={100}
         src={`${getBaseUrl()}/images/${
           filtered && !filterByFile ? 'filter-large' : 'hotspot-large'
         }.svg`}
       />
-      <h1 className="huge-spacer-top">{translate(`hotspots.${translationRoot}.title`)}</h1>
-      <div className="abs-width-400 text-center big-spacer-top">
+      <h1 className="sw-mt-10 sw-body-sm-highlight">
+        {translate(`hotspots.${translationRoot}.title`)}
+      </h1>
+      <Note className="sw-w-abs-400 sw-text-center sw-mt-4">
         {translate(`hotspots.${translationRoot}.description`)}
-      </div>
+      </Note>
       {!(filtered || isStaticListOfHotspots) && (
         <DocLink className="big-spacer-top" to="/user-guide/security-hotspots/">
           {translate('hotspots.learn_more')}

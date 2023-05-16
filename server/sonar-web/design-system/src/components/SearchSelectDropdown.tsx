@@ -52,6 +52,7 @@ export interface SearchSelectDropdownProps<
   Group extends GroupBase<Option> = GroupBase<Option>
 > extends SelectProps<V, Option, IsMulti, Group>,
     AsyncProps<Option, IsMulti, Group> {
+  controlAriaLabel?: string;
   controlLabel?: React.ReactNode | string;
   isDiscreet?: boolean;
 }
@@ -62,7 +63,16 @@ export function SearchSelectDropdown<
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: SearchSelectDropdownProps<V, Option, IsMulti, Group>) {
-  const { isDiscreet, value, loadOptions, controlLabel, isDisabled, minLength, ...rest } = props;
+  const {
+    isDiscreet,
+    value,
+    loadOptions,
+    controlLabel,
+    isDisabled,
+    minLength,
+    controlAriaLabel,
+    ...rest
+  } = props;
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
 
@@ -112,6 +122,7 @@ export function SearchSelectDropdown<
     <DropdownToggler
       allowResizing={true}
       className="sw-overflow-visible sw-border-none"
+      isPortal={true}
       onRequestClose={() => {
         toggleDropdown(false);
       }}
@@ -140,6 +151,7 @@ export function SearchSelectDropdown<
       }
     >
       <SearchSelectDropdownControl
+        ariaLabel={controlAriaLabel}
         disabled={isDisabled}
         isDiscreet={isDiscreet}
         label={controlLabel}

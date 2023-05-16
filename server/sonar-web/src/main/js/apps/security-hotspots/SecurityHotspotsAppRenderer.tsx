@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { withTheme } from '@emotion/react';
+import { useTheme, withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   LargeCenteredLayout,
@@ -97,6 +97,8 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     onShowAllHotspots,
   } = props;
 
+  const theme = useTheme();
+
   return (
     <>
       <Suggestions suggestions="security_hotspots" />
@@ -155,28 +157,30 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               )}
             </StyledFilterbar>
 
-            <main className="sw-col-span-8">
-              {hotspots.length === 0 || !selectedHotspot ? (
-                <EmptyHotspotsPage
-                  filtered={
-                    filters.assignedToMe ||
-                    (isBranch(branchLike) && filters.inNewCodePeriod) ||
-                    filters.status !== HotspotStatusFilter.TO_REVIEW
-                  }
-                  filterByFile={Boolean(filterByFile)}
-                  isStaticListOfHotspots={isStaticListOfHotspots}
-                />
-              ) : (
-                <HotspotViewer
-                  component={component}
-                  hotspotKey={selectedHotspot.key}
-                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-                  onSwitchStatusFilter={props.onSwitchStatusFilter}
-                  onUpdateHotspot={props.onUpdateHotspot}
-                  onLocationClick={props.onLocationClick}
-                  selectedHotspotLocation={selectedHotspotLocation}
-                />
-              )}
+            <main className="sw-col-span-8 sw-pl-12">
+              <StyledContentWrapper theme={theme} className="sw-h-full">
+                {hotspots.length === 0 || !selectedHotspot ? (
+                  <EmptyHotspotsPage
+                    filtered={
+                      filters.assignedToMe ||
+                      (isBranch(branchLike) && filters.inNewCodePeriod) ||
+                      filters.status !== HotspotStatusFilter.TO_REVIEW
+                    }
+                    filterByFile={Boolean(filterByFile)}
+                    isStaticListOfHotspots={isStaticListOfHotspots}
+                  />
+                ) : (
+                  <HotspotViewer
+                    component={component}
+                    hotspotKey={selectedHotspot.key}
+                    onSwitchStatusFilter={props.onSwitchStatusFilter}
+                    onUpdateHotspot={props.onUpdateHotspot}
+                    onLocationClick={props.onLocationClick}
+                    selectedHotspotLocation={selectedHotspotLocation}
+                    standards={standards}
+                  />
+                )}
+              </StyledContentWrapper>
             </main>
           </div>
         </PageContentFontWrapper>
@@ -194,5 +198,13 @@ const StyledFilterbar = withTheme(
     border-right: ${themeBorder('default', 'filterbarBorder')};
     // ToDo set proper height
     height: calc(100vh - ${'100px'});
+  `
+);
+
+const StyledContentWrapper = withTheme(
+  styled.div`
+    background-color: ${themeColor('backgroundSecondary')};
+    border-right: ${themeBorder('default', 'pageBlockBorder')};
+    border-left: ${themeBorder('default', 'pageBlockBorder')};
   `
 );

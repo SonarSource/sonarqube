@@ -27,6 +27,7 @@ import { InputSizeKeys } from '../types/theme';
 import { ChevronDownIcon } from './icons';
 
 interface SearchSelectDropdownControlProps {
+  ariaLabel?: string;
   disabled?: boolean;
   isDiscreet?: boolean;
   label?: React.ReactNode | string;
@@ -35,9 +36,10 @@ interface SearchSelectDropdownControlProps {
 }
 
 export function SearchSelectDropdownControl(props: SearchSelectDropdownControlProps) {
-  const { disabled, label, isDiscreet, onClick, size = 'full' } = props;
+  const { disabled, label, isDiscreet, onClick, size = 'full', ariaLabel = '' } = props;
   return (
     <StyledControl
+      aria-label={ariaLabel}
       className={classNames({ 'is-discreet': isDiscreet })}
       onClick={() => {
         if (!disabled) {

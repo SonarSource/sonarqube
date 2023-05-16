@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.hotspot-assignee-search-results {
-  min-width: 300px;
+import styled from '@emotion/styled';
+import tw from 'twin.macro';
+import { themeColor } from '../../helpers/theme';
+
+export function RequiredIcon(props: React.ComponentPropsWithoutRef<'em'>) {
+  return <StyledEm {...props}>*</StyledEm>;
 }
 
-.hotspot-assignee-search-results li {
-  cursor: pointer;
-}
-
-.hotspot-assignee-search-results li:hover,
-.hotspot-assignee-search-results li.active {
-  background-color: var(--barBackgroundColor);
-}
+export const StyledEm = styled.em`
+  ${tw`sw-body-sm`}
+  ${tw`sw-not-italic`}
+  ${tw`sw-ml-2`}
+  color: ${themeColor('inputRequired')};
+`;

@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, HighlightedSection } from 'design-system';
 import * as React from 'react';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
-import { Button } from '../../../../components/controls/buttons';
-import { DropdownOverlay } from '../../../../components/controls/Dropdown';
-import Toggler from '../../../../components/controls/Toggler';
 import Tooltip from '../../../../components/controls/Tooltip';
-import DropdownIcon from '../../../../components/icons/DropdownIcon';
-import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../../types/users';
@@ -35,7 +31,6 @@ import StatusSelection from './StatusSelection';
 export interface StatusProps {
   currentUser: CurrentUser;
   hotspot: Hotspot;
-
   onStatusChange: (statusOption: HotspotStatusOption) => Promise<void>;
 }
 
@@ -43,57 +38,30 @@ export function Status(props: StatusProps) {
   const { currentUser, hotspot } = props;
 
   const [isOpen, setIsOpen] = React.useState(false);
-  const [comment, setComment] = React.useState('');
-
-  React.useEffect(() => {
-    setComment('');
-  }, [hotspot.key]);
-
   const statusOption = getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution);
   const readonly = !hotspot.canChangeStatus || !isLoggedIn(currentUser);
 
   return (
-    <div className="display-flex-row display-flex-end">
-      <StatusDescription showTitle={true} statusOption={statusOption} />
-      <div className="spacer-top">
+    <>
+      <HighlightedSection className="sw-flex sw-rounded-1 sw-p-4 sw-items-center sw-justify-between sw-gap-2 sw-flex-row">
+        <StatusDescription statusOption={statusOption} />
         <Tooltip
           overlay={readonly ? translate('hotspots.status.cannot_change_status') : null}
           placement="bottom"
         >
-          <div className="dropdown">
-            <Toggler
-              closeOnClickOutside={true}
-              closeOnEscape={true}
-              onRequestClose={() => setIsOpen(false)}
-              open={isOpen}
-              overlay={
-                <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
-                  <StatusSelection
-                    hotspot={hotspot}
-                    onStatusOptionChange={async (status) => {
-                      await props.onStatusChange(status);
-                      setIsOpen(false);
-                    }}
-                    comment={comment}
-                    setComment={setComment}
-                  />
-                </DropdownOverlay>
-              }
-            >
-              <Button
-                className="dropdown-toggle big-spacer-left"
-                id="status-trigger"
-                onClick={() => setIsOpen(true)}
-                disabled={readonly}
-              >
-                <span>{translate('hotspots.status.select_status')}</span>
-                <DropdownIcon className="little-spacer-left" />
-              </Button>
-            </Toggler>
-          </div>
+          <ButtonPrimary id="status-trigger" onClick={() => setIsOpen(true)} disabled={readonly}>
+            {translate('hotspots.status.review')}
+          </ButtonPrimary>
         </Tooltip>
-      </div>
-    </div>
+      </HighlightedSection>
+      {isOpen && (
+        <StatusSelection
+          hotspot={hotspot}
+          onClose={() => setIsOpen(false)}
+          onStatusOptionChange={props.onStatusChange}
+        />
+      )}
+    </>
   );
 }
 

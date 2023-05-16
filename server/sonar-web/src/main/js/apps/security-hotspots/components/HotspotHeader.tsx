@@ -17,59 +17,97 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  ClipboardIconButton,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LAYOUT_PROJECT_NAV_HEIGHT,
+  LightLabel,
+  LightPrimary,
+  Link,
+  LinkIcon,
+  StyledPageTitle,
+  themeColor,
+} from 'design-system';
 import React from 'react';
-import Link from '../../../components/common/Link';
-import Tooltip from '../../../components/controls/Tooltip';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
-import { translate } from '../../../helpers/l10n';
-import { getRuleUrl } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import {
+  getComponentSecurityHotspotsUrl,
+  getPathUrlAsString,
+  getRuleUrl,
+} from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
+import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
-import Assignee from './assignee/Assignee';
+import { Component } from '../../../types/types';
+import HotspotHeaderRightSection from './HotspotHeaderRightSection';
 import Status from './status/Status';
 
 export interface HotspotHeaderProps {
   hotspot: Hotspot;
+  component: Component;
+  branchLike?: BranchLike;
+  standards?: Standards;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { hotspot } = props;
-  const { message, messageFormattings, rule } = hotspot;
+  const { hotspot, component, branchLike, standards } = props;
+  const { message, messageFormattings, rule, key } = hotspot;
+
+  const permalink = getPathUrlAsString(
+    getComponentSecurityHotspotsUrl(component.key, {
+      ...getBranchLikeQuery(branchLike),
+      hotspots: key,
+    }),
+    false
+  );
+
+  const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;
+
   return (
-    <div className="huge-spacer-bottom hotspot-header">
-      <div className="display-flex-column big-spacer-bottom">
-        <h2 className="big text-bold">
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </h2>
-        <div className="spacer-top">
-          <span className="note padded-right">{rule.name}</span>
-          <Link className="small" to={getRuleUrl(rule.key)} target="_blank">
-            {rule.key}
-          </Link>
-        </div>
-      </div>
-      <div className="display-flex-space-between">
-        <Status
-          hotspot={hotspot}
-          onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
-        />
-        <div className="display-flex-end display-flex-column abs-width-240">
-          {hotspot.codeVariants && hotspot.codeVariants.length > 0 && (
-            <Tooltip overlay={hotspot.codeVariants.join(', ')}>
-              <div className="spacer-bottom display-flex-center">
-                <div>{translate('issues.facet.codeVariants')}:</div>
-                <div className="text-bold spacer-left spacer-right text-ellipsis">
-                  {hotspot.codeVariants.join(', ')}
-                </div>
-              </div>
-            </Tooltip>
-          )}
-          <div className="display-flex-center it__hs-assignee">
-            <div className="big-spacer-right">{translate('assignee')}:</div>
-            <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+    <Header
+      className="sw-sticky sw--mx-6 sw--mt-6 sw-px-6 sw-pt-6 sw-z-filterbar-header"
+      style={{ top: `${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px` }}
+    >
+      <div className="sw-flex sw-justify-between sw-gap-8 sw-mb-4 sw-pb-4">
+        <div className="sw-flex-1">
+          <StyledPageTitle as="h2" className="sw-whitespace-normal sw-overflow-visible">
+            <LightPrimary>
+              <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+            </LightPrimary>
+            <ClipboardIconButton
+              Icon={LinkIcon}
+              className="sw-ml-2"
+              copyValue={permalink}
+              discreet={true}
+            />
+          </StyledPageTitle>
+          <div className="sw-mt-2 sw-mb-4 sw-body-sm">
+            <LightLabel>{rule.name}</LightLabel>
+            <Link className="sw-ml-1" to={getRuleUrl(rule.key)} target="_blank">
+              {rule.key}
+            </Link>
           </div>
+          <Status
+            hotspot={hotspot}
+            onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
+          />
+        </div>
+        <div className="sw-flex sw-flex-col sw-gap-4">
+          <HotspotHeaderRightSection
+            hotspot={hotspot}
+            categoryStandard={categoryStandard}
+            onUpdateHotspot={props.onUpdateHotspot}
+          />
         </div>
       </div>
-    </div>
+    </Header>
   );
 }
+
+const Header = withTheme(styled.div`
+  background-color: ${themeColor('pageBlock')};
+`);

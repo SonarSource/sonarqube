@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { setSecurityHotspotStatus } from '../../../../api/security-hotspots';
+import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import {
   getStatusAndResolutionFromStatusOption,
@@ -29,85 +31,58 @@ import StatusSelectionRenderer from './StatusSelectionRenderer';
 interface Props {
   hotspot: Hotspot;
   onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
-  comment: string;
-  setComment: (comment: string) => void;
+  onClose: () => void;
 }
 
-interface State {
-  loading: boolean;
-  initialStatus: HotspotStatusOption;
-  selectedStatus: HotspotStatusOption;
-}
+export default function StatusSelection(props: Props) {
+  const { hotspot } = props;
+  const initialStatus = React.useMemo(
+    () => getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution),
+    [hotspot]
+  );
 
-export default class StatusSelection extends React.PureComponent<Props, State> {
-  mounted = false;
+  const [loading, setLoading] = React.useState(false);
+  const [status, setStatus] = React.useState(initialStatus);
+  const [comment, setComment] = React.useState('');
 
-  constructor(props: Props) {
-    super(props);
+  const submitDisabled = status === initialStatus;
 
-    const initialStatus = getStatusOptionFromStatusAndResolution(
-      props.hotspot.status,
-      props.hotspot.resolution
-    );
+  const handleSubmit = async () => {
+    const { hotspot } = props;
 
-    this.state = {
-      loading: false,
-      initialStatus,
-      selectedStatus: initialStatus,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleStatusChange = (selectedStatus: HotspotStatusOption) => {
-    this.setState({ selectedStatus });
-  };
-
-  handleCommentChange = (comment: string) => {
-    this.props.setComment(comment);
-  };
-
-  handleSubmit = () => {
-    const { hotspot, comment } = this.props;
-    const { initialStatus, selectedStatus } = this.state;
-
-    if (selectedStatus && selectedStatus !== initialStatus) {
-      this.setState({ loading: true });
-      setSecurityHotspotStatus(hotspot.key, {
-        ...getStatusAndResolutionFromStatusOption(selectedStatus),
-        comment: comment || undefined,
-      })
-        .then(async () => {
-          await this.props.onStatusOptionChange(selectedStatus);
-          if (this.mounted) {
-            this.setState({ loading: false });
-          }
-        })
-        .catch(() => this.setState({ loading: false }));
+    if (status !== initialStatus) {
+      setLoading(true);
+      try {
+        await setSecurityHotspotStatus(hotspot.key, {
+          ...getStatusAndResolutionFromStatusOption(status),
+          comment: comment || undefined,
+        });
+        await props.onStatusOptionChange(status);
+        addGlobalSuccessMessage(
+          translateWithParameters(
+            'hotspots.update.success',
+            translate('hotspots.status_option', status)
+          )
+        );
+        props.onClose();
+      } catch {
+        setLoading(false);
+      }
     }
   };
 
-  render() {
-    const { comment } = this.props;
-    const { initialStatus, loading, selectedStatus } = this.state;
-    const submitDisabled = selectedStatus === initialStatus;
-
-    return (
-      <StatusSelectionRenderer
-        comment={comment}
-        loading={loading}
-        onCommentChange={this.handleCommentChange}
-        onStatusChange={this.handleStatusChange}
-        onSubmit={this.handleSubmit}
-        selectedStatus={selectedStatus}
-        submitDisabled={submitDisabled}
-      />
-    );
-  }
+  return (
+    <StatusSelectionRenderer
+      comment={comment}
+      loading={loading}
+      onCommentChange={(comment) => setComment(comment)}
+      onStatusChange={(status) => {
+        setStatus(status);
+      }}
+      onSubmit={handleSubmit}
+      onCancel={props.onClose}
+      status={status}
+      submitDisabled={submitDisabled}
+    />
+  );
 }
