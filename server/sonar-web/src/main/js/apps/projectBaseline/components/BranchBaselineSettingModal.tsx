@@ -29,7 +29,7 @@ import { ParsedAnalysis } from '../../../types/project-activity';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingDays from './BaselineSettingDays';
+import BaselineSettingDays, { BaselineSettingDaysSettingLevel } from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
@@ -175,6 +175,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 onChangeDays={this.handleSelectDays}
                 onSelect={this.handleSelectSetting}
                 selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
+                settingLevel={BaselineSettingDaysSettingLevel.Branch}
               />
               <BaselineSettingAnalysis
                 onSelect={this.handleSelectSetting}

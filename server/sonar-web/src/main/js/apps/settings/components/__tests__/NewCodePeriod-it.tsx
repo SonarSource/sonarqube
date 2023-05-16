@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byText } from 'testing-library-selector';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import NewCodePeriod from '../NewCodePeriod';
 
 let newCodeMock: NewCodePeriodsServiceMock;
@@ -39,6 +41,7 @@ const ui = {
   savedMsg: byText('settings.state.saved'),
   prevVersionRadio: byRole('radio', { name: /baseline.previous_version/ }),
   daysNumberRadio: byRole('radio', { name: /baseline.number_days/ }),
+  daysNumberErrorMessage: byText('baseline.number_days.invalid', { exact: false }),
   daysInput: byRole('textbox'),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
@@ -64,9 +67,9 @@ it('renders and behaves as expected', async () => {
   await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), 'asdas');
   expect(ui.saveButton.get()).toBeDisabled();
-  await user.clear(ui.daysInput.get());
 
   // Save enabled for valid days number
+  await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), '10');
   expect(ui.saveButton.get()).toBeEnabled();
 
@@ -76,6 +79,7 @@ it('renders and behaves as expected', async () => {
 
   // Can save change
   await user.click(ui.daysNumberRadio.get());
+  await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), '10');
   await user.click(ui.saveButton.get());
   expect(ui.savedMsg.get()).toBeInTheDocument();
@@ -85,6 +89,28 @@ it('renders and behaves as expected', async () => {
   await user.click(ui.prevVersionRadio.get());
   await user.click(ui.saveButton.get());
   expect(ui.savedMsg.get()).toBeInTheDocument();
+});
+
+it('renders and behaves properly when the current value is not compliant', async () => {
+  const user = userEvent.setup();
+  newCodeMock.setNewCodePeriod({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' });
+  renderNewCodePeriod();
+
+  expect(await ui.newCodeTitle.find()).toBeInTheDocument();
+  expect(ui.daysNumberRadio.get()).toBeChecked();
+  expect(ui.daysInput.get()).toHaveValue('91');
+
+  // Should warn about non compliant value
+  expect(ui.daysNumberErrorMessage.get()).toBeInTheDocument();
+  expect(screen.getByRole('alert')).toHaveTextContent(
+    'baseline.number_days.compliance_warning.title'
+  );
+
+  await user.clear(ui.daysInput.get());
+  await user.type(ui.daysInput.get(), '92');
+
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(ui.daysNumberErrorMessage.get()).toBeInTheDocument();
 });
 
 function renderNewCodePeriod() {

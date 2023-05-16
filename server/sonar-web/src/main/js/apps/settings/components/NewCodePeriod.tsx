@@ -25,10 +25,12 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
 import { NewCodePeriodSettingType } from '../../../types/types';
-import BaselineSettingDays from '../../projectBaseline/components/BaselineSettingDays';
+import BaselineSettingDays, {
+  BaselineSettingDaysSettingLevel,
+} from '../../projectBaseline/components/BaselineSettingDays';
 import BaselineSettingPreviousVersion from '../../projectBaseline/components/BaselineSettingPreviousVersion';
-import { validateDays } from '../../projectBaseline/utils';
 
 interface State {
   currentSetting?: NewCodePeriodSettingType;
@@ -130,7 +132,9 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
       (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS &&
         String(days) !== currentSettingValue);
 
-    const isValid = selected !== NewCodePeriodSettingType.NUMBER_OF_DAYS || validateDays(days);
+    const isValid =
+      selected !== NewCodePeriodSettingType.NUMBER_OF_DAYS ||
+      isNewCodeDefinitionCompliant({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: days });
 
     return (
       <>
@@ -179,9 +183,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                   </div>
 
                   <div className="settings-definition-right">
-                    {loading ? (
-                      <DeferredSpinner />
-                    ) : (
+                    <DeferredSpinner loading={loading} timeout={500}>
                       <form onSubmit={this.onSubmit}>
                         <BaselineSettingPreviousVersion
                           isDefault={true}
@@ -196,6 +198,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                           onChangeDays={this.onSelectDays}
                           onSelect={this.onSelectSetting}
                           selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
+                          settingLevel={BaselineSettingDaysSettingLevel.Global}
                         />
                         {isChanged && (
                           <div className="big-spacer-top">
@@ -220,7 +223,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                           </div>
                         )}
                       </form>
-                    )}
+                    </DeferredSpinner>
                   </div>
                 </div>
               </li>

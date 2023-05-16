@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isNewCodeDefinitionCompliant } from '../../helpers/periods';
 import { NewCodePeriodSettingType } from '../../types/types';
-
-export function validateDays(days: string) {
-  const parsed = parseInt(days, 10);
-
-  return !(days.length < 1 || isNaN(parsed) || parsed < 1 || String(parsed) !== days);
-}
 
 export function getSettingValue({
   analysis,
@@ -85,7 +80,11 @@ export function validateSetting(state: {
     overrideGeneralSetting === false ||
     selected === NewCodePeriodSettingType.PREVIOUS_VERSION ||
     (selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && analysis.length > 0) ||
-    (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS && validateDays(days)) ||
+    (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS &&
+      isNewCodeDefinitionCompliant({
+        type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+        value: days,
+      })) ||
     (selected === NewCodePeriodSettingType.REFERENCE_BRANCH && referenceBranch.length > 0);
 
   return { isChanged, isValid };

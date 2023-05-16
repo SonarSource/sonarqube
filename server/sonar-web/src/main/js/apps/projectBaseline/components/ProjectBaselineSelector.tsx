@@ -29,7 +29,7 @@ import { ParsedAnalysis } from '../../../types/project-activity';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingDays from './BaselineSettingDays';
+import BaselineSettingDays, { BaselineSettingDaysSettingLevel } from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
@@ -157,6 +157,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             selected={
               overrideGeneralSetting && selected === NewCodePeriodSettingType.NUMBER_OF_DAYS
             }
+            settingLevel={BaselineSettingDaysSettingLevel.Project}
           />
           {branchesEnabled ? (
             <BaselineSettingReferenceBranch

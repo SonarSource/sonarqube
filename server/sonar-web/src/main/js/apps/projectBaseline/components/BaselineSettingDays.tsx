@@ -18,13 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps,
+} from '../../../app/components/available-features/withAvailableFeatures';
 import RadioCard from '../../../components/controls/RadioCard';
-import ValidationInput from '../../../components/controls/ValidationInput';
+import ValidationInput, {
+  ValidationInputErrorPlacement,
+} from '../../../components/controls/ValidationInput';
+import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { MAX_NUMBER_OF_DAYS, MIN_NUMBER_OF_DAYS } from '../../../helpers/periods';
+import { Feature } from '../../../types/features';
 import { NewCodePeriodSettingType } from '../../../types/types';
 
-export interface Props {
+export interface Props extends WithAvailableFeaturesProps {
   className?: string;
   days: string;
   disabled?: boolean;
@@ -33,10 +41,29 @@ export interface Props {
   onChangeDays: (value: string) => void;
   onSelect: (selection: NewCodePeriodSettingType) => void;
   selected: boolean;
+  settingLevel: BaselineSettingDaysSettingLevel;
 }
 
-export default function BaselineSettingDays(props: Props) {
-  const { className, days, disabled, isChanged, isValid, onChangeDays, onSelect, selected } = props;
+export enum BaselineSettingDaysSettingLevel {
+  Global = 'global',
+  Project = 'project',
+  Branch = 'branch',
+}
+
+function BaselineSettingDays(props: Props) {
+  const {
+    className,
+    days,
+    disabled,
+    isChanged,
+    isValid,
+    onChangeDays,
+    onSelect,
+    selected,
+    settingLevel,
+  } = props;
+  const isBranchSupportEnabled = props.hasFeature(Feature.BranchSupport);
+
   return (
     <RadioCard
       className={className}
@@ -55,22 +82,48 @@ export default function BaselineSettingDays(props: Props) {
             <MandatoryFieldsExplanation />
 
             <ValidationInput
-              error={undefined}
               labelHtmlFor="baseline_number_of_days"
-              isInvalid={isChanged && !isValid}
+              isInvalid={!isValid}
               isValid={isChanged && isValid}
+              errorPlacement={ValidationInputErrorPlacement.Bottom}
+              error={translateWithParameters(
+                'baseline.number_days.invalid',
+                MIN_NUMBER_OF_DAYS,
+                MAX_NUMBER_OF_DAYS
+              )}
               label={translate('baseline.specify_days')}
               required={true}
             >
               <input
+                id="baseline_number_of_days"
                 onChange={(e) => onChangeDays(e.currentTarget.value)}
                 type="text"
                 value={days}
               />
             </ValidationInput>
+
+            {!isChanged && !isValid && (
+              <Alert variant="warning" className="sw-mt-2">
+                <p className="sw-mb-2 sw-font-bold">
+                  {translate('baseline.number_days.compliance_warning.title')}
+                </p>
+                <p className="sw-mb-2">
+                  {translate(
+                    `baseline.number_days.compliance_warning.content.${settingLevel}${
+                      isBranchSupportEnabled &&
+                      settingLevel === BaselineSettingDaysSettingLevel.Project
+                        ? '.with_branch_support'
+                        : ''
+                    }`
+                  )}
+                </p>
+              </Alert>
+            )}
           </>
         )}
       </>
     </RadioCard>
   );
 }
+
+export default withAvailableFeatures(BaselineSettingDays);
