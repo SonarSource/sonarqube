@@ -18,17 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isEmpty, some } from 'lodash';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import {
-  activateGithubProvisioning,
-  deactivateGithubProvisioning,
-  fetchIsGithubProvisioningEnabled,
-  resetSettingValue,
-  setSettingValue,
-} from '../../../../../api/settings';
+import { useCallback, useContext, useState } from 'react';
+import { resetSettingValue, setSettingValue } from '../../../../../api/settings';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
+import {
+  useGithubStatusQuery,
+  useToggleGithubProvisioningMutation,
+} from '../queries/IdentityProvider';
 import useConfiguration from './useConfiguration';
 
 export const GITHUB_ENABLED_FIELD = 'sonar.auth.github.enabled';
@@ -52,16 +50,15 @@ export interface SamlSettingValue {
   definition: ExtendedSettingDefinition;
 }
 
-export default function useGithubConfiguration(
-  definitions: ExtendedSettingDefinition[],
-  onReload: () => void
-) {
+export default function useGithubConfiguration(definitions: ExtendedSettingDefinition[]) {
   const config = useConfiguration(definitions, OPTIONAL_FIELDS);
   const { values, isValueChange, setNewValue, reload: reloadConfig } = config;
+
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
     Feature.GithubProvisioning
   );
-  const [githubProvisioningStatus, setGithubProvisioningStatus] = useState(false);
+  const { data: githubProvisioningStatus } = useGithubStatusQuery();
+  const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
   const [newGithubProvisioningStatus, setNewGithubProvisioningStatus] = useState<boolean>();
   const hasGithubProvisioningConfigChange =
     some(GITHUB_JIT_FIELDS, isValueChange) ||
@@ -72,14 +69,6 @@ export default function useGithubConfiguration(
     GITHUB_JIT_FIELDS.forEach((s) => setNewValue(s));
   };
 
-  useEffect(() => {
-    (async () => {
-      if (hasGithubProvisioning) {
-        setGithubProvisioningStatus(await fetchIsGithubProvisioningEnabled());
-      }
-    })();
-  }, [hasGithubProvisioning]);
-
   const enabled = values[GITHUB_ENABLED_FIELD]?.value === 'true';
   const appId = values[GITHUB_APP_ID_FIELD]?.value as string;
   const url = values[GITHUB_API_URL_FIELD]?.value;
@@ -87,20 +76,13 @@ export default function useGithubConfiguration(
 
   const reload = useCallback(async () => {
     await reloadConfig();
-    setGithubProvisioningStatus(await fetchIsGithubProvisioningEnabled());
-    onReload();
-  }, [reloadConfig, onReload]);
+  }, [reloadConfig]);
 
   const changeProvisioning = async () => {
-    if (newGithubProvisioningStatus && newGithubProvisioningStatus !== githubProvisioningStatus) {
-      await activateGithubProvisioning();
-      await reload();
-    } else {
-      if (newGithubProvisioningStatus !== githubProvisioningStatus) {
-        await deactivateGithubProvisioning();
-      }
-      await saveGroup();
+    if (newGithubProvisioningStatus !== githubProvisioningStatus) {
+      await toggleGithubProvisioning.mutateAsync(!!newGithubProvisioningStatus);
     }
+    await saveGroup();
   };
 
   const saveGroup = async () => {
@@ -134,7 +116,6 @@ export default function useGithubConfiguration(
     enabled,
     appId,
     hasGithubProvisioning,
-    setGithubProvisioningStatus,
     githubProvisioningStatus,
     newGithubProvisioningStatus,
     setNewGithubProvisioningStatus,

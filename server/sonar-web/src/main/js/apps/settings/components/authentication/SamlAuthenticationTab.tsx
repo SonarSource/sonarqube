@@ -20,12 +20,7 @@
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  activateScim,
-  deactivateScim,
-  resetSettingValue,
-  setSettingValue,
-} from '../../../../api/settings';
+import { resetSettingValue, setSettingValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
@@ -47,11 +42,10 @@ import useSamlConfiguration, {
   SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
 } from './hook/useSamlConfiguration';
+import { useIdentityProvierQuery, useToggleScimMutation } from './queries/IdentityProvider';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
-  provider: string | undefined;
-  onReload: () => void;
 }
 
 export const SAML = 'saml';
@@ -60,7 +54,7 @@ const CONFIG_TEST_PATH = '/saml/validation_init';
 const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_GROUP_NAME, SAML_SCIM_DEPRECATED];
 
 export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
-  const { definitions, provider, onReload } = props;
+  const { definitions } = props;
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = React.useState(false);
   const {
@@ -81,9 +75,12 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     setNewGroupSetting,
     reload,
     deleteConfiguration,
-  } = useSamlConfiguration(definitions, onReload);
+  } = useSamlConfiguration(definitions);
+  const toggleScim = useToggleScimMutation();
 
-  const hasDifferentProvider = provider !== undefined && provider !== Provider.Scim;
+  const { data } = useIdentityProvierQuery();
+
+  const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Scim;
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -111,10 +108,8 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   };
 
   const handleConfirmChangeProvisioning = async () => {
-    if (newScimStatus) {
-      await activateScim();
-    } else {
-      await deactivateScim();
+    await toggleScim.mutateAsync(!!newScimStatus);
+    if (!newScimStatus) {
       await handleSaveGroup();
     }
     await reload();

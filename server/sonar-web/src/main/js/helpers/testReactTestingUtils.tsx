@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, Matcher, render, RenderResult, screen, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { omit } from 'lodash';
@@ -43,6 +44,7 @@ import { mockComponent } from './mocks/component';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
 
+const queryClient = new QueryClient();
 export interface RenderContext {
   metrics?: Dict<Metric>;
   appState?: AppState;
@@ -98,15 +100,17 @@ export function renderComponent(
   function Wrapper({ children }: { children: React.ReactElement }) {
     return (
       <IntlProvider defaultLocale="en" locale="en">
-        <HelmetProvider>
-          <AppStateContextProvider appState={appState}>
-            <MemoryRouter initialEntries={[pathname]}>
-              <Routes>
-                <Route path="*" element={children} />
-              </Routes>
-            </MemoryRouter>
-          </AppStateContextProvider>
-        </HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <HelmetProvider>
+            <AppStateContextProvider appState={appState}>
+              <MemoryRouter initialEntries={[pathname]}>
+                <Routes>
+                  <Route path="*" element={children} />
+                </Routes>
+              </MemoryRouter>
+            </AppStateContextProvider>
+          </HelmetProvider>
+        </QueryClientProvider>
       </IntlProvider>
     );
   }

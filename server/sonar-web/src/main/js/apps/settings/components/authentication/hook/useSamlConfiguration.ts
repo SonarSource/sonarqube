@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { fetchIsScimEnabled } from '../../../../../api/settings';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
+import { useScimStatusQuery } from '../queries/IdentityProvider';
 import useConfiguration from './useConfiguration';
 
 export const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';
@@ -39,23 +39,13 @@ const OPTIONAL_FIELDS = [
   SAML_SCIM_DEPRECATED,
 ];
 
-export default function useSamlConfiguration(
-  definitions: ExtendedSettingDefinition[],
-  onReload: () => void
-) {
-  const [scimStatus, setScimStatus] = React.useState<boolean>(false);
+export default function useSamlConfiguration(definitions: ExtendedSettingDefinition[]) {
   const [newScimStatus, setNewScimStatus] = React.useState<boolean>();
   const hasScim = React.useContext(AvailableFeaturesContext).includes(Feature.Scim);
   const config = useConfiguration(definitions, OPTIONAL_FIELDS);
   const { reload: reloadConfig, values, setNewValue, isValueChange } = config;
 
-  React.useEffect(() => {
-    (async () => {
-      if (hasScim) {
-        setScimStatus(await fetchIsScimEnabled());
-      }
-    })();
-  }, [hasScim]);
+  const { data: scimStatus } = useScimStatusQuery();
 
   const name = values[SAML_PROVIDER_NAME]?.value;
   const url = values[SAML_LOGIN_URL]?.value;
@@ -71,9 +61,7 @@ export default function useSamlConfiguration(
 
   const reload = React.useCallback(async () => {
     await reloadConfig();
-    setScimStatus(await fetchIsScimEnabled());
-    onReload();
-  }, [reloadConfig, onReload]);
+  }, [reloadConfig]);
 
   return {
     ...config,

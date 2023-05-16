@@ -19,10 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import { getSystemInfo } from '../../../../api/system';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
@@ -37,7 +35,6 @@ import { searchParamsToQuery } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { SysInfoCluster } from '../../../../types/types';
 import { AUTHENTICATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import GithubAuthenticationTab from './GithubAuthenticationTab';
@@ -78,16 +75,6 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
   const { definitions } = props;
 
   const [query, setSearchParams] = useSearchParams();
-  const [provider, setProvider] = useState<string>();
-
-  const loadProvider = useCallback(async () => {
-    const info = (await getSystemInfo()) as SysInfoCluster;
-    setProvider(info.System['External Users and Groups Provisioning']);
-  }, []);
-
-  useEffect(() => {
-    loadProvider();
-  }, []);
 
   const currentTab = (query.get('tab') || SAML) as AuthenticationTabs;
 
@@ -182,16 +169,12 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                   {tab.key === SAML && (
                     <SamlAuthenticationTab
                       definitions={definitions.filter((def) => def.subCategory === SAML)}
-                      provider={provider}
-                      onReload={() => loadProvider()}
                     />
                   )}
 
                   {tab.key === AlmKeys.GitHub && (
                     <GithubAuthenticationTab
                       definitions={definitions.filter((def) => def.subCategory === AlmKeys.GitHub)}
-                      provider={provider}
-                      onReload={() => loadProvider()}
                     />
                   )}
 

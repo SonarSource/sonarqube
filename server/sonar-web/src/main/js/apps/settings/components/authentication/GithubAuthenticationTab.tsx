@@ -36,11 +36,10 @@ import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
+import { useIdentityProvierQuery } from './queries/IdentityProvider';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
-  provider: string | undefined;
-  onReload: () => void;
 }
 
 const GITHUB_EXCLUDED_FIELD = [
@@ -51,7 +50,8 @@ const GITHUB_EXCLUDED_FIELD = [
 ];
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
-  const { definitions, provider } = props;
+  const { definitions } = props;
+  const { data } = useIdentityProvierQuery();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
 
@@ -76,9 +76,9 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     changeProvisioning,
     toggleEnable,
     hasLegacyConfiguration,
-  } = useGithubConfiguration(definitions, props.onReload);
+  } = useGithubConfiguration(definitions);
 
-  const hasDifferentProvider = provider !== undefined && provider !== Provider.Github;
+  const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Github;
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
