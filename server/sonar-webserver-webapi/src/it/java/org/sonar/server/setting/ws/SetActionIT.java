@@ -836,7 +836,7 @@ public class SetActionIT {
   @Test
   public void succeed_for_property_without_definition_when_set_on_project_component() {
     ComponentDto project = randomPublicOrPrivateProject();
-    succeedForPropertyWithoutDefinitionAndValidComponent(project, project);
+    succeedForPropertyWithoutDefinitionAndValidComponent(project);
   }
 
   @Test
@@ -856,14 +856,14 @@ public class SetActionIT {
   @Test
   public void succeed_for_property_without_definition_when_set_on_view_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    succeedForPropertyWithoutDefinitionAndValidComponent(view, view);
+    succeedForPropertyWithoutDefinitionAndValidComponent(view);
   }
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_subview_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
-    succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(view, subview);
   }
 
   @Test
@@ -874,12 +874,12 @@ public class SetActionIT {
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
   }
 
-  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto project, ComponentDto module) {
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto project) {
     logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "My Value", module.getKey());
+    callForProjectSettingByKey("my.key", "My Value", project.getKey());
 
-    assertComponentSetting("my.key", "My Value", module.uuid());
+    assertComponentSetting("my.key", "My Value", project.uuid());
   }
 
   private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {

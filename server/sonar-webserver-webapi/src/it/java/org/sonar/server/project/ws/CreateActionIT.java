@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
@@ -199,7 +200,7 @@ public class CreateActionIT {
       .setParam("name", DEFAULT_PROJECT_NAME)
       .executeProtobuf(CreateWsResponse.class);
 
-    ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
     assertThat(db.favorites().hasFavorite(project, user.getUuid())).isTrue();
   }
 
@@ -207,7 +208,7 @@ public class CreateActionIT {
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getMainBranchComponent(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()
@@ -215,7 +216,7 @@ public class CreateActionIT {
       .setParam("name", DEFAULT_PROJECT_NAME)
       .executeProtobuf(CreateWsResponse.class);
 
-    ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
 

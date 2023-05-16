@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -67,7 +68,7 @@ public class AddActionIT {
 
   @Test
   public void add_a_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
@@ -82,7 +83,7 @@ public class AddActionIT {
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
       .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
-      .containsOnly(project.uuid(), user.getUuid(), "favourite");
+      .containsOnly(project.getUuid(), user.getUuid(), "favourite");
   }
 
   @Test
@@ -104,22 +105,10 @@ public class AddActionIT {
 
   @Test
   public void fail_when_user_is_not_authenticated() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     assertThatThrownBy(() -> call(project.getKey()))
       .isInstanceOf(UnauthorizedException.class);
-  }
-
-  @Test
-  public void fail_on_directory() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
-
-    assertThatThrownBy(() -> call(directory.getKey()))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
   }
 
   @Test
@@ -130,20 +119,8 @@ public class AddActionIT {
     userSession.logIn(user).addProjectPermission(USER, project);
 
     assertThatThrownBy(() -> call(file.getKey()))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
-  }
-
-  @Test
-  public void fail_on_unit_test_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto unitTestFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
-
-    assertThatThrownBy(() -> call(unitTestFile.getKey()))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Entity with key '" + file.getKey() + "' not found");
   }
 
   @Test

@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -75,15 +75,15 @@ public class PropertyDbTester {
       null, null, null, null);
   }
 
-  public void insertPropertySet(String settingBaseKey, @Nullable ComponentDto componentDto, Map<String, String>... fieldValues) {
+  public void insertPropertySet(String settingBaseKey, @Nullable EntityDto entity, Map<String, String>... fieldValues) {
     int index = 1;
     List<PropertyDto> propertyDtos = new ArrayList<>();
     List<String> ids = new ArrayList<>();
     for (Map<String, String> fieldValue : fieldValues) {
       for (Map.Entry<String, String> entry : fieldValue.entrySet()) {
         String key = settingBaseKey + "." + index + "." + entry.getKey();
-        if (componentDto != null) {
-          propertyDtos.add(newComponentPropertyDto(componentDto).setKey(key).setValue(entry.getValue()));
+        if (entity != null) {
+          propertyDtos.add(newComponentPropertyDto(entity).setKey(key).setValue(entry.getValue()));
         } else {
           propertyDtos.add(newGlobalPropertyDto().setKey(key).setValue(entry.getValue()));
         }
@@ -92,14 +92,14 @@ public class PropertyDbTester {
       index++;
     }
     String idsValue = Joiner.on(",").join(ids);
-    if (componentDto != null) {
-      propertyDtos.add(newComponentPropertyDto(componentDto).setKey(settingBaseKey).setValue(idsValue));
+    if (entity != null) {
+      propertyDtos.add(newComponentPropertyDto(entity).setKey(settingBaseKey).setValue(idsValue));
     } else {
       propertyDtos.add(newGlobalPropertyDto().setKey(settingBaseKey).setValue(idsValue));
     }
-    String componentKey = componentDto == null ? null : componentDto.getKey();
-    String componentName = componentDto == null ? null : componentDto.name();
-    String qualififer = componentDto == null ? null : componentDto.qualifier();
+    String componentKey = entity == null ? null : entity.getKey();
+    String componentName = entity == null ? null : entity.getName();
+    String qualififer = entity == null ? null : entity.getQualifier();
     insertProperties(propertyDtos, null, componentKey, componentName, qualififer);
   }
 

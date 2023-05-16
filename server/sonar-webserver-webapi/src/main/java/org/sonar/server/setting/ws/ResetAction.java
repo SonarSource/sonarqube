@@ -35,10 +35,13 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
@@ -107,7 +110,7 @@ public class ResetAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ResetRequest resetRequest = toWsRequest(request);
-      Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
+      Optional<EntityDto> component = getComponent(dbSession, resetRequest);
       checkPermissions(component);
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
@@ -144,17 +147,20 @@ public class ResetAction implements SettingsWsAction {
       .setPullRequest(request.param(PARAM_PULL_REQUEST));
   }
 
-  private Optional<ComponentDto> getComponent(DbSession dbSession, ResetRequest request) {
+  private Optional<EntityDto> getComponent(DbSession dbSession, ResetRequest request) {
     String componentKey = request.getComponent();
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest()));
+
+    // TODO this WS should support branches and PRs?
+    return Optional.of(dbClient.projectDao().selectEntityByKey(dbSession, componentKey)
+      .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey))));
   }
 
-  private void checkPermissions(Optional<ComponentDto> component) {
+  private void checkPermissions(Optional<EntityDto> component) {
     if (component.isPresent()) {
-      userSession.checkComponentPermission(UserRole.ADMIN, component.get());
+      userSession.checkEntityPermission(UserRole.ADMIN, component.get());
     } else {
       userSession.checkIsSystemAdministrator();
     }

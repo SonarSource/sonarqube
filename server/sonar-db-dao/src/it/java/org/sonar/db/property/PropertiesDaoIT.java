@@ -45,6 +45,7 @@ import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -86,52 +87,6 @@ public class PropertiesDaoIT {
   @Before
   public void setup() {
     when(auditPersister.isTrackedProperty(anyString())).thenReturn(true);
-  }
-
-  @Test
-  public void shouldFindUsersForNotification() {
-    ComponentDto project1 = insertPrivateProject("uuid_45");
-    ComponentDto project2 = insertPrivateProject("uuid_56");
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
-    UserDto user3 = db.users().insertUser(u -> u.setLogin("user3"));
-    insertProperty("notification.NewViolations.Email", "true", project1.uuid(), user2.getUuid(), user2.getLogin(),
-      project1.getKey(), project1.name());
-    insertProperty("notification.NewViolations.Twitter", "true", null, user3.getUuid(), user3.getLogin(),
-      null, null);
-    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user1.getUuid(), user1.getLogin(),
-      project2.getKey(), project2.name());
-    insertProperty("notification.NewViolations.Twitter", "true", project1.uuid(), user2.getUuid(), user2.getLogin(),
-      project1.getKey(), project1.name());
-    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user3.getUuid(), user3.getLogin(),
-      project2.getKey(), project2.name());
-    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
-    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
-    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", null))
-      .isEmpty();
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_78"))
-      .isEmpty();
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project1.getKey()))
-      .containsOnly(new Subscriber("user2", false));
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project2.getKey()))
-      .isEmpty();
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", null))
-      .containsOnly(new Subscriber("user3", true));
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_78"))
-      .containsOnly(new Subscriber("user3", true));
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project1.getKey()))
-      .containsOnly(new Subscriber("user2", false), new Subscriber("user3", true));
-
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project2.getKey()))
-      .containsOnly(new Subscriber("user1", false), new Subscriber("user3", true), new Subscriber("user3", false));
   }
 
   @Test
@@ -615,31 +570,31 @@ public class PropertiesDaoIT {
 
   @Test
   public void select_properties_by_keys_and_component_ids() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
     insertProperties(null, null, null, newGlobalPropertyDto().setKey(key));
-    insertProperties(null, project.getKey(), project.name(), newComponentPropertyDto(project).setKey(key));
-    insertProperties(null, project2.getKey(), project2.name(), newComponentPropertyDto(project2).setKey(key),
+    insertProperties(null, project.getKey(), project.getName(), newComponentPropertyDto(project).setKey(key));
+    insertProperties(null, project2.getKey(), project2.getName(), newComponentPropertyDto(project2).setKey(key),
       newComponentPropertyDto(project2).setKey(anotherKey));
     insertProperties(user.getLogin(), null, null, newUserPropertyDto(user).setKey(key));
 
-    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.uuid())))
-      .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
-    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.uuid(), project2.uuid())))
+    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.getUuid())))
+      .extracting("key", "componentUuid").containsOnly(tuple(key, project.getUuid()));
+    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.getUuid(), project2.getUuid())))
       .extracting("key", "componentUuid").containsOnly(
-        tuple(key, project.uuid()),
-        tuple(key, project2.uuid()));
-    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key, anotherKey), newHashSet(project.uuid(), project2.uuid())))
+        tuple(key, project.getUuid()),
+        tuple(key, project2.getUuid()));
+    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key, anotherKey), newHashSet(project.getUuid(), project2.getUuid())))
       .extracting("key", "componentUuid").containsOnly(
-        tuple(key, project.uuid()),
-        tuple(key, project2.uuid()),
-        tuple(anotherKey, project2.uuid()));
+        tuple(key, project.getUuid()),
+        tuple(key, project2.getUuid()),
+        tuple(anotherKey, project2.getUuid()));
 
-    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("unknown"), newHashSet(project.uuid()))).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("unknown"), newHashSet(project.getUuid()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("key"), newHashSet("uuid123456789"))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("unknown"), newHashSet("uuid123456789"))).isEmpty();
   }

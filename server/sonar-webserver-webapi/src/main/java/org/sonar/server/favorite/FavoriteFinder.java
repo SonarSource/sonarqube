@@ -25,13 +25,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.favorite.FavoriteUpdater.PROP_FAVORITE_KEY;
 
 public class FavoriteFinder {
@@ -46,7 +45,7 @@ public class FavoriteFinder {
   /**
    * @return the list of favorite components of the authenticated user. Empty list if the user is not authenticated
    */
-  public List<ComponentDto> list() {
+  public List<EntityDto> list() {
     if (!userSession.isLoggedIn()) {
       return emptyList();
     }
@@ -58,9 +57,11 @@ public class FavoriteFinder {
         .build();
       Set<String> componentUuids = dbClient.propertiesDao().selectByQuery(dbQuery, dbSession).stream().map(PropertyDto::getComponentUuid).collect(Collectors.toSet());
 
-      return dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream()
-        .sorted(Comparator.comparing(ComponentDto::name))
-        .collect(toList());
+      List<EntityDto> entities = dbClient.projectDao().selectEntitiesByUuids(dbSession, componentUuids);
+
+      return entities.stream()
+        .sorted(Comparator.comparing(EntityDto::getName))
+        .collect(Collectors.toList());
     }
   }
 }

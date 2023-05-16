@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteFinder;
@@ -76,21 +77,18 @@ public class SearchActionIT {
 
   @Test
   public void return_favorites() {
-    ComponentDto project = newPrivateProjectDto("P1").setKey("K1").setName("N1");
-    addComponent(project);
-    addComponent(newFileDto(project).setKey("K11").setName("N11"));
-    addComponent(newPrivateProjectDto("P2").setKey("K2").setName("N2"));
+    addPermissionAndFavorite(db.components().insertPrivateProject("P1", c -> c.setKey("K1").setName("N1")).getProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject("P2", c -> c.setKey("K2").setName("N2")).getProjectDto());
 
     SearchResponse result = call();
 
     assertThat(result.getPaging())
       .extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
-      .containsExactly(1, 100, 3);
+      .containsExactly(1, 100, 2);
     assertThat(result.getFavoritesList())
       .extracting(Favorite::getKey, Favorite::getName, Favorite::getQualifier)
       .containsOnly(
         tuple("K1", "N1", PROJECT),
-        tuple("K11", "N11", FILE),
         tuple("K2", "N2", PROJECT));
   }
 
@@ -104,8 +102,8 @@ public class SearchActionIT {
 
   @Test
   public void filter_authorized_components() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1"));
-    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K1")).getProjectDto());
+    ProjectDto unauthorizedProject = db.components().insertPrivateProject().getProjectDto();
     db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
     SearchResponse result = call();
@@ -117,8 +115,8 @@ public class SearchActionIT {
   @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
-      .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto().setKey("K" + i).setName("N" + i)));
-    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
+      .forEach(i -> addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K" + i).setName("N" + i)).getProjectDto()));
+    ProjectDto unauthorizedProject = db.components().insertPrivateProject().getProjectDto();
     db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
     SearchResponse result = call(2, 3);
@@ -127,14 +125,12 @@ public class SearchActionIT {
     assertThat(result.getFavoritesList())
       .extracting(Favorite::getKey)
       .containsExactly("K4", "K5", "K6");
-
   }
 
   @Test
   public void return_only_users_favorite() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1"));
-    ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto().setKey("K42");
-    db.components().insertComponent(otherUserFavorite);
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K1")).getProjectDto());
+    ProjectDto otherUserFavorite = db.components().insertPrivateProject(c -> c.setKey("K42")).getProjectDto();
     db.favorites().add(otherUserFavorite, "42", userLogin);
     db.commit();
 
@@ -145,9 +141,9 @@ public class SearchActionIT {
 
   @Test
   public void favorites_ordered_by_name() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setName("N2"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setName("N3"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setName("N1"));
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setName("N2")).getProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setName("N3")).getProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setName("N1")).getProjectDto());
 
     SearchResponse result = call();
 
@@ -157,9 +153,9 @@ public class SearchActionIT {
 
   @Test
   public void json_example() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1").setName("Samba"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K2").setName("Apache HBase"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K3").setName("JDK9"));
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K1").setName("Samba")).getProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K2").setName("Apache HBase")).getProjectDto());
+    addPermissionAndFavorite(db.components().insertPrivateProject(c -> c.setKey("K3").setName("JDK9")).getProjectDto());
 
     String result = ws.newRequest().execute().getInput();
 
@@ -183,8 +179,7 @@ public class SearchActionIT {
       .isInstanceOf(UnauthorizedException.class);
   }
 
-  private void addComponent(ComponentDto component) {
-    db.components().insertComponent(component);
+  private void addPermissionAndFavorite(ProjectDto component) {
     db.favorites().add(component, userUuid, userLogin);
     db.commit();
     userSession.addProjectPermission(UserRole.USER, component);

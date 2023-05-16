@@ -34,7 +34,9 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
@@ -68,8 +70,6 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
@@ -132,8 +132,8 @@ public class SuggestionsActionIT {
 
   @Test
   public void test_example_json_response() {
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube")).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint")).getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube")).getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint")).getProjectDto();
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
@@ -150,7 +150,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
@@ -175,7 +175,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed_public_project() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     componentIndexer.indexAll();
 
@@ -199,7 +199,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     componentIndexer.indexAll();
 
@@ -215,7 +215,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_favorites() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -240,7 +240,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_favorites_without_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -256,7 +256,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_contain_recently_browsed_favorites() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -282,7 +282,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
@@ -300,10 +300,10 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_order_results() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Alpha")).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("Bravo")).getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("Charlie")).getMainBranchComponent();
-    ComponentDto project4 = db.components().insertPrivateProject(p -> p.setName("Delta")).getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject(p -> p.setName("Alpha")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(p -> p.setName("Bravo")).getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject(p -> p.setName("Charlie")).getProjectDto();
+    ProjectDto project4 = db.components().insertPrivateProject(p -> p.setName("Delta")).getProjectDto();
     doReturn(asList(project4, project2)).when(favoriteFinder).list();
 
     componentIndexer.indexAll();
@@ -314,7 +314,7 @@ public class SuggestionsActionIT {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getKey).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ProjectDto::getKey).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert order of keys
@@ -330,13 +330,13 @@ public class SuggestionsActionIT {
 
   @Test
   public void suggestions_without_query_should_return_empty_qualifiers() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    componentIndexer.indexOnAnalysis(project.branchUuid());
-    userSessionRule.addProjectPermission(USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    componentIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    userSessionRule.addProjectPermission(USER, project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getProjectDto().getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -348,13 +348,13 @@ public class SuggestionsActionIT {
   @Test
   public void suggestions_should_filter_allowed_qualifiers() {
     resourceTypes.setAllQualifiers(PROJECT, FILE, UNIT_TEST_FILE);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    componentIndexer.indexOnAnalysis(project.branchUuid());
-    userSessionRule.addProjectPermission(USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    componentIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    userSessionRule.addProjectPermission(USER, project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getProjectDto().getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -364,7 +364,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void exact_match_in_one_qualifier() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -389,12 +389,12 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_not_return_suggestion_on_non_existing_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT, project.name(), project.getKey());
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getName(), project.getKey());
     db.commit();
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -410,7 +410,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void must_not_search_if_no_valid_tokens_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getProjectDto();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -436,7 +436,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getProjectDto();
 
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -455,9 +455,9 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_contain_component_names() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("Project1")).getMainBranchComponent();
-    componentIndexer.indexOnAnalysis(project1.branchUuid());
-    authorizationIndexerTester.allowOnlyAnyone(project1);
+    ProjectData project1 = db.components().insertPrivateProject(p -> p.setName("Project1"));
+    componentIndexer.indexOnAnalysis(project1.getMainBranchDto().getUuid());
+    authorizationIndexerTester.allowOnlyAnyone(project1.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -467,7 +467,7 @@ public class SuggestionsActionIT {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getName)
-      .containsExactlyInAnyOrder(tuple(project1.getKey(), project1.name()));
+      .containsExactlyInAnyOrder(tuple(project1.getProjectDto().getKey(), project1.getProjectDto().getName()));
   }
 
   @Test
@@ -492,13 +492,13 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_mark_favorite_items() {
-    ComponentDto favouriteProject = db.components().insertPrivateProject(p -> p.setName("Project1")).getMainBranchComponent();
-    ComponentDto nonFavouriteProject = db.components().insertPublicProject(p -> p.setName("Project2")).getMainBranchComponent();
+    ProjectData favouriteProject = db.components().insertPrivateProject(p -> p.setName("Project1"));
+    ProjectData nonFavouriteProject = db.components().insertPublicProject(p -> p.setName("Project2"));
 
-    doReturn(singletonList(favouriteProject)).when(favoriteFinder).list();
-    componentIndexer.indexOnAnalysis(favouriteProject.branchUuid());
-    componentIndexer.indexOnAnalysis(nonFavouriteProject.branchUuid());
-    authorizationIndexerTester.allowOnlyAnyone(favouriteProject, nonFavouriteProject);
+    doReturn(singletonList(favouriteProject.getProjectDto())).when(favoriteFinder).list();
+    componentIndexer.indexOnAnalysis(favouriteProject.getMainBranchDto().getUuid());
+    componentIndexer.indexOnAnalysis(nonFavouriteProject.getMainBranchDto().getUuid());
+    authorizationIndexerTester.allowOnlyAnyone(favouriteProject.getProjectDto(), nonFavouriteProject.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -508,7 +508,7 @@ public class SuggestionsActionIT {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(favouriteProject.getKey(), true), tuple(nonFavouriteProject.getKey(), false));
+      .containsExactly(tuple(favouriteProject.getProjectDto().getKey(), true), tuple(nonFavouriteProject.getProjectDto().getKey(), false));
   }
 
   @Test
@@ -553,7 +553,6 @@ public class SuggestionsActionIT {
       .containsExactlyInAnyOrder(
         tuple(SuggestionCategory.APP.getName(), false),
         tuple(SuggestionCategory.VIEW.getName(), false),
-        tuple(SuggestionCategory.SUBVIEW.getName(), false),
         tuple(SuggestionCategory.PROJECT.getName(), false));
   }
 
@@ -677,8 +676,8 @@ public class SuggestionsActionIT {
     boolean useQuery) {
     String namePrefix = "MyProject";
 
-    List<ComponentDto> projects = range(0, numberOfProjects)
-      .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)).getMainBranchComponent())
+    List<ProjectDto> projects = range(0, numberOfProjects)
+      .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)).getProjectDto())
       .collect(Collectors.toList());
 
     componentIndexer.indexAll();

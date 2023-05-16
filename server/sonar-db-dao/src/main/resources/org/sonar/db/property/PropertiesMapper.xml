@@ -3,35 +3,6 @@
 
 <mapper namespace="org.sonar.db.property.PropertiesMapper">
 
-  <select id="findUsersForNotification" parameterType="map" resultType="org.sonar.db.property.Subscriber">
-    SELECT
-      u.login as "login",
-      ${_true} as "global"
-    FROM
-      users u
-    INNER JOIN properties p ON p.user_uuid = u.uuid
-    WHERE
-      p.prop_key = #{notifKey,jdbcType=VARCHAR}
-      AND p.text_value = 'true'
-      AND p.component_uuid IS NULL
-
-    <if test="projectKey != null">
-      UNION
-
-      SELECT
-        u.login as "login",
-        ${_false} as "global"
-      FROM
-        users u
-      INNER JOIN components c on c.kee = #{projectKey,jdbcType=VARCHAR}
-      INNER JOIN properties p ON p.user_uuid = u.uuid
-      WHERE
-        p.prop_key = #{notifKey,jdbcType=VARCHAR}
-        AND p.text_value = 'true'
-        AND p.component_uuid = c.uuid
-    </if>
-  </select>
-
   <select id="findEmailRecipientsForNotification" parameterType="map" resultType="org.sonar.db.EmailSubscriberDto">
     SELECT
       u.login as "login",
@@ -59,13 +30,13 @@
         u.email as "email"
       FROM
         users u
-      INNER JOIN components c on
-        c.kee = #{projectKey,jdbcType=VARCHAR}
+      INNER JOIN projects proj on
+        proj.kee = #{projectKey,jdbcType=VARCHAR}
       INNER JOIN properties p ON
         p.user_uuid = u.uuid
         and p.prop_key = #{notifKey,jdbcType=VARCHAR}
         and p.text_value = 'true'
-        and p.component_uuid = c.uuid
+        and p.component_uuid = proj.uuid
       WHERE
         u.email is not null
         <if test="logins != null">
@@ -189,24 +160,6 @@
     </where>
   </select>
 
-  <select id="selectUuidsByUser" parameterType="map" resultType="String">
-    select py.uuid
-    from properties py
-    where
-    py.user_uuid=#{userUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectIdsByMatchingLogin" parameterType="String" resultType="String">
-    select py.uuid
-    from properties py
-    where
-    py.text_value like #{login,jdbcType=VARCHAR}
-    and py.prop_key in
-    <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
-      #{property,jdbcType=VARCHAR}
-    </foreach>
-  </select>
-
   <select id="selectByKeyAndMatchingValue" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
@@ -310,15 +263,6 @@
     where
       prop_key=#{key}
       and component_uuid=#{componentUuid}
-      and user_uuid is null
-  </delete>
-
-  <delete id="deleteProjectProperties" parameterType="map">
-    delete from properties
-    where
-      prop_key=#{key}
-      and text_value = #{value}
-      and component_uuid is not null
       and user_uuid is null
   </delete>
 

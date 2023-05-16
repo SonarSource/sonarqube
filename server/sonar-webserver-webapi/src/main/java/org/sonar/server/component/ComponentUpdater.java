@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
@@ -236,12 +237,23 @@ public class ComponentUpdater {
     return branch;
   }
 
+  // TODO this is wrong, should probably be done for the project and not for the component. Component has the uuid of the branch!
   private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin) {
     permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
     if (componentDto.qualifier().equals(PROJECT)
         && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
-      favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, false);
+      favoriteUpdater.add(dbSession, toProject(componentDto), userUuid, userLogin, false);
     }
+  }
+
+  private static ProjectDto toProject(ComponentDto componentDto) {
+    return new ProjectDto()
+      .setUuid(componentDto.uuid())
+      .setKey(componentDto.getKey())
+      .setQualifier(componentDto.qualifier())
+      .setPrivate(componentDto.isPrivate())
+      .setName(componentDto.name())
+      .setDescription(componentDto.description());
   }
 
   private String getQualifierToDisplay(String qualifier) {

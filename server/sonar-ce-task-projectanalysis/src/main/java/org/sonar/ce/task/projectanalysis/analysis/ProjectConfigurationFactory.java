@@ -42,6 +42,7 @@ public class ProjectConfigurationFactory {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectUuid);
     if (!projectUuid.equals(branchUuid)) {
+      // TODO not supported?
       addSettings(projectSettings, branchUuid);
     }
     return new ConfigurationBridge(projectSettings);

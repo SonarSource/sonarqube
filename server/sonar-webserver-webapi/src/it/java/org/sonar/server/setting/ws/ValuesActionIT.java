@@ -38,7 +38,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -80,11 +83,14 @@ public class ValuesActionIT {
   private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private final SettingsWsSupport support = new SettingsWsSupport(userSession);
   private final WsActionTester wsActionTester = new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
-  private ComponentDto project;
+  private ProjectDto project;
+  private ComponentDto rootComponent;
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    project = projectData.getProjectDto();
+    rootComponent = projectData.getMainBranchComponent();
   }
 
   @Test
@@ -240,7 +246,7 @@ public class ValuesActionIT {
       PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT).build());
     db.properties().insertProperties(null, null, null,
       null, newGlobalPropertyDto().setKey("property").setValue("one"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       // The property is overriding global value
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
@@ -259,7 +265,7 @@ public class ValuesActionIT {
       PropertyDefinition.builder("project").onQualifiers(PROJECT).build()));
     db.properties().insertProperties(null, null, null,
       null, newGlobalPropertyDto().setKey("global").setValue("one"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("project").setValue("two"));
 
     ValuesWsResponse result = executeRequestForProjectProperties();
@@ -299,7 +305,7 @@ public class ValuesActionIT {
   @Test
   public void return_values_of_component_even_if_no_property_definition() {
     logInAsProjectUser();
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("property").setValue("foo"));
 
     ValuesWsResponse response = executeRequestForComponentProperties(project, "property");
@@ -335,31 +341,6 @@ public class ValuesActionIT {
   }
 
   @Test
-  public void return_inherited_values_on_component() {
-    logInAsProjectUser();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    definitions.addComponents(asList(
-      PropertyDefinition.builder("defaultProperty").defaultValue("default").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("globalProperty").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("projectProperty").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("componentProperty").onQualifiers(PROJECT).build()));
-    db.properties().insertProperties(null, null, null, null,
-      newGlobalPropertyDto().setKey("globalProperty").setValue("global"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
-      newComponentPropertyDto(project).setKey("projectProperty").setValue("project"));
-    db.properties().insertProperties(null, file.getKey(), file.name(), file.qualifier(),
-      newComponentPropertyDto(file).setKey("componentProperty").setValue("component"));
-
-    ValuesWsResponse result = executeRequestForComponentProperties(file, "defaultProperty", "globalProperty", "projectProperty", "componentProperty");
-
-    assertThat(result.getSettingsList()).hasSize(4);
-    assertSetting(result.getSettings(0), "defaultProperty", "default", true);
-    assertSetting(result.getSettings(1), "globalProperty", "global", true);
-    assertSetting(result.getSettings(2), "projectProperty", "project", true);
-    assertSetting(result.getSettings(3), "componentProperty", "component", false);
-  }
-
-  @Test
   public void return_inherited_values_on_global_setting() {
     logIn();
     definitions.addComponents(asList(
@@ -373,83 +354,6 @@ public class ValuesActionIT {
     assertThat(result.getSettingsList()).hasSize(2);
     assertSetting(result.getSettings(0), "defaultProperty", "default", true);
     assertSetting(result.getSettings(1), "globalProperty", "global", false);
-  }
-
-  @Test
-  public void return_parent_value() {
-    logInAsProjectUser();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    definitions.addComponents(asList(
-      PropertyDefinition.builder("foo").defaultValue("default").onQualifiers(PROJECT).build()));
-    db.properties().insertProperties(null, null, null, null,
-      newGlobalPropertyDto().setKey("foo").setValue("global"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
-      newComponentPropertyDto(project).setKey("foo").setValue("project"));
-    db.properties().insertProperties(null, file.getKey(), file.name(), file.qualifier(),
-      newComponentPropertyDto(file).setKey("foo").setValue("file"));
-
-    assertParentValue(executeRequestForComponentProperties(file, "foo").getSettings(0), "project");
-    assertParentValue(executeRequestForComponentProperties(project, "foo").getSettings(0), "global");
-    assertParentValue(executeRequestForGlobalProperties("foo").getSettings(0), "default");
-  }
-
-  @Test
-  public void return_parent_field_values() {
-    logInAsProjectUser();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    definitions.addComponent(PropertyDefinition
-      .builder("foo")
-      .onQualifiers(PROJECT)
-      .type(PropertyType.PROPERTY_SET)
-      .fields(asList(
-        PropertyFieldDefinition.build("key").name("Key").build(),
-        PropertyFieldDefinition.build("size").name("Size").build()))
-      .build());
-    db.properties().insertPropertySet("foo", null, ImmutableMap.of("key", "keyG1", "size", "sizeG1"));
-    db.properties().insertPropertySet("foo", project, ImmutableMap.of("key", "keyP1", "size", "sizeP1"));
-    db.properties().insertPropertySet("foo", file, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
-
-    assertParentFieldValues(executeRequestForComponentProperties(file, "foo").getSettings(0), ImmutableMap.of("key", "keyP1", "size", "sizeP1"));
-    assertParentFieldValues(executeRequestForComponentProperties(project, "foo").getSettings(0), ImmutableMap.of("key", "keyG1", "size", "sizeG1"));
-    assertParentFieldValues(executeRequestForGlobalProperties("foo").getSettings(0));
-  }
-
-  @Test
-  public void return_no_parent_value() {
-    logInAsProjectUser();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    definitions.addComponents(asList(
-      PropertyDefinition.builder("simple").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("multi").multiValues(true).onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("set")
-        .type(PropertyType.PROPERTY_SET)
-        .onQualifiers(PROJECT)
-        .fields(asList(
-          PropertyFieldDefinition.build("key").name("Key").build(),
-          PropertyFieldDefinition.build("size").name("Size").build()))
-        .build()));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
-      newComponentPropertyDto(project).setKey("simple").setValue("module"),
-      newComponentPropertyDto(project).setKey("multi").setValue("module1,module2"));
-    db.properties().insertPropertySet("set", project, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
-
-    assertParentValue(executeRequestForComponentProperties(file, "simple").getSettings(0), null);
-    assertParentValues(executeRequestForComponentProperties(file, "multi").getSettings(0));
-    assertParentFieldValues(executeRequestForComponentProperties(file, "set").getSettings(0));
-  }
-
-  @Test
-  public void return_parent_value_when_no_definition() {
-    logInAsProjectUser();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    db.properties().insertProperties(null, null, null, null,
-      newGlobalPropertyDto().setKey("foo").setValue("global"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
-      newComponentPropertyDto(project).setKey("foo").setValue("project"));
-
-    assertParentValue(executeRequestForComponentProperties(file, "foo").getSettings(0), "project");
-    assertParentValue(executeRequestForComponentProperties(project, "foo").getSettings(0), "global");
-    assertParentValue(executeRequestForGlobalProperties("foo").getSettings(0), null);
   }
 
   @Test
@@ -527,7 +431,7 @@ public class ValuesActionIT {
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
     db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -542,7 +446,7 @@ public class ValuesActionIT {
     userSession
       .addProjectPermission(USER, project)
       .addProjectPermission(SCAN.getKey(), project);
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -575,7 +479,7 @@ public class ValuesActionIT {
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
     db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -590,7 +494,7 @@ public class ValuesActionIT {
   @Test
   public void return_secured_settings_even_if_not_defined_when_project_admin() {
     logInAsProjectAdmin();
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -676,7 +580,7 @@ public class ValuesActionIT {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
-    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -847,8 +751,8 @@ public class ValuesActionIT {
     assertThat(response.getSetSecuredSettingsList()).contains("my.password.secured");
   }
 
-  private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {
-    return executeRequest(componentDto.getKey(), keys);
+  private ValuesWsResponse executeRequestForComponentProperties(EntityDto entity, String... keys) {
+    return executeRequest(entity.getKey(), keys);
   }
 
   private ValuesWsResponse executeRequestForProjectProperties(String... keys) {

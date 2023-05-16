@@ -19,6 +19,7 @@
  */
 package org.sonar.db.project;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,9 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.entity.EntityDto;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ProjectDao implements Dao {
@@ -70,14 +73,14 @@ public class ProjectDao implements Dao {
 
   public List<ProjectDto> selectProjectsByKeys(DbSession session, Set<String> keys) {
     if (keys.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return mapper(session).selectProjectsByKeys(keys);
   }
 
   public List<ProjectDto> selectApplicationsByKeys(DbSession session, Set<String> keys) {
     if (keys.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
 
     return executeLargeInputs(keys, partition -> mapper(session).selectApplicationsByKeys(partition));
@@ -101,7 +104,7 @@ public class ProjectDao implements Dao {
 
   public List<ProjectDto> selectByUuids(DbSession session, Set<String> uuids) {
     if (uuids.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
   }
@@ -143,4 +146,28 @@ public class ProjectDao implements Dao {
   public long getNclocSum(DbSession dbSession, @Nullable String projectUuidToExclude) {
     return Optional.ofNullable(mapper(dbSession).getNclocSum(projectUuidToExclude)).orElse(0L);
   }
+
+  public Optional<EntityDto> selectEntityByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(mapper(dbSession).selectEntityByUuid(uuid));
+  }
+
+  public List<EntityDto> selectEntitiesByUuids(DbSession dbSession, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(dbSession).selectEntitiesByUuids(uuids);
+  }
+
+  public Optional<EntityDto> selectEntityByKey(DbSession dbSession, String key) {
+    return Optional.ofNullable(mapper(dbSession).selectEntityByKey(key));
+  }
+
+  public List<EntityDto> selectEntitiesByKeys(DbSession dbSession, Collection<String> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(dbSession).selectEntitiesByKeys(keys);
+  }
+
+
 }

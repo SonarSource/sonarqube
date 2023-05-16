@@ -113,67 +113,8 @@ public class DefaultNotificationManager implements NotificationManager {
     return dbClient.notificationQueueDao().count();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher,
-    String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
-    verifyProjectKey(projectKey);
-    String dispatcherKey = dispatcher.getKey();
-
-    Set<SubscriberAndChannel> subscriberAndChannels = Arrays.stream(notificationChannels)
-      .flatMap(notificationChannel -> toSubscriberAndChannels(dispatcherKey, projectKey, notificationChannel))
-      .collect(Collectors.toSet());
-
-    if (subscriberAndChannels.isEmpty()) {
-      return ImmutableMultimap.of();
-    }
-
-    ImmutableSetMultimap.Builder<String, NotificationChannel> builder = ImmutableSetMultimap.builder();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> authorizedLogins = keepAuthorizedLogins(dbSession, projectKey, subscriberAndChannels, subscriberPermissionsOnProject);
-      subscriberAndChannels.stream()
-        .filter(subscriberAndChannel -> authorizedLogins.contains(subscriberAndChannel.subscriber().getLogin()))
-        .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.subscriber().getLogin(), subscriberAndChannel.channel()));
-    }
-    return builder.build();
-  }
-
   private static void verifyProjectKey(String projectKey) {
     requireNonNull(projectKey, "projectKey is mandatory");
-  }
-
-  private Stream<SubscriberAndChannel> toSubscriberAndChannels(String dispatcherKey, String projectKey, NotificationChannel notificationChannel) {
-    Set<Subscriber> usersForNotification = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, notificationChannel.getKey(), projectKey);
-    return usersForNotification
-      .stream()
-      .map(login -> new SubscriberAndChannel(login, notificationChannel));
-  }
-
-  private Set<String> keepAuthorizedLogins(DbSession dbSession, String projectKey, Set<SubscriberAndChannel> subscriberAndChannels,
-    SubscriberPermissionsOnProject requiredPermissions) {
-    if (requiredPermissions.getGlobalSubscribers().equals(requiredPermissions.getProjectSubscribers())) {
-      return keepAuthorizedLogins(dbSession, projectKey, subscriberAndChannels, null, requiredPermissions.getGlobalSubscribers());
-    } else {
-      return Stream
-        .concat(
-          keepAuthorizedLogins(dbSession, projectKey, subscriberAndChannels, true, requiredPermissions.getGlobalSubscribers()).stream(),
-          keepAuthorizedLogins(dbSession, projectKey, subscriberAndChannels, false, requiredPermissions.getProjectSubscribers()).stream())
-        .collect(Collectors.toSet());
-    }
-  }
-
-  private Set<String> keepAuthorizedLogins(DbSession dbSession, String projectKey, Set<SubscriberAndChannel> subscriberAndChannels,
-    @Nullable Boolean global, String permission) {
-    Set<String> logins = subscriberAndChannels.stream()
-      .filter(s -> global == null || s.subscriber().isGlobal() == global)
-      .map(s -> s.subscriber().getLogin())
-      .collect(Collectors.toSet());
-    if (logins.isEmpty()) {
-      return Collections.emptySet();
-    }
-    return dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, permission);
   }
 
   @Override
@@ -242,23 +183,6 @@ public class DefaultNotificationManager implements NotificationManager {
     Set<String> authorizedLogins = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, permission);
     return subscribers.stream()
       .filter(s -> authorizedLogins.contains(s.getLogin()));
-  }
-
-  private record SubscriberAndChannel(Subscriber subscriber, NotificationChannel channel) {
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      SubscriberAndChannel that = (SubscriberAndChannel) o;
-      return Objects.equals(subscriber, that.subscriber) &&
-        Objects.equals(channel, that.channel);
-    }
-
   }
 
   @VisibleForTesting

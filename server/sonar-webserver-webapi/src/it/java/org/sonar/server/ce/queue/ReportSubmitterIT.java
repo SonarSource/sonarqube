@@ -40,6 +40,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
@@ -91,11 +92,8 @@ public class ReportSubmitterIT {
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
-  private final Configuration config = mock(Configuration.class);
-
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true
-    );
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true);
   private final BranchSupport ossEditionBranchSupport = new BranchSupport(null);
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
@@ -146,7 +144,7 @@ public class ReportSubmitterIT {
     userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
@@ -165,7 +163,7 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
     verifyReportIsPersisted(TASK_UUID);
@@ -185,9 +183,9 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
-    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    ProjectDto createdProject = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).get();
     assertThat(db.favorites().hasFavorite(createdProject, user.getUuid())).isTrue();
   }
 
@@ -203,14 +201,14 @@ public class ReportSubmitterIT {
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
-    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    ProjectDto createdProject = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).get();
     assertThat(db.favorites().hasNoFavorite(createdProject)).isTrue();
   }
 
   @Test
   public void do_no_add_favorite_when_already_100_favorite_projects_and_no_project_creator_permission_on_permission_template() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getMainBranchComponent(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
     userSession
       .logIn(user)
       .addPermission(GlobalPermission.SCAN)
@@ -219,9 +217,9 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
-    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    ProjectDto createdProject = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).get();
     assertThat(db.favorites().hasNoFavorite(createdProject)).isTrue();
   }
 
@@ -234,7 +232,7 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -245,7 +243,7 @@ public class ReportSubmitterIT {
     userSession.addPermission(SCAN);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -256,7 +254,7 @@ public class ReportSubmitterIT {
     userSession.addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }

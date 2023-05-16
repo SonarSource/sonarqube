@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -58,19 +59,19 @@ public class SettingsUpdaterIT {
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
   PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
-  ComponentDto project;
+  ProjectDto project;
 
   SettingsUpdater underTest = new SettingsUpdater(dbClient, definitions);
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
+    project = componentDb.insertPrivateProject().getProjectDto();
   }
 
   @Test
   public void delete_global_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("value"));
     propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("bar").setValue("two"));
@@ -86,9 +87,9 @@ public class SettingsUpdaterIT {
   public void delete_component_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("value"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("bar").setValue("two"));
 
     underTest.deleteComponentSettings(dbSession, project, "foo", "bar");
@@ -150,7 +151,7 @@ public class SettingsUpdaterIT {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("1,2"),
       newComponentPropertyDto(project).setKey("foo.1.key").setValue("key1"),
       newComponentPropertyDto(project).setKey("foo.1.size").setValue("size1"),
@@ -173,7 +174,7 @@ public class SettingsUpdaterIT {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("other").setValue("1,2"),
       newComponentPropertyDto(project).setKey("other.1.key").setValue("key1"));
 
@@ -209,11 +210,11 @@ public class SettingsUpdaterIT {
   }
 
   private void assertProjectPropertyDoesNotExist(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).setKey(key).build(), dbSession)).isEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.getUuid()).setKey(key).build(), dbSession)).isEmpty();
   }
 
   private void assertProjectPropertyExists(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).setKey(key).build(), dbSession)).isNotEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.getUuid()).setKey(key).build(), dbSession)).isNotEmpty();
   }
 
   private void assertUserPropertyExists(String key, UserDto user) {

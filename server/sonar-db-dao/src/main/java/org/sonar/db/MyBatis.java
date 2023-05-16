@@ -64,6 +64,7 @@ import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
@@ -195,6 +196,7 @@ public class MyBatis {
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
+    confBuilder.loadAlias("Entity", EntityDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("ExternalGroup", ExternalGroupDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);

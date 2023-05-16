@@ -19,20 +19,17 @@
  */
 package org.sonar.db.portfolio;
 
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.entity.EntityDto;
 
-public class PortfolioDto {
+public class PortfolioDto extends EntityDto {
   public enum SelectionMode {
     NONE, MANUAL, REGEXP, REST, TAGS
   }
 
-  private String uuid;
-  private String kee;
-  private String name;
   private String description;
-  private boolean isPrivate = false;
   private String branchKey;
 
   private String rootUuid;
@@ -79,6 +76,14 @@ public class PortfolioDto {
     this.branchKey = branchKey;
   }
 
+  @Override
+  public String getQualifier() {
+    if (isRoot()) {
+      return Qualifiers.VIEW;
+    }
+    return Qualifiers.SUBVIEW;
+  }
+
   public String getSelectionMode() {
     return selectionMode;
   }
@@ -121,24 +126,9 @@ public class PortfolioDto {
     return this;
   }
 
-  public String getUuid() {
-    return uuid;
-  }
-
   public PortfolioDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
-  }
-
-  /**
-   * This is the getter used by MyBatis mapper.
-   */
-  public String getKee() {
-    return kee;
-  }
-
-  public String getKey() {
-    return getKee();
   }
 
   /**
@@ -153,17 +143,9 @@ public class PortfolioDto {
     return setKee(key);
   }
 
-  public boolean isPrivate() {
-    return isPrivate;
-  }
-
   public PortfolioDto setPrivate(boolean aPrivate) {
     isPrivate = aPrivate;
     return this;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public PortfolioDto setName(String name) {
@@ -180,22 +162,4 @@ public class PortfolioDto {
     this.description = description;
     return this;
   }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    PortfolioDto that = (PortfolioDto) o;
-    return Objects.equals(uuid, that.uuid);
-  }
-
-  @Override
-  public int hashCode() {
-    return uuid != null ? uuid.hashCode() : 0;
-  }
-
 }

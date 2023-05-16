@@ -65,20 +65,6 @@ public class PropertiesDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  /**
-   * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
-   * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
-   * Note that {@link  UserRole#USER} permission is not checked here, filter the results with
-   * {@link org.sonar.db.permission.AuthorizationDao#keepAuthorizedLoginsOnProject}
-   *
-   * @return the list of Subscriber (maybe be empty - obviously)
-   */
-  public Set<Subscriber> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectKey) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return getMapper(session).findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey);
-    }
-  }
-
   public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
     @Nullable String projectKey) {
     return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey, null);
@@ -171,6 +157,7 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByKeyAndMatchingValue(key, value);
   }
 
+  //TODO
   public List<PropertyDto> selectByKeyAndUserUuidAndComponentQualifier(DbSession session, String key, String userUuid, String qualifier) {
     return getMapper(session).selectByKeyAndUserUuidAndComponentQualifier(key, userUuid, qualifier);
   }

@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -88,7 +89,6 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
-
     Optional<String> projectUuid1 = componentUuidToProjectUuid(component.uuid());
 
     return projectUuid1
@@ -99,6 +99,11 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public final boolean hasProjectPermission(String permission, ProjectDto project) {
     return hasProjectUuidPermission(permission, project.getUuid());
+  }
+
+  @Override
+  public final boolean hasEntityPermission(String permission, EntityDto entity) {
+    return hasProjectUuidPermission(permission, entity.getUuid());
   }
 
   @Override
@@ -148,6 +153,21 @@ public abstract class AbstractUserSession implements UserSession {
     return doKeepAuthorizedProjects(permission, projects);
   }
 
+  @Override
+  public  <T extends EntityDto>  List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
+    return doKeepAuthorizedEntities(permission, projects);
+  }
+
+  /**
+   * Naive implementation, to be overridden if needed
+   */
+  protected  <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
+    boolean allowPublicComponent = PUBLIC_PERMISSIONS.contains(permission);
+    return entities.stream()
+      .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasProjectPermission(permission, c.getUuid()))
+      .toList();
+  }
+
   /**
    * Naive implementation, to be overridden if needed
    */
@@ -195,6 +215,15 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
     if (hasProjectUuidPermission(projectPermission, project.getUuid())) {
+      return this;
+    }
+
+    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+  }
+
+  @Override
+  public UserSession checkEntityPermission(String projectPermission, EntityDto entity) {
+    if (hasEntityPermission(projectPermission, entity)) {
       return this;
     }
 

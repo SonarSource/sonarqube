@@ -40,11 +40,10 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -55,7 +54,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SettingValidations {
-  private static final Collection<String> SECURITY_JSON_PROPERTIES = asList(
+  private static final Collection<String> SECURITY_JSON_PROPERTIES = List.of(
     "sonar.security.config.javasecurity",
     "sonar.security.config.phpsecurity",
     "sonar.security.config.pythonsecurity",
@@ -76,32 +75,29 @@ public class SettingValidations {
   public Consumer<SettingData> scope() {
     return data -> {
       PropertyDefinition definition = definitions.get(data.key);
-      checkRequest(data.component != null || definition == null || definition.global() || isGlobal(definition),
+      checkRequest(data.entity != null || definition == null || definition.global() || isGlobal(definition),
         "Setting '%s' cannot be global", data.key);
     };
   }
 
   public Consumer<SettingData> qualifier() {
     return data -> {
-      String qualifier = data.component == null ? "" : data.component.qualifier();
+      String qualifier = data.entity == null ? "" : data.entity.getQualifier();
       PropertyDefinition definition = definitions.get(data.key);
-      checkRequest(checkComponentScopeAndQualifier(data, definition),
+      checkRequest(checkComponentQualifier(data, definition),
         "Setting '%s' cannot be set on a %s", data.key, i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
     };
   }
 
-  private static boolean checkComponentScopeAndQualifier(SettingData data, @Nullable PropertyDefinition definition) {
-    ComponentDto component = data.component;
+  private static boolean checkComponentQualifier(SettingData data, @Nullable PropertyDefinition definition) {
+    EntityDto component = data.entity;
     if (component == null) {
       return true;
     }
-    if (!Scopes.PROJECT.equals(component.scope())) {
-      return false;
-    }
     if (definition == null) {
-      return SUPPORTED_QUALIFIERS.contains(component.qualifier());
+      return SUPPORTED_QUALIFIERS.contains(component.getQualifier());
     }
-    return definition.qualifiers().contains(component.qualifier());
+    return definition.qualifiers().contains(component.getQualifier());
   }
 
   public Consumer<SettingData> valueType() {
@@ -116,12 +112,12 @@ public class SettingValidations {
     private final String key;
     private final List<String> values;
     @CheckForNull
-    private final ComponentDto component;
+    private final EntityDto entity;
 
-    SettingData(String key, List<String> values, @Nullable ComponentDto component) {
+    SettingData(String key, List<String> values, @Nullable EntityDto entity) {
       this.key = requireNonNull(key);
       this.values = requireNonNull(values);
-      this.component = component;
+      this.entity = entity;
     }
   }
 
@@ -195,7 +191,6 @@ public class SettingValidations {
           SchemaLoader.load(jsonSchema).validate(jsonSubject);
         }
       }
-
     }
   }
 }

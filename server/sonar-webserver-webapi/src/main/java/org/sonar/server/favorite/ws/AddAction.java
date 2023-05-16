@@ -28,7 +28,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -92,14 +94,16 @@ public class AddAction implements FavoritesWsAction {
   private Consumer<Request> addFavorite() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        ComponentDto componentDto = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
-        checkArgument(SUPPORTED_QUALIFIERS.contains(componentDto.qualifier()), "Only components with qualifiers %s are supported", SUPPORTED_QUALIFIERS_AS_STRING);
+        EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT))
+          .orElseThrow(() -> new NotFoundException(format("Entity with key '%s' not found", request.mandatoryParam(PARAM_COMPONENT))));
+
+        checkArgument(SUPPORTED_QUALIFIERS.contains(entity.getQualifier()), "Only components with qualifiers %s are supported", SUPPORTED_QUALIFIERS_AS_STRING);
         userSession
           .checkLoggedIn()
-          .checkComponentPermission(USER, componentDto);
+          .checkEntityPermission(USER, entity);
         String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
         String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
-        favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, true);
+        favoriteUpdater.add(dbSession, entity, userUuid, userLogin, true);
         dbSession.commit();
       }
     };

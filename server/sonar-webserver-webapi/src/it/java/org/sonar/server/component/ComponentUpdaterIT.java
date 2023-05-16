@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
@@ -234,7 +235,7 @@ public class ComponentUpdaterIT {
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
       .thenReturn(true);
 
-    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin()).mainBranchComponent();
+    ProjectDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin()).projectDto();
 
     assertThat(db.favorites().hasFavorite(dto, userDto.getUuid())).isTrue();
   }
@@ -242,7 +243,7 @@ public class ComponentUpdaterIT {
   @Test
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getMainBranchComponent(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -250,34 +251,34 @@ public class ComponentUpdaterIT {
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ComponentDto.class)))
       .thenReturn(true);
 
-    ComponentDto dto = underTest.create(db.getSession(),
+    ProjectDto dto = underTest.create(db.getSession(),
       project,
       user.getUuid(),
-      user.getLogin()).mainBranchComponent();
+      user.getLogin()).projectDto();
 
     assertThat(db.favorites().hasFavorite(dto, user.getUuid())).isFalse();
   }
 
   @Test
   public void does_not_add_project_to_favorite_when_anonymously_created() {
-    ComponentDto project = underTest.create(db.getSession(),
+    ProjectDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null, null).mainBranchComponent();
+      null, null).projectDto();
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
 
   @Test
   public void does_not_add_project_to_favorite_when_project_has_no_permission_on_template() {
-    ComponentDto project = underTest.create(db.getSession(),
+    ProjectDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null, null).mainBranchComponent();
+      null, null).projectDto();
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }

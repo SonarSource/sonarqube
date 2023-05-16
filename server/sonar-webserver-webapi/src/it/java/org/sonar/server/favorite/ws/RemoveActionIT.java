@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
@@ -37,13 +37,10 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class RemoveActionIT {
@@ -67,25 +64,22 @@ public class RemoveActionIT {
 
   @Test
   public void remove_a_favorite_project() {
-    ComponentDto project = insertProjectAndPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectDto project = insertProjectAndPermissions();
     db.favorites().add(project, user.getUuid(), user.getLogin());
-    db.favorites().add(file, user.getUuid(), user.getLogin());
 
     TestResponse result = call(PROJECT_KEY);
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     assertThat(db.favorites().hasFavorite(project, user.getUuid())).isFalse();
-    assertThat(db.favorites().hasFavorite(file, user.getUuid())).isTrue();
   }
 
   @Test
   public void fail_if_not_already_a_favorite() {
-    ComponentDto componentDto = insertProjectAndPermissions();
+    ProjectDto componentDto = insertProjectAndPermissions();
 
     assertThatThrownBy(() -> call(PROJECT_KEY))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Component '" + PROJECT_KEY + "' (uuid: "+componentDto.uuid()+") is not a favorite");
+      .hasMessage("Component '" + PROJECT_KEY + "' (uuid: " + componentDto.getUuid() + ") is not a favorite");
   }
 
   @Test
@@ -115,11 +109,11 @@ public class RemoveActionIT {
     assertThat(param.isRequired()).isTrue();
   }
 
-  private ComponentDto insertProject() {
-    return db.components().insertPrivateProject(PROJECT_UUID, c -> c.setKey(PROJECT_KEY)).getMainBranchComponent();
+  private ProjectDto insertProject() {
+    return db.components().insertPrivateProject(PROJECT_UUID, c -> c.setKey(PROJECT_KEY)).getProjectDto();
   }
 
-  private ComponentDto insertProjectAndPermissions() {
+  private ProjectDto insertProjectAndPermissions() {
     userSession.logIn(user);
 
     return insertProject();

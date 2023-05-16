@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -219,7 +220,7 @@ public class AppActionIT {
 
   @Test
   public void component_is_favorite() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn("john").addProjectPermission(USER, project);
     db.favorites().add(project, userSession.getUuid(), userSession.getLogin());
 

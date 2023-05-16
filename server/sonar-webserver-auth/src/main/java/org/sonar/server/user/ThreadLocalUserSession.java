@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -129,6 +130,12 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkEntityPermission(String projectPermission, EntityDto entity) {
+    get().checkEntityPermission(projectPermission, entity);
+    return this;
+  }
+
+  @Override
   public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
     get().checkProjectPermission(projectPermission, project);
     return this;
@@ -174,6 +181,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean hasEntityPermission(String permission, EntityDto entity) {
+    return get().hasEntityPermission(permission, entity);
+  }
+
+  @Override
   public boolean hasProjectPermission(String permission, ProjectDto project) {
     return get().hasProjectPermission(permission, project);
   }
@@ -209,8 +221,12 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> entities) {
+    return get().keepAuthorizedEntities(permission, entities);
+  }
+
+  @Override
   public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
     return get().keepAuthorizedProjects(permission, projects);
   }
-
 }
