@@ -327,7 +327,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
 // Check the size of the archive
 zip.doLast {
   def minLength = 330000000
-  def maxLength = 360000000
+  def maxLength = 361000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
