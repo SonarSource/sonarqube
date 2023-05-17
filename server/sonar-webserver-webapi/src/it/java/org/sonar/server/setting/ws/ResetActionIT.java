@@ -21,7 +21,6 @@ package org.sonar.server.setting.ws;
 
 import java.util.Random;
 import javax.annotation.Nullable;
-import javax.sound.sampled.Port;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,8 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
@@ -57,7 +54,6 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -306,10 +302,11 @@ public class ResetActionIT {
 
   @Test
   public void fail_when_component_not_found() {
-    assertThatThrownBy(() -> ws.newRequest()
-        .setParam("keys", "foo")
-        .setParam("component", "unknown")
-        .execute())
+    TestRequest request = ws.newRequest()
+      .setParam("keys", "foo")
+      .setParam("component", "unknown");
+
+    assertThatThrownBy(() -> request.execute())
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component key 'unknown' not found");
   }
@@ -320,10 +317,10 @@ public class ResetActionIT {
     logInAsProjectAdmin(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
-    assertThatThrownBy(() -> ws.newRequest()
-        .setParam("keys", settingKey)
-        .setParam("component", project.getKey())
-        .execute())
+    TestRequest request = ws.newRequest()
+      .setParam("keys", settingKey)
+      .setParam("component", project.getKey());
+    assertThatThrownBy(() -> request.execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
@@ -398,9 +395,9 @@ public class ResetActionIT {
 
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey(key)
-      .setUserUuid(user.getUuid())
-      .build(),
+        .setKey(key)
+        .setUserUuid(user.getUuid())
+        .build(),
       dbSession)).isNotEmpty();
   }
 

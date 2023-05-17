@@ -20,6 +20,7 @@
 package org.sonar.db.portfolio;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,5 +52,17 @@ public class PortfolioDtoTest {
 
     dto.setKey("new_key");
     assertThat(dto.getKey()).isEqualTo("new_key");
+  }
+
+  @Test
+  public void getQualifier_whenRoot_shouldReturnVW() {
+    PortfolioDto dto = new PortfolioDto();
+    assertThat(dto.getQualifier()).isEqualTo(Qualifiers.VIEW);
+  }
+
+  @Test
+  public void getQualifier_whenNotRoot_shouldReturnSVW() {
+    PortfolioDto dto = new PortfolioDto().setParentUuid("parent");
+    assertThat(dto.getQualifier()).isEqualTo(Qualifiers.SUBVIEW);
   }
 }

@@ -26,15 +26,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -45,7 +42,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
@@ -57,7 +53,6 @@ import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components.SuggestionsWsResponse;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Category;
-import org.sonarqube.ws.Components.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Suggestion;
 
 import static java.util.Arrays.stream;
@@ -74,15 +69,12 @@ import static org.sonarqube.ws.Components.SuggestionsWsResponse.newBuilder;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
 public class SuggestionsAction implements ComponentsWsAction {
-
   static final String PARAM_QUERY = "s";
   static final String PARAM_MORE = "more";
   static final String PARAM_RECENTLY_BROWSED = "recentlyBrowsed";
   static final String SHORT_INPUT_WARNING = "short_input";
   private static final int MAXIMUM_RECENTLY_BROWSED = 50;
-
   private static final int EXTENDED_LIMIT = 20;
-  private static final Set<String> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT = Stream.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE).collect(Collectors.toSet());
 
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
@@ -271,8 +263,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
     List<EntityDto> entities, int coveredItems) {
 
-    Map<String, EntityDto> entitiesByUuids = entities.stream()
-      .collect(MoreCollectors.uniqueIndex(EntityDto::getUuid));
+    Map<String, EntityDto> entitiesByUuids = entities.stream().collect(MoreCollectors.uniqueIndex(EntityDto::getUuid));
     return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids, coveredItems);
   }
 

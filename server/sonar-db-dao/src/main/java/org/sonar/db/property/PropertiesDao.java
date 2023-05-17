@@ -27,12 +27,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -46,7 +44,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PropertiesDao implements Dao {
 
@@ -157,12 +154,8 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByKeyAndMatchingValue(key, value);
   }
 
-  public List<PropertyDto> selectPortfolioPropertyByKeyAndUserUuid(DbSession session, String key, String userUuid) {
-    return getMapper(session).selectPortfolioPropertyByKeyAndUserUuid(key, userUuid);
-  }
-
-  public List<PropertyDto> selectProjectPropertyByKeyAndUserUuid(DbSession session, String key, String userUuid) {
-    return getMapper(session).selectProjectPropertyByKeyAndUserUuid(key, userUuid);
+  public List<PropertyDto> selectEntityPropertyByKeyAndUserUuid(DbSession session, String key, String userUuid) {
+    return getMapper(session).selectEntityPropertyByKeyAndUserUuid(key, userUuid);
   }
 
   /**
@@ -245,19 +238,16 @@ public class PropertiesDao implements Dao {
     int deletedRows = getMapper(dbSession).delete(dto.getKey(), dto.getUserUuid(), dto.getComponentUuid());
 
     if (deletedRows > 0) {
-      auditPersister.deleteProperty(dbSession, new PropertyNewValue(dto, userLogin, projectKey, projectName, qualifier),
-        false);
+      auditPersister.deleteProperty(dbSession, new PropertyNewValue(dto, userLogin, projectKey, projectName, qualifier), false);
     }
     return deletedRows;
   }
 
-  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
-    String projectName, String qualifier) {
+  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey, String projectName, String qualifier) {
     int deletedRows = getMapper(session).deleteProjectProperty(key, projectUuid);
 
     if (deletedRows > 0) {
-      auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectKey, projectName, qualifier,
-        null), false);
+      auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectKey, projectName, qualifier, null), false);
     }
   }
 

@@ -21,7 +21,6 @@ package org.sonar.server.favorite;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -55,13 +54,7 @@ public class FavoriteUpdater {
       .build(), dbSession);
     checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", entity.getKey(), entity.getUuid());
 
-    List<PropertyDto> existingFavorites;
-    if (entity.getQualifier().equals(Qualifiers.PROJECT)) {
-      existingFavorites = dbClient.propertiesDao().selectProjectPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
-    } else {
-      existingFavorites = dbClient.propertiesDao().selectPortfolioPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
-    }
-
+    List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectEntityPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
     if (existingFavorites.size() >= 100) {
       checkArgument(!failIfTooManyFavorites, "You cannot have more than 100 favorites on components with qualifier '%s'", entity.getQualifier());
       return;
@@ -79,16 +72,16 @@ public class FavoriteUpdater {
    *
    * @throws IllegalArgumentException if the component is not a favorite
    */
-  public void remove(DbSession dbSession, ComponentDto component, @Nullable String userUuid, @Nullable String userLogin) {
+  public void remove(DbSession dbSession, EntityDto entity, @Nullable String userUuid, @Nullable String userLogin) {
     if (userUuid == null) {
       return;
     }
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
-        .setComponentUuid(component.uuid())
+        .setComponentUuid(entity.getUuid())
         .setUserUuid(userUuid),
-      userLogin, component.getKey(), component.name(), component.qualifier());
-    checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", component.getKey(), component.uuid());
+      userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
+    checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", entity.getKey(), entity.getUuid());
   }
 }

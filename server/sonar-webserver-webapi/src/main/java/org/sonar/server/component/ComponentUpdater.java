@@ -36,7 +36,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
@@ -48,7 +47,6 @@ import org.sonar.server.project.DefaultBranchNameResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -139,27 +137,27 @@ public class ComponentUpdater {
 
     BranchDto mainBranch = null;
     ProjectDto projectDto = null;
-    PortfolioDto portfolioDto = null;
+
     if (isRootProject(componentDto)) {
       projectDto = toProjectDto(componentDto, now);
       dbClient.projectDao().insert(dbSession, projectDto);
+      addToFavourites(dbSession, projectDto, userUuid, userLogin, componentDto);
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
     }
 
     if (isRootView(componentDto)) {
-      portfolioDto = toPortfolioDto(componentDto, now);
+      PortfolioDto portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
     }
 
+    // TODO permissions: probably we want to apply it to the projectDto or portfolioDto
     permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
-    addToFavourites(dbSession, projectDto, userUuid, userLogin, componentDto);
     return new ComponentCreationData(componentDto, mainBranch, projectDto);
   }
 
   // TODO, when working on permissions, maybe we could remove the last argument from this method
-  private void addToFavourites(DbSession dbSession, @Nullable ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin,
-    ComponentDto componentDto) {
-    if (projectDto != null && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
+  private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin, ComponentDto componentDto) {
+    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
       favoriteUpdater.add(dbSession, projectDto, userUuid, userLogin, false);
     }
   }
@@ -225,12 +223,12 @@ public class ComponentUpdater {
 
   private static boolean isRootProject(ComponentDto componentDto) {
     return Scopes.PROJECT.equals(componentDto.scope())
-           && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
+      && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
   }
 
   private static boolean isRootView(ComponentDto componentDto) {
     return Scopes.PROJECT.equals(componentDto.scope())
-           && Qualifiers.VIEW.contains(componentDto.qualifier());
+      && Qualifiers.VIEW.contains(componentDto.qualifier());
   }
 
   private BranchDto createMainBranch(DbSession session, String componentUuid, String projectUuid, @Nullable String mainBranch) {
@@ -244,16 +242,6 @@ public class ComponentUpdater {
       .setProjectUuid(projectUuid);
     dbClient.branchDao().upsert(session, branch);
     return branch;
-  }
-
-  private static ProjectDto toProject(ComponentDto componentDto) {
-    return new ProjectDto()
-      .setUuid(componentDto.uuid())
-      .setKey(componentDto.getKey())
-      .setQualifier(componentDto.qualifier())
-      .setPrivate(componentDto.isPrivate())
-      .setName(componentDto.name())
-      .setDescription(componentDto.description());
   }
 
   private String getQualifierToDisplay(String qualifier) {

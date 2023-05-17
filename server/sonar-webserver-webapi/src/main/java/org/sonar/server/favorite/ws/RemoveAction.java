@@ -26,12 +26,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
+import static java.lang.String.format;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class RemoveAction implements FavoritesWsAction {
@@ -54,8 +56,8 @@ public class RemoveAction implements FavoritesWsAction {
         "Requires authentication.")
       .setSince("6.3")
       .setChangelog(
-        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+        new Change("10.1", format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setPost(true)
       .setHandler(this);
 
@@ -74,9 +76,11 @@ public class RemoveAction implements FavoritesWsAction {
   private Consumer<Request> removeFavorite() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        ComponentDto component = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
+        String key = request.mandatoryParam(PARAM_COMPONENT);
+        EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, key)
+          .orElseThrow(() -> new NotFoundException(format("Component with key '%s' not found", key)));
         userSession.checkLoggedIn();
-        favoriteUpdater.remove(dbSession, component,
+        favoriteUpdater.remove(dbSession, entity,
           userSession.isLoggedIn() ? userSession.getUuid() : null,
           userSession.isLoggedIn() ? userSession.getLogin() : null);
         dbSession.commit();

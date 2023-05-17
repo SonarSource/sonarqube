@@ -19,7 +19,6 @@
  */
 package org.sonar.db.property;
 
-import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,19 +37,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -65,7 +63,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
-import static org.sonar.db.property.PropertyTesting.newPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 @RunWith(DataProviderRunner.class)
@@ -239,6 +236,34 @@ public class PropertiesDaoIT {
       .isEmpty();
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), channelKey, dispatcherKey, null, allLogins))
       .isEmpty();
+  }
+
+  @Test
+  public void selectEntityPropertyByKeyAndUserUuid_shouldFindPortfolioProperties() {
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
+    String uuid1 = insertProperty("key", "value1", portfolio.getUuid(), "user1", null, null, null);
+    String uuid2 = insertProperty("key", "value2", portfolio.getUuid(), "user2", null, null, null);
+    String uuid3 = insertProperty("key2", "value3", portfolio.getUuid(), "user1", null, null, null);
+
+    List<PropertyDto> property = underTest.selectEntityPropertyByKeyAndUserUuid(db.getSession(), "key", "user1");
+
+    assertThat(property)
+      .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid, PropertyDto::getKey)
+      .containsOnly(tuple("value1", portfolio.getUuid(), "key"));
+  }
+
+  @Test
+  public void selectEntityPropertyByKeyAndUserUuid_shouldFindProjectAndAppProperties() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    String uuid1 = insertProperty("key", "value1", project.getUuid(), "user1", null, null, null);
+    String uuid2 = insertProperty("key", "value2", project.getUuid(), "user2", null, null, null);
+    String uuid3 = insertProperty("key2", "value3", project.getUuid(), "user1", null, null, null);
+
+    List<PropertyDto> property = underTest.selectEntityPropertyByKeyAndUserUuid(db.getSession(), "key", "user1");
+
+    assertThat(property)
+      .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid, PropertyDto::getKey)
+      .containsOnly(tuple("value1", project.getUuid(), "key"));
   }
 
   @Test
@@ -971,6 +996,7 @@ public class PropertiesDaoIT {
       .isInstanceOf(IllegalArgumentException.class);
   }
 
+  @CheckForNull
   private PropertyDto findByKey(List<PropertyDto> properties, String key) {
     for (PropertyDto property : properties) {
       if (key.equals(property.getKey())) {

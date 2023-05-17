@@ -533,7 +533,7 @@ public class SuggestionsActionIT {
 
     ComponentDto app = db.components().insertPublicApplication(v -> v.setName(query)).getMainBranchComponent();
     ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
-    ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view).setName(query));
+    ComponentDto subView = db.components().insertSubView(view, v -> v.setName(query));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query)).getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
@@ -553,6 +553,7 @@ public class SuggestionsActionIT {
       .containsExactlyInAnyOrder(
         tuple(SuggestionCategory.APP.getName(), false),
         tuple(SuggestionCategory.VIEW.getName(), false),
+        tuple(SuggestionCategory.SUBVIEW.getName(), false),
         tuple(SuggestionCategory.PROJECT.getName(), false));
   }
 

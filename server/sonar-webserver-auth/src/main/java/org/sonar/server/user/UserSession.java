@@ -27,7 +27,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
@@ -141,7 +140,6 @@ public interface UserSession {
   /**
    * Returns {@code true} if the permission is granted to user on the component,
    * otherwise {@code false}.
-   *
    * If the component does not exist, then returns {@code false}.
    *
    * @param component  non-null component.
@@ -180,7 +178,7 @@ public interface UserSession {
    */
   List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components);
 
-  <T extends EntityDto>  List<T> keepAuthorizedEntities(String permission, Collection<T> components);
+  <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> components);
 
   List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects);
 
@@ -222,7 +220,6 @@ public interface UserSession {
   /**
    * Whether user can administrate system, for example for using cross-organizations services
    * like update center, system info or management of users.
-   *
    * Returns {@code true} if:
    * <ul>
    *   <li>user is administrator</li>

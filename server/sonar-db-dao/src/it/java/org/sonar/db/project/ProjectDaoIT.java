@@ -50,6 +50,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -86,7 +88,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_project_by_key() {
+  public void selectProjectByKey_shouldReturnProject() {
     ProjectDto dto = createProject("o1", "p1");
 
     projectDao.insert(db.getSession(), dto);
@@ -94,6 +96,11 @@ public class ProjectDaoIT {
     Optional<ProjectDto> projectByKee = projectDao.selectProjectByKey(db.getSession(), "projectKee_o1_p1");
     assertThat(projectByKee).isPresent();
     assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+  }
+
+  @Test
+  public void selectProjectsByKeys_whenEmptyInput_returnEmptyList() {
+    assertThat(projectDao.selectProjectsByKeys(db.getSession(), emptySet())).isEmpty();
   }
 
   @Test
@@ -137,7 +144,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_applications_by_keys() {
+  public void selectApplicationsByKeys_shouldReturnAllApplications() {
     var applications = new ArrayList<ProjectDto>();
 
     for (int i = 0; i < 1500; i++) {
@@ -162,6 +169,11 @@ public class ProjectDaoIT {
     assertThat(selectedApplications)
       .extracting(ProjectDto::getKey, ProjectDto::getName, ProjectDto::getUuid, ProjectDto::getDescription, ProjectDto::isPrivate)
       .containsExactlyInAnyOrderElementsOf(applicationsData);
+  }
+
+  @Test
+  public void selectApplicationsByKeys_whenEmptyInput_shouldReturnEmptyList() {
+    assertThat(projectDao.selectApplicationsByKeys(db.getSession(), emptySet())).isEmpty();
   }
 
   @Test
@@ -317,6 +329,7 @@ public class ProjectDaoIT {
     projectDao.updateNcloc(db.getSession(), project3.uuid(), 100L);
     Assertions.assertThat(projectDao.getNclocSum(db.getSession(), project3.uuid())).isEqualTo(21L);
   }
+
   @Test
   public void selectAllProjectUuids_shouldOnlyReturnProjectWithTRKQualifier() {
     ProjectData application = db.components().insertPrivateApplication();
@@ -341,6 +354,11 @@ public class ProjectDaoIT {
   }
 
   @Test
+  public void selectEntitiesByKeys_whenEmptyInput_shouldReturnEmptyList() {
+    assertThat(projectDao.selectEntitiesByKeys(db.getSession(), emptyList())).isEmpty();
+  }
+
+  @Test
   public void selectEntitiesByUuids_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
@@ -349,6 +367,11 @@ public class ProjectDaoIT {
     assertThat(projectDao.selectEntitiesByUuids(db.getSession(), List.of(application.projectUuid(), project.projectUuid(), portfolio.getUuid(), "unknown")))
       .extracting(EntityDto::getKey)
       .containsOnly(application.projectKey(), project.projectKey(), portfolio.getKey());
+  }
+
+  @Test
+  public void selectEntitiesByUuids_whenEmptyInput_shouldReturnEmptyList() {
+    assertThat(projectDao.selectEntitiesByUuids(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test
