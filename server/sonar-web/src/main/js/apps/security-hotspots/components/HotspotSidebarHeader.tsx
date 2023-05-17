@@ -73,7 +73,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
           <CoverageIndicator value={hotspotsReviewedMeasure} />
         )}
         <Measure
-          className="sw-ml-2 sw-body-sm-highlight"
+          className="sw-ml-2 sw-body-sm-highlight it__hs-review-percentage"
           metricKey={
             isBranch(branchLike) && !filters.inNewCodePeriod
               ? MetricKey.security_hotspots_reviewed
