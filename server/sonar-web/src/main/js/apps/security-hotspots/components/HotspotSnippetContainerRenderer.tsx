@@ -41,7 +41,6 @@ export interface HotspotSnippetContainerRendererProps {
   loading: boolean;
   locations: { [line: number]: LinearIssueLocation[] };
   selectedHotspotLocation?: number;
-  onCommentButtonClick: () => void;
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
   onSymbolClick: (symbols: string[]) => void;
   onLocationSelect: (index: number) => void;
@@ -130,11 +129,10 @@ export default function HotspotSnippetContainerRenderer(
     () => (
       <HotspotPrimaryLocationBox
         hotspot={hotspot}
-        onCommentClick={props.onCommentButtonClick}
         secondaryLocationSelected={secondaryLocationSelected}
       />
     ),
-    [hotspot, secondaryLocationSelected, props.onCommentButtonClick]
+    [hotspot, secondaryLocationSelected]
   );
 
   const renderHotspotBoxInLine = (line: SourceLine) =>

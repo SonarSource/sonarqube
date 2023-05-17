@@ -22,7 +22,6 @@ import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers';
 
 export const HtmlFormatter = styled.div`
-  ${tw`sw-my-6`}
   ${tw`sw-body-sm`}
 
   a {

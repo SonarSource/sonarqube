@@ -181,6 +181,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
 }
 
 const StyledHtmlFormatter = styled(HtmlFormatter)`
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+
   .code-difference-container {
     display: flex;
     flex-direction: column;

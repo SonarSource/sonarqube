@@ -66,6 +66,7 @@ export { StatusConfirmedIcon } from './StatusConfirmedIcon';
 export { StatusOpenIcon } from './StatusOpenIcon';
 export { StatusReopenedIcon } from './StatusReopenedIcon';
 export { StatusResolvedIcon } from './StatusResolvedIcon';
+export { TrashIcon } from './TrashIcon';
 export { TriangleDownIcon } from './TriangleDownIcon';
 export { TriangleLeftIcon } from './TriangleLeftIcon';
 export { TriangleRightIcon } from './TriangleRightIcon';

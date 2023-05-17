@@ -79,6 +79,8 @@ const ui = {
   fixTab: byRole('tab', { name: 'hotspots.tabs.fix_recommendations' }),
   fixContent: byText('This is how to fix'),
   showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
+  activityTab: byRole('tab', { name: 'hotspots.tabs.activity' }),
+  addCommentButton: byRole('button', { name: 'hotspots.status.add_comment' }),
 };
 
 const hotspotsHandler = new SecurityHotspotServiceMock();
@@ -153,7 +155,9 @@ describe('CRUD', () => {
     await user.click(await ui.activeAssignee.find());
     await user.click(ui.inputAssignee.get());
 
-    await user.keyboard('User');
+    await act(async () => {
+      await user.keyboard('User');
+    });
 
     expect(searchUsers).toHaveBeenLastCalledWith({ q: 'User' });
     await user.keyboard('{Enter}');
@@ -171,13 +175,14 @@ describe('CRUD', () => {
     await user.click(ui.reviewButton.get());
     await user.click(ui.toReviewStatus.get());
 
-    await user.click(screen.getByRole('textbox', { name: 'hotspots.status.add_comment' }));
+    await user.click(screen.getByRole('textbox', { name: 'hotspots.status.add_comment_optional' }));
     await user.keyboard(comment);
 
     await act(async () => {
       await user.click(ui.changeStatus.get());
     });
 
+    await user.click(ui.activityTab.get());
     expect(setSecurityHotspotStatus).toHaveBeenLastCalledWith('test-1', {
       comment: 'COMMENT-TEXT',
       resolution: undefined,
@@ -195,14 +200,17 @@ describe('CRUD', () => {
 
   it('should be able to add, edit and remove own comments', async () => {
     const uiComment = {
-      saveButton: byRole('button', { name: 'save' }),
+      saveButton: byRole('button', { name: 'hotspots.comment.submit' }),
       deleteButton: byRole('button', { name: 'delete' }),
     };
     const user = userEvent.setup();
     const comment = 'This is a comment from john doe';
     renderSecurityHotspotsApp();
 
-    const commentSection = await ui.hotspotCommentBox.find();
+    await user.click(await ui.activityTab.find());
+    await user.click(ui.addCommentButton.get());
+
+    const commentSection = ui.hotspotCommentBox.get();
     const submitButton = ui.commentSubmitButton.get();
 
     // Add a new comment

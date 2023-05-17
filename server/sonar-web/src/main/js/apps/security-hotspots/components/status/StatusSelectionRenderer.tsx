@@ -78,7 +78,10 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         {renderOption(HotspotStatusOption.ACKNOWLEDGED)}
         {renderOption(HotspotStatusOption.FIXED)}
         {renderOption(HotspotStatusOption.SAFE)}
-        <FormField htmlFor="comment-textarea" label={translate('hotspots.status.add_comment')}>
+        <FormField
+          htmlFor="comment-textarea"
+          label={translate('hotspots.status.add_comment_optional')}
+        >
           <InputTextArea
             className="sw-mb-2 sw-resize-y"
             id="comment-textarea"

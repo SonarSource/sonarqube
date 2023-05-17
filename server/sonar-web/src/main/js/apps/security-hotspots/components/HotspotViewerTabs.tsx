@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
-import { groupBy } from 'lodash';
+import { groupBy, omit } from 'lodash';
 import * as React from 'react';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -28,6 +28,7 @@ import { Hotspot } from '../../../types/security-hotspots';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 
 interface Props {
+  activityTabContent: React.ReactNode;
   codeTabContent: React.ReactNode;
   hotspot: Hotspot;
   ruleDescriptionSections?: RuleDescriptionSection[];
@@ -42,7 +43,6 @@ interface State {
 interface Tab {
   value: TabKeys;
   label: string;
-  content: React.ReactNode;
 }
 
 export enum TabKeys {
@@ -68,10 +68,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.hotspot.key !== prevProps.hotspot.key ||
-      prevProps.codeTabContent !== this.props.codeTabContent
-    ) {
+    if (this.props.hotspot.key !== prevProps.hotspot.key) {
       const tabs = this.computeTabs();
       this.setState({
         currentTab: tabs[0],
@@ -122,44 +119,40 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   };
 
   computeTabs() {
-    const { ruleDescriptionSections, codeTabContent } = this.props;
+    const { ruleDescriptionSections } = this.props;
     const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
-    const rootCauseDescriptionSections =
-      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
-      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
 
     return [
       {
         value: TabKeys.Code,
         label: translate('hotspots.tabs.code'),
-        content: codeTabContent,
+        show: true,
       },
       {
         value: TabKeys.RiskDescription,
         label: translate('hotspots.tabs.risk_description'),
-        content: rootCauseDescriptionSections && (
-          <RuleDescription sections={rootCauseDescriptionSections} />
-        ),
+        show:
+          descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+          descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE],
       },
       {
         value: TabKeys.VulnerabilityDescription,
         label: translate('hotspots.tabs.vulnerability_description'),
-        content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
-          <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
-          />
-        ),
+        show: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] !== undefined,
       },
       {
         value: TabKeys.FixRecommendation,
         label: translate('hotspots.tabs.fix_recommendations'),
-        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
-          <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-          />
-        ),
+        show: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] !== undefined,
       },
-    ].filter((tab) => tab.content);
+      {
+        value: TabKeys.Activity,
+        label: translate('hotspots.tabs.activity'),
+        show: true,
+      },
+    ]
+      .filter((tab) => tab.show)
+      .map((tab) => omit(tab, 'show'));
   }
 
   selectNeighboringTab(shift: number) {
@@ -178,7 +171,14 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   }
 
   render() {
+    const { ruleDescriptionSections, codeTabContent, activityTabContent } = this.props;
     const { tabs, currentTab } = this.state;
+
+    const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
+    const rootCauseDescriptionSections =
+      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
+
     return (
       <>
         <ToggleButton
@@ -193,7 +193,27 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
           id={getTabPanelId(currentTab.value)}
           role="tabpanel"
         >
-          {currentTab.content}
+          {currentTab.value === TabKeys.Code && codeTabContent}
+
+          {currentTab.value === TabKeys.RiskDescription && rootCauseDescriptionSections && (
+            <RuleDescription sections={rootCauseDescriptionSections} />
+          )}
+
+          {currentTab.value === TabKeys.VulnerabilityDescription &&
+            descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+              <RuleDescription
+                sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+              />
+            )}
+
+          {currentTab.value === TabKeys.FixRecommendation &&
+            descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
+              <RuleDescription
+                sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
+              />
+            )}
+
+          {currentTab.value === TabKeys.Activity && activityTabContent}
         </div>
       </>
     );

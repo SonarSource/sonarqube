@@ -55,11 +55,6 @@
   margin: 0 1px 0 0;
 }
 
-.markdown-tips {
-  font-size: var(--smallFontSize);
-  color: var(--secondFontColor);
-}
-
 .rule-desc,
 .markdown {
   line-height: 1.5;

@@ -19,12 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { ButtonLink } from '../../../components/controls/buttons';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
-import { translate } from '../../../helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
 import './HotspotPrimaryLocationBox.css';
 
 const SCROLL_DELAY = 100;
@@ -33,13 +29,11 @@ const SCROLL_BOTTOM_OFFSET = 28; // 1 line below + margin
 
 export interface HotspotPrimaryLocationBoxProps {
   hotspot: Hotspot;
-  onCommentClick: () => void;
-  currentUser: CurrentUser;
   secondaryLocationSelected: boolean;
 }
 
-export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
-  const { hotspot, currentUser, secondaryLocationSelected } = props;
+export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
+  const { hotspot, secondaryLocationSelected } = props;
 
   const locationRef = React.useRef<HTMLDivElement>(null);
 
@@ -74,16 +68,6 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
           messageFormattings={hotspot.messageFormattings}
         />
       </div>
-      {isLoggedIn(currentUser) && (
-        <ButtonLink
-          className="nowrap big-spacer-left it__hs-add-comment"
-          onClick={props.onCommentClick}
-        >
-          {translate('hotspots.comment.open')}
-        </ButtonLink>
-      )}
     </div>
   );
 }
-
-export default withCurrentUserContext(HotspotPrimaryLocationBox);

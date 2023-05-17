@@ -22,11 +22,11 @@ import React from 'react';
 import { translate } from '../../helpers/l10n';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 
-interface Props {
+export interface FormattingTipsProps {
   className?: string;
 }
 
-export default function FormattingTips({ className }: Props) {
+export default function FormattingTips({ className }: FormattingTipsProps) {
   const handleClick = React.useCallback((evt: React.MouseEvent<HTMLAnchorElement>) => {
     evt.preventDefault();
     window.open(

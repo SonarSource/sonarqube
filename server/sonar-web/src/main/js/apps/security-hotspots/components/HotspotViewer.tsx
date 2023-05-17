@@ -51,11 +51,9 @@ interface State {
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
-  commentTextRef: React.RefObject<HTMLTextAreaElement>;
 
   constructor(props: Props) {
     super(props);
-    this.commentTextRef = React.createRef<HTMLTextAreaElement>();
     this.state = { loading: false };
   }
 
@@ -105,17 +103,6 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     }
   };
 
-  handleScrollToCommentForm = () => {
-    if (this.commentTextRef.current) {
-      this.commentTextRef.current.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-        inline: 'center',
-      });
-      this.commentTextRef.current.focus({ preventScroll: true });
-    }
-  };
-
   handleSwitchFilterToStatusOfUpdatedHotspot = () => {
     const { lastStatusChangedTo } = this.state;
     if (lastStatusChangedTo) {
@@ -131,11 +118,9 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       <HotspotViewerRenderer
         standards={standards}
         component={component}
-        commentTextRef={this.commentTextRef}
         hotspot={hotspot}
         ruleDescriptionSections={ruleDescriptionSections}
         loading={loading}
-        onShowCommentForm={this.handleScrollToCommentForm}
         onUpdateHotspot={this.handleHotspotUpdate}
         onLocationClick={this.props.onLocationClick}
         selectedHotspotLocation={selectedHotspotLocation}
