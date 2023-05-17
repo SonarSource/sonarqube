@@ -76,7 +76,7 @@ public class SetActionIT {
   private WsActionTester ws;
 
   @Before
-  public void setup(){
+  public void setup() {
     when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarqube.org/9.9/project-administration/defining-new-code/");
     ws = new WsActionTester(new SetAction(dbClient, userSession, componentFinder, editionProvider, dao, documentationLinkGenerator));
   }
@@ -175,6 +175,37 @@ public class SetActionIT {
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Failed to parse number of days: unknown");
+  }
+
+  @Test
+  public void throw_IAE_if_setting_is_not_cayc_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    logInAsProjectAdministrator(project);
+
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "number_of_days")
+      .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
+      .setParam("value", "92");
+    assertThatThrownBy(() -> request
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to set the New Code Definition. The given value is not compatible with the Clean as You Code methodology. "
+        + "Please refer to the documentation for compliant options.");
+  }
+
+  @Test
+  public void no_error_if_setting_is_cayc_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    logInAsProjectAdministrator(project);
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "number_of_days")
+      .setParam("value", "90")
+      .execute();
+
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "90");
   }
 
   @Test
@@ -317,7 +348,7 @@ public class SetActionIT {
 
   @DataProvider
   public static Object[][] provideNewCodePeriodTypeAndValue() {
-    return new Object[][]{
+    return new Object[][] {
       {NewCodePeriodType.NUMBER_OF_DAYS, "5"},
       {NewCodePeriodType.SPECIFIC_ANALYSIS, "analysis-uuid"},
       {NewCodePeriodType.PREVIOUS_VERSION, null},

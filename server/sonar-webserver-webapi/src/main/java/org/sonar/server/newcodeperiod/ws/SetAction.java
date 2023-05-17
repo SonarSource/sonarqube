@@ -42,6 +42,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -94,6 +95,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         "Existing projects or branches having a specific new code definition will not be impacted" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Project key must be provided to update the value for a project" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "Both project and branch keys must be provided to update the value for a branch" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "New setting must be compliant with the Clean as You Code methodology" + END_ITEM_LIST +
         END_LIST +
         "Requires one of the following permissions: " +
         BEGIN_LIST +
@@ -124,7 +126,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         BEGIN_LIST +
         BEGIN_ITEM_LIST + "the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "no value, when type is " + PREVIOUS_VERSION.name() + END_ITEM_LIST +
-        BEGIN_ITEM_LIST + "a number, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "a number between 1 and 90, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "a string, when type is " + REFERENCE_BRANCH.name() + END_ITEM_LIST +
         END_LIST
       );
@@ -171,6 +173,11 @@ public class SetAction implements NewCodePeriodsWsAction {
       }
 
       setValue(dbSession, dto, type, project, branch, valueStr);
+
+      if (!CaycUtils.isNewCodePeriodCompliant(dto.getType(), dto.getValue())) {
+        throw new IllegalArgumentException("Failed to set the New Code Definition. The given value is not compatible with the Clean as You Code methodology. "
+          + "Please refer to the documentation for compliant options.");
+      }
 
       newCodePeriodDao.upsert(dbSession, dto);
       dbSession.commit();
