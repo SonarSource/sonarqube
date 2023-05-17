@@ -19,6 +19,7 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,14 +34,18 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 
 public class UnsetAction implements NewCodePeriodsWsAction {
-  private static final String PARAM_BRANCH = "branch";
-  private static final String PARAM_PROJECT = "project";
+  private static final String BRANCH = "branch";
+  private static final String PROJECT = "project";
+  private static final String INSTANCE = "instance";
+  private static final String NON_COMPLIANT_CAYC_ERROR_MESSAGE = "Failed to unset the New Code Definition. Your %s " +
+    "New Code Definition is not compatible with the Clean as You Code methodology. Please update your %s New Code Definition";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -64,8 +69,8 @@ public class UnsetAction implements NewCodePeriodsWsAction {
     WebService.NewAction action = context.createAction("unset")
       .setPost(true)
       .setDescription("Unsets the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
-        " for a branch, project or global.<br>" +
-        "Requires one of the following permissions: " +
+        " for a branch, project or global. It requires the inherited New Code Definition to be compatible with the Clean as You Code methodology, " +
+        "and one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System' to change the global setting</li>" +
         "<li>'Administer' rights for a specified component</li>" +
@@ -73,16 +78,16 @@ public class UnsetAction implements NewCodePeriodsWsAction {
       .setSince("8.0")
       .setHandler(this);
 
-    action.createParam(PARAM_PROJECT)
+    action.createParam(PROJECT)
       .setDescription("Project key");
-    action.createParam(PARAM_BRANCH)
+    action.createParam(BRANCH)
       .setDescription("Branch key");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectKey = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
-    String branchKey = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
+    String projectKey = request.getParam(PROJECT).emptyAsNull().or(() -> null);
+    String branchKey = request.getParam(BRANCH).emptyAsNull().or(() -> null);
 
     if (projectKey == null && branchKey != null) {
       throw new IllegalArgumentException("If branch key is specified, project key needs to be specified too");
@@ -105,6 +110,9 @@ public class UnsetAction implements NewCodePeriodsWsAction {
         } else if (isCommunityEdition) {
           branchUuid = getMainBranch(dbSession, project).getUuid();
         }
+
+        checkInheritedNcdCompliant(dbSession, projectUuid, branchUuid);
+
       } else {
         userSession.checkIsSystemAdministrator();
       }
@@ -114,8 +122,17 @@ public class UnsetAction implements NewCodePeriodsWsAction {
         // also delete project default in case it was somehow set (downgrade from another edition, for example)
         newCodePeriodDao.delete(dbSession, projectUuid, null);
       }
-
       dbSession.commit();
+    }
+  }
+
+  private void checkInheritedNcdCompliant(DbSession dbSession, String projectUuid, @Nullable String branchUuid) {
+    if (branchUuid != null) {
+      if (dbClient.newCodePeriodDao().selectByBranch(dbSession, projectUuid, branchUuid).isPresent()) {
+        checkBranchInheritedNcdCompliant(dbSession, projectUuid);
+      }
+    } else if (dbClient.newCodePeriodDao().selectByProject(dbSession, projectUuid).isPresent()) {
+      checkInstanceNcdCompliant(dbSession);
     }
   }
 
@@ -134,4 +151,27 @@ public class UnsetAction implements NewCodePeriodsWsAction {
   private ProjectDto getProject(DbSession dbSession, String projectKey) {
     return componentFinder.getProjectByKey(dbSession, projectKey);
   }
+
+  private void checkInstanceNcdCompliant(DbSession dbSession) {
+    var instanceNcd = newCodePeriodDao.selectGlobal(dbSession);
+    if (instanceNcd.isPresent()) {
+      var ncd = instanceNcd.get();
+      if (!CaycUtils.isNewCodePeriodCompliant(ncd.getType(), ncd.getValue())) {
+        throw new IllegalArgumentException(format(NON_COMPLIANT_CAYC_ERROR_MESSAGE, INSTANCE, INSTANCE));
+      }
+    }
+  }
+
+  private void checkBranchInheritedNcdCompliant(DbSession dbSession, String projectUuid) {
+    var projectNcd = newCodePeriodDao.selectByProject(dbSession, projectUuid);
+    if (projectNcd.isPresent()) {
+      var ncd = projectNcd.get();
+      if (!CaycUtils.isNewCodePeriodCompliant(ncd.getType(), ncd.getValue())) {
+        throw new IllegalArgumentException(format(NON_COMPLIANT_CAYC_ERROR_MESSAGE, PROJECT, PROJECT));
+      }
+    } else {
+      checkInstanceNcdCompliant(dbSession);
+    }
+  }
+
 }

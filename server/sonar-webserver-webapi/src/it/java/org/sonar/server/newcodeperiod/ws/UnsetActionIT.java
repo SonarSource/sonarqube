@@ -43,6 +43,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,9 +93,10 @@ public class UnsetActionIT {
   // validation of project/branch
   @Test
   public void throw_IAE_if_branch_is_specified_without_project() {
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("branch", "branch")
-      .execute())
+
+    TestRequest request = ws.newRequest()
+      .setParam("branch", "branch");
+    assertThatThrownBy(() -> request.execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("If branch key is specified, project key needs to be specified too");
   }
@@ -191,7 +193,7 @@ public class UnsetActionIT {
     ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
     db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     logInAsProjectAdministrator(project);
@@ -201,7 +203,7 @@ public class UnsetActionIT {
       .setParam("branch", "branch")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
   }
 
   @Test
@@ -220,6 +222,163 @@ public class UnsetActionIT {
       .execute();
 
     assertTableEmpty();
+  }
+
+  @Test
+  public void throw_IAE_if_unset_branch_NCD_and_project_NCD_not_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
+    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch");
+
+    logInAsProjectAdministrator(project);
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to unset the New Code Definition. Your project " +
+        "New Code Definition is not compatible with the Clean as You Code methodology. Please update your project New Code Definition");
+
+  }
+
+  @Test
+  public void throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_instance_NCD_not_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
+    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch");
+
+    logInAsProjectAdministrator(project);
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to unset the New Code Definition. Your instance " +
+        "New Code Definition is not compatible with the Clean as You Code methodology. Please update your instance New Code Definition");
+  }
+
+  @Test
+  public void throw_IAE_if_unset_project_NCD_and_instance_NCD_not_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+
+    logInAsProjectAdministrator(project);
+
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey());
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to unset the New Code Definition. Your instance " +
+        "New Code Definition is not compatible with the Clean as You Code methodology. Please update your instance New Code Definition");
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_project_NCD_and_no_instance_NCD() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    assertTableEmpty();
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_branch_NCD_and_project_NCD_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch")
+      .execute();
+
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_branch_NCD_and_project_NCD_not_compliant_and_no_branch_NCD() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch")
+      .execute();
+
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_instance_NCD_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    db.newCodePeriods().insert(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch")
+      .execute();
+
+    assertTableContainsOnly(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_no_instance() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch")
+      .execute();
+
+    assertTableEmpty();
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_compliant() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    assertTableContainsOnly(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
+  }
+
+  @Test
+  public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_not_compliant_and_no_project_NCD() {
+    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
+
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    assertTableContainsOnly(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
   }
 
   private void assertTableEmpty() {
