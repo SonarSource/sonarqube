@@ -186,6 +186,7 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     ProjectDto createdProject = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).get();
+
     assertThat(db.favorites().hasFavorite(createdProject, user.getUuid())).isTrue();
   }
 

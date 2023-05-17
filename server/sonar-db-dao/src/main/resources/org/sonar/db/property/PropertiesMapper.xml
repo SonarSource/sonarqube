@@ -131,15 +131,28 @@
       and p.user_uuid is null
   </select>
 
-  <select id="selectByKeyAndUserUuidAndComponentQualifier" parameterType="map" resultType="ScrapProperty">
+  <select id="selectPortfolioPropertyByKeyAndUserUuid" parameterType="map" resultType="ScrapProperty">
     select
     <include refid="columnsToScrapPropertyDto"/>
     from
     properties p
-      inner join components prj on prj.uuid=p.component_uuid and prj.qualifier = #{qualifier, jdbcType=VARCHAR}
+      inner join portfolio por on por.uuid=p.component_uuid
     where
       p.prop_key = #{key, jdbcType=VARCHAR}
       and p.user_uuid = #{userUuid, jdbcType=VARCHAR}
+      and por.uuid is not null
+  </select>
+
+  <select id="selectProjectPropertyByKeyAndUserUuid" parameterType="map" resultType="ScrapProperty">
+    select
+    <include refid="columnsToScrapPropertyDto"/>
+    from
+    properties p
+      inner join projects prj on prj.uuid=p.component_uuid
+    where
+      p.prop_key = #{key, jdbcType=VARCHAR}
+      and p.user_uuid = #{userUuid, jdbcType=VARCHAR}
+      and prj.uuid is not null
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">

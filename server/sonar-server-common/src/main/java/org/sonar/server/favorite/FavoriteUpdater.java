@@ -21,6 +21,7 @@ package org.sonar.server.favorite;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -54,7 +55,13 @@ public class FavoriteUpdater {
       .build(), dbSession);
     checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", entity.getKey(), entity.getUuid());
 
-    List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectByKeyAndUserUuidAndComponentQualifier(dbSession, PROP_FAVORITE_KEY, userUuid, entity.getQualifier());
+    List<PropertyDto> existingFavorites;
+    if (entity.getQualifier().equals(Qualifiers.PROJECT)) {
+      existingFavorites = dbClient.propertiesDao().selectProjectPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
+    } else {
+      existingFavorites = dbClient.propertiesDao().selectPortfolioPropertyByKeyAndUserUuid(dbSession, PROP_FAVORITE_KEY, userUuid);
+    }
+
     if (existingFavorites.size() >= 100) {
       checkArgument(!failIfTooManyFavorites, "You cannot have more than 100 favorites on components with qualifier '%s'", entity.getQualifier());
       return;

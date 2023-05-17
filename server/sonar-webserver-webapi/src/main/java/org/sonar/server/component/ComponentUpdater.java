@@ -151,8 +151,17 @@ public class ComponentUpdater {
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
     }
 
-    handlePermissionTemplate(dbSession, componentDto, userUuid, userLogin);
+    permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
+    addToFavourites(dbSession, projectDto, userUuid, userLogin, componentDto);
     return new ComponentCreationData(componentDto, mainBranch, projectDto);
+  }
+
+  // TODO, when working on permissions, maybe we could remove the last argument from this method
+  private void addToFavourites(DbSession dbSession, @Nullable ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin,
+    ComponentDto componentDto) {
+    if (projectDto != null && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
+      favoriteUpdater.add(dbSession, projectDto, userUuid, userLogin, false);
+    }
   }
 
   private void checkKeyFormat(String qualifier, String key) {
@@ -235,15 +244,6 @@ public class ComponentUpdater {
       .setProjectUuid(projectUuid);
     dbClient.branchDao().upsert(session, branch);
     return branch;
-  }
-
-  // TODO this is wrong, should probably be done for the project and not for the component. Component has the uuid of the branch!
-  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin) {
-    permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
-    if (componentDto.qualifier().equals(PROJECT)
-        && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
-      favoriteUpdater.add(dbSession, toProject(componentDto), userUuid, userLogin, false);
-    }
   }
 
   private static ProjectDto toProject(ComponentDto componentDto) {

@@ -38,7 +38,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByKeysAndComponentUuids(@Param("keys") List<String> keys, @Param("componentUuids") List<String> componentUuids);
 
-  List<PropertyDto> selectByKeyAndUserUuidAndComponentQualifier(@Param("key") String key, @Param("userUuid") String userUuid, @Param("qualifier") String qualifier);
+  List<PropertyDto> selectPortfolioPropertyByKeyAndUserUuid(@Param("key") String key, @Param("userUuid") String userUuid);
+  List<PropertyDto> selectProjectPropertyByKeyAndUserUuid(@Param("key") String key, @Param("userUuid") String userUuid);
 
   List<PropertyDto> selectByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 

@@ -157,9 +157,12 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByKeyAndMatchingValue(key, value);
   }
 
-  //TODO
-  public List<PropertyDto> selectByKeyAndUserUuidAndComponentQualifier(DbSession session, String key, String userUuid, String qualifier) {
-    return getMapper(session).selectByKeyAndUserUuidAndComponentQualifier(key, userUuid, qualifier);
+  public List<PropertyDto> selectPortfolioPropertyByKeyAndUserUuid(DbSession session, String key, String userUuid) {
+    return getMapper(session).selectPortfolioPropertyByKeyAndUserUuid(key, userUuid);
+  }
+
+  public List<PropertyDto> selectProjectPropertyByKeyAndUserUuid(DbSession session, String key, String userUuid) {
+    return getMapper(session).selectProjectPropertyByKeyAndUserUuid(key, userUuid);
   }
 
   /**

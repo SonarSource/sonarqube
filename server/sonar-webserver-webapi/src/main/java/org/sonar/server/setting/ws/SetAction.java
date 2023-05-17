@@ -53,6 +53,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
@@ -323,7 +324,7 @@ public class SetAction implements SettingsWsAction {
       return Optional.empty();
     }
     return Optional.of(dbClient.projectDao().selectEntityByKey(dbSession, componentKey)
-      .orElseThrow(() -> new IllegalArgumentException(format("Component '%s' not found", componentKey))));
+      .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey))));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<EntityDto> entity) {

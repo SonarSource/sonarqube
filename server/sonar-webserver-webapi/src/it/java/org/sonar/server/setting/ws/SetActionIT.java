@@ -811,8 +811,7 @@ public class SetActionIT {
 
   @Test
   public void fail_when_property_with_definition_when_component_qualifier_does_not_match() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -823,11 +822,11 @@ public class SetActionIT {
       .defaultValue("default")
       .onQualifiers(Qualifiers.PROJECT)
       .build());
-    i18n.put("qualifier." + file.qualifier(), "CptLabel");
-    logInAsProjectAdministrator(project);
+    i18n.put("qualifier." + portfolio.qualifier(), "CptLabel");
+    logInAsProjectAdministrator(portfolio);
 
     assertThatThrownBy(() -> {
-      callForProjectSettingByKey("my.key", "My Value", file.getKey());
+      callForProjectSettingByKey("my.key", "My Value", portfolio.getKey());
     })
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Setting 'my.key' cannot be set on a CptLabel");
@@ -874,12 +873,12 @@ public class SetActionIT {
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
   }
 
-  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto project) {
-    logInAsProjectAdministrator(project);
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto entity) {
+    logInAsProjectAdministrator(entity);
 
-    callForProjectSettingByKey("my.key", "My Value", project.getKey());
+    callForProjectSettingByKey("my.key", "My Value", entity.getKey());
 
-    assertComponentSetting("my.key", "My Value", project.uuid());
+    assertComponentSetting("my.key", "My Value", entity.uuid());
   }
 
   private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {
@@ -889,8 +888,8 @@ public class SetActionIT {
     assertThatThrownBy(() -> {
       callForProjectSettingByKey("my.key", "My Value", component.getKey());
     })
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Setting 'my.key' cannot be set on a QualifierLabel");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component key '%s' not found", component.getKey()));
   }
 
   @Test

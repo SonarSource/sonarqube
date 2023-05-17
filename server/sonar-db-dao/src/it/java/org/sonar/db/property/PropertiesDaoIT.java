@@ -617,32 +617,6 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeyAndUserUuidAndComponentQualifier() {
-    UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.properties().insertProperties(user1.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
-      newPropertyDto("key", "1", project1, user1));
-    db.properties().insertProperties(user1.getLogin(), project1.getKey(), project2.name(), project2.qualifier(),
-      newPropertyDto("key", "2", project2, user1));
-    db.properties().insertProperties(user1.getLogin(), null, file1.name(), null,
-      newPropertyDto("key", "3", file1, user1));
-    db.properties().insertProperties(user1.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
-      newPropertyDto("another key", "4", project1, user1));
-    db.properties().insertProperties(user2.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
-      newPropertyDto("key", "5", project1, user2));
-    db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto("key", "global"));
-
-    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user1.getUuid(), "TRK"))
-      .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("1", "2");
-    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user1.getUuid(), "FIL"))
-      .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("3");
-    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user2.getUuid(), "FIL")).isEmpty();
-  }
-
-  @Test
   public void saveProperty_inserts_global_properties_when_they_do_not_exist_in_db() {
     underTest.saveProperty(new PropertyDto().setKey("global.null").setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("global.empty").setValue(""));
