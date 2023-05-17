@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button, ButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { Button, ButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { HotspotStatusOption } from '../../../types/security-hotspots';
