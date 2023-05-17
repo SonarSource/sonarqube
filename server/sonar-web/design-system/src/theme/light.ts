@@ -43,6 +43,17 @@ const danger = {
   darker: COLORS.red[800],
 };
 
+const codeSnippetLight = {
+  annotations: [34, 84, 192],
+  body: [51, 53, 60],
+  constants: [126, 83, 5],
+  comments: [109, 111, 119],
+  keyword: [152, 29, 150],
+  string: [32, 105, 31],
+  'keyword-light': [28, 28, 163], // Not used currently in code snippet
+  'preprocessing-directive': [47, 103, 48],
+};
+
 export const lightTheme = {
   id: 'light-theme',
   highlightTheme: 'atom-one-light.css',
@@ -170,6 +181,15 @@ export const lightTheme = {
     codeSnippetBackground: COLORS.blueGrey[25],
     codeSnippetBorder: COLORS.blueGrey[100],
     codeSnippetHighlight: secondary.default,
+    codeSnippetBody: codeSnippetLight.body,
+    codeSnippetAnnotations: codeSnippetLight.annotations,
+    codeSnippetComments: codeSnippetLight.comments,
+    codeSnippetConstants: codeSnippetLight.constants,
+    codeSnippetKeyword: codeSnippetLight.keyword,
+    codeSnippetString: codeSnippetLight.string,
+    codeSnippetKeywordLight: codeSnippetLight['keyword-light'],
+    codeSnippetPreprocessingDirective: codeSnippetLight['preprocessing-directive'],
+    codeSnippetInline: COLORS.blueGrey[500],
 
     // code viewer
     codeLineIssueIndicator: COLORS.blueGrey[400], // Should be blueGrey[300], to be changed once code viewer is reworked

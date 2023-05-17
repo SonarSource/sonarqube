@@ -49,6 +49,7 @@ export { OpenCloseIndicator } from './OpenCloseIndicator';
 export { OpenNewTabIcon } from './OpenNewTabIcon';
 export { OverviewQGNotComputedIcon } from './OverviewQGNotComputedIcon';
 export { OverviewQGPassedIcon } from './OverviewQGPassedIcon';
+export { PencilIcon } from './PencilIcon';
 export { ProjectIcon } from './ProjectIcon';
 export { PullRequestIcon } from './PullRequestIcon';
 export { RefreshIcon } from './RefreshIcon';

@@ -23,6 +23,7 @@ export * from './Avatar';
 export { Badge } from './Badge';
 export { BarChart } from './BarChart';
 export * from './Card';
+export * from './CodeSnippet';
 export * from './CoverageIndicator';
 export * from './DatePicker';
 export * from './DateRangePicker';
