@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.report.ReportScheduleMapper">
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into report_schedules (
+      uuid,
+      portfolio_uuid,
+      branch_uuid,
+      last_send_time_in_ms
+    )
+    values (
+      #{uuid,jdbcType=VARCHAR},
+      #{portfolioUuid,jdbcType=VARCHAR},
+      #{branchUuid,jdbcType=VARCHAR},
+      #{lastSendTimeInMs,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="map" useGeneratedKeys="false">
+    update report_schedules
+    set last_send_time_in_ms=#{lastSendTimeInMs,jdbcType=BIGINT}
+    where uuid=#{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectByPortfolio" parameterType="map" resultType="org.sonar.db.report.ReportScheduleDto">
+    select <include refid="scheduleColumns"/> from report_schedules
+    where portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectByBranch" parameterType="map" resultType="org.sonar.db.report.ReportScheduleDto">
+    select <include refid="scheduleColumns"/> from report_schedules
+    where branch_uuid=#{branchUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAll" parameterType="map" resultType="org.sonar.db.report.ReportScheduleDto">
+    select <include refid="scheduleColumns"/> from report_schedules
+  </select>
+
+  <sql id="filterConditions">
+   <choose>
+      <when test="portfolioUuid != null">portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}</when>
+      <otherwise>portfolio_uuid IS NULL</otherwise>
+    </choose>
+    and
+    <choose>
+      <when test="branchUuid != null">branch_uuid = #{branchUuid,jdbcType=VARCHAR}</when>
+      <otherwise>branch_uuid IS NULL</otherwise>
+    </choose>
+  </sql>
+
+  <sql id="scheduleColumns">
+    uuid as uuid,
+    portfolio_uuid as portfolioUuid,
+    branch_uuid as branchUuid,
+    last_send_time_in_ms as lastSendTimeInMs
+  </sql>
+
+</mapper>

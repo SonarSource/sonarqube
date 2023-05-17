@@ -178,4 +178,12 @@ public interface PurgeMapper {
   void deleteUserDismissedMessagesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteScannerAnalysisCacheByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteReportSchedulesByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteReportSubscriptionsByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteReportSchedulesByPortfolioUuids(@Param("portfolioUuids") List<String> portfolioUuids);
+
+  void deleteReportSubscriptionsByPortfolioUuids(@Param("portfolioUuids") List<String>  portfolioUuids);
 }

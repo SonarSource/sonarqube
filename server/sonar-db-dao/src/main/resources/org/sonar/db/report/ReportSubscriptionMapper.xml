@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.report.ReportSubscriptionMapper">
+
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into report_subscriptions (
+    uuid,
+    portfolio_uuid,
+    branch_uuid,
+    user_uuid
+    )
+    values (
+    #{uuid,jdbcType=VARCHAR},
+    #{portfolioUuid,jdbcType=VARCHAR},
+    #{branchUuid,jdbcType=VARCHAR},
+    #{userUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+   <select id="selectAll" resultType="org.sonar.db.report.ReportSubscriptionDto">
+     select <include refid="subscriptionColumns"/>
+       from report_subscriptions
+   </select>
+
+     <select id="selectByPortfolio" resultType="org.sonar.db.report.ReportSubscriptionDto">
+     select <include refid="subscriptionColumns"/>
+       from report_subscriptions
+       where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+       and branch_uuid is null
+   </select>
+
+   <select id="selectByBranch" resultType="org.sonar.db.report.ReportSubscriptionDto">
+     select <include refid="subscriptionColumns"/>
+       from report_subscriptions
+       where portfolio_uuid is null
+       and branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+   </select>
+
+     <select id="selectByUserAndPortfolio" resultType="org.sonar.db.report.ReportSubscriptionDto">
+     select <include refid="subscriptionColumns"/>
+       from report_subscriptions
+       where user_uuid=#{userUuid,jdbcType=VARCHAR}
+       and portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+       and branch_uuid is null
+   </select>
+
+     <select id="selectByUserAndBranch" resultType="org.sonar.db.report.ReportSubscriptionDto">
+     select <include refid="subscriptionColumns"/>
+       from report_subscriptions
+       where user_uuid=#{userUuid,jdbcType=VARCHAR}
+       and portfolio_uuid is null
+       and branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+   </select>
+
+    <delete id="delete" parameterType="map">
+    delete from report_subscriptions
+      where <include refid="filterConditions"/>
+    </delete>
+
+  <sql id="filterConditions">
+    user_uuid=#{userUuid,jdbcType=VARCHAR} and
+    <choose>
+      <when test="portfolioUuid != null">portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}</when>
+      <otherwise>portfolio_uuid IS NULL</otherwise>
+    </choose>
+    and
+    <choose>
+      <when test="branchUuid != null">branch_uuid = #{branchUuid,jdbcType=VARCHAR}</when>
+      <otherwise>branch_uuid IS NULL</otherwise>
+    </choose>
+  </sql>
+
+      <sql id="subscriptionColumns">
+        uuid as uuid,
+        user_uuid as userUuid,
+        portfolio_uuid as portfolioUuid,
+        branch_uuid as branchUuid
+      </sql>
+
+</mapper>

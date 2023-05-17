@@ -93,6 +93,8 @@ public final class SqTables {
     "qgate_group_permissions",
     "quality_gate_conditions",
     "saml_message_ids",
+    "report_schedules",
+    "report_subscriptions",
     "rules",
     "rule_desc_sections",
     "rules_parameters",

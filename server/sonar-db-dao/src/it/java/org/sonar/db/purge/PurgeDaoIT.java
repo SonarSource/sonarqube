@@ -79,6 +79,8 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.report.ReportScheduleDto;
+import org.sonar.db.report.ReportSubscriptionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDismissedMessageDto;
@@ -658,6 +660,8 @@ public class PurgeDaoIT {
     // properties exist or active and for inactive branch
     insertPropertyFor(appBranchComponent, otherAppBranchComponent);
 
+    insertReportScheduleAndSubscriptionForBranch(appBranch.getUuid(), dbSession);
+
     underTest.deleteBranch(dbSession, appBranch.getUuid());
     dbSession.commit();
 
@@ -669,6 +673,29 @@ public class PurgeDaoIT {
     assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(app.getProjectDto().getUuid(), otherApp.getProjectDto().getUuid());
     assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.getUuid());
     assertThat(componentUuidsIn("properties")).containsOnly(otherAppBranch.getUuid());
+    assertThat(uuidsIn("report_schedules", "branch_uuid")).isEmpty();
+    assertThat(uuidsIn("report_subscriptions", "branch_uuid")).isEmpty();
+
+  }
+
+  private void insertReportScheduleAndSubscriptionForBranch(String branchUuid, DbSession dbSession) {
+    db.getDbClient().reportSubscriptionDao().insert(dbSession, new ReportSubscriptionDto().setUuid("uuid")
+      .setUserUuid("userUuid")
+      .setBranchUuid(branchUuid));
+
+    db.getDbClient().reportScheduleDao().upsert(dbSession, new ReportScheduleDto().setUuid("uuid")
+      .setBranchUuid(branchUuid)
+      .setLastSendTimeInMs(2));
+  }
+
+  private void insertReportScheduleAndSubscriptionForPortfolio(String uuid, String portfolioUuid, DbSession dbSession) {
+    db.getDbClient().reportSubscriptionDao().insert(dbSession, new ReportSubscriptionDto().setUuid(uuid)
+      .setUserUuid("userUuid")
+      .setPortfolioUuid(portfolioUuid));
+
+    db.getDbClient().reportScheduleDao().upsert(dbSession, new ReportScheduleDto().setUuid(uuid)
+      .setPortfolioUuid(portfolioUuid)
+      .setLastSendTimeInMs(2));
   }
 
   @Test
@@ -1700,15 +1727,26 @@ public class PurgeDaoIT {
     ComponentDto subview3 = db.components().insertComponent(newSubPortfolio(view));
     ComponentDto pc = db.components().insertComponent(newProjectCopy("a", db.components().insertPrivateProject().getMainBranchComponent(), view));
     insertPropertyFor(view, subview1, subview2, subview3, pc);
+
+    insertReportScheduleAndSubscriptionForPortfolio("uuid", view.uuid(), dbSession);
+    insertReportScheduleAndSubscriptionForPortfolio("uuid2", subview1.uuid(), dbSession);
+    insertReportScheduleAndSubscriptionForPortfolio("uuid3", subview3.uuid(), dbSession);
+
     assertThat(getResourceIdOfProperties()).containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
 
     underTest.deleteNonRootComponentsInView(dbSession, singletonList(subview1));
     assertThat(getResourceIdOfProperties())
       .containsOnly(view.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
+    assertThat(uuidsIn("report_schedules", "portfolio_uuid")).containsOnly(view.uuid(), subview3.uuid());
+    assertThat(uuidsIn("report_subscriptions", "portfolio_uuid")).containsOnly(view.uuid(), subview3.uuid());
 
     underTest.deleteNonRootComponentsInView(dbSession, asList(subview2, subview3, pc));
     assertThat(getResourceIdOfProperties())
       .containsOnly(view.uuid(), pc.uuid());
+
+    assertThat(uuidsIn("report_schedules", "portfolio_uuid")).containsOnly(view.uuid());
+    assertThat(uuidsIn("report_subscriptions", "portfolio_uuid")).containsOnly(view.uuid());
+
   }
 
   @Test

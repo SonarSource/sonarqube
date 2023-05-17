@@ -605,5 +605,23 @@
   <delete id="deleteScannerAnalysisCacheByBranchUuid">
     delete from scanner_analysis_cache where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteReportSchedulesByBranchUuid">
+    delete from report_schedules where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteReportSubscriptionsByBranchUuid">
+    delete from report_subscriptions where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteReportSchedulesByPortfolioUuids">
+    delete from report_schedules where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids" open="("
+                                                               separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
+
+    <delete id="deleteReportSubscriptionsByPortfolioUuids">
+    delete from report_subscriptions where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids" open="("
+                                                               separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
 </mapper>
 

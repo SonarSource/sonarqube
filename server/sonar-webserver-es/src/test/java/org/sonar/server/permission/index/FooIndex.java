@@ -21,6 +21,7 @@ package org.sonar.server.permission.index;
 
 import java.util.Arrays;
 import java.util.List;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -41,9 +42,9 @@ public class FooIndex {
 
   public boolean hasAccessToProject(String projectUuid) {
     SearchHits hits = esClient.search(EsClient.prepareSearch(DESCRIPTOR.getName())
-      .source(new SearchSourceBuilder().query(QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery(FooIndexDefinition.FIELD_PROJECT_UUID, projectUuid))
-        .filter(authorizationTypeSupport.createQueryFilter()))))
+        .source(new SearchSourceBuilder().query(QueryBuilders.boolQuery()
+          .must(QueryBuilders.termQuery(FooIndexDefinition.FIELD_PROJECT_UUID, projectUuid))
+          .filter(authorizationTypeSupport.createQueryFilter()))))
       .getHits();
     List<String> names = Arrays.stream(hits.getHits())
       .map(h -> h.getSourceAsMap().get(FooIndexDefinition.FIELD_NAME).toString())

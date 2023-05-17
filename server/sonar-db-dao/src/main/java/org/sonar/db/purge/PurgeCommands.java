@@ -234,6 +234,16 @@ class PurgeCommands {
     uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
     session.commit();
     profiler.stop();
+
+    profiler.start("deleteByRootAndSubviews (report_schedules)");
+    uuidsPartitions.forEach(purgeMapper::deleteReportSchedulesByPortfolioUuids);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteByRootAndSubviews (report_subscriptions)");
+    uuidsPartitions.forEach(purgeMapper::deleteReportSubscriptionsByPortfolioUuids);
+    session.commit();
+    profiler.stop();
   }
 
   void deleteDisabledComponentsWithoutIssues(List<String> disabledComponentsWithoutIssue) {
@@ -491,5 +501,21 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteReportSchedules(String rootUuid) {
+    profiler.start("deleteReportSchedules (report_schedules)");
+    purgeMapper.deleteReportSchedulesByBranchUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+
+  public void deleteReportSubscriptions(String rootUuid){
+    profiler.start("deleteReportSubscriptions (report_subscriptions)");
+    purgeMapper.deleteReportSubscriptionsByBranchUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
 
 }
