@@ -660,6 +660,7 @@ export class App extends React.PureComponent<Props, State> {
                         onDeactivate={this.handleRuleDeactivate}
                         onFilterChange={this.handleFilterChange}
                         onOpen={this.handleRuleOpen}
+                        organization={this.props.organization.kee}
                         rule={rule}
                         selected={rule.key === selected}
                         selectedProfile={this.getSelectedProfile()}

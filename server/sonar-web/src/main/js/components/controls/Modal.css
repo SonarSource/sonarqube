@@ -40,6 +40,8 @@
 .ReactModal__Content--after-open {
   top: 15%;
   opacity: 1;
+  max-height: calc(100vh - 15%);
+  overflow-y: auto;
 }
 
 .modal-small {

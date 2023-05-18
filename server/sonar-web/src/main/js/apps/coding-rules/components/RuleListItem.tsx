@@ -45,6 +45,7 @@ interface Props {
   rule: Rule;
   selected: boolean;
   selectedProfile?: Profile;
+  organization: string;
 }
 
 export default class RuleListItem extends React.PureComponent<Props> {
@@ -52,6 +53,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (this.props.selectedProfile) {
       const data = {
         key: this.props.selectedProfile.key,
+        organization: this.props.organization,
         rule: this.props.rule.key,
       };
       deactivateRule(data).then(
@@ -191,6 +193,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
             modalHeader={translate('coding_rules.activate_in_quality_profile')}
             onDone={this.handleActivate}
             profiles={[selectedProfile]}
+            organization={this.props.organization}
             rule={rule}
           />
         )}
@@ -216,8 +219,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <Link
                     className="link-no-underline"
                     onClick={this.handleNameClick}
-                    to={getRuleUrl(rule.key)}
-                  >
+                    to={getRuleUrl(rule.key, this.props.organization)}>
                     {rule.name}
                   </Link>
                   {rule.isTemplate && (

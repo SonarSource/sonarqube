@@ -66,8 +66,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       language,
       login: user.login,
       organization,
-      qualityProfile: name,
-      organization
+      qualityProfile: name
     }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
   };
 
@@ -80,8 +79,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       group: group.name,
       language,
       organization,
-      qualityProfile: name,
-      organization
+      qualityProfile: name
     }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
   };
 
