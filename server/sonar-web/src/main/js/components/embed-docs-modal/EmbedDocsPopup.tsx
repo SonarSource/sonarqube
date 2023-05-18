@@ -75,7 +75,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
     const { currentUser } = this.props;
     const payLoad = {
       "operation": "signup",
-      "email": "arunsimha.kamalapuram@autorabit.com",
+      "email": currentUser.email,
       "loginName": "support.autorabit",
       "fullName": currentUser.name,
       "utype": "portal",
