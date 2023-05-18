@@ -25,6 +25,7 @@ export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
 export const LANGUAGES_CATEGORY = 'languages';
 export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
 export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration_binding';
+export const CUSTOMER_CATEGORY = 'customer';
 
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,

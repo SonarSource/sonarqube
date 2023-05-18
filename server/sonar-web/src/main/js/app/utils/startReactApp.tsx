@@ -98,7 +98,7 @@ function renderRedirect({ from, to }: { from: string; to: string }) {
   return <Route path={from} element={<Navigate to={{ pathname: to }} replace={true} />} />;
 }
 
-function renderRedirects() {
+function renderRedirects(canAdmin?: boolean, canCustomerAdmin?: boolean) {
   return (
     <>
       <Route
@@ -208,21 +208,31 @@ function renderComponentRoutes() {
   );
 }
 
-function renderAdminRoutes() {
+function renderAdminRoutes(canAdmin?: boolean, canCustomerAdmin?: boolean) {
   return (
     <Route path="admin" element={<AdminContainer />}>
       <Route path="extension/:pluginKey/:extensionKey" element={<GlobalAdminPageExtension />} />
-      {settingsRoutes()}
+      {!canAdmin && canCustomerAdmin && (
+        <>
+          {settingsRoutes()}
+        </>
+        )
+      }
       {auditLogsRoutes()}
       {backgroundTasksRoutes()}
-      {groupsRoutes()}
-      {permissionTemplatesRoutes()}
-      {globalPermissionsRoutes()}
-      {projectsManagementRoutes()}
-      {systemRoutes()}
-      {marketplaceRoutes()}
-      {usersRoutes()}
-      {webhooksRoutes()}
+      {canAdmin && (
+        <>
+          {groupsRoutes()}
+          {permissionTemplatesRoutes()}
+          {globalPermissionsRoutes()}
+          {projectsManagementRoutes()}
+          {systemRoutes()}
+          {marketplaceRoutes()}
+          {usersRoutes()}
+          {webhooksRoutes()}
+        </>
+        )
+      }
     </Route>
   );
 }
@@ -237,6 +247,8 @@ export default function startReactApp(
   exportModulesAsGlobals();
 
   const el = document.getElementById('content');
+  const canAdmin = store.getState().appState.canAdmin;
+  const canCustomerAdmin = store.getState().appState.canCustomerAdmin;
 
   render(
     <HelmetProvider>
@@ -247,7 +259,7 @@ export default function startReactApp(
               <GlobalMessagesContainer />
               <BrowserRouter basename={getBaseUrl()}>
                 <Routes>
-                  {renderRedirects()}
+                  {renderRedirects(canAdmin, canCustomerAdmin)}
                   <Route path="formatting/help" element={<FormattingHelp />} />
 
                   <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
@@ -280,7 +292,7 @@ export default function startReactApp(
 
                         {renderComponentRoutes()}
 
-                        {renderAdminRoutes()}
+                        {renderAdminRoutes(canAdmin, canCustomerAdmin)}
                       </Route>
                       <Route
                         // We don't want this route to have any menu.

@@ -53,9 +53,12 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
 
   componentDidMount() {
     this.mounted = true;
-    if (!this.props.appState.canAdmin) {
+    if (!this.props.appState.canAdmin && !this.props.appState.canCustomerAdmin) {
       handleRequiredAuthorization();
-    } else {
+    } else if (this.props.appState.canCustomerAdmin) {
+            this.fetchNavigationSettings();
+      }
+    else {
       this.fetchNavigationSettings();
       this.fetchPendingPlugins();
       this.fetchSystemStatus();
@@ -111,7 +114,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
   };
 
   render() {
-    const { adminPages } = this.state;
+    const { adminPages, canAdmin, canCustomerAdmin } = this.state;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -132,6 +135,8 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           fetchSystemStatus={this.fetchSystemStatus}
           pendingPlugins={pendingPlugins}
           systemStatus={systemStatus}
+          canAdmin={canAdmin}
+          canCustomerAdmin={canCustomerAdmin}
         />
         <AdminContext.Provider
           value={{

@@ -124,18 +124,19 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministrationLink() {
-    const isSonarAdminGroupAvailable:boolean = this.props.currentUser.groups.includes('sonar-administrators');
-    if (!this.props.appState.canAdmin || !isSonarAdminGroupAvailable) {
-      return null;
+   const isSonarAdminGroupAvailable: boolean = this.props.currentUser.groups.includes('sonar-administrators');
+    const isCustomerAdmin = this.props.currentUser.permissions?.global.includes('customerAdmin');
+    if ((this.props.appState.canAdmin && isSonarAdminGroupAvailable) || (!this.props.appState.canAdmin && isCustomerAdmin)) {
+      return (
+        <li>
+          <Link activeClassName="active" to="/admin">
+            {translate('layout.settings')}
+          </Link>
+        </li>
+      );
     }
 
-    return (
-      <li>
-        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/admin">
-          {translate('layout.settings')}
-        </NavLink>
-      </li>
-    );
+    return null;
   }
 
   renderGlobalPageLink = ({ key, name }: Extension) => {
