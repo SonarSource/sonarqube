@@ -19,11 +19,10 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { noop } from 'lodash';
 import tw from 'twin.macro';
 import { translate } from '../helpers/l10n';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
-import { RadioButton } from './RadioButton';
+import { RadioButtonStyled } from './RadioButton';
 import { LightLabel } from './Text';
 import { RecommendedIcon } from './icons/RecommendedIcon';
 
@@ -55,7 +54,9 @@ export function SelectionCard(props: SelectionCardProps) {
   } = props;
   const isActionable = Boolean(onClick);
   return (
-    <Wrapper
+    <StyledButton
+      aria-checked={selected}
+      aria-disabled={disabled}
       className={classNames(
         'js-radio-card',
         {
@@ -67,35 +68,39 @@ export function SelectionCard(props: SelectionCardProps) {
         className
       )}
       onClick={isActionable && !disabled ? onClick : undefined}
-      tabIndex={0}
+      role={isActionable ? 'radio' : 'presentation'}
+      tabIndex={disabled ? -1 : 0}
     >
-      <Content>
+      <StyledContent>
         {isActionable && (
           <div className="sw-items-start sw-mt-1/2 sw-mr-2">
-            <RadioButton checked={selected} disabled={disabled} onCheck={noop} value={title} />
+            <RadioButtonStyled
+              as="i"
+              className={classNames({ 'is-checked': selected, 'is-disabled': disabled })}
+            />
           </div>
         )}
         <div>
-          <Header>
+          <StyledLabel>
             {title}
             <LightLabel>{titleInfo}</LightLabel>
-          </Header>
-          <Body>{children}</Body>
+          </StyledLabel>
+          <StyledBody>{children}</StyledBody>
         </div>
-      </Content>
+      </StyledContent>
       {recommended && (
-        <Recommended>
+        <StyledRecommended>
           <StyledRecommendedIcon className="sw-mr-1" />
           <span className="sw-align-middle">
             <strong>{translate('recommended')}</strong> {recommendedReason}
           </span>
-        </Recommended>
+        </StyledRecommended>
       )}
-    </Wrapper>
+    </StyledButton>
   );
 }
 
-const Wrapper = styled.div`
+const StyledButton = styled.button`
   ${tw`sw-relative sw-flex sw-flex-col`}
   ${tw`sw-rounded-2`}
   ${tw`sw-box-border`}
@@ -105,6 +110,8 @@ const Wrapper = styled.div`
 
   &:focus {
     outline: none;
+    border: ${themeBorder('default', 'selectionCardBorderHover')};
+    box-shadow: ${themeShadow('sm')};
   }
 
   &.card-vertical {
@@ -133,12 +140,13 @@ const Wrapper = styled.div`
   }
 `;
 
-const Content = styled.div`
+const StyledContent = styled.div`
   ${tw`sw-my-4 sw-mx-3`}
   ${tw`sw-flex sw-grow`}
+  ${tw`sw-text-left`}
 `;
 
-const Recommended = styled.div`
+const StyledRecommended = styled.div`
   ${tw`sw-body-sm`}
   ${tw`sw-py-2 sw-px-4`}
   ${tw`sw-box-border`}
@@ -153,8 +161,8 @@ const StyledRecommendedIcon = styled(RecommendedIcon)`
   ${tw`sw-align-middle`}
 `;
 
-const Header = styled.h2`
-  ${tw`sw-flex sw-items-center`}
+const StyledLabel = styled.label`
+  ${tw`sw-flex`}
   ${tw`sw-mb-3 sw-gap-2`}
   ${tw`sw-body-sm-highlight`}
 
@@ -165,7 +173,7 @@ const Header = styled.h2`
   }
 `;
 
-const Body = styled.div`
+const StyledBody = styled.div`
   ${tw`sw-flex sw-grow`}
   ${tw`sw-flex-col sw-justify-between`}
 `;

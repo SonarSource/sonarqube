@@ -26,7 +26,7 @@ import { SelectionCard } from '../SelectionCard';
 it('should render option and be actionnable', async () => {
   const user = userEvent.setup();
   const onClick = jest.fn();
-  setupWithProps({
+  renderSelectionCard({
     onClick,
     children: <>The Option</>,
   });
@@ -43,7 +43,7 @@ it('should render option and be actionnable', async () => {
 it('should not be actionnable when disabled', async () => {
   const user = userEvent.setup();
   const onClick = jest.fn();
-  setupWithProps({
+  renderSelectionCard({
     onClick,
     disabled: true,
     children: <>The Option</>,
@@ -58,7 +58,7 @@ it('should not be actionnable when disabled', async () => {
 });
 
 it('should not be actionnable when no click handler', () => {
-  setupWithProps({
+  renderSelectionCard({
     children: <>The Option</>,
   });
 
@@ -66,7 +66,7 @@ it('should not be actionnable when no click handler', () => {
   expect(screen.queryByRole('radio')).not.toBeInTheDocument();
 });
 
-function setupWithProps(props: Partial<FCProps<typeof SelectionCard>> = {}) {
+function renderSelectionCard(props: Partial<FCProps<typeof SelectionCard>> = {}) {
   return render(
     <SelectionCard
       recommended={true}

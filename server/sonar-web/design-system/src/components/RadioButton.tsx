@@ -89,6 +89,7 @@ export const RadioButtonStyled = styled.input`
     outline: ${themeBorder('focus', 'radioFocusOutline')};
   }
 
+  &.is-checked,
   &:focus:checked,
   &:focus-visible:checked,
   &:hover:checked,
@@ -100,6 +101,7 @@ export const RadioButtonStyled = styled.input`
     border: ${themeBorder('default', 'radioBorder')};
   }
 
+  &.is-disabled,
   &:disabled {
     background: ${themeColor('radioDisabledBackground')};
     border: ${themeBorder('default', 'radioDisabledBorder')};
@@ -107,6 +109,7 @@ export const RadioButtonStyled = styled.input`
 
     ${tw`sw-cursor-not-allowed`}
 
+    &.is-checked,
     &:checked {
       background-image: linear-gradient(
           to right,
