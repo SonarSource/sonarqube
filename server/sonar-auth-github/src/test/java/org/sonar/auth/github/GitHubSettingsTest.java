@@ -20,6 +20,7 @@
 package org.sonar.auth.github;
 
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinition;
@@ -226,7 +227,7 @@ public class GitHubSettingsTest {
   public void return_organizations_single() {
     String setting = "example";
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] actual = underTest.organizations();
+    Set<String> actual = underTest.getOrganizations();
     assertThat(actual).containsOnly(setting);
   }
 
@@ -234,7 +235,7 @@ public class GitHubSettingsTest {
   public void return_organizations_multiple() {
     String setting = "example0,example1";
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] actual = underTest.organizations();
+    Set<String> actual = underTest.getOrganizations();
     assertThat(actual).containsOnly("example0", "example1");
   }
 
@@ -242,7 +243,7 @@ public class GitHubSettingsTest {
   public void return_organizations_empty_list() {
     String[] setting = null;
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] actual = underTest.organizations();
+    Set<String> actual = underTest.getOrganizations();
     assertThat(actual).isEmpty();
   }
 

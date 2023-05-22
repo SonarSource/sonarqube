@@ -22,11 +22,14 @@ package org.sonar.auth.github;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
@@ -39,6 +42,8 @@ import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;
 import static org.sonar.api.utils.Preconditions.checkState;
 
+@ServerSide
+@ComputeEngineSide
 public class GitHubSettings {
 
   public static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
@@ -108,8 +113,8 @@ public class GitHubSettings {
     return urlWithEndingSlash(configuration.get(API_URL).orElse(""));
   }
 
-  String[] organizations() {
-    return configuration.getStringArray(ORGANIZATIONS);
+  public Set<String> getOrganizations() {
+    return Set.of(configuration.getStringArray(ORGANIZATIONS));
   }
 
   @CheckForNull

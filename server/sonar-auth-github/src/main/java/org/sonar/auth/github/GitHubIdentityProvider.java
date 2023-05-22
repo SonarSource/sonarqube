@@ -129,12 +129,12 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   }
 
   boolean isOrganizationMembershipRequired() {
-    return settings.organizations().length > 0;
+    return !settings.getOrganizations().isEmpty();
   }
 
   private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) throws InterruptedException, ExecutionException, IOException {
     if (isUnauthorized(scribe, accessToken, user.getLogin())) {
-      throw new UnauthorizedException(format("'%s' must be a member of at least one organization: '%s'", user.getLogin(), String.join("', '", settings.organizations())));
+      throw new UnauthorizedException(format("'%s' must be a member of at least one organization: '%s'", user.getLogin(), String.join("', '", settings.getOrganizations())));
     }
   }
 
@@ -143,7 +143,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private boolean isOrganizationsMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
-    for (String organization : settings.organizations()) {
+    for (String organization : settings.getOrganizations()) {
       if (gitHubRestClient.isOrganizationMember(scribe, accessToken, organization, login)) {
         return true;
       }

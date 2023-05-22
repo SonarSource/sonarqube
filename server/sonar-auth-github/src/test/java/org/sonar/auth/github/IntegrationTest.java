@@ -41,9 +41,9 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.InternalPropertiesImpl;
-import org.sonar.server.http.JavaxHttpRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -320,7 +320,7 @@ public class IntegrationTest {
       underTest.callback(callbackContext);
       fail("exception expected");
     } catch (UnauthorizedException e) {
-      assertThat(e.getMessage()).isEqualTo("'octocat' must be a member of at least one organization: 'first_org', 'second_org'");
+      assertThat(e.getMessage()).contains("'octocat' must be a member of at least one organization:", "'first_org'", "'second_org'");
     }
   }
 

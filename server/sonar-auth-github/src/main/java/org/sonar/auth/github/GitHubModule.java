@@ -28,7 +28,6 @@ import static org.sonar.auth.github.GitHubSettings.definitions;
 public class GitHubModule extends Module {
   private static final List<Class<?>> COMPONENT_CLASSES = List.of(
     GitHubIdentityProvider.class,
-    GitHubSettings.class,
     GitHubRestClient.class,
     UserIdentityFactoryImpl.class,
     ScribeGitHubApi.class
