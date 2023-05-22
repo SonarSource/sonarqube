@@ -10,13 +10,14 @@ exports[`should render with title 1`] = `
 }
 
 <div>
-  <header>
-    <p
+  <div>
+    <h2
       class="emotion-0 emotion-1"
+      id="modal_header_title"
     >
       Foo
-    </p>
-  </header>
+    </h2>
+  </div>
 </div>
 `;
 
@@ -39,18 +40,19 @@ exports[`should render with title and description 1`] = `
 }
 
 <div>
-  <header>
-    <p
+  <div>
+    <h2
       class="emotion-0 emotion-1"
+      id="modal_header_title"
     >
       Foo
-    </p>
+    </h2>
     <p
       class="emotion-2 emotion-3"
     >
       Bar
     </p>
-  </header>
+  </div>
 </div>
 `;
 
@@ -64,12 +66,13 @@ exports[`should use the default title if not provided 1`] = `
 }
 
 <div>
-  <header>
-    <p
+  <div>
+    <h2
       class="emotion-0 emotion-1"
+      id="modal_header_title"
     >
       Modal title
-    </p>
-  </header>
+    </h2>
+  </div>
 </div>
 `;

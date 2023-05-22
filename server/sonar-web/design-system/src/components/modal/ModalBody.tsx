@@ -33,7 +33,7 @@ export function ModalBody({ children, isScrollable = true }: Props) {
   return <StyledMain className={classNames({ scrollable: isScrollable })}>{children}</StyledMain>;
 }
 
-const StyledMain = styled.main`
+const StyledMain = styled.div`
   ${tw`sw-body-sm`}
   ${tw`sw-pr-3`} // to accomodate a possible scrollbar
   ${tw`sw-my-12`}

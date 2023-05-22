@@ -30,10 +30,10 @@ interface Props {
 
 export function ModalHeader({ description, title }: Props) {
   return (
-    <header>
-      <Title>{title}</Title>
+    <div>
+      <Title id="modal_header_title">{title}</Title>
       {description && <Description>{description}</Description>}
-    </header>
+    </div>
   );
 }
 
@@ -44,7 +44,7 @@ const Description = styled.p`
   color: ${themeColor('pageContent')};
 `;
 
-const Title = styled.p`
+const Title = styled.h2`
   ${tw`sw-heading-lg`}
 
   color: ${themeColor('pageTitle')};

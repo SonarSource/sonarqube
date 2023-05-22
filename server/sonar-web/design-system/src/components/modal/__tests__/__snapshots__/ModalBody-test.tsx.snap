@@ -18,12 +18,12 @@ exports[`renders with children 1`] = `
 }
 
 <div>
-  <main
+  <div
     class="scrollable emotion-0 emotion-1"
   >
     <div>
       Hello!
     </div>
-  </main>
+  </div>
 </div>
 `;

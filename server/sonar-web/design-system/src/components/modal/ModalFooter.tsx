@@ -38,6 +38,6 @@ export function ModalFooter({ loading = false, primaryButton, secondaryButton }:
   );
 }
 
-const StyledFooter = styled.footer`
+const StyledFooter = styled.div`
   ${tw`sw-flex sw-gap-3 sw-items-center sw-justify-end`}
 `;

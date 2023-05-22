@@ -56,7 +56,7 @@ interface SectionsProps {
   headerTitle: string | ReactNode;
   loading?: boolean;
   primaryButton?: ReactNode;
-  secondaryButtonLabel: ReactNode;
+  secondaryButtonLabel?: ReactNode;
 }
 
 type NotSectionsProps = {
@@ -88,6 +88,7 @@ export function Modal({
       <Global styles={globalStyles({ theme })} />
 
       <ReactModal
+        aria={{ labelledby: '#modal_header_title' }}
         className={classNames('design-system-modal-contents', { large: isLarge })}
         isOpen={isOpen}
         onRequestClose={onClose}
@@ -132,9 +133,10 @@ const globalStyles = ({ theme }: { theme: Theme }) => css`
     ${tw`sw-p-9`}
     ${tw`sw-rounded-2`}
     ${tw`sw-z-modal`}
+    ${tw`sw-box-border`}
 
     background-color: ${themeColor('modalContents')({ theme })};
-    max-height: calc(100vh - 30px);
+    max-height: calc(100vh - 200px);
     min-height: 160px;
     width: 544px;
 
