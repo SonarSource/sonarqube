@@ -83,6 +83,8 @@ export function isNewCodeDefinitionCompliant(newCodePeriod: NewCodePeriod) {
         MIN_NUMBER_OF_DAYS <= +newCodePeriod.value &&
         +newCodePeriod.value <= MAX_NUMBER_OF_DAYS
       );
+    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
+      return false;
     default:
       return true;
   }

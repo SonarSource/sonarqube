@@ -78,14 +78,13 @@ export function validateSetting(state: {
 
   const isValid =
     overrideGeneralSetting === false ||
-    selected === NewCodePeriodSettingType.PREVIOUS_VERSION ||
-    (selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && analysis.length > 0) ||
-    (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS &&
+    (!!selected &&
       isNewCodeDefinitionCompliant({
-        type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+        type: selected,
         value: days,
-      })) ||
-    (selected === NewCodePeriodSettingType.REFERENCE_BRANCH && referenceBranch.length > 0);
+      }) &&
+      (selected !== NewCodePeriodSettingType.SPECIFIC_ANALYSIS || analysis.length > 0) &&
+      (selected !== NewCodePeriodSettingType.REFERENCE_BRANCH || referenceBranch.length > 0));
 
   return { isChanged, isValid };
 }

@@ -26,14 +26,15 @@ import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServi
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-period';
 import { mockAppState } from '../../../../helpers/testMocks';
 import {
-  renderAppWithComponentContext,
   RenderContext,
+  renderAppWithComponentContext,
 } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
-import routes from '../../routes';
 import { NewCodePeriodSettingType } from '../../../../types/types';
+import routes from '../../routes';
 
 jest.mock('../../../../api/newCodePeriod');
 jest.mock('../../../../api/projectActivity');
@@ -52,7 +53,7 @@ it('renders correctly without branch support feature', async () => {
   await ui.appIsLoaded();
 
   expect(ui.generalSettingRadio.get()).toBeChecked();
-  expect(ui.specificAnalysisRadio.get()).toBeInTheDocument();
+  expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 
   // User is not admin
   expect(ui.generalSettingsLink.query()).not.toBeInTheDocument();
@@ -173,19 +174,35 @@ it('can set reference branch specific setting', async () => {
   expect(ui.saved.get()).toBeInTheDocument();
 });
 
-it('can set specific analysis setting', async () => {
-  const { ui, user } = getPageObjects();
+it('cannot set specific analysis setting', async () => {
+  const { ui } = getPageObjects();
+  codePeriodsMock.setNewCodePeriod({
+    type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
+    value: 'analysis_id',
+  });
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
-  await ui.setSpecificAnalysisSetting();
   expect(ui.specificAnalysisRadio.get()).toBeChecked();
+  expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
+  expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
 
-  // Save changes
-  await user.click(ui.saveButton.get());
+  await selectEvent.select(ui.analysisFromSelect.get(), 'baseline.branch_analyses.ranges.allTime');
 
-  expect(ui.saved.get()).toBeInTheDocument();
+  expect(first(ui.analysisListItem.getAll())).toHaveClass('disabled');
+  expect(ui.saveButton.get()).toBeDisabled();
+});
+
+it('renders correctly branch modal', async () => {
+  const { ui } = getPageObjects();
+  renderProjectBaselineApp({
+    featureList: [Feature.BranchSupport],
+  });
+  await ui.appIsLoaded();
+
+  await ui.openBranchSettingModal('main');
+
+  expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 });
 
 it('can set a previous version setting for branch', async () => {
@@ -220,16 +237,30 @@ it('can set a number of days setting for branch', async () => {
   expect(within(byRole('table').get()).getByText('baseline.number_days: 15')).toBeInTheDocument();
 });
 
-it('can set a specific analysis setting for branch', async () => {
+it('cannot set a specific analysis setting for branch', async () => {
   const { ui } = getPageObjects();
+  codePeriodsMock.setListBranchesNewCode([
+    mockNewCodePeriodBranch({
+      branchKey: 'main',
+      type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
+      value: 'analysis_id',
+    }),
+  ]);
   renderProjectBaselineApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchSpecificAnalysisSetting('main');
+  await ui.openBranchSettingModal('main');
 
-  expect(within(byRole('table').get()).getByText(/baseline.specific_analysis/)).toBeInTheDocument();
+  expect(ui.specificAnalysisRadio.get()).toBeChecked();
+  expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
+  expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
+
+  await selectEvent.select(ui.analysisFromSelect.get(), 'baseline.branch_analyses.ranges.allTime');
+
+  expect(first(ui.analysisListItem.getAll())).toHaveClass('disabled');
+  expect(last(ui.saveButton.getAll())).toBeDisabled();
 });
 
 it('can set a reference branch setting for branch', async () => {
@@ -270,6 +301,7 @@ function getPageObjects() {
     referenceBranchRadio: byRole('radio', { name: /baseline.reference_branch.description/ }),
     chooseBranchSelect: byRole('combobox', { name: 'baseline.reference_branch.choose' }),
     specificAnalysisRadio: byRole('radio', { name: /baseline.specific_analysis.description/ }),
+    specificAnalysisWarning: byText('baseline.specific_analysis.compliance_warning.title'),
     analysisFromSelect: byRole('combobox', { name: 'baseline.analysis_from' }),
     analysisListItem: byRole('radio', { name: /baseline.branch_analyses.analysis_for_x/ }),
     saveButton: byRole('button', { name: 'save' }),
@@ -293,8 +325,7 @@ function getPageObjects() {
   }
 
   async function setBranchPreviousVersionSetting(branch: string) {
-    await user.click(await ui.branchActionsButton(branch).find());
-    await user.click(ui.editButton.get());
+    await openBranchSettingModal(branch);
     await user.click(last(ui.previousVersionRadio.getAll()) as HTMLElement);
     await user.click(last(ui.saveButton.getAll()) as HTMLElement);
   }
@@ -307,8 +338,7 @@ function getPageObjects() {
   }
 
   async function setBranchNumberOfDaysSetting(branch: string, value: string) {
-    await user.click(await ui.branchActionsButton(branch).find());
-    await user.click(ui.editButton.get());
+    await openBranchSettingModal(branch);
     await user.click(last(ui.numberDaysRadio.getAll()) as HTMLElement);
     await user.clear(ui.numberDaysInput.get());
     await user.type(ui.numberDaysInput.get(), value);
@@ -322,33 +352,15 @@ function getPageObjects() {
   }
 
   async function setBranchReferenceToBranchSetting(branch: string, branchRef: string) {
-    await user.click(await ui.branchActionsButton(branch).find());
-    await user.click(ui.editButton.get());
+    await openBranchSettingModal(branch);
     await user.click(last(ui.referenceBranchRadio.getAll()) as HTMLElement);
     await selectEvent.select(ui.chooseBranchSelect.get(), branchRef);
     await user.click(last(ui.saveButton.getAll()) as HTMLElement);
   }
 
-  async function setSpecificAnalysisSetting() {
-    await user.click(ui.specificSettingRadio.get());
-    await user.click(ui.specificAnalysisRadio.get());
-    await selectEvent.select(
-      ui.analysisFromSelect.get(),
-      'baseline.branch_analyses.ranges.allTime'
-    );
-    await user.click(first(ui.analysisListItem.getAll()) as HTMLElement);
-  }
-
-  async function setBranchSpecificAnalysisSetting(branch: string) {
+  async function openBranchSettingModal(branch: string) {
     await user.click(await ui.branchActionsButton(branch).find());
     await user.click(ui.editButton.get());
-    await user.click(last(ui.specificAnalysisRadio.getAll()) as HTMLElement);
-    await selectEvent.select(
-      ui.analysisFromSelect.get(),
-      'baseline.branch_analyses.ranges.allTime'
-    );
-    await user.click(first(ui.analysisListItem.getAll()) as HTMLElement);
-    await user.click(last(ui.saveButton.getAll()) as HTMLElement);
   }
 
   return {
@@ -358,11 +370,10 @@ function getPageObjects() {
       setNumberDaysSetting,
       setPreviousVersionSetting,
       setReferenceBranchSetting,
-      setSpecificAnalysisSetting,
       setBranchPreviousVersionSetting,
       setBranchNumberOfDaysSetting,
-      setBranchSpecificAnalysisSetting,
       setBranchReferenceToBranchSetting,
+      openBranchSettingModal,
     },
     user,
   };

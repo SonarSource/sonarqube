@@ -93,7 +93,7 @@ describe('validateSettings', () => {
         days: '',
         selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
       })
-    ).toEqual({ isChanged: false, isValid: true });
+    ).toEqual({ isChanged: false, isValid: false });
     expect(
       validateSetting({
         analysis: 'analysis2',
@@ -102,7 +102,7 @@ describe('validateSettings', () => {
         days: '',
         selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
       })
-    ).toEqual({ isChanged: true, isValid: true });
+    ).toEqual({ isChanged: true, isValid: false });
     expect(
       validateSetting({
         currentSetting: NewCodePeriodSettingType.REFERENCE_BRANCH,

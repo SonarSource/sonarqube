@@ -19,24 +19,25 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import Link from '../../../components/common/Link';
 import Radio from '../../../components/controls/Radio';
+import Tooltip from '../../../components/controls/Tooltip';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
 import { Branch } from '../../../types/branch-like';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingDays, { BaselineSettingDaysSettingLevel } from './BaselineSettingDays';
+import BaselineSettingDays from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
-import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
-import Tooltip from '../../../components/controls/Tooltip';
-import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
@@ -143,33 +144,36 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             <span>{translate('project_baseline.global_setting')}</span>
           </Tooltip>
         </Radio>
-        <div className="big-spacer-left">{renderGeneralSetting(generalSetting)}</div>
-        {!isGeneralSettingCompliant && (
-          <Alert className="sw-mt-10 sw-max-w-[700px]" variant="warning">
-            <p className="sw-mb-2 sw-font-bold">
-              {translate('project_baseline.compliance.warning.title.global')}
-            </p>
-            <p className="sw-mb-2">
-              {canAdmin ? (
-                <FormattedMessage
-                  id="project_baseline.compliance.warning.explanation.admin"
-                  defaultMessage={translate(
-                    'project_baseline.compliance.warning.explanation.admin'
-                  )}
-                  values={{
-                    link: (
-                      <Link to="/admin/settings?category=new_code_period">
-                        {translate('project_baseline.warning.explanation.action.admin.link')}
-                      </Link>
-                    ),
-                  }}
-                />
-              ) : (
-                translate('project_baseline.compliance.warning.explanation')
-              )}
-            </p>
-          </Alert>
-        )}
+
+        <div className="big-spacer-left">
+          {!isGeneralSettingCompliant && (
+            <Alert variant="warning" className="sw-mb-4 sw-max-w-[800px]">
+              <p className="sw-mb-2 sw-font-bold">
+                {translate('project_baseline.compliance.warning.title.global')}
+              </p>
+              <p className="sw-mb-2">
+                {canAdmin ? (
+                  <FormattedMessage
+                    id="project_baseline.compliance.warning.explanation.admin"
+                    defaultMessage={translate(
+                      'project_baseline.compliance.warning.explanation.admin'
+                    )}
+                    values={{
+                      link: (
+                        <Link to="/admin/settings?category=new_code_period">
+                          {translate('project_baseline.warning.explanation.action.admin.link')}
+                        </Link>
+                      ),
+                    }}
+                  />
+                ) : (
+                  translate('project_baseline.compliance.warning.explanation')
+                )}
+              </p>
+            </Alert>
+          )}
+          {renderGeneralSetting(generalSetting)}
+        </div>
 
         <Radio
           checked={overrideGeneralSetting}
@@ -182,6 +186,12 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
       </div>
 
       <div className="big-spacer-left big-spacer-right project-baseline-setting">
+        <NewCodeDefinitionWarning
+          newCodeDefinitionType={currentSetting}
+          newCodeDefinitionValue={currentSettingValue}
+          isBranchSupportEnabled={branchesEnabled}
+          level="project"
+        />
         <div className="display-flex-row big-spacer-bottom" role="radiogroup">
           <BaselineSettingPreviousVersion
             disabled={!overrideGeneralSetting}
@@ -200,9 +210,8 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             selected={
               overrideGeneralSetting && selected === NewCodePeriodSettingType.NUMBER_OF_DAYS
             }
-            settingLevel={BaselineSettingDaysSettingLevel.Project}
           />
-          {branchesEnabled ? (
+          {branchesEnabled && (
             <BaselineSettingReferenceBranch
               branchList={branchList.map(branchToOption)}
               disabled={!overrideGeneralSetting}
@@ -214,24 +223,26 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
               }
               settingLevel="project"
             />
-          ) : (
+          )}
+          {!branchesEnabled && currentSetting === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
             <BaselineSettingAnalysis
-              disabled={!overrideGeneralSetting}
-              onSelect={props.onSelectSetting}
+              onSelect={() => {}}
               selected={
                 overrideGeneralSetting && selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS
               }
             />
           )}
         </div>
-        {selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
-          <BranchAnalysisList
-            analysis={analysis || ''}
-            branch={branch.name}
-            component={component}
-            onSelectAnalysis={props.onSelectAnalysis}
-          />
-        )}
+        {!branchesEnabled &&
+          overrideGeneralSetting &&
+          selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
+            <BranchAnalysisList
+              analysis={analysis || ''}
+              branch={branch.name}
+              component={component}
+              onSelectAnalysis={props.onSelectAnalysis}
+            />
+          )}
       </div>
       <div className={classNames('big-spacer-top', { invisible: !isChanged })}>
         <Alert variant="info" className="spacer-bottom">

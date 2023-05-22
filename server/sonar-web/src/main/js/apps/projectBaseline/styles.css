@@ -75,10 +75,10 @@
 .branch-analysis {
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
   padding: var(--gridSize);
   border-top: 1px solid var(--barBorderColor);
   border-bottom: 1px solid var(--barBorderColor);
+  cursor: not-allowed;
 }
 
 .branch-analysis + .branch-analysis {
@@ -86,7 +86,7 @@
 }
 
 .branch-analysis:hover {
-  background-color: var(--lightBlue);
+  background-color: var(--disableGrayBg);
 }
 
 .branch-analysis > .project-activity-events {

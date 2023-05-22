@@ -101,7 +101,6 @@ it('renders and behaves properly when the current value is not compliant', async
   expect(ui.daysInput.get()).toHaveValue('91');
 
   // Should warn about non compliant value
-  expect(ui.daysNumberErrorMessage.get()).toBeInTheDocument();
   expect(screen.getByRole('alert')).toHaveTextContent(
     'baseline.number_days.compliance_warning.title'
   );
@@ -109,7 +108,6 @@ it('renders and behaves properly when the current value is not compliant', async
   await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), '92');
 
-  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   expect(ui.daysNumberErrorMessage.get()).toBeInTheDocument();
 });
 

@@ -34,19 +34,7 @@ export default function AppHeader(props: AppHeaderProps) {
     <header className="page-header">
       <h1 className="sw-mb-4">{translate('project_baseline.page')}</h1>
       <p className="sw-mb-2">{translate('project_baseline.page.description')}</p>
-      <p className="sw-mb-2">
-        <FormattedMessage
-          defaultMessage={translate('settings.new_code_period.description1')}
-          id="settings.new_code_period.description1"
-          values={{
-            link: (
-              <DocLink to="/project-administration/defining-new-code/">
-                {translate('settings.new_code_period.description1.link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
+      <p className="sw-mb-2">{translate('settings.new_code_period.description1')}</p>
       <p className="sw-mb-2">
         {canAdmin && (
           <FormattedMessage

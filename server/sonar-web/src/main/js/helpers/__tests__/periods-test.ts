@@ -119,7 +119,7 @@ describe('isNewCodeDefinitionCompliant', () => {
     [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' }, false],
     [{ type: NewCodePeriodSettingType.PREVIOUS_VERSION }, true],
     [{ type: NewCodePeriodSettingType.REFERENCE_BRANCH }, true],
-    [{ type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS }, true],
+    [{ type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS }, false],
   ])(
     'should test for new code definition compliance properly',
     (newCodePeriod: NewCodePeriod, result: boolean) => {

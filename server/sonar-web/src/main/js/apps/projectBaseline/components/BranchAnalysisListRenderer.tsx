@@ -51,7 +51,7 @@ function renderAnalysis(args: {
   selectedAnalysisKey: string;
   intl: IntlShape;
 }) {
-  const { analysis, isFirst, onSelectAnalysis, selectedAnalysisKey, intl } = args;
+  const { analysis, isFirst, selectedAnalysisKey, intl } = args;
   return (
     <li
       className={classNames('branch-analysis', {
@@ -59,7 +59,6 @@ function renderAnalysis(args: {
       })}
       data-date={parseDate(analysis.date).valueOf()}
       key={analysis.key}
-      onClick={() => onSelectAnalysis(analysis)}
     >
       <div className="branch-analysis-time spacer-right">
         <TimeFormatter date={parseDate(analysis.date)} long={false}>
@@ -86,6 +85,7 @@ function renderAnalysis(args: {
           )}
           onCheck={() => {}}
           value=""
+          disabled={true}
         />
       </div>
     </li>

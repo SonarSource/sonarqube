@@ -23,15 +23,14 @@ import { translate } from '../../../helpers/l10n';
 import { NewCodePeriodSettingType } from '../../../types/types';
 
 export interface Props {
-  disabled?: boolean;
   onSelect: (selection: NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 
-export default function BaselineSettingAnalysis({ disabled, onSelect, selected }: Props) {
+export default function BaselineSettingAnalysis({ onSelect, selected }: Props) {
   return (
     <RadioCard
-      disabled={disabled}
+      disabled={true}
       onClick={() => onSelect(NewCodePeriodSettingType.SPECIFIC_ANALYSIS)}
       selected={selected}
       title={translate('baseline.specific_analysis')}
