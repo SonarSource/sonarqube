@@ -159,7 +159,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   /**
-   * we are generating suggestions, by using (1) favorites and (2) recently browsed components (without searchin in Elasticsearch)
+   * we are generating suggestions, by using (1) favorites and (2) recently browsed components (without searching in Elasticsearch)
    */
   private SuggestionsWsResponse loadSuggestionsWithoutSearch(int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
     List<EntityDto> favorites = favoriteFinder.list();

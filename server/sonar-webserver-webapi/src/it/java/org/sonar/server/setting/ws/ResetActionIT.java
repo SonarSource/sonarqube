@@ -75,12 +75,11 @@ public class ResetActionIT {
   private final PropertyDbTester propertyDb = new PropertyDbTester(db);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private final SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private final SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
   private ProjectDto project;
-  private final ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidations);
+  private final ResetAction underTest = new ResetAction(dbClient, settingsUpdater, userSession, definitions, settingValidations);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -218,7 +217,7 @@ public class ResetActionIT {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNull();
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("keys", "component", "branch", "pullRequest");
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("keys", "component");
   }
 
   @Test

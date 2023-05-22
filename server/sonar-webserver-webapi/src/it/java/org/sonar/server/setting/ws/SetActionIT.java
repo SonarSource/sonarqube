@@ -52,8 +52,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.process.ProcessProperties;
 import org.sonar.scanner.protocol.GsonHelper;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -87,14 +85,12 @@ public class SetActionIT {
   private PropertyDbTester propertyDb = new PropertyDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentFinder componentFinder = TestComponentFinder.from(db);
-
   private I18nRule i18n = new I18nRule();
   private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
-  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  private SetAction underTest = new SetAction(definitions, dbClient, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
   private WsActionTester ws = new WsActionTester(underTest);
 

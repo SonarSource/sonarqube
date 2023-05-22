@@ -481,22 +481,6 @@
     </choose>
   </select>
 
-  <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select
-      <include refid="componentColumns"/>
-    from components p
-    LEFT JOIN project_branches pb ON pb.uuid = p.branch_uuid
-    where
-      p.enabled=${_true}
-      and p.copy_component_uuid is null
-      and <include refid="mainBranchOrPortfolio"/>
-      and p.scope = 'PRJ'
-      and p.qualifier in ('TRK','VW','SVW','APP')
-      <if test="branchUuid != null">
-        and p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
-      </if>
-  </select>
-
   <select id="scrollAllFilesForFileMove" parameterType="map" resultType="org.sonar.db.component.FileMoveRowDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       p.uuid as uuid,

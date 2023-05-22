@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -36,8 +35,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -322,7 +319,7 @@ public class ComponentDaoIT {
 
     assertThat(results)
       .extracting(ComponentDto::uuid, ComponentDto::getKey)
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -1064,50 +1061,6 @@ public class ComponentDaoIT {
       .containsExactlyInAnyOrder(project.uuid(), directory.uuid(), removedDirectory.uuid(),
         file.uuid(),
         removedFile.uuid());
-  }
-
-  @Test
-  public void selectForIndexing_all() {
-    assertSelectForIndexing(null)
-      .doesNotContain("DIS7")
-      .doesNotContain("COPY8") // copied projects
-      .doesNotContain("U2", "U6")// modules
-      .doesNotContain("U3")// dir
-      .doesNotContain("U4")// file
-      .containsExactlyInAnyOrder("U1", "U5", "VW1");
-  }
-
-  @Test
-  public void selectForIndexing_project() {
-    assertSelectForIndexing("U1")
-      .doesNotContain("DIS7")
-      .doesNotContain("COPY8") // copied projects
-      .doesNotContain("U6") // other projects
-      .doesNotContain("VW1") // view
-      .doesNotContain("U2", "U6")// modules
-      .doesNotContain("U3")// dir
-      .doesNotContain("U4")// file
-      .containsExactlyInAnyOrder("U1");
-  }
-
-  private ListAssert<String> assertSelectForIndexing(@Nullable String projectUuid) {
-    ComponentDto project = db.components().insertPrivateProject("U1").getMainBranchComponent();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "U3", "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, directory, "U4"));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
-
-    ComponentDto view = db.components().insertPublicPortfolio("VW1", p -> {
-    });
-    db.components().insertComponent(newProjectCopy("COPY8", project, view));
-
-    ComponentDto project2 = db.components().insertPrivateProject("U5").getMainBranchComponent();
-
-    List<ComponentDto> components = new ArrayList<>();
-    underTest.scrollForIndexing(dbSession, projectUuid,
-      context -> components.add(context.getResultObject()));
-    return (ListAssert<String>) assertThat(components).extracting(ComponentDto::uuid);
   }
 
   @Test

@@ -40,13 +40,11 @@ public class RemoveAction implements FavoritesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final FavoriteUpdater favoriteUpdater;
-  private final ComponentFinder componentFinder;
 
-  public RemoveAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater, ComponentFinder componentFinder) {
+  public RemoveAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.favoriteUpdater = favoriteUpdater;
-    this.componentFinder = componentFinder;
   }
 
   @Override

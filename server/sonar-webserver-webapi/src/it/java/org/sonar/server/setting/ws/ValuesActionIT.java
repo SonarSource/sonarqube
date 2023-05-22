@@ -82,15 +82,13 @@ public class ValuesActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private final SettingsWsSupport support = new SettingsWsSupport(userSession);
-  private final WsActionTester wsActionTester = new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
+  private final WsActionTester wsActionTester = new WsActionTester(new ValuesAction(dbClient, userSession, definitions, support));
   private ProjectDto project;
-  private ComponentDto rootComponent;
 
   @Before
   public void setUp() {
     ProjectData projectData = db.components().insertPrivateProject();
     project = projectData.getProjectDto();
-    rootComponent = projectData.getMainBranchComponent();
   }
 
   @Test

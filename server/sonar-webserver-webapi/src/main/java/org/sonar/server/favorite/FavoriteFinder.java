@@ -55,9 +55,9 @@ public class FavoriteFinder {
         .setKey(PROP_FAVORITE_KEY)
         .setUserUuid(userSession.getUuid())
         .build();
-      Set<String> componentUuids = dbClient.propertiesDao().selectByQuery(dbQuery, dbSession).stream().map(PropertyDto::getComponentUuid).collect(Collectors.toSet());
+      Set<String> entitiesUuids = dbClient.propertiesDao().selectByQuery(dbQuery, dbSession).stream().map(PropertyDto::getComponentUuid).collect(Collectors.toSet());
 
-      List<EntityDto> entities = dbClient.projectDao().selectEntitiesByUuids(dbSession, componentUuids);
+      List<EntityDto> entities = dbClient.projectDao().selectEntitiesByUuids(dbSession, entitiesUuids);
 
       return entities.stream()
         .sorted(Comparator.comparing(EntityDto::getName))

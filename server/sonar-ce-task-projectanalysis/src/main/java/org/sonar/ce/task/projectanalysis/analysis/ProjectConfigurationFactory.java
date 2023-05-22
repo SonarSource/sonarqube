@@ -38,13 +38,9 @@ public class ProjectConfigurationFactory {
     this.dbClient = dbClient;
   }
 
-  public Configuration newProjectConfiguration(String projectUuid, String branchUuid) {
+  public Configuration newProjectConfiguration(String projectUuid) {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectUuid);
-    if (!projectUuid.equals(branchUuid)) {
-      // TODO not supported?
-      addSettings(projectSettings, branchUuid);
-    }
     return new ConfigurationBridge(projectSettings);
   }
 

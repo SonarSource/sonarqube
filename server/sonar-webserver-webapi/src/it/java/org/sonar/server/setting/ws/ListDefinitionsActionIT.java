@@ -33,10 +33,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.server.component.TestComponentFinder;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -73,16 +71,14 @@ public class ListDefinitionsActionIT {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = db.getDbClient();
-  private final ComponentDbTester componentDb = new ComponentDbTester(db);
-  private ComponentDto project;
+  private ProjectDto project;
   private final PropertyDefinitions propertyDefinitions = new PropertyDefinitions(System2.INSTANCE);
   private final SettingsWsSupport support = new SettingsWsSupport(userSession);
-  private final WsActionTester ws = new WsActionTester(
-    new ListDefinitionsAction(dbClient, TestComponentFinder.from(db), userSession, propertyDefinitions, support));
+  private final WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, userSession, propertyDefinitions, support));
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
+    project = db.components().insertPrivateProject().getProjectDto();
   }
 
   @Test

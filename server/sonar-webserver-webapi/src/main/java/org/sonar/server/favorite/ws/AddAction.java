@@ -54,21 +54,19 @@ public class AddAction implements FavoritesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final FavoriteUpdater favoriteUpdater;
-  private final ComponentFinder componentFinder;
 
-  public AddAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater, ComponentFinder componentFinder) {
+  public AddAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.favoriteUpdater = favoriteUpdater;
-    this.componentFinder = componentFinder;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("add")
-      .setDescription("Add a component (project, file etc.) as favorite for the authenticated user.<br>" +
+      .setDescription("Add a component (project, portfolio, etc.) as favorite for the authenticated user.<br>" +
         "Only 100 components by qualifier can be added as favorite.<br>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
+        "Requires authentication and the following permission: 'Browse' on the component.")
       .setSince("6.3")
       .setChangelog(
         new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),

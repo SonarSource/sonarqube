@@ -64,7 +64,7 @@ public class AddActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
-  private final WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
+  private final WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater));
 
   @Test
   public void add_a_project() {

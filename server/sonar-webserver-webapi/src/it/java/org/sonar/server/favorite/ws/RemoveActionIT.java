@@ -55,7 +55,7 @@ public class RemoveActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
-  private final WsActionTester ws = new WsActionTester(new RemoveAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
+  private final WsActionTester ws = new WsActionTester(new RemoveAction(userSession, dbClient, favoriteUpdater));
 
   @Before
   public void before() {
@@ -75,11 +75,11 @@ public class RemoveActionIT {
 
   @Test
   public void fail_if_not_already_a_favorite() {
-    ProjectDto componentDto = insertProjectAndPermissions();
+    ProjectDto project = insertProjectAndPermissions();
 
     assertThatThrownBy(() -> call(PROJECT_KEY))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Component '" + PROJECT_KEY + "' (uuid: " + componentDto.getUuid() + ") is not a favorite");
+      .hasMessage("Component '" + PROJECT_KEY + "' (uuid: " + project.getUuid() + ") is not a favorite");
   }
 
   @Test

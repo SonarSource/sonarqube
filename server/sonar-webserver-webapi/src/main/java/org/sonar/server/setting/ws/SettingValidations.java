@@ -54,7 +54,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SettingValidations {
-  private static final Collection<String> SECURITY_JSON_PROPERTIES = List.of(
+  private static final Set<String> SECURITY_JSON_PROPERTIES = Set.of(
     "sonar.security.config.javasecurity",
     "sonar.security.config.phpsecurity",
     "sonar.security.config.pythonsecurity",

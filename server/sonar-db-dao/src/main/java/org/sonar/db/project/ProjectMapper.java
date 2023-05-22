@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.entity.EntityDto;
 
 public interface ProjectMapper {
@@ -82,4 +83,6 @@ public interface ProjectMapper {
   EntityDto selectEntityByKey(String key);
 
   List<EntityDto> selectEntitiesByKeys(@Param("keys") Collection<String> keys);
+
+  void scrollEntitiesForIndexing(@Param("entityUuid") @Nullable String entityUuid, ResultHandler<EntityDto> handler);
 }

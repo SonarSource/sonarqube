@@ -31,9 +31,11 @@ import org.mockito.Mock;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -74,10 +76,8 @@ public class SettingsWsSupportTest {
   private final boolean hasComponentPermission;
   private final boolean expectedIsVisible;
 
-  @Mock
-  private ComponentDto componentDto;
-  @Mock
-  private UserSession userSession;
+  private final ProjectDto componentDto = mock(ProjectDto.class);
+  private final UserSession userSession = mock(UserSession.class);
   @InjectMocks
   private SettingsWsSupport settingsWsSupport;
 
@@ -94,7 +94,7 @@ public class SettingsWsSupportTest {
     openMocks(this);
     when(userSession.isSystemAdministrator()).thenReturn(isAdmin);
     when(userSession.hasPermission(GlobalPermission.SCAN)).thenReturn(hasGlobalPermission);
-    when(userSession.hasComponentPermission(UserRole.SCAN, componentDto)).thenReturn(hasComponentPermission);
+    when(userSession.hasEntityPermission(UserRole.SCAN, componentDto)).thenReturn(hasComponentPermission);
 
     boolean isVisible = settingsWsSupport.isVisible(property, Optional.of(componentDto));
     assertThat(isVisible).isEqualTo(expectedIsVisible);

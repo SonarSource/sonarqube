@@ -32,13 +32,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
@@ -49,15 +50,12 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ListDefinitionsAction implements SettingsWsAction {
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsWsSupport settingsWsSupport;
 
-  public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-                               SettingsWsSupport settingsWsSupport) {
+  public ListDefinitionsAction(DbClient dbClient, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsWsSupport = settingsWsSupport;
@@ -93,8 +91,8 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
   private ListDefinitionsWsResponse doHandle(Request request) {
     ListDefinitionsRequest wsRequest = toWsRequest(request);
-    Optional<ComponentDto> component = loadComponent(wsRequest);
-    Optional<String> qualifier = getQualifier(component);
+    Optional<EntityDto> component = loadComponent(wsRequest);
+    Optional<String> qualifier = component.map(EntityDto::getQualifier);
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.map(s -> definition.qualifiers().contains(s)).orElseGet(definition::global))
@@ -111,19 +109,16 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setComponent(request.param(PARAM_COMPONENT));
   }
 
-  private static Optional<String> getQualifier(Optional<ComponentDto> component) {
-    return component.map(ComponentDto::qualifier);
-  }
-
-  private Optional<ComponentDto> loadComponent(ListDefinitionsRequest request) {
+  private Optional<EntityDto> loadComponent(ListDefinitionsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String componentKey = request.getComponent();
-      if (componentKey == null) {
+      String entityKey = request.getComponent();
+      if (entityKey == null) {
         return Optional.empty();
       }
-      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
-      userSession.checkComponentPermission(USER, component);
-      return Optional.of(component);
+      EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, entityKey)
+        .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", entityKey)));
+      userSession.checkEntityPermission(USER, entity);
+      return Optional.of(entity);
     }
   }
 

@@ -20,11 +20,11 @@
 package org.sonar.db.project;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -155,7 +155,8 @@ public class ProjectDao implements Dao {
     if (uuids.isEmpty()) {
       return emptyList();
     }
-    return mapper(dbSession).selectEntitiesByUuids(uuids);
+
+    return executeLargeInputs(uuids, partition -> mapper(dbSession).selectEntitiesByUuids(partition));
   }
 
   public Optional<EntityDto> selectEntityByKey(DbSession dbSession, String key) {
@@ -166,8 +167,10 @@ public class ProjectDao implements Dao {
     if (keys.isEmpty()) {
       return emptyList();
     }
-    return mapper(dbSession).selectEntitiesByKeys(keys);
+    return executeLargeInputs(keys, partition -> mapper(dbSession).selectEntitiesByKeys(partition));
   }
 
-
+  public void scrollEntitiesForIndexing(DbSession session, @Nullable String entityUuid, ResultHandler<EntityDto> handler) {
+    mapper(session).scrollEntitiesForIndexing(entityUuid, handler);
+  }
 }

@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,13 +33,13 @@ public class ProjectConfigurationFactoryTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings settings = new MapSettings();
-  private ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());
+  private final MapSettings settings = new MapSettings();
+  private final ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());
 
   @Test
   public void return_global_settings() {
     settings.setProperty("key", "value");
-    Configuration config = underTest.newProjectConfiguration("unknown", "unknown");
+    Configuration config = underTest.newProjectConfiguration("unknown");
 
     assertThat(config.get("key")).hasValue("value");
   }
@@ -53,7 +52,7 @@ public class ProjectConfigurationFactoryTest {
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getUuid(), project.getUuid());
+    Configuration config = underTest.newProjectConfiguration(project.getUuid());
 
     assertThat(config.get("1")).hasValue("val1");
     assertThat(config.get("2")).hasValue("val2");
@@ -67,7 +66,7 @@ public class ProjectConfigurationFactoryTest {
     db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
-    Configuration projectConfig = underTest.newProjectConfiguration(project.getUuid(), project.getUuid());
+    Configuration projectConfig = underTest.newProjectConfiguration(project.getUuid());
 
     assertThat(projectConfig.get("key")).hasValue("value2");
   }

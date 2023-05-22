@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
@@ -404,6 +406,47 @@ public class ProjectDaoIT {
   @Test
   public void selectEntityByKey_whenNoMatch_shouldReturnEmpty() {
     assertThat(projectDao.selectEntityByKey(db.getSession(), "unknown")).isEmpty();
+  }
+
+  @Test
+  public void scrollEntitiesForIndexing_shouldReturnAllEntities() {
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
+
+    List<EntityDto> result = new LinkedList<>();
+    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
+    projectDao.scrollEntitiesForIndexing(db.getSession(), null, handler);
+
+    assertThat(result).extracting(EntityDto::getUuid)
+      .containsOnly(project.projectUuid(), application.projectUuid(), portfolio.getUuid());
+  }
+
+  @Test
+  public void scrollEntitiesForIndexing_whenEntityUuidSpecified_shouldReturnSpecificEntity() {
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
+
+    List<EntityDto> result = new LinkedList<>();
+    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
+    projectDao.scrollEntitiesForIndexing(db.getSession(), project.projectUuid(), handler);
+
+    assertThat(result).extracting(EntityDto::getUuid)
+      .containsOnly(project.projectUuid());
+  }
+
+  @Test
+  public void scrollEntitiesForIndexing_whenNonExistingUuidSpecified_shouldReturnEmpty() {
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
+
+    List<EntityDto> result = new LinkedList<>();
+    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
+    projectDao.scrollEntitiesForIndexing(db.getSession(), "unknown", handler);
+
+    assertThat(result).isEmpty();
   }
 
   private void insertDefaultQualityProfile(String language) {

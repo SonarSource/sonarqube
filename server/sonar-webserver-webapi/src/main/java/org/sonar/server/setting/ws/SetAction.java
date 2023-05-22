@@ -47,11 +47,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.GsonHelper;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.setting.SettingsChangeNotifier;
@@ -75,17 +73,15 @@ public class SetAction implements SettingsWsAction {
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
   private final SettingValidations validations;
 
-  public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
+  public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, UserSession userSession,
     SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
     this.propertyDefinitions = propertyDefinitions;
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;

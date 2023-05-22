@@ -63,18 +63,6 @@ public class PropertyTesting {
     return newPropertyDto(null, user.getUuid());
   }
 
-  public static PropertyDto newPropertyDto(String key, String value, ComponentDto component, UserDto user) {
-    checkNotNull(component.uuid());
-    checkNotNull(user.getUuid());
-    return newPropertyDto(key, value, component.uuid(), user.getUuid());
-  }
-
-  public static PropertyDto newPropertyDto(ComponentDto component, UserDto user) {
-    checkNotNull(component.uuid());
-    checkNotNull(user.getUuid());
-    return newPropertyDto(component.uuid(), user.getUuid());
-  }
-
   private static PropertyDto newPropertyDto(@Nullable String componentUuid, @Nullable String userUuid) {
     String key = String.valueOf(cursor);
     cursor++;

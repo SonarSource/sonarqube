@@ -260,6 +260,21 @@
     where p.kee in
       <foreach collection="keys" open="(" close=")" item="kee" separator=",">
         #{kee,jdbcType=VARCHAR}
-      </foreach>)  </select>
+      </foreach>)
+  </select>
+
+  <select id="scrollEntitiesForIndexing" parameterType="map" resultType="Entity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    <if test="entityUuid != null">
+      where p.uuid = #{entityUuid,jdbcType=VARCHAR}
+    </if>)
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    <if test="entityUuid != null">
+      where p.uuid = #{entityUuid,jdbcType=VARCHAR}
+    </if>)
+  </select>
 
 </mapper>

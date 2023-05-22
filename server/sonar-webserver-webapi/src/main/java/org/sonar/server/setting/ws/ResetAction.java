@@ -34,9 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
@@ -47,24 +45,19 @@ import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ResetAction implements SettingsWsAction {
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final SettingsUpdater settingsUpdater;
   private final UserSession userSession;
   private final PropertyDefinitions definitions;
   private final SettingValidations validations;
 
-  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions,
-                     SettingValidations validations) {
+  public ResetAction(DbClient dbClient, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions, SettingValidations validations) {
     this.dbClient = dbClient;
     this.settingsUpdater = settingsUpdater;
     this.userSession = userSession;
-    this.componentFinder = componentFinder;
     this.definitions = definitions;
     this.validations = validations;
   }
@@ -81,8 +74,9 @@ public class ResetAction implements SettingsWsAction {
         "</ul>")
       .setSince("6.1")
       .setChangelog(
+        new Change("10.1", format("Internal parameters '%s' and '%s' were removed", PARAM_BRANCH, PARAM_PULL_REQUEST)),
         new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings defined in conf/sonar.properties are read-only and can't be changed"))
       .setPost(true)
       .setHandler(this);
@@ -94,16 +88,6 @@ public class ResetAction implements SettingsWsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("6.6");
-    action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("7.1");
   }
 
   @Override
@@ -115,8 +99,7 @@ public class ResetAction implements SettingsWsAction {
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
         SettingData data = new SettingData(key, emptyList(), component.orElse(null));
-        List.of(validations.scope(), validations.qualifier())
-          .forEach(validation -> validation.accept(data));
+        List.of(validations.scope(), validations.qualifier()).forEach(validation -> validation.accept(data));
       });
 
       List<String> keys = getKeys(resetRequest);
@@ -142,9 +125,7 @@ public class ResetAction implements SettingsWsAction {
   private static ResetRequest toWsRequest(Request request) {
     return new ResetRequest()
       .setKeys(request.mandatoryParamAsStrings(PARAM_KEYS))
-      .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST));
+      .setComponent(request.param(PARAM_COMPONENT));
   }
 
   private Optional<EntityDto> getComponent(DbSession dbSession, ResetRequest request) {
@@ -153,7 +134,6 @@ public class ResetAction implements SettingsWsAction {
       return Optional.empty();
     }
 
-    // TODO this WS should support branches and PRs?
     return Optional.of(dbClient.projectDao().selectEntityByKey(dbSession, componentKey)
       .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey))));
   }
@@ -167,31 +147,8 @@ public class ResetAction implements SettingsWsAction {
   }
 
   private static class ResetRequest {
-
-    private String branch;
-    private String pullRequest;
     private String component;
     private List<String> keys;
-
-    public ResetRequest setBranch(@Nullable String branch) {
-      this.branch = branch;
-      return this;
-    }
-
-    @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    public ResetRequest setPullRequest(@Nullable String pullRequest) {
-      this.pullRequest = pullRequest;
-      return this;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
-    }
 
     public ResetRequest setComponent(@Nullable String component) {
       this.component = component;

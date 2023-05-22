@@ -43,7 +43,6 @@ public class ComponentIndexDefinition implements IndexDefinition {
   public static final Index DESCRIPTOR = Index.withRelations("components");
   public static final IndexType.IndexRelationType TYPE_COMPONENT = IndexType.relation(IndexType.main(DESCRIPTOR, TYPE_AUTHORIZATION), "component");
   public static final String FIELD_UUID = "uuid";
-  public static final String FIELD_PROJECT_UUID = "project_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
@@ -85,7 +84,6 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
     TypeMapping mapping = index.createTypeMapping(TYPE_COMPONENT);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
-    mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
     mapping.textFieldBuilder(FIELD_NAME)
       .withFieldData()
