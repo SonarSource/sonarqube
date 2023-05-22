@@ -245,6 +245,48 @@ public class ComputeLocationHashesVisitorTest {
     assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='another-line-in-the-main-file';"));
   }
 
+  @Test
+  public void beforeCaching_whenSecurityHotspots_shouldCalculateHashForPrimaryLocation() {
+    DefaultIssue issue = createIssue()
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 0, 3, EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)).build());
+    underTest.onIssue(FILE_1, issue);
+
+    underTest.beforeCaching(FILE_1);
+
+    assertLocationHashIsMadeOf(issue, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
+  }
+
+  @Test
+  public void beforeCaching_whenSecurityHotspots_shouldNotCalculateHashForSecondaryLocations() {
+    DefaultIssue issue = createIssue()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
+        .addFlow(DbIssues.Flow.newBuilder()
+          .addLocation(DbIssues.Location.newBuilder()
+            .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
+            .setComponentId(FILE_1.getUuid())
+            .build())
+          .addLocation(DbIssues.Location.newBuilder()
+            .setTextRange(createRange(1, 0, 1, LINE_IN_ANOTHER_FILE.length()))
+            .setComponentId(FILE_2.getUuid())
+            .build())
+          .build())
+        .build());
+    when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(LINE_IN_THE_MAIN_FILE));
+    when(sourceLinesRepository.readLines(FILE_2)).thenReturn(newOneLineIterator(LINE_IN_ANOTHER_FILE));
+    underTest.onIssue(FILE_1, issue);
+
+    underTest.beforeCaching(FILE_1);
+
+    DbIssues.Locations locations = issue.getLocations();
+    assertLocationHashIsMadeOf(issue, "Stringstring='line-in-the-main-file';");
+    assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEmpty();
+    assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEmpty();
+  }
+
   private DbCommons.TextRange createRange(int startLine, int startOffset, int endLine, int endOffset) {
     return DbCommons.TextRange.newBuilder()
       .setStartLine(startLine).setStartOffset(startOffset)

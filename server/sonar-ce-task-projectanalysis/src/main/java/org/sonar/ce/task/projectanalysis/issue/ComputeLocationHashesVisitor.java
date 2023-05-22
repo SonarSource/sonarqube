@@ -35,10 +35,11 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.TaintChecker;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 
 /**
  * This visitor will update the locations field of issues, by filling the hashes for all locations.
- * It only applies to issues that are taint vulnerabilities and that are new or were changed.
+ * It only applies to issues that are taint vulnerabilities or security hotspots, and that are new or were changed.
  * For performance reasons, it will read each source code file once and feed the lines to all locations in that file.
  */
 public class ComputeLocationHashesVisitor extends IssueVisitor {
@@ -61,9 +62,15 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (taintChecker.isTaintVulnerability(issue) && !issue.isFromExternalRuleEngine() && (issue.isNew() || issue.locationsChanged())) {
+    if (shouldComputeLocation(issue)) {
       issues.add(issue);
     }
+  }
+
+  private boolean shouldComputeLocation(DefaultIssue issue) {
+    return (taintChecker.isTaintVulnerability(issue) || SECURITY_HOTSPOT.equals(issue.type()))
+      && !issue.isFromExternalRuleEngine()
+      && (issue.isNew() || issue.locationsChanged());
   }
 
   @Override
@@ -72,11 +79,12 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
     List<LocationToSet> locationsToSet = new LinkedList<>();
 
     for (DefaultIssue issue : issues) {
-      if (issue.getLocations() == null) {
+      DbIssues.Locations locations = issue.getLocations();
+      if (locations == null) {
         continue;
       }
 
-      DbIssues.Locations.Builder primaryLocationBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
+      DbIssues.Locations.Builder primaryLocationBuilder = locations.toBuilder();
       boolean hasTextRange = addLocations(component, issue, locationsByComponent, primaryLocationBuilder);
 
       // If any location was added (because it had a text range), we'll need to update the issue at the end with the new object containing the hashes
@@ -98,28 +106,39 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
   }
 
   private boolean addLocations(Component component, DefaultIssue issue, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
-    boolean hasTextRange = false;
+    boolean hasPrimaryLocation = addPrimaryLocation(component, locationsByComponent, primaryLocationBuilder);
+    boolean hasSecondaryLocations = addSecondaryLocations(issue, locationsByComponent, primaryLocationBuilder);
+    return hasPrimaryLocation || hasSecondaryLocations;
+  }
 
-    // Add primary location
-    if (primaryLocationBuilder.hasTextRange()) {
-      hasTextRange = true;
-      PrimaryLocation primaryLocation = new PrimaryLocation(primaryLocationBuilder);
-      locationsByComponent.computeIfAbsent(component, c -> new LinkedList<>()).add(primaryLocation);
+  private static boolean addPrimaryLocation(Component component, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
+    if (!primaryLocationBuilder.hasTextRange()) {
+      return false;
+    }
+    PrimaryLocation primaryLocation = new PrimaryLocation(primaryLocationBuilder);
+    locationsByComponent.computeIfAbsent(component, c -> new LinkedList<>()).add(primaryLocation);
+    return true;
+  }
+
+  private boolean addSecondaryLocations(DefaultIssue issue, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
+    if (SECURITY_HOTSPOT.equals(issue.type())) {
+      return false;
     }
 
-    // Add secondary locations
-    for (DbIssues.Flow.Builder flowBuilder : primaryLocationBuilder.getFlowBuilderList()) {
-      for (DbIssues.Location.Builder locationBuilder : flowBuilder.getLocationBuilderList()) {
-        if (locationBuilder.hasTextRange()) {
-          hasTextRange = true;
-          var componentUuid = defaultIfEmpty(locationBuilder.getComponentId(), issue.componentUuid());
-          Component locationComponent = treeRootHolder.getComponentByUuid(componentUuid);
-          locationsByComponent.computeIfAbsent(locationComponent, c -> new LinkedList<>()).add(new SecondaryLocation(locationBuilder));
-        }
-      }
-    }
+    List<DbIssues.Location.Builder> locationBuilders = primaryLocationBuilder.getFlowBuilderList().stream()
+      .flatMap(flowBuilder -> flowBuilder.getLocationBuilderList().stream())
+      .filter(DbIssues.Location.Builder::hasTextRange)
+      .toList();
 
-    return hasTextRange;
+    locationBuilders.forEach(locationBuilder -> addSecondaryLocation(locationBuilder, issue, locationsByComponent));
+
+    return !locationBuilders.isEmpty();
+  }
+
+  private void addSecondaryLocation(DbIssues.Location.Builder locationBuilder, DefaultIssue issue, Map<Component, List<Location>> locationsByComponent) {
+    String componentUuid = defaultIfEmpty(locationBuilder.getComponentId(), issue.componentUuid());
+    Component locationComponent = treeRootHolder.getComponentByUuid(componentUuid);
+    locationsByComponent.computeIfAbsent(locationComponent, c -> new LinkedList<>()).add(new SecondaryLocation(locationBuilder));
   }
 
   private void updateLocationsInComponent(Component component, List<Location> locations) {
