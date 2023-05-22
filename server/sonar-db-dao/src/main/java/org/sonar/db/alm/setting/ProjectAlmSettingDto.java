@@ -21,7 +21,6 @@ package org.sonar.db.alm.setting;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
 
 public class ProjectAlmSettingDto {
 
@@ -31,8 +30,8 @@ public class ProjectAlmSettingDto {
   private String uuid;
 
   /**
-   * Non-null UUID of project. Max size is 50.
-   * @see ComponentDto#uuid()
+   * Non-null UUID of project. Max size is 40.
+   * @see org.sonar.db.entity.EntityDto#getUuid()
    */
   private String projectUuid;
 

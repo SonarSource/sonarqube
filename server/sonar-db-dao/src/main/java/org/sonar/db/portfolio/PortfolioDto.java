@@ -40,10 +40,6 @@ public class PortfolioDto extends EntityDto {
   private long createdAt;
   private long updatedAt;
 
-  public PortfolioDto() {
-    // nothing to do here
-  }
-
   public String getRootUuid() {
     return rootUuid;
   }

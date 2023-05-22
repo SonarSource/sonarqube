@@ -25,17 +25,28 @@ import org.sonar.db.portfolio.PortfolioDto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EntityDtoTest {
+
+  @Test
+  public void equals_whenEmptyObjects_shouldReturnTrue() {
+    PortfolioDto p1 = new PortfolioDto();
+    PortfolioDto p2 = new PortfolioDto();
+
+    boolean equals = p1.equals(p2);
+
+    assertThat(equals).isTrue();
+  }
+
   @Test
   public void equals_whenSameUuid_shouldReturnTrue() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
-    PortfolioDto e2 = new PortfolioDto().setUuid("uuid1");;
+    PortfolioDto e2 = new PortfolioDto().setUuid("uuid1");
     assertThat(e1).isEqualTo(e2);
   }
 
   @Test
   public void equals_whenDifferentUuid_shouldReturnFalse() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
-    PortfolioDto e2 = new PortfolioDto().setUuid("uuid2");;
+    PortfolioDto e2 = new PortfolioDto().setUuid("uuid2");
     assertThat(e1).isNotEqualTo(e2);
   }
 
@@ -49,6 +60,17 @@ public class EntityDtoTest {
   public void equals_whenDifferentType_shouldReturnFalse() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
     assertThat(e1).isNotEqualTo(new Object());
+  }
+
+  @Test
+  public void hashCode_whenEmptyObjects_shouldBeTheSame() {
+    PortfolioDto p1 = new PortfolioDto();
+    PortfolioDto p2 = new PortfolioDto();
+
+    int hash1 = p1.hashCode();
+    int hash2 = p2.hashCode();
+
+    assertThat(hash1).isEqualTo(hash2);
   }
 
 }
