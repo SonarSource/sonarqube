@@ -120,12 +120,13 @@ public class SettingsSectionTest {
   }
 
   @Test
-  public void truncate_long_property_values() {
-    settings.setProperty("foo", repeat("abcde", 1_000));
+  public void long_property_values_are_not_truncated() {
+    String value = repeat("abcde", 1_000);
+    settings.setProperty("foo", value);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    String value = attribute(protobuf, "foo").getStringValue();
-    assertThat(value).hasSize(500).startsWith("abcde");
+    String actualValue = attribute(protobuf, "foo").getStringValue();
+    assertThat(actualValue).isEqualTo(value);
   }
 
   @Test

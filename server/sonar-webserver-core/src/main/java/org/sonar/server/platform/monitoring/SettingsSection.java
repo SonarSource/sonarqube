@@ -40,7 +40,6 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section.Builder;
 import org.sonar.server.platform.NodeInformation;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
@@ -54,7 +53,6 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
 public class SettingsSection implements SystemInfoSection, Global {
-  private static final int MAX_VALUE_LENGTH = 500;
   private static final String PASSWORD_VALUE = "xxxxxxxx";
   private static final Collection<String> IGNORED_SETTINGS_IN_CLUSTER = Stream.of(
       WEB_JAVA_OPTS,
@@ -115,7 +113,7 @@ public class SettingsSection implements SystemInfoSection, Global {
       AUTH_JWT_SECRET.getKey().equals(key)) {
       return PASSWORD_VALUE;
     }
-    return abbreviate(value, MAX_VALUE_LENGTH);
+    return value;
   }
 
   private static String parseDefaultNewCodeDefinition(NewCodePeriodDto period) {
