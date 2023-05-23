@@ -190,8 +190,8 @@ public class UserDao implements Dao {
   /**
    * This method is optimized for the first analysis: we tried to keep performance optimal (<10ms) for projects with large number of contributors
    */
-  public List<String> selectUserUuidByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
-    return mapper(session).selectUserUuidByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
+  public List<UserIdDto> selectActiveUsersByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
+    return mapper(session).selectActiveUsersByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
   }
 
   /**

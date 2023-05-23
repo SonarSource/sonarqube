@@ -19,20 +19,48 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
-public class TaintVulnerabilityClosed extends IssueEvent {
+import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
 
-  private static final String EVENT_NAME = "TaintVulnerabilityClosed";
+public class SecurityHotspotClosed extends IssueEvent {
 
-  public TaintVulnerabilityClosed() {
+  @VisibleForTesting
+  static final String EVENT_NAME = "SecurityHotspotClosed";
+
+  private String status;
+  private String resolution;
+  private String filePath;
+
+  public SecurityHotspotClosed() {
     // nothing to do
-  }
-
-  public TaintVulnerabilityClosed(String key, String projectKey) {
-    super(key, projectKey);
   }
 
   @Override
   public String getEventName() {
     return EVENT_NAME;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public String getResolution() {
+    return resolution;
+  }
+
+  public void setResolution(@Nullable String resolution) {
+    this.resolution = resolution;
+  }
+
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
   }
 }

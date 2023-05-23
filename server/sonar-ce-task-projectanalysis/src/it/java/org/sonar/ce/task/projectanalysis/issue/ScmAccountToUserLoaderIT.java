@@ -25,6 +25,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 import org.sonar.server.es.EsTester;
 
 import static java.util.Arrays.asList;
@@ -49,7 +50,10 @@ public class ScmAccountToUserLoaderIT {
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(db.getDbClient());
 
     assertThat(underTest.load("missing")).isNull();
-    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo(user.getUuid());
+    UserIdDto result = underTest.load("jesuis@charlie.com");
+    assertThat(result).isNotNull();
+    assertThat(result.getUuid()).isEqualTo(user.getUuid());
+    assertThat(result.getLogin()).isEqualTo(user.getLogin());
   }
 
   @Test

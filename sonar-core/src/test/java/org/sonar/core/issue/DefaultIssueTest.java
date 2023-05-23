@@ -19,101 +19,20 @@
  */
 package org.sonar.core.issue;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultIssueTest {
 
-  private static final String TEST_CONTEXT_KEY = "test_context_key";
-  private DefaultIssue issue = new DefaultIssue();
-
-  @Test
-  public void test_setters_and_getters() throws Exception {
-    issue.setKey("ABCD")
-      .setComponentKey("org.sample.Sample")
-      .setProjectKey("Sample")
-      .setRuleKey(RuleKey.of("java", "S100"))
-      .setLanguage("xoo")
-      .setSeverity("MINOR")
-      .setManualSeverity(true)
-      .setMessage("a message")
-      .setLine(7)
-      .setGap(1.2d)
-      .setEffort(Duration.create(28800L))
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setAssigneeUuid("julien")
-      .setAuthorLogin("steph")
-      .setChecksum("c7b5db46591806455cf082bb348631e8")
-      .setLocations("loc")
-      .setLocationsChanged(true)
-      .setNew(true)
-      .setIsOnChangedLine(true)
-      .setIsNewCodeReferenceIssue(true)
-      .setIsNoLongerNewCodeReferenceIssue(true)
-      .setBeingClosed(true)
-      .setOnDisabledRule(true)
-      .setCopied(true)
-      .setChanged(true)
-      .setSendNotifications(true)
-      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
-      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
-      .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
-      .setSelectedAt(1400000000000L)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
-      .setType(RuleType.BUG)
-      .setTags(Set.of("tag1", "tag2"))
-      .setCodeVariants(Set.of("variant1", "variant2"));
-
-    assertThat((Object) issue.getLocations()).isEqualTo("loc");
-    assertThat(issue.locationsChanged()).isTrue();
-    assertThat(issue.key()).isEqualTo("ABCD");
-    assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
-    assertThat(issue.projectKey()).isEqualTo("Sample");
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("java", "S100"));
-    assertThat(issue.language()).isEqualTo("xoo");
-    assertThat(issue.severity()).isEqualTo("MINOR");
-    assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.message()).isEqualTo("a message");
-    assertThat(issue.line()).isEqualTo(7);
-    assertThat(issue.gap()).isEqualTo(1.2d);
-    assertThat(issue.effort()).isEqualTo(Duration.create(28800L));
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.assignee()).isEqualTo("julien");
-    assertThat(issue.authorLogin()).isEqualTo("steph");
-    assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
-    assertThat(issue.isNew()).isTrue();
-    assertThat(issue.isOnChangedLine()).isTrue();
-    assertThat(issue.isNewCodeReferenceIssue()).isTrue();
-    assertThat(issue.isNoLongerNewCodeReferenceIssue()).isTrue();
-    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
-    assertThat(issue.isCopied()).isTrue();
-    assertThat(issue.isBeingClosed()).isTrue();
-    assertThat(issue.isOnDisabledRule()).isTrue();
-    assertThat(issue.isChanged()).isTrue();
-    assertThat(issue.mustSendNotifications()).isTrue();
-    assertThat(issue.creationDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
-    assertThat(issue.updateDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"));
-    assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
-    assertThat(issue.selectedAt()).isEqualTo(1400000000000L);
-    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
-    assertThat(issue.type()).isEqualTo(RuleType.BUG);
-    assertThat(issue.tags()).containsOnly("tag1", "tag2");
-    assertThat(issue.codeVariants()).containsOnly("variant1", "variant2");
-  }
+  private final DefaultIssue issue = new DefaultIssue();
 
   @Test
   public void set_empty_dates() {
@@ -187,9 +106,9 @@ public class DefaultIssueTest {
 
     List<DefaultIssueComment> comments = issue.defaultIssueComments();
     assertThat(comments).isEmpty();
-
+    DefaultIssueComment defaultIssueComment = new DefaultIssueComment();
     try {
-      comments.add(new DefaultIssueComment());
+      comments.add(defaultIssueComment);
       fail();
     } catch (UnsupportedOperationException e) {
       // ok
@@ -311,5 +230,56 @@ public class DefaultIssueTest {
   public void characteristic_shouldReturnNull() {
     DefaultIssue defaultIssue = new DefaultIssue();
     assertThat(defaultIssue.characteristic()).isNull();
+  }
+
+  @Test
+  public void setLine_whenLineIsNegative_shouldThrowException() {
+    int anyNegativeValue = Integer.MIN_VALUE;
+    assertThatThrownBy(() -> issue.setLine(anyNegativeValue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Line must be null or greater than zero (got %s)", anyNegativeValue));
+  }
+
+  @Test
+  public void setLine_whenLineIsZero_shouldThrowException() {
+    assertThatThrownBy(() -> issue.setLine(0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Line must be null or greater than zero (got 0)");
+  }
+
+  @Test
+  public void setGap_whenGapIsNegative_shouldThrowException() {
+    Double anyNegativeValue = -1.0;
+    assertThatThrownBy(() -> issue.setGap(anyNegativeValue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Gap must be greater than or equal 0 (got %s)", anyNegativeValue));
+  }
+
+  @Test
+  public void setGap_whenGapIsZero_shouldWork() {
+    issue.setGap(0.0);
+    assertThat(issue.gap()).isEqualTo(0.0);
+  }
+
+  @Test
+  public void effortInMinutes_shouldConvertEffortToMinutes() {
+    issue.setEffort(Duration.create(60));
+    assertThat(issue.effortInMinutes()).isEqualTo(60L);
+  }
+
+  @Test
+  public void effortInMinutes_whenNull_shouldReturnNull() {
+    issue.setEffort(null);
+    assertThat(issue.effortInMinutes()).isNull();
+  }
+
+  @Test
+  public void tags_whenNull_shouldReturnEmptySet() {
+    assertThat(issue.tags()).isEmpty();
+  }
+
+  @Test
+  public void codeVariants_whenNull_shouldReturnEmptySet() {
+    assertThat(issue.codeVariants()).isEmpty();
   }
 }

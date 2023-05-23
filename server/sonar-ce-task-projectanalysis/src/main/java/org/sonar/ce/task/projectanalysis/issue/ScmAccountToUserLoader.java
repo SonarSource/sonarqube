@@ -23,19 +23,19 @@ import com.google.common.base.Joiner;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.util.cache.CacheLoader;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 
 /**
  * Loads the association between a SCM account and a SQ user
  */
-public class ScmAccountToUserLoader implements CacheLoader<String, String> {
+public class ScmAccountToUserLoader implements CacheLoader<String, UserIdDto> {
 
-  private static final Logger LOGGER = Loggers.get(ScmAccountToUserLoader.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ScmAccountToUserLoader.class);
 
   private final DbClient dbClient;
 
@@ -44,26 +44,27 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
   }
 
   @Override
-  public String load(String scmAccount) {
+  public UserIdDto load(String scmAccount) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> userUuids = dbClient.userDao().selectUserUuidByScmAccountOrLoginOrEmail(dbSession, scmAccount);
-      if (userUuids.size() == 1) {
-        return userUuids.iterator().next();
+      List<UserIdDto> users = dbClient.userDao().selectActiveUsersByScmAccountOrLoginOrEmail(dbSession, scmAccount);
+      if (users.size() == 1) {
+        return users.iterator().next();
       }
-      if (!userUuids.isEmpty()) {
-        List<UserDto> userDtos = dbClient.userDao().selectByUuids(dbSession, userUuids);
-        Collection<String> logins = userDtos.stream()
-          .map(UserDto::getLogin)
+      if (!users.isEmpty()) {
+        Collection<String> logins = users.stream()
+          .map(UserIdDto::getLogin)
           .sorted()
           .toList();
-        LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+        if (LOGGER.isWarnEnabled()) {
+          LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+        }
       }
       return null;
     }
   }
 
   @Override
-  public Map<String, String> loadAll(Collection<? extends String> scmAccounts) {
+  public Map<String, UserIdDto> loadAll(Collection<? extends String> scmAccounts) {
     throw new UnsupportedOperationException("Loading by multiple scm accounts is not supported yet");
   }
 }

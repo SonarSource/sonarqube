@@ -74,7 +74,7 @@ public class PersistPushEventsStepIT {
 
   @Test
   public void description() {
-    assertThat(underTest.getDescription()).isEqualTo("Publishing taint vulnerabilities events");
+    assertThat(underTest.getDescription()).isEqualTo("Publishing taint vulnerabilities and security hotspots events");
   }
 
   @Test

@@ -100,7 +100,7 @@ public class PersistPushEventsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Publishing taint vulnerabilities events";
+    return "Publishing taint vulnerabilities and security hotspots events";
   }
 
 }

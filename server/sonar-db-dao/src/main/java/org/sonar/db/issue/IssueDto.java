@@ -769,6 +769,7 @@ public final class IssueDto implements Serializable {
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setAssigneeUuid(assigneeUuid);
+    issue.setAssigneeLogin(assigneeLogin);
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);
     issue.setProjectUuid(projectUuid);

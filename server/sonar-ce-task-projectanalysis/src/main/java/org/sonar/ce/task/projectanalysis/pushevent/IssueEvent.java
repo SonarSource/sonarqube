@@ -19,20 +19,44 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
-public class TaintVulnerabilityClosed extends IssueEvent {
+public abstract class IssueEvent {
 
-  private static final String EVENT_NAME = "TaintVulnerabilityClosed";
+  private String key;
+  private String projectKey;
 
-  public TaintVulnerabilityClosed() {
+  protected IssueEvent() {
     // nothing to do
   }
 
-  public TaintVulnerabilityClosed(String key, String projectKey) {
-    super(key, projectKey);
+  protected IssueEvent(String key, String projectKey) {
+    this.key = key;
+    this.projectKey = projectKey;
+  }
+
+  public abstract String getEventName();
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public void setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
   }
 
   @Override
-  public String getEventName() {
-    return EVENT_NAME;
+  public String toString() {
+    return "IssueEvent{" +
+      "name='" + getEventName() + '\'' +
+      ", key='" + key + '\'' +
+      ", projectKey='" + projectKey + '\'' +
+      '}';
   }
 }

@@ -38,6 +38,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -128,13 +129,14 @@ public class IssueFieldsSetter {
   /**
    * Used to set the assignee when it was null
    */
-  public boolean setNewAssignee(DefaultIssue issue, @Nullable String newAssigneeUuid, IssueChangeContext context) {
-    if (newAssigneeUuid == null) {
+  public boolean setNewAssignee(DefaultIssue issue, @Nullable UserIdDto userId, IssueChangeContext context) {
+    if (userId == null) {
       return false;
     }
     checkState(issue.assignee() == null, "It's not possible to update the assignee with this method, please use assign()");
-    issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeUuid);
-    issue.setAssigneeUuid(newAssigneeUuid);
+    issue.setFieldChange(context, ASSIGNEE, UNUSED, userId.getUuid());
+    issue.setAssigneeUuid(userId.getUuid());
+    issue.setAssigneeLogin(userId.getLogin());
     issue.setUpdateDate(context.date());
     issue.setChanged(true);
     issue.setSendNotifications(true);

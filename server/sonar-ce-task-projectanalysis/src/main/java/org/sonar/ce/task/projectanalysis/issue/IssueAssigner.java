@@ -23,8 +23,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.user.UserIdDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
@@ -45,7 +46,7 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBu
  */
 public class IssueAssigner extends IssueVisitor {
 
-  private static final Logger LOGGER = Loggers.get(IssueAssigner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueAssigner.class);
 
   private final ScmInfoRepository scmInfoRepository;
   private final DefaultAssignee defaultAssignee;
@@ -82,9 +83,8 @@ public class IssueAssigner extends IssueVisitor {
     }
 
     if (issue.assignee() == null) {
-      String assigneeUuid = scmAuthor.map(scmAccountToUser::getNullable).orElse(null);
-      assigneeUuid = defaultIfEmpty(assigneeUuid, defaultAssignee.loadDefaultAssigneeUuid());
-      issueUpdater.setNewAssignee(issue, assigneeUuid, changeContext);
+      UserIdDto userId = scmAuthor.map(scmAccountToUser::getNullable).orElse(defaultAssignee.loadDefaultAssigneeUserId());
+      issueUpdater.setNewAssignee(issue, userId, changeContext);
     }
   }
 

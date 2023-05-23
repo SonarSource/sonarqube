@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +92,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUserUuidByScmAccountOrLoginOrEmail_findsCorrectResults() {
+  public void selectActiveUsersByScmAccountOrLoginOrEmail_findsCorrectResults() {
     String user1 = db.users().insertUser(user -> user.setLogin("user1").setEmail("toto@tata.com")).getUuid();
     String user2 = db.users().insertUser(user -> user.setLogin("user2")).getUuid();
     String user3 = db.users().insertUser(user -> user.setLogin("user3").setScmAccounts(List.of("scmuser3", "scmuser3bis"))).getUuid();
@@ -99,11 +100,14 @@ public class UserDaoIT {
     db.users().insertUser(user -> user.setLogin("inactive_user1").setActive(false));
     db.users().insertUser(user -> user.setLogin("inactive_user2").setActive(false).setScmAccounts(List.of("inactive_user2")));
 
-    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "toto@tata.com")).containsExactly(user1);
-    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "user2")).containsExactly(user2);
-    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "scmuser3")).containsExactly(user3);
-    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "inactive_user1")).isEmpty();
-    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "inactive_user2")).isEmpty();
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "toto@tata.com"))
+      .extracting(UserIdDto::getUuid, UserIdDto::getLogin).containsExactly(new Tuple(user1, "user1"));
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "user2"))
+      .extracting(UserIdDto::getUuid, UserIdDto::getLogin).containsExactly(new Tuple(user2, "user2"));
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "scmuser3"))
+      .extracting(UserIdDto::getUuid, UserIdDto::getLogin).containsExactly(new Tuple(user3, "user3"));
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "inactive_user1")).isEmpty();
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "inactive_user2")).isEmpty();
   }
 
   @Test

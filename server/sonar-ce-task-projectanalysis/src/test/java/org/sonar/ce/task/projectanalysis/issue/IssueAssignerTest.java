@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.user.UserIdDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static java.util.stream.Collectors.joining;
@@ -56,9 +57,9 @@ public class IssueAssignerTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(123456789L);
 
-  private ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
-  private DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
-  private IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
+  private final ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
+  private final DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
+  private final IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
 
   @Before
   public void before() {
@@ -98,38 +99,41 @@ public class IssueAssignerTest {
   @Test
   public void assign_but_do_not_set_author_if_too_long() {
     String scmAuthor = range(0, 256).mapToObj(i -> "s").collect(joining());
-    addScmUser(scmAuthor, "John C");
+    addScmUser(scmAuthor, buildUserId("u123", "John C"));
     setSingleChangeset(scmAuthor, 123456789L, "rev-1");
     DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.authorLogin()).isNull();
-    assertThat(issue.assignee()).isEqualTo("John C");
+    assertThat(issue.assignee()).isEqualTo("u123");
+    assertThat(issue.assigneeLogin()).isEqualTo("John C");
 
     assertThat(logTester.logs(Level.DEBUG)).contains("SCM account '" + scmAuthor + "' is too long to be stored as issue author");
   }
 
   @Test
   public void assign_new_issue_to_author_of_change() {
-    addScmUser("john", "u123");
+    addScmUser("john", buildUserId("u123", "john"));
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("u123");
+    assertThat(issue.assigneeLogin()).isEqualTo("john");
   }
 
   @Test
   public void assign_new_issue_to_default_assignee_if_author_not_found() {
     setSingleChangeset("john", 123456789L, "rev-1");
-    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u1234");
+    when(defaultAssignee.loadDefaultAssigneeUserId()).thenReturn(new UserIdDto("u1234", "john"));
     DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("u1234");
+    assertThat(issue.assigneeLogin()).isEqualTo("john");
   }
 
   @Test
@@ -145,7 +149,7 @@ public class IssueAssignerTest {
 
   @Test
   public void do_not_assign_issue_if_unassigned_but_already_authored() {
-    addScmUser("john", "u1234");
+    addScmUser("john", buildUserId("u1234", "john"));
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = newIssueOnLines(1)
       .setAuthorLogin("john")
@@ -159,7 +163,7 @@ public class IssueAssignerTest {
 
   @Test
   public void assign_to_last_committer_of_file_if_issue_is_global_to_file() {
-    addScmUser("henry", "Henry V");
+    addScmUser("henry", buildUserId("u123", "Henry V"));
     Changeset changeset1 = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(1_000L)
@@ -177,22 +181,24 @@ public class IssueAssignerTest {
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.assignee()).isEqualTo("Henry V");
+    assertThat(issue.assignee()).isEqualTo("u123");
+    assertThat(issue.assigneeLogin()).isEqualTo("Henry V");
   }
 
   @Test
   public void assign_to_default_assignee_if_no_author() {
     DefaultIssue issue = newIssueOnLines();
 
-    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u123");
+    when(defaultAssignee.loadDefaultAssigneeUserId()).thenReturn(new UserIdDto("u123", "john"));
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("u123");
+    assertThat(issue.assigneeLogin()).isEqualTo("john");
   }
 
   @Test
   public void assign_to_default_assignee_if_no_scm_on_issue_locations() {
-    addScmUser("john", "John C");
+    addScmUser("john", buildUserId("u123", "John C"));
     Changeset changeset = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
@@ -203,13 +209,14 @@ public class IssueAssignerTest {
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.assignee()).isEqualTo("John C");
+    assertThat(issue.assignee()).isEqualTo("u123");
+    assertThat(issue.assigneeLogin()).isEqualTo("John C");
   }
 
   @Test
   public void assign_to_author_of_the_most_recent_change_in_all_issue_locations() {
-    addScmUser("john", "u1");
-    addScmUser("jane", "u2");
+    addScmUser("john", buildUserId("u1", "John"));
+    addScmUser("jane", buildUserId("u2", "Jane"));
     Changeset commit1 = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(1_000L)
@@ -227,6 +234,7 @@ public class IssueAssignerTest {
 
     assertThat(issue.authorLogin()).isEqualTo("jane");
     assertThat(issue.assignee()).isEqualTo("u2");
+    assertThat(issue.assigneeLogin()).isEqualTo("Jane");
   }
 
   private void setSingleChangeset(@Nullable String author, Long date, String revision) {
@@ -238,8 +246,8 @@ public class IssueAssignerTest {
         .build());
   }
 
-  private void addScmUser(String scmAccount, String userUuid) {
-    when(scmAccountToUser.getNullable(scmAccount)).thenReturn(userUuid);
+  private void addScmUser(String scmAccount, UserIdDto userId) {
+    when(scmAccountToUser.getNullable(scmAccount)).thenReturn(userId);
   }
 
   private static DefaultIssue newIssueOnLines(int... lines) {
@@ -259,4 +267,7 @@ public class IssueAssignerTest {
       .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(line).setEndLine(line).build()).build();
   }
 
+  private UserIdDto buildUserId(String uuid, String login) {
+    return new UserIdDto(uuid, login);
+  }
 }

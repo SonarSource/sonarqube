@@ -40,7 +40,7 @@ public interface UserMapper {
   @CheckForNull
   List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
 
-  List<String> selectUserUuidByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
+  List<UserIdDto> selectActiveUsersByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
 
   /**
    * Select user by login. Note that disabled users are ignored.

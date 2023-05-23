@@ -42,6 +42,7 @@ public class DumbRule implements Rule {
   private String pluginKey;
   private boolean isExternal;
   private boolean isAdHoc;
+  private Set<String> securityStandards = new HashSet<>();
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -103,6 +104,11 @@ public class DumbRule implements Rule {
   @Override
   public String getSeverity() {
     return null;
+  }
+
+  @Override
+  public Set<String> getSecurityStandards() {
+    return securityStandards;
   }
 
   @Override

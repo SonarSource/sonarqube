@@ -62,4 +62,6 @@ public interface Rule {
   String getDefaultRuleDescription();
 
   String getSeverity();
+
+  Set<String> getSecurityStandards();
 }

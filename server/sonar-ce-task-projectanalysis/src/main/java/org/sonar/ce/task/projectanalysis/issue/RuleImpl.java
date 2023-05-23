@@ -51,6 +51,7 @@ public class RuleImpl implements Rule {
   private final boolean isAdHoc;
   private final String defaultRuleDescription;
   private final String severity;
+  private final Set<String> securityStandards;
 
   public RuleImpl(RuleDto dto) {
     this.uuid = dto.getUuid();
@@ -66,6 +67,7 @@ public class RuleImpl implements Rule {
     this.isAdHoc = dto.isAdHoc();
     this.defaultRuleDescription = getNonNullDefaultRuleDescription(dto);
     this.severity = Optional.ofNullable(dto.getSeverityString()).orElse(dto.getAdHocSeverity());
+    this.securityStandards = dto.getSecurityStandards();
   }
 
   private static String getNonNullDefaultRuleDescription(RuleDto dto) {
@@ -128,6 +130,11 @@ public class RuleImpl implements Rule {
   @Override
   public String getSeverity() {
     return severity;
+  }
+
+  @Override
+  public Set<String> getSecurityStandards() {
+    return securityStandards;
   }
 
   @Override

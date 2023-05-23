@@ -37,6 +37,7 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserIdDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -111,9 +112,10 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_new_assignee() {
-    boolean updated = underTest.setNewAssignee(issue, "user_uuid", context);
+    boolean updated = underTest.setNewAssignee(issue, new UserIdDto("user_uuid", "user_login"), context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("user_uuid");
+    assertThat(issue.assigneeLogin()).isEqualTo("user_login");
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
@@ -132,7 +134,8 @@ public class IssueFieldsSetterTest {
   public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() {
     issue.setAssigneeUuid("user_uuid");
 
-    assertThatThrownBy(() -> underTest.setNewAssignee(issue, "another_user_uuid", context))
+    UserIdDto userId = new UserIdDto("another_user_uuid", "another_user_login");
+    assertThatThrownBy(() -> underTest.setNewAssignee(issue, userId, context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("It's not possible to update the assignee with this method, please use assign()");
   }

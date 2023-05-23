@@ -297,6 +297,7 @@ public class IssueLifecycleTest {
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
+      .setAssigneeLogin("base assignee login")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -326,6 +327,7 @@ public class IssueLifecycleTest {
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
+    assertThat(raw.assigneeLogin()).isEqualTo("base assignee login");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
@@ -383,6 +385,7 @@ public class IssueLifecycleTest {
       .setStatus(STATUS_RESOLVED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
+      .setAssigneeLogin("base assignee login")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -410,6 +413,7 @@ public class IssueLifecycleTest {
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(raw.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
+    assertThat(raw.assigneeLogin()).isEqualTo("base assignee login");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.codeVariants()).containsOnly("foo", "bar");

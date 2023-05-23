@@ -112,6 +112,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setStatus(next.getStatus());
     defaultIssue.setResolution(next.hasResolution() ? next.getResolution() : null);
     defaultIssue.setAssigneeUuid(next.hasAssigneeUuid() ? next.getAssigneeUuid() : null);
+    defaultIssue.setAssigneeLogin(next.hasAssigneeLogin() ? next.getAssigneeLogin() : null);
     defaultIssue.setChecksum(next.hasChecksum() ? next.getChecksum() : null);
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
@@ -164,6 +165,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setStatus(defaultIssue.status());
     ofNullable(defaultIssue.resolution()).ifPresent(builder::setResolution);
     ofNullable(defaultIssue.assignee()).ifPresent(builder::setAssigneeUuid);
+    ofNullable(defaultIssue.assigneeLogin()).ifPresent(builder::setAssigneeLogin);
     ofNullable(defaultIssue.checksum()).ifPresent(builder::setChecksum);
     ofNullable(defaultIssue.authorLogin()).ifPresent(builder::setAuthorLogin);
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));

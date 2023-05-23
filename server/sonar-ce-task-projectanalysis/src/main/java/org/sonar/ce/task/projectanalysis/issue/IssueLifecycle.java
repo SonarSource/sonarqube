@@ -216,6 +216,7 @@ public class IssueLifecycle {
     toIssue.setResolution(fromIssue.resolution());
     toIssue.setStatus(fromIssue.status());
     toIssue.setAssigneeUuid(fromIssue.assignee());
+    toIssue.setAssigneeLogin(fromIssue.assigneeLogin());
     toIssue.setAuthorLogin(fromIssue.authorLogin());
     toIssue.setTags(fromIssue.tags());
     toIssue.setEffort(debtCalculator.calculate(toIssue));

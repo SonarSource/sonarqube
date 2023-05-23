@@ -76,7 +76,7 @@ public class UserDto implements UserId {
     return uuid;
   }
 
-  UserDto setUuid(String uuid) {
+  public UserDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
