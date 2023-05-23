@@ -80,6 +80,7 @@ export { TopBar } from './TopBar';
 export * from './buttons';
 export { ClipboardIconButton } from './clipboard';
 export * from './code-line/LineCoverage';
+export * from './code-line/LineFinding';
 export * from './code-line/LineIssuesIndicatorIcon';
 export * from './code-line/LineMarker';
 export * from './code-line/LineNumber';

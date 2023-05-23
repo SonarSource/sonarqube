@@ -50,6 +50,7 @@ export const ui = {
   issueItem6: byRole('region', { name: 'Second issue' }),
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
+  projectIssueItem6: byRole('button', { name: 'Second issue', exact: false }),
 
   clearIssueTypeFacet: byRole('button', { name: 'clear_x_filter.issues.facet.types' }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),

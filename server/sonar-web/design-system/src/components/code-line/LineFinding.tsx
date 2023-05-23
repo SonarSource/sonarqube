@@ -1,0 +1,78 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import styled from '@emotion/styled';
+import { forwardRef, Ref } from 'react';
+import tw from 'twin.macro';
+import { themeBorder, themeColor, themeContrast, themeShadow } from '../../helpers/theme';
+import { BareButton } from '../buttons';
+import { IssueTypeCircleIcon } from '../icons/IssueTypeIcon';
+
+interface Props {
+  className?: string;
+  issueKey: string;
+  issueType: string;
+  message: string;
+  onIssueSelect: (issueKey: string) => void;
+  selected?: boolean;
+}
+
+function LineFindingFunc(
+  { issueType, message, issueKey, selected = true, className, onIssueSelect }: Props,
+  ref: Ref<HTMLButtonElement>
+) {
+  return (
+    <LineFindingStyled
+      className={className}
+      data-issue={issueKey}
+      onClick={() => {
+        onIssueSelect(issueKey);
+      }}
+      ref={ref}
+      selected={selected}
+    >
+      <IssueTypeCircleIcon className="sw-ml-1/2" type={issueType} />
+      {message}
+    </LineFindingStyled>
+  );
+}
+
+export const LineFinding = forwardRef<HTMLElement, Props>(LineFindingFunc);
+
+const LineFindingStyled = styled(BareButton)<{ selected: boolean }>`
+  ${tw`sw-flex sw-gap-2 sw-items-center`}
+  ${tw`sw-my-3 sw-mx-1`}
+  ${tw`sw-p-3`}
+  ${tw`sw-body-md-highlight`}
+  ${tw`sw-rounded-1`}
+  ${tw`sw-w-full`}
+  ${tw`sw-box-border`}
+
+  border: ${(props) =>
+    props.selected
+      ? themeBorder('default', 'issueBoxSelectedBorder')
+      : themeBorder('default', 'issueBoxBorder')};
+  color: ${themeContrast('pageBlock')};
+  word-break: break-word;
+  background-color: ${themeColor('pageBlock')};
+
+  :hover {
+    box-shadow: ${themeShadow('sm')};
+  }
+`;

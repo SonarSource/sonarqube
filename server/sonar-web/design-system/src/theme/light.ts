@@ -481,7 +481,8 @@ export const lightTheme = {
     coreConceptsProgressBar: secondary.light,
 
     // issue box
-    issueBoxBorder: danger.lighter,
+    issueBoxSelectedBorder: danger.lighter,
+    issueBoxBorder: secondary.default,
     issueBoxBorderDepracated: secondary.default,
     issueTypeIcon: COLORS.red[200],
 
