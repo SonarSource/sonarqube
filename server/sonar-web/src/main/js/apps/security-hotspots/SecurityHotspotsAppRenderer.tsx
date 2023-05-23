@@ -21,7 +21,6 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   DeferredSpinner,
-  LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
   LargeCenteredLayout,
@@ -35,7 +34,6 @@ import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { isBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
-import useFollowScroll from '../../hooks/useFollowScroll';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
@@ -80,6 +78,8 @@ export interface SecurityHotspotsAppRendererProps {
   standards: Standards;
 }
 
+const STICKY_HEADER_HEIGHT = 73;
+
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
   const {
     branchLike,
@@ -105,11 +105,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
   const isProject = component.qualifier === ComponentQualifier.Project;
 
-  const { top: topScroll } = useFollowScroll();
-  const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
-  const footerVisibleHeight =
-    distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
-
   return (
     <>
       <Suggestions suggestions="security_hotspots" />
@@ -118,19 +113,13 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
       <LargeCenteredLayout id={MetricKey.security_hotspots}>
         <PageContentFontWrapper>
-          <div className="sw-grid sw-grid-cols-12 sw-w-full sw-min-h-[100vh]">
+          <div className="sw-grid sw-grid-cols-12 sw-w-full">
             <StyledSidebar
               aria-label={translate('hotspots.list')}
-              className="sw--mt-8 sw-z-filterbar sw-col-span-4"
-              style={{
-                height: `calc(100vh - ${
-                  LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT
-                }px - ${footerVisibleHeight}px)`,
-                top: LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT,
-              }}
+              className="sw-z-filterbar sw-col-span-4"
             >
               {isProject && (
-                <StyledSidebarHeader className="sw-w-full sw-top-0 sw-px-4 sw-py-2">
+                <StyledSidebarHeader className="sw-w-full sw-px-4 sw-py-2">
                   <HotspotSidebarHeader
                     branchLike={branchLike}
                     filters={filters}
@@ -186,7 +175,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 </DeferredSpinner>
               </StyledSidebarContent>
             </StyledSidebar>
-            <StyledMain className="sw-col-span-8 sw-relative sw-pl-12">
+            <StyledMain className="sw-col-span-8 sw-relative sw-ml-12">
               {hotspots.length === 0 || !selectedHotspot ? (
                 <EmptyHotspotsPage
                   filtered={
@@ -199,6 +188,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 />
               ) : (
                 <HotspotViewer
+                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
                   component={component}
                   hotspotKey={selectedHotspot.key}
                   onSwitchStatusFilter={props.onSwitchStatusFilter}
@@ -217,15 +207,17 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 }
 
 const StyledSidebar = withTheme(styled.section`
-  position: sticky;
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: scroll;
+
   background-color: ${themeColor('filterbar')};
   border-right: ${themeBorder('default', 'filterbarBorder')};
 `);
 
 const StyledSidebarContent = styled.div`
+  height: calc(
+    100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT}px
+  );
+  overflow-x: hidden;
   position: relative;
   box-sizing: border-box;
   width: 100%;
@@ -237,9 +229,13 @@ const StyledSidebarHeader = withTheme(styled.div`
   background-color: inherit;
   border-bottom: ${themeBorder('default')};
   z-index: 1;
+  height: ${STICKY_HEADER_HEIGHT}px;
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px;
 `);
 
 const StyledMain = styled.main`
   flex-grow: 1;
   background-color: ${themeColor('backgroundSecondary')};
+  border-left: ${themeBorder('default')};
+  border-right: ${themeBorder('default')};
 `;

@@ -28,6 +28,7 @@ import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/secu
 import { searchUsers } from '../../../api/users';
 import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { get, save } from '../../../helpers/storage';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentContextShape } from '../../../types/component';
@@ -44,6 +45,7 @@ jest.mock('../../../api/rules');
 jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/issues');
 jest.mock('../hooks/useScrollDownCompress');
+jest.mock('.../../../helpers/storage');
 
 const ui = {
   inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
@@ -83,11 +85,24 @@ const ui = {
   showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
   activityTab: byRole('tab', { name: /hotspots.tabs.activity/ }),
   addCommentButton: byRole('button', { name: 'hotspots.status.add_comment' }),
+  continueReviewingButton: byRole('button', { name: 'hotspots.continue_to_next_hotspot' }),
+  seeStatusHotspots: byRole('button', { name: /hotspots.see_x_hotspots/ }),
+  dontShowSuccessDialogCheckbox: byRole('checkbox', {
+    name: 'hotspots.success_dialog.do_not_show',
+  }),
 };
 
 const originalScrollTo = window.scrollTo;
 const hotspotsHandler = new SecurityHotspotServiceMock();
 const rulesHandles = new CodingRulesServiceMock();
+let showDialog = 'true';
+
+jest.mocked(save).mockImplementation((_key: string, value?: string) => {
+  if (value) {
+    showDialog = value;
+  }
+});
+jest.mocked(get).mockImplementation(() => showDialog);
 
 beforeAll(() => {
   Object.defineProperty(window, 'scrollTo', {
@@ -221,6 +236,9 @@ describe('CRUD', () => {
       await user.click(ui.changeStatus.get());
     });
 
+    expect(ui.continueReviewingButton.get()).toBeInTheDocument();
+    await user.click(ui.continueReviewingButton.get());
+
     await user.click(ui.activityTab.get());
     expect(setSecurityHotspotStatus).toHaveBeenLastCalledWith('test-1', {
       comment: 'COMMENT-TEXT',
@@ -343,6 +361,29 @@ describe('navigation', () => {
 
     expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
   });
+});
+
+it('after status change, should be able to disable success dialog show', async () => {
+  const user = userEvent.setup();
+
+  renderSecurityHotspotsApp();
+  await user.click(await ui.reviewButton.find());
+  await user.click(ui.toReviewStatus.get());
+  await act(async () => {
+    await user.click(ui.changeStatus.get());
+  });
+
+  await user.click(ui.dontShowSuccessDialogCheckbox.get());
+  expect(ui.dontShowSuccessDialogCheckbox.get()).toBeChecked();
+  await user.click(ui.continueReviewingButton.get());
+
+  // Repeat status change and verify that dialog is not shown
+  await user.click(await ui.reviewButton.find());
+  await user.click(ui.toReviewStatus.get());
+  await act(async () => {
+    await user.click(ui.changeStatus.get());
+  });
+  expect(ui.continueReviewingButton.query()).not.toBeInTheDocument();
 });
 
 it('should be able to filter the hotspot list', async () => {

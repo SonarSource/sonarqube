@@ -19,8 +19,6 @@
  */
 import * as React from 'react';
 import { setSecurityHotspotStatus } from '../../../../api/security-hotspots';
-import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import {
   getStatusAndResolutionFromStatusOption,
@@ -58,12 +56,7 @@ export default function StatusSelection(props: Props) {
           comment: comment || undefined,
         });
         await props.onStatusOptionChange(status);
-        addGlobalSuccessMessage(
-          translateWithParameters(
-            'hotspots.update.success',
-            translate('hotspots.status_option', status)
-          )
-        );
+
         props.onClose();
       } catch {
         setLoading(false);

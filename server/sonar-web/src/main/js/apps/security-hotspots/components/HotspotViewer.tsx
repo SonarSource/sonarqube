@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
+import { get } from '../../../helpers/storage';
 import { Standards } from '../../../types/security';
 import {
   Hotspot,
@@ -28,6 +29,7 @@ import {
 } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
+import { SHOW_STATUS_DIALOG_STORAGE_KEY } from '../constants';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
@@ -35,6 +37,7 @@ interface Props {
   component: Component;
   hotspotKey: string;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
+  hotspotsReviewedMeasure?: string;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   onLocationClick: (index: number) => void;
   selectedHotspotLocation?: number;
@@ -46,6 +49,7 @@ interface State {
   ruleDescriptionSections?: RuleDescriptionSection[];
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
+  showStatusUpdateSuccessModal: boolean;
 }
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
@@ -54,7 +58,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { loading: false };
+    this.state = { loading: false, showStatusUpdateSuccessModal: false };
   }
 
   componentDidMount() {
@@ -96,7 +100,10 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     const { hotspotKey } = this.props;
 
     if (statusUpdate) {
-      this.setState({ lastStatusChangedTo: statusOption });
+      this.setState({
+        lastStatusChangedTo: statusOption,
+        showStatusUpdateSuccessModal: get(SHOW_STATUS_DIALOG_STORAGE_KEY) !== 'false',
+      });
       await this.props.onUpdateHotspot(hotspotKey);
     } else {
       await this.fetchHotspot();
@@ -110,12 +117,27 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     }
   };
 
+  handleCloseStatusUpdateSuccessModal = () => {
+    this.setState({ showStatusUpdateSuccessModal: false });
+  };
+
   render() {
-    const { component, selectedHotspotLocation, standards } = this.props;
-    const { hotspot, ruleDescriptionSections, loading } = this.state;
+    const { component, selectedHotspotLocation, standards, hotspotsReviewedMeasure } = this.props;
+    const {
+      hotspot,
+      ruleDescriptionSections,
+      loading,
+      showStatusUpdateSuccessModal,
+      lastStatusChangedTo,
+    } = this.state;
 
     return (
       <HotspotViewerRenderer
+        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+        lastStatusChangedTo={lastStatusChangedTo}
+        onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
+        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
+        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
         standards={standards}
         component={component}
         hotspot={hotspot}

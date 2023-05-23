@@ -30,12 +30,19 @@ import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
 import HotspotViewerTabs from './HotspotViewerTabs';
+import StatusUpdateSuccessModal from './StatusUpdateSuccessModal';
 
 export interface HotspotViewerRendererProps {
   component: Component;
   currentUser: CurrentUser;
   hotspot?: Hotspot;
   ruleDescriptionSections?: RuleDescriptionSection[];
+  hotspotsReviewedMeasure?: string;
+  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
+  lastStatusChangedTo?: HotspotStatusOption;
+  onCloseStatusUpdateSuccessModal: () => void;
+  showStatusUpdateSuccessModal: boolean;
+
   loading: boolean;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   onLocationClick: (index: number) => void;
@@ -51,6 +58,9 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     loading,
     selectedHotspotLocation,
     ruleDescriptionSections,
+    showStatusUpdateSuccessModal,
+    hotspotsReviewedMeasure,
+    lastStatusChangedTo,
     standards,
   } = props;
 
@@ -59,6 +69,15 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
   return (
     <>
       <DeferredSpinner className="sw-ml-4 sw-mt-4" loading={loading} />
+
+      {showStatusUpdateSuccessModal && (
+        <StatusUpdateSuccessModal
+          hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+          lastStatusChangedTo={lastStatusChangedTo}
+          onClose={props.onCloseStatusUpdateSuccessModal}
+          onSwitchFilterToStatusOfUpdatedHotspot={props.onSwitchFilterToStatusOfUpdatedHotspot}
+        />
+      )}
 
       {hotspot && (
         <div className="sw-box-border sw-p-6">
