@@ -109,6 +109,11 @@
   border: 0;
 }
 
+.button-plain:disabled {
+  color: var(--disableGrayText) !important;
+  cursor: not-allowed !important;
+}
+
 /* #endregion */
 
 /* #region .button-link */

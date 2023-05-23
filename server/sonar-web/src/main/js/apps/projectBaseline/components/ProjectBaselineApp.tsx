@@ -281,6 +281,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
                   branch={branchLike}
                   branchList={branchList}
                   branchesEnabled={branchSupportEnabled}
+                  canAdmin={appState.canAdmin}
                   component={component.key}
                   currentSetting={currentSetting}
                   currentSettingValue={currentSettingValue}

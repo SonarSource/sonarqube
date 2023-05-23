@@ -26,6 +26,7 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
 
 export interface BranchListRowProps {
   branch: BranchWithNewCodePeriod;
@@ -98,6 +99,8 @@ export default function BranchListRow(props: BranchListRowProps) {
     );
   }
 
+  const isCompliant = isNewCodeDefinitionCompliant(inheritedSetting);
+
   return (
     <tr className={settingWarning ? 'branch-setting-warning' : ''}>
       <td className="nowrap">
@@ -125,7 +128,13 @@ export default function BranchListRow(props: BranchListRowProps) {
             {translate('edit')}
           </ActionsDropdownItem>
           {branch.newCodePeriod && (
-            <ActionsDropdownItem onClick={() => props.onResetToDefault(branch.name)}>
+            <ActionsDropdownItem
+              disabled={!isCompliant}
+              onClick={() => props.onResetToDefault(branch.name)}
+              tooltipOverlay={
+                isCompliant ? null : translate('project_baseline.compliance.warning.title.project')
+              }
+            >
               {translate('reset_to_default')}
             </ActionsDropdownItem>
           )}

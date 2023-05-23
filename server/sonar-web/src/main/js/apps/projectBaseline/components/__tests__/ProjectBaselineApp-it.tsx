@@ -33,6 +33,7 @@ import {
 } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
 import routes from '../../routes';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 
 jest.mock('../../../../api/newCodePeriod');
 jest.mock('../../../../api/projectActivity');
@@ -59,6 +60,39 @@ it('renders correctly without branch support feature', async () => {
   // Specific branch setting is not rendered without feature branch
   expect(ui.branchListHeading.query()).not.toBeInTheDocument();
   expect(ui.referenceBranchRadio.query()).not.toBeInTheDocument();
+});
+
+it('prevents selection of global setting if it is not compliant and warns non-admin about it', async () => {
+  codePeriodsMock.setNewCodePeriod({
+    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+    value: '99',
+    inherited: true,
+  });
+
+  const { ui } = getPageObjects();
+  renderProjectBaselineApp();
+  await ui.appIsLoaded();
+
+  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(ui.generalSettingRadio.get()).toHaveClass('disabled');
+  expect(ui.complianceWarning.get()).toBeVisible();
+});
+
+it('prevents selection of global setting if it is not compliant and warns admin about it', async () => {
+  codePeriodsMock.setNewCodePeriod({
+    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+    value: '99',
+    inherited: true,
+  });
+
+  const { ui } = getPageObjects();
+  renderProjectBaselineApp({ appState: mockAppState({ canAdmin: true }) });
+  await ui.appIsLoaded();
+
+  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(ui.generalSettingRadio.get()).toHaveClass('disabled');
+  expect(ui.complianceWarningAdmin.get()).toBeVisible();
+  expect(ui.complianceWarning.query()).not.toBeInTheDocument();
 });
 
 it('renders correctly with branch support feature', async () => {
@@ -228,7 +262,7 @@ function getPageObjects() {
     pageHeading: byRole('heading', { name: 'project_baseline.page' }),
     branchListHeading: byRole('heading', { name: 'project_baseline.default_setting' }),
     generalSettingsLink: byRole('link', { name: 'project_baseline.page.description2.link' }),
-    generalSettingRadio: byRole('radio', { name: 'project_baseline.general_setting' }),
+    generalSettingRadio: byRole('radio', { name: 'project_baseline.global_setting' }),
     specificSettingRadio: byRole('radio', { name: 'project_baseline.specific_setting' }),
     previousVersionRadio: byRole('radio', { name: /baseline.previous_version.description/ }),
     numberDaysRadio: byRole('radio', { name: /baseline.number_days.description/ }),
@@ -245,6 +279,8 @@ function getPageObjects() {
     editButton: byRole('button', { name: 'edit' }),
     resetToDefaultButton: byRole('button', { name: 'reset_to_default' }),
     saved: byText('settings.state.saved'),
+    complianceWarningAdmin: byText('project_baseline.compliance.warning.explanation.admin'),
+    complianceWarning: byText('project_baseline.compliance.warning.explanation'),
   };
 
   async function appIsLoaded() {

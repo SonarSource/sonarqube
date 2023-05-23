@@ -33,12 +33,17 @@ import BaselineSettingDays, { BaselineSettingDaysSettingLevel } from './Baseline
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
+import Tooltip from '../../../components/controls/Tooltip';
+import { FormattedMessage } from 'react-intl';
+import Link from '../../../components/common/Link';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
   branch: Branch;
   branchList: Branch[];
   branchesEnabled?: boolean;
+  canAdmin: boolean | undefined;
   component: string;
   currentSetting?: NewCodePeriodSettingType;
   currentSettingValue?: string;
@@ -94,6 +99,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     branch,
     branchList,
     branchesEnabled,
+    canAdmin,
     component,
     currentSetting,
     currentSettingValue,
@@ -104,6 +110,8 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     saving,
     selected,
   } = props;
+
+  const isGeneralSettingCompliant = isNewCodeDefinitionCompliant(generalSetting);
 
   const { isChanged, isValid } = validateSetting({
     analysis,
@@ -121,12 +129,47 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         <Radio
           checked={!overrideGeneralSetting}
           className="big-spacer-bottom"
+          disabled={!isGeneralSettingCompliant}
           onCheck={() => props.onToggleSpecificSetting(false)}
           value="general"
         >
-          {translate('project_baseline.general_setting')}
+          <Tooltip
+            overlay={
+              isGeneralSettingCompliant
+                ? null
+                : translate('project_baseline.compliance.warning.title.global')
+            }
+          >
+            <span>{translate('project_baseline.global_setting')}</span>
+          </Tooltip>
         </Radio>
         <div className="big-spacer-left">{renderGeneralSetting(generalSetting)}</div>
+        {!isGeneralSettingCompliant && (
+          <Alert className="sw-mt-10 sw-max-w-[700px]" variant="warning">
+            <p className="sw-mb-2 sw-font-bold">
+              {translate('project_baseline.compliance.warning.title.global')}
+            </p>
+            <p className="sw-mb-2">
+              {canAdmin ? (
+                <FormattedMessage
+                  id="project_baseline.compliance.warning.explanation.admin"
+                  defaultMessage={translate(
+                    'project_baseline.compliance.warning.explanation.admin'
+                  )}
+                  values={{
+                    link: (
+                      <Link to="/admin/settings?category=new_code_period">
+                        {translate('project_baseline.warning.explanation.action.admin.link')}
+                      </Link>
+                    ),
+                  }}
+                />
+              ) : (
+                translate('project_baseline.compliance.warning.explanation')
+              )}
+            </p>
+          </Alert>
+        )}
 
         <Radio
           checked={overrideGeneralSetting}
