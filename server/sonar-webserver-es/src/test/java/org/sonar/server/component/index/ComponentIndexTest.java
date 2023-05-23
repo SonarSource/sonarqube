@@ -22,12 +22,17 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRule;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -44,7 +49,7 @@ public abstract class ComponentIndexTest {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -55,32 +60,21 @@ public abstract class ComponentIndexTest {
   protected ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
 
-  protected void assertFileMatches(String query, String... fileNames) {
-    ComponentDto[] files = Arrays.stream(fileNames)
-      .map(this::indexFile)
-      .toArray(ComponentDto[]::new);
-    assertSearch(query).containsExactlyInAnyOrder(uuids(files));
-  }
-
-  protected void assertNoFileMatches(String query, String... fileNames) {
-    Arrays.stream(fileNames)
-      .forEach(this::indexFile);
-    assertSearch(query).isEmpty();
-  }
+  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   protected void assertResultOrder(String query, String... resultsInOrder) {
-    ComponentDto project = indexProject("key-1", "Quality Product");
-    List<ComponentDto> files = Arrays.stream(resultsInOrder)
-      .map(r -> ComponentTesting.newFileDto(project).setName(r))
-      .peek(f -> f.setUuid(f.uuid() + "_" + f.name().replaceAll("[^a-zA-Z0-9]", "")))
+    indexProject("key-1", "Quality Product");
+    List<ProjectDto> projects = Arrays.stream(resultsInOrder)
+      .map(r -> componentDbTester.insertPublicProject(c -> c.setName(r).setKey(r)).getProjectDto())
+      .peek(p -> p.setUuid(p.getUuid() + "_" + p.getName().replaceAll("[^a-zA-Z0-9]", "")))
       .toList();
 
     // index them, but not in the expected order
-    files.stream()
-      .sorted(Comparator.comparing(ComponentDto::uuid).reversed())
+    projects.stream()
+      .sorted(Comparator.comparing(ProjectDto::getUuid).reversed())
       .forEach(this::index);
 
-    assertExactResults(query, files.toArray(new ComponentDto[0]));
+    assertExactResults(query, projects.toArray(new ProjectDto[0]));
   }
 
   protected ListAssert<String> assertSearch(String query) {
@@ -93,54 +87,45 @@ public abstract class ComponentIndexTest {
       .extracting(ComponentHit::getUuid);
   }
 
-  protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
-    assertSearchResults(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, FILE)).build(), expectedComponents);
+  protected void assertSearchResults(String query, EntityDto... expectedComponents) {
+    assertSearchResults(query, List.of(PROJECT), expectedComponents);
   }
 
-  protected void assertSearchResults(SuggestionQuery query, ComponentDto... expectedComponents) {
+  protected void assertSearchResults(String query, List<String> queryQualifiers, EntityDto... expectedComponents) {
+    assertSearchResults(SuggestionQuery.builder().setQuery(query).setQualifiers(queryQualifiers).build(), expectedComponents);
+  }
+
+  protected void assertSearchResults(SuggestionQuery query, EntityDto... expectedComponents) {
     assertSearch(query).containsOnly(uuids(expectedComponents));
   }
 
-  protected void assertExactResults(String query, ComponentDto... expectedComponents) {
+  protected void assertExactResults(String query, ProjectDto... expectedComponents) {
     assertSearch(query).containsExactly(uuids(expectedComponents));
   }
 
-  protected void assertNoSearchResults(String query) {
-    assertSearchResults(query);
+  protected void assertNoSearchResults(String query, String ... qualifiers) {
+    assertSearchResults(query, List.of(qualifiers));
   }
 
-  protected ComponentDto indexProject(String key, String name) {
-    return index(
-      ComponentTesting.newPrivateProjectDto("UUID_" + key)
-        .setKey(key)
-        .setName(name));
+  protected ProjectDto indexProject(String name) {
+    return indexProject(name, name);
   }
 
-  protected ComponentDto newProject(String key, String name) {
-    return ComponentTesting.newPrivateProjectDto("UUID_" + key)
-      .setKey(key)
-      .setName(name);
+  protected ProjectDto indexProject(String key, String name) {
+    return index(componentDbTester.insertPublicProject("UUID" + key, c -> c.setKey(key).setName(name)).getProjectDto());
   }
 
-  protected ComponentDto indexFile(String fileName) {
-    ComponentDto project = indexProject("key-1", "SonarQube");
-    return indexFile(project, "src/main/java/" + fileName, fileName);
+  protected EntityDto newProject(String key, String name) {
+    return componentDbTester.insertPublicProject("UUID_" + key, c -> c.setKey(key).setName(name)).getProjectDto();
   }
 
-  protected ComponentDto indexFile(ComponentDto project, String fileKey, String fileName) {
-    return index(
-      ComponentTesting.newFileDto(project)
-        .setKey(fileKey)
-        .setName(fileName));
-  }
-
-  protected ComponentDto index(ComponentDto dto) {
+  protected ProjectDto index(ProjectDto dto) {
     indexer.index(dto);
     authorizationIndexerTester.allowOnlyAnyone(dto);
     return dto;
   }
 
-  protected static String[] uuids(ComponentDto... expectedComponents) {
-    return Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new);
+  protected static String[] uuids(EntityDto... expectedComponents) {
+    return Arrays.stream(expectedComponents).map(EntityDto::getUuid).toArray(String[]::new);
   }
 }

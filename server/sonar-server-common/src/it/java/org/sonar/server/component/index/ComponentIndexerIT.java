@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
@@ -133,22 +134,6 @@ public class ComponentIndexerIT {
 
     underTest.indexOnAnalysis(project.uuid());
     assertThatIndexContainsOnly(project);
-  }
-
-  @Test
-  public void indexOnAnalysis_updates_index_on_changes() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    underTest.indexOnAnalysis(project.uuid());
-    assertThatComponentHasName(project, project.name());
-
-    // modify
-    project.setName("NewName");
-    updateDb(project);
-
-    // verify that index is updated
-    underTest.indexOnAnalysis(project.uuid());
-    assertThatIndexContainsOnly(project);
-    assertThatComponentHasName(project, "NewName");
   }
 
   @Test
@@ -264,7 +249,11 @@ public class ComponentIndexerIT {
       Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new));
   }
 
-  private void assertThatComponentHasName(ComponentDto component, String expectedName) {
+  private void assertThatIndexContainsOnly(String uuid) {
+    assertThat(es.getIds(TYPE_COMPONENT)).containsExactlyInAnyOrder(uuid);
+  }
+
+  private void assertThatComponentHasName(String uuid, String expectedName) {
     SearchHit[] hits = es.client()
       .search(EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
         .source(new SearchSourceBuilder()
@@ -273,6 +262,6 @@ public class ComponentIndexerIT {
       .getHits();
     assertThat(hits)
       .extracting(SearchHit::getId)
-      .contains(component.uuid());
+      .contains(uuid);
   }
 }

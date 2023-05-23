@@ -59,12 +59,12 @@ public class ComponentIndexHighlightTest extends ComponentIndexTest {
     assertHighlighting("quickbrownfox", "fox brown", "quick<mark>brownfox</mark>");
   }
 
-  private void assertHighlighting(String fileName, String search, String expectedHighlighting) {
-    indexFile(fileName);
+  private void assertHighlighting(String projectName, String search, String expectedHighlighting) {
+    indexProject(projectName, projectName);
 
     SuggestionQuery query = SuggestionQuery.builder()
       .setQuery(search)
-      .setQualifiers(Collections.singletonList(Qualifiers.FILE))
+      .setQualifiers(Collections.singletonList(Qualifiers.PROJECT))
       .build();
     Stream<ComponentHitsPerQualifier> results = index.searchSuggestions(query, features.get()).getQualifiers();
 

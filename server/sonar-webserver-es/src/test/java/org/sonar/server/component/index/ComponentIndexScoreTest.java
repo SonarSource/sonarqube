@@ -20,9 +20,12 @@
 package org.sonar.server.component.index;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static java.util.Arrays.asList;
@@ -49,8 +52,8 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   @Test
   public void should_prefer_key_matching_over_name_matching() {
     es.recreateIndexes();
-    ComponentDto project1 = indexProject("quality", "SonarQube");
-    ComponentDto project2 = indexProject("sonarqube", "Quality Product");
+    ProjectDto project1 = indexProject("quality", "SonarQube");
+    ProjectDto project2 = indexProject("sonarqube", "Quality Product");
 
     assertExactResults("sonarqube", project2, project1);
   }
@@ -113,37 +116,25 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void should_prefer_favorite_over_recently_browsed() {
-    ComponentDto file1 = db.components().insertPrivateProject(c -> c.setName("File1")).getMainBranchComponent();
-    index(file1);
+    ProjectDto project1 = db.components().insertPrivateProject(c -> c.setName("File1")).getProjectDto();
+    index(project1);
 
-    ComponentDto file2 = db.components().insertPrivateProject(c -> c.setName("File2")).getMainBranchComponent();
-    index(file2);
-
-    assertSearch(SuggestionQuery.builder()
-      .setQuery("File")
-      .setQualifiers(asList(PROJECT, DIRECTORY, FILE))
-      .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getKey()))
-      .setFavoriteKeys(ImmutableSet.of(file2.getKey()))
-      .build()).containsExactly(uuids(file2, file1));
+    ProjectDto project2 = db.components().insertPrivateProject(c -> c.setName("File2")).getProjectDto();
+    index(project2);
 
     assertSearch(SuggestionQuery.builder()
       .setQuery("File")
-      .setQualifiers(asList(PROJECT, DIRECTORY, FILE))
-      .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getKey()))
-      .setFavoriteKeys(ImmutableSet.of(file1.getKey()))
-      .build()).containsExactly(uuids(file1, file2));
-  }
+      .setQualifiers(List.of(PROJECT))
+      .setRecentlyBrowsedKeys(Set.of(project1.getKey()))
+      .setFavoriteKeys(Set.of(project2.getKey()))
+      .build()).containsExactly(uuids(project2, project1));
 
-  @Test
-  public void do_not_match_wrong_file_extension() {
-    ComponentDto file1 = indexFile("MyClass.java");
-    ComponentDto file2 = indexFile("ClassExample.java");
-    ComponentDto file3 = indexFile("Class.java");
-    indexFile("Class.cs");
-    indexFile("Class.js");
-    indexFile("Class.rb");
-
-    assertExactResults("Class java", file3, file2, file1);
+    assertSearch(SuggestionQuery.builder()
+      .setQuery("File")
+      .setQualifiers(List.of(PROJECT))
+      .setRecentlyBrowsedKeys(Set.of(project2.getKey()))
+      .setFavoriteKeys(Set.of(project1.getKey()))
+      .build()).containsExactly(uuids(project1, project2));
   }
 
   @Test
@@ -157,23 +148,8 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   public void scoring_test_DbTester() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 
-    ComponentDto project = indexProject("key-1", "Quality Product");
+    ProjectDto project = indexProject("key-1", "Quality Product");
 
-    index(ComponentTesting.newFileDto(project)
-      .setName("DbTester.java")
-      .setKey("java/org/example/DbTester.java")
-      .setUuid("UUID-DbTester"));
-
-    index(ComponentTesting.newFileDto(project)
-      .setName("WebhookDbTesting.java")
-      .setKey("java/org/example/WebhookDbTesting.java")
-      .setUuid("UUID-WebhookDbTesting"));
-
-    assertSearch("dbt").containsExactly(
-
-      "UUID-DbTester",
-      "UUID-WebhookDbTesting"
-
-    );
+    assertSearch("dbt").isEmpty();
   }
 }

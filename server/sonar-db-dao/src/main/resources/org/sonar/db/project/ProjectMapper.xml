@@ -203,12 +203,13 @@
   </select>
 
   <sql id="entityProjectColumns">
-    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.qualifier as qualifier
+    p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate, p.qualifier as qualifier, null as authUuid
   </sql>
 
   <sql id="entityPortfolioColumns">
     p.uuid as uuid, p.kee as kee, p.name as name, p.private as isPrivate,
-    case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier
+    case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier,
+    case when p.root_uuid != p.uuid then p.root_uuid else null end as authUuid
   </sql>
 
   <select id="selectEntityByUuid" parameterType="string" resultType="Entity">

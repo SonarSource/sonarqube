@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,11 +45,19 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
   }
 
   @Test
-  public void filter_results_by_qualifier() {
-    ComponentDto project = indexProject("struts", "Apache Struts");
-    indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
+  public void index_whenQualifierMatchesWhatIsTheIndex_shouldReturnTheProject() {
+    ProjectDto project = indexProject("struts", "Apache Struts");
 
     assertSearchResults(SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(Qualifiers.PROJECT)).build(), project);
+  }
+
+  @Test
+  public void index_whenQualifierDoesNotMatchWhatIsTheIndex_shouldReturnTheProject() {
+    ProjectDto project = indexProject("struts", "Apache Struts");
+
+    SuggestionQuery query = SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(Qualifiers.VIEW)).build();
+
+    assertNoSearchResults(query.getQuery(), Qualifiers.VIEW);
   }
 
   @Test

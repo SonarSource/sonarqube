@@ -14,7 +14,9 @@
     p.selection_mode as selectionMode,
     p.selection_expression as selectionExpression,
     p.created_at as createdAt,
-    p.updated_at as updatedAt
+    p.updated_at as updatedAt,
+    case when p.parent_uuid is null then 'VW' else 'SVW' end as qualifier,
+    case when p.root_uuid != p.uuid then p.root_uuid else null end as authUuid
   </sql>
 
   <sql id="projectColumns">

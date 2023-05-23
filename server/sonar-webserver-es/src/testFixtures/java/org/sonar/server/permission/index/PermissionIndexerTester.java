@@ -22,6 +22,7 @@ package org.sonar.server.permission.index;
 import java.util.List;
 import java.util.stream.Stream;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -52,8 +53,20 @@ public class PermissionIndexerTester {
     return allow(dto);
   }
 
+  public PermissionIndexerTester allowOnlyUser(EntityDto entityDto, UserDto user) {
+    IndexPermissions dto = new IndexPermissions(entityDto.getUuid(), entityDto.getQualifier())
+      .addUserUuid(user.getUuid());
+    return allow(dto);
+  }
+
   public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
     IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
+      .addGroupUuid(group.getUuid());
+    return allow(dto);
+  }
+
+  public PermissionIndexerTester allowOnlyGroup(EntityDto entityDto, GroupDto group) {
+    IndexPermissions dto = new IndexPermissions(entityDto.getUuid(), entityDto.getQualifier())
       .addGroupUuid(group.getUuid());
     return allow(dto);
   }

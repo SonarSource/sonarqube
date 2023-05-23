@@ -42,7 +42,9 @@ public class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
 
   @Test
   public void should_not_find_partially() {
-    assertNoFileMatches("component.js", "my_component.js");
+    indexProject("my_component");
+
+    assertNoSearchResults("component.js");
   }
 
   @Test

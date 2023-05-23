@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -38,8 +39,8 @@ public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest
 
   @Test
   public void scoring_cares_about_recently_browsed() {
-    ComponentDto project1 = indexProject("sonarqube", "SonarQube");
-    ComponentDto project2 = indexProject("recent", "SonarQube Recently");
+    ProjectDto project1 = indexProject("sonarqube", "SonarQube");
+    ProjectDto project2 = indexProject("recent", "SonarQube Recently");
 
     SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("SonarQube")
