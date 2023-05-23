@@ -22,13 +22,12 @@ import classNames from 'classnames';
 import { ReactNode, useCallback } from 'react';
 import tw, { theme as twTheme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { BareButton } from '../buttons';
 
 interface Props {
   active?: boolean;
   children: ReactNode;
   className?: string;
-  innerRef?: (node: HTMLButtonElement) => void;
+  innerRef?: (node: HTMLDivElement) => void;
   onClick: (value?: string) => void;
   value?: string;
 }
@@ -39,18 +38,19 @@ export function SubnavigationItem(props: Props) {
     onClick(value);
   }, [onClick, value]);
   return (
-    <SubnavigationItemStyled
+    <StyledSubnavigationItem
       aria-current={active}
-      className={classNames('js-subnavigation-item', { active }, className)}
+      className={classNames({ active }, className)}
+      data-testid="js-subnavigation-item"
       onClick={handleClick}
       ref={innerRef}
     >
       {children}
-    </SubnavigationItemStyled>
+    </StyledSubnavigationItem>
   );
 }
 
-const SubnavigationItemStyled = styled(BareButton)`
+const StyledSubnavigationItem = styled.div`
   ${tw`sw-flex sw-items-center sw-justify-between`}
   ${tw`sw-box-border`}
   ${tw`sw-body-sm`}

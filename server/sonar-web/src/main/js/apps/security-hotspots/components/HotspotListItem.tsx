@@ -17,9 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubnavigationItem } from 'design-system';
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  BareButton,
+  ExecutionFlowIcon,
+  SubnavigationItem,
+  themeColor,
+  themeContrast,
+} from 'design-system';
 import React, { useCallback } from 'react';
-import LocationsList from '../../../components/locations/LocationsList';
+import { FormattedMessage } from 'react-intl';
+import SingleFileLocationNavigator from '../../../components/locations/SingleFileLocationNavigator';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawHotspot } from '../../../types/security-hotspots';
 import { getLocations } from '../utils';
 
@@ -34,6 +44,9 @@ interface HotspotListItemProps {
 export default function HotspotListItem(props: HotspotListItemProps) {
   const { hotspot, selected, selectedHotspotLocation } = props;
   const locations = getLocations(hotspot.flows, undefined);
+
+  const locationMessage =
+    locations.length > 1 ? 'hotspot.location.count.plural' : 'hotspot.location.count';
 
   // Use useCallback instead of useEffect/useRef combination to be notified of the ref changes
   const itemRef = useCallback(
@@ -61,16 +74,61 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       onClick={handleClick}
       className="sw-flex-col sw-items-start"
     >
-      <div>{hotspot.message}</div>
-      {selected && (
-        <LocationsList
-          locations={locations}
-          showCrossFile={false} // To be removed once we support multi file location
-          componentKey={hotspot.component}
-          onLocationSelect={props.onLocationClick}
-          selectedLocationIndex={selectedHotspotLocation}
-        />
+      <StyledHotspotTitle aria-current={selected} role="button">
+        {hotspot.message}
+      </StyledHotspotTitle>
+      {locations.length > 0 && (
+        <StyledHotspotInfo className="sw-flex sw-justify-end sw-w-full">
+          <div className="sw-flex sw-mt-2 sw-items-center sw-justify-center sw-gap-1 sw-overflow-hidden">
+            <ExecutionFlowIcon />
+            <span
+              className="sw-truncate"
+              title={translateWithParameters(locationMessage, locations.length)}
+            >
+              <FormattedMessage
+                id="hotspots.location"
+                defaultMessage={translate(locationMessage)}
+                values={{
+                  0: <span className="sw-body-sm-highlight">{locations.length}</span>,
+                }}
+              />
+            </span>
+          </div>
+        </StyledHotspotInfo>
+      )}
+      {selected && locations.length > 0 && (
+        <>
+          <StyledSeparator className="sw-w-full sw-my-2" />
+          <div className="sw-flex sw-flex-col sw-gap-1 sw-my-2 sw-w-full">
+            {locations.map((location, index) => (
+              <SingleFileLocationNavigator
+                key={index}
+                index={index}
+                concealedMarker={true}
+                message={location.msg}
+                messageFormattings={location.msgFormattings}
+                onClick={props.onLocationClick}
+                selected={index === selectedHotspotLocation}
+              />
+            ))}
+          </div>
+        </>
       )}
     </SubnavigationItem>
   );
 }
+
+const StyledHotspotTitle = styled(BareButton)`
+  &:focus {
+    background-color: ${themeColor('subnavigationSelected')};
+  }
+`;
+
+const StyledHotspotInfo = styled.div`
+  color: ${themeContrast('pageContentLight')};
+`;
+
+const StyledSeparator = withTheme(styled.div`
+  height: 1px;
+  background-color: ${themeColor('subnavigationExecutionFlowBorder')};
+`);

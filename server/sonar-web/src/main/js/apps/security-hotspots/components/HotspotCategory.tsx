@@ -70,16 +70,19 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
       expanded={expanded}
       onSetExpanded={onSetExpanded}
     >
-      {hotspots.map((hotspot) => (
-        <HotspotListItem
-          hotspot={hotspot}
-          key={hotspot.key}
-          onClick={onHotspotClick}
-          selected={hotspot.key === selectedHotspot.key}
-          onLocationClick={onLocationClick}
-          selectedHotspotLocation={selectedHotspotLocation}
-        />
-      ))}
+      <ul>
+        {hotspots.map((hotspot) => (
+          <li key={hotspot.key}>
+            <HotspotListItem
+              hotspot={hotspot}
+              onClick={onHotspotClick}
+              selected={hotspot.key === selectedHotspot.key}
+              onLocationClick={onLocationClick}
+              selectedHotspotLocation={selectedHotspotLocation}
+            />
+          </li>
+        ))}
+      </ul>
     </SubnavigationAccordion>
   );
 }

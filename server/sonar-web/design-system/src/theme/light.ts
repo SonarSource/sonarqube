@@ -394,7 +394,8 @@ export const lightTheme = {
 
     // subnavigation sidebar
     subnavigation: COLORS.white,
-    subnavigationHover: COLORS.indigo[50],
+    subnavigationHover: COLORS.blueGrey[50],
+    subnavigationSelected: COLORS.blueGrey[100],
     subnavigationBorder: COLORS.grey[100],
     subnavigationSeparator: COLORS.grey[50],
     subnavigationSubheading: COLORS.blueGrey[25],

@@ -617,22 +617,27 @@ describe('issues item', () => {
 
     // Location navigation
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
-    expect(dataLocation1Button).toHaveClass('selected');
+    expect(dataLocation1Button).toHaveAttribute('aria-current', 'location');
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
-    expect(dataLocation1Button).not.toHaveClass('selected');
-    expect(dataLocation2Button).toHaveClass('selected');
+    expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
-    expect(dataLocation1Button).not.toHaveClass('selected');
-    expect(dataLocation2Button).not.toHaveClass('selected');
+    expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
+    expect(dataLocation2Button).toHaveAttribute('aria-current', 'false');
     await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
-    expect(dataLocation1Button).not.toHaveClass('selected');
-    expect(dataLocation2Button).toHaveClass('selected');
+    expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
+    expect(dataLocation2Button).toHaveAttribute('aria-current', 'location');
 
     // Flow navigation
     await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
-    expect(screen.getByRole('button', { name: '1 Execution location 1' })).toHaveClass('selected');
+    expect(screen.getByRole('button', { name: '1 Execution location 1' })).toHaveAttribute(
+      'aria-current',
+      'location'
+    );
     await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
-    expect(screen.getByRole('button', { name: '1 Data location 1' })).toHaveClass('selected');
+    expect(screen.getByRole('button', { name: '1 Data location 1' })).toHaveAttribute(
+      'aria-current',
+      'location'
+    );
   });
 
   it('should show education principles', async () => {
