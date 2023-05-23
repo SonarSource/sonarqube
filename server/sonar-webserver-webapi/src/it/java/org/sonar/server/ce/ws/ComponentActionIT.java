@@ -20,7 +20,7 @@
 package org.sonar.server.ce.ws;
 
 import java.util.Collections;
-import java.util.Random;
+import java.util.List;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -243,18 +243,22 @@ public class ComponentActionIT {
   }
 
   @Test
-  public void populates_warning_count_of_activities_but_not_warnings() {
+  public void populates_warning_count_and_warnings_of_activities() {
     ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, privateProject);
     SnapshotDto analysis = db.components().insertSnapshot(privateProject);
     CeActivityDto activity = insertActivity("Branch", privateProject, SUCCESS, analysis);
-    int messageCount = 1 + new Random().nextInt(10);
-    IntStream.range(0, messageCount).forEach(i -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), new CeTaskMessageDto()
-      .setUuid("uuid_" + i)
-      .setTaskUuid(activity.getUuid())
-      .setMessage("m_" + i)
-      .setType(CeTaskMessageType.GENERIC)
-      .setCreatedAt(i)));
+    int messageCount = 5;
+    List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, messageCount)
+      .mapToObj(i -> new CeTaskMessageDto()
+        .setUuid("uuid_" + i)
+        .setTaskUuid(activity.getUuid())
+        .setMessage("m_" + i)
+        .setType(CeTaskMessageType.GENERIC)
+        .setCreatedAt(i))
+      .toList();
+
+    ceTaskMessageDtos.forEach(ceTaskMessageDto -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessageDto));
     db.commit();
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -263,7 +267,7 @@ public class ComponentActionIT {
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent())
       .extracting(Ce.Task::getWarningCount, Ce.Task::getWarningsList)
-      .containsOnly(messageCount, emptyList());
+      .containsOnly(messageCount, ceTaskMessageDtos.stream().map(CeTaskMessageDto::getMessage).toList());
   }
 
   @Test

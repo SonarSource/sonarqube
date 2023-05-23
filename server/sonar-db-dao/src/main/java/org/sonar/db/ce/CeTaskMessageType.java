@@ -20,17 +20,23 @@
 package org.sonar.db.ce;
 
 public enum CeTaskMessageType {
-  GENERIC(false),
-  SUGGEST_DEVELOPER_EDITION_UPGRADE(true),
-  INFO(false);
+  INFO(false, false),
+  GENERIC(false, true),
+  SUGGEST_DEVELOPER_EDITION_UPGRADE(true, true);
 
   private final boolean dismissible;
+  private final boolean isWarning;
 
-  CeTaskMessageType(boolean dismissible) {
+  CeTaskMessageType(boolean dismissible, boolean isWarning) {
     this.dismissible = dismissible;
+    this.isWarning = isWarning;
   }
 
   public boolean isDismissible() {
     return dismissible;
+  }
+
+  public boolean isWarning() {
+    return isWarning;
   }
 }

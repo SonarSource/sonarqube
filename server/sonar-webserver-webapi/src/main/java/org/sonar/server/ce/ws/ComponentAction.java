@@ -38,7 +38,6 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ComponentResponse;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -92,7 +91,7 @@ public class ComponentAction implements CeWsAction {
       Ce.ComponentResponse.Builder wsResponseBuilder = ComponentResponse.newBuilder();
       wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));
       if (activityDtos.size() == 1) {
-        wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0), null, emptyList()));
+        wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0), null));
       }
       writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }

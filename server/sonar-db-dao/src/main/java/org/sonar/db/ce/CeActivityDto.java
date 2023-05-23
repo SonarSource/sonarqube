@@ -19,11 +19,12 @@
  */
 package org.sonar.db.ce;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -99,13 +100,13 @@ public class CeActivityDto {
    * This property can not be populated when inserting but <strong>is populated when reading</strong>.
    */
   private boolean hasScannerContext;
-  /**
-   * Count of warnings attached to the current activity.
-   * <p>
-   * This property can not be populated when inserting but <strong>is populated when retrieving the activity by UUID</strong>.
-   */
-  private int warningCount = 0;
 
+  /**
+   * Messages attached to the current activity.
+   * <p>
+   * This property can not be populated when inserting but <strong>is populated when retrieving the activity</strong>.
+   */
+  private List<CeTaskMessageDto> ceTaskMessageDtos;
   private String nodeName;
 
   CeActivityDto() {
@@ -324,13 +325,13 @@ public class CeActivityDto {
     return this;
   }
 
-  public int getWarningCount() {
-    return warningCount;
+  public List<CeTaskMessageDto> getCeTaskMessageDtos() {
+    return ceTaskMessageDtos;
   }
 
-  protected CeActivityDto setWarningCount(int warningCount) {
-    checkArgument(warningCount >= 0);
-    this.warningCount = warningCount;
+  @VisibleForTesting
+  protected CeActivityDto setCeTaskMessageDtos(List<CeTaskMessageDto> ceTaskMessageDtos) {
+    this.ceTaskMessageDtos = ceTaskMessageDtos;
     return this;
   }
 
@@ -369,7 +370,6 @@ public class CeActivityDto {
       ", errorMessage='" + errorMessage + '\'' +
       ", errorStacktrace='" + errorStacktrace + '\'' +
       ", hasScannerContext=" + hasScannerContext +
-      ", warningCount=" + warningCount +
       '}';
   }
 

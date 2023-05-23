@@ -39,7 +39,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.user.UserSession;
@@ -75,7 +74,10 @@ public class TaskAction implements CeWsAction {
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"),
+        new Change("10.1", "Warnings field will be now always be filled (it is not necessary to mention it explicitly in 'additionalFields'). "
+          + "'additionalFields' value `warning' is deprecated.")
+      )
       .setHandler(this);
 
     action
@@ -109,8 +111,7 @@ public class TaskAction implements CeWsAction {
         maskErrorStacktrace(ceActivityDto, additionalFields);
         wsTaskResponse.setTask(
           wsTaskFormatter.formatActivity(dbSession, ceActivityDto,
-            extractScannerContext(dbSession, ceActivityDto, additionalFields),
-            extractWarnings(dbSession, ceActivityDto, additionalFields)));
+            extractScannerContext(dbSession, ceActivityDto, additionalFields)));
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
     }
@@ -151,19 +152,10 @@ public class TaskAction implements CeWsAction {
     return null;
   }
 
-  private List<String> extractWarnings(DbSession dbSession, CeActivityDto activityDto, Set<AdditionalField> additionalFields) {
-    if (additionalFields.contains(AdditionalField.WARNINGS)) {
-      List<CeTaskMessageDto> dtos = dbClient.ceTaskMessageDao().selectByTask(dbSession, activityDto.getUuid());
-      return dtos.stream()
-        .map(CeTaskMessageDto::getMessage)
-        .collect(MoreCollectors.toList(dtos.size()));
-    }
-    return Collections.emptyList();
-  }
-
   private enum AdditionalField {
     STACKTRACE("stacktrace"),
     SCANNER_CONTEXT("scannerContext"),
+    @Deprecated(forRemoval = true, since = "10.1")
     WARNINGS("warnings");
 
     private final String label;

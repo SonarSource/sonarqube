@@ -58,7 +58,6 @@ import static java.lang.Integer.max;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -78,7 +77,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final String[] POSSIBLE_QUALIFIERS = new String[]{Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
+  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
   private static final String INVALID_QUERY_PARAM_ERROR_MESSAGE = "%s and %s must not be set at the same time";
 
   private final UserSession userSession;
@@ -113,7 +112,9 @@ public class ActivityAction implements CeWsAction {
         new Change("7.6", format("The use of module keys in parameters '%s' is deprecated", TEXT_QUERY)),
         new Change("8.8", "field \"logs\" is dropped"),
         new Change("10.0", "Remove deprecated field 'componentId'"),
-        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)))
+        new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
+        new Change("10.1", "Warnings field will be now be filled (it was always empty in the past).")
+      )
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT)
@@ -264,7 +265,7 @@ public class ActivityAction implements CeWsAction {
     }
 
     Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
-    return activity.map(ceActivityDto -> formatter.formatActivity(dbSession, ceActivityDto, null, emptyList()));
+    return activity.map(ceActivityDto -> formatter.formatActivity(dbSession, ceActivityDto, null));
   }
 
   private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable ComponentDto component) {

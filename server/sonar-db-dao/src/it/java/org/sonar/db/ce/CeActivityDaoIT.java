@@ -50,6 +50,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -115,35 +116,46 @@ public class CeActivityDaoIT {
     assertThat(dto.getErrorStacktrace()).isNull();
     assertThat(dto.getErrorType()).isNull();
     assertThat(dto.isHasScannerContext()).isFalse();
-    assertThat(dto.getWarningCount()).isZero();
+    assertThat(dto.getCeTaskMessageDtos()).isEmpty();
   }
 
   @Test
-  public void selectByUuid_populates_warning_count() {
+  public void selectByUuid_populates_messages() {
     CeActivityDto[] tasks = {
       insert("TASK_1", REPORT, "PROJECT_1", SUCCESS),
       insert("TASK_2", REPORT, "PROJECT_1", SUCCESS),
       insert("TASK_3", REPORT, "PROJECT_1", SUCCESS)
     };
-    int moreThan1 = 2 + new Random().nextInt(5);
-    insertWarnings(tasks[0], moreThan1);
-    insertWarnings(tasks[1], 0);
-    insertWarnings(tasks[2], 1);
+    List<CeTaskMessageDto> task1messages = insertCeTaskMessage(tasks[0], 4);
+    List<CeTaskMessageDto> task2messages = insertCeTaskMessage(tasks[1], 0);
+    List<CeTaskMessageDto> task3messages = insertCeTaskMessage(tasks[2], 1);
 
-    assertThat(underTest.selectByUuid(dbSession, tasks[0].getUuid()).get().getWarningCount()).isEqualTo(moreThan1);
-    assertThat(underTest.selectByUuid(dbSession, tasks[1].getUuid()).get().getWarningCount()).isZero();
-    assertThat(underTest.selectByUuid(dbSession, tasks[2].getUuid()).get().getWarningCount()).isOne();
+    getCeActivityAndAssertMessages(tasks[0].getUuid(), task1messages);
+    getCeActivityAndAssertMessages(tasks[1].getUuid(), task2messages);
+    getCeActivityAndAssertMessages(tasks[2].getUuid(), task3messages);
   }
 
-  private void insertWarnings(CeActivityDto task, int warningCount) {
-    IntStream.range(0, warningCount).forEach(i -> db.getDbClient().ceTaskMessageDao().insert(dbSession,
-      new CeTaskMessageDto()
-        .setUuid(UuidFactoryFast.getInstance().create())
-        .setTaskUuid(task.getUuid())
-        .setMessage("message_" + task.getUuid() + "_" + i)
-        .setType(CeTaskMessageType.GENERIC)
-        .setCreatedAt(task.getUuid().hashCode() + i)));
+  private void getCeActivityAndAssertMessages(String taskUuid, List<CeTaskMessageDto> taskMessages) {
+    CeActivityDto ceActivityDto = underTest.selectByUuid(dbSession, taskUuid).orElseThrow();
+    assertThat(ceActivityDto.getCeTaskMessageDtos()).usingRecursiveFieldByFieldElementComparator().hasSameElementsAs(taskMessages);
+  }
+
+  private List<CeTaskMessageDto> insertCeTaskMessage(CeActivityDto task, int messagesCount) {
+    List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, messagesCount)
+      .mapToObj(i -> createMessage(task, i))
+      .toList();
+    ceTaskMessageDtos.forEach(ceTaskMessageDto -> db.getDbClient().ceTaskMessageDao().insert(dbSession, ceTaskMessageDto));
     db.commit();
+    return ceTaskMessageDtos;
+  }
+
+  private static CeTaskMessageDto createMessage(CeActivityDto task, int i) {
+    return new CeTaskMessageDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setTaskUuid(task.getUuid())
+      .setMessage("message_" + task.getUuid() + "_" + i)
+      .setType(CeTaskMessageType.GENERIC)
+      .setCreatedAt(task.getUuid().hashCode() + i);
   }
 
   @Test
@@ -518,7 +530,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_populates_warningCount() {
+  public void selectByQuery_populates_messages() {
     CeActivityDto[] tasks = {
       insert("TASK_1", REPORT, "PROJECT_1", SUCCESS),
       insert("TASK_2", REPORT, "PROJECT_1", FAILED),
@@ -526,45 +538,57 @@ public class CeActivityDaoIT {
       insert("TASK_4", "views", null, SUCCESS)
     };
     int moreThan1 = 2 + new Random().nextInt(5);
-    insertWarnings(tasks[0], moreThan1);
-    insertWarnings(tasks[1], 3);
-    insertWarnings(tasks[2], 1);
-    insertWarnings(tasks[3], 6);
+    insertCeTaskMessage(tasks[0], moreThan1);
+    insertCeTaskMessage(tasks[1], 30);
+    insertCeTaskMessage(tasks[2], 10);
+    insertCeTaskMessage(tasks[3], 60);
 
     // no filters
-    CeTaskQuery query = new CeTaskQuery().setStatuses(Collections.emptyList());
+    CeTaskQuery query = new CeTaskQuery();
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(10)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_4", 6), tuple("TASK_3", 1), tuple("TASK_2", 3), tuple("TASK_1", moreThan1));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_4", 60), tuple("TASK_3", 10), tuple("TASK_2", 30), tuple("TASK_1", moreThan1));
 
     // select by component uuid
     query = new CeTaskQuery().setMainComponentUuid("PROJECT_1");
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_2", 3), tuple("TASK_1", moreThan1));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_2", 30), tuple("TASK_1", moreThan1));
 
     // select by status
     query = new CeTaskQuery().setStatuses(singletonList(SUCCESS.name()));
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_4", 6), tuple("TASK_3", 1), tuple("TASK_1", moreThan1));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_4", 60), tuple("TASK_3", 10), tuple("TASK_1", moreThan1));
 
     // select by type
     query = new CeTaskQuery().setType(REPORT);
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_3", 1), tuple("TASK_2", 3), tuple("TASK_1", moreThan1));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_3", 10), tuple("TASK_2", 30), tuple("TASK_1", moreThan1));
     query = new CeTaskQuery().setType("views");
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_4", 6));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_4", 60));
 
     // select by multiple conditions
     query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setMainComponentUuid("PROJECT_1");
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100)))
-      .extracting(CeActivityDto::getUuid, CeActivityDto::getWarningCount)
-      .containsExactly(tuple("TASK_2", 3));
+      .extracting(CeActivityDto::getUuid, ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsExactly(tuple("TASK_2", 30));
 
+  }
+
+  @Test
+  public void selectByQuery_whenNoMessage_returnsEmptyList() {
+    insert("TASK_1", REPORT, "PROJECT_1", SUCCESS);
+
+    List<CeActivityDto> results = underTest.selectByQuery(db.getSession(), new CeTaskQuery(), Pagination.all());
+
+    assertThat(results)
+      .hasSize(1)
+      .extracting(CeActivityDto::getCeTaskMessageDtos)
+      .containsExactly(emptyList());
   }
 
   @Test
@@ -682,18 +706,18 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectOlderThan_does_not_populate_warningCount() {
+  public void selectOlderThan_populatesCorrectly() {
     CeActivityDto activity1 = insert("TASK_1", REPORT, "PROJECT_1", FAILED);
-    insertWarnings(activity1, 10);
+    insertCeTaskMessage(activity1, 10);
     CeActivityDto activity2 = insert("TASK_2", REPORT, "PROJECT_1", SUCCESS);
-    insertWarnings(activity2, 1);
+    insertCeTaskMessage(activity2, 1);
 
     List<CeActivityDto> dtos = underTest.selectOlderThan(db.getSession(), system2.now() + 1_000_000L);
 
     assertThat(dtos)
       .hasSize(2)
-      .extracting(CeActivityDto::getWarningCount)
-      .containsOnly(0);
+      .extracting(ceActivityDto -> ceActivityDto.getCeTaskMessageDtos().size())
+      .containsOnly(10, 1);
   }
 
   @Test
@@ -804,7 +828,7 @@ public class CeActivityDaoIT {
     insert("TASK_6", CeTaskTypes.BRANCH_ISSUE_SYNC, projectBranch1.getUuid(), projectDto3.getUuid(), FAILED);
 
     BranchDto projectBranch2 = db.components()
-        .insertProjectBranch(projectDto3, branchDto -> branchDto.setNeedIssueSync(true));
+      .insertProjectBranch(projectDto3, branchDto -> branchDto.setNeedIssueSync(true));
 
     insert("TASK_7", CeTaskTypes.BRANCH_ISSUE_SYNC, projectBranch2.getUuid(), projectDto3.getUuid(), CANCELED);
 

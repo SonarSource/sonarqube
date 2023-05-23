@@ -241,15 +241,15 @@ public class ActivityActionIT {
   }
 
   @Test
-  public void return_warnings_count_on_queue_and_activity_but_no_warnings_list() {
+  public void return_warnings_count_on_queue_and_activity_and_warnings_list() {
     logInAsSystemAdministrator();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
-    insertMessages("T1", 2);
-    insertMessages("T2", 0);
+    List<String> messagesT1 = insertMessages("T1", 2);
+    List<String> messagesT2 = insertMessages("T2", 1);
     insertMessages("T3", 5);
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -257,18 +257,22 @@ public class ActivityActionIT {
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
     assertThat(activityResponse.getTasksList())
       .extracting(Task::getId, Task::getWarningCount, Task::getWarningsList)
-      .containsOnly(tuple("T1", 2, emptyList()), tuple("T2", 0, emptyList()), tuple("T3", 0, emptyList()));
+      .containsOnly(tuple("T1", messagesT1.size(), messagesT1), tuple("T2", messagesT2.size(), messagesT2), tuple("T3", 0, emptyList()));
   }
 
-  private void insertMessages(String taskUuid, int messageCount) {
-    IntStream.range(0, messageCount)
-      .forEach(i -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), new CeTaskMessageDto()
+  private List<String> insertMessages(String taskUuid, int messageCount) {
+    List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, messageCount)
+      .mapToObj(i -> new CeTaskMessageDto()
         .setUuid("uuid_" + taskUuid + "_" + i)
         .setTaskUuid(taskUuid)
         .setMessage("m_" + taskUuid + "_" + i)
         .setType(CeTaskMessageType.GENERIC)
-        .setCreatedAt(taskUuid.hashCode() + i)));
+        .setCreatedAt(taskUuid.hashCode() + i))
+      .toList();
+
+    ceTaskMessageDtos.forEach(ceTaskMessageDto -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessageDto));
     db.commit();
+    return ceTaskMessageDtos.stream().map(CeTaskMessageDto::getMessage).toList();
   }
 
   @Test
