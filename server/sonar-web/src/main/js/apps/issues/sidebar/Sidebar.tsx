@@ -96,6 +96,15 @@ export class Sidebar extends React.PureComponent<Props> {
     };
     return (
       <>
+        {showVariantsFilter && isProject(component?.qualifier) && (
+          <VariantFacet
+            fetching={loadingFacets.codeVariants === true}
+            open={!!openFacets.codeVariants}
+            stats={facets.codeVariants}
+            values={query.codeVariants}
+            {...commonProps}
+          />
+        )}
         {component.qualifier !== ComponentQualifier.Directory && (
           <DirectoryFacet
             branchLike={branchLike}
@@ -103,15 +112,6 @@ export class Sidebar extends React.PureComponent<Props> {
             fetching={loadingFacets.directories === true}
             open={!!openFacets.directories}
             stats={facets.directories}
-            {...commonProps}
-          />
-        )}
-        {showVariantsFilter && isProject(component?.qualifier) && (
-          <VariantFacet
-            fetching={loadingFacets.codeVariants === true}
-            open={!!openFacets.codeVariants}
-            stats={facets.codeVariants}
-            values={query.codeVariants}
             {...commonProps}
           />
         )}
