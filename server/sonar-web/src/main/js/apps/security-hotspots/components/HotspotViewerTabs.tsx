@@ -24,25 +24,28 @@ import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { Hotspot } from '../../../types/security-hotspots';
+import { BranchLike } from '../../../types/branch-like';
+import { Standards } from '../../../types/security';
+import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
+import { Component } from '../../../types/types';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
+import useScrollDownCompress from '../hooks/useScrollDownCompress';
+import { HotspotHeader } from './HotspotHeader';
 
 interface Props {
   activityTabContent: React.ReactNode;
   codeTabContent: React.ReactNode;
   hotspot: Hotspot;
   ruleDescriptionSections?: RuleDescriptionSection[];
-  selectedHotspotLocation?: number;
+  component: Component;
+  branchLike?: BranchLike;
+  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  standards?: Standards;
 }
-
-interface State {
-  currentTab: Tab;
-  tabs: Tab[];
-}
-
 interface Tab {
   value: TabKeys;
   label: string;
+  counter?: number;
 }
 
 export enum TabKeys {
@@ -53,169 +56,167 @@ export enum TabKeys {
   Activity = 'activity',
 }
 
-export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const tabs = this.computeTabs();
-    this.state = {
-      currentTab: tabs[0],
-      tabs,
-    };
-  }
+const STICKY_HEADER_SHADOW_OFFSET = 24;
+const STICKY_HEADER_COMPRESS_THRESHOLD = 200;
 
-  componentDidMount() {
-    this.registerKeyboardEvents();
-  }
+export default function HotspotViewerTabs(props: Props) {
+  const {
+    ruleDescriptionSections,
+    codeTabContent,
+    activityTabContent,
+    hotspot,
+    component,
+    standards,
+    branchLike,
+  } = props;
 
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.hotspot.key !== prevProps.hotspot.key) {
-      const tabs = this.computeTabs();
-      this.setState({
-        currentTab: tabs[0],
-        tabs,
-      });
-    } else if (
-      this.props.selectedHotspotLocation !== undefined &&
-      this.props.selectedHotspotLocation !== prevProps.selectedHotspotLocation
-    ) {
-      const { tabs } = this.state;
-      this.setState({
-        currentTab: tabs[0],
-      });
-    }
-  }
+  const { isScrolled, isCompressed, resetScrollDownCompress } = useScrollDownCompress(
+    STICKY_HEADER_COMPRESS_THRESHOLD,
+    STICKY_HEADER_SHADOW_OFFSET
+  );
 
-  componentWillUnmount() {
-    this.unregisterKeyboardEvents();
-  }
-
-  handleKeyboardNavigation = (event: KeyboardEvent) => {
-    if (isInput(event) || isShortcut(event)) {
-      return true;
-    }
-    if (event.key === KeyboardKeys.LeftArrow) {
-      event.preventDefault();
-      this.selectNeighboringTab(-1);
-    } else if (event.key === KeyboardKeys.RightArrow) {
-      event.preventDefault();
-      this.selectNeighboringTab(+1);
-    }
-  };
-
-  registerKeyboardEvents() {
-    document.addEventListener('keydown', this.handleKeyboardNavigation);
-  }
-
-  unregisterKeyboardEvents() {
-    document.removeEventListener('keydown', this.handleKeyboardNavigation);
-  }
-
-  handleSelectTabs = (tabKey: TabKeys) => {
-    const { tabs } = this.state;
-    const currentTab = tabs.find((tab) => tab.value === tabKey);
-    if (currentTab) {
-      this.setState({ currentTab });
-    }
-  };
-
-  computeTabs() {
-    const { ruleDescriptionSections } = this.props;
+  const tabs = React.useMemo(() => {
     const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
+    const labelSuffix = isCompressed ? '.short' : '';
 
     return [
       {
         value: TabKeys.Code,
-        label: translate('hotspots.tabs.code'),
+        label: translate(`hotspots.tabs.code${labelSuffix}`),
         show: true,
       },
       {
         value: TabKeys.RiskDescription,
-        label: translate('hotspots.tabs.risk_description'),
+        label: translate(`hotspots.tabs.risk_description${labelSuffix}`),
         show:
           descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
           descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE],
       },
       {
         value: TabKeys.VulnerabilityDescription,
-        label: translate('hotspots.tabs.vulnerability_description'),
+        label: translate(`hotspots.tabs.vulnerability_description${labelSuffix}`),
         show: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] !== undefined,
       },
       {
         value: TabKeys.FixRecommendation,
-        label: translate('hotspots.tabs.fix_recommendations'),
+        label: translate(`hotspots.tabs.fix_recommendations${labelSuffix}`),
         show: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] !== undefined,
       },
       {
         value: TabKeys.Activity,
-        label: translate('hotspots.tabs.activity'),
+        label: translate(`hotspots.tabs.activity${labelSuffix}`),
         show: true,
+        counter: hotspot.comment.length,
       },
     ]
       .filter((tab) => tab.show)
       .map((tab) => omit(tab, 'show'));
-  }
+  }, [isCompressed, ruleDescriptionSections, hotspot.comment]);
 
-  selectNeighboringTab(shift: number) {
-    this.setState(({ tabs, currentTab }) => {
+  const [currentTab, setCurrentTab] = React.useState<Tab>(tabs[0]);
+
+  const handleKeyboardNavigation = (event: KeyboardEvent) => {
+    if (isInput(event) || isShortcut(event)) {
+      return true;
+    }
+    if (event.key === KeyboardKeys.LeftArrow) {
+      event.preventDefault();
+      selectNeighboringTab(-1);
+    } else if (event.key === KeyboardKeys.RightArrow) {
+      event.preventDefault();
+      selectNeighboringTab(+1);
+    }
+  };
+
+  const selectNeighboringTab = (shift: number) => {
+    setCurrentTab((currentTab) => {
       const index = currentTab && tabs.findIndex((tab) => tab.value === currentTab.value);
 
       if (index !== undefined && index > -1) {
         const newIndex = Math.max(0, Math.min(tabs.length - 1, index + shift));
-        return {
-          currentTab: tabs[newIndex],
-        };
+        return tabs[newIndex];
       }
 
-      return { currentTab };
+      return currentTab;
     });
-  }
+  };
 
-  render() {
-    const { ruleDescriptionSections, codeTabContent, activityTabContent } = this.props;
-    const { tabs, currentTab } = this.state;
+  const handleSelectTabs = (tabKey: TabKeys) => {
+    const currentTab = tabs.find((tab) => tab.value === tabKey);
+    if (currentTab) {
+      setCurrentTab(currentTab);
+    }
+  };
 
-    const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
-    const rootCauseDescriptionSections =
-      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
-      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyboardNavigation);
 
-    return (
-      <>
-        <ToggleButton
-          role="tablist"
-          value={currentTab.value}
-          options={tabs}
-          onChange={this.handleSelectTabs}
-        />
-        <div
-          aria-labelledby={getTabId(currentTab.value)}
-          className="sw-mt-6"
-          id={getTabPanelId(currentTab.value)}
-          role="tabpanel"
-        >
-          {currentTab.value === TabKeys.Code && codeTabContent}
+    return () => document.removeEventListener('keydown', handleKeyboardNavigation);
+  }, []);
 
-          {currentTab.value === TabKeys.RiskDescription && rootCauseDescriptionSections && (
-            <RuleDescription sections={rootCauseDescriptionSections} />
+  React.useEffect(() => {
+    setCurrentTab(tabs[0]);
+  }, [hotspot.key]);
+
+  React.useEffect(() => {
+    if (currentTab.value !== TabKeys.Code) {
+      window.scrollTo({ top: 0 });
+    }
+    resetScrollDownCompress();
+  }, [currentTab]);
+
+  const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
+  const rootCauseDescriptionSections =
+    descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+    descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
+
+  return (
+    <>
+      <HotspotHeader
+        hotspot={hotspot}
+        component={component}
+        standards={standards}
+        onUpdateHotspot={props.onUpdateHotspot}
+        branchLike={branchLike}
+        isScrolled={isScrolled}
+        isCompressed={isCompressed}
+        tabs={
+          <ToggleButton
+            role="tablist"
+            value={currentTab.value}
+            options={tabs}
+            onChange={handleSelectTabs}
+          />
+        }
+      />
+      <div
+        aria-labelledby={getTabId(currentTab.value)}
+        className="sw-mt-2"
+        id={getTabPanelId(currentTab.value)}
+        role="tabpanel"
+      >
+        {currentTab.value === TabKeys.Code && codeTabContent}
+
+        {currentTab.value === TabKeys.RiskDescription && rootCauseDescriptionSections && (
+          <RuleDescription sections={rootCauseDescriptionSections} />
+        )}
+
+        {currentTab.value === TabKeys.VulnerabilityDescription &&
+          descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+            <RuleDescription
+              sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+            />
           )}
 
-          {currentTab.value === TabKeys.VulnerabilityDescription &&
-            descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
-              <RuleDescription
-                sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
-              />
-            )}
+        {currentTab.value === TabKeys.FixRecommendation &&
+          descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
+            <RuleDescription
+              sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
+            />
+          )}
 
-          {currentTab.value === TabKeys.FixRecommendation &&
-            descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
-              <RuleDescription
-                sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-              />
-            )}
-
-          {currentTab.value === TabKeys.Activity && activityTabContent}
-        </div>
-      </>
-    );
-  }
+        {currentTab.value === TabKeys.Activity && activityTabContent}
+      </div>
+    </>
+  );
 }

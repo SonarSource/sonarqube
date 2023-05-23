@@ -26,7 +26,6 @@ import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
-import { HotspotHeader } from './HotspotHeader';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
@@ -63,13 +62,6 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
 
       {hotspot && (
         <div className="sw-box-border sw-p-6">
-          <HotspotHeader
-            hotspot={hotspot}
-            component={component}
-            standards={standards}
-            onUpdateHotspot={props.onUpdateHotspot}
-            branchLike={branchLike}
-          />
           <HotspotViewerTabs
             activityTabContent={
               <HotspotReviewHistoryAndComments
@@ -87,9 +79,12 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                 selectedHotspotLocation={selectedHotspotLocation}
               />
             }
+            component={component}
+            standards={standards}
+            onUpdateHotspot={props.onUpdateHotspot}
+            branchLike={branchLike}
             hotspot={hotspot}
             ruleDescriptionSections={ruleDescriptionSections}
-            selectedHotspotLocation={selectedHotspotLocation}
           />
         </div>
       )}

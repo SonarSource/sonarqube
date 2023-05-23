@@ -32,6 +32,7 @@ import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentContextShape } from '../../../types/component';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
+import useScrollDownCompress from '../hooks/useScrollDownCompress';
 
 jest.mock('../../../api/measures');
 jest.mock('../../../api/security-hotspots');
@@ -42,6 +43,7 @@ jest.mock('../../../api/users');
 jest.mock('../../../api/rules');
 jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/issues');
+jest.mock('../hooks/useScrollDownCompress');
 
 const ui = {
   inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
@@ -70,21 +72,46 @@ const ui = {
   successGlobalMessage: byTestId('global-message__SUCCESS'),
   currentUserSelectionItem: byText('foo'),
   panel: byTestId('security-hotspot-test'),
-  codeTab: byRole('tab', { name: 'hotspots.tabs.code' }),
+  codeTab: byRole('tab', { name: /hotspots.tabs.code/ }),
   codeContent: byRole('table'),
-  riskTab: byRole('tab', { name: 'hotspots.tabs.risk_description' }),
+  riskTab: byRole('tab', { name: /hotspots.tabs.risk_description/ }),
   riskContent: byText('Root cause'),
-  vulnerabilityTab: byRole('tab', { name: 'hotspots.tabs.vulnerability_description' }),
+  vulnerabilityTab: byRole('tab', { name: /hotspots.tabs.vulnerability_description/ }),
   vulnerabilityContent: byText('Assess'),
-  fixTab: byRole('tab', { name: 'hotspots.tabs.fix_recommendations' }),
+  fixTab: byRole('tab', { name: /hotspots.tabs.fix_recommendations/ }),
   fixContent: byText('This is how to fix'),
   showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
-  activityTab: byRole('tab', { name: 'hotspots.tabs.activity' }),
+  activityTab: byRole('tab', { name: /hotspots.tabs.activity/ }),
   addCommentButton: byRole('button', { name: 'hotspots.status.add_comment' }),
 };
 
+const originalScrollTo = window.scrollTo;
 const hotspotsHandler = new SecurityHotspotServiceMock();
 const rulesHandles = new CodingRulesServiceMock();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'scrollTo', {
+    writable: true,
+    value: () => {
+      /* noop */
+    },
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'scrollTo', {
+    writable: true,
+    value: originalScrollTo,
+  });
+});
+
+beforeEach(() => {
+  jest.mocked(useScrollDownCompress).mockImplementation(() => ({
+    isScrolled: false,
+    isCompressed: false,
+    resetScrollDownCompress: jest.fn(),
+  }));
+});
 
 afterEach(() => {
   hotspotsHandler.reset();
@@ -113,6 +140,18 @@ describe('rendering', () => {
 
     expect(ui.filterDropdown.get()).toBeInTheDocument();
     expect(ui.filterToReview.get()).toBeInTheDocument();
+  });
+
+  it('should render hotspot header in sticky mode', async () => {
+    jest.mocked(useScrollDownCompress).mockImplementation(() => ({
+      isScrolled: true,
+      isCompressed: true,
+      resetScrollDownCompress: jest.fn(),
+    }));
+    renderSecurityHotspotsApp();
+
+    expect(await ui.reviewButton.find()).toBeInTheDocument();
+    expect(ui.activeAssignee.query()).not.toBeInTheDocument();
   });
 });
 
@@ -262,6 +301,29 @@ describe('navigation', () => {
     expect(await ui.hotspotTitle(/'2' is a magic number./).find()).toBeInTheDocument();
     await user.keyboard('{ArrowUp}');
     expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
+  });
+
+  it('should be able to navigate between tabs with keyboard', async () => {
+    const user = userEvent.setup();
+    renderSecurityHotspotsApp();
+
+    await act(() => user.keyboard('{ArrowLeft}'));
+    expect(ui.codeContent.get()).toBeInTheDocument();
+
+    await act(() => user.keyboard('{ArrowRight}'));
+    expect(ui.riskContent.get()).toBeInTheDocument();
+
+    await act(() => user.keyboard('{ArrowRight}'));
+    expect(ui.vulnerabilityContent.get()).toBeInTheDocument();
+
+    await act(() => user.keyboard('{ArrowRight}'));
+    expect(ui.fixContent.get()).toBeInTheDocument();
+
+    await act(() => user.keyboard('{ArrowRight}'));
+    expect(ui.addCommentButton.get()).toBeInTheDocument();
+
+    await act(() => user.keyboard('{ArrowRight}'));
+    expect(ui.addCommentButton.get()).toBeInTheDocument();
   });
 
   it('should navigate when coming from SonarLint', async () => {

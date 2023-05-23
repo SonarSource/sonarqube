@@ -28,7 +28,9 @@ import {
   Link,
   LinkIcon,
   StyledPageTitle,
+  Theme,
   themeColor,
+  themeShadow,
 } from 'design-system';
 import React from 'react';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
@@ -44,6 +46,7 @@ import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import HotspotHeaderRightSection from './HotspotHeaderRightSection';
 import Status from './status/Status';
+import StatusReviewButton from './status/StatusReviewButton';
 
 export interface HotspotHeaderProps {
   hotspot: Hotspot;
@@ -51,10 +54,18 @@ export interface HotspotHeaderProps {
   branchLike?: BranchLike;
   standards?: Standards;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  tabs: React.ReactNode;
+  isScrolled: boolean;
+  isCompressed: boolean;
+}
+
+interface StyledHeaderProps {
+  isScrolled: boolean;
+  theme: Theme;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { hotspot, component, branchLike, standards } = props;
+  const { hotspot, component, branchLike, standards, tabs, isCompressed, isScrolled } = props;
   const { message, messageFormattings, rule, key } = hotspot;
 
   const permalink = getPathUrlAsString(
@@ -67,12 +78,17 @@ export function HotspotHeader(props: HotspotHeaderProps) {
 
   const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;
 
-  return (
-    <Header
-      className="sw-sticky sw--mx-6 sw--mt-6 sw-px-6 sw-pt-6 sw-z-filterbar-header"
-      style={{ top: `${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px` }}
-    >
-      <div className="sw-flex sw-justify-between sw-gap-8 sw-mb-4 sw-pb-4">
+  const content = isCompressed ? (
+    <div className="sw-flex sw-justify-between">
+      {tabs}
+      <StatusReviewButton
+        hotspot={hotspot}
+        onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
+      />
+    </div>
+  ) : (
+    <>
+      <div className="sw-flex sw-justify-between sw-gap-8 sw-mb-4">
         <div className="sw-flex-1">
           <StyledPageTitle as="h2" className="sw-whitespace-normal sw-overflow-visible">
             <LightPrimary>
@@ -104,10 +120,22 @@ export function HotspotHeader(props: HotspotHeaderProps) {
           />
         </div>
       </div>
+      {tabs}
+    </>
+  );
+
+  return (
+    <Header
+      className="sw-sticky sw--mx-6 sw--mt-6 sw-px-6 sw-pt-6 sw-pb-4 sw-z-filterbar-header"
+      isScrolled={isScrolled}
+    >
+      {content}
     </Header>
   );
 }
 
-const Header = withTheme(styled.div`
+const Header = withTheme(styled.div<StyledHeaderProps>`
   background-color: ${themeColor('pageBlock')};
+  box-shadow: ${({ isScrolled }: StyledHeaderProps) => (isScrolled ? themeShadow('sm') : 'none')};
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px;
 `);
