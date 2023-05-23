@@ -27,12 +27,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -46,11 +48,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.management.ManagedInstanceService;
@@ -59,6 +63,7 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.telemetry.TelemetryData.Database;
+import org.sonar.server.telemetry.TelemetryData.NewCodeDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
@@ -77,6 +82,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETEC
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
@@ -103,6 +109,10 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateFinder qualityGateFinder;
   private final ManagedInstanceService managedInstanceService;
+  private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
+  private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
+  private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
+  private NewCodeDefinition instanceNcd = NewCodeDefinition.getInstanceDefault();
 
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
@@ -143,7 +153,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       getVersion));
     data.setPlugins(plugins);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      var branchDtos = dbClient.branchDao().selectAllBranches(dbSession);
+      loadNewCodeDefinitions(dbSession, branchDtos);
+
       data.setDatabase(loadDatabaseMetadata(dbSession));
+      data.setNcdId(instanceNcd.hashCode());
+      data.setNewCodeDefinitions(newCodeDefinitions);
 
       String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
 
@@ -151,6 +166,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       resolveUnanalyzedLanguageCode(data, dbSession);
       resolveProjectStatistics(data, dbSession, defaultQualityGateUuid);
       resolveProjects(data, dbSession);
+      resolveBranches(data, branchDtos);
       resolveQualityGates(data, dbSession);
       resolveUsers(data, dbSession);
     }
@@ -161,7 +177,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
 
-
     return data
       .setInstallationVersion(installationVersionProperty.orElse(null))
       .setInDocker(dockerSupport.isRunningInDocker())
@@ -169,6 +184,59 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .build();
   }
 
+  private void resolveBranches(TelemetryData.Builder data, List<BranchDto> branchDtos) {
+    var branches = branchDtos.stream()
+      .map(dto -> {
+        var projectNcd = ncdByProject.getOrDefault(dto.getProjectUuid(), instanceNcd);
+        var ncdId = ncdByBranch.getOrDefault(dto.getUuid(), projectNcd).hashCode();
+        return new TelemetryData.Branch(dto.getProjectUuid(), dto.getUuid(), ncdId);
+      })
+      .toList();
+    data.setBranches(branches);
+  }
+
+  @Override
+  public void reset() {
+    this.newCodeDefinitions.clear();
+    this.ncdByBranch.clear();
+    this.ncdByProject.clear();
+    this.instanceNcd = NewCodeDefinition.getInstanceDefault();
+  }
+
+  private void loadNewCodeDefinitions(DbSession dbSession, List<BranchDto> branchDtos) {
+    var branchUuidByKey = branchDtos.stream().collect(Collectors.toMap(dto -> createBranchUniqueKey(dto.getProjectUuid(), dto.getBranchKey()), BranchDto::getUuid));
+    List<NewCodePeriodDto> newCodePeriodDtos = dbClient.newCodePeriodDao().selectAll(dbSession);
+    NewCodeDefinition ncd;
+    boolean hasInstance = false;
+    for (var dto : newCodePeriodDtos) {
+      String projectUuid = dto.getProjectUuid();
+      String branchUuid = dto.getBranchUuid();
+      if (branchUuid == null && projectUuid == null) {
+        ncd = new NewCodeDefinition(dto.getType().name(), dto.getValue(), "instance");
+        this.instanceNcd = ncd;
+        hasInstance = true;
+      } else if (projectUuid != null) {
+        var value = dto.getType() == REFERENCE_BRANCH ? branchUuidByKey.get(createBranchUniqueKey(projectUuid, dto.getValue())) : dto.getValue();
+        if (branchUuid == null) {
+          ncd = new NewCodeDefinition(dto.getType().name(), value, "project");
+          this.ncdByProject.put(projectUuid, ncd);
+        } else {
+          ncd = new NewCodeDefinition(dto.getType().name(), value, "branch");
+          this.ncdByBranch.put(branchUuid, ncd);
+        }
+      } else {
+        throw new IllegalStateException(String.format("Error in loading telemetry data. New code definition for branch %s doesn't have a projectUuid", branchUuid));
+      }
+      this.newCodeDefinitions.add(ncd);
+    }
+    if (!hasInstance) {
+      this.newCodeDefinitions.add(NewCodeDefinition.getInstanceDefault());
+    }
+  }
+
+  private static String createBranchUniqueKey(String projectUuid, @Nullable String branchKey) {
+    return projectUuid + "-" + branchKey;
+  }
 
   private void resolveUnanalyzedLanguageCode(TelemetryData.Builder data, DbSession dbSession) {
     long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
@@ -216,6 +284,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setVulnerabilities(metrics.getOrDefault("vulnerabilities", null))
         .setSecurityHotspots(metrics.getOrDefault("security_hotspots", null))
         .setTechnicalDebt(metrics.getOrDefault("sqale_index", null))
+        .setNcdId(ncdByProject.getOrDefault(projectUuid, instanceNcd).hashCode())
         .build();
       projectStatistics.add(stats);
     }
@@ -361,9 +430,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return configuration.get(property).isPresent();
   }
 
-  private boolean isScimEnabled() {
-    return this.internalProperties.read(SCIM_PROPERTY_ENABLED).map(Boolean::parseBoolean).orElse(false);
-  }
 
   private TelemetryData.ManagedInstanceInformation buildManagedInstanceInformation() {
     String provider = managedInstanceService.isInstanceExternallyManaged() ? managedInstanceService.getProviderName() : null;

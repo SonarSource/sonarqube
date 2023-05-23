@@ -48,6 +48,8 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
@@ -58,6 +60,8 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.telemetry.TelemetryData.NewCodeDefinition;
+import org.sonar.server.telemetry.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -107,9 +111,9 @@ public class TelemetryDataLoaderImplTest {
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
+    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
+    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -199,11 +203,22 @@ public class TelemetryDataLoaderImplTest {
     // link one project to a non-default QG
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
 
+    var branch1 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("reference"));
+    var branch2 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("custom"));
+
+    var ncd1 = db.newCodePeriods().insert(project1.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    var ncd2 = db.newCodePeriods().insert(project1.uuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
+
+    var instanceNcdId = NewCodeDefinition.getInstanceDefault().hashCode();
+    var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
+    var branchNcdId = new NewCodeDefinition(NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid(), "branch").hashCode();
+
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
     assertThat(data.getVersion()).isEqualTo(version);
     assertThat(data.getEdition()).contains(DEVELOPER);
     assertThat(data.getDefaultQualityGate()).isEqualTo(builtInDefaultQualityGate.getUuid());
+    assertThat(data.getNcdId()).isEqualTo(NewCodeDefinition.getInstanceDefault().hashCode());
     assertThat(data.getMessageSequenceNumber()).isOne();
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
@@ -226,13 +241,31 @@ public class TelemetryDataLoaderImplTest {
         tuple(project2.uuid(), "java", 180L, analysisDate),
         tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount, TelemetryData.ProjectStatistics::getQualityGate,
-        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getDevopsPlatform,
-        TelemetryData.ProjectStatistics::getBugs, TelemetryData.ProjectStatistics::getVulnerabilities, TelemetryData.ProjectStatistics::getSecurityHotspots,
-        TelemetryData.ProjectStatistics::getDevelopmentCost, TelemetryData.ProjectStatistics::getTechnicalDebt)
+      .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getPullRequestCount, ProjectStatistics::getQualityGate,
+        ProjectStatistics::getScm, ProjectStatistics::getCi, ProjectStatistics::getDevopsPlatform,
+        ProjectStatistics::getBugs, ProjectStatistics::getVulnerabilities, ProjectStatistics::getSecurityHotspots,
+        ProjectStatistics::getDevelopmentCost, ProjectStatistics::getTechnicalDebt, ProjectStatistics::getNcdId)
       .containsExactlyInAnyOrder(
-        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L)),
-        tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+        tuple(3L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L),
+          projectNcdId),
+        tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+          Optional.empty(), instanceNcdId));
+
+    assertThat(data.getBranches())
+      .extracting(TelemetryData.Branch::branchUuid, TelemetryData.Branch::ncdId)
+      .containsExactlyInAnyOrder(
+        tuple(branch1.uuid(), projectNcdId),
+        tuple(branch2.uuid(), branchNcdId),
+        tuple(project1.uuid(), projectNcdId),
+        tuple(project2.uuid(), instanceNcdId));
+
+    assertThat(data.getNewCodeDefinitions())
+      .extracting(NewCodeDefinition::scope, NewCodeDefinition::type, NewCodeDefinition::value)
+      .containsExactlyInAnyOrder(
+        tuple("instance", NewCodePeriodType.PREVIOUS_VERSION.name(), ""),
+        tuple("project", NewCodePeriodType.NUMBER_OF_DAYS.name(), "30"),
+        tuple("branch", NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid()));
+
     assertThat(data.getQualityGates())
       .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus)
       .containsExactlyInAnyOrder(
@@ -297,8 +330,8 @@ public class TelemetryDataLoaderImplTest {
         tuple(project.uuid(), "js", 50L),
         tuple(project.uuid(), "kotlin", 30L));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
-        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getPullRequestCount,
+        ProjectStatistics::getScm, ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(
         tuple(2L, 0L, "undetected", "undetected"));
   }
@@ -436,7 +469,7 @@ public class TelemetryDataLoaderImplTest {
     db.components().insertPublicProject().getMainBranchComponent();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getDevopsPlatform, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .extracting(ProjectStatistics::getDevopsPlatform, ProjectStatistics::getScm, ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
   }
 
@@ -460,7 +493,7 @@ public class TelemetryDataLoaderImplTest {
     db.qualityGates().setDefaultQualityGate(qualityGate);
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getQualityGate)
+      .extracting(ProjectStatistics::getQualityGate)
       .containsOnly(qualityGate.getUuid());
   }
 
@@ -489,7 +522,7 @@ public class TelemetryDataLoaderImplTest {
 
   @DataProvider
   public static Object[][] getManagedInstanceData() {
-    return new Object[][]{
+    return new Object[][] {
       {true, "scim"},
       {true, "github"},
       {true, "gitlab"},

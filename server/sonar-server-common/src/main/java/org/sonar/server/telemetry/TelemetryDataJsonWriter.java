@@ -40,6 +40,8 @@ public class TelemetryDataJsonWriter {
 
   private static final String LANGUAGE_PROPERTY = "language";
   private static final String VERSION = "version";
+  private static final String NCD_ID = "ncdId";
+  private static final String PROJECT_ID = "projectUuid";
 
   private final List<TelemetryExtension> extensions;
 
@@ -56,6 +58,7 @@ public class TelemetryDataJsonWriter {
     json.prop(VERSION, telemetryData.getVersion());
     json.prop("messageSequenceNumber", telemetryData.getMessageSequenceNumber());
     json.prop("localTimestamp", toUtc(system2.now()));
+    json.prop(NCD_ID, telemetryData.getNcdId());
     telemetryData.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
     json.prop("defaultQualityGate", telemetryData.getDefaultQualityGate());
     json.name("database");
@@ -94,6 +97,8 @@ public class TelemetryDataJsonWriter {
     writeUserData(json, telemetryData);
     writeProjectData(json, telemetryData);
     writeProjectStatsData(json, telemetryData);
+    writeBranches(json, telemetryData);
+    writeNewCodeDefinitions(json, telemetryData);
     writeQualityGates(json, telemetryData);
     writeManagedInstanceInformation(json, telemetryData.getManagedInstanceInformation());
     extensions.forEach(e -> e.write(json));
@@ -131,12 +136,43 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       telemetryData.getProjects().forEach(project -> {
         json.beginObject();
-        json.prop("projectUuid", project.projectUuid());
+        json.prop(PROJECT_ID, project.projectUuid());
         if (project.lastAnalysis() != null) {
           json.prop("lastAnalysis", toUtc(project.lastAnalysis()));
         }
         json.prop(LANGUAGE_PROPERTY, project.language());
         json.prop("loc", project.loc());
+        json.endObject();
+      });
+      json.endArray();
+    }
+  }
+
+  private static void writeBranches(JsonWriter json, TelemetryData telemetryData) {
+    if (telemetryData.getBranches() != null) {
+      json.name("branches");
+      json.beginArray();
+      telemetryData.getBranches().forEach(branch -> {
+        json.beginObject();
+        json.prop(PROJECT_ID, branch.projectUuid());
+        json.prop("branchUuid", branch.branchUuid());
+        json.prop(NCD_ID, branch.ncdId());
+        json.endObject();
+      });
+      json.endArray();
+    }
+  }
+
+  private static void writeNewCodeDefinitions(JsonWriter json, TelemetryData telemetryData) {
+    if (telemetryData.getNewCodeDefinitions() != null) {
+      json.name("new-code-definitions");
+      json.beginArray();
+      telemetryData.getNewCodeDefinitions().forEach(ncd -> {
+        json.beginObject();
+        json.prop(NCD_ID, ncd.hashCode());
+        json.prop("type", ncd.type());
+        json.prop("value", ncd.value());
+        json.prop("scope", ncd.scope());
         json.endObject();
       });
       json.endArray();
@@ -149,13 +185,14 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       telemetryData.getProjectStatistics().forEach(project -> {
         json.beginObject();
-        json.prop("projectUuid", project.getProjectUuid());
+        json.prop(PROJECT_ID, project.getProjectUuid());
         json.prop("branchCount", project.getBranchCount());
         json.prop("pullRequestCount", project.getPullRequestCount());
         json.prop("qualityGate", project.getQualityGate());
         json.prop("scm", project.getScm());
         json.prop("ci", project.getCi());
         json.prop("devopsPlatform", project.getDevopsPlatform());
+        json.prop(NCD_ID, project.getNcdId());
         project.getBugs().ifPresent(bugs -> json.prop("bugs", bugs));
         project.getVulnerabilities().ifPresent(vulnerabilities -> json.prop("vulnerabilities", vulnerabilities));
         project.getSecurityHotspots().ifPresent(securityHotspots -> json.prop("securityHotspots", securityHotspots));

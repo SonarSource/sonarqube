@@ -112,4 +112,7 @@ public class NewCodePeriodDao implements Dao {
     return session.getMapper(NewCodePeriodMapper.class);
   }
 
+  public List<NewCodePeriodDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
 }

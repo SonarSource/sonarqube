@@ -23,4 +23,6 @@ public interface TelemetryDataLoader {
   TelemetryData load();
 
   String loadServerId();
+
+  void reset();
 }

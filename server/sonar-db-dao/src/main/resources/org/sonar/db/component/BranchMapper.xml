@@ -100,12 +100,20 @@
     </foreach>
   </select>
 
+  <select id="selectAllBranches" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns"/>
+    from project_branches pb
+    where branch_type='BRANCH'
+  </select>
+
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
     select <include refid="columns"/>
     from project_branches pb
     where
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
+
 
   <select id="selectMainBranchByProjectUuid" resultType="org.sonar.db.component.BranchDto">
     select <include refid="columns"/>

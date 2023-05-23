@@ -198,4 +198,8 @@ public class BranchDao implements Dao {
       .map(BranchDto::isNeedIssueSync)
       .orElse(false);
   }
+
+  public List<BranchDto> selectAllBranches(DbSession dbSession) {
+    return mapper(dbSession).selectAllBranches();
+  }
 }

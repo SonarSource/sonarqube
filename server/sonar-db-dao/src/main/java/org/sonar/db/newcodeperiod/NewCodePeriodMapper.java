@@ -45,4 +45,6 @@ public interface NewCodePeriodMapper {
   long countByProjectAnalysis(String projectAnalysisUuid);
 
   List<NewCodePeriodDto> selectAllByProject(String projectUuid);
+
+  List<NewCodePeriodDto> selectAll();
 }

@@ -150,6 +150,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
       dataJsonWriter.writeTelemetryData(json, statistics);
     }
     telemetryClient.upload(jsonString.toString());
+    dataLoader.reset();
   }
 
   private boolean shouldUploadStatistics(long now) {

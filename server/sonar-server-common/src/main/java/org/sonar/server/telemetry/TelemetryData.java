@@ -20,6 +20,7 @@
 package org.sonar.server.telemetry;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +32,7 @@ import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.db.user.UserTelemetryDto;
 
 import static java.util.Objects.requireNonNullElse;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 
 public class TelemetryData {
   private final String serverId;
@@ -47,9 +49,12 @@ public class TelemetryData {
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
+  private final List<Branch> branches;
   private final List<QualityGate> qualityGates;
+  private final Collection<NewCodeDefinition> newCodeDefinitions;
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
+  private final int ncdId;
   private final Set<String> customSecurityConfigs;
 
   private TelemetryData(Builder builder) {
@@ -71,6 +76,9 @@ public class TelemetryData {
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
     managedInstanceInformation = builder.managedInstanceInformation;
+    ncdId = builder.ncdId;
+    branches = builder.branches;
+    newCodeDefinitions = builder.newCodeDefinitions;
   }
 
   public String getServerId() {
@@ -149,6 +157,18 @@ public class TelemetryData {
     return new Builder();
   }
 
+  public int getNcdId() {
+    return ncdId;
+  }
+
+  public List<Branch> getBranches() {
+    return branches;
+  }
+
+  public Collection<NewCodeDefinition> getNewCodeDefinitions() {
+    return newCodeDefinitions;
+  }
+
   static class Builder {
     private String serverId;
     private String version;
@@ -167,7 +187,10 @@ public class TelemetryData {
     private List<UserTelemetryDto> users;
     private List<Project> projects;
     private List<ProjectStatistics> projectStatistics;
+    private List<Branch> branches;
+    private Collection<NewCodeDefinition> newCodeDefinitions;
     private List<QualityGate> qualityGates;
+    private int ncdId;
 
     private Builder() {
       // enforce static factory method
@@ -268,13 +291,44 @@ public class TelemetryData {
       return this;
     }
 
+    Builder setNcdId(int ncdId) {
+      this.ncdId = ncdId;
+      return this;
+    }
+
     private static void requireNonNullValues(Object... values) {
       Arrays.stream(values).forEach(Objects::requireNonNull);
     }
 
+    Builder setBranches(List<Branch> branches) {
+      this.branches = branches;
+      return this;
+    }
+
+    Builder setNewCodeDefinitions(Collection<NewCodeDefinition> newCodeDefinitions) {
+      this.newCodeDefinitions = newCodeDefinitions;
+      return this;
+    }
   }
 
   record Database(String name, String version) {
+  }
+
+  record NewCodeDefinition(String type, @Nullable String value, String scope) {
+
+    private static final NewCodeDefinition instanceDefault = new NewCodeDefinition(PREVIOUS_VERSION.name(), "", "instance");
+
+    public static NewCodeDefinition getInstanceDefault() {
+      return instanceDefault;
+    }
+
+    @Override
+    public String value() {
+      return value == null ? "" : value;
+    }
+  }
+
+  record Branch(String projectUuid, String branchUuid, int ncdId) {
   }
 
   record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
@@ -300,6 +354,8 @@ public class TelemetryData {
     private final Long technicalDebt;
     private final Long developmentCost;
 
+    private final int ncdId;
+
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
       this.branchCount = builder.branchCount;
@@ -313,6 +369,11 @@ public class TelemetryData {
       this.securityHotspots = builder.securityHotspots;
       this.technicalDebt = builder.technicalDebt;
       this.developmentCost = builder.developmentCost;
+      this.ncdId = builder.ncdId;
+    }
+
+    public int getNcdId() {
+      return ncdId;
     }
 
     public String getProjectUuid() {
@@ -376,9 +437,15 @@ public class TelemetryData {
       private Long securityHotspots;
       private Long technicalDebt;
       private Long developmentCost;
+      private int ncdId;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
+        return this;
+      }
+
+      public Builder setNcdId(int ncdId) {
+        this.ncdId = ncdId;
         return this;
       }
 

@@ -76,4 +76,6 @@ public interface BranchMapper {
   Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
 
   List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
+
+  List<BranchDto> selectAllBranches();
 }
