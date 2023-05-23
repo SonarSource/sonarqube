@@ -28,6 +28,7 @@ import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/secu
 import { searchUsers } from '../../../api/users';
 import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { get, save } from '../../../helpers/storage';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
@@ -45,6 +46,16 @@ jest.mock('../../../api/rules');
 jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/issues');
 jest.mock('../hooks/useScrollDownCompress');
+jest.mock('../../../helpers/sonarlint', () => ({
+  openHotspot: jest.fn().mockResolvedValue(null),
+  probeSonarLintServers: jest.fn().mockResolvedValue([
+    {
+      port: 1234,
+      ideName: 'VIM',
+      description: 'I use VIM',
+    },
+  ]),
+}));
 jest.mock('.../../../helpers/storage');
 
 const ui = {
@@ -85,6 +96,7 @@ const ui = {
   showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
   activityTab: byRole('tab', { name: /hotspots.tabs.activity/ }),
   addCommentButton: byRole('button', { name: 'hotspots.status.add_comment' }),
+  openInIDEButton: byRole('button', { name: 'hotspots.open_in_ide.open' }),
   continueReviewingButton: byRole('button', { name: 'hotspots.continue_to_next_hotspot' }),
   seeStatusHotspots: byRole('button', { name: /hotspots.see_x_hotspots/ }),
   dontShowSuccessDialogCheckbox: byRole('checkbox', {
@@ -168,24 +180,6 @@ describe('rendering', () => {
     expect(await ui.reviewButton.find()).toBeInTheDocument();
     expect(ui.activeAssignee.query()).not.toBeInTheDocument();
   });
-});
-
-it('should navigate when comming from SonarLint', async () => {
-  // On main branch
-  const rtl = renderSecurityHotspotsApp(
-    'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-1'
-  );
-
-  expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
-
-  // On specific branch
-  rtl.unmount();
-  renderSecurityHotspotsApp(
-    'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=b1',
-    { branchLike: mockBranch({ name: 'b1' }) }
-  );
-
-  expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
 });
 
 describe('CRUD', () => {
@@ -360,6 +354,35 @@ describe('navigation', () => {
     );
 
     expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
+  });
+
+  it('should allow to open a hotspot in an IDE', async () => {
+    const user = userEvent.setup();
+    renderSecurityHotspotsApp();
+
+    await user.click(await ui.openInIDEButton.find());
+    expect(openHotspot).toHaveBeenCalledWith(1234, 'hotspot-component', 'test-1');
+  });
+
+  it('should allow to choose in which IDE to open a hotspot', async () => {
+    jest.mocked(probeSonarLintServers).mockResolvedValueOnce([
+      {
+        port: 1234,
+        ideName: 'VIM',
+        description: 'I use VIM',
+      },
+      {
+        port: 4567,
+        ideName: 'MS Paint',
+        description: 'I use MS Paint cuz Ima boss',
+      },
+    ]);
+    const user = userEvent.setup();
+    renderSecurityHotspotsApp();
+
+    await user.click(await ui.openInIDEButton.find());
+    await user.click(screen.getByRole('menuitem', { name: /MS Paint/ }));
+    expect(openHotspot).toHaveBeenCalledWith(4567, 'hotspot-component', 'test-1');
   });
 });
 

@@ -192,6 +192,8 @@ export const lightTheme = {
     codeSnippetInline: COLORS.blueGrey[500],
 
     // code viewer
+    codeLine: COLORS.white,
+    codeLineBorder: COLORS.grey[100],
     codeLineIssueIndicator: COLORS.blueGrey[400], // Should be blueGrey[300], to be changed once code viewer is reworked
     codeLineLocationMarker: COLORS.red[200],
     codeLineLocationMarkerSelected: danger.lighter,

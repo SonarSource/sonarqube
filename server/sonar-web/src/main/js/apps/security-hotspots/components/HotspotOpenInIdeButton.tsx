@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  DropdownMenu,
+  DropdownToggler,
+  ItemButton,
+  PopupPlacement,
+} from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import Toggler from '../../../components/controls/Toggler';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';
-import { HotspotOpenInIdeOverlay } from './HotspotOpenInIdeOverlay';
 
 interface Props {
   projectKey: string;
@@ -35,7 +38,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  ides: Array<Ide>;
+  ides: Ide[];
 }
 
 export default class HotspotOpenInIdeButton extends React.PureComponent<Props, State> {
@@ -43,7 +46,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
 
   state = {
     loading: false,
-    ides: [],
+    ides: [] as Ide[],
   };
 
   componentDidMount() {
@@ -70,7 +73,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
   };
 
   openHotspot = (ide: Ide) => {
-    this.setState({ loading: true, ides: [] });
+    this.setState({ loading: true, ides: [] as Ide[] });
     const { projectKey, hotspotKey } = this.props;
     return openHotspot(ide.port, projectKey, hotspotKey)
       .then(this.showSuccess)
@@ -89,21 +92,40 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
   };
 
   render() {
+    const { ides, loading } = this.state;
     return (
-      <Toggler
-        open={this.state.ides.length > 1}
-        onRequestClose={this.cleanState}
-        overlay={
-          <DropdownOverlay>
-            <HotspotOpenInIdeOverlay ides={this.state.ides} onIdeSelected={this.openHotspot} />
-          </DropdownOverlay>
-        }
-      >
-        <Button onClick={this.handleOnClick}>
-          {translate('hotspots.open_in_ide.open')}
-          <DeferredSpinner loading={this.state.loading} className="spacer-left" />
-        </Button>
-      </Toggler>
+      <div>
+        <DropdownToggler
+          onRequestClose={() => this.cleanState()}
+          allowResizing={true}
+          open={ides.length > 1}
+          placement={PopupPlacement.BottomLeft}
+          isPortal={true}
+          overlay={
+            <DropdownMenu size="auto">
+              {ides.map((ide) => {
+                const { ideName, description } = ide;
+                const label = ideName + (description ? ` - ${description}` : '');
+                return (
+                  <ItemButton
+                    key={ide.port}
+                    onClick={() => {
+                      this.openHotspot(ide);
+                    }}
+                  >
+                    {label}
+                  </ItemButton>
+                );
+              })}
+            </DropdownMenu>
+          }
+        >
+          <ButtonSecondary onClick={this.handleOnClick}>
+            {translate('hotspots.open_in_ide.open')}
+            <DeferredSpinner loading={loading} className="sw-ml-4" />
+          </ButtonSecondary>
+        </DropdownToggler>
+      </div>
     );
   }
 }
