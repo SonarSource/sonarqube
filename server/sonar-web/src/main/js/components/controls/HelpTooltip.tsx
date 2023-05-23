@@ -60,6 +60,8 @@ export default function HelpTooltip(props: Props) {
             <HelpIcon
               fill={colors.gray60}
               size={size}
+              role="img"
+              aria-label={isInteractive ? translate('tooltip_is_interactive') : translate('help')}
               description={
                 isInteractive ? (
                   <>

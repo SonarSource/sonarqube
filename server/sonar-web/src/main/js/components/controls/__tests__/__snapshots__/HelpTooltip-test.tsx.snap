@@ -33,12 +33,14 @@ exports[`should render properly: default 1`] = `
       data-testid="help-tooltip-activator"
     >
       <HelpIcon
+        aria-label="help"
         description={
           <div
             className="my-overlay"
           />
         }
         fill="#888"
+        role="img"
         size={12}
       />
     </span>

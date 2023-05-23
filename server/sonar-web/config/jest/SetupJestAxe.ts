@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const { RuleTester } = require('eslint');
-const useJestMocked = require('../use-await-expect-tohaveatooltipwithcontent');
+import '@testing-library/jest-dom/extend-expect';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-});
-
-ruleTester.run('use-await-expect-tohaveatooltipwithcontent', useJestMocked, {
-  valid: [
-    {
-      code: `await expect(node).toHaveATooltipWithContent("Help text");`,
-    },
-  ],
-  invalid: [
-    {
-      code: `expect(node).toHaveATooltipWithContent("Help text");`,
-      errors: [{ messageId: 'useAwaitExpectToHaveATooltipWithContent' }],
-    },
-  ],
+expect.extend({
+  async toHaveNoA11yViolations(received: HTMLElement) {
+    const result = await axe(received);
+    return toHaveNoViolations.toHaveNoViolations(result);
+  },
 });

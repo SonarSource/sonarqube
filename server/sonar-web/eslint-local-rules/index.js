@@ -25,5 +25,5 @@ module.exports = {
   'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
   'use-metrickey-enum': require('./use-metrickey-enum'),
   'use-metrictype-enum': require('./use-metrictype-enum'),
-  'use-await-expect-tohaveatooltipwithcontent': require('./use-await-expect-tohaveatooltipwithcontent'),
+  'use-await-expect-async-matcher': require('./use-await-expect-async-matcher'),
 };

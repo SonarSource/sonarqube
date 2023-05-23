@@ -19,19 +19,22 @@
  */
 module.exports = {
   meta: {
-    messages: {
-      useAwaitExpectToHaveATooltipWithContent:
-        'expect.toHaveATooltipWithContent() is asynchronous; you must prefix expect() with await',
-    },
+    fixable: 'code',
   },
   create(context) {
     return {
       Identifier(node) {
         if (
-          node.name === 'toHaveATooltipWithContent' &&
+          ['toHaveATooltipWithContent', 'toHaveNoA11yViolations'].includes(node.name) &&
           node.parent?.parent?.parent?.type !== 'AwaitExpression'
         ) {
-          context.report({ node, messageId: 'useAwaitExpectToHaveATooltipWithContent' });
+          context.report({
+            node: node.parent?.parent?.parent,
+            message: `expect.${node.name}() is asynchronous; you must prefix expect() with await`,
+            fix(fixer) {
+              return fixer.insertTextBefore(node.parent?.parent?.parent, 'await ');
+            },
+          });
         }
       },
     };

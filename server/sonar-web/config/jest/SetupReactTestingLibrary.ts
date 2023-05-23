@@ -24,7 +24,6 @@ configure({
   asyncUtilTimeout: 3000,
 });
 
-// Don't forget to update src/main/js/types/jest.d.ts when registering custom matchers.
 expect.extend({
   async toHaveATooltipWithContent(received: any, content: string) {
     if (!(received instanceof Element)) {

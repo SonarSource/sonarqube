@@ -20,7 +20,7 @@
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 
-export interface IconProps extends React.AriaAttributes {
+export interface IconProps extends React.HTMLAttributes<SVGSVGElement> {
   className?: string;
   fill?: string;
   size?: number;
@@ -28,7 +28,7 @@ export interface IconProps extends React.AriaAttributes {
   description?: React.ReactNode;
 }
 
-interface Props extends React.AriaAttributes {
+interface Props extends React.HTMLAttributes<SVGSVGElement> {
   children: React.ReactNode;
   className?: string;
   size?: number;
@@ -72,7 +72,6 @@ export default function Icon({
       width={width}
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
-      role="img"
       aria-describedby={description && !hidden ? id : undefined}
       {...iconProps}
     >

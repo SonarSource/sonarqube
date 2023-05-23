@@ -17,10 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+const { RuleTester } = require('eslint');
+const useJestMocked = require('../use-await-expect-async-matcher');
 
-declare namespace jest {
-  interface Matchers<R> {
-    toHaveATooltipWithContent(content: string): Promise<CustomMatcherResult>;
-    toHaveNoA11yViolations(): Promise<CustomMatcherResult>;
-  }
-}
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+});
+
+ruleTester.run('use-await-expect-tohaveatooltipwithcontent', useJestMocked, {
+  valid: [
+    {
+      code: `await expect(node).toHaveATooltipWithContent("Help text");`,
+    },
+  ],
+  invalid: [
+    {
+      code: `expect(node).toHaveATooltipWithContent("Help text");`,
+      errors: [
+        {
+          message:
+            'expect.toHaveATooltipWithContent() is asynchronous; you must prefix expect() with await',
+        },
+      ],
+      output: `await expect(node).toHaveATooltipWithContent("Help text");`,
+    },
+  ],
+});

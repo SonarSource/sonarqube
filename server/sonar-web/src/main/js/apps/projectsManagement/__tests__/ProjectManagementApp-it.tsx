@@ -99,7 +99,7 @@ const ui = {
   qualifierFilter: byRole('combobox', { name: 'projects_management.filter_by_component' }),
   analysisDateFilter: byPlaceholderText('last_analysis_before'),
   provisionedFilter: byRole('checkbox', {
-    name: 'provisioning.only_provisioned provisioning.only_provisioned.tooltip',
+    name: 'provisioning.only_provisioned help',
   }),
   searchFilter: byRole('searchbox', { name: 'search.search_by_name_or_key' }),
 

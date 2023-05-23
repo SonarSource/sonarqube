@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -118,7 +118,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                   <MandatoryFieldMarker />
                 </label>
                 {/* keep this fake field to hack browser autofill */}
-                <input className="hidden" name="old-password-fake" type="password" />
+                <input className="hidden" aria-hidden name="old-password-fake" type="password" />
                 <input
                   id="old-user-password"
                   name="old-password"
@@ -135,7 +135,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 <MandatoryFieldMarker />
               </label>
               {/* keep this fake field to hack browser autofill */}
-              <input className="hidden" name="password-fake" type="password" />
+              <input className="hidden" aria-hidden name="password-fake" type="password" />
               <input
                 id="user-password"
                 name="password"
@@ -151,7 +151,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 <MandatoryFieldMarker />
               </label>
               {/* keep this fake field to hack browser autofill */}
-              <input className="hidden" name="confirm-password-fake" type="password" />
+              <input className="hidden" aria-hidden name="confirm-password-fake" type="password" />
               <input
                 id="confirm-user-password"
                 name="confirm-password"

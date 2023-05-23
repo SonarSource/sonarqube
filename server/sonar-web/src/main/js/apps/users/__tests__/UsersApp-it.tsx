@@ -58,6 +58,7 @@ const ui = {
   bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
   scmAddButton: byRole('button', { name: 'add_verb' }),
   createUserDialogButton: byRole('button', { name: 'create' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
   reloadButton: byRole('button', { name: 'reload' }),
   doneButton: byRole('button', { name: 'done' }),
   changeButton: byRole('button', { name: 'change_verb' }),
@@ -295,13 +296,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () =>
-      user.click(
-        await within(await ui.aliceRow.find()).findByRole('button', {
-          name: 'users.update_users_groups.alice.merveille',
-        })
-      )
-    );
+    await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
 
     expect(ui.getGroups()).toHaveLength(2);
@@ -334,13 +329,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () =>
-      user.click(
-        await within(await ui.aliceRow.find()).findByRole('button', {
-          name: 'users.manage_user.alice.merveille',
-        })
-      )
-    );
+    await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
       await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' })
     );
@@ -360,13 +349,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () =>
-      user.click(
-        await within(await ui.aliceRow.find()).findByRole('button', {
-          name: 'users.manage_user.alice.merveille',
-        })
-      )
-    );
+    await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
       await within(ui.aliceRow.get()).findByRole('button', { name: 'users.deactivate' })
     );
@@ -388,13 +371,7 @@ describe('in non managed mode', () => {
     const currentUser = mockLoggedInUser({ login: 'alice.merveille' });
     renderUsersApp([], currentUser);
 
-    await act(async () =>
-      user.click(
-        await within(await ui.aliceRow.find()).findByRole('button', {
-          name: 'users.manage_user.alice.merveille',
-        })
-      )
-    );
+    await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
       await within(ui.aliceRow.get()).findByRole('button', { name: 'my_profile.password.title' })
     );
@@ -511,8 +488,8 @@ describe('in manage mode', () => {
       await user.click(await ui.localFilter.find());
     });
 
-    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
     expect(ui.bobRow.query()).not.toBeInTheDocument();
+    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
   });
 
   it('should be able to change tokens of a user', async () => {
@@ -586,12 +563,11 @@ describe('in manage mode', () => {
       authenticationHandler.addProvisioningTask({
         status: TaskStatuses.Failed,
         executedAt: '2022-02-03T11:45:35+0200',
-        errorMessage: "T'es mauvais Jacques",
+        errorMessage: 'Error Message',
       });
       renderUsersApp([Feature.GithubProvisioning]);
       await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
-      expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
-
+      expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
 
@@ -603,11 +579,11 @@ describe('in manage mode', () => {
       authenticationHandler.addProvisioningTask({
         status: TaskStatuses.Failed,
         executedAt: '2022-02-03T11:45:35+0200',
-        errorMessage: "T'es mauvais Jacques",
+        errorMessage: 'Error Message',
       });
       renderUsersApp([Feature.GithubProvisioning]);
       await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
-      expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
+      expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
     });
@@ -619,6 +595,57 @@ it('should render external identity Providers', async () => {
 
   await act(async () => expect(await ui.charlieRow.find()).toHaveTextContent(/ExternalTest/));
   expect(await ui.denisRow.find()).toHaveTextContent(/test2: UnknownExternalProvider/);
+});
+
+it('accessibility', async () => {
+  userHandler.setIsManaged(false);
+  const user = userEvent.setup();
+  renderUsersApp();
+
+  // user list page should be accessible
+  expect(await ui.aliceRow.find()).toBeInTheDocument();
+  await expect(document.body).toHaveNoA11yViolations();
+
+  // user creation dialog should be accessible
+  await user.click(await ui.createUserButton.find());
+  expect(await ui.dialogCreateUser.find()).toBeInTheDocument();
+  await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
+  await user.click(ui.cancelButton.get());
+
+  // users group membership dialog should be accessible
+  user.click(await ui.aliceUpdateGroupButton.find());
+  expect(await ui.dialogGroups.find()).toBeInTheDocument();
+  await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
+  await act(async () => {
+    await user.click(ui.doneButton.get());
+  });
+
+  // user update dialog should be accessible
+  await user.click(await ui.aliceUpdateButton.find());
+  await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
+  expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
+  await expect(await ui.dialogUpdateUser.find()).toHaveNoA11yViolations();
+  await user.click(ui.cancelButton.get());
+
+  // user tokens dialog should be accessible
+  user.click(
+    await ui.aliceRow
+      .byRole('button', {
+        name: 'users.update_tokens_for_x.Alice Merveille',
+      })
+      .find()
+  );
+  expect(await ui.dialogTokens.find()).toBeInTheDocument();
+  await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
+  await user.click(ui.doneButton.get());
+
+  // user password dialog should be accessible
+  await user.click(await ui.aliceUpdateButton.find());
+  await user.click(
+    await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find()
+  );
+  expect(await ui.dialogPasswords.find()).toBeInTheDocument();
+  await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();
 });
 
 function renderUsersApp(featureList: Feature[] = [], currentUser?: CurrentUser) {
