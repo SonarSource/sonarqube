@@ -120,7 +120,7 @@ export default class AuthenticationServiceMock {
     return Promise.resolve(this.settingValues);
   };
 
-  handleSetValue = (definition: SettingDefinition, value: string | boolean) => {
+  handleSetValue = (definition: SettingDefinition, value: string | boolean | string[]) => {
     if (value === 'error') {
       const res = new Response('', {
         status: 400,
@@ -130,8 +130,19 @@ export default class AuthenticationServiceMock {
       return Promise.reject(res);
     }
     const updatedSettingValue = this.settingValues.find((set) => set.key === definition.key);
+
     if (updatedSettingValue) {
-      updatedSettingValue.value = String(value);
+      if (definition.multiValues) {
+        updatedSettingValue.values = value as string[];
+      } else {
+        updatedSettingValue.value = String(value);
+      }
+    } else if (definition.multiValues) {
+      this.settingValues.push({
+        key: definition.key,
+        values: value as string[],
+        inherited: false,
+      });
     } else {
       this.settingValues.push({ key: definition.key, value: String(value), inherited: false });
     }
@@ -143,6 +154,7 @@ export default class AuthenticationServiceMock {
       this.settingValues.forEach((set) => {
         if (data.keys.includes(set.key)) {
           set.value = '';
+          set.values = [];
         }
         return set;
       });

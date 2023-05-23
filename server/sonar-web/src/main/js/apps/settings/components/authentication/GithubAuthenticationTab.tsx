@@ -46,7 +46,6 @@ const GITHUB_EXCLUDED_FIELD = [
   'sonar.auth.github.enabled',
   'sonar.auth.github.groupsSync',
   'sonar.auth.github.allowUsersToSignUp',
-  'sonar.auth.github.organizations',
 ];
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {

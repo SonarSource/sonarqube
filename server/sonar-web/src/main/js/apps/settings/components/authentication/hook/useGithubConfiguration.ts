@@ -34,12 +34,14 @@ export const GITHUB_APP_ID_FIELD = 'sonar.auth.github.appId';
 export const GITHUB_API_URL_FIELD = 'sonar.auth.github.apiUrl';
 export const GITHUB_CLIENT_ID_FIELD = 'sonar.auth.github.clientId.secured';
 export const GITHUB_JIT_FIELDS = [
-  'sonar.auth.github.organizations',
   'sonar.auth.github.allowUsersToSignUp',
   'sonar.auth.github.groupsSync',
+];
+export const OPTIONAL_FIELDS = [
+  GITHUB_ENABLED_FIELD,
+  ...GITHUB_JIT_FIELDS,
   'sonar.auth.github.organizations',
 ];
-export const OPTIONAL_FIELDS = [GITHUB_ENABLED_FIELD, ...GITHUB_JIT_FIELDS];
 
 export interface SamlSettingValue {
   key: string;

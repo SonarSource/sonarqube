@@ -121,6 +121,10 @@ const ui = {
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
     disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
     editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
+    deleteOrg: (org: string) =>
+      byRole('button', {
+        name: `settings.definition.delete_value.property.sonar.auth.github.organizations.name.${org}`,
+      }),
     enableFirstMessage: byText('settings.authentication.github.enable_first'),
     jitProvisioningButton: byRole('radio', {
       name: 'settings.authentication.form.provisioning_at_login',
@@ -135,6 +139,7 @@ const ui = {
         await user.type(github.clientSecret.get(), 'Client shut');
         await user.type(github.githubApiUrl.get(), 'API Url');
         await user.type(github.githubWebUrl.get(), 'WEb Url');
+        await user.type(github.organizations.get(), 'organization1');
       });
     },
     createConfiguration: async (user: UserEvent) => {
@@ -289,6 +294,24 @@ describe('Github tab', () => {
     expect(await github.editConfigButton.find()).toBeInTheDocument();
   });
 
+  it('should be able to edit configuration', async () => {
+    const { github } = ui;
+    const user = userEvent.setup();
+    renderAuthentication();
+    await user.click(await github.tab.find());
+
+    await github.createConfiguration(user);
+
+    await user.click(github.editConfigButton.get());
+    await user.click(github.deleteOrg('organization1').get());
+
+    await user.click(github.saveConfigButton.get());
+
+    await user.click(await github.editConfigButton.find());
+
+    expect(github.organizations.get()).toHaveValue('');
+  });
+
   it('should be able to enable/disable configuration', async () => {
     const { github } = ui;
     const user = userEvent.setup();
@@ -336,7 +359,6 @@ describe('Github tab', () => {
     expect(github.saveGithubProvisioning.get()).toBeDisabled();
     await user.click(github.allowUserToSignUp.get());
     await user.click(github.syncGroupsAsTeams.get());
-    await user.type(github.organizations.get(), 'organization1, organization2');
 
     expect(github.saveGithubProvisioning.get()).toBeEnabled();
     await user.click(github.saveGithubProvisioning.get());

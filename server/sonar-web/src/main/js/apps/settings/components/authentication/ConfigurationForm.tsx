@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isEmptyArray } from 'formik';
 import { isEmpty, keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { setSettingValue } from '../../../../api/settings';
+import { resetSettingValue, setSettingValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import Modal from '../../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
@@ -74,7 +75,11 @@ export default function ConfigurationForm(props: Props) {
           .filter((v) => v.newValue !== undefined)
           .map(async ({ key, newValue, definition }) => {
             try {
-              await setSettingValue(definition, newValue);
+              if (isEmptyArray(newValue)) {
+                await resetSettingValue({ keys: definition.key });
+              } else {
+                await setSettingValue(definition, newValue);
+              }
               return { key, success: true };
             } catch (error) {
               return { key, success: false };
