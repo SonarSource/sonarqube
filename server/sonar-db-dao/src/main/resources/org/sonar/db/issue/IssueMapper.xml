@@ -212,11 +212,13 @@
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>

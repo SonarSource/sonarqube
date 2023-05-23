@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ public class IssueUpdater {
   }
 
   public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context) {
-    BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
+    BranchDto branch = getBranch(dbSession, issue);
     return saveIssueAndPreloadSearchResponseData(dbSession, issue, context, branch);
   }
 
@@ -94,20 +95,24 @@ public class IssueUpdater {
     return result;
   }
 
-  protected BranchDto getBranch(DbSession dbSession, DefaultIssue issue, @Nullable String projectUuid) {
+  public BranchDto getBranch(DbSession dbSession, DefaultIssue issue) {
     String issueKey = issue.key();
-    checkState(projectUuid != null, "Issue '%s' has no project", issueKey);
-    BranchDto component = dbClient.branchDao().selectByUuid(dbSession, projectUuid).orElse(null);
-    checkState(component != null, "Branch uuid '%s' for issue key '%s' cannot be found", projectUuid, issueKey);
-    return component;
+    String componentUuid = issue.componentUuid();
+    checkState(componentUuid != null, "Component uuid for issue key '%s' cannot be null", issueKey);
+    Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+    checkState(componentDto.isPresent(), "Component not found for issue with key '%s'", issueKey);
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, componentDto.get().branchUuid()).orElse(null);
+    checkState(branchDto != null, "Branch not found for issue with key '%s'", issueKey);
+    return branchDto;
   }
 
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
     @Nullable RuleDto ruleDto, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
+    Date updateDate = issue.updateDate();
     if (
       // since this method is called after an update of the issue, date should never be null
-      issue.updateDate() == null
+      updateDate == null
         // name of rule is displayed in notification, rule must therefor be present
         || ruleDto == null
         // notification are not supported on PRs
@@ -133,7 +138,7 @@ public class IssueUpdater {
           .setBranchName(branchDto.isMain() ? null : branchDto.getKey())
           .build())
         .build()),
-      new UserChange(issue.updateDate().getTime(), new User(author.getUuid(), author.getLogin(), author.getName())));
+      new UserChange(updateDate.getTime(), new User(author.getUuid(), author.getLogin(), author.getName())));
     notificationService.scheduleForSending(notificationSerializer.serialize(notificationBuilder));
     return issueDto;
   }

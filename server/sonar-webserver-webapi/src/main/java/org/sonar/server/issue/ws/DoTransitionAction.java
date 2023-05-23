@@ -119,7 +119,7 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      BranchDto branch = issueUpdater.getBranch(session, defaultIssue, defaultIssue.projectUuid());
+      BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {

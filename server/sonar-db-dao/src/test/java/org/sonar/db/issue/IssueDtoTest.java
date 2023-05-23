@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -47,7 +48,7 @@ public class IssueDtoTest {
     .build();
 
   @Test
-  public void toDefaultIssue_set_issue_fields() {
+  public void toDefaultIssue_ShouldSetIssueFields() throws InvalidProtocolBufferException {
     Date createdAt = DateUtils.addDays(new Date(), -5);
     Date updatedAt = DateUtils.addDays(new Date(), -3);
     Date closedAt = DateUtils.addDays(new Date(), -1);
@@ -78,32 +79,38 @@ public class IssueDtoTest {
       .setIssueCloseDate(closedAt)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
 
+    DefaultIssue expected = new DefaultIssue()
+      .setKey("100")
+      .setType(RuleType.VULNERABILITY)
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
+      .setLanguage("xoo")
+      .setComponentUuid("CDEF")
+      .setProjectUuid("GHIJ")
+      .setComponentKey("org.sonar.sample:Sample")
+      .setProjectKey("org.sonar.sample")
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+      .setGap(15.0)
+      .setEffort(Duration.create(10L))
+      .setLine(6)
+      .setSeverity("BLOCKER")
+      .setMessage("message")
+      .setMessageFormattings(DbIssues.MessageFormattings.parseFrom(EXAMPLE_MESSAGE_FORMATTINGS.toByteArray()))
+      .setManualSeverity(true)
+      .setAssigneeUuid("perceval")
+      .setAuthorLogin("pierre")
+      .setCreationDate(DateUtils.truncate(createdAt, Calendar.SECOND))
+      .setUpdateDate(DateUtils.truncate(updatedAt, Calendar.SECOND))
+      .setCloseDate(DateUtils.truncate(closedAt, Calendar.SECOND))
+      .setNew(false)
+      .setIsNewCodeReferenceIssue(false)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setCodeVariants(Set.of())
+      .setTags(Set.of());
+
     DefaultIssue issue = dto.toDefaultIssue();
-    assertThat(issue.key()).isEqualTo("100");
-    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.ruleKey()).hasToString("java:AvoidCycle");
-    assertThat(issue.language()).isEqualTo("xoo");
-    assertThat(issue.componentUuid()).isEqualTo("CDEF");
-    assertThat(issue.projectUuid()).isEqualTo("GHIJ");
-    assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
-    assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.gap()).isEqualTo(15.0);
-    assertThat(issue.effort()).isEqualTo(Duration.create(10L));
-    assertThat(issue.line()).isEqualTo(6);
-    assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.message()).isEqualTo("message");
-    assertThat((DbIssues.MessageFormattings) issue.getMessageFormattings()).isEqualTo(EXAMPLE_MESSAGE_FORMATTINGS);
-    assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.assignee()).isEqualTo("perceval");
-    assertThat(issue.authorLogin()).isEqualTo("pierre");
-    assertThat(issue.creationDate()).isEqualTo(DateUtils.truncate(createdAt, Calendar.SECOND));
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
-    assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
-    assertThat(issue.isNew()).isFalse();
-    assertThat(issue.isNewCodeReferenceIssue()).isFalse();
-    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+
+    assertThat(issue).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test

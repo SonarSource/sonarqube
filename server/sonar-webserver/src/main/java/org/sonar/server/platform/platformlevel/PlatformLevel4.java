@@ -191,6 +191,7 @@ import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.pushapi.ServerPushModule;
+import org.sonar.server.pushapi.hotspots.HotspotChangeEventServiceImpl;
 import org.sonar.server.pushapi.issues.IssueChangeEventServiceImpl;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
 import org.sonar.server.qualitygate.ProjectsInWarningModule;
@@ -458,6 +459,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
       IssueChangeEventServiceImpl.class,
+      HotspotChangeEventServiceImpl.class,
 
       // issues actions
       AssignAction.class,

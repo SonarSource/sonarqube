@@ -115,7 +115,7 @@ public class SetSeverityAction implements IssuesWsAction {
 
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
-      BranchDto branch = issueUpdater.getBranch(session, issue, issue.projectUuid());
+      BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {

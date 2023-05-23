@@ -30,15 +30,19 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.ws.IssueUpdater;
+import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
+import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
@@ -53,13 +57,15 @@ public class AssignAction implements HotspotsWsAction {
   private final HotspotWsSupport hotspotWsSupport;
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
+  private final HotspotChangeEventService hotspotChangeEventService;
 
   public AssignAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, IssueFieldsSetter issueFieldsSetter,
-    IssueUpdater issueUpdater) {
+    IssueUpdater issueUpdater, HotspotChangeEventService hotspotChangeEventService) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
+    this.hotspotChangeEventService = hotspotChangeEventService;
   }
 
   @Override
@@ -121,6 +127,12 @@ public class AssignAction implements HotspotsWsAction {
 
       if (issueFieldsSetter.assign(defaultIssue, assignee, context)) {
         issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
+
+        BranchDto branch = issueUpdater.getBranch(dbSession, defaultIssue);
+        if (BRANCH.equals(branch.getBranchType())) {
+          HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, assignee, hotspotDto.getFilePath());
+          hotspotChangeEventService.distributeHotspotChangedEvent(defaultIssue.projectUuid(), hotspotChangedEvent);
+        }
       }
     }
   }
@@ -146,5 +158,17 @@ public class AssignAction implements HotspotsWsAction {
 
   private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
     return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
+  }
+
+  private static HotspotChangedEvent buildEventData(DefaultIssue defaultIssue, @Nullable UserDto assignee, String filePath) {
+    return new HotspotChangedEvent.Builder()
+      .setKey(defaultIssue.key())
+      .setProjectKey(defaultIssue.projectKey())
+      .setStatus(defaultIssue.status())
+      .setResolution(defaultIssue.resolution())
+      .setUpdateDate(defaultIssue.updateDate())
+      .setAssignee(assignee == null ? null : assignee.getLogin())
+      .setFilePath(filePath)
+      .build();
   }
 }
