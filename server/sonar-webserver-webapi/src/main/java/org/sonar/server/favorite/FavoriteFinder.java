@@ -57,7 +57,7 @@ public class FavoriteFinder {
         .build();
       Set<String> entitiesUuids = dbClient.propertiesDao().selectByQuery(dbQuery, dbSession).stream().map(PropertyDto::getComponentUuid).collect(Collectors.toSet());
 
-      List<EntityDto> entities = dbClient.projectDao().selectEntitiesByUuids(dbSession, entitiesUuids);
+      List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entitiesUuids);
 
       return entities.stream()
         .sorted(Comparator.comparing(EntityDto::getName))

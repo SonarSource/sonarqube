@@ -36,7 +36,7 @@ public class ComponentHit {
 
   public ComponentHit(String uuid) {
     this.uuid = uuid;
-    highlightedText = Optional.empty();
+    this.highlightedText = Optional.empty();
   }
 
   public ComponentHit(SearchHit hit) {

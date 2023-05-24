@@ -319,7 +319,7 @@ public class SetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(dbClient.projectDao().selectEntityByKey(dbSession, componentKey)
+    return Optional.of(dbClient.entityDao().selectByKey(dbSession, componentKey)
       .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey))));
   }
 

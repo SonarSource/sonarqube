@@ -27,9 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
@@ -92,7 +90,7 @@ public class AddAction implements FavoritesWsAction {
   private Consumer<Request> addFavorite() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT))
+        EntityDto entity = dbClient.entityDao().selectByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT))
           .orElseThrow(() -> new NotFoundException(format("Entity with key '%s' not found", request.mandatoryParam(PARAM_COMPONENT))));
 
         checkArgument(SUPPORTED_QUALIFIERS.contains(entity.getQualifier()), "Only components with qualifiers %s are supported", SUPPORTED_QUALIFIERS_AS_STRING);

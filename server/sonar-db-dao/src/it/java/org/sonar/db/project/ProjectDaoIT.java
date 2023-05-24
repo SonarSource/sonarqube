@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +31,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultHandler;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
@@ -46,13 +44,10 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.entity.EntityDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -342,111 +337,6 @@ public class ProjectDaoIT {
     List<String> projectUuids = projectDao.selectAllProjectUuids(db.getSession());
 
     assertThat(projectUuids).containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
-  }
-
-  @Test
-  public void selectEntitiesByKeys_shouldReturnAllEntities() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    assertThat(projectDao.selectEntitiesByKeys(db.getSession(), List.of(application.projectKey(), project.projectKey(), portfolio.getKey(), "unknown")))
-      .extracting(EntityDto::getUuid)
-      .containsOnly(application.projectUuid(), project.projectUuid(), portfolio.getUuid());
-  }
-
-  @Test
-  public void selectEntitiesByKeys_whenEmptyInput_shouldReturnEmptyList() {
-    assertThat(projectDao.selectEntitiesByKeys(db.getSession(), emptyList())).isEmpty();
-  }
-
-  @Test
-  public void selectEntitiesByUuids_shouldReturnAllEntities() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    assertThat(projectDao.selectEntitiesByUuids(db.getSession(), List.of(application.projectUuid(), project.projectUuid(), portfolio.getUuid(), "unknown")))
-      .extracting(EntityDto::getKey)
-      .containsOnly(application.projectKey(), project.projectKey(), portfolio.getKey());
-  }
-
-  @Test
-  public void selectEntitiesByUuids_whenEmptyInput_shouldReturnEmptyList() {
-    assertThat(projectDao.selectEntitiesByUuids(db.getSession(), emptyList())).isEmpty();
-  }
-
-  @Test
-  public void selectEntityByUuid_shouldReturnAllEntities() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    assertThat(projectDao.selectEntityByUuid(db.getSession(), application.projectUuid()).get().getKey()).isEqualTo(application.projectKey());
-    assertThat(projectDao.selectEntityByUuid(db.getSession(), project.projectUuid()).get().getKey()).isEqualTo(project.projectKey());
-    assertThat(projectDao.selectEntityByUuid(db.getSession(), portfolio.getUuid()).get().getKey()).isEqualTo(portfolio.getKey());
-  }
-
-  @Test
-  public void selectEntityByUuid_whenNoMatch_shouldReturnEmpty() {
-    assertThat(projectDao.selectEntityByUuid(db.getSession(), "unknown")).isEmpty();
-  }
-
-  @Test
-  public void selectEntityByKey_shouldReturnAllEntities() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    assertThat(projectDao.selectEntityByKey(db.getSession(), application.projectKey()).get().getUuid()).isEqualTo(application.projectUuid());
-    assertThat(projectDao.selectEntityByKey(db.getSession(), project.projectKey()).get().getUuid()).isEqualTo(project.projectUuid());
-    assertThat(projectDao.selectEntityByKey(db.getSession(), portfolio.getKey()).get().getUuid()).isEqualTo(portfolio.getUuid());
-  }
-
-  @Test
-  public void selectEntityByKey_whenNoMatch_shouldReturnEmpty() {
-    assertThat(projectDao.selectEntityByKey(db.getSession(), "unknown")).isEmpty();
-  }
-
-  @Test
-  public void scrollEntitiesForIndexing_shouldReturnAllEntities() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    List<EntityDto> result = new LinkedList<>();
-    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    projectDao.scrollEntitiesForIndexing(db.getSession(), null, handler);
-
-    assertThat(result).extracting(EntityDto::getUuid)
-      .containsOnly(project.projectUuid(), application.projectUuid(), portfolio.getUuid());
-  }
-
-  @Test
-  public void scrollEntitiesForIndexing_whenEntityUuidSpecified_shouldReturnSpecificEntity() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    List<EntityDto> result = new LinkedList<>();
-    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    projectDao.scrollEntitiesForIndexing(db.getSession(), project.projectUuid(), handler);
-
-    assertThat(result).extracting(EntityDto::getUuid)
-      .containsOnly(project.projectUuid());
-  }
-
-  @Test
-  public void scrollEntitiesForIndexing_whenNonExistingUuidSpecified_shouldReturnEmpty() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    List<EntityDto> result = new LinkedList<>();
-    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    projectDao.scrollEntitiesForIndexing(db.getSession(), "unknown", handler);
-
-    assertThat(result).isEmpty();
   }
 
   private void insertDefaultQualityProfile(String language) {

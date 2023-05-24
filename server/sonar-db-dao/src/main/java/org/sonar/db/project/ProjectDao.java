@@ -19,18 +19,15 @@
  */
 package org.sonar.db.project;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
-import org.sonar.db.entity.EntityDto;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -145,32 +142,5 @@ public class ProjectDao implements Dao {
 
   public long getNclocSum(DbSession dbSession, @Nullable String projectUuidToExclude) {
     return Optional.ofNullable(mapper(dbSession).getNclocSum(projectUuidToExclude)).orElse(0L);
-  }
-
-  public Optional<EntityDto> selectEntityByUuid(DbSession dbSession, String uuid) {
-    return Optional.ofNullable(mapper(dbSession).selectEntityByUuid(uuid));
-  }
-
-  public List<EntityDto> selectEntitiesByUuids(DbSession dbSession, Collection<String> uuids) {
-    if (uuids.isEmpty()) {
-      return emptyList();
-    }
-
-    return executeLargeInputs(uuids, partition -> mapper(dbSession).selectEntitiesByUuids(partition));
-  }
-
-  public Optional<EntityDto> selectEntityByKey(DbSession dbSession, String key) {
-    return Optional.ofNullable(mapper(dbSession).selectEntityByKey(key));
-  }
-
-  public List<EntityDto> selectEntitiesByKeys(DbSession dbSession, Collection<String> keys) {
-    if (keys.isEmpty()) {
-      return emptyList();
-    }
-    return executeLargeInputs(keys, partition -> mapper(dbSession).selectEntitiesByKeys(partition));
-  }
-
-  public void scrollEntitiesForIndexing(DbSession session, @Nullable String entityUuid, ResultHandler<EntityDto> handler) {
-    mapper(session).scrollEntitiesForIndexing(entityUuid, handler);
   }
 }

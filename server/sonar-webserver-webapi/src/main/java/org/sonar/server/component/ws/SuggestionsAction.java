@@ -169,7 +169,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<EntityDto> entities = new HashSet<>(favorites);
       if (!recentlyBrowsedKeys.isEmpty()) {
-        entities.addAll(dbClient.projectDao().selectEntitiesByKeys(dbSession, recentlyBrowsedKeys));
+        entities.addAll(dbClient.entityDao().selectByKeys(dbSession, recentlyBrowsedKeys));
       }
       List<EntityDto> authorizedEntities = userSession.keepAuthorizedEntities(USER, entities);
       ListMultimap<String, EntityDto> entityPerQualifier = authorizedEntities.stream()
@@ -226,7 +226,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         .flatMap(Collection::stream)
         .map(ComponentHit::getUuid)
         .collect(toSet());
-      List<EntityDto> entities = dbClient.projectDao().selectEntitiesByUuids(dbSession, entityUuids);
+      List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
       Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(MoreCollectors.toSet(favorites.size()));
       SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, entities, skip + limit);
       getWarning(query).ifPresent(searchWsResponse::setWarning);

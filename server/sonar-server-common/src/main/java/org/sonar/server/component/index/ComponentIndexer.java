@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -37,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
@@ -125,7 +122,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     Set<String> remaining = new HashSet<>(entityUuids);
 
     for (String entityUuid : entityUuids) {
-      dbClient.projectDao().scrollEntitiesForIndexing(dbSession, entityUuid, context -> {
+      dbClient.entityDao().scrollForIndexing(dbSession, entityUuid, context -> {
         EntityDto dto = context.getResultObject();
         remaining.remove(dto.getUuid());
         bulkIndexer.add(toDocument(dto).toIndexRequest());
@@ -148,7 +145,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     bulk.start();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<EntityDto> entityDto = dbClient.projectDao().selectEntityByUuid(dbSession, entityUuid);
+      Optional<EntityDto> entityDto = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
 
       if (entityDto.isEmpty()) {
         return;
@@ -170,7 +167,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, bulkSize);
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.projectDao().scrollEntitiesForIndexing(dbSession, null, context -> {
+      dbClient.entityDao().scrollForIndexing(dbSession, null, context -> {
         EntityDto dto = context.getResultObject();
         bulk.add(toDocument(dto).toIndexRequest());
       });

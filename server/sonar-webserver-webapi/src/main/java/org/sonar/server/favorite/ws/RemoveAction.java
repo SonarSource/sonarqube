@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
@@ -75,7 +74,7 @@ public class RemoveAction implements FavoritesWsAction {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
         String key = request.mandatoryParam(PARAM_COMPONENT);
-        EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, key)
+        EntityDto entity = dbClient.entityDao().selectByKey(dbSession, key)
           .orElseThrow(() -> new NotFoundException(format("Component with key '%s' not found", key)));
         userSession.checkLoggedIn();
         favoriteUpdater.remove(dbSession, entity,

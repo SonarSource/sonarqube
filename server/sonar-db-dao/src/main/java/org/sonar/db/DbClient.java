@@ -39,6 +39,7 @@ import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
+import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
@@ -178,6 +179,7 @@ public class DbClient {
   private final ScannerAnalysisCacheDao scannerAnalysisCacheDao;
   private final ScimUserDao scimUserDao;
   private final ScimGroupDao scimGroupDao;
+  private final EntityDao entityDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -263,6 +265,7 @@ public class DbClient {
     scannerAnalysisCacheDao = getDao(map, ScannerAnalysisCacheDao.class);
     scimUserDao = getDao(map, ScimUserDao.class);
     scimGroupDao = getDao(map, ScimGroupDao.class);
+    entityDao = getDao(map, EntityDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -581,6 +584,10 @@ public class DbClient {
 
   public ScimGroupDao scimGroupDao() {
     return scimGroupDao;
+  }
+
+  public EntityDao entityDao() {
+    return entityDao;
   }
 }
 

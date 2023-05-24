@@ -22,15 +22,11 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
@@ -65,8 +61,7 @@ public abstract class ComponentIndexTest {
   protected void assertResultOrder(String query, String... resultsInOrder) {
     indexProject("key-1", "Quality Product");
     List<ProjectDto> projects = Arrays.stream(resultsInOrder)
-      .map(r -> componentDbTester.insertPublicProject(c -> c.setName(r).setKey(r)).getProjectDto())
-      .peek(p -> p.setUuid(p.getUuid() + "_" + p.getName().replaceAll("[^a-zA-Z0-9]", "")))
+      .map(r -> componentDbTester.insertPublicProject(c -> c.setName(r)).getProjectDto())
       .toList();
 
     // index them, but not in the expected order
@@ -103,7 +98,7 @@ public abstract class ComponentIndexTest {
     assertSearch(query).containsExactly(uuids(expectedComponents));
   }
 
-  protected void assertNoSearchResults(String query, String ... qualifiers) {
+  protected void assertNoSearchResults(String query, String... qualifiers) {
     assertSearchResults(query, List.of(qualifiers));
   }
 

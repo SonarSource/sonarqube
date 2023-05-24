@@ -144,7 +144,7 @@ public class ValuesAction implements SettingsWsAction {
       return Optional.empty();
     }
 
-    EntityDto component = dbClient.projectDao().selectEntityByKey(dbSession, componentKey)
+    EntityDto component = dbClient.entityDao().selectByKey(dbSession, componentKey)
       .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey)));
 
     if (!userSession.hasEntityPermission(USER, component) &&

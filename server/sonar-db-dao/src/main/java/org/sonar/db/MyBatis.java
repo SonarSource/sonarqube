@@ -65,6 +65,7 @@ import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.entity.EntityMapper;
 import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
@@ -271,6 +272,7 @@ public class MyBatis {
       LiveMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
+      EntityMapper.class,
       EsQueueMapper.class,
       EventMapper.class,
       EventComponentChangeMapper.class,

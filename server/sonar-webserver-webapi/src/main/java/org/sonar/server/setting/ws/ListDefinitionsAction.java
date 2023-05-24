@@ -115,7 +115,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
       if (entityKey == null) {
         return Optional.empty();
       }
-      EntityDto entity = dbClient.projectDao().selectEntityByKey(dbSession, entityKey)
+      EntityDto entity = dbClient.entityDao().selectByKey(dbSession, entityKey)
         .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", entityKey)));
       userSession.checkEntityPermission(USER, entity);
       return Optional.of(entity);

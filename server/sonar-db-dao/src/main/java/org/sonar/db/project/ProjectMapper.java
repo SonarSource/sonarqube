@@ -73,16 +73,4 @@ public interface ProjectMapper {
 
   @CheckForNull
   Long getNclocSum(@Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
-
-  @CheckForNull
-  EntityDto selectEntityByUuid(String uuid);
-
-  List<EntityDto> selectEntitiesByUuids(@Param("uuids") Collection<String> uuids);
-
-  @CheckForNull
-  EntityDto selectEntityByKey(String key);
-
-  List<EntityDto> selectEntitiesByKeys(@Param("keys") Collection<String> keys);
-
-  void scrollEntitiesForIndexing(@Param("entityUuid") @Nullable String entityUuid, ResultHandler<EntityDto> handler);
 }
