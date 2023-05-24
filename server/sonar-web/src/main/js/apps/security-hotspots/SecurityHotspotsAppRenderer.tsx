@@ -21,6 +21,7 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   DeferredSpinner,
+  LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
   LargeCenteredLayout,
@@ -34,6 +35,7 @@ import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { isBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
+import useFollowScroll from '../../hooks/useFollowScroll';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
@@ -105,6 +107,11 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
   const isProject = component.qualifier === ComponentQualifier.Project;
 
+  const { top: topScroll } = useFollowScroll();
+  const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
+  const footerVisibleHeight =
+    distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
+
   return (
     <>
       <Suggestions suggestions="security_hotspots" />
@@ -130,7 +137,22 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   />
                 </StyledSidebarHeader>
               )}
-              <StyledSidebarContent className="sw-p-4 it__hotspot-list">
+              <StyledSidebarContent
+                className="sw-p-4 it__hotspot-list"
+                style={{
+                  top: `${
+                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT - 2
+                  }px`,
+                  height: `calc(
+                  100vh - ${
+                    LAYOUT_GLOBAL_NAV_HEIGHT +
+                    LAYOUT_PROJECT_NAV_HEIGHT +
+                    STICKY_HEADER_HEIGHT -
+                    footerVisibleHeight
+                  }px
+                )`,
+                }}
+              >
                 <DeferredSpinner className="sw-mt-3" loading={loading}>
                   <HotspotFilterByStatus
                     filters={filters}
@@ -214,11 +236,8 @@ const StyledSidebar = withTheme(styled.section`
 `);
 
 const StyledSidebarContent = styled.div`
-  height: calc(
-    100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT}px
-  );
+  position: sticky;
   overflow-x: hidden;
-  position: relative;
   box-sizing: border-box;
   width: 100%;
 `;
