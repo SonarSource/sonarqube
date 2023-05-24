@@ -140,5 +140,5 @@ export function HotspotHeader(props: HotspotHeaderProps) {
 const Header = withTheme(styled.div<StyledHeaderProps>`
   background-color: ${themeColor('pageBlock')};
   box-shadow: ${({ isScrolled }: StyledHeaderProps) => (isScrolled ? themeShadow('sm') : 'none')};
-  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px;
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px;
 `);

@@ -141,7 +141,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 className="sw-p-4 it__hotspot-list"
                 style={{
                   top: `${
-                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT - 2
+                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT
                   }px`,
                   height: `calc(
                   100vh - ${
@@ -249,7 +249,7 @@ const StyledSidebarHeader = withTheme(styled.div`
   border-bottom: ${themeBorder('default')};
   z-index: 1;
   height: ${STICKY_HEADER_HEIGHT}px;
-  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT - 2}px;
+  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px;
 `);
 
 const StyledMain = styled.main`
