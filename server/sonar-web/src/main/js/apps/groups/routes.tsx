@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import App from './GroupsApp';
+import GroupsApp from './GroupsApp';
 
-const routes = () => <Route path="groups" element={<App />} />;
+const routes = () => <Route path="groups" element={<GroupsApp />} />;
 
 export default routes;

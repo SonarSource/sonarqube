@@ -25,10 +25,11 @@ import { act } from 'react-dom/test-utils';
 import { byRole, byText } from 'testing-library-selector';
 import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
+import { Provider } from '../../../components/hooks/useManageProvider';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../types/features';
 import { TaskStatuses } from '../../../types/tasks';
-import App from '../GroupsApp';
+import GroupsApp from '../GroupsApp';
 
 const handler = new GroupsServiceMock();
 const authenticationHandler = new AuthenticationServiceMock();
@@ -63,6 +64,7 @@ const ui = {
   getMembers: () => within(ui.membersDialog.get()).getAllByRole('checkbox'),
 
   managedGroupRow: byRole('row', { name: 'managed-group 1' }),
+  githubManagedGroupRow: byRole('row', { name: 'managed-group github 1' }),
   managedGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.managed-group' }),
   managedGroupViewMembersButton: byRole('button', { name: 'groups.users.view.managed-group' }),
 
@@ -327,6 +329,7 @@ describe('in manage mode', () => {
   describe('Github Provisioning', () => {
     beforeEach(() => {
       authenticationHandler.handleActivateGithubProvisioning();
+      handler.setProvider(Provider.Github);
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
@@ -380,9 +383,23 @@ describe('in manage mode', () => {
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
     });
+
+    it('should render a github icon for github groups', async () => {
+      handler.setProvider(Provider.Github);
+      const user = userEvent.setup();
+      renderGroupsApp();
+
+      await act(async () => {
+        await user.click(await ui.managedFilter.find());
+      });
+
+      expect(
+        within(ui.githubManagedGroupRow.get()).getByRole('img', { name: 'github' })
+      ).toBeInTheDocument();
+    });
   });
 });
 
 function renderGroupsApp(featureList: Feature[] = []) {
-  return renderApp('admin/groups', <App />, { featureList });
+  return renderApp('admin/groups', <GroupsApp />, { featureList });
 }

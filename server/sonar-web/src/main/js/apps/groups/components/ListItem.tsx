@@ -23,7 +23,9 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
+import { Provider } from '../../../components/hooks/useManageProvider';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/system';
 import { Group } from '../../../types/types';
 import DeleteGroupForm from './DeleteGroupForm';
 import GroupForm from './GroupForm';
@@ -50,11 +52,23 @@ export default function ListItem(props: ListItemProps) {
     return isManaged() && !managed;
   };
 
+  const isGithubGroup = () => {
+    return manageProvider === Provider.Github && managed;
+  };
+
   return (
     <tr data-id={name}>
       <td className="width-20" headers="list-group-name">
-        <strong>{name}</strong>
+        <b>{name}</b>
         {group.default && <span className="little-spacer-left">({translate('default')})</span>}
+        {isGithubGroup() && (
+          <img
+            alt="github"
+            className="spacer-left spacer-right"
+            height={16}
+            src={`${getBaseUrl()}/images/alm/github.svg`}
+          />
+        )}
         {isGroupLocal() && <span className="little-spacer-left badge">{translate('local')}</span>}
       </td>
 

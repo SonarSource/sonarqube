@@ -29,12 +29,12 @@ export enum Provider {
 }
 
 export function useManageProvider(): string | undefined {
-  const [manageProvider, setManageProvider] = React.useState<string | undefined>();
+  const [manageProvider, setManageProvider] = React.useState<Provider | undefined>();
 
   useEffect(() => {
     (async () => {
       const info = (await getSystemInfo()) as SysInfoCluster;
-      setManageProvider(info.System['External Users and Groups Provisioning']);
+      setManageProvider(info.System['External Users and Groups Provisioning'] as Provider);
     })();
   }, []);
 

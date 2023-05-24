@@ -33,7 +33,7 @@ import Header from './components/Header';
 import List from './components/List';
 import './groups.css';
 
-export default function App() {
+export default function GroupsApp() {
   const [loading, setLoading] = useState<boolean>(true);
   const [paging, setPaging] = useState<Paging>();
   const [search, setSearch] = useState<string>('');

@@ -19,6 +19,7 @@
  */
 
 import { cloneDeep } from 'lodash';
+import { Provider } from '../../components/hooks/useManageProvider';
 import {
   mockClusterSysInfo,
   mockGroup,
@@ -50,6 +51,7 @@ jest.mock('../system');
 jest.mock('../user_groups');
 
 export default class GroupsServiceMock {
+  provider: Provider | undefined;
   isManaged = false;
   paging: Paging;
   groups: Group[];
@@ -66,6 +68,7 @@ export default class GroupsServiceMock {
   ];
 
   constructor() {
+    this.provider = Provider.Scim;
     this.groups = cloneDeep(this.readOnlyGroups);
     this.paging = mockPaging({
       pageIndex: 1,
@@ -88,6 +91,10 @@ export default class GroupsServiceMock {
   reset() {
     this.groups = cloneDeep(this.readOnlyGroups);
     this.users = cloneDeep(this.defaultUsers);
+  }
+
+  setProvider(provider: Provider) {
+    this.provider = provider;
   }
 
   setIsManaged(managed: boolean) {
@@ -212,7 +219,7 @@ export default class GroupsServiceMock {
               System: {
                 'High Availability': true,
                 'Server ID': 'asd564-asd54a-5dsfg45',
-                'External Users and Groups Provisioning': 'GitHub',
+                'External Users and Groups Provisioning': this.provider,
               },
             }
           : {}
