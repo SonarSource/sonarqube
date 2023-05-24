@@ -278,6 +278,8 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
       border: 1px solid ${borderColor};
     `;
 
+    const hideLocationIndex = issue.secondaryLocations.length !== 0;
+
     return (
       <>
         {issueIsClosed && (
@@ -356,6 +358,7 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
             snippet={snippet}
             className={classNames({ 'sw-mt-2': index !== 0 })}
             snippetSourcesMap={sourcesMap}
+            hideLocationIndex={hideLocationIndex}
           />
         ))}
       </>

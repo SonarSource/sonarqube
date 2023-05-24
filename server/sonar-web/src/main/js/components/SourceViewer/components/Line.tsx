@@ -66,6 +66,7 @@ export interface LineProps {
   onLineMouseLeave: (line: number) => void;
   displayCoverageUnderline: boolean;
   displayNewCodeUnderline: boolean;
+  hideLocationIndex?: boolean;
 }
 
 export default function Line(props: LineProps) {
@@ -93,6 +94,7 @@ export default function Line(props: LineProps) {
     scrollToUncoveredLine,
     secondaryIssueLocations,
     displayCoverageUnderline,
+    hideLocationIndex,
     onLineMouseEnter,
     onLineMouseLeave,
   } = props;
@@ -226,7 +228,7 @@ export default function Line(props: LineProps) {
         displayCoverageUnderline={displayCoverage && displayCoverageUnderline}
         displayLocationMarkers={displayLocationMarkers}
         displayNewCodeUnderlineLabel={displayNewCodeUnderline}
-        hideLocationIndex={false}
+        hideLocationIndex={hideLocationIndex}
         highlightedLocationMessage={highlightedLocationMessage}
         highlightedSymbols={highlightedSymbols}
         issueLocations={issueLocations}
