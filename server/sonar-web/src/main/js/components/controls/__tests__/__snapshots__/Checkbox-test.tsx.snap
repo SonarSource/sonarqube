@@ -39,11 +39,15 @@ exports[`should render the checkbox on the right 1`] = `
   <a>
     child
   </a>
-  <i
-    aria-live="polite"
-    class="deferred-spinner a11y-hidden"
-    data-testid="deferred-spinner"
-  />
+  <div
+    class="sw-overflow-hidden"
+  >
+    <i
+      aria-live="polite"
+      class="deferred-spinner a11y-hidden"
+      data-testid="deferred-spinner"
+    />
+  </div>
   <i
     class="icon-checkbox icon-checkbox-checked"
   />

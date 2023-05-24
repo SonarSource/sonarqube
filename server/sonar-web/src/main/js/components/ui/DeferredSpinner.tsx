@@ -92,16 +92,18 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <i
-          aria-live="polite"
-          data-testid="deferred-spinner"
-          className={classNames('deferred-spinner', className, {
-            'a11y-hidden': !showSpinner,
-            'is-loading': showSpinner,
-          })}
-        >
-          {showSpinner && <span className="a11y-hidden">{ariaLabel}</span>}
-        </i>
+        <div className="sw-overflow-hidden">
+          <i
+            aria-live="polite"
+            data-testid="deferred-spinner"
+            className={classNames('deferred-spinner', className, {
+              'a11y-hidden': !showSpinner,
+              'is-loading': showSpinner,
+            })}
+          >
+            {showSpinner && <span className="a11y-hidden">{ariaLabel}</span>}
+          </i>
+        </div>
         {!showSpinner && children}
       </>
     );
