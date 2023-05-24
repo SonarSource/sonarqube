@@ -21,7 +21,8 @@ package org.sonar.db.ce;
 
 public enum CeTaskMessageType {
   GENERIC(false),
-  SUGGEST_DEVELOPER_EDITION_UPGRADE(true);
+  SUGGEST_DEVELOPER_EDITION_UPGRADE(true),
+  INFO(false);
 
   private final boolean dismissible;
 
