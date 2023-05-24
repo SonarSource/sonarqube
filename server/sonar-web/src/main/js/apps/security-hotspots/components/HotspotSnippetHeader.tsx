@@ -67,7 +67,8 @@ function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
         </span>
 
         <ClipboardIconButton
-          aria-label={translate('component_viewer.copy_path_to_clipboard')}
+          copyLabel={translate('component_viewer.copy_path_to_clipboard')}
+          copiedLabel={translate('copied_action')}
           copyValue={path}
         />
       </Note>

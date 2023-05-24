@@ -39,13 +39,13 @@ describe('ClipboardButton', () => {
     const user = userEvent.setup({ delay: null });
     renderClipboardButton();
 
-    expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'copy' }));
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
 
-    expect(await screen.findByText('copied_action')).toBeVisible();
+    expect(await screen.findByText('Copied')).toBeVisible();
 
-    await waitForElementToBeRemoved(() => screen.queryByText('copied_action'));
+    await waitForElementToBeRemoved(() => screen.queryByText('Copied'));
     jest.runAllTimers();
   });
 
@@ -63,7 +63,7 @@ describe('ClipboardIconButton', () => {
   it('should display correctly', () => {
     renderWithContext(<ClipboardIconButton copyValue="foo" />);
 
-    const copyButton = screen.getByRole('button', { name: 'copy_to_clipboard' });
+    const copyButton = screen.getByRole('button', { name: 'Copy to clipboard' });
     expect(copyButton).toBeInTheDocument();
   });
 });

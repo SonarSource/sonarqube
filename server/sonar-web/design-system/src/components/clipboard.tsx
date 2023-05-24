@@ -22,12 +22,11 @@ import classNames from 'classnames';
 import Clipboard from 'clipboard';
 import React from 'react';
 import { INTERACTIVE_TOOLTIP_DELAY } from '../helpers/constants';
-import { translate } from '../helpers/l10n';
+import { DiscreetInteractiveIcon, InteractiveIcon, InteractiveIconSize } from './InteractiveIcon';
+import Tooltip from './Tooltip';
 import { ButtonSecondary } from './buttons';
 import { CopyIcon } from './icons/CopyIcon';
 import { IconProps } from './icons/Icon';
-import { DiscreetInteractiveIcon, InteractiveIcon, InteractiveIconSize } from './InteractiveIcon';
-import Tooltip from './Tooltip';
 
 const COPY_SUCCESS_NOTIFICATION_LIFESPAN = 1000;
 
@@ -101,6 +100,8 @@ export class ClipboardBase extends React.PureComponent<BaseProps, State> {
 interface ButtonProps {
   children?: React.ReactNode;
   className?: string;
+  copiedLabel?: string;
+  copyLabel?: string;
   copyValue: string;
   icon?: React.ReactNode;
 }
@@ -110,18 +111,20 @@ export function ClipboardButton({
   className,
   children,
   copyValue,
+  copiedLabel = 'Copied',
+  copyLabel = 'Copy',
 }: ButtonProps) {
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={translate('copied_action')} visible={copySuccess}>
+        <Tooltip overlay={copiedLabel} visible={copySuccess}>
           <ButtonSecondary
             className={classNames('sw-select-none', className)}
             data-clipboard-text={copyValue}
             icon={icon}
             innerRef={setCopyButton}
           >
-            {children ?? translate('copy')}
+            {children ?? copyLabel}
           </ButtonSecondary>
         </Tooltip>
       )}
@@ -133,13 +136,23 @@ interface IconButtonProps {
   Icon?: React.ComponentType<IconProps>;
   'aria-label'?: string;
   className?: string;
+  copiedLabel?: string;
+  copyLabel?: string;
   copyValue: string;
   discreet?: boolean;
   size?: InteractiveIconSize;
 }
 
 export function ClipboardIconButton(props: IconButtonProps) {
-  const { className, copyValue, discreet, size = 'small', Icon = CopyIcon } = props;
+  const {
+    className,
+    copyValue,
+    discreet,
+    size = 'small',
+    Icon = CopyIcon,
+    copiedLabel = 'Copied',
+    copyLabel = 'Copy to clipboard',
+  } = props;
   const InteractiveIconComponent = discreet ? DiscreetInteractiveIcon : InteractiveIcon;
 
   return (
@@ -150,14 +163,14 @@ export function ClipboardIconButton(props: IconButtonProps) {
             mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
             overlay={
               <div className="sw-w-abs-150 sw-text-center">
-                {translate(copySuccess ? 'copied_action' : 'copy_to_clipboard')}
+                {copySuccess ? copiedLabel : copyLabel}
               </div>
             }
             {...(copySuccess ? { visible: copySuccess } : undefined)}
           >
             <InteractiveIconComponent
               Icon={Icon}
-              aria-label={props['aria-label'] ?? translate('copy_to_clipboard')}
+              aria-label={props['aria-label'] ?? copyLabel}
               className={className}
               data-clipboard-text={copyValue}
               innerRef={setCopyButton}

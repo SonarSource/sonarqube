@@ -35,6 +35,7 @@ import {
 import React from 'react';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
 import {
   getComponentSecurityHotspotsUrl,
   getPathUrlAsString,
@@ -96,6 +97,8 @@ export function HotspotHeader(props: HotspotHeaderProps) {
             </LightPrimary>
             <ClipboardIconButton
               Icon={LinkIcon}
+              copiedLabel={translate('copied_action')}
+              copyLabel={translate('copy_to_clipboard')}
               className="sw-ml-2"
               copyValue={permalink}
               discreet={true}
