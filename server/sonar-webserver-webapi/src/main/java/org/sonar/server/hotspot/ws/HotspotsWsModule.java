@@ -34,6 +34,8 @@ public class HotspotsWsModule extends Module {
       AddCommentAction.class,
       DeleteCommentAction.class,
       EditCommentAction.class,
+      PullAction.class,
+      PullHotspotsActionProtobufObjectGenerator.class,
       HotspotsWs.class);
   }
 }

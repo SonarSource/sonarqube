@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws.pull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Common;
 
 import static org.sonarqube.ws.Issues.IssueLite;
@@ -40,7 +41,7 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
   }
 
   @Override
-  public IssueLite generateIssueMessage(IssueDto issueDto) {
+  public IssueLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto) {
     IssueLite.Builder issueBuilder = IssueLite.newBuilder();
     DbIssues.Locations mainLocation = issueDto.parseLocations();
 

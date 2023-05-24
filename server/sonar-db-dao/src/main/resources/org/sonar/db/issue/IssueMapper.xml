@@ -663,6 +663,7 @@
     i.locations as locations,
     i.component_uuid as component_uuid,
     i.assignee as assigneeUuid,
+    u.login as assigneeLogin,
     i.rule_description_context_key as ruleDescriptionContextKey
   </sql>
 
@@ -673,6 +674,7 @@
     from issues i
         inner join rules r on r.uuid = i.rule_uuid
         inner join components p on p.uuid=i.component_uuid
+        left join users u on i.assignee = u.uuid
     where
       <if test="keys.size() > 0">
         i.kee IN

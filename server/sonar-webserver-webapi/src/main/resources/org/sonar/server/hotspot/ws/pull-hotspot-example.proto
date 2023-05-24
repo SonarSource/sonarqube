@@ -1,0 +1,26 @@
+# The response contains a single protocol buffer message: HotspotPullQueryTimestamp followed by 0..n number of HotspotLite protocol buffer messages.
+message HotspotPullQueryTimestamp {
+  required int64 queryTimestamp = 1;
+}
+
+message HotspotLite {
+  optional string key = 1;
+  optional string filePath = 2;
+  optional string vulnerabilityProbability = 3;
+  optional string status = 4;
+  optional string resolution = 5;
+  optional string message = 6;
+  optional int64 creationDate = 7;
+  optional TextRange textRange = 8;
+  optional string ruleKey = 9;
+  optional bool closed = 10;
+  optional string assignee = 11;
+}
+
+message TextRange {
+  optional int32 startLine = 1;
+  optional int32 startLineOffset = 2;
+  optional int32 endLine = 3;
+  optional int32 endLineOffset = 4;
+  optional string hash = 5;
+}

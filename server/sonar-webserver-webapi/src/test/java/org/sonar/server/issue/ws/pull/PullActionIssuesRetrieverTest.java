@@ -65,7 +65,7 @@ public class PullActionIssuesRetrieverTest {
     List<IssueDto> returnedDtos = new ArrayList<>();
     Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
 
-    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), Set.of(), listConsumer);
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), Set.of(), listConsumer, issueDto -> true);
 
     assertThat(returnedDtos).isEmpty();
   }
@@ -83,7 +83,7 @@ public class PullActionIssuesRetrieverTest {
 
     Set<String> thousandIssueUuidsSnapshot = thousandIssues.stream().map(IssueDto::getKee).collect(Collectors.toSet());
     thousandIssueUuidsSnapshot.add(singleIssue.getKee());
-    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), thousandIssueUuidsSnapshot, listConsumer);
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), thousandIssueUuidsSnapshot, listConsumer, issueDto -> true);
 
     ArgumentCaptor<Set<String>> uuidsCaptor = ArgumentCaptor.forClass(Set.class);
     verify(issueDao, times(2)).selectByBranch(any(), uuidsCaptor.capture(), any());
@@ -105,7 +105,7 @@ public class PullActionIssuesRetrieverTest {
     Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
 
     Set<String> issueKeysSnapshot = issuesWithSameCreationTimestamp.stream().map(IssueDto::getKee).collect(Collectors.toSet());
-    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), issueKeysSnapshot, listConsumer);
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), issueKeysSnapshot, listConsumer, issueDto -> true);
 
     assertThat(returnedDtos).hasSize(100);
   }

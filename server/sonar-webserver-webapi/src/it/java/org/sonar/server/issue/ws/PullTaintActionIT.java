@@ -72,9 +72,6 @@ public class PullTaintActionIT {
   public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
 
   @Rule
-  public DbTester dbTester = DbTester.create();
-
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
@@ -400,7 +397,7 @@ public class PullTaintActionIT {
       .setType(2)
       .setRuleDescriptionContextKey(ruledescriptionContextKey));
 
-    //this one should not be returned - it is a normal issue, no taint
+    // this one should not be returned - it is a normal issue, no taint
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("openIssue")
@@ -496,11 +493,11 @@ public class PullTaintActionIT {
   }
 
   private void loginWithBrowsePermission(String projectUuid, String componentUuid) {
-    UserDto user = dbTester.users().insertUser("john");
+    UserDto user = db.users().insertUser("john");
     userSession.logIn(user)
       .addProjectPermission(USER,
-        db.getDbClient().componentDao().selectByUuid(dbTester.getSession(), projectUuid).get(),
-        db.getDbClient().componentDao().selectByUuid(dbTester.getSession(), componentUuid).get());
+        db.getDbClient().componentDao().selectByUuid(db.getSession(), projectUuid).get(),
+        db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
   }
 
 }

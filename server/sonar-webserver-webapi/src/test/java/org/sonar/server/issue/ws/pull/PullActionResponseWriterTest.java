@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.issue.IssueDto;
 
+import static java.util.Collections.emptyMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -55,7 +56,7 @@ public class PullActionResponseWriterTest {
     issueDto.setStatus("OPEN");
     issueDto.setRuleKey("repo", "rule");
 
-    underTest.appendIssuesToResponse(List.of(issueDto), outputStream);
+    underTest.appendIssuesToResponse(List.of(issueDto), emptyMap(), outputStream);
 
     verify(outputStream, atLeastOnce()).write(any(byte[].class), anyInt(), anyInt());
   }

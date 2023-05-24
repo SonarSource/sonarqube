@@ -22,12 +22,13 @@ package org.sonar.server.issue.ws.pull;
 import com.google.protobuf.AbstractMessageLite;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Issues;
 
 public interface ProtobufObjectGenerator {
   AbstractMessageLite generateTimestampMessage(long timestamp);
 
-  AbstractMessageLite generateIssueMessage(IssueDto issueDto);
+  AbstractMessageLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto);
 
   AbstractMessageLite generateClosedIssueMessage(String uuid);
 

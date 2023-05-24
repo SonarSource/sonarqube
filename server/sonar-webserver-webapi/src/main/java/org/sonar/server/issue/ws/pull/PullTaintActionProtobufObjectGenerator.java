@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
@@ -61,7 +62,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
   }
 
   @Override
-  public TaintVulnerabilityLite generateIssueMessage(IssueDto issueDto) {
+  public TaintVulnerabilityLite generateIssueMessage(IssueDto issueDto, RuleDto ruleDto) {
     TaintVulnerabilityLite.Builder taintBuilder = TaintVulnerabilityLite.newBuilder();
     Locations locations = issueDto.parseLocations();
 

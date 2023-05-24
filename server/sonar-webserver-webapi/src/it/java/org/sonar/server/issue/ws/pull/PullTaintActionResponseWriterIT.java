@@ -33,6 +33,7 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Collections.emptyMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -74,7 +75,7 @@ public class PullTaintActionResponseWriterIT {
 
     issueDto.setLocations(locations);
 
-    underTest.appendIssuesToResponse(List.of(issueDto), outputStream);
+    underTest.appendIssuesToResponse(List.of(issueDto), emptyMap(), outputStream);
 
     verify(outputStream, atLeastOnce()).write(any(byte[].class), anyInt(), anyInt());
   }
