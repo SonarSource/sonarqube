@@ -63,7 +63,7 @@ const ui = {
   reloadButton: byRole('button', { name: 'reload' }),
   doneButton: byRole('button', { name: 'done' }),
   changeButton: byRole('button', { name: 'change_verb' }),
-  revokeButton: byRole('button', { name: 'users.tokens.revoke' }),
+  revokeButton: (name: string) => byRole('button', { name: `users.tokens.revoke_label.${name}` }),
   generateButton: byRole('button', { name: 'users.generate' }),
   sureButton: byRole('button', { name: 'users.tokens.sure' }),
   updateButton: byRole('button', { name: 'update_verb' }),
@@ -541,7 +541,7 @@ describe('in manage mode', () => {
     expect(getTokensList()).toHaveLength(3);
 
     expect(ui.sureButton.query()).not.toBeInTheDocument();
-    await user.click(ui.revokeButton.getAll()[1]);
+    await user.click(ui.revokeButton('test').get());
     expect(await ui.sureButton.find()).toBeInTheDocument();
     await act(() => user.click(ui.sureButton.get()));
 

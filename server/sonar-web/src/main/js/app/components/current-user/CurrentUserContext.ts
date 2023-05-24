@@ -19,7 +19,9 @@
  */
 import { noop } from 'lodash';
 import * as React from 'react';
-import { CurrentUser, HomePage, NoticeType } from '../../../types/users';
+import { useContext } from 'react';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { CurrentUser, HomePage, LoggedInUser, NoticeType } from '../../../types/users';
 
 export interface CurrentUserContextInterface {
   currentUser: CurrentUser;
@@ -35,3 +37,11 @@ export const CurrentUserContext = React.createContext<CurrentUserContextInterfac
   updateCurrentUserHomepage: noop,
   updateDismissedNotices: noop,
 });
+
+export function useCurrentLoginUser() {
+  const { currentUser } = useContext(CurrentUserContext);
+  if (!currentUser.isLoggedIn) {
+    handleRequiredAuthentication();
+  }
+  return currentUser as LoggedInUser;
+}

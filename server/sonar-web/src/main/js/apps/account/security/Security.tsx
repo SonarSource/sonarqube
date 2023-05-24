@@ -19,17 +19,13 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
 import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
 import { translate } from '../../../helpers/l10n';
-import { LoggedInUser } from '../../../types/users';
 import Tokens from './Tokens';
 
-export interface SecurityProps {
-  currentUser: LoggedInUser;
-}
-
-export function Security({ currentUser }: SecurityProps) {
+export default function Security() {
+  const currentUser = useCurrentLoginUser();
   return (
     <div className="account-body account-container">
       <Helmet defer={false} title={translate('my_account.security')} />
@@ -43,5 +39,3 @@ export function Security({ currentUser }: SecurityProps) {
     </div>
   );
 }
-
-export default withCurrentUserContext(Security);

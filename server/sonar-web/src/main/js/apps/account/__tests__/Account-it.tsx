@@ -347,15 +347,15 @@ describe('security page', () => {
 
       // Revoke the token
       const revokeButtons = within(row).getByRole('button', {
-        name: 'users.tokens.revoke_token',
+        name: 'users.tokens.revoke_label.importantToken',
       });
       await user.click(revokeButtons);
 
       expect(
-        screen.getByRole('heading', { name: 'users.tokens.revoke_token' })
+        screen.getByRole('heading', { name: 'users.tokens.revoke_label.importantToken' })
       ).toBeInTheDocument();
 
-      await user.click(screen.getByText('users.tokens.revoke_token', { selector: 'button' }));
+      await user.click(screen.getByRole('button', { name: 'yes' }));
 
       expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
     }

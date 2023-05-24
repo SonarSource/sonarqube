@@ -21,13 +21,13 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { revokeToken } from '../../../api/user-tokens';
-import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { Button } from '../../../components/controls/buttons';
 import WarningIcon from '../../../components/icons/WarningIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserToken } from '../../../types/token';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
@@ -110,9 +110,21 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           {token.expirationDate ? <DateFormatter date={token.expirationDate} long={true} /> : '–'}
         </td>
         <td className="thin nowrap text-right">
-          {deleteConfirmation === 'modal' ? (
+          {token.isExpired && (
+            <Button
+              className="button-red input-small"
+              disabled={loading}
+              onClick={this.handleRevoke}
+              aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
+            >
+              <DeferredSpinner className="little-spacer-right" loading={loading}>
+                {translate('remove')}
+              </DeferredSpinner>
+            </Button>
+          )}
+          {!token.isExpired && deleteConfirmation === 'modal' && (
             <ConfirmButton
-              confirmButtonText={translate('users.tokens.revoke_token')}
+              confirmButtonText={translate('yes')}
               isDestructive={true}
               modalBody={
                 <FormattedMessage
@@ -121,7 +133,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
                   values={{ token: <strong>{token.name}</strong> }}
                 />
               }
-              modalHeader={translate('users.tokens.revoke_token')}
+              modalHeader={translateWithParameters('users.tokens.revoke_label', token.name)}
               onConfirm={this.handleRevoke}
             >
               {({ onClick }) => (
@@ -129,16 +141,22 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
                   className="button-red input-small"
                   disabled={loading}
                   onClick={onClick}
-                  title={translate('users.tokens.revoke_token')}
+                  aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
                 >
                   {translate('users.tokens.revoke')}
                 </Button>
               )}
             </ConfirmButton>
-          ) : (
+          )}
+          {!token.isExpired && deleteConfirmation === 'inline' && (
             <Button
               className="button-red input-small"
               disabled={loading}
+              aria-label={
+                showConfirmation
+                  ? translate('users.tokens.sure')
+                  : translateWithParameters('users.tokens.revoke_label', token.name)
+              }
               onClick={this.handleClick}
             >
               <DeferredSpinner className="little-spacer-right" loading={loading} />

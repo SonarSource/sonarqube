@@ -39,7 +39,7 @@ export default function GlobalNotifications(props: Props) {
         <table className="data zebra">
           <thead>
             <tr>
-              <th />
+              <th>{translate('notification.notification')}</th>
               {props.channels.map((channel) => (
                 <th className="text-center" key={channel}>
                   <h4>{translate('notification.channel', channel)}</h4>
