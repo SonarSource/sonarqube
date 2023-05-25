@@ -68,15 +68,18 @@ public class TaskAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
+      .setDescription("<b>The endpoint is now deprecated; `/api/ce/activity` should be used instead.</b><br/><br/>"
+        + "Give Compute Engine task details such as type, status, duration and associated component.<br/>" +
         "Requires 'Administer System' or 'Execute Analysis' permission.<br/>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("10.1")
       .setChangelog(
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
         new Change("10.1", "Warnings field will be now always be filled (it is not necessary to mention it explicitly in 'additionalFields'). "
-          + "'additionalFields' value `warning' is deprecated.")
+          + "'additionalFields' value `warning' is deprecated."),
+        new Change("10.1", "The endpoint is now deprecated; `/api/ce/activity` should be used instead.")
       )
       .setHandler(this);
 
