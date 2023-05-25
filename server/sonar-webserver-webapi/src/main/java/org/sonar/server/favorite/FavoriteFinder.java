@@ -61,7 +61,7 @@ public class FavoriteFinder {
 
       return entities.stream()
         .sorted(Comparator.comparing(EntityDto::getName))
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

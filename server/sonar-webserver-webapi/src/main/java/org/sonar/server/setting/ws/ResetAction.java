@@ -147,8 +147,8 @@ public class ResetAction implements SettingsWsAction {
   }
 
   private static class ResetRequest {
-    private String entity;
-    private List<String> keys;
+    private String entity = null;
+    private List<String> keys = null;
 
     public ResetRequest setEntity(@Nullable String entity) {
       this.entity = entity;

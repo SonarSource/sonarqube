@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;

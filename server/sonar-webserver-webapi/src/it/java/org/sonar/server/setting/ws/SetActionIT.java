@@ -82,17 +82,17 @@ public class SetActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private PropertyDbTester propertyDb = new PropertyDbTester(db);
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private I18nRule i18n = new I18nRule();
-  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
-  private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
-  private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
-  private SetAction underTest = new SetAction(definitions, dbClient, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  private final PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final I18nRule i18n = new I18nRule();
+  private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
+  private final FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
+  private final SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
+  private final SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
+  private final SetAction underTest = new SetAction(definitions, dbClient, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
