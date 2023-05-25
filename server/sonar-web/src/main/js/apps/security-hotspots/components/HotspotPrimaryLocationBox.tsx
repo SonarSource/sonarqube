@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { LineFinding } from 'design-system';
 import * as React from 'react';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { Hotspot } from '../../../types/security-hotspots';
-import './HotspotPrimaryLocationBox.css';
 
 const SCROLL_DELAY = 100;
 const SCROLL_TOP_OFFSET = 100; // 5 lines above
@@ -51,23 +50,23 @@ export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationB
 
   return (
     <div
-      className={classNames(
-        'hotspot-primary-location',
-        'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
-        `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
-      )}
       style={{
         scrollMarginTop: `${SCROLL_TOP_OFFSET}px`,
         scrollMarginBottom: `${SCROLL_BOTTOM_OFFSET}px`,
       }}
       ref={locationRef}
     >
-      <div className="text-bold">
-        <IssueMessageHighlighting
-          message={hotspot.message}
-          messageFormattings={hotspot.messageFormattings}
-        />
-      </div>
+      <LineFinding
+        issueKey={hotspot.key}
+        message={
+          <IssueMessageHighlighting
+            message={hotspot.message}
+            messageFormattings={hotspot.messageFormattings}
+          />
+        }
+        selected={true}
+        className="sw-cursor-default"
+      />
     </div>
   );
 }

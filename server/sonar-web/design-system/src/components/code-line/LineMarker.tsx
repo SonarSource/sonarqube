@@ -22,7 +22,7 @@ import classNames from 'classnames';
 import { forwardRef, Ref, useCallback, useRef } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../../helpers/theme';
-import { IssueLocationMarker } from '../IssueLocationMarker';
+import { LocationMarker } from '../LocationMarker';
 
 interface Props {
   hideLocationIndex?: boolean;
@@ -46,9 +46,9 @@ function LineMarkerFunc(
 
   return (
     <Wrapper className={classNames({ leading })} ref={element}>
-      <IssueLocationMarker
+      <LocationMarker
         onClick={handleClick}
-        ref={ref}
+        ref={ref as React.RefObject<HTMLDivElement>}
         selected={selected}
         text={hideLocationIndex ? undefined : index + 1}
       />

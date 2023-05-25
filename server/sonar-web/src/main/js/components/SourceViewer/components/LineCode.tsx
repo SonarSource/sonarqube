@@ -31,7 +31,7 @@ import {
   UncoveredUnderlineLabel,
   UnderlineLabels,
 } from 'design-system';
-import React, { Fragment, PureComponent, ReactNode, RefObject, createRef } from 'react';
+import React, { PureComponent, ReactNode, RefObject, createRef } from 'react';
 import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/IssueSourceViewerScrollContext';
 import { translate } from '../../../helpers/l10n';
 import { LinearIssueLocation, SourceLine } from '../../../types/types';
@@ -104,21 +104,19 @@ export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
     const message = loc?.text;
     const isLeading = leadingMarker && markerIndex === 0;
     return (
-      <Fragment key={`${marker}-${index}`}>
-        <IssueSourceViewerScrollContext.Consumer>
-          {(ctx) => (
-            <LineMarker
-              hideLocationIndex={hideLocationIndex}
-              index={marker}
-              leading={isLeading}
-              message={message}
-              onLocationSelect={this.props.onLocationSelect}
-              ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}
-              selected={selected}
-            />
-          )}
-        </IssueSourceViewerScrollContext.Consumer>
-      </Fragment>
+      <IssueSourceViewerScrollContext.Consumer key={`${marker}-${index}`}>
+        {(ctx) => (
+          <LineMarker
+            hideLocationIndex={hideLocationIndex}
+            index={marker}
+            leading={isLeading}
+            message={message}
+            onLocationSelect={this.props.onLocationSelect}
+            ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}
+            selected={selected}
+          />
+        )}
+      </IssueSourceViewerScrollContext.Consumer>
     );
   };
 
@@ -189,10 +187,7 @@ export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
       (previousLine?.coverageStatus && previousLine.coverageBlock === line.coverageBlock);
 
     return (
-      <LineCodeLayers
-        className="js-source-line-code it__source-line-code"
-        data-line-number={line.line}
-      >
+      <LineCodeLayers className="it__source-line-code" data-line-number={line.line}>
         {(displayCoverageUnderlineLabel || displayNewCodeUnderlineLabel) && (
           <UnderlineLabels aria-hidden={true} transparentBackground={previousLineHasUnderline}>
             {displayCoverageUnderlineLabel && line.coverageStatus === 'covered' && (

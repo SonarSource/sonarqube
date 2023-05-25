@@ -62,7 +62,7 @@ export async function animateExpansion(
   expandBlock: (direction: ExpandDirection) => Promise<void>,
   direction: ExpandDirection
 ) {
-  const wrapper = scrollableRef.current?.querySelector<HTMLElement>('.snippet');
+  const wrapper = scrollableRef.current?.querySelector<HTMLElement>('.it__source-viewer-code');
   const table = wrapper?.firstChild as HTMLElement;
 
   if (!wrapper || !table) {
@@ -175,6 +175,7 @@ export default function HotspotSnippetContainerRenderer(
             renderAdditionalChildInLine={renderHotspotBoxInLine}
             renderDuplicationPopup={noop}
             snippet={sourceLines}
+            hideLocationIndex={secondaryLocations.length !== 0}
           />
         )}
       </SourceFileWrapper>

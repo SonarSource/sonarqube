@@ -27,9 +27,9 @@ import { IssueTypeCircleIcon } from '../icons/IssueTypeIcon';
 interface Props {
   className?: string;
   issueKey: string;
-  issueType: string;
-  message: string;
-  onIssueSelect: (issueKey: string) => void;
+  issueType?: string;
+  message: React.ReactNode;
+  onIssueSelect?: (issueKey: string) => void;
   selected?: boolean;
 }
 
@@ -42,12 +42,14 @@ function LineFindingFunc(
       className={className}
       data-issue={issueKey}
       onClick={() => {
-        onIssueSelect(issueKey);
+        if (onIssueSelect) {
+          onIssueSelect(issueKey);
+        }
       }}
       ref={ref}
       selected={selected}
     >
-      <IssueTypeCircleIcon className="sw-ml-1/2" type={issueType} />
+      {issueType && <IssueTypeCircleIcon className="sw-ml-1/2" type={issueType} />}
       {message}
     </LineFindingStyled>
   );

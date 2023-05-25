@@ -19,12 +19,13 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { FlagMessage, LineFinding, ThemeProp, themeColor, withTheme } from 'design-system';
+import { FlagMessage, LineFinding, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../api/components';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -81,10 +82,10 @@ interface State {
   snippets: Snippet[];
 }
 
-class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & ThemeProp, State> {
+export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props, State> {
   mounted = false;
 
-  constructor(props: Props & ThemeProp) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       additionalLines: {},
@@ -242,7 +243,12 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
                   <LineFinding
                     issueType={issueToDisplay.type}
                     issueKey={issueToDisplay.key}
-                    message={issueToDisplay.message}
+                    message={
+                      <IssueMessageHighlighting
+                        message={issueToDisplay.message}
+                        messageFormattings={issueToDisplay.messageFormattings}
+                      />
+                    }
                     selected={isSelectedIssue}
                     ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
                     onIssueSelect={this.props.onIssueSelect}
@@ -257,8 +263,7 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
   };
 
   render() {
-    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, snippetGroup, theme } =
-      this.props;
+    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
 
     const snippetLines = linesForSnippets(snippets, {
@@ -271,12 +276,6 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
     const closedIssueMessageKey = issueIsFileLevel
       ? 'issue.closed.file_level'
       : 'issue.closed.project_level';
-
-    const borderColor = themeColor('codeLineBorder')({ theme });
-
-    const FileLevelIssueStyle = styled.div`
-      border: 1px solid ${borderColor};
-    `;
 
     const hideLocationIndex = issue.secondaryLocations.length !== 0;
 
@@ -323,7 +322,12 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props & Them
                   <LineFinding
                     issueType={issue.type}
                     issueKey={issue.key}
-                    message={issue.message}
+                    message={
+                      <IssueMessageHighlighting
+                        message={issue.message}
+                        messageFormattings={issue.messageFormattings}
+                      />
+                    }
                     selected={true}
                     ref={ctx?.registerPrimaryLocationRef}
                     onIssueSelect={this.props.onIssueSelect}
@@ -391,4 +395,6 @@ function isExpandable(snippets: Snippet[], snippetGroup: SnippetGroup) {
   return !fullyShown && isFile(snippetGroup.component.q);
 }
 
-export default withTheme(ComponentSourceSnippetGroupViewer);
+const FileLevelIssueStyle = styled.div`
+  border: 1px solid ${themeColor('codeLineBorder')};
+`;
