@@ -66,6 +66,7 @@ export * from './SelectionCard';
 export * from './Separator';
 export * from './SizeIndicator';
 export * from './SonarQubeLogo';
+export * from './Table';
 export * from './Tags';
 export * from './TagsSelector';
 export * from './Text';
