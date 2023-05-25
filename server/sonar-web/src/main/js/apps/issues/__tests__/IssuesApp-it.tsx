@@ -583,21 +583,21 @@ describe('issues item', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show secondary location even when no message is present', async () => {
-    renderProjectIssuesApp('project/issues?issues=issue101&open=issue101&id=myproject');
-
-    expect(await screen.findByRole('button', { name: '1 issue.location_x.1' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '2 issue.location_x.2' })).toBeInTheDocument();
-  });
-
   it('should interact with flows and locations', async () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?issues=issue11&open=issue11&id=myproject');
-    const dataFlowButton = await screen.findByRole('button', { name: 'Backtracking 1' });
-    const exectionFlowButton = screen.getByRole('button', { name: 'issue.execution_flow' });
 
-    let dataLocation1Button = screen.getByRole('button', { name: '1 Data location 1' });
-    let dataLocation2Button = screen.getByRole('button', { name: '2 Data location 2' });
+    expect(await screen.findByLabelText('list_of_issues')).toBeInTheDocument();
+
+    const dataFlowButton = await screen.findByRole('button', {
+      name: 'issue.flow.x_steps.2 Backtracking 1',
+    });
+    const exectionFlowButton = screen.getByRole('button', {
+      name: 'issue.flow.x_steps.3 issue.full_execution_flow',
+    });
+
+    let dataLocation1Button = screen.getByRole('link', { name: '1 Data location 1' });
+    let dataLocation2Button = screen.getByRole('link', { name: '2 Data location 2' });
 
     expect(dataFlowButton).toBeInTheDocument();
     expect(dataLocation1Button).toBeInTheDocument();
@@ -609,37 +609,40 @@ describe('issues item', () => {
     expect(dataLocation2Button).not.toBeInTheDocument();
 
     await user.click(exectionFlowButton);
-    expect(screen.getByRole('button', { name: '1 Execution location 1' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '2 Execution location 2' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '3 Execution location 3' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '1 Execution location 1' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '2 Execution location 2' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '3 Execution location 3' })).toBeInTheDocument();
 
     // Keyboard interaction
     await user.click(dataFlowButton);
-    dataLocation1Button = screen.getByRole('button', { name: '1 Data location 1' });
-    dataLocation2Button = screen.getByRole('button', { name: '2 Data location 2' });
+    dataLocation1Button = screen.getByRole('link', { name: '1 Data location 1' });
+    dataLocation2Button = screen.getByRole('link', { name: '2 Data location 2' });
 
     // Location navigation
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
-    expect(dataLocation1Button).toHaveAttribute('aria-current', 'location');
+
+    expect(dataLocation1Button).toHaveAttribute('aria-current', 'true');
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
     expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
+    expect(dataLocation2Button).toHaveAttribute('aria-current', 'true');
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
     expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
     expect(dataLocation2Button).toHaveAttribute('aria-current', 'false');
     await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
     expect(dataLocation1Button).toHaveAttribute('aria-current', 'false');
-    expect(dataLocation2Button).toHaveAttribute('aria-current', 'location');
+
+    expect(dataLocation2Button).toHaveAttribute('aria-current', 'true');
 
     // Flow navigation
     await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
-    expect(screen.getByRole('button', { name: '1 Execution location 1' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '1 Execution location 1' })).toHaveAttribute(
       'aria-current',
-      'location'
+      'true'
     );
     await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
-    expect(screen.getByRole('button', { name: '1 Data location 1' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '1 Data location 1' })).toHaveAttribute(
       'aria-current',
-      'location'
+      'true'
     );
   });
 
@@ -896,8 +899,8 @@ describe('issues item', () => {
     renderIssueApp();
 
     await user.click(await ui.issueItem4.find());
-    expect(screen.getByRole('button', { name: '1 location 1' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '2 location 2' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'location 1' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'location 2' })).toBeInTheDocument();
 
     // Select the "why is this an issue" tab
     await user.click(
@@ -910,7 +913,7 @@ describe('issues item', () => {
       })
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: '1 location 1' }));
+    await user.click(screen.getByRole('link', { name: 'location 1' }));
     expect(
       screen.getByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
@@ -929,7 +932,7 @@ describe('issues item', () => {
       })
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: '1 location 1' }));
+    await user.click(screen.getByRole('link', { name: 'location 1' }));
     expect(
       screen.getByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,

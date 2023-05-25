@@ -432,6 +432,7 @@ export const lightTheme = {
     subnavigationDisabled: COLORS.blueGrey[300],
     subnavigationExecutionFlow: COLORS.blueGrey[25],
     subnavigationExecutionFlowBorder: secondary.default,
+    subnavigationExecutionFlowSeparator: COLORS.blueGrey[100],
     subnavigationExecutionFlowActive: COLORS.indigo[500],
 
     // footer

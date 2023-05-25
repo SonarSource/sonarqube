@@ -21,6 +21,8 @@ import { ReactWrapper, ShallowWrapper } from 'enzyme';
 import { setImmediate } from 'timers';
 import { KeyboardKeys } from './keycodes';
 
+export type FCProps<T extends React.FunctionComponent<any>> = Parameters<T>[0];
+
 export function mockEvent(overrides = {}) {
   return {
     target: {

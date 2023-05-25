@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.issue-flows .boxed-group-header {
-  padding: calc(1.5 * var(--gridSize));
+import styled from '@emotion/styled';
+import { DeferredSpinner, SubnavigationHeading, themeBorder } from 'design-system';
+import * as React from 'react';
+import { Paging } from '../../../types/types';
+import IssuesCounter from '../components/IssuesCounter';
+
+interface Props {
+  loading: boolean;
+  paging: Paging | undefined;
+  selectedIndex: number | undefined;
 }
 
-.issue-flows .boxed-group-inner {
-  padding: 0 var(--gridSize) var(--gridSize);
+export default function SubnavigationIssuesListHeader(props: Props) {
+  const { loading, paging, selectedIndex } = props;
+
+  return (
+    <StyledHeader>
+      <DeferredSpinner loading={loading}>
+        {paging && <IssuesCounter current={selectedIndex} total={paging.total} />}
+      </DeferredSpinner>
+    </StyledHeader>
+  );
 }
 
-.issue-flows .boxed-group-header .location-index {
-  background-color: var(--neutral600);
-}
-
-.issue-flows .boxed-group-header .location-index.selected {
-  background-color: var(--conciseIssueRedSelected);
-}
+const StyledHeader = styled(SubnavigationHeading)`
+  position: sticky;
+  top: 0;
+  border-bottom: ${themeBorder('default', 'filterbarBorder')};
+`;

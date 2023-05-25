@@ -17,28 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import React from 'react';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
+import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 
-import styled from '@emotion/styled';
-import tw from 'twin.macro';
-import { themeColor } from '../helpers/theme';
+interface Props {
+  issue: Pick<Issue, 'type'>;
+}
 
-export const BasicSeparator = styled.hr`
-  height: 1px;
-  background-color: ${themeColor('border')};
-
-  ${tw`sw-my-1`}
-  ${tw`sw-overflow-hidden`};
-  ${tw`sw-clear-both`}
-`;
-
-export const BlueGreySeparator = styled(BasicSeparator)`
-  background-color: ${themeColor('popupBorder')};
-`;
-
-export const GreySeparator = styled(BasicSeparator)`
-  background-color: ${themeColor('subnavigationBorder')};
-`;
-
-export const SubnavigationFlowSeparator = styled(BasicSeparator)`
-  background-color: ${themeColor('subnavigationExecutionFlowSeparator')};
-`;
+export default function IssueItemType(props: Props) {
+  return (
+    <span className="sw-flex sw-items-center sw-gap-1">
+      <IssueTypeIcon type={props.issue.type} />
+      {translate('issue.type', props.issue.type)}
+    </span>
+  );
+}

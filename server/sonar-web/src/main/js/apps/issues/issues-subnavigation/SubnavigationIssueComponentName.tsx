@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { LightLabel, SubnavigationHeading, themeBorder } from 'design-system';
 import * as React from 'react';
-import LocationIndex from '../../../components/common/LocationIndex';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { collapsePath } from '../../../helpers/path';
+
+const COLLAPSE_PATH_LIMIT = 8;
 
 interface Props {
-  count: number;
-  flow?: boolean;
-  onClick?: () => void;
-  selected: boolean;
+  path: string;
 }
 
-export default function ConciseIssueLocationBadge(props: Props) {
-  const { count, flow, selected } = props;
+export default function SubnavigationIssueComponentName({ path }: Props) {
   return (
-    <Tooltip
-      mouseEnterDelay={0.5}
-      overlay={translateWithParameters(
-        flow
-          ? 'issue.this_flow_involves_x_code_locations'
-          : 'issue.this_issue_involves_x_code_locations',
-        formatMeasure(count, 'INT')
-      )}
-    >
-      <LocationIndex onClick={props.onClick} selected={selected}>
-        {'+'}
-        {count}
-      </LocationIndex>
-    </Tooltip>
+    <StyledHeading className="sw-pb-1 sw-pt-6 sw-flex sw-truncate" title={path}>
+      <LightLabel className="sw-truncate">{collapsePath(path, COLLAPSE_PATH_LIMIT)}</LightLabel>
+    </StyledHeading>
   );
 }
+
+const StyledHeading = styled(SubnavigationHeading)`
+  &:not(:last-child) {
+    border-bottom: ${themeBorder('default')};
+  }
+`;

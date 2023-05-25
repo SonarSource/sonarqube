@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { ButtonSecondary, themeColor } from 'design-system';
+import { ButtonSecondary, DeferredSpinner, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { MetricType } from '../../types/metrics';
-import DeferredSpinner from '../ui/DeferredSpinner';
+import LegacySpinner from '../ui/DeferredSpinner';
 import { Button } from './buttons';
 
 export interface ListFooterProps {
@@ -122,11 +121,16 @@ export default function ListFooter(props: ListFooterProps) {
           : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer, null))}
       </span>
       {button}
-      {<DeferredSpinner loading={loading} className="sw-ml-2" />}
+      {/* eslint-disable local-rules/no-conditional-rendering-of-deferredspinner */}
+      {useMIUIButtons ? (
+        <DeferredSpinner loading={loading} className="sw-ml-2" />
+      ) : (
+        <LegacySpinner loading={loading} className="sw-ml-2" />
+      )}
     </StyledDiv>
   );
 }
 
-const StyledDiv = withTheme(styled.div`
+const StyledDiv = styled.div`
   color: ${themeColor('pageContentLight')};
-`);
+`;

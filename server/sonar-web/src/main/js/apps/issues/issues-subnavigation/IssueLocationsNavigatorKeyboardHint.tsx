@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { KeyboardHint } from 'design-system';
 import * as React from 'react';
+import { KeyboardKeys } from '../../../helpers/keycodes';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  path: string;
+  showLeftRightHint?: boolean;
 }
 
-export default function ConciseIssueComponent({ path }: Props) {
+export default function IssueLocationsNavigatorKeyboardHint({ showLeftRightHint }: Props) {
+  const leftRightHint = showLeftRightHint
+    ? `${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`
+    : '';
   return (
-    <div className="concise-issue-component text-ellipsis note" title={path}>
-      {/* <bdi> is used to avoid some cases where the path is wrongly displayed */}
-      {/* because of the parent's direction=rtl */}
-      <bdi>{path}</bdi>
+    <div className="sw-flex sw-justify-center sw-mt-4">
+      <KeyboardHint
+        command={`${KeyboardKeys.Alt} + ${KeyboardKeys.UpArrow} ${KeyboardKeys.DownArrow} ${leftRightHint}`}
+        title={translate('issue.hint.navigate')}
+      />
     </div>
   );
 }

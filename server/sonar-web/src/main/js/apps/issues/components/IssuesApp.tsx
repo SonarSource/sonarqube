@@ -77,8 +77,7 @@ import { SecurityStandard } from '../../../types/security';
 import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
-import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
-import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
+import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
 import Sidebar from '../sidebar/Sidebar';
 import '../styles.css';
 import {
@@ -957,40 +956,12 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderConciseIssuesList() {
-    const { issues, loadingMore, paging, query } = this.state;
-
-    return (
-      <div className="layout-page-filters">
-        <ConciseIssuesListHeader
-          displayBackButton={query.issues.length !== 1}
-          loading={this.state.loading}
-          onBackClick={this.closeIssue}
-        />
-        <ConciseIssuesList
-          issues={issues}
-          onFlowSelect={this.selectFlow}
-          onIssueSelect={this.openIssue}
-          onLocationSelect={this.selectLocation}
-          selected={this.state.selected}
-          selectedFlowIndex={this.state.selectedFlowIndex}
-          selectedLocationIndex={this.state.selectedLocationIndex}
-        />
-        {paging && paging.total > 0 && (
-          <ListFooter
-            count={issues.length}
-            loadMore={this.fetchMoreIssues}
-            loading={loadingMore}
-            total={paging.total}
-          />
-        )}
-      </div>
-    );
-  }
-
   renderSide(openIssue: Issue | undefined) {
     const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
       this.props.component || {};
+
+    const { issues, paging } = this.state;
+
     return (
       <ScreenPositionHelper className="layout-page-side-outer">
         {({ top }) => (
@@ -1025,7 +996,23 @@ export class App extends React.PureComponent<Props, State> {
                 </div>
               )}
 
-              {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
+              {openIssue ? (
+                <SubnavigationIssuesList
+                  fetchMoreIssues={this.fetchMoreIssues}
+                  issues={issues}
+                  loading={this.state.loading}
+                  loadingMore={this.state.loadingMore}
+                  onFlowSelect={this.selectFlow}
+                  onIssueSelect={this.openIssue}
+                  onLocationSelect={this.selectLocation}
+                  paging={paging}
+                  selected={this.state.selected}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
+                  selectedLocationIndex={this.state.selectedLocationIndex}
+                />
+              ) : (
+                this.renderFacets()
+              )}
             </div>
           </nav>
         )}

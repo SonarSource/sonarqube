@@ -21,12 +21,12 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byText } from 'testing-library-selector';
-import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
+import { mockFlowLocation, mockIssue, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { FCProps } from '../../../../helpers/testUtils';
 import { FlowType, Issue } from '../../../../types/types';
-import { COLLAPSE_LIMIT } from '../ConciseIssueLocations';
-import ConciseIssuesList, { ConciseIssuesListProps } from '../ConciseIssuesList';
-import ConciseIssuesListHeader, { ConciseIssuesListHeaderProps } from '../ConciseIssuesListHeader';
+import { VISIBLE_LOCATIONS_COLLAPSE } from '../IssueLocationsCrossFile';
+import SubnavigationIssuesList from '../SubnavigationIssuesList';
 
 const loc = mockFlowLocation();
 const issues = [
@@ -48,7 +48,7 @@ const issues = [
     component: 'bar',
     componentLongName: 'Long Bar',
   }),
-  mockIssue(true, {
+  mockIssue(false, {
     key: 'issue4',
     message: 'Issue 4',
     component: 'foo',
@@ -80,13 +80,6 @@ beforeEach(() => {
 });
 
 describe('rendering', () => {
-  it('should hide the back button', () => {
-    const { ui } = getPageObject();
-    renderConciseIssues(issues, {}, { displayBackButton: false });
-
-    expect(ui.headerBackButton.query()).not.toBeInTheDocument();
-  });
-
   it('should render concise issues without duplicating component', () => {
     renderConciseIssues(issues);
 
@@ -126,11 +119,12 @@ describe('rendering', () => {
     renderConciseIssues(
       [
         ...issues,
-        mockIssue(true, {
+        mockIssue(false, {
           key: 'custom',
           message: 'Custom Issue',
-          flows: Array.from({ length: COLLAPSE_LIMIT - 1 }).map(() => [loc]),
-          secondaryLocations: [loc, loc],
+          flows: Array.from({ length: VISIBLE_LOCATIONS_COLLAPSE }).map((i) => [
+            mockFlowLocation({ component: `component-${i}` }),
+          ]),
         }),
       ],
       {
@@ -143,41 +137,6 @@ describe('rendering', () => {
 });
 
 describe('interacting', () => {
-  it('should handle back button properly', async () => {
-    const { ui } = getPageObject();
-    const onBackClick = jest.fn();
-    const { override } = renderConciseIssues(
-      issues,
-      {},
-      {
-        displayBackButton: true,
-        loading: true,
-        onBackClick,
-      }
-    );
-
-    // Back button should be shown, but disabled
-    expect(ui.headerBackButton.get()).toBeInTheDocument();
-    await ui.clickBackButton();
-    expect(onBackClick).toHaveBeenCalledTimes(0);
-
-    // Re-render without loading
-    override(
-      issues,
-      {},
-      {
-        displayBackButton: true,
-        loading: false,
-        onBackClick,
-      }
-    );
-
-    // Back button should be shown and enabled
-    expect(ui.headerBackButton.get()).toBeInTheDocument();
-    await ui.clickBackButton();
-    expect(onBackClick).toHaveBeenCalledTimes(1);
-  });
-
   it('should scroll selected issue into view', () => {
     const { override } = renderConciseIssues(issues, {
       selected: 'issue2',
@@ -193,27 +152,35 @@ describe('interacting', () => {
 
   it('expand button should work correctly', async () => {
     const { ui } = getPageObject();
+    const flow = Array.from({ length: VISIBLE_LOCATIONS_COLLAPSE + 1 }).map((_, i) =>
+      mockFlowLocation({
+        component: `component-${i}`,
+        index: i,
+        msg: `loc ${i}`,
+      })
+    );
+
     renderConciseIssues(
       [
-        ...issues,
-        mockIssue(true, {
+        mockIssue(false, {
           key: 'custom',
+          component: 'issue-component',
           message: 'Custom Issue',
-          flows: Array.from({ length: COLLAPSE_LIMIT }).map(() => [loc]),
-          secondaryLocations: [loc, loc],
+          flows: [flow],
         }),
       ],
       {
         selected: 'custom',
+        selectedFlowIndex: 0,
       }
     );
 
     expect(ui.expandBadgesButton.get()).toBeInTheDocument();
-    expect(ui.boxLocationFlowBadgeText.getAll()).toHaveLength(COLLAPSE_LIMIT - 1);
+    expect(screen.getAllByText(/loc \d/)).toHaveLength(VISIBLE_LOCATIONS_COLLAPSE);
     await ui.clickExpandBadgesButton();
 
     expect(ui.expandBadgesButton.query()).not.toBeInTheDocument();
-    expect(ui.boxLocationFlowBadgeText.getAll()).toHaveLength(9);
+    expect(screen.getAllByText(/loc \d/)).toHaveLength(VISIBLE_LOCATIONS_COLLAPSE + 1);
   });
 
   it('issue selection should correctly be handled', async () => {
@@ -237,7 +204,7 @@ describe('interacting', () => {
     renderConciseIssues(
       [
         ...issues,
-        mockIssue(true, {
+        mockIssue(false, {
           key: 'custom',
           message: 'Custom Issue',
           secondaryLocations: [],
@@ -246,13 +213,13 @@ describe('interacting', () => {
       ],
       {
         onFlowSelect,
-        selected: 'issue4',
+        selected: 'custom',
       }
     );
 
     expect(onFlowSelect).not.toHaveBeenCalled();
 
-    await user.click(screen.getByText('+3', { exact: false }));
+    await user.click(screen.getByText('issue.flow.x_steps.3'));
     expect(onFlowSelect).toHaveBeenCalledTimes(1);
     expect(onFlowSelect).toHaveBeenLastCalledWith(1);
   });
@@ -261,10 +228,7 @@ describe('interacting', () => {
 function getPageObject() {
   const selectors = {
     headerBackButton: byRole('link', { name: 'issues.return_to_list' }),
-    expandBadgesButton: byRole('button', { name: '...' }),
-    boxLocationFlowBadgeText: byText('issue.this_issue_involves_x_code_locations', {
-      exact: false,
-    }),
+    expandBadgesButton: byText(/issues.show_x_more_locations.\d/),
   };
   const user = userEvent.setup();
   const ui = {
@@ -281,19 +245,36 @@ function getPageObject() {
 
 function renderConciseIssues(
   issues: Issue[],
-  listProps: Partial<ConciseIssuesListProps> = {},
-  headerProps: Partial<ConciseIssuesListHeaderProps> = {}
+  listProps: Partial<FCProps<typeof SubnavigationIssuesList>> = {}
 ) {
   const wrapper = renderComponent(
-    <>
-      <ConciseIssuesListHeader
-        displayBackButton={false}
-        loading={false}
-        onBackClick={jest.fn()}
-        {...headerProps}
-      />
-      <ConciseIssuesList
+    <SubnavigationIssuesList
+      fetchMoreIssues={jest.fn()}
+      loading={false}
+      loadingMore={false}
+      paging={mockPaging({ total: 10 })}
+      issues={issues}
+      onFlowSelect={jest.fn()}
+      onIssueSelect={jest.fn()}
+      onLocationSelect={jest.fn()}
+      selected={undefined}
+      selectedFlowIndex={undefined}
+      selectedLocationIndex={undefined}
+      {...listProps}
+    />
+  );
+
+  function override(
+    issues: Issue[],
+    listProps: Partial<FCProps<typeof SubnavigationIssuesList>> = {}
+  ) {
+    wrapper.rerender(
+      <SubnavigationIssuesList
+        fetchMoreIssues={jest.fn()}
         issues={issues}
+        loading={false}
+        loadingMore={false}
+        paging={mockPaging({ total: 10 })}
         onFlowSelect={jest.fn()}
         onIssueSelect={jest.fn()}
         onLocationSelect={jest.fn()}
@@ -302,33 +283,6 @@ function renderConciseIssues(
         selectedLocationIndex={undefined}
         {...listProps}
       />
-    </>
-  );
-
-  function override(
-    issues: Issue[],
-    listProps: Partial<ConciseIssuesListProps> = {},
-    headerProps: Partial<ConciseIssuesListHeaderProps> = {}
-  ) {
-    wrapper.rerender(
-      <>
-        <ConciseIssuesListHeader
-          displayBackButton={false}
-          loading={false}
-          onBackClick={jest.fn()}
-          {...headerProps}
-        />
-        <ConciseIssuesList
-          issues={issues}
-          onFlowSelect={jest.fn()}
-          onIssueSelect={jest.fn()}
-          onLocationSelect={jest.fn()}
-          selected={undefined}
-          selectedFlowIndex={undefined}
-          selectedLocationIndex={undefined}
-          {...listProps}
-        />
-      </>
     );
   }
 

@@ -21,7 +21,7 @@ import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from '
 import { flatten, sortBy } from 'lodash';
 import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
-import { Dict, Flow, FlowLocation, Issue, TextRange } from '../types/types';
+import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';
 
@@ -95,14 +95,22 @@ function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
   return x;
 }
 
+const FLOW_ORDER_MAP = {
+  [FlowType.DATA]: 0,
+  [FlowType.EXECUTION]: 1,
+};
+
 function splitFlows(
   issue: RawIssue,
   components: Component[] = []
 ): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
   if (issue.flows?.some((flow) => flow.type !== undefined)) {
+    const flowsWithType = issue.flows.filter((flow) => flow.type !== undefined) as Flow[];
+    flowsWithType.sort((f1, f2) => FLOW_ORDER_MAP[f1.type] - FLOW_ORDER_MAP[f2.type]);
+
     return {
       flows: [],
-      flowsWithType: issue.flows.filter((flow) => flow.type !== undefined) as Flow[],
+      flowsWithType,
       secondaryLocations: [],
     };
   }
