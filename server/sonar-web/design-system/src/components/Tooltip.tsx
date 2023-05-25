@@ -20,7 +20,7 @@
 import { keyframes, ThemeContext } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { throttle } from 'lodash';
+import { throttle, uniqueId } from 'lodash';
 import React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import tw from 'twin.macro';
@@ -81,6 +81,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   tooltipNode?: HTMLElement | null;
   mounted = false;
   mouseIn = false;
+  id: string;
 
   static defaultProps = {
     mouseEnterDelay: 0.1,
@@ -94,7 +95,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       placement: props.placement,
       visible: props.visible !== undefined ? props.visible : false,
     };
-
+    this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, THROTTLE_SCROLL_DELAY);
   }
 
@@ -289,6 +290,17 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     }
   };
 
+  handleFocus = () => {
+    this.setState({ visible: true });
+    if (this.props.onShow) {
+      this.props.onShow();
+    }
+  };
+
+  handleBlur = () => {
+    this.setState({ visible: false });
+  };
+
   handleOverlayPointerEnter = () => {
     this.mouseIn = true;
   };
@@ -355,6 +367,13 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         {React.cloneElement(this.props.children, {
           onPointerEnter: this.handleChildPointerEnter,
           onPointerLeave: this.handleChildPointerLeave,
+          onFocus: this.handleFocus,
+          onBlur: this.handleBlur,
+          // aria-describedby is the semantically correct property to use, but it's not
+          // always well supported. We sometimes need to handle this differently, depending
+          // on the triggering element. We should NOT use aria-labelledby, as this can
+          // have unintended effects (e.g., this can mess up buttons that need a tooltip).
+          'aria-describedby': this.id,
         })}
         {this.isVisible() && (
           <TooltipPortal>

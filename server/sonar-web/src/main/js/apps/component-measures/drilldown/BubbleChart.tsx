@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BubbleColorVal, BubbleChart as OriginalBubbleChart } from 'design-system';
 import * as React from 'react';
-import theme from '../../../app/theme';
-import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { RATING_COLORS } from '../../../helpers/constants';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -140,8 +138,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
         const x = this.getMeasureVal(component, metrics.x);
         const y = this.getMeasureVal(component, metrics.y);
         const size = this.getMeasureVal(component, metrics.size);
-        const colors =
-          metrics.colors && metrics.colors.map((metric) => this.getMeasureVal(component, metric));
+        const colors = metrics.colors?.map((metric) => this.getMeasureVal(component, metric));
         if ((!x && x !== 0) || (!y && y !== 0) || (!size && size !== 0)) {
           return undefined;
         }
@@ -157,10 +154,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
           x,
           y,
           size,
-          color:
-            colorRating !== undefined
-              ? RATING_COLORS[colorRating - 1]
-              : { fill: theme.colors.primary, stroke: theme.colors.primary },
+          color: (colorRating as BubbleColorVal) ?? 0,
           data: component,
           tooltip: this.getTooltip(component, { x, y, size, colors }, metrics),
         };
@@ -185,7 +179,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
         height={HEIGHT}
         items={items}
         onBubbleClick={this.handleBubbleClick}
-        padding={[25, 60, 50, 60]}
+        padding={[0, 4, 50, 60]}
         yDomain={getBubbleYDomain(this.props.domain)}
         xDomain={xDomain}
       />

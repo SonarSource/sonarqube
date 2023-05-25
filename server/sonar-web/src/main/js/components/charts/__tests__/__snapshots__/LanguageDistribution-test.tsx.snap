@@ -35,6 +35,7 @@ exports[`should render correctly 1`] = `
             y="13"
           />
           <text
+            aria-describedby="tooltip-1"
             class="emotion-2 emotion-3"
             dx="1em"
             dy="0.3em"

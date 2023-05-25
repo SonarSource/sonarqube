@@ -290,6 +290,7 @@ exports[`renders correctly with yValues, yTicks, and yTooltips 1`] = `
             y="10"
           />
           <text
+            aria-describedby="tooltip-1"
             class="emotion-2 emotion-3"
             dx="1em"
             dy="0.3em"
@@ -319,6 +320,7 @@ exports[`renders correctly with yValues, yTicks, and yTooltips 1`] = `
             y="28"
           />
           <text
+            aria-describedby="tooltip-2"
             class="emotion-2 emotion-3"
             dx="1em"
             dy="0.3em"
@@ -348,6 +350,7 @@ exports[`renders correctly with yValues, yTicks, and yTooltips 1`] = `
             y="46"
           />
           <text
+            aria-describedby="tooltip-3"
             class="emotion-2 emotion-3"
             dx="1em"
             dy="0.3em"

@@ -82,6 +82,15 @@ describe('TooltipInner', () => {
     expect(screen.getByRole('tooltip')).toHaveClass('bottom');
   });
 
+  it('should be opened/hidden using tab navigation', async () => {
+    const { user } = setupWithProps({}, <a href="#">Link</a>);
+
+    await user.tab();
+    expect(await screen.findByRole('tooltip')).toBeInTheDocument();
+    await user.tab();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   function setupWithProps(
     props: Partial<TooltipInner['props']> = {},
     children = <div role="note" />

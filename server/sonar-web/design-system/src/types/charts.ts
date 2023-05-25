@@ -18,7 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './components';
-export * from './helpers';
-export * from './theme';
-export * from './types';
+export interface ChartPoint {
+  x: Date;
+  y: number | string | undefined;
+}
+
+export interface ChartSerie {
+  data: ChartPoint[];
+  name: string;
+  translatedName: string;
+  type: string;
+}
+
+export type BubbleColorVal = 1 | 2 | 3 | 4 | 5;
