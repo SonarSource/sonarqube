@@ -45,7 +45,7 @@ const ui = {
   line60: byRole('button', { name: 'source_viewer.line_X.60' }),
   line199: byRole('button', { name: 'source_viewer.line_X.199' }),
 
-  scmInfoLine180: byRole('button', {
+  scmInfoLine60: byRole('button', {
     name: 'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.1',
     expanded: false,
   }),
@@ -67,7 +67,7 @@ describe('issues source viewer', () => {
     expect(ui.line1.getAll()).toHaveLength(2);
   });
 
-  it('should expand all lines and show SCM info', async () => {
+  it('should expand a few lines and show SCM info', async () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
     await waitOnDataLoaded();
@@ -82,19 +82,23 @@ describe('issues source viewer', () => {
     expect(ui.line60.get()).toBeInTheDocument();
     expect(ui.line199.query()).not.toBeInTheDocument(); // Expand should only expand a few lines, not all of them
 
-    // Expand all lines from issues source header
-    await user.click(ui.expandAllLines.get());
-
-    // all lines should be rendered now
-    expect(ui.line1.get()).toBeInTheDocument();
-    expect(ui.line44.get()).toBeInTheDocument();
-    expect(ui.line45.get()).toBeInTheDocument();
-    expect(ui.line199.get()).toBeInTheDocument();
-
     // Show SCM info for newly expanded line
     expect(ui.scmInfoExpanded.query()).not.toBeInTheDocument();
-    await user.click(ui.scmInfoLine180.get());
+    await user.click(ui.scmInfoLine60.get());
     expect(ui.scmInfoExpanded.get()).toBeInTheDocument();
+  });
+
+  it('should expand all lines', async () => {
+    const user = userEvent.setup();
+    renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
+    await waitOnDataLoaded();
+
+    expect(ui.line199.query()).not.toBeInTheDocument();
+
+    await user.click(ui.expandAllLines.get());
+
+    // All lines should be rendered now
+    expect(ui.line199.get()).toBeInTheDocument();
   });
 
   it('should merge snippet viewers when expanding one near another', async () => {
