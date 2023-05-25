@@ -70,7 +70,6 @@ public class GlobalActionTest {
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier = mock(DefaultAdminCredentialsVerifier.class);
 
   private WsActionTester ws;
-
   @Test
   public void empty_call() {
     init();

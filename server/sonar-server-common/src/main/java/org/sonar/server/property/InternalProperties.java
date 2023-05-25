@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
  * Allows to read and write internal properties.
  */
 public interface InternalProperties {
-
   String SERVER_ID_CHECKSUM = "server.idChecksum";
 
   /**

@@ -247,8 +247,8 @@ export default function startReactApp(
   exportModulesAsGlobals();
 
   const el = document.getElementById('content');
-  const canAdmin = store.getState().appState.canAdmin;
-  const canCustomerAdmin = store.getState().appState.canCustomerAdmin;
+  const canAdmin = appState?.canAdmin;
+  const canCustomerAdmin = appState?.canCustomerAdmin;
 
   render(
     <HelmetProvider>

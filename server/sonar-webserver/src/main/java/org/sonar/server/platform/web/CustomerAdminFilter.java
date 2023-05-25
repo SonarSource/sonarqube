@@ -20,10 +20,12 @@
 package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.JwtHttpHandler;
-import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -72,11 +74,13 @@ public class CustomerAdminFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
         if (includeUrls.contains(path)) {
-            DefaultOrganization defaultOrganizationProvider = getComponent(DefaultOrganization.class);
+            DbClient dbClient = platform.getContainer().getComponentByType(DbClient.class);
+            DbSession dbSession = dbClient.openSession(false);
+            OrganizationDto organization = dbClient.organizationDao().getDefaultOrganization(dbSession);
             ThreadLocalUserSession threadLocalUserSession = getComponent(ThreadLocalUserSession.class);
             UserSession userSession = threadLocalUserSession.get();
             if (userSession.hasPermission(OrganizationPermission.ADMINISTER_CUSTOMER,
-                    defaultOrganizationProvider.getUuid())) {
+                    organization.getUuid())) {
                 Optional<JwtHttpHandler.Token> tokenOpt = getComponent(JwtHttpHandler.class)
                         .getToken(request, response);
                 if (tokenOpt.isPresent()) {
