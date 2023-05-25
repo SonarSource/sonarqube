@@ -58,6 +58,7 @@ public class DbVersion101 implements DbVersion {
       .add(10_1_014, "Increase size of 'ce_activity.task_type' from 15 to 40 characters", IncreaseTaskTypeColumnSizeInCeActivity.class)
       .add(10_1_015, "Add 'external_groups' table.", CreateExternalGroupsTable.class)
       .add(10_1_016, "Add index on 'external_groups(external_identity_provider, external_id).", CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable.class)
-      .add(10_1_017, "Add 'code_variants' column in 'issues' table", AddCodeVariantsColumnInIssuesTable.class);
+      .add(10_1_017, "Add 'code_variants' column in 'issues' table", AddCodeVariantsColumnInIssuesTable.class)
+      .add(10_1_018, "Fix different uuids for subportfolios", FixDifferentUuidsForSubportfolios.class);
   }
 }
