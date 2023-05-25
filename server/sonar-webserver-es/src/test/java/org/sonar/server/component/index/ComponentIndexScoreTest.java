@@ -19,22 +19,15 @@
  */
 package org.sonar.server.component.index;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-import static java.util.Arrays.asList;
-import static org.sonar.api.resources.Qualifiers.DIRECTORY;
-import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
-
   @Test
   public void should_prefer_components_without_prefix() {
     assertResultOrder("File.java",

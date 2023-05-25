@@ -94,17 +94,17 @@ public class ResetAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ResetRequest resetRequest = toWsRequest(request);
-      Optional<EntityDto> component = getComponent(dbSession, resetRequest);
-      checkPermissions(component);
+      Optional<EntityDto> entity = getEntity(dbSession, resetRequest);
+      checkPermissions(entity);
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
-        SettingData data = new SettingData(key, emptyList(), component.orElse(null));
+        SettingData data = new SettingData(key, emptyList(), entity.orElse(null));
         List.of(validations.scope(), validations.qualifier()).forEach(validation -> validation.accept(data));
       });
 
       List<String> keys = getKeys(resetRequest);
-      if (component.isPresent()) {
-        settingsUpdater.deleteComponentSettings(dbSession, component.get(), keys);
+      if (entity.isPresent()) {
+        settingsUpdater.deleteComponentSettings(dbSession, entity.get(), keys);
       } else {
         settingsUpdater.deleteGlobalSettings(dbSession, keys);
       }
@@ -125,11 +125,11 @@ public class ResetAction implements SettingsWsAction {
   private static ResetRequest toWsRequest(Request request) {
     return new ResetRequest()
       .setKeys(request.mandatoryParamAsStrings(PARAM_KEYS))
-      .setComponent(request.param(PARAM_COMPONENT));
+      .setEntity(request.param(PARAM_COMPONENT));
   }
 
-  private Optional<EntityDto> getComponent(DbSession dbSession, ResetRequest request) {
-    String componentKey = request.getComponent();
+  private Optional<EntityDto> getEntity(DbSession dbSession, ResetRequest request) {
+    String componentKey = request.getEntity();
     if (componentKey == null) {
       return Optional.empty();
     }
@@ -147,17 +147,17 @@ public class ResetAction implements SettingsWsAction {
   }
 
   private static class ResetRequest {
-    private String component;
+    private String entity;
     private List<String> keys;
 
-    public ResetRequest setComponent(@Nullable String component) {
-      this.component = component;
+    public ResetRequest setEntity(@Nullable String entity) {
+      this.entity = entity;
       return this;
     }
 
     @CheckForNull
-    public String getComponent() {
-      return component;
+    public String getEntity() {
+      return entity;
     }
 
     public ResetRequest setKeys(List<String> keys) {

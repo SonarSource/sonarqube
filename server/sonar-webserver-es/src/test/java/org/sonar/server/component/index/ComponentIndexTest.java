@@ -59,7 +59,6 @@ public abstract class ComponentIndexTest {
   private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   protected void assertResultOrder(String query, String... resultsInOrder) {
-    indexProject("key-1", "Quality Product");
     List<ProjectDto> projects = Arrays.stream(resultsInOrder)
       .map(r -> componentDbTester.insertPublicProject(c -> c.setName(r)).getProjectDto())
       .toList();

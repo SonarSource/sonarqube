@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsClient;
@@ -198,6 +199,28 @@ public class ComponentIndexerIT {
   }
 
   @Test
+  public void indexOnAnalysis_updates_index_on_changes() {
+  ProjectData project = db.components().insertPrivateProject();
+  underTest.indexOnAnalysis(project.projectUuid());
+  assertThatComponentHasName(project.projectUuid(), project.getProjectDto().getName());
+
+  // modify
+  ProjectDto projectDto = project.getProjectDto();
+  projectDto.setName("NewName");
+
+  db.getDbClient().projectDao().update(dbSession, projectDto);
+  db.commit();
+
+  // verify that index is updated
+  underTest.indexOnAnalysis(projectDto.getUuid());
+
+  assertThatIndexContainsOnly(projectDto.getUuid());
+  assertThatComponentHasName(projectDto.getUuid(), "NewName");
+}
+
+
+
+  @Test
   public void errors_during_indexing_are_recovered() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     es.lockWrites(TYPE_COMPONENT);
@@ -225,14 +248,6 @@ public class ComponentIndexerIT {
     Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(project.uuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
-  }
-
-  private void updateDb(ComponentDto component) {
-    ComponentUpdateDto updateComponent = ComponentUpdateDto.copyFrom(component);
-    updateComponent.setBChanged(true);
-    dbClient.componentDao().update(dbSession, updateComponent, component.qualifier());
-    dbClient.componentDao().applyBChangesForBranchUuid(dbSession, component.branchUuid());
-    dbSession.commit();
   }
 
   private IndexingResult recover() {
