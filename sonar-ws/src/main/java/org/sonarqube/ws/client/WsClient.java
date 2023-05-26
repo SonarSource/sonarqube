@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.githubprovisioning.GithubProvisioningService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
@@ -175,6 +176,8 @@ public interface WsClient {
   ServerService server();
 
   SettingsService settings();
+
+  GithubProvisioningService githubProvisioning();
 
   SourcesService sources();
 

@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.githubprovisioning.GithubProvisioningService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
@@ -140,6 +141,7 @@ class DefaultWsClient implements WsClient {
   private final SecurityReportsService securityReportsService;
   private final RegulatoryReportsService regulatoryReportsService;
   private final SonarLintServerPushService sonarLintPushService;
+  private final GithubProvisioningService githubProvisioningService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -198,6 +200,7 @@ class DefaultWsClient implements WsClient {
     this.securityReportsService = new SecurityReportsService(wsConnector);
     this.sonarLintPushService = new SonarLintServerPushService(wsConnector);
     this.regulatoryReportsService = new RegulatoryReportsService(wsConnector);
+    this.githubProvisioningService = new GithubProvisioningService(wsConnector);
   }
 
   @Override
@@ -414,6 +417,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public SettingsService settings() {
     return settingsService;
+  }
+
+  @Override
+  public GithubProvisioningService githubProvisioning() {
+    return githubProvisioningService;
   }
 
   @Override
