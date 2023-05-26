@@ -154,6 +154,20 @@ public class SetActionIT {
   }
 
   @Test
+  public void persist_new_subportfolio_setting() {
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto subportfolio = db.components().insertSubportfolio(portfolio);
+    logInAsProjectAdministrator(portfolio);
+
+    callForProjectSettingByKey("my.key", "my project value", subportfolio.getKey());
+
+    assertGlobalSetting("my.key", "my global value");
+    assertComponentSetting("my.key", "my project value", subportfolio.uuid());
+    assertThat(settingsChangeNotifier.wasCalled).isFalse();
+  }
+
+  @Test
   public void persist_project_property_with_project_admin_permission() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);

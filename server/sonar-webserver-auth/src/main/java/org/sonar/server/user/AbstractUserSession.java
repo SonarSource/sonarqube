@@ -103,7 +103,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasEntityPermission(String permission, EntityDto entity) {
-    return hasProjectUuidPermission(permission, entity.getUuid());
+    return hasProjectUuidPermission(permission, entity.getAuthUuid());
   }
 
   @Override
