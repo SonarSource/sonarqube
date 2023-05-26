@@ -77,6 +77,8 @@ export * from './TagsSelector';
 export * from './Text';
 export { ToggleButton } from './ToggleButton';
 export { TopBar } from './TopBar';
+export * from './TreeMap';
+export * from './TreeMapRect';
 export * from './buttons';
 export { ClipboardIconButton } from './clipboard';
 export * from './code-line/LineCoverage';
