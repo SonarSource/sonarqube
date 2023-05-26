@@ -43,7 +43,7 @@ public class Setting {
   private Setting(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition) {
     this.key = propertyDto.getKey();
     this.value = propertyDto.getValue();
-    this.componentUuid = propertyDto.getComponentUuid();
+    this.componentUuid = propertyDto.getEntityUuid();
     this.definition = definition;
     this.propertySets = buildPropertySetValuesAsMap(key, propertyDtoSetValues);
     this.isDefault = false;

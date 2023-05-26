@@ -101,7 +101,7 @@ public class PopulateReportSubscriptionsTest {
       "is_empty", false,
       "text_value", "true",
       "created_at", 1000,
-      "component_uuid", componentUuid,
+      "entity_uuid", componentUuid,
       "user_uuid", userUuid
     );
   }

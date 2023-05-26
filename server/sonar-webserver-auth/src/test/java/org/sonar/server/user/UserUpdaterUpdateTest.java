@@ -210,18 +210,18 @@ public class UserUpdaterUpdateTest {
     ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperties(oldUser.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()));
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setEntityUuid(project1.uuid()));
     db.properties().insertProperties(oldUser.getLogin(), project2.getKey(), project2.name(), project2.qualifier(),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()));
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setEntityUuid(project2.uuid()));
     db.properties().insertProperties(oldUser.getLogin(), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setEntityUuid(anotherProject.uuid()));
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {
     });
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey(DEFAULT_ISSUE_ASSIGNEE).build(), db.getSession()))
-      .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid)
+      .extracting(PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsOnly(
         tuple("new_login", null),
         tuple("new_login", project1.uuid()),

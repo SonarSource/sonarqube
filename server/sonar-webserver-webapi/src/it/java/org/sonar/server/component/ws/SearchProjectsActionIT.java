@@ -1362,7 +1362,7 @@ public class SearchProjectsActionIT {
   private void addFavourite(@Nullable String componentUuid, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
-        .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
+        .setEntityUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
       componentName, qualifier);
     dbSession.commit();
   }

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
@@ -62,7 +61,7 @@ public class FavoriteUpdaterIT {
     underTest.add(dbSession, project, null, null,true);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setComponentUuid(project.getUuid())
+      .setEntityUuid(project.getUuid())
       .build(), dbSession)).isEmpty();
   }
 
@@ -126,14 +125,14 @@ public class FavoriteUpdaterIT {
   private void assertFavorite(EntityDto entity, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
-      .setComponentUuid(entity.getUuid())
+      .setEntityUuid(entity.getUuid())
       .build(), dbSession)).hasSize(1);
   }
 
   private void assertNoFavorite(EntityDto entity, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
-      .setComponentUuid(entity.getUuid())
+      .setEntityUuid(entity.getUuid())
       .build(), dbSession)).isEmpty();
   }
 }

@@ -184,7 +184,7 @@ public class SetAction implements SettingsWsAction {
 
     deleteSettings(dbSession, component, key);
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys)
-      .setComponentUuid(componentUuid), null, componentKey, componentName, qualifier);
+      .setEntityUuid(componentUuid), null, componentKey, componentName, qualifier);
 
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
@@ -332,14 +332,14 @@ public class SetAction implements SettingsWsAction {
       .setValue(value);
 
     if (entity.isPresent()) {
-      property.setComponentUuid(entity.get().getUuid());
+      property.setEntityUuid(entity.get().getUuid());
     }
 
     return property;
   }
 
   private static PropertyDto toFieldProperty(KeyValue keyValue, @Nullable String componentUuid) {
-    return new PropertyDto().setKey(keyValue.key).setValue(keyValue.value).setComponentUuid(componentUuid);
+    return new PropertyDto().setKey(keyValue.key).setValue(keyValue.value).setEntityUuid(componentUuid);
   }
 
   private static class KeyValue {

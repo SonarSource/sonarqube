@@ -40,8 +40,6 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -381,7 +379,7 @@ public class ResetActionIT {
   }
 
   private void assertProjectPropertyDoesNotExist(EntityDto entity, String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(entity.getUuid()).setKey(key).build(), dbSession)).isEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setEntityUuid(entity.getUuid()).setKey(key).build(), dbSession)).isEmpty();
   }
 
   private void assertProjectPropertyDoesNotExist(String key) {
@@ -389,7 +387,7 @@ public class ResetActionIT {
   }
 
   private void assertProjectPropertyExists(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.getUuid()).setKey(key).build(), dbSession)).isNotEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setEntityUuid(project.getUuid()).setKey(key).build(), dbSession)).isNotEmpty();
   }
 
   private void assertUserPropertyExists(String key, UserDto user) {

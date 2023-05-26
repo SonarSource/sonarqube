@@ -30,12 +30,12 @@ public class PopulateReportSubscriptions extends DataChange {
   private static final String SELECT_QUERY = """
     SELECT port.uuid as portfolioUuid, pb.uuid as branchUuid, p.user_uuid as userUuid
     FROM properties p
-    LEFT JOIN portfolios port ON p.component_uuid = port.uuid
-    LEFT JOIN project_branches pb ON p.component_uuid = pb.uuid
+    LEFT JOIN portfolios port ON p.entity_uuid = port.uuid
+    LEFT JOIN project_branches pb ON p.entity_uuid = pb.uuid
     WHERE p.prop_key = 'sonar.governance.report.userNotification' or p.prop_key = 'sonar.governance.report.project.branch.userNotification'
     AND NOT EXISTS (
       SELECT * FROM report_subscriptions rs
-      WHERE (rs.branch_uuid = p.component_uuid or rs.portfolio_uuid = p.component_uuid) and rs.user_uuid = p.user_uuid
+      WHERE (rs.branch_uuid = p.entity_uuid or rs.portfolio_uuid = p.entity_uuid) and rs.user_uuid = p.user_uuid
     )
     """;
 

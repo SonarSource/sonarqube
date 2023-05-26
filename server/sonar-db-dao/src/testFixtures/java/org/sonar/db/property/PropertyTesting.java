@@ -76,7 +76,7 @@ public class PropertyTesting {
       .setKey(key)
       .setValue(value);
     if (componentUuid != null) {
-      propertyDto.setComponentUuid(componentUuid);
+      propertyDto.setEntityUuid(componentUuid);
     }
     if (userUuid != null) {
       propertyDto.setUserUuid(userUuid);

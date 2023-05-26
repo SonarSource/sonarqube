@@ -71,7 +71,7 @@ public class PropertyDbTester {
     insertProperties(singletonList(new PropertyDto()
         .setKey(propKey)
         .setValue(propValue)
-        .setComponentUuid(componentUuid)),
+        .setEntityUuid(componentUuid)),
       null, null, null, null);
   }
 

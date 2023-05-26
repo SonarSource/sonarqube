@@ -35,13 +35,13 @@ import static java.util.Objects.requireNonNull;
 
 final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, PropertiesRow> {
 
-  PropertiesRowAssert(DbTester dbTester, String propertyKey, @Nullable String userUuid, @Nullable String componentUuid) {
+  PropertiesRowAssert(DbTester dbTester, String propertyKey, @Nullable String userUuid, @Nullable String entityUuid) {
     super(
       asInternalProperty(
         dbTester,
         () -> " where prop_key='" + propertyKey + "'" +
           " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
-          " and component_uuid" + (componentUuid == null ? " is null" : "='" + componentUuid + "'")),
+          " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")),
       PropertiesRowAssert.class);
   }
 
@@ -62,7 +62,7 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
     String whereClause = whereClauseSupplier.get();
     List<Map<String, Object>> rows = dbTester.select(
       "select" +
-        " prop_key as \"key\", user_uuid as \"userUuid\", component_uuid as \"componentUuid\", is_empty as \"isEmpty\", "
+        " prop_key as \"key\", user_uuid as \"userUuid\", entity_uuid as \"entityUuid\", is_empty as \"isEmpty\", "
         + "text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\""
         +
         " from properties" +
@@ -75,7 +75,7 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
       return new PropertiesRow(
         (String) row.get("key"),
         (String) row.get("userUuid"),
-        (String) row.get("componentUuid"),
+        (String) row.get("entityUuid"),
         toBoolean(row.get("isEmpty")),
         (String) row.get("textValue"),
         (String) row.get("clobValue"),

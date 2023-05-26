@@ -56,14 +56,14 @@ public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoade
 
     ChildSettings settings = new ChildSettings(projectSettings);
     dbClient.propertiesDao()
-      .selectComponentProperties(dbSession, branchUuid)
+      .selectEntityProperties(dbSession, branchUuid)
       .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
     return settings.asConfiguration();
   }
 
   private ChildSettings internalLoadProjectConfiguration(DbSession dbSession, String uuid) {
     ChildSettings settings = new ChildSettings(globalSettings);
-    List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectComponentProperties(dbSession, uuid);
+    List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectEntityProperties(dbSession, uuid);
     propertyDtos.forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
     return settings;
   }

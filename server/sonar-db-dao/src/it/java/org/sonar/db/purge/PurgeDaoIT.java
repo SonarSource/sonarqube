@@ -1835,7 +1835,7 @@ public class PurgeDaoIT {
   }
 
   private Stream<String> getResourceIdOfProperties() {
-    return db.select("select component_uuid as \"uuid\" from properties").stream()
+    return db.select("select entity_uuid as \"uuid\" from properties").stream()
       .map(row -> (String) row.get("uuid"));
   }
 
@@ -1843,7 +1843,7 @@ public class PurgeDaoIT {
     Stream.of(components).forEach(componentDto -> db.properties().insertProperty(new PropertyDto()
         .setKey(randomAlphabetic(3))
         .setValue(randomAlphabetic(3))
-        .setComponentUuid(componentDto.uuid()),
+        .setEntityUuid(componentDto.uuid()),
       componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
@@ -1851,7 +1851,7 @@ public class PurgeDaoIT {
     branches.stream().forEach(branchDto -> db.properties().insertProperty(new PropertyDto()
         .setKey(randomAlphabetic(3))
         .setValue(randomAlphabetic(3))
-        .setComponentUuid(branchDto.getUuid()),
+        .setEntityUuid(branchDto.getUuid()),
       null, branchDto.getKey(), null, null));
   }
 
@@ -1957,7 +1957,7 @@ public class PurgeDaoIT {
   }
 
   private Stream<String> componentUuidsIn(String tableName) {
-    return uuidsIn(tableName, "component_uuid");
+    return uuidsIn(tableName, "entity_uuid");
   }
 
   private Stream<String> taskUuidsIn(String tableName) {

@@ -31,8 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyQuery;
@@ -210,11 +208,11 @@ public class SettingsUpdaterIT {
   }
 
   private void assertProjectPropertyDoesNotExist(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.getUuid()).setKey(key).build(), dbSession)).isEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setEntityUuid(project.getUuid()).setKey(key).build(), dbSession)).isEmpty();
   }
 
   private void assertProjectPropertyExists(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.getUuid()).setKey(key).build(), dbSession)).isNotEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setEntityUuid(project.getUuid()).setKey(key).build(), dbSession)).isNotEmpty();
   }
 
   private void assertUserPropertyExists(String key, UserDto user) {

@@ -67,8 +67,8 @@ public class ExportSettingsStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
-    dbTester.components().insertPublicProject(ANOTHER_PROJECT).getMainBranchComponent();
+    dbTester.components().insertPublicProject(PROJECT);
+    dbTester.components().insertPublicProject(ANOTHER_PROJECT);
     dbTester.commit();
     projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(PROJECT));
     componentRepository.register(1, PROJECT.uuid(), false);
@@ -153,7 +153,7 @@ public class ExportSettingsStepIT {
   private static PropertyDto newDto(String key, @Nullable String value, @Nullable ComponentDto project) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value);
     if (project != null) {
-      dto.setComponentUuid(project.uuid());
+      dto.setEntityUuid(project.uuid());
     }
     return dto;
   }

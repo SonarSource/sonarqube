@@ -51,7 +51,7 @@ public class PropertyNewValue extends NewValue {
     this.propertyKey = propertyDto.getKey();
     this.userUuid = propertyDto.getUserUuid();
     this.userLogin = userLogin;
-    this.componentUuid = propertyDto.getComponentUuid();
+    this.componentUuid = propertyDto.getEntityUuid();
     this.componentKey = componentKey;
     this.componentName = componentName;
     this.qualifier = qualifier;

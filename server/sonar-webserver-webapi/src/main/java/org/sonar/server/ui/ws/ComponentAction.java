@@ -236,7 +236,7 @@ public class ComponentAction implements NavigationWsAction {
     PropertyQuery propertyQuery = PropertyQuery.builder()
       .setUserUuid(userSession.getUuid())
       .setKey("favourite")
-      .setComponentUuid(isSubview(component) ? component.uuid() : projectOrPortfolioUuid)
+      .setEntityUuid(isSubview(component) ? component.uuid() : projectOrPortfolioUuid)
       .build();
     List<PropertyDto> componentFavourites = dbClient.propertiesDao().selectByQuery(propertyQuery, session);
     return componentFavourites.size() == 1;

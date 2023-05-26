@@ -198,12 +198,12 @@ public class ValuesAction implements SettingsWsAction {
    * Return list of settings by component uuids
    */
   private Collection<Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, String entityUuid) {
-    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, keys, Set.of(entityUuid));
-    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, getPropertySetKeys(properties), Set.of(entityUuid));
+    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndEntityUuids(dbSession, keys, Set.of(entityUuid));
+    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndEntityUuids(dbSession, getPropertySetKeys(properties), Set.of(entityUuid));
 
     List<Setting> settings = new LinkedList<>();
     for (PropertyDto propertyDto : properties) {
-      String componentUuid = propertyDto.getComponentUuid();
+      String componentUuid = propertyDto.getEntityUuid();
       String propertyKey = propertyDto.getKey();
       settings.add(Setting.createFromDto(propertyDto, filterPropertySets(propertyKey, propertySets, componentUuid), propertyDefinitions.get(propertyKey)));
     }
@@ -220,7 +220,7 @@ public class ValuesAction implements SettingsWsAction {
 
   private static List<PropertyDto> filterPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable String componentUuid) {
     return propertySets.stream()
-      .filter(propertyDto -> Objects.equals(propertyDto.getComponentUuid(), componentUuid))
+      .filter(propertyDto -> Objects.equals(propertyDto.getEntityUuid(), componentUuid))
       .filter(propertyDto -> propertyDto.getKey().startsWith(propertyKey + "."))
       .toList();
   }

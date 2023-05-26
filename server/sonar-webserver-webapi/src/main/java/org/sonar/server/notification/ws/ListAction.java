@@ -123,7 +123,7 @@ public class ListAction implements NotificationsWsAction {
       Map<String, ComponentDto> componentsByUuid = searchProjects(dbSession, properties);
 
       Predicate<PropertyDto> isNotification = prop -> prop.getKey().startsWith("notification.");
-      Predicate<PropertyDto> isComponentInDb = prop -> prop.getComponentUuid() == null || componentsByUuid.containsKey(prop.getComponentUuid());
+      Predicate<PropertyDto> isComponentInDb = prop -> prop.getEntityUuid() == null || componentsByUuid.containsKey(prop.getEntityUuid());
 
       Notification.Builder notification = Notification.newBuilder();
 
@@ -151,12 +151,12 @@ public class ListAction implements NotificationsWsAction {
   }
 
   private boolean isDispatcherAuthorized(PropertyDto prop, String dispatcher) {
-    return (prop.getComponentUuid() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
+    return (prop.getEntityUuid() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
   }
 
   private Map<String, ComponentDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {
     Set<String> componentUuids = properties.stream()
-      .map(PropertyDto::getComponentUuid)
+      .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toSet(properties.size()));
     Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, componentUuids, userSession.getUuid(), UserRole.USER);
@@ -172,7 +172,7 @@ public class ListAction implements NotificationsWsAction {
       List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());
       notification.setType(propertyKey.get(1));
       notification.setChannel(propertyKey.get(2));
-      ofNullable(property.getComponentUuid()).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, projectsByUuid));
+      ofNullable(property.getEntityUuid()).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, projectsByUuid));
 
       return notification.build();
     };

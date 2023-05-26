@@ -849,7 +849,7 @@ public class PurgeCommandsIT {
   }
 
   private int countPropertiesOf(ComponentDto componentDto) {
-    return dbTester.countSql("select count(1) from properties where component_uuid='" + componentDto.uuid() + "'");
+    return dbTester.countSql("select count(1) from properties where entity_uuid='" + componentDto.uuid() + "'");
   }
 
   private int countEventsOf(SnapshotDto analysis) {
@@ -882,7 +882,7 @@ public class PurgeCommandsIT {
       "PROPERTIES",
       "UUID", newUuid(),
       "PROP_KEY", randomAlphabetic(10),
-      "COMPONENT_UUID", component.uuid(),
+      "ENTITY_UUID", component.uuid(),
       "TEXT_VALUE", randomAlphabetic(10),
       "IS_EMPTY", isEmpty,
       "CREATED_AT", 1L);

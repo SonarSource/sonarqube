@@ -20,10 +20,10 @@
         p.is_empty as empty,
         p.text_value as textValue,
         p.clob_value as clobValue,
-        p.component_uuid as componentUuid,
+        p.entity_uuid as entityUuid,
         p.user_uuid as userUuid
         from properties p
-        join components pr on p.component_uuid=pr.uuid
+        join components pr on p.entity_uuid=pr.uuid
         join project_branches pb on pb.uuid = pr.uuid
         where p.user_uuid is null and pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
     </select>

@@ -63,7 +63,7 @@ public class ExportSettingsStep implements ComputationStep {
       final ProjectDump.Setting.Builder builder = ProjectDump.Setting.newBuilder();
       final List<PropertyDto> properties = dbSession.getMapper(ProjectExportMapper.class).selectPropertiesForExport(projectHolder.projectDto().getUuid())
         .stream()
-        .filter(dto -> dto.getComponentUuid() != null)
+        .filter(dto -> dto.getEntityUuid() != null)
         .filter(dto -> !IGNORED_KEYS.contains(dto.getKey()))
         .toList();
       for (PropertyDto property : properties) {
@@ -71,8 +71,8 @@ public class ExportSettingsStep implements ComputationStep {
           .setKey(property.getKey())
           .setValue(defaultString(property.getValue()));
 
-        if (property.getComponentUuid() != null) {
-          builder.setComponentRef(componentRepository.getRef(property.getComponentUuid()));
+        if (property.getEntityUuid() != null) {
+          builder.setComponentRef(componentRepository.getRef(property.getEntityUuid()));
         }
         output.write(builder.build());
         ++count;

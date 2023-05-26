@@ -316,7 +316,7 @@ public class SetActionIT {
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
-    assertThat(dbClient.propertiesDao().selectComponentProperties(dbSession, project.uuid())).hasSize(5);
+    assertThat(dbClient.propertiesDao().selectEntityProperties(dbSession, project.uuid())).hasSize(5);
     assertGlobalSetting("my.key", "1");
     assertGlobalSetting("my.key.1.firstField", "oldFirstValue");
     assertGlobalSetting("my.key.1.secondField", "oldSecondValue");
@@ -1152,7 +1152,7 @@ public class SetActionIT {
     PropertyDto result = dbClient.propertiesDao().selectGlobalProperty(key);
 
     assertThat(result)
-      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getComponentUuid)
+      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsExactly(key, value, null);
   }
 
@@ -1169,7 +1169,7 @@ public class SetActionIT {
 
     assertThat(result)
       .isNotNull()
-      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getComponentUuid)
+      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsExactly(key, value, componentUuid);
   }
 

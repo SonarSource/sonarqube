@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -50,7 +49,7 @@ public class FavoriteUpdater {
     List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setUserUuid(userUuid)
-      .setComponentUuid(entity.getUuid())
+      .setEntityUuid(entity.getUuid())
       .build(), dbSession);
     checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", entity.getKey(), entity.getUuid());
 
@@ -61,7 +60,7 @@ public class FavoriteUpdater {
     }
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
-        .setComponentUuid(entity.getUuid())
+        .setEntityUuid(entity.getUuid())
         .setUserUuid(userUuid),
       userLogin,
       entity.getKey(), entity.getName(), entity.getQualifier());
@@ -79,7 +78,7 @@ public class FavoriteUpdater {
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
-        .setComponentUuid(entity.getUuid())
+        .setEntityUuid(entity.getUuid())
         .setUserUuid(userUuid),
       userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
     checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", entity.getKey(), entity.getUuid());

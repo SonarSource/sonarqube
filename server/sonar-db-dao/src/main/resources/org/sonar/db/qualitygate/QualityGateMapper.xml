@@ -62,7 +62,7 @@
     FROM quality_gates qg INNER JOIN properties p ON qg.uuid = p.text_value
     WHERE
       p.prop_key = 'qualitygate.default'
-      and p.component_uuid is null
+      and p.entity_uuid is null
       and p.user_uuid is null
   </select>
 

@@ -47,7 +47,7 @@ public class ProjectConfigurationFactory {
   private void addSettings(Settings settings, String componentUuid) {
     try (DbSession session = dbClient.openSession(false)) {
       dbClient.propertiesDao()
-        .selectComponentProperties(session, componentUuid)
+        .selectEntityProperties(session, componentUuid)
         .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
     }
   }

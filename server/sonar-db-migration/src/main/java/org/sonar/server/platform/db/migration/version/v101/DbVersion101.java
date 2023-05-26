@@ -64,9 +64,10 @@ public class DbVersion101 implements DbVersion {
       .add(10_1_020, "Add report_subscriptions table", AddReportSubscriptionsTable.class)
       .add(10_1_021, "Add report_schedules unique index", CreateUniqueIndexForReportSchedulesTable.class)
       .add(10_1_022, "Add report_subscriptions unique index", CreateUniqueIndexForReportSubscriptionsTable.class)
-      .add(10_1_023, "Populate report_schedules table", PopulateReportSchedules.class)
-      .add(10_1_024, "Populate report_subscriptions table", PopulateReportSubscriptions.class)
-      .add(10_1_025, "Remove report properties", RemoveReportProperties.class)
+      .add(10_1_023, "Rename column 'component_uuid' to 'entity_uuid' in the 'properties' table", RenameColumnComponentUuidInProperties.class)
+      .add(10_1_024, "Populate report_schedules table", PopulateReportSchedules.class)
+      .add(10_1_025, "Populate report_subscriptions table", PopulateReportSubscriptions.class)
+      .add(10_1_026, "Remove report properties", RemoveReportProperties.class)
       ;
   }
 }

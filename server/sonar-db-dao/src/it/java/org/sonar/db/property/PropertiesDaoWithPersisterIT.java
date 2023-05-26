@@ -20,7 +20,6 @@
 package org.sonar.db.property;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -118,7 +116,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_KEY, PROJECT_NAME, "TRK");
+        USER_LOGIN, propertyDto.getEntityUuid(), PROJECT_KEY, PROJECT_NAME, "TRK");
     assertThat(newValue.toString()).contains("componentUuid");
   }
 
@@ -137,7 +135,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), "app-key", "app-name", "APP");
+        USER_LOGIN, propertyDto.getEntityUuid(), "app-key", "app-name", "APP");
     assertThat(newValue.toString())
       .contains("componentUuid");
   }
@@ -157,7 +155,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), "portfolio-key", "portfolio-name", "VW");
+        USER_LOGIN, propertyDto.getEntityUuid(), "portfolio-key", "portfolio-name", "VW");
     assertThat(newValue.toString())
       .contains("componentUuid");
   }
@@ -177,7 +175,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), null, propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_KEY, PROJECT_NAME, "TRK");
+        USER_LOGIN, propertyDto.getEntityUuid(), PROJECT_KEY, PROJECT_NAME, "TRK");
     assertThat(newValue.toString()).contains("componentUuid");
   }
 
@@ -198,7 +196,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName)
       .containsExactly(query.key(), null, query.userUuid(),
-        null, query.componentUuid(), null, null);
+        null, query.entityUuid(), null, null);
     assertThat(newValue.toString()).doesNotContain("userLogin");
   }
 
@@ -227,7 +225,7 @@ public class PropertiesDaoWithPersisterIT {
         PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentKey,
         PropertyNewValue::getComponentName)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_KEY, PROJECT_NAME);
+        USER_LOGIN, propertyDto.getEntityUuid(), PROJECT_KEY, PROJECT_NAME);
     assertThat(newValue.toString()).contains("userLogin");
   }
 
@@ -299,13 +297,13 @@ public class PropertiesDaoWithPersisterIT {
       .setKey(key)
       .setValue(VALUE)
       .setUserUuid(userUuid)
-      .setComponentUuid(projectUuid);
+      .setEntityUuid(projectUuid);
   }
 
   private PropertyQuery getPropertyQuery(String key) {
     return PropertyQuery.builder()
       .setKey(key)
-      .setComponentUuid(PROJECT_UUID)
+      .setEntityUuid(PROJECT_UUID)
       .setUserUuid(USER_UUID)
       .build();
   }
@@ -323,15 +321,15 @@ public class PropertiesDaoWithPersisterIT {
     }
 
     PropertyDto dto1 = new PropertyDto().setKey(KEY)
-      .setComponentUuid(project.uuid())
+      .setEntityUuid(project.uuid())
       .setUserUuid(user.getUuid())
       .setValue(value);
     PropertyDto dto2 = new PropertyDto().setKey(ANOTHER_KEY)
-      .setComponentUuid(project.uuid())
+      .setEntityUuid(project.uuid())
       .setUserUuid(user.getUuid())
       .setValue(value);
     PropertyDto dto3 = new PropertyDto().setKey(SECURED_KEY)
-      .setComponentUuid(project.uuid())
+      .setEntityUuid(project.uuid())
       .setUserUuid(user.getUuid())
       .setValue(value);
     db.properties().insertProperty(dto1, project.getKey(), project.name(), project.qualifier(), user.getLogin());

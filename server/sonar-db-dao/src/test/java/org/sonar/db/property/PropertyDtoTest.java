@@ -31,21 +31,21 @@ public class PropertyDtoTest {
 
   @Test
   public void testEquals() {
-    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123")).isEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
-    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
-    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotNull();
-    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new Object());
+    assertThat(new PropertyDto().setKey("123").setEntityUuid("uuid123")).isEqualTo(new PropertyDto().setKey("123").setEntityUuid("uuid123"));
+    assertThat(new PropertyDto().setKey("1234").setEntityUuid("uuid123")).isNotEqualTo(new PropertyDto().setKey("123").setEntityUuid("uuid123"));
+    assertThat(new PropertyDto().setKey("1234").setEntityUuid("uuid123")).isNotNull();
+    assertThat(new PropertyDto().setKey("1234").setEntityUuid("uuid123")).isNotEqualTo(new Object());
   }
 
   @Test
   public void testHashCode() {
-    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123"))
-      .hasSameHashCodeAs(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
+    assertThat(new PropertyDto().setKey("123").setEntityUuid("uuid123"))
+      .hasSameHashCodeAs(new PropertyDto().setKey("123").setEntityUuid("uuid123"));
   }
 
   @Test
   public void testToString() {
-    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserUuid("456"))
+    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setEntityUuid("uuid123").setUserUuid("456"))
       .hasToString("PropertyDto{foo:bar, value, uuid123, 456}");
   }
 

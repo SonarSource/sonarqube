@@ -316,7 +316,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       dbSession);
 
     List<String> favoriteDbUuids = props.stream()
-      .map(PropertyDto::getComponentUuid)
+      .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList(props.size()));
 

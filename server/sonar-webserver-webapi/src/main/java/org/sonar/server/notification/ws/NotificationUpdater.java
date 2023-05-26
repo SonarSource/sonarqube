@@ -55,7 +55,7 @@ public class NotificationUpdater {
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
         .setKey(key)
-        .setComponentUuid(projectUuid)
+        .setEntityUuid(projectUuid)
         .setUserUuid(user.getUuid())
         .build(),
       dbSession).stream()
@@ -68,7 +68,7 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid),
+      .setEntityUuid(projectUuid),
       user.getLogin(), projectKey, projectName, qualifier);
   }
 
@@ -85,7 +85,7 @@ public class NotificationUpdater {
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
         .setKey(key)
-        .setComponentUuid(projectUuid)
+        .setEntityUuid(projectUuid)
         .setUserUuid(user.getUuid())
         .build(),
       dbSession).stream()
@@ -97,10 +97,10 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
+      .setEntityUuid(projectUuid), user.getLogin(), projectKey, projectName, qualifier);
   }
 
   private static Predicate<PropertyDto> notificationScope(@Nullable ComponentDto project) {
-    return prop -> project == null ? (prop.getComponentUuid() == null) : (prop.getComponentUuid() != null);
+    return prop -> project == null ? (prop.getEntityUuid() == null) : (prop.getEntityUuid() != null);
   }
 }

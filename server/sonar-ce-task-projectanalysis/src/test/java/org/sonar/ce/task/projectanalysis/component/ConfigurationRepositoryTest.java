@@ -122,6 +122,6 @@ public class ConfigurationRepositoryTest {
 
   private void insertComponentProperty(String componentUuid, String propertyKey, String propertyValue) {
     db.properties().insertProperties(null, null, null, null,
-      new PropertyDto().setKey(propertyKey).setValue(propertyValue).setComponentUuid(componentUuid));
+      new PropertyDto().setKey(propertyKey).setValue(propertyValue).setEntityUuid(componentUuid));
   }
 }

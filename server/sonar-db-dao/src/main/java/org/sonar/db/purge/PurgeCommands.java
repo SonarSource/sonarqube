@@ -231,7 +231,7 @@ class PurgeCommands {
     List<List<String>> uuidsPartitions = Lists.partition(rootAndSubviewsUuids, MAX_RESOURCES_PER_QUERY);
 
     profiler.start("deleteByRootAndSubviews (properties)");
-    uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
+    uuidsPartitions.forEach(purgeMapper::deletePropertiesByEntityUuids);
     session.commit();
     profiler.stop();
 
@@ -253,7 +253,7 @@ class PurgeCommands {
     List<List<String>> uuidsPartitions = Lists.partition(disabledComponentsWithoutIssue, MAX_RESOURCES_PER_QUERY);
 
     profiler.start("deleteDisabledComponentsWithoutIssues (properties)");
-    uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
+    uuidsPartitions.forEach(purgeMapper::deletePropertiesByEntityUuids);
     session.commit();
     profiler.stop();
 
@@ -265,7 +265,7 @@ class PurgeCommands {
 
   void deleteOutdatedProperties(String branchUuid) {
     profiler.start("deleteOutdatedProperties (properties)");
-    purgeMapper.deletePropertiesByComponentUuids(List.of(branchUuid));
+    purgeMapper.deletePropertiesByEntityUuids(List.of(branchUuid));
     session.commit();
     profiler.stop();
   }

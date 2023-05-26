@@ -209,12 +209,12 @@
       project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deletePropertiesByComponentUuids" parameterType="map">
+  <delete id="deletePropertiesByEntityUuids" parameterType="map">
     delete from properties
     where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+      entity_uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="entityUuid" separator=",">
+        #{entityUuid}
       </foreach>
   </delete>
 

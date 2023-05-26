@@ -33,7 +33,6 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -48,7 +47,6 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -82,7 +80,7 @@ public class AddActionIT {
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
+      .extracting(PropertyDto::getEntityUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
       .containsOnly(project.getUuid(), user.getUuid(), "favourite");
   }
 

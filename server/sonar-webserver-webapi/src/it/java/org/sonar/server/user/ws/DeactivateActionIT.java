@@ -148,13 +148,13 @@ public class DeactivateActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
     db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
-    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()), project.getKey(),
+    db.properties().insertProperty(newUserPropertyDto(user).setEntityUuid(project.uuid()), project.getKey(),
       project.name(), project.qualifier(), user.getLogin());
 
     deactivate(user.getLogin());
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession)).isEmpty();
-    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).setComponentUuid(project.uuid()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).setEntityUuid(project.uuid()).build(), dbSession)).isEmpty();
   }
 
   @Test
@@ -213,11 +213,11 @@ public class DeactivateActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
-      .setComponentUuid(project.uuid()), project.getKey(), project.name(), project.qualifier(), user.getLogin());
+      .setEntityUuid(project.uuid()), project.getKey(), project.name(), project.qualifier(), user.getLogin());
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
-      .setComponentUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
+      .setEntityUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
     db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin())
-      .setComponentUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
+      .setEntityUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
 
     deactivate(user.getLogin());
 

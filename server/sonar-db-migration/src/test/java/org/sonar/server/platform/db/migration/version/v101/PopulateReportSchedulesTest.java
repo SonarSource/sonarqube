@@ -93,7 +93,7 @@ public class PopulateReportSchedulesTest {
       "is_empty", false,
       "text_value", value,
       "created_at", 1000,
-      "component_uuid", portfolioUuid
+      "entity_uuid", portfolioUuid
     );
   }
 
@@ -104,7 +104,7 @@ public class PopulateReportSchedulesTest {
       "is_empty", false,
       "text_value", value,
       "created_at", 1000,
-      "component_uuid", portfolioUuid
+      "entity_uuid", portfolioUuid
     );
   }
 
