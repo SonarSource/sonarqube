@@ -80,12 +80,15 @@ public class GithubBinding {
     Permissions permissions;
     @SerializedName("account")
     GsonAccount account;
+    @SerializedName("suspended_at")
+    String suspendedAt;
 
-    public GsonInstallation(long id, String targetType, Permissions permissions, GsonAccount account) {
+    public GsonInstallation(long id, String targetType, Permissions permissions, GsonAccount account, String suspendedAt) {
       this.id = id;
       this.targetType = targetType;
       this.permissions = permissions;
       this.account = account;
+      this.suspendedAt = suspendedAt;
     }
 
     public GsonInstallation() {
@@ -108,6 +111,10 @@ public class GithubBinding {
 
     public GsonAccount getAccount() {
       return account;
+    }
+
+    public String getSuspendedAt() {
+      return suspendedAt;
     }
 
     public static class GsonAccount {
