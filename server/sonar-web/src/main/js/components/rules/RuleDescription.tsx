@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { HtmlFormatter, themeBorder, themeColor } from 'design-system';
+import { FlagMessage, HtmlFormatter, themeBorder, themeColor, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
-import ButtonToggle from '../controls/ButtonToggle';
-import { Alert } from '../ui/Alert';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
@@ -122,7 +120,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
       return (
         <StyledHtmlFormatter
           className={className}
-          ref={(node) => {
+          ref={(node: HTMLDivElement) => {
             applyCodeDifferences(node);
           }}
         >
@@ -130,17 +128,24 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             {translate('coding_rules.description_context.title')}
           </h2>
           {defaultContext && (
-            <Alert variant="info" display="inline" className="big-spacer-bottom">
+            <FlagMessage
+              variant="info"
+              className="sw-mb-4"
+              ariaLabel={translateWithParameters(
+                'coding_rules.description_context.default_information',
+                defaultContext.displayName
+              )}
+            >
               {translateWithParameters(
                 'coding_rules.description_context.default_information',
                 defaultContext.displayName
               )}
-            </Alert>
+            </FlagMessage>
           )}
-          <div className="big-spacer-bottom">
-            <ButtonToggle
+          <div className="sw-mb-4">
+            <ToggleButton
               label={translate('coding_rules.description_context.title')}
-              onCheck={this.handleToggleContext}
+              onChange={this.handleToggleContext}
               options={options}
               value={selectedContext.displayName}
             />
@@ -168,7 +173,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     return (
       <StyledHtmlFormatter
         className={className}
-        ref={(node) => {
+        ref={(node: HTMLDivElement) => {
           applyCodeDifferences(node);
         }}
         // eslint-disable-next-line react/no-danger

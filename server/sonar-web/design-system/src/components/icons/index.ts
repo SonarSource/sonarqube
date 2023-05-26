@@ -21,10 +21,12 @@
 export { BranchIcon } from './BranchIcon';
 export { BugIcon } from './BugIcon';
 export { CalendarIcon } from './CalendarIcon';
+export { CheckIcon } from './CheckIcon';
 export { ChevronDownIcon } from './ChevronDownIcon';
 export { ChevronLeftIcon } from './ChevronLeftIcon';
 export { ChevronRightIcon } from './ChevronRightIcon';
 export { ClockIcon } from './ClockIcon';
+export { CloseIcon } from './CloseIcon';
 export { CodeSmellIcon } from './CodeSmellIcon';
 export { CommentIcon } from './CommentIcon';
 export { CopyIcon } from './CopyIcon';

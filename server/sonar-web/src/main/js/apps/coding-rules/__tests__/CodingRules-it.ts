@@ -163,21 +163,21 @@ it('should show rule advanced section with context', async () => {
       name: 'coding_rules.description_section.title.how_to_fix',
     })
   );
-  expect(screen.getByRole('button', { name: 'Spring' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Spring boot' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Spring boot' })).toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'coding_rules.description_context.other' })
+    screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
   ).toBeInTheDocument();
   expect(screen.getByText('coding_rules.description_context.sub_title.Spring')).toBeInTheDocument();
   expect(screen.getByText('This is how to fix for spring')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'Spring boot' }));
+  await user.click(screen.getByRole('radio', { name: 'Spring boot' }));
   expect(
     screen.getByText('coding_rules.description_context.sub_title.Spring boot')
   ).toBeInTheDocument();
   expect(screen.getByText('This is how to fix for spring boot')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'coding_rules.description_context.other' }));
+  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context.other' }));
   expect(
     screen.queryByText(
       'coding_rules.description_context.sub_title.coding_rules.description_context.other'
@@ -187,7 +187,7 @@ it('should show rule advanced section with context', async () => {
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
 
   const productBoardLink = screen.getByRole('link', {
-    name: 'opens_in_new_window coding_rules.context.others.feedback_description.link',
+    name: 'coding_rules.context.others.feedback_description.link',
   });
   expect(productBoardLink).toBeInTheDocument();
   expect(productBoardLink).toHaveAttribute('target', '_blank');

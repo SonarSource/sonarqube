@@ -136,21 +136,21 @@ describe('issues app', () => {
       );
 
       // Is the context selector present with the expected values and default selection?
-      expect(screen.getByRole('button', { name: 'Context 2' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Context 3' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Spring' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'Context 3' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'coding_rules.description_context.other' })
+        screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
       ).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Spring' })).toHaveClass('selected');
+      expect(screen.getByRole('radio', { name: 'Spring', current: true })).toBeInTheDocument();
 
       // Select context 2 and check tab content
-      await user.click(screen.getByRole('button', { name: 'Context 2' }));
+      await user.click(screen.getByRole('radio', { name: 'Context 2' }));
       expect(screen.getByText('Context 2 content')).toBeInTheDocument();
 
       // Select the "other" context and check tab content
       await user.click(
-        screen.getByRole('button', { name: 'coding_rules.description_context.other' })
+        screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
       );
       expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
       expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
