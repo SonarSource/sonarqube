@@ -217,7 +217,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         hasInstance = true;
       } else if (projectUuid != null) {
         var value = dto.getType() == REFERENCE_BRANCH ? branchUuidByKey.get(createBranchUniqueKey(projectUuid, dto.getValue())) : dto.getValue();
-        if (branchUuid == null) {
+        if (branchUuid == null || isCommunityEdition()) {
           ncd = new NewCodeDefinition(dto.getType().name(), value, "project");
           this.ncdByProject.put(projectUuid, ncd);
         } else {
@@ -232,6 +232,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     if (!hasInstance) {
       this.newCodeDefinitions.add(NewCodeDefinition.getInstanceDefault());
     }
+  }
+
+  private boolean isCommunityEdition() {
+    var edition = editionProvider.get();
+    return edition.isPresent() && edition.get() == COMMUNITY;
   }
 
   private static String createBranchUniqueKey(String projectUuid, @Nullable String branchKey) {
@@ -429,7 +434,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private boolean isPropertyPresentInConfiguration(String property) {
     return configuration.get(property).isPresent();
   }
-
 
   private TelemetryData.ManagedInstanceInformation buildManagedInstanceInformation() {
     String provider = managedInstanceService.isInstanceExternallyManaged() ? managedInstanceService.getProviderName() : null;

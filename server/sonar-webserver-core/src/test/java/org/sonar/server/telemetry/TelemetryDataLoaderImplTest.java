@@ -48,7 +48,6 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
@@ -334,6 +333,30 @@ public class TelemetryDataLoaderImplTest {
         ProjectStatistics::getScm, ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(
         tuple(2L, 0L, "undetected", "undetected"));
+  }
+
+  @Test
+  public void test_ncd_on_community_edition() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
+
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+
+    db.newCodePeriods().insert(project.uuid(), branch.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+
+    var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjectStatistics())
+      .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getNcdId)
+      .containsExactlyInAnyOrder(tuple(2L, projectNcdId));
+
+    assertThat(data.getBranches())
+      .extracting(TelemetryData.Branch::branchUuid, TelemetryData.Branch::ncdId)
+      .contains(tuple(branch.uuid(), projectNcdId));
   }
 
   @Test
