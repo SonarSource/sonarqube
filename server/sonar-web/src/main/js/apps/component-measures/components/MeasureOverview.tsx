@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
@@ -38,9 +38,9 @@ import {
 } from '../../../types/types';
 import BubbleChart from '../drilldown/BubbleChart';
 import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
-import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
+import MeasuresBreadcrumbs from './MeasuresBreadcrumbs';
 
 interface Props {
   branchLike?: BranchLike;
@@ -154,43 +154,34 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     const { branchLike, className, component, leakPeriod, loading, rootComponent } = this.props;
     const displayLeak = hasFullMeasures(branchLike);
     return (
-      <main className={className}>
-        <div className="layout-page-header-panel layout-page-main-header">
-          <A11ySkipTarget anchor="measures_main" />
+      <div className={className}>
+        <A11ySkipTarget anchor="measures_main" />
 
-          <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner">
-              <MeasureContentHeader
-                left={
-                  <Breadcrumbs
-                    backToFirst={true}
-                    branchLike={branchLike}
-                    className="text-ellipsis"
-                    component={component}
-                    handleSelect={this.props.updateSelected}
-                    rootComponent={rootComponent}
-                  />
-                }
-                right={
-                  <PageActions
-                    componentQualifier={rootComponent.qualifier}
-                    current={this.state.components.length}
-                  />
-                }
-              />
-            </div>
-          </div>
-        </div>
-        <div className="layout-page-main-inner measure-details-content">
-          <div className="clearfix big-spacer-bottom">
-            {leakPeriod && displayLeak && (
-              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
-            )}
-          </div>
-          <DeferredSpinner loading={loading} />
-          {!loading && this.renderContent()}
-        </div>
-      </main>
+        <MeasureContentHeader
+          left={
+            <MeasuresBreadcrumbs
+              backToFirst={true}
+              branchLike={branchLike}
+              component={component}
+              handleSelect={this.props.updateSelected}
+              rootComponent={rootComponent}
+            />
+          }
+          right={
+            <PageActions
+              componentQualifier={rootComponent.qualifier}
+              current={this.state.components.length}
+            />
+          }
+        />
+        {leakPeriod && displayLeak && (
+          <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
+        )}
+
+        <DeferredSpinner loading={loading} />
+
+        {!loading && this.renderContent()}
+      </div>
     );
   }
 }

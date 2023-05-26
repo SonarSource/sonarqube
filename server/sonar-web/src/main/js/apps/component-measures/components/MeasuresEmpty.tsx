@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system/lib';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function MeasuresEmpty() {
-  return (
-    <div className="page page-limited">
-      <div className="note">{translate('component_measures.empty')}</div>
-    </div>
-  );
+  return <Note>{translate('component_measures.empty')}</Note>;
 }

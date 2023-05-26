@@ -26,9 +26,9 @@ interface Props {
 
 export default function MeasureContentHeader({ left, right }: Props) {
   return (
-    <div className="measure-content-header">
-      <div className="measure-content-header-left">{left}</div>
-      <div className="measure-content-header-right">{right}</div>
+    <div>
+      <div>{left}</div>
+      <div>{right}</div>
     </div>
   );
 }

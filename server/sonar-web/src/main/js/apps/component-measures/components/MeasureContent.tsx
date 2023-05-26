@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { Router } from '../../../components/hoc/withRouter';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
@@ -48,11 +48,11 @@ import {
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
-import { enhanceComponent, Query } from '../utils';
-import Breadcrumbs from './Breadcrumbs';
+import { Query, enhanceComponent } from '../utils';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
+import MeasuresBreadcrumbs from './MeasuresBreadcrumbs';
 
 interface Props {
   branchLike?: BranchLike;
@@ -352,81 +352,68 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const selectedIdx = this.getSelectedIndex();
 
     return (
-      <div
-        className="layout-page-main no-outline"
-        ref={(container) => (this.container = container)}
-      >
+      <div ref={(container) => (this.container = container)}>
         <A11ySkipTarget anchor="measures_main" />
 
-        <div className="layout-page-header-panel layout-page-main-header">
-          <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner">
-              <MeasureContentHeader
-                left={
-                  <Breadcrumbs
-                    backToFirst={view === 'list'}
-                    branchLike={branchLike}
-                    className="text-ellipsis flex-1"
-                    component={baseComponent}
-                    handleSelect={this.onOpenComponent}
-                    rootComponent={rootComponent}
-                  />
-                }
-                right={
-                  <div className="display-flex-center">
-                    {!isFileComponent && metric && (
-                      <>
-                        <div id="measures-view-selection-label">
-                          {translate('component_measures.view_as')}
-                        </div>
-                        <MeasureViewSelect
-                          className="measure-view-select spacer-left big-spacer-right"
-                          handleViewChange={this.updateView}
-                          metric={metric}
-                          view={view}
-                        />
-
-                        <PageActions
-                          componentQualifier={rootComponent.qualifier}
-                          current={
-                            selectedIdx !== undefined && view !== 'treemap'
-                              ? selectedIdx + 1
-                              : undefined
-                          }
-                          showShortcuts={['list', 'tree'].includes(view)}
-                          total={paging && paging.total}
-                        />
-                      </>
-                    )}
+        <MeasureContentHeader
+          left={
+            <MeasuresBreadcrumbs
+              backToFirst={view === 'list'}
+              branchLike={branchLike}
+              className="sw-flex-1"
+              component={baseComponent}
+              handleSelect={this.onOpenComponent}
+              rootComponent={rootComponent}
+            />
+          }
+          right={
+            <div className="display-flex-center">
+              {!isFileComponent && metric && (
+                <>
+                  <div id="measures-view-selection-label">
+                    {translate('component_measures.view_as')}
                   </div>
-                }
-              />
-            </div>
-          </div>
-        </div>
+                  <MeasureViewSelect
+                    className="measure-view-select spacer-left big-spacer-right"
+                    handleViewChange={this.updateView}
+                    metric={metric}
+                    view={view}
+                  />
 
-        <div className="layout-page-main-inner measure-details-content">
-          <MeasureHeader
-            branchLike={branchLike}
-            component={baseComponent}
-            leakPeriod={this.props.leakPeriod}
-            measureValue={measureValue}
-            metric={metric}
-            secondaryMeasure={secondaryMeasure}
-          />
-          {isFileComponent ? (
-            <div className="measure-details-viewer">
-              <SourceViewer
-                branchLike={branchLike}
-                component={baseComponent.key}
-                metricKey={this.state.metric?.key}
-                onIssueChange={this.props.onIssueChange}
-              />
+                  <PageActions
+                    componentQualifier={rootComponent.qualifier}
+                    current={
+                      selectedIdx !== undefined && view !== 'treemap' ? selectedIdx + 1 : undefined
+                    }
+                    showShortcuts={['list', 'tree'].includes(view)}
+                    total={paging && paging.total}
+                  />
+                </>
+              )}
             </div>
-          ) : (
-            this.renderMeasure()
-          )}
-        </div>
+          }
+        />
+
+        <MeasureHeader
+          branchLike={branchLike}
+          component={baseComponent}
+          leakPeriod={this.props.leakPeriod}
+          measureValue={measureValue}
+          metric={metric}
+          secondaryMeasure={secondaryMeasure}
+        />
+        {isFileComponent ? (
+          <div className="measure-details-viewer">
+            <SourceViewer
+              branchLike={branchLike}
+              component={baseComponent.key}
+              metricKey={this.state.metric?.key}
+              onIssueChange={this.props.onIssueChange}
+            />
+          </div>
+        ) : (
+          this.renderMeasure()
+        )}
       </div>
     );
   }

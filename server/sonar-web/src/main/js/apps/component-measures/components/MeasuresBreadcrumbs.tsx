@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Breadcrumbs, HoverLink } from 'design-system';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
+import { translate } from '../../../helpers/l10n';
+import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
-import Breadcrumb from './Breadcrumb';
 
 interface Props {
   backToFirst: boolean;
@@ -38,7 +41,7 @@ interface State {
   breadcrumbs: ComponentMeasure[];
 }
 
-export default class Breadcrumbs extends React.PureComponent<Props, State> {
+export default class MeasuresBreadcrumbs extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { breadcrumbs: [] };
 
@@ -94,22 +97,33 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
 
   render() {
     const { breadcrumbs } = this.state;
+
     if (breadcrumbs.length <= 0) {
       return null;
     }
-    const lastItem = breadcrumbs[breadcrumbs.length - 1];
+
     return (
-      <div className={this.props.className}>
+      <Breadcrumbs
+        ariaLabel={translate('breadcrumbs')}
+        className={this.props.className}
+        maxWidth={500}
+      >
         {breadcrumbs.map((component) => (
-          <Breadcrumb
-            canBrowse={component.key !== lastItem.key}
-            component={component}
-            handleSelect={this.props.handleSelect}
-            isLast={component.key === lastItem.key}
+          <HoverLink
             key={component.key}
-          />
+            to="#"
+            onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+              event.preventDefault();
+              event.currentTarget.blur();
+              this.props.handleSelect(component);
+            }}
+          >
+            {component.qualifier === ComponentQualifier.Directory
+              ? collapsePath(component.name, 15)
+              : limitComponentName(component.name)}
+          </HoverLink>
         ))}
-      </div>
+      </Breadcrumbs>
     );
   }
 }

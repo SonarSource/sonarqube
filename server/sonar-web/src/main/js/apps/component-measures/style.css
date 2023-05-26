@@ -136,30 +136,6 @@ button.search-navigator-facet {
   }
 }
 
-.measure-content-header {
-  display: flex;
-  align-items: center;
-}
-
-.measure-content-header .measure-view-select {
-  width: 102px;
-}
-
-.measure-content-header-left {
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-}
-
-.measure-content-header-right .page-actions {
-  margin-bottom: 0;
-}
-
-.measure-content-header-right {
-  margin-left: calc(2 * var(--gridSize));
-  white-space: nowrap;
-}
-
 .measure-favorite svg {
   vertical-align: middle;
 }

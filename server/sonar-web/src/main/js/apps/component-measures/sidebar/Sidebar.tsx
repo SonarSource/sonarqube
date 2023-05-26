@@ -17,72 +17,117 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  FlagMessage,
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LAYOUT_PROJECT_NAV_HEIGHT,
+  themeBorder,
+  themeColor,
+} from 'design-system/lib';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import useFollowScroll from '../../../hooks/useFollowScroll';
+import { isPortfolioLike } from '../../../types/component';
 import { Dict, MeasureEnhanced } from '../../../types/types';
-import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
+import { KNOWN_DOMAINS, PROJECT_OVERVEW, Query, groupByDomains } from '../utils';
 import DomainFacet from './DomainFacet';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 
 interface Props {
+  canBrowseAllChildProjects: boolean;
   measures: MeasureEnhanced[];
+  qualifier: string;
   selectedMetric: string;
   showFullMeasures: boolean;
   updateQuery: (query: Partial<Query>) => void;
 }
 
-interface State {
-  openFacets: Dict<boolean>;
-}
+export default function Sidebar(props: Props) {
+  const {
+    showFullMeasures,
+    canBrowseAllChildProjects,
+    qualifier,
+    updateQuery,
+    selectedMetric,
+    measures,
+  } = props;
+  const [openFacets, setOpenFacets] = React.useState(getOpenFacets({}, props));
+  const { top: topScroll } = useFollowScroll();
 
-export default class Sidebar extends React.PureComponent<Props, State> {
-  static getDerivedStateFromProps(props: Props, state: State) {
-    return { openFacets: getOpenFacets(state.openFacets, props) };
-  }
+  const handleToggleFacet = React.useCallback(
+    (name: string) => {
+      setOpenFacets((openFacets) => ({ ...openFacets, [name]: !openFacets[name] }));
+    },
+    [setOpenFacets]
+  );
 
-  state: State = {
-    openFacets: {},
-  };
+  const handleChangeMetric = React.useCallback(
+    (metric: string) => {
+      updateQuery({ metric });
+    },
+    [updateQuery]
+  );
 
-  toggleFacet = (name: string) => {
-    this.setState(({ openFacets }) => ({
-      openFacets: { ...openFacets, [name]: !openFacets[name] },
-    }));
-  };
+  const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
+  const footerVisibleHeight =
+    distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
 
-  changeMetric = (metric: string) => {
-    this.props.updateQuery({ metric });
-  };
-
-  render() {
-    const { showFullMeasures } = this.props;
-    return (
-      <nav aria-label={translate('secondary')}>
+  return (
+    <StyledSidebar
+      className="sw-col-span-3"
+      style={{
+        top: `${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px`,
+        height: `calc(
+            100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + footerVisibleHeight}px
+          )`,
+      }}
+    >
+      {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+        <FlagMessage
+          ariaLabel={translate('component_measures.not_all_measures_are_shown')}
+          className="it__portfolio_warning"
+          variant="warning"
+        >
+          {translate('component_measures.not_all_measures_are_shown')}
+          <HelpTooltip
+            className="spacer-left"
+            overlay={translate('component_measures.not_all_measures_are_shown.help')}
+          />
+        </FlagMessage>
+      )}
+      <nav
+        className="sw-flex sw-flex-col sw-gap-4 sw-p-4"
+        aria-label={translate('component_measures.navigation')}
+      >
         <A11ySkipTarget
           anchor="measures_filters"
-          label={translate('component_measures.skip_to_filters')}
+          label={translate('component_measures.skip_to_navigation')}
           weight={10}
         />
         <ProjectOverviewFacet
-          onChange={this.changeMetric}
-          selected={this.props.selectedMetric}
+          onChange={handleChangeMetric}
+          selected={selectedMetric}
           value={PROJECT_OVERVEW}
         />
-        {groupByDomains(this.props.measures).map((domain) => (
+        {groupByDomains(measures).map((domain) => (
           <DomainFacet
             domain={domain}
             key={domain.name}
-            onChange={this.changeMetric}
-            onToggle={this.toggleFacet}
-            open={this.state.openFacets[domain.name] === true}
-            selected={this.props.selectedMetric}
+            onChange={handleChangeMetric}
+            onToggle={handleToggleFacet}
+            open={openFacets[domain.name] === true}
+            selected={selectedMetric}
             showFullMeasures={showFullMeasures}
           />
         ))}
       </nav>
-    );
-  }
+    </StyledSidebar>
+  );
 }
 
 function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: Props) {
@@ -95,3 +140,11 @@ function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: 
   }
   return newOpenFacets;
 }
+
+const StyledSidebar = withTheme(styled.div`
+  box-sizing: border-box;
+  margin-top: -2rem;
+
+  background-color: ${themeColor('filterbar')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+`);
