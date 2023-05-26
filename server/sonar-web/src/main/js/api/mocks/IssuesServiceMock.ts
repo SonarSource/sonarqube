@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, keyBy, times, uniqueId } from 'lodash';
+import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { mockIssueChangelog } from '../../helpers/mocks/issues';
-import { mockSnippetsByComponent } from '../../helpers/mocks/sources';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
-import {
-  mockLoggedInUser,
-  mockPaging,
-  mockRawIssue,
-  mockRule,
-  mockRuleDetails,
-} from '../../helpers/testMocks';
+import { mockLoggedInUser, mockPaging, mockRuleDetails } from '../../helpers/testMocks';
 import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
-  IssueActions,
   IssueResolution,
-  IssueScope,
-  IssueSeverity,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -47,14 +37,7 @@ import {
 } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
-import {
-  Dict,
-  FlowType,
-  Rule,
-  RuleActivation,
-  RuleDetails,
-  SnippetsByComponent,
-} from '../../types/types';
+import { Dict, Rule, RuleActivation, RuleDetails, SnippetsByComponent } from '../../types/types';
 import { LoggedInUser, NoticeType } from '../../types/users';
 import {
   addIssueComment,
@@ -73,6 +56,8 @@ import {
 } from '../issues';
 import { getRuleDetails, searchRules } from '../rules';
 import { dismissNotice, getCurrentUser, searchUsers } from '../users';
+import { mockIssuesList } from './data/issues';
+import { mockRuleList } from './data/rules';
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -112,369 +97,8 @@ export default class IssuesServiceMock {
 
   constructor() {
     this.currentUser = mockLoggedInUser();
-    this.defaultList = [
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue101',
-          component: 'foo:test1.js',
-          creationDate: '2023-01-05T09:36:01+0100',
-          message: 'Issue with no location message',
-          type: IssueType.Vulnerability,
-          rule: 'simpleRuleId',
-          textRange: {
-            startLine: 10,
-            endLine: 10,
-            startOffset: 0,
-            endOffset: 2,
-          },
-          flows: [
-            {
-              locations: [
-                {
-                  component: 'foo:test1.js',
-                  textRange: {
-                    startLine: 1,
-                    endLine: 1,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-            {
-              locations: [
-                {
-                  component: 'foo:test2.js',
-                  textRange: {
-                    startLine: 20,
-                    endLine: 20,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-          ],
-          resolution: IssueResolution.WontFix,
-          scope: IssueScope.Main,
-          tags: ['tag0', 'tag1'],
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'test1.js',
-              'foo',
-              times(40, (i) => i + 1)
-            ),
-            mockSnippetsByComponent(
-              'test2.js',
-              'foo',
-              times(40, (i) => i + 1)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue11',
-          component: 'foo:test1.js',
-          creationDate: '2022-01-01T09:36:01+0100',
-          message: 'FlowIssue',
-          type: IssueType.CodeSmell,
-          severity: IssueSeverity.Minor,
-          rule: 'simpleRuleId',
-          textRange: {
-            startLine: 10,
-            endLine: 10,
-            startOffset: 0,
-            endOffset: 2,
-          },
-          flows: [
-            {
-              type: FlowType.DATA,
-              description: 'Backtracking 1',
-              locations: [
-                {
-                  component: 'foo:test1.js',
-                  msg: 'Data location 1',
-                  textRange: {
-                    startLine: 20,
-                    endLine: 20,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-                {
-                  component: 'foo:test1.js',
-                  msg: 'Data location 2',
-                  textRange: {
-                    startLine: 21,
-                    endLine: 21,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-            {
-              type: FlowType.EXECUTION,
-              locations: [
-                {
-                  component: 'foo:test2.js',
-                  msg: 'Execution location 1',
-                  textRange: {
-                    startLine: 20,
-                    endLine: 20,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-                {
-                  component: 'foo:test2.js',
-                  msg: 'Execution location 2',
-                  textRange: {
-                    startLine: 22,
-                    endLine: 22,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-                {
-                  component: 'foo:test2.js',
-                  msg: 'Execution location 3',
-                  textRange: {
-                    startLine: 5,
-                    endLine: 5,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-          ],
-          tags: ['tag1'],
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'test1.js',
-              'foo',
-              times(40, (i) => i + 1)
-            ),
-            mockSnippetsByComponent(
-              'test2.js',
-              'foo',
-              times(40, (i) => i + 1)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue0',
-          component: 'foo:test1.js',
-          message: 'Issue on file',
-          assignee: mockLoggedInUser().login,
-          type: IssueType.CodeSmell,
-          rule: 'simpleRuleId',
-          textRange: undefined,
-          line: undefined,
-          scope: IssueScope.Test,
-        }),
-        snippets: {},
-      },
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue1',
-          component: 'foo:huge.js',
-          message: 'Fix this',
-          type: IssueType.Vulnerability,
-          rule: 'simpleRuleId',
-          textRange: {
-            startLine: 10,
-            endLine: 10,
-            startOffset: 0,
-            endOffset: 2,
-          },
-          flows: [
-            {
-              locations: [
-                {
-                  component: 'foo:huge.js',
-                  msg: 'location 1',
-                  textRange: {
-                    startLine: 1,
-                    endLine: 1,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-            {
-              locations: [
-                {
-                  component: 'foo:huge.js',
-                  msg: 'location 2',
-                  textRange: {
-                    startLine: 50,
-                    endLine: 50,
-                    startOffset: 0,
-                    endOffset: 1,
-                  },
-                },
-              ],
-            },
-          ],
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'huge.js',
-              'foo',
-              times(80, (i) => i + 1)
-            ),
-            mockSnippetsByComponent(
-              'huge.js',
-              'foo',
-              times(80, (i) => i + 1)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          actions: Object.values(IssueActions),
-          transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
-          key: 'issue2',
-          component: 'foo:test2.js',
-          message: 'Fix that',
-          rule: 'advancedRuleId',
-          textRange: {
-            startLine: 25,
-            endLine: 25,
-            startOffset: 0,
-            endOffset: 1,
-          },
-          ruleDescriptionContextKey: 'spring',
-          resolution: IssueResolution.Unresolved,
-          status: IssueStatus.Open,
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'test2.js',
-              'foo',
-              times(40, (i) => i + 20)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue3',
-          component: 'foo:test2.js',
-          message: 'Second issue',
-          rule: 'other',
-          textRange: {
-            startLine: 28,
-            endLine: 28,
-            startOffset: 0,
-            endOffset: 1,
-          },
-          resolution: IssueResolution.Fixed,
-          status: IssueStatus.Confirmed,
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'test2.js',
-              'foo',
-              times(40, (i) => i + 20)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          actions: Object.values(IssueActions),
-          transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
-          key: 'issue4',
-          component: 'foo:test2.js',
-          message: 'Issue with tags',
-          rule: 'other',
-          textRange: {
-            startLine: 25,
-            endLine: 25,
-            startOffset: 0,
-            endOffset: 1,
-          },
-          ruleDescriptionContextKey: 'spring',
-          ruleStatus: 'DEPRECATED',
-          quickFixAvailable: true,
-          tags: ['unused'],
-          codeVariants: ['variant 1', 'variant 2'],
-          project: 'org.project2',
-          assignee: 'email1@sonarsource.com',
-          author: 'email3@sonarsource.com',
-        }),
-        snippets: keyBy(
-          [
-            mockSnippetsByComponent(
-              'test2.js',
-              'foo',
-              times(40, (i) => i + 20)
-            ),
-          ],
-          'component.key'
-        ),
-      },
-      {
-        issue: mockRawIssue(false, {
-          key: 'issue1101',
-          component: 'foo:test5.js',
-          message: 'Issue on page 2',
-          rule: 'simpleRuleId',
-          textRange: undefined,
-          line: undefined,
-        }),
-        snippets: {},
-      },
-    ];
-    this.rulesList = [
-      mockRule({
-        key: 'simpleRuleId',
-        name: 'Simple rule',
-        lang: 'java',
-        langName: 'Java',
-        type: 'CODE_SMELL',
-      }),
-      mockRule({
-        key: 'advancedRuleId',
-        name: 'Advanced rule',
-        lang: 'web',
-        langName: 'HTML',
-        type: 'VULNERABILITY',
-      }),
-      mockRule({
-        key: 'cpp:S6069',
-        lang: 'cpp',
-        langName: 'C++',
-        name: 'Security hotspot rule',
-        type: 'SECURITY_HOTSPOT',
-      }),
-      mockRule({
-        key: 'tsql:S131',
-        name: '"CASE" expressions should end with "ELSE" clauses',
-        lang: 'tsql',
-        langName: 'T-SQL',
-      }),
-    ];
+    this.defaultList = mockIssuesList();
+    this.rulesList = mockRuleList();
 
     this.list = cloneDeep(this.defaultList);
 
