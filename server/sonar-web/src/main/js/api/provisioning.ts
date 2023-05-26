@@ -46,3 +46,7 @@ export function activateGithubProvisioning(): Promise<void> {
 export function deactivateGithubProvisioning(): Promise<void> {
   return post('/api/github_provisioning/disable').catch(throwGlobalError);
 }
+
+export function syncNowGithubProvisioning(): Promise<void> {
+  return post('/api/github_provisioning/sync').catch(throwGlobalError);
+}

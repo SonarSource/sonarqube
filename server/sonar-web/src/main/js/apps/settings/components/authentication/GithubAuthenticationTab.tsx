@@ -30,6 +30,7 @@ import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { useSyncNow } from '../../../../queries/github-sync';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
@@ -78,6 +79,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
   } = useGithubConfiguration(definitions);
 
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Github;
+  const { canSyncNow, synchronizeNow } = useSyncNow();
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
@@ -220,6 +222,15 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                             />
                           </p>
                           {githubProvisioningStatus && <GitHubSynchronisationWarning />}
+                          <div className="sw-flex sw-flex-1 sw-items-end">
+                            <Button
+                              className="spacer-top width-30"
+                              onClick={synchronizeNow}
+                              disabled={!canSyncNow}
+                            >
+                              {translate('settings.authentication.github.synchronize_now')}
+                            </Button>
+                          </div>
                         </>
                       ) : (
                         <p>

@@ -17,9 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery } from '@tanstack/react-query';
-import { fetchGithubProvisioningStatus } from '../api/provisioning';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useContext } from 'react';
+import { fetchGithubProvisioningStatus, syncNowGithubProvisioning } from '../api/provisioning';
+import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
+import { Feature } from '../types/features';
 
-export const useSyncStatusQuery = ({ enabled }: { enabled?: boolean }) => {
-  return useQuery(['github_sync', 'status'], fetchGithubProvisioningStatus, { enabled });
-};
+export function useSyncStatusQuery() {
+  const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
+    Feature.GithubProvisioning
+  );
+  return useQuery(['github_sync', 'status'], fetchGithubProvisioningStatus, {
+    enabled: hasGithubProvisioning,
+    refetchInterval: 10_000,
+  });
+}
+
+export function useSyncNow() {
+  const queryClient = useQueryClient();
+  const { data } = useSyncStatusQuery();
+  const mutation = useMutation(syncNowGithubProvisioning, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['github_sync']);
+    },
+  });
+
+  return {
+    synchronizeNow: mutation.mutate,
+    canSyncNow: data && data.enabled && !data.nextSync && !mutation.isLoading,
+  };
+}

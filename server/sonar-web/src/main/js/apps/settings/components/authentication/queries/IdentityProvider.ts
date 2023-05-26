@@ -52,11 +52,7 @@ export function useScimStatusQuery() {
 }
 
 export function useGithubStatusQuery() {
-  const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
-    Feature.GithubProvisioning
-  );
-
-  const res = useSyncStatusQuery({ enabled: hasGithubProvisioning });
+  const res = useSyncStatusQuery();
 
   return { ...res, data: res.data?.enabled };
 }

@@ -19,18 +19,15 @@
  */
 import { formatDistance } from 'date-fns';
 import * as React from 'react';
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../components/common/Link';
 import CheckIcon from '../../components/icons/CheckIcon';
 import { Alert } from '../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { useSyncStatusQuery } from '../../queries/github-sync';
-import { Feature } from '../../types/features';
 import { GithubStatusEnabled } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
 import './SystemAnnouncement.css';
-import { AvailableFeaturesContext } from './available-features/AvailableFeaturesContext';
 
 interface LastSyncProps {
   short?: boolean;
@@ -100,10 +97,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
 }
 
 function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningProps) {
-  const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
-    Feature.GithubProvisioning
-  );
-  const { data } = useSyncStatusQuery({ enabled: hasGithubProvisioning });
+  const { data } = useSyncStatusQuery();
 
   if (!data) {
     return null;
@@ -113,7 +107,7 @@ function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningPro
     <>
       {!short && data?.nextSync && (
         <>
-          <Alert variant="loading">
+          <Alert variant="loading" className="spacer-bottom">
             {translate(
               data.nextSync.status === TaskStatuses.Pending
                 ? 'settings.authentication.github.synchronization_pending'
