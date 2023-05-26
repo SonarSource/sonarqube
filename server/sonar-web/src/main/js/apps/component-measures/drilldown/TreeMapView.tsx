@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import { TreeMap, TreeMapItem } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
-import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { RATING_COLORS } from '../../../helpers/constants';
-import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { MetricKey } from '../../../types/metrics';
@@ -41,7 +41,7 @@ interface Props {
 }
 
 interface State {
-  treemapItems: TreeMapItem[];
+  treemapItems: Array<TreeMapItem<ComponentMeasureIntern>>;
 }
 
 const HEIGHT = 500;
@@ -68,7 +68,10 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     }
   }
 
-  getTreemapComponents = ({ components, metric }: Props) => {
+  getTreemapComponents = ({
+    components,
+    metric,
+  }: Props): Array<TreeMapItem<ComponentMeasureIntern>> => {
     const colorScale = this.getColorScale(metric);
     return components
       .map((component) => {
@@ -92,11 +95,12 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         if (sizeValue < 1) {
           return undefined;
         }
+
         return {
+          key: getComponentMeasureUniqueKey(component) ?? '',
           color: colorValue ? (colorScale as Function)(colorValue) : undefined,
           gradient: !colorValue ? NA_GRADIENT : undefined,
           icon: <QualifierIcon fill={colors.baseFontColor} qualifier={component.qualifier} />,
-          key: getComponentMeasureUniqueKey(component) ?? '',
           label: [component.name, component.branch].filter((s) => !!s).join(' / '),
           size: sizeValue,
           measureValue: colorValue,
@@ -108,7 +112,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
             sizeMetric: sizeMeasure.metric,
             sizeValue,
           }),
-          component,
+          sourceData: component,
         };
       })
       .filter(isDefined);
@@ -161,6 +165,12 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     );
   };
 
+  handleSelect(node: TreeMapItem<ComponentMeasureIntern>) {
+    if (node.sourceData) {
+      this.props.handleSelect(node.sourceData);
+    }
+  }
+
   renderLegend() {
     const { metric } = this.props;
     const colorScale = this.getColorScale(metric);
@@ -198,29 +208,25 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
       <div className="measure-details-treemap">
         <div className="display-flex-start note spacer-bottom">
           <span>
-            {translateWithParameters(
-              'component_measures.legend.color_x',
-              getLocalizedMetricName(metric)
-            )}
+            <strong className="sw-mr-1">{translate('component_measures.legend.color')}</strong>
+            {getLocalizedMetricName(metric)}
           </span>
           <span className="spacer-left flex-1">
-            {translateWithParameters(
-              'component_measures.legend.size_x',
-              translate(
-                'metric',
-                sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : MetricKey.ncloc,
-                'name'
-              )
+            <strong className="sw-mr-1">{translate('component_measures.legend.size')}</strong>
+            {translate(
+              'metric',
+              sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : MetricKey.ncloc,
+              'name'
             )}
           </span>
           <span>{this.renderLegend()}</span>
         </div>
         <AutoSizer disableHeight={true}>
           {({ width }) => (
-            <TreeMap
+            <TreeMap<ComponentMeasureIntern>
               height={HEIGHT}
               items={treemapItems}
-              onRectangleClick={this.props.handleSelect}
+              onRectangleClick={this.handleSelect.bind(this)}
               width={width}
             />
           )}

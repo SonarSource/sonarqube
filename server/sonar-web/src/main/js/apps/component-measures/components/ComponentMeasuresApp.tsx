@@ -335,5 +335,5 @@ export default AppWithComponentContext;
 const StyledMain = withTheme(styled.main`
   background-color: ${themeColor('filterbar')};
   background-color: ${themeColor('pageBlock')};
-  border: ${themeBorder('default', 'pageBlockBorder')}l;
+  border: ${themeBorder('default', 'pageBlockBorder')};
 `);
