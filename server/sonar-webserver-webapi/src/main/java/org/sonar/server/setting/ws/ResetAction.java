@@ -74,6 +74,7 @@ public class ResetAction implements SettingsWsAction {
         "</ul>")
       .setSince("6.1")
       .setChangelog(
+        new Change("10.1", "Param 'component' now only accept keys for projects, applications, portfolios or subportfolios"),
         new Change("10.1", format("Internal parameters '%s' and '%s' were removed", PARAM_BRANCH, PARAM_PULL_REQUEST)),
         new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
@@ -86,7 +87,7 @@ public class ResetAction implements SettingsWsAction {
       .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
     action.createParam(PARAM_COMPONENT)
-      .setDescription("Component key")
+      .setDescription("Component key. Only keys for projects, applications, portfolios or subportfolios are accepted.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 

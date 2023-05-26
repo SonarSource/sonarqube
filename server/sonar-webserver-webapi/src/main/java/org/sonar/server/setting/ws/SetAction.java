@@ -102,6 +102,7 @@ public class SetAction implements SettingsWsAction {
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(
+        new Change("10.1", "Param 'component' now only accept keys for projects, applications, portfolios or subportfolios"),
         new Change("10.1", format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
@@ -128,7 +129,7 @@ public class SetAction implements SettingsWsAction {
       .setExampleValue(PARAM_FIELD_VALUES + "={\"firstField\":\"first value\", \"secondField\":\"second value\", \"thirdField\":\"third value\"}");
 
     action.createParam(PARAM_COMPONENT)
-      .setDescription("Component key")
+      .setDescription("Component key. Only keys for projects, applications, portfolios or subportfolios are accepted.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
