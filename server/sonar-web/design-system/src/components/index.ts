@@ -44,6 +44,7 @@ export * from './FlowStep';
 export * from './FormField';
 export * from './GenericAvatar';
 export * from './HighlightedSection';
+export { Histogram } from './Histogram';
 export { HotspotRating } from './HotspotRating';
 export * from './HtmlFormatter';
 export * from './InputField';
