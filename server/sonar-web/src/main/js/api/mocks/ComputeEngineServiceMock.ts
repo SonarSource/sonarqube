@@ -58,6 +58,8 @@ const DEFAULT_WORKERS = {
 
 const CANCELABLE_TASK_STATUSES = [TaskStatuses.Pending];
 
+jest.mock('../ce');
+
 export default class ComputeEngineServiceMock {
   tasks: Task[];
   workers = { ...DEFAULT_WORKERS };

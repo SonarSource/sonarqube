@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ThemeProvider } from '@emotion/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lightTheme } from 'design-system';
 import * as React from 'react';
 import { render } from 'react-dom';
@@ -66,21 +67,8 @@ import { Feature } from '../../types/features';
 import { CurrentUser } from '../../types/users';
 import AdminContainer from '../components/AdminContainer';
 import App from '../components/App';
-import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
-import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
-import {
-  AvailableFeaturesContext,
-  DEFAULT_AVAILABLE_FEATURES,
-} from '../components/available-features/AvailableFeaturesContext';
 import ComponentContainer from '../components/ComponentContainer';
-import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
 import DocumentationRedirect from '../components/DocumentationRedirect';
-import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
-import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
-import PortfolioPage from '../components/extensions/PortfolioPage';
-import PortfoliosPage from '../components/extensions/PortfoliosPage';
-import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
-import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import FormattingHelp from '../components/FormattingHelp';
 import GlobalContainer from '../components/GlobalContainer';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
@@ -93,6 +81,19 @@ import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ResetPassword from '../components/ResetPassword';
 import SimpleContainer from '../components/SimpleContainer';
 import SonarLintConnection from '../components/SonarLintConnection';
+import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
+import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
+import {
+  AvailableFeaturesContext,
+  DEFAULT_AVAILABLE_FEATURES,
+} from '../components/available-features/AvailableFeaturesContext';
+import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
+import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
+import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
+import PortfolioPage from '../components/extensions/PortfolioPage';
+import PortfoliosPage from '../components/extensions/PortfoliosPage';
+import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
+import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 
 function renderComponentRoutes() {
@@ -170,6 +171,8 @@ function renderRedirects() {
   );
 }
 
+const queryClient = new QueryClient();
+
 export default function startReactApp(
   lang: string,
   currentUser?: CurrentUser,
@@ -187,75 +190,77 @@ export default function startReactApp(
           <CurrentUserContextProvider currentUser={currentUser}>
             <IntlProvider defaultLocale={lang} locale={lang}>
               <ThemeProvider theme={lightTheme}>
-                <GlobalMessagesContainer />
-                <BrowserRouter basename={getBaseUrl()}>
-                  <Helmet titleTemplate={translate('page_title.template.default')} />
-                  <Routes>
-                    {renderRedirects()}
+                <QueryClientProvider client={queryClient}>
+                  <GlobalMessagesContainer />
+                  <BrowserRouter basename={getBaseUrl()}>
+                    <Helmet titleTemplate={translate('page_title.template.default')} />
+                    <Routes>
+                      {renderRedirects()}
 
-                    <Route path="formatting/help" element={<FormattingHelp />} />
+                      <Route path="formatting/help" element={<FormattingHelp />} />
 
-                    <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
+                      <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
 
-                    <Route element={<MigrationContainer />}>
-                      {sessionsRoutes()}
+                      <Route element={<MigrationContainer />}>
+                        {sessionsRoutes()}
 
-                      <Route path="/" element={<App />}>
-                        <Route index={true} element={<Landing />} />
+                        <Route path="/" element={<App />}>
+                          <Route index={true} element={<Landing />} />
 
-                        <Route element={<GlobalContainer />}>
-                          {accountRoutes()}
+                          <Route element={<GlobalContainer />}>
+                            {accountRoutes()}
 
-                          {codingRulesRoutes()}
+                            {codingRulesRoutes()}
 
+                            <Route
+                              path="extension/:pluginKey/:extensionKey"
+                              element={<GlobalPageExtension />}
+                            />
+
+                            {globalIssuesRoutes()}
+
+                            {projectsRoutes()}
+
+                            {qualityGatesRoutes()}
+                            {qualityProfilesRoutes()}
+
+                            <Route path="portfolios" element={<PortfoliosPage />} />
+
+                            <Route path="sonarlint/auth" element={<SonarLintConnection />} />
+
+                            {webAPIRoutes()}
+
+                            {renderComponentRoutes()}
+
+                            {renderAdminRoutes()}
+                          </Route>
                           <Route
-                            path="extension/:pluginKey/:extensionKey"
-                            element={<GlobalPageExtension />}
+                            // We don't want this route to have any menu.
+                            // That is why we can not have it under the accountRoutes
+                            path="account/reset_password"
+                            element={<ResetPassword />}
                           />
 
-                          {globalIssuesRoutes()}
+                          <Route
+                            // We don't want this route to have any menu. This is why we define it here
+                            // rather than under the admin routes.
+                            path="admin/change_admin_password"
+                            element={<ChangeAdminPasswordApp />}
+                          />
 
-                          {projectsRoutes()}
-
-                          {qualityGatesRoutes()}
-                          {qualityProfilesRoutes()}
-
-                          <Route path="portfolios" element={<PortfoliosPage />} />
-
-                          <Route path="sonarlint/auth" element={<SonarLintConnection />} />
-
-                          {webAPIRoutes()}
-
-                          {renderComponentRoutes()}
-
-                          {renderAdminRoutes()}
+                          <Route
+                            // We don't want this route to have any menu. This is why we define it here
+                            // rather than under the admin routes.
+                            path="admin/plugin_risk_consent"
+                            element={<PluginRiskConsent />}
+                          />
+                          <Route path="not_found" element={<NotFound />} />
+                          <Route path="*" element={<NotFound />} />
                         </Route>
-                        <Route
-                          // We don't want this route to have any menu.
-                          // That is why we can not have it under the accountRoutes
-                          path="account/reset_password"
-                          element={<ResetPassword />}
-                        />
-
-                        <Route
-                          // We don't want this route to have any menu. This is why we define it here
-                          // rather than under the admin routes.
-                          path="admin/change_admin_password"
-                          element={<ChangeAdminPasswordApp />}
-                        />
-
-                        <Route
-                          // We don't want this route to have any menu. This is why we define it here
-                          // rather than under the admin routes.
-                          path="admin/plugin_risk_consent"
-                          element={<PluginRiskConsent />}
-                        />
-                        <Route path="not_found" element={<NotFound />} />
-                        <Route path="*" element={<NotFound />} />
                       </Route>
-                    </Route>
-                  </Routes>
-                </BrowserRouter>
+                    </Routes>
+                  </BrowserRouter>
+                </QueryClientProvider>
               </ThemeProvider>
             </IntlProvider>
           </CurrentUserContextProvider>

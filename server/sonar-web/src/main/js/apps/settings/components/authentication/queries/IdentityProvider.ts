@@ -25,11 +25,11 @@ import {
   activateScim,
   deactivateGithubProvisioning,
   deactivateScim,
-  fetchIsGithubProvisioningEnabled,
   fetchIsScimEnabled,
-} from '../../../../../api/settings';
+} from '../../../../../api/provisioning';
 import { getSystemInfo } from '../../../../../api/system';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import { useSyncStatusQuery } from '../../../../../queries/github-sync';
 import { Feature } from '../../../../../types/features';
 import { SysInfoCluster } from '../../../../../types/types';
 
@@ -56,12 +56,9 @@ export function useGithubStatusQuery() {
     Feature.GithubProvisioning
   );
 
-  return useQuery(['identity_provider', 'github_status'], () => {
-    if (!hasGithubProvisioning) {
-      return false;
-    }
-    return fetchIsGithubProvisioningEnabled();
-  });
+  const res = useSyncStatusQuery({ enabled: hasGithubProvisioning });
+
+  return { ...res, data: res.data?.enabled };
 }
 
 export function useToggleScimMutation() {
@@ -81,6 +78,7 @@ export function useToggleGithubProvisioningMutation() {
       activate ? activateGithubProvisioning() : deactivateGithubProvisioning(),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ['identity_provider'] });
+      client.invalidateQueries({ queryKey: ['github_sync'] });
     },
   });
 }

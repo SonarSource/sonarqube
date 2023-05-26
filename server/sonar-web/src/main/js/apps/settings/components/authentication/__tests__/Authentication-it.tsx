@@ -23,11 +23,14 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
 import { byRole, byText } from 'testing-library-selector';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
+import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
+import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../../types/features';
+import { TaskStatuses } from '../../../../../types/tasks';
 import Authentication from '../Authentication';
 
 jest.mock('../../../../../api/settings');
@@ -35,15 +38,39 @@ jest.mock('../../../../../api/system');
 
 let handler: AuthenticationServiceMock;
 let system: SystemServiceMock;
+let settingsHandler: SettingsServiceMock;
+let computeEngineHandler: ComputeEngineServiceMock;
 
 beforeEach(() => {
   handler = new AuthenticationServiceMock();
   system = new SystemServiceMock();
+  settingsHandler = new SettingsServiceMock();
+  computeEngineHandler = new ComputeEngineServiceMock();
+  [
+    {
+      key: 'sonar.auth.saml.signature.enabled',
+      value: 'false',
+    },
+    {
+      key: 'sonar.auth.saml.enabled',
+      value: 'false',
+    },
+    {
+      key: 'sonar.auth.saml.applicationId',
+      value: 'sonarqube',
+    },
+    {
+      key: 'sonar.auth.saml.providerName',
+      value: 'SAML',
+    },
+  ].forEach((setting: any) => settingsHandler.set(setting.key, setting.value));
 });
 
 afterEach(() => {
-  handler.resetValues();
+  handler.reset();
+  settingsHandler.reset();
   system.reset();
+  computeEngineHandler.reset();
 });
 
 const ui = {
@@ -132,6 +159,10 @@ const ui = {
     githubProvisioningButton: byRole('radio', {
       name: 'settings.authentication.github.form.provisioning_with_github',
     }),
+    githubProvisioningPending: byText(/synchronization_pending/),
+    githubProvisioningInProgress: byText(/synchronization_in_progress/),
+    githubProvisioningSuccess: byText(/synchronization_successful/),
+    githubProvisioningAlert: byText(/synchronization_failed/),
     fillForm: async (user: UserEvent) => {
       const { github } = ui;
       await act(async () => {
@@ -151,6 +182,17 @@ const ui = {
       await act(async () => {
         await user.click(github.saveConfigButton.get());
       });
+    },
+    enableProvisioning: async (user: UserEvent) => {
+      const { github } = ui;
+      await act(async () => user.click(await github.tab.find()));
+
+      await github.createConfiguration(user);
+
+      await act(async () => user.click(await github.enableConfigButton.find()));
+      await user.click(await github.githubProvisioningButton.find());
+      await user.click(github.saveGithubProvisioning.get());
+      await act(() => user.click(github.confirmProvisioningButton.get()));
     },
   },
 };
@@ -373,6 +415,76 @@ describe('Github tab', () => {
     expect(await github.githubProvisioningButton.find()).toBeChecked();
     expect(github.disableConfigButton.get()).toBeDisabled();
     expect(github.saveGithubProvisioning.get()).toBeDisabled();
+  });
+
+  describe('Github Provisioning', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({
+        advanceTimers: true,
+        now: new Date('2022-02-04T12:00:59Z'),
+      });
+    });
+    it('should display a success status when the synchronisation is a success', async () => {
+      const user = userEvent.setup();
+      handler.addProvisioningTask({
+        status: TaskStatuses.Success,
+        executedAt: '2022-02-03T11:45:35+0200',
+      });
+
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableProvisioning(user);
+      expect(github.githubProvisioningSuccess.get()).toBeInTheDocument();
+      expect(github.githubProvisioningButton.get()).toHaveTextContent('Test summary');
+    });
+
+    it('should display a success status even when another task is pending', async () => {
+      const user = userEvent.setup();
+      handler.addProvisioningTask({
+        status: TaskStatuses.Pending,
+        executedAt: '2022-02-03T11:55:35+0200',
+      });
+      handler.addProvisioningTask({
+        status: TaskStatuses.Success,
+        executedAt: '2022-02-03T11:45:35+0200',
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableProvisioning(user);
+      expect(await github.githubProvisioningSuccess.find()).toBeInTheDocument();
+      expect(await github.githubProvisioningPending.find()).toBeInTheDocument();
+    });
+
+    it('should display an error alert when the synchronisation failed', async () => {
+      const user = userEvent.setup();
+      handler.addProvisioningTask({
+        status: TaskStatuses.Failed,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableProvisioning(user);
+      expect(await github.githubProvisioningAlert.find()).toBeInTheDocument();
+      expect(github.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(github.githubProvisioningSuccess.query()).not.toBeInTheDocument();
+    });
+
+    it('should display an error alert even when another task is in progress', async () => {
+      const user = userEvent.setup();
+      handler.addProvisioningTask({
+        status: TaskStatuses.InProgress,
+        executedAt: '2022-02-03T11:55:35+0200',
+      });
+      handler.addProvisioningTask({
+        status: TaskStatuses.Failed,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableProvisioning(user);
+      expect(await github.githubProvisioningAlert.find()).toBeInTheDocument();
+      expect(github.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(github.githubProvisioningSuccess.query()).not.toBeInTheDocument();
+      expect(github.githubProvisioningInProgress.get()).toBeInTheDocument();
+    });
   });
 });
 

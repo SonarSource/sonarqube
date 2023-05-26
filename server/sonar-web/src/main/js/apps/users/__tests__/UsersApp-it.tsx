@@ -23,28 +23,27 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from 'testing-library-selector';
+import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
-import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../types/features';
-import { TaskStatuses, TaskTypes } from '../../../types/tasks';
+import { TaskStatuses } from '../../../types/tasks';
 import { ChangePasswordResults, CurrentUser } from '../../../types/users';
 import UsersApp from '../UsersApp';
 
 jest.mock('../../../api/user-tokens');
 jest.mock('../../../api/components');
 jest.mock('../../../api/settings');
-jest.mock('../../../api/ce');
 
 const userHandler = new UsersServiceMock();
 const tokenHandler = new UserTokensMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
-const computeEngineHandler = new ComputeEngineServiceMock();
+const authenticationHandler = new AuthenticationServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
@@ -125,9 +124,10 @@ const ui = {
   confirmPassword: byLabelText('my_profile.password.confirm', { selector: 'input', exact: false }),
   tokenNameInput: byRole('textbox', { name: 'users.tokens.name' }),
   deleteUserCheckbox: byRole('checkbox', { name: 'users.delete_user' }),
-  githubProvisioningInProgress: byRole('status', { name: /synchronization_in_progress/ }),
-  githubProvisioningSuccess: byRole('status', { name: /synchronization_successful/ }),
-  githubProvisioningAlert: byRole('alert', { name: /synchronization_failed/ }),
+  githubProvisioningPending: byText(/synchronization_pending/),
+  githubProvisioningInProgress: byText(/synchronization_in_progress/),
+  githubProvisioningSuccess: byText(/synchronization_successful/),
+  githubProvisioningAlert: byText(/synchronization_failed_short/),
 };
 
 beforeEach(() => {
@@ -135,6 +135,7 @@ beforeEach(() => {
   userHandler.reset();
   componentsHandler.reset();
   settingsHandler.reset();
+  authenticationHandler.reset();
 });
 
 describe('different filters combinations', () => {
@@ -450,10 +451,6 @@ describe('in manage mode', () => {
     userHandler.setIsManaged(true);
   });
 
-  afterEach(() => {
-    computeEngineHandler.clearTasks();
-  });
-
   it('should not be able to create a user"', async () => {
     renderUsersApp();
 
@@ -559,35 +556,61 @@ describe('in manage mode', () => {
   });
 
   describe('Github Provisioning', () => {
-    it('should display an info status when the synchronisation is in Progress', async () => {
-      computeEngineHandler.addTask({
-        status: TaskStatuses.InProgress,
-        type: TaskTypes.GithubProvisioning,
-        executedAt: '2022-02-03T11:45:35+0200',
-      });
-      renderUsersApp([Feature.GithubProvisioning]);
-      expect(await ui.githubProvisioningInProgress.find()).toBeInTheDocument();
+    beforeEach(() => {
+      authenticationHandler.handleActivateGithubProvisioning();
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
-      computeEngineHandler.addTask({
+      authenticationHandler.addProvisioningTask({
         status: TaskStatuses.Success,
-        type: TaskTypes.GithubProvisioning,
         executedAt: '2022-02-03T11:45:35+0200',
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
+      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+    });
+
+    it('should display a success status even when another task is pending', async () => {
+      authenticationHandler.addProvisioningTask({
+        status: TaskStatuses.Pending,
+        executedAt: '2022-02-03T11:55:35+0200',
+      });
+      authenticationHandler.addProvisioningTask({
+        status: TaskStatuses.Success,
+        executedAt: '2022-02-03T11:45:35+0200',
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+      expect(ui.githubProvisioningPending.query()).not.toBeInTheDocument();
     });
 
     it('should display an error alert when the synchronisation failed', async () => {
-      computeEngineHandler.addTask({
+      authenticationHandler.addProvisioningTask({
         status: TaskStatuses.Failed,
-        type: TaskTypes.GithubProvisioning,
         executedAt: '2022-02-03T11:45:35+0200',
         errorMessage: "T'es mauvais Jacques",
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
+      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+      expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
+
+      expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
+    });
+
+    it('should display an error alert even when another task is in progress', async () => {
+      authenticationHandler.addProvisioningTask({
+        status: TaskStatuses.InProgress,
+        executedAt: '2022-02-03T11:55:35+0200',
+      });
+      authenticationHandler.addProvisioningTask({
+        status: TaskStatuses.Failed,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+      expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
+      expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
+      expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
     });
   });
 });

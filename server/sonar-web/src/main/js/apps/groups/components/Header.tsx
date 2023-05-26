@@ -36,7 +36,7 @@ export default function Header(props: HeaderProps) {
 
   return (
     <>
-      <div className="page-header" id="groups-header">
+      <div className="page-header null-spacer-bottom" id="groups-header">
         <h2 className="page-title">{translate('user_groups.page')}</h2>
 
         <div className="page-actions">

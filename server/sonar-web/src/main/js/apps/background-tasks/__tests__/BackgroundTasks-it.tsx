@@ -32,8 +32,6 @@ import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
 
-jest.mock('../../../api/ce');
-
 const computeEngineServiceMock = new ComputeEngineServiceMock();
 
 beforeAll(() => {

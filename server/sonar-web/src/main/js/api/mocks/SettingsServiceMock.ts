@@ -24,9 +24,9 @@ import { BranchParameters } from '../../types/branch-like';
 import {
   ExtendedSettingDefinition,
   SettingDefinition,
-  SettingsKey,
   SettingType,
   SettingValue,
+  SettingsKey,
 } from '../../types/settings';
 import {
   checkSecretKey,
@@ -188,11 +188,11 @@ export default class SettingsServiceMock {
   set = (key: string | SettingsKey, value: any) => {
     const setting = this.#settingValues.find((s) => s.key === key);
     if (setting) {
-      setting.value = value;
+      setting.value = String(value);
       setting.values = value;
       setting.fieldValues = value;
     } else {
-      this.#settingValues.push({ key, value, values: value, fieldValues: value });
+      this.#settingValues.push({ key, value: String(value), values: value, fieldValues: value });
     }
     return this;
   };

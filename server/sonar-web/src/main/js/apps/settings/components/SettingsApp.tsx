@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { getDefinitions } from '../../../api/settings';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -31,8 +30,6 @@ import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import '../styles.css';
 import SettingsAppRenderer from './SettingsAppRenderer';
-
-const queryClient = new QueryClient();
 
 interface Props {
   component?: Component;
@@ -80,11 +77,7 @@ class SettingsApp extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
-    return (
-      <QueryClientProvider client={queryClient}>
-        <SettingsAppRenderer component={component} {...this.state} />
-      </QueryClientProvider>
-    );
+    return <SettingsAppRenderer component={component} {...this.state} />;
   }
 }
 

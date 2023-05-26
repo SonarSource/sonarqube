@@ -21,11 +21,12 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { searchUsersGroups } from '../../api/user_groups';
+import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { useManageProvider } from '../../components/hooks/useManageProvider';
+import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
 import { translate } from '../../helpers/l10n';
 import { Group, Paging } from '../../types/types';
 import Header from './components/Header';
@@ -82,6 +83,7 @@ export default function App() {
       <Helmet defer={false} title={translate('user_groups.page')} />
       <main className="page page-limited" id="groups-page">
         <Header reload={fetchGroups} manageProvider={manageProvider} />
+        {manageProvider === Provider.Github && <GitHubSynchronisationWarning short={true} />}
 
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           <ManagedFilter
