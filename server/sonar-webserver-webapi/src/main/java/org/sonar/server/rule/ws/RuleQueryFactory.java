@@ -28,10 +28,14 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.EnumUtils.toEnums;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
@@ -42,6 +46,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -57,10 +62,13 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 
 @ServerSide
 public class RuleQueryFactory {
+
   private final DbClient dbClient;
-  private static final String PARAM_ORGANIZATION = "organization";
-  public RuleQueryFactory(DbClient dbClient) {
+  private final RuleWsSupport wsSupport;
+
+  public RuleQueryFactory(DbClient dbClient, RuleWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   /**
@@ -88,9 +96,13 @@ public class RuleQueryFactory {
 
     // Order is important : 1. Load profile, 2. Load compare to profile
     setProfile(dbSession, query, request);
+    setOrganization(dbSession, query, request);
     setCompareToProfile(dbSession, query, request);
     QProfileDto profile = query.getQProfile();
     query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : List.of(profile.getLanguage()));
+    if (wsSupport.areActiveRulesVisible(query.getOrganization())) {
+      query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
+    }
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
@@ -104,7 +116,6 @@ public class RuleQueryFactory {
     query.setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     query.setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25));
     query.setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
-    query.setOrganization(dbClient.organizationDao().selectByKey(dbSession,request.mandatoryParam(PARAM_ORGANIZATION)).get());
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {
@@ -122,6 +133,24 @@ public class RuleQueryFactory {
     QProfileDto profileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, profileUuid);
     QProfileDto profile = checkFound(profileOptional, "The specified qualityProfile '%s' does not exist", profileUuid);
     query.setQProfile(profile);
+  }
+
+  private void setOrganization(DbSession dbSession, RuleQuery query, Request request) {
+    String organizationKey = request.param(PARAM_ORGANIZATION);
+    QProfileDto profile = query.getQProfile();
+    if (profile == null) {
+      query.setOrganization(wsSupport.getOrganizationByKey(dbSession, organizationKey));
+      return;
+    }
+    OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()), "No organization with UUID %s",
+            profile.getOrganizationUuid());
+    if (organizationKey != null) {
+      OrganizationDto inputOrganization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'",
+              organizationKey);
+      checkArgument(organization.getUuid().equals(inputOrganization.getUuid()),
+              format("The specified quality profile '%s' is not part of the specified organization '%s'", profile.getKee(), organizationKey));
+    }
+    query.setOrganization(organization);
   }
 
   private void setCompareToProfile(DbSession dbSession, RuleQuery query, Request request) {

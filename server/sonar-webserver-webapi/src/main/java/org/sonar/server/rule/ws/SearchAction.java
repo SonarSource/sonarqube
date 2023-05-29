@@ -164,8 +164,7 @@ public class SearchAction implements RulesWsAction {
 
     action.createParam(PARAM_ORGANIZATION)
             .setDescription("Organization key")
-            .setInternal(true)
-            .setRequired(true);
+            .setInternal(true);
 
     WebService.NewParam paramFields = action.createParam(FIELDS)
       .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives.")
@@ -394,8 +393,7 @@ public class SearchAction implements RulesWsAction {
             .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
             .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
             .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
-            .setOrganization(request.mandatoryParam(PARAM_ORGANIZATION));
+            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
 
   }
 
@@ -484,7 +482,6 @@ public class SearchAction implements RulesWsAction {
     private List<String> owaspTop10For2021;
     private List<String> sansTop25;
     private List<String> sonarsourceSecurity;
-    private String organization;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -627,15 +624,6 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
       this.sonarsourceSecurity = sonarsourceSecurity;
-      return this;
-    }
-
-    public String getOrganization(){
-      return  organization;
-    }
-
-    public SearchRequest setOrganization(String organization){
-      this.organization = organization;
       return this;
     }
   }
