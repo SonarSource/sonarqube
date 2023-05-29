@@ -189,6 +189,38 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
       };
     });
 }
+export function fetchProjectsByOrg(query: Query, isFavorite: boolean, organization: string, pageIndex = 1) {
+  const ps = PAGE_SIZE;
+  const data = convertToQueryData(query, isFavorite, {
+    p: pageIndex > 1 ? pageIndex : undefined,
+    ps,
+    facets: defineFacets(query).join(),
+    f: 'analysisDate,leakPeriodDate',
+    organization: organization
+  });
+  return searchProjects(data)
+    .then((response) =>
+      Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
+    )
+    .then(([measures, { components, facets, paging }]) => {
+      return {
+        facets: getFacetsMap(facets),
+        projects: components.map((component) => {
+          const componentMeasures: Dict<string> = {};
+          measures
+            .filter((measure) => measure.component === component.key)
+            .forEach((measure) => {
+              const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
+              if (value !== undefined) {
+                componentMeasures[measure.metric] = value;
+              }
+            });
+          return { ...component, measures: componentMeasures };
+        }),
+        total: paging.total,
+      };
+    });
+}
 
 export function defineMetrics(query: Query): string[] {
   if (query.view === 'leak') {

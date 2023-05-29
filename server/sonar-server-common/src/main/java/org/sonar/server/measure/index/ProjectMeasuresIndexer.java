@@ -168,6 +168,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     Long analysisDate = project.getAnalysisDate();
     return new ProjectMeasuresDoc()
       .setId(project.getUuid())
+      .setOrganizationUuid(project.getOrganizationUuid())
       .setKey(project.getKey())
       .setName(project.getName())
       .setQualifier(project.getQualifier())
