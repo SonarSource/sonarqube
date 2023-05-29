@@ -42,7 +42,7 @@ export interface CategoriesListProps extends WithAvailableFeaturesProps {
 
 export function CategoriesList(props: CategoriesListProps) {
   const { categories, component, defaultCategory, selectedCategory } = props;
-  const { branchesEnabled, appState } = this.props;
+  const { branchesEnabled, appState } = props;
   let categoriesWithName;
    if (appState?.canAdmin) {
     const categoriesWithName = categories
@@ -63,7 +63,7 @@ export function CategoriesList(props: CategoriesListProps) {
           .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
       );
       } else {
-      categoriesWithName = this.props.categories
+      categoriesWithName = props.categories
               .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
               .map(key => ({
                 key,
