@@ -27,7 +27,6 @@ import { IdentityProvider } from '../../../types/types';
 import { User } from '../../../types/users';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
-import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 
@@ -63,9 +62,6 @@ export default class UserListItem extends React.PureComponent<Props, State> {
         </td>
         <td className="thin nowrap text-middle">
           <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
-        </td>
-        <td className="thin nowrap text-middle">
-          <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
         </td>
         <td className="thin nowrap text-middle">
           {user.tokensCount}

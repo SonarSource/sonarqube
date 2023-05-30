@@ -24,11 +24,9 @@ import { Organization } from "../../../types/types";
 export interface CurrentUserContextInterface {
   currentUser: CurrentUser;
   userOrganizations: Organization[];
-  pendoInitialized?: boolean;
   updateCurrentUserHomepage: (homepage: HomePage) => void;
   updateDismissedNotices: (key: NoticeType, value: boolean) => void;
   updateUserOrganizations: (organizations: Organization[]) => void;
-  updatePendoInitialized: (pendoInitialized: boolean) => void;
 }
 
 export const CurrentUserContext = React.createContext<CurrentUserContextInterface | undefined>(

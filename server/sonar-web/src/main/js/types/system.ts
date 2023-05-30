@@ -33,5 +33,5 @@ export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
 
 export enum InstanceType {
   SonarQube = 'SonarQube',
-  SonarCloud = 'SonarCloud',
+  SonarCloud = 'CodeScanCloud',
 }

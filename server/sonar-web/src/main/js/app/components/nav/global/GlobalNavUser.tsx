@@ -33,12 +33,20 @@ import { sortBy } from "lodash";
 interface Props {
   currentUser: CurrentUser;
   userOrganizations: Organization[];
-  pendoInitialized: boolean;
-  updatePendoInitialized: (pendoInitialized: boolean) => void;
   router: Router;
 }
 
-export class GlobalNavUser extends React.PureComponent<Props> {
+interface State {
+  pendoInitialized?: boolean;
+}
+
+export class GlobalNavUser extends React.PureComponent<Props, State> {
+  state: State = {};
+
+  componentDidMount() {
+    this.initializePendo();
+  }
+
   focusNode = (node: HTMLAnchorElement | null) => {
     if (node) {
       node.focus();
@@ -58,24 +66,33 @@ export class GlobalNavUser extends React.PureComponent<Props> {
     this.props.router.push('/sessions/logout');
   };
 
-  renderAuthenticated() {
+  initializePendo = () => {
+    const { pendoInitialized } = this.state;
     const currentUser = this.props.currentUser as LoggedInUser;
     const hasOrganizations = this.props.userOrganizations.length > 0;
-       if (isLoggedIn(currentUser) && hasOrganizations && !this.props.pendoInitialized) {
-         const script = document.createElement('script');
-         const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
-         script.innerHTML =
-            "      pendo.initialize({\n" +
-            "        visitor: {\n" +
-            "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
-            "        },\n" +
-            "        account: {\n" +
-            "          id: '" + orgKeys + "'\n" +
-            "        }\n" +
-            "      });";
-         document.body.appendChild(script);
-         this.props.updatePendoInitialized(true);
-       }
+
+    if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized) {
+      const script = document.createElement('script');
+      const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
+
+      script.innerHTML =
+          "  pendo.initialize({\n" +
+          "        visitor: {\n" +
+          "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
+          "        },\n" +
+          "        account: {\n" +
+          "          id: '" + orgKeys + "'\n" +
+          "        }\n" +
+          "      });";
+
+      document.body.appendChild(script);
+
+      this.setState({ pendoInitialized: true });
+    }
+  }
+
+  renderAuthenticated() {
+    const currentUser = this.props.currentUser as LoggedInUser;
 
     return (
       <Dropdown

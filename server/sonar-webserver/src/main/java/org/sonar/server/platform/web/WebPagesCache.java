@@ -42,7 +42,7 @@ public class WebPagesCache {
   private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
   private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";
 
-  private static final String SONARQUBE_INSTANCE_VALUE = "SonarQube";
+  private static final String SONARQUBE_INSTANCE_VALUE = "CodeScanCloud";
 
   private static final String INDEX_HTML_PATH = "/index.html";
 

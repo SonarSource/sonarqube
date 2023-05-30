@@ -50,7 +50,7 @@ function handleStaticFileRequest(req, res) {
       const content = htmlTemplate('', '')
         .replace(/%WEB_CONTEXT%/g, '')
         .replace(/%SERVER_STATUS%/g, 'UP')
-        .replace(/%INSTANCE%/g, 'SonarQube')
+        .replace(/%INSTANCE%/g, 'CodeScanCloud')
         .replace(/%OFFICIAL%/g, 'true');
 
       res.writeHead(STATUS_OK);

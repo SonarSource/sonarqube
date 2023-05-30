@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { CUSTOMER_CATEGORY, LANGUAGES_CATEGORY, NEW_CODE_PERIOD_CATEGORY } from '../constants';
+import { Dict } from "../../../types/types";
 
-export const ALL_CUSTOMER_CATEGORIES: T.Dict<String> = {
+export const ALL_CUSTOMER_CATEGORIES: Dict<String> = {
   'codescan': CUSTOMER_CATEGORY,
   'housekeeping': CUSTOMER_CATEGORY,
   'exclusions': CUSTOMER_CATEGORY,

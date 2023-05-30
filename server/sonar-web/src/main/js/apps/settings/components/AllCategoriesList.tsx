@@ -31,21 +31,23 @@ import { CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import { ALL_CUSTOMER_CATEGORIES } from './AllCustomerCategories';
+import withAppStateContext from "../../../app/components/app-state/withAppStateContext";
+import { AppState } from "../../../types/appstate";
 
 export interface CategoriesListProps extends WithAvailableFeaturesProps {
   categories: string[];
   component?: Component;
   defaultCategory: string;
   selectedCategory: string;
-  appState?: Pick<T.AppState, 'canAdmin'>;
+  appState: AppState;
 }
 
 export function CategoriesList(props: CategoriesListProps) {
   const { categories, component, defaultCategory, selectedCategory } = props;
-  const { branchesEnabled, appState } = props;
+  const { canAdmin } = props.appState;
   let categoriesWithName;
-   if (appState?.canAdmin) {
-    const categoriesWithName = categories
+  if (canAdmin) {
+    categoriesWithName = categories
       .filter((key) => !CATEGORY_OVERRIDES[key.toLowerCase()])
       .map((key) => ({
         key,
@@ -62,18 +64,18 @@ export function CategoriesList(props: CategoriesListProps) {
           )
           .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
       );
-      } else {
-      categoriesWithName = props.categories
-              .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
-              .map(key => ({
-                key,
-                name: getCategoryName(key)
-              }))
-              .concat(
-                ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
-                  .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
-              );
-      }
+  } else {
+    categoriesWithName = props.categories
+        .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
+        .map(key => ({
+          key,
+          name: getCategoryName(key)
+        }))
+        .concat(
+          ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
+              .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
+        );
+  }
 
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
@@ -106,4 +108,4 @@ export function CategoriesList(props: CategoriesListProps) {
   );
 }
 
-export default withAvailableFeatures(CategoriesList);
+export default withAppStateContext(withAvailableFeatures(CategoriesList));

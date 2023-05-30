@@ -30,7 +30,6 @@ interface Props {
 interface State {
   currentUser: CurrentUser;
   userOrganizations: Organization[];
-  pendoInitialized?: boolean;
 }
 
 export default class CurrentUserContextProvider extends React.PureComponent<Props, State> {
@@ -63,23 +62,15 @@ export default class CurrentUserContextProvider extends React.PureComponent<Prop
     }));
   };
 
-  updatePendoInitialized = (pendoInitialized: boolean) => {
-      this.setState(() => ({
-        pendoInitialized,
-      }));
-  };
-
   render() {
     return (
       <CurrentUserContext.Provider
         value={{
           currentUser: this.state.currentUser,
           userOrganizations: this.state.userOrganizations,
-          pendoInitialized: this.state.pendoInitialized,
           updateCurrentUserHomepage: this.updateCurrentUserHomepage,
           updateDismissedNotices: this.updateDismissedNotices,
           updateUserOrganizations: this.updateUserOrganizations,
-          updatePendoInitialized: this.updatePendoInitialized,
         }}
       >
         {this.props.children}
