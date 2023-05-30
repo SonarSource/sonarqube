@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -25,10 +26,11 @@ import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
-import { Sidebar } from '../Sidebar';
+import { SidebarClass as Sidebar } from '../Sidebar';
 
 it('should render correct facets for Application', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
+
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.types',
     'issues.facet.severities',
@@ -42,13 +44,14 @@ it('should render correct facets for Application', () => {
     'issues.facet.tags',
     'issues.facet.projects',
     'issues.facet.assignees',
-    'clear',
+    '',
     'issues.facet.authors',
   ]);
 });
 
 it('should render correct facets for Portfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
+
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.types',
     'issues.facet.severities',
@@ -62,13 +65,14 @@ it('should render correct facets for Portfolio', () => {
     'issues.facet.tags',
     'issues.facet.projects',
     'issues.facet.assignees',
-    'clear',
+    '',
     'issues.facet.authors',
   ]);
 });
 
 it('should render correct facets for SubPortfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
+
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.types',
     'issues.facet.severities',
@@ -82,7 +86,7 @@ it('should render correct facets for SubPortfolio', () => {
     'issues.facet.tags',
     'issues.facet.projects',
     'issues.facet.assignees',
-    'clear',
+    '',
     'issues.facet.authors',
   ]);
 });
@@ -99,6 +103,7 @@ it.each([
     month: 'issues.facet.createdAt.last_month',
     year: 'issues.facet.createdAt.last_year',
   }[name] as string;
+
   expect(screen.getByText(text)).toBeInTheDocument();
 });
 
@@ -116,7 +121,7 @@ function renderSidebar(props: Partial<Sidebar['props']> = {}) {
       myIssues={false}
       onFacetToggle={jest.fn()}
       onFilterChange={jest.fn()}
-      openFacets={{}}
+      openFacets={{ createdAt: true }}
       showVariantsFilter={false}
       query={mockQuery()}
       referencedComponentsById={{}}

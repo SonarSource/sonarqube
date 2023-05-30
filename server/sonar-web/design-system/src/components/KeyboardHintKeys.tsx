@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
 import { Key } from '../helpers/keyboard';
 import { TriangleDownIcon, TriangleLeftIcon, TriangleRightIcon, TriangleUpIcon } from './icons';
 
-const COMMAND = '⌘';
-const CTRL = 'Ctrl';
-const OPTION = '⌥';
-const ALT = 'Alt';
-const NON_KEY_SYMBOLS = ['+', ' '];
+export const mappedKeys = {
+  [Key.Alt]: 'Alt',
+  [Key.ArrowDown]: <TriangleDownIcon />,
+  [Key.ArrowLeft]: <TriangleLeftIcon />,
+  [Key.ArrowRight]: <TriangleRightIcon />,
+  [Key.ArrowUp]: <TriangleUpIcon />,
+  [Key.Command]: '⌘',
+  [Key.Control]: 'Ctrl',
+  [Key.Option]: '⌥',
+};
 
 export function KeyboardHintKeys({ command }: { command: string }) {
   const keys = command
@@ -35,11 +41,12 @@ export function KeyboardHintKeys({ command }: { command: string }) {
     .split(' ')
     .map((key, index) => {
       const uniqueKey = `${key}-${index}`;
-      if (NON_KEY_SYMBOLS.includes(key)) {
+
+      if (!(Object.keys(mappedKeys).includes(key) || Object.values(mappedKeys).includes(key))) {
         return <span key={uniqueKey}>{key}</span>;
       }
 
-      return <KeyBox key={uniqueKey}>{getKey(key)}</KeyBox>;
+      return <KeyBox key={uniqueKey}>{mappedKeys[key as keyof typeof mappedKeys] || key}</KeyBox>;
     });
 
   return <div className="sw-flex sw-gap-1">{keys}</div>;
@@ -50,29 +57,6 @@ export const KeyBox = styled.span`
   ${tw`sw-px-1/2`}
   ${tw`sw-rounded-1/2`}
 
-  color: ${themeContrast('keyboardHintKey')};
   background-color: ${themeColor('keyboardHintKey')};
+  color: ${themeContrast('keyboardHintKey')};
 `;
-
-function getKey(key: string) {
-  switch (key) {
-    case Key.Control:
-      return CTRL;
-    case Key.Command:
-      return COMMAND;
-    case Key.Alt:
-      return ALT;
-    case Key.Option:
-      return OPTION;
-    case Key.ArrowUp:
-      return <TriangleUpIcon />;
-    case Key.ArrowDown:
-      return <TriangleDownIcon />;
-    case Key.ArrowLeft:
-      return <TriangleLeftIcon />;
-    case Key.ArrowRight:
-      return <TriangleRightIcon />;
-    default:
-      return key;
-  }
-}

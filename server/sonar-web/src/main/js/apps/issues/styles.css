@@ -68,18 +68,14 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.not-all-issue-warning {
-  padding: 16px 16px 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .not-all-issue-warning.open-issue-list {
+  background-color: var(--barBackgroundColor);
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 16px 16px 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: var(--barBackgroundColor);
-  display: inline-block;
 }
 
 .concise-issue-box .issue-message-highlight-CODE {

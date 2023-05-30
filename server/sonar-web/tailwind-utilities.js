@@ -57,6 +57,12 @@ module.exports = plugin(({ addUtilities, theme }) => {
       'line-height': theme('fontSize').sm[1],
       'font-weight': theme('fontWeight.regular'),
     },
+    '.body-xs': {
+      'font-family': theme('fontFamily.sans'),
+      'font-size': theme('fontSize.xs'),
+      'line-height': theme('fontSize').xs[1],
+      'font-weight': theme('fontWeight.regular'),
+    },
     '.body-sm-highlight': {
       'font-family': theme('fontFamily.sans'),
       'font-size': theme('fontSize.sm'),

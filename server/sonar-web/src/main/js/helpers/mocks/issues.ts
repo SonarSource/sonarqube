@@ -30,6 +30,16 @@ export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): Ref
   };
 }
 
+export function mockIssueAuthors(overrides: string[] = []): string[] {
+  return [
+    'email1@sonarsource.com',
+    'email2@sonarsource.com',
+    'email3@sonarsource.com',
+    'email4@sonarsource.com',
+    ...overrides,
+  ];
+}
+
 export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): IssueChangelog {
   return {
     creationDate: '2018-10-01',

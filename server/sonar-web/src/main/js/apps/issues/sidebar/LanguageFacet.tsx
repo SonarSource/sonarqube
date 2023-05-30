@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet, ReferencedLanguage } from '../../../types/issues';
 import { Language, Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { Query } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
   fetching: boolean;
@@ -41,7 +42,7 @@ interface Props {
   stats: Dict<number> | undefined;
 }
 
-class LanguageFacet extends React.PureComponent<Props> {
+class LanguageFacetClass extends React.PureComponent<Props> {
   getLanguageName = (language: string) => {
     const { referencedLanguages } = this.props;
     return referencedLanguages[language] ? referencedLanguages[language].name : language;
@@ -49,10 +50,13 @@ class LanguageFacet extends React.PureComponent<Props> {
 
   handleSearch = (query: string) => {
     const options = this.getAllPossibleOptions();
+
     const results = options.filter((language) =>
       language.name.toLowerCase().includes(query.toLowerCase())
     );
+
     const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
+
     return Promise.resolve({ paging, results });
   };
 
@@ -104,4 +108,4 @@ class LanguageFacet extends React.PureComponent<Props> {
   }
 }
 
-export default withLanguagesContext(LanguageFacet);
+export const LanguageFacet = withLanguagesContext(LanguageFacetClass);

@@ -19,10 +19,16 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
-import { FacetBox, FacetItem } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import ListStyleFacetFooter from '../../../components/facet/ListStyleFacetFooter';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
   getStandards,
@@ -34,11 +40,7 @@ import {
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Dict } from '../../../types/types';
-import { Query, STANDARDS, formatFacetStat } from '../utils';
-import { FacetItemsList } from './FacetItemsList';
-import { ListStyleFacet } from './ListStyleFacet';
-import { ListStyleFacetFooter } from './ListStyleFacetFooter';
-import { MultipleSelectionHint } from './MultipleSelectionHint';
+import { Query, STANDARDS, formatFacetStat } from '../../issues/utils';
 
 interface Props {
   cwe: string[];
@@ -74,15 +76,12 @@ type StatsProp =
   | 'owaspTop10Stats'
   | 'cweStats'
   | 'sonarsourceSecurityStats';
-
 type ValuesProp = 'owaspTop10-2021' | 'owaspTop10' | 'sonarsourceSecurity' | 'cwe';
 
 const INITIAL_FACET_COUNT = 15;
-
 export class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
   property = STANDARDS;
-
   state: State = {
     showFullSonarSourceList: false,
     standards: {
@@ -155,12 +154,15 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       ...this.props.sonarsourceSecurity.map((item) =>
         renderSonarSourceSecurityCategory(this.state.standards, item, true)
       ),
+
       ...this.props.owaspTop10.map((item) =>
         renderOwaspTop10Category(this.state.standards, item, true)
       ),
+
       ...this.props['owaspTop10-2021'].map((item) =>
         renderOwaspTop102021Category(this.state.standards, item, true)
       ),
+
       ...this.props.cwe.map((item) => renderCWECategory(this.state.standards, item)),
     ];
   };
@@ -254,7 +256,15 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
     const categories = sortBy(Object.keys(stats), (key) => -stats[key]);
 
-    return this.renderFacetItemsList(stats, values, categories, renderName, renderName, onClick);
+    return this.renderFacetItemsList(
+      stats,
+      values,
+      categories,
+      valuesProp,
+      renderName,
+      renderName,
+      onClick
+    );
   };
 
   // eslint-disable-next-line max-params
@@ -262,6 +272,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     stats: Dict<number | undefined>,
     values: string[],
     categories: string[],
+    listKey: ValuesProp,
     renderName: (standards: Standards, category: string) => React.ReactNode,
     renderTooltip: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
@@ -278,30 +289,28 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       return stats ? stats[category] : undefined;
     };
 
-    return categories.map((category) => (
-      <FacetItem
-        active={values.includes(category)}
-        className="it__search-navigator-facet"
-        key={category}
-        name={renderName(this.state.standards, category)}
-        onClick={onClick}
-        stat={formatFacetStat(getStat(category)) ?? 0}
-        tooltip={renderTooltip(this.state.standards, category)}
-        value={category}
-      />
-    ));
+    return (
+      <FacetItemsList labelledby={this.getFacetHeaderId(listKey)}>
+        {categories.map((category) => (
+          <FacetItem
+            active={values.includes(category)}
+            key={category}
+            name={renderName(this.state.standards, category)}
+            onClick={onClick}
+            stat={formatFacetStat(getStat(category))}
+            tooltip={renderTooltip(this.state.standards, category)}
+            value={category}
+          />
+        ))}
+      </FacetItemsList>
+    );
   };
 
   renderHint = (statsProp: StatsProp, valuesProp: ValuesProp) => {
-    const nbSelectableItems = Object.keys(this.props[statsProp] ?? {}).length;
-    const nbSelectedItems = this.props[valuesProp].length;
+    const stats = this.props[statsProp] ?? {};
+    const values = this.props[valuesProp];
 
-    return (
-      <MultipleSelectionHint
-        nbSelectableItems={nbSelectableItems}
-        nbSelectedItems={nbSelectedItems}
-      />
-    );
+    return <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />;
   };
 
   renderOwaspTop10List() {
@@ -349,42 +358,44 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
     return (
       <>
-        {limitedList.map((item) => (
-          <FacetItem
-            active={values.includes(item)}
-            className="it__search-navigator-facet"
-            key={item}
-            name={renderSonarSourceSecurityCategory(this.state.standards, item)}
-            onClick={this.handleSonarSourceSecurityItemClick}
-            stat={formatFacetStat(stats[item]) ?? 0}
-            tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
-            value={item}
-          />
-        ))}
+        <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}>
+          {limitedList.map((item) => (
+            <FacetItem
+              active={values.includes(item)}
+              key={item}
+              name={renderSonarSourceSecurityCategory(this.state.standards, item)}
+              onClick={this.handleSonarSourceSecurityItemClick}
+              stat={formatFacetStat(stats[item])}
+              tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
+              value={item}
+            />
+          ))}
+        </FacetItemsList>
 
         {selectedBelowLimit.length > 0 && (
           <>
             {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
-            {selectedBelowLimit.map((item) => (
-              <FacetItem
-                active
-                className="it__search-navigator-facet"
-                key={item}
-                name={renderSonarSourceSecurityCategory(this.state.standards, item)}
-                onClick={this.handleSonarSourceSecurityItemClick}
-                stat={formatFacetStat(stats[item]) ?? 0}
-                tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
-                value={item}
-              />
-            ))}
+            <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}>
+              {selectedBelowLimit.map((item) => (
+                <FacetItem
+                  active={true}
+                  key={item}
+                  name={renderSonarSourceSecurityCategory(this.state.standards, item)}
+                  onClick={this.handleSonarSourceSecurityItemClick}
+                  stat={formatFacetStat(stats[item])}
+                  tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
+                  value={item}
+                />
+              ))}
+            </FacetItemsList>
           </>
         )}
 
         {!allItemShown && (
           <ListStyleFacetFooter
-            nbShown={limitedList.length + selectedBelowLimit.length}
-            showMore={() => this.setState({ showFullSonarSourceList: true })}
             showMoreAriaLabel={translate('issues.facet.sonarsource.show_more')}
+            count={limitedList.length + selectedBelowLimit.length}
+            showMore={() => this.setState({ showFullSonarSourceList: true })}
             total={sortedItems.length}
           />
         )}
@@ -422,74 +433,73 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       sonarsourceSecurityOpen,
     } = this.props;
 
-    const standards = [
-      {
-        count: sonarsourceSecurity.length,
-        loading: fetchingSonarSourceSecurity,
-        name: 'sonarsourceSecurity',
-        onClick: this.handleSonarSourceSecurityHeaderClick,
-        open: sonarsourceSecurityOpen,
-        panel: (
-          <>
-            {this.renderSonarSourceSecurityList()}
-            {this.renderSonarSourceSecurityHint()}
-          </>
-        ),
-        property: SecurityStandard.SONARSOURCE,
-      },
-      {
-        count: owaspTop102021.length,
-        loading: fetchingOwaspTop102021,
-        name: 'owaspTop10_2021',
-        onClick: this.handleOwaspTop102021HeaderClick,
-        open: owaspTop102021Open,
-        panel: (
-          <>
-            {this.renderOwaspTop102021List()}
-            {this.renderOwaspTop102021Hint()}
-          </>
-        ),
-        property: SecurityStandard.OWASP_TOP10_2021,
-      },
-      {
-        count: owaspTop10.length,
-        loading: fetchingOwaspTop10,
-        name: 'owaspTop10',
-        onClick: this.handleOwaspTop10HeaderClick,
-        open: owaspTop10Open,
-        panel: (
-          <>
-            {this.renderOwaspTop10List()}
-            {this.renderOwaspTop10Hint()}
-          </>
-        ),
-        property: SecurityStandard.OWASP_TOP10,
-      },
-    ];
-
     return (
       <>
-        {standards.map(({ name, open, panel, property, ...standard }) => (
-          <FacetBox
-            className="it__search-navigator-facet-box it__search-navigator-facet-header"
-            data-property={property}
-            id={this.getFacetHeaderId(property)}
-            inner={true}
-            key={property}
-            name={translate(`issues.facet.${name}`)}
-            open={open}
-            {...standard}
-          >
-            <FacetItemsList labelledby={this.getFacetHeaderId(property)}>{panel}</FacetItemsList>
-          </FacetBox>
-        ))}
+        <FacetBox className="is-inner" property={SecurityStandard.SONARSOURCE}>
+          <FacetHeader
+            fetching={fetchingSonarSourceSecurity}
+            id={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}
+            name={translate('issues.facet.sonarsourceSecurity')}
+            onClick={this.handleSonarSourceSecurityHeaderClick}
+            open={sonarsourceSecurityOpen}
+            values={sonarsourceSecurity.map((item) =>
+              renderSonarSourceSecurityCategory(this.state.standards, item)
+            )}
+          />
+
+          {sonarsourceSecurityOpen && (
+            <>
+              {this.renderSonarSourceSecurityList()}
+              {this.renderSonarSourceSecurityHint()}
+            </>
+          )}
+        </FacetBox>
+
+        <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10_2021}>
+          <FacetHeader
+            fetching={fetchingOwaspTop102021}
+            id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10_2021)}
+            name={translate('issues.facet.owaspTop10_2021')}
+            onClick={this.handleOwaspTop102021HeaderClick}
+            open={owaspTop102021Open}
+            values={owaspTop102021.map((item) =>
+              renderOwaspTop102021Category(this.state.standards, item)
+            )}
+          />
+
+          {owaspTop102021Open && (
+            <>
+              {this.renderOwaspTop102021List()}
+              {this.renderOwaspTop102021Hint()}
+            </>
+          )}
+        </FacetBox>
+
+        <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
+          <FacetHeader
+            fetching={fetchingOwaspTop10}
+            id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10)}
+            name={translate('issues.facet.owaspTop10')}
+            onClick={this.handleOwaspTop10HeaderClick}
+            open={owaspTop10Open}
+            values={owaspTop10.map((item) => renderOwaspTop10Category(this.state.standards, item))}
+          />
+
+          {owaspTop10Open && (
+            <>
+              {this.renderOwaspTop10List()}
+              {this.renderOwaspTop10Hint()}
+            </>
+          )}
+        </FacetBox>
 
         <ListStyleFacet<string>
+          className="is-inner"
           facetHeader={translate('issues.facet.cwe')}
           fetching={fetchingCwe}
           getFacetItemText={(item) => renderCWECategory(this.state.standards, item)}
+          getSearchResultKey={(item) => item}
           getSearchResultText={(item) => renderCWECategory(this.state.standards, item)}
-          inner={true}
           loadSearchResultCount={this.loadCWESearchResultCount}
           onChange={this.props.onChange}
           onSearch={this.handleCWESearch}
@@ -512,23 +522,18 @@ export class StandardFacet extends React.PureComponent<Props, State> {
   render() {
     const { open } = this.props;
 
-    const count = this.getValues().length;
-
     return (
-      <FacetBox
-        className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
-        count={count}
-        countLabel={translateWithParameters('x_selected', count)}
-        data-property={this.property}
-        hasEmbeddedFacets={true}
-        id={this.getFacetHeaderId(this.property)}
-        name={translate('issues.facet', this.property)}
-        onClear={this.handleClear}
-        onClick={this.handleHeaderClick}
-        open={open}
-      >
-        {this.renderSubFacets()}
+      <FacetBox property={this.property}>
+        <FacetHeader
+          id={this.getFacetHeaderId(this.property)}
+          name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
+          onClick={this.handleHeaderClick}
+          open={open}
+          values={this.getValues()}
+        />
+
+        {open && this.renderSubFacets()}
       </FacetBox>
     );
   }

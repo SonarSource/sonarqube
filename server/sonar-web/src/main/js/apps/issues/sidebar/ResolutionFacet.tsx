@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { translate } from '../../../helpers/l10n';
-import { IssueResolution } from '../../../types/issues';
+import { RESOLUTIONS } from '../../../helpers/constants';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
+import { FacetItemsColumns } from './FacetItemsColumns';
+import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -39,15 +38,7 @@ interface Props {
   stats: Dict<number> | undefined;
 }
 
-const RESOLUTIONS = [
-  IssueResolution.Unresolved,
-  IssueResolution.FalsePositive,
-  IssueResolution.Fixed,
-  IssueResolution.Removed,
-  IssueResolution.WontFix,
-];
-
-export default class ResolutionFacet extends React.PureComponent<Props> {
+export class ResolutionFacet extends React.PureComponent<Props> {
   property = 'resolutions';
 
   static defaultProps = {
@@ -56,6 +47,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { resolutions } = this.props;
+
     if (itemValue === '') {
       // unresolved
       this.props.onChange({ resolved: !this.props.resolved, resolutions: [] });
@@ -65,6 +57,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
           ? without(resolutions, itemValue)
           : [...resolutions, itemValue]
       );
+
       this.props.onChange({ resolved: true, [this.property]: newValue });
     } else {
       this.props.onChange({
@@ -93,6 +86,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
 
   getStat(resolution: string) {
     const { stats } = this.props;
+
     return stats ? stats[resolution] : undefined;
   }
 
@@ -103,11 +97,11 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth
+        className="it__search-navigator-facet"
         key={resolution}
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat)}
+        stat={formatFacetStat(stat) ?? 0}
         tooltip={this.getFacetItemName(resolution)}
         value={resolution}
       />
@@ -115,33 +109,34 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { fetching, open, resolutions, stats = {} } = this.props;
-    const values = resolutions.map((resolution) => this.getFacetItemName(resolution));
+    const { fetching, open, resolutions } = this.props;
+
+    // below: -1 because "Unresolved" is mutually exclusive with the rest
+    const nbSelectableItems = RESOLUTIONS.filter(this.getStat.bind(this)).length - 1;
+
+    const nbSelectedItems = resolutions.length;
     const headerId = `facet_${this.property}`;
 
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          fetching={fetching}
-          id={headerId}
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={open}
-          values={values}
-        />
+      <FacetBox
+        className="it__search-navigator-facet-box it__search-navigator-facet-header"
+        clearIconLabel={translate('clear')}
+        count={nbSelectedItems}
+        countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+        data-property={this.property}
+        id={headerId}
+        loading={fetching}
+        name={translate('issues.facet', this.property)}
+        onClear={this.handleClear}
+        onClick={this.handleHeaderClick}
+        open={open}
+      >
+        <FacetItemsColumns>{RESOLUTIONS.map(this.renderItem)}</FacetItemsColumns>
 
-        {open && (
-          <>
-            <FacetItemsList labelledby={headerId}>
-              {RESOLUTIONS.map(this.renderItem)}
-            </FacetItemsList>
-            <MultipleSelectionHint
-              options={Object.keys(stats).length}
-              values={resolutions.length}
-            />
-          </>
-        )}
+        <MultipleSelectionHint
+          nbSelectableItems={nbSelectableItems}
+          nbSelectedItems={nbSelectedItems}
+        />
       </FacetBox>
     );
   }

@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omit } from 'lodash';
 import * as React from 'react';
 import { searchIssueAuthors } from '../../../api/issues';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
+import { ComponentQualifier } from '../../../types/component';
 import { Facet } from '../../../types/issues';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
+  author: string[];
   component: Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
@@ -36,20 +39,24 @@ interface Props {
   open: boolean;
   query: Query;
   stats: Dict<number> | undefined;
-  author: string[];
 }
 
 const SEARCH_SIZE = 100;
 
-export default class AuthorFacet extends React.PureComponent<Props> {
-  identity = (author: string) => {
-    return author;
-  };
-
+export class AuthorFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, _page: number) => {
     const { component } = this.props;
+
     const project =
-      component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
+      component &&
+      [
+        ComponentQualifier.Application,
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.Project,
+      ].includes(component.qualifier as ComponentQualifier)
+        ? component.key
+        : undefined;
+
     return searchIssueAuthors({
       project,
       ps: SEARCH_SIZE, // maximum
@@ -70,9 +77,6 @@ export default class AuthorFacet extends React.PureComponent<Props> {
       <ListStyleFacet<string>
         facetHeader={translate('issues.facet.authors')}
         fetching={this.props.fetching}
-        getFacetItemText={this.identity}
-        getSearchResultKey={this.identity}
-        getSearchResultText={this.identity}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
@@ -80,7 +84,6 @@ export default class AuthorFacet extends React.PureComponent<Props> {
         open={this.props.open}
         property="author"
         query={omit(this.props.query, 'author')}
-        renderFacetItem={this.identity}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_authors')}
         stats={this.props.stats}

@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Avatar } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
 import { Dict } from '../../../types/types';
-import { isUserActive, UserBase } from '../../../types/users';
+import { UserBase, isUserActive } from '../../../types/users';
 import { Query, searchAssignees } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
   assigned: boolean;
@@ -41,13 +42,14 @@ interface Props {
   referencedUsers: Dict<UserBase>;
 }
 
-export default class AssigneeFacet extends React.PureComponent<Props> {
+export class AssigneeFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page?: number) => {
     return searchAssignees(query, page);
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { assignees } = this.props;
+
     if (itemValue === '') {
       // unassigned
       this.props.onChange({ assigned: !this.props.assigned, assignees: [] });
@@ -55,6 +57,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
       const newValue = sortBy(
         assignees.includes(itemValue) ? without(assignees, itemValue) : [...assignees, itemValue]
       );
+
       this.props.onChange({ assigned: true, assignees: newValue });
     } else {
       this.props.onChange({
@@ -71,13 +74,15 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   getAssigneeName = (assignee: string) => {
     if (assignee === '') {
       return translate('unassigned');
-    } else {
-      const user = this.props.referencedUsers[assignee];
-      if (!user) {
-        return assignee;
-      }
-      return isUserActive(user) ? user.name : translateWithParameters('user.x_deleted', user.login);
     }
+
+    const user = this.props.referencedUsers[assignee];
+
+    if (!user) {
+      return assignee;
+    }
+
+    return isUserActive(user) ? user.name : translateWithParameters('user.x_deleted', user.login);
   };
 
   loadSearchResultCount = (assignees: UserBase[]) => {
@@ -89,6 +94,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
 
   getSortedItems = () => {
     const { stats = {} } = this.props;
+
     return sortBy(
       Object.keys(stats),
       // put "not assigned" first
@@ -109,11 +115,12 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
       return assignee;
     }
 
-    const userName = user.name || user.login;
+    const userName = user.name ?? user.login;
 
     return (
       <>
-        <Avatar className="little-spacer-right" hash={user.avatar} name={userName} size={16} />
+        <Avatar className="sw-mr-1" hash={user.avatar} name={userName} size="xs" />
+
         {isUserActive(user) ? userName : translateWithParameters('user.x_deleted', userName)}
       </>
     );
@@ -123,14 +130,16 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     const displayName = isUserActive(result)
       ? result.name
       : translateWithParameters('user.x_deleted', result.login);
+
     return (
       <>
         <Avatar
-          className="little-spacer-right"
+          className="sw-mr-1"
           hash={result.avatar}
-          name={result.name || result.login}
-          size={16}
+          name={result.name ?? result.login}
+          size="xs"
         />
+
         {highlightTerm(displayName, query)}
       </>
     );
@@ -138,6 +147,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
 
   render() {
     const values = [...this.props.assignees];
+
     if (!this.props.assigned) {
       values.push('');
     }
@@ -148,7 +158,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
         fetching={this.props.fetching}
         getFacetItemText={this.getAssigneeName}
         getSearchResultKey={(user) => user.login}
-        getSearchResultText={(user) => user.name || user.login}
+        getSearchResultText={(user) => user.name ?? user.login}
         // put "not assigned" item first
         getSortedItems={this.getSortedItems}
         loadSearchResultCount={this.loadSearchResultCount}

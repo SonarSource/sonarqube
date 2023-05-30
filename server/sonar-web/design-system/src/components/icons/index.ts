@@ -70,6 +70,7 @@ export { StatusConfirmedIcon } from './StatusConfirmedIcon';
 export { StatusOpenIcon } from './StatusOpenIcon';
 export { StatusReopenedIcon } from './StatusReopenedIcon';
 export { StatusResolvedIcon } from './StatusResolvedIcon';
+export { TestFileIcon } from './TestFileIcon';
 export { TrashIcon } from './TrashIcon';
 export { TriangleDownIcon } from './TriangleDownIcon';
 export { TriangleLeftIcon } from './TriangleLeftIcon';

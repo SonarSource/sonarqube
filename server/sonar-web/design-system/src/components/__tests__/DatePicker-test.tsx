@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getMonth, getYear, parseISO } from 'date-fns';
@@ -85,19 +86,46 @@ it('behaves correctly', async () => {
   expect(getYear(newDate3)).toBe(2019);
 });
 
-it('highlights the appropriate days', async () => {
+it('should clear the value', async () => {
   const user = userEvent.setup();
 
-  const value = parseISO('2022-06-14');
-  renderDatePicker({ highlightFrom: parseISO('2022-06-12'), showClearButton: true, value });
+  const onChange = jest.fn((_: Date) => undefined);
+
+  const currentDate = parseISO('2022-06-13');
+
+  renderDatePicker({
+    currentMonth: currentDate,
+    onChange,
+    showClearButton: true,
+    value: currentDate,
+    // eslint-disable-next-line jest/no-conditional-in-test
+    valueFormatter: (date?: Date) => (date ? 'formatted date' : 'no date'),
+  });
 
   await user.click(screen.getByRole('textbox'));
 
-  expect(screen.getByText('11')).not.toHaveClass('rdp-highlighted');
-  expect(screen.getByText('12')).toHaveClass('rdp-highlighted');
-  expect(screen.getByText('13')).toHaveClass('rdp-highlighted');
-  expect(screen.getByText('14')).toHaveClass('rdp-highlighted');
-  expect(screen.getByText('15')).not.toHaveClass('rdp-highlighted');
+  await user.click(screen.getByLabelText('clear'));
+
+  expect(onChange).toHaveBeenCalledWith(undefined);
+});
+
+it.each([
+  [{ highlightFrom: parseISO('2022-06-12'), value: parseISO('2022-06-14') }],
+  [{ alignRight: true, highlightTo: parseISO('2022-06-14'), value: parseISO('2022-06-12') }],
+])('highlights the appropriate days', async (props) => {
+  const user = userEvent.setup();
+
+  const hightlightClass = 'rdp-highlighted';
+
+  renderDatePicker(props);
+
+  await user.click(screen.getByRole('textbox'));
+
+  expect(screen.getByText('11')).not.toHaveClass(hightlightClass);
+  expect(screen.getByText('12')).toHaveClass(hightlightClass);
+  expect(screen.getByText('13')).toHaveClass(hightlightClass);
+  expect(screen.getByText('14')).toHaveClass(hightlightClass);
+  expect(screen.getByText('15')).not.toHaveClass(hightlightClass);
 });
 
 function renderDatePicker(overrides: Partial<DatePicker['props']> = {}) {

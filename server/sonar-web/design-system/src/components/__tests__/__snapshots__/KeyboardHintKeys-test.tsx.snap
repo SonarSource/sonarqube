@@ -17,8 +17,8 @@ exports[`should render Alt 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -51,8 +51,8 @@ exports[`should render ArrowDown 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -99,8 +99,8 @@ exports[`should render ArrowLeft 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -147,8 +147,8 @@ exports[`should render ArrowRight 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -195,8 +195,8 @@ exports[`should render ArrowUp 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -243,8 +243,8 @@ exports[`should render Command 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -277,8 +277,8 @@ exports[`should render Control 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -311,8 +311,8 @@ exports[`should render Option 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -345,8 +345,8 @@ exports[`should render a default text if no keys match 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
@@ -361,9 +361,7 @@ exports[`should render a default text if no keys match 1`] = `
     <span>
       +
     </span>
-    <span
-      class="emotion-0 emotion-1"
-    >
+    <span>
       click
     </span>
   </div>
@@ -387,14 +385,25 @@ exports[`should render multiple keys 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>
   <div
     class="sw-flex sw-gap-1"
   >
+    <span>
+      Use
+    </span>
+    <span
+      class="emotion-0 emotion-1"
+    >
+      Ctrl
+    </span>
+    <span>
+      +
+    </span>
     <span
       class="emotion-0 emotion-1"
     >
@@ -454,8 +463,8 @@ exports[`should render multiple keys with non-key symbols 1`] = `
   padding-left: 0.125rem;
   padding-right: 0.125rem;
   border-radius: 0.125rem;
-  color: rgb(62,67,87);
   background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
 }
 
 <div>

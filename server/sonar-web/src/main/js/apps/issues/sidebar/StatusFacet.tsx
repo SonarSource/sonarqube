@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  FacetBox,
+  FacetItem,
+  StatusConfirmedIcon,
+  StatusOpenIcon,
+  StatusReopenedIcon,
+  StatusResolvedIcon,
+} from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import StatusHelper from '../../../components/shared/StatusHelper';
-import { translate } from '../../../helpers/l10n';
+import { STATUSES } from '../../../helpers/constants';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
+import { FacetItemsColumns } from './FacetItemsColumns';
+import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -38,19 +44,19 @@ interface Props {
   statuses: string[];
 }
 
-const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED', 'CLOSED'];
-
-export default class StatusFacet extends React.PureComponent<Props> {
+export class StatusFacet extends React.PureComponent<Props> {
   property = 'statuses';
 
   static defaultProps = { open: true };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { statuses } = this.props;
+
     if (multiple) {
       const newValue = orderBy(
         statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue]
       );
+
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
@@ -69,6 +75,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
 
   getStat(status: string) {
     const { stats } = this.props;
+
     return stats ? stats[status] : undefined;
   }
 
@@ -79,11 +86,20 @@ export default class StatusFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth
+        className="it__search-navigator-facet"
+        icon={
+          {
+            CLOSED: <StatusResolvedIcon />,
+            CONFIRMED: <StatusConfirmedIcon />,
+            OPEN: <StatusOpenIcon />,
+            REOPENED: <StatusReopenedIcon />,
+            RESOLVED: <StatusResolvedIcon />,
+          }[status]
+        }
         key={status}
-        name={<StatusHelper resolution={undefined} status={status} />}
+        name={translate('issue.status', status)}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat)}
+        stat={formatFacetStat(stat) ?? 0}
         tooltip={translate('issue.status', status)}
         value={status}
       />
@@ -91,28 +107,32 @@ export default class StatusFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { fetching, open, statuses, stats = {} } = this.props;
-    const values = statuses.map((status) => translate('issue.status', status));
+    const { fetching, open, statuses } = this.props;
+
+    const nbSelectableItems = STATUSES.filter(this.getStat.bind(this)).length;
+    const nbSelectedItems = statuses.length;
     const headerId = `facet_${this.property}`;
 
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          fetching={fetching}
-          id={headerId}
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={open}
-          values={values}
-        />
+      <FacetBox
+        className="it__search-navigator-facet-box it__search-navigator-facet-header"
+        clearIconLabel={translate('clear')}
+        count={nbSelectedItems}
+        countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+        data-property={this.property}
+        id={headerId}
+        loading={fetching}
+        name={translate('issues.facet', this.property)}
+        onClear={this.handleClear}
+        onClick={this.handleHeaderClick}
+        open={open}
+      >
+        <FacetItemsColumns>{STATUSES.map(this.renderItem)}</FacetItemsColumns>
 
-        {open && (
-          <>
-            <FacetItemsList labelledby={headerId}>{STATUSES.map(this.renderItem)}</FacetItemsList>
-            <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
-          </>
-        )}
+        <MultipleSelectionHint
+          nbSelectableItems={nbSelectableItems}
+          nbSelectedItems={nbSelectedItems}
+        />
       </FacetBox>
     );
   }

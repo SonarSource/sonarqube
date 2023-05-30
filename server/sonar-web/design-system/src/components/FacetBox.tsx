@@ -26,7 +26,7 @@ import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { Badge } from './Badge';
 import { DeferredSpinner } from './DeferredSpinner';
-import { InteractiveIcon } from './InteractiveIcon';
+import { DestructiveIcon } from './InteractiveIcon';
 import Tooltip from './Tooltip';
 import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
@@ -39,7 +39,9 @@ export interface FacetBoxProps {
   clearIconLabel?: string;
   count?: number;
   countLabel?: string;
+  'data-property'?: string;
   disabled?: boolean;
+  hasEmbeddedFacets?: boolean;
   id?: string;
   inner?: boolean;
   loading?: boolean;
@@ -57,7 +59,9 @@ export function FacetBox(props: FacetBoxProps) {
     clearIconLabel,
     count,
     countLabel,
+    'data-property': dataProperty,
     disabled = false,
+    hasEmbeddedFacets = false,
     id: idProp,
     inner = false,
     loading = false,
@@ -73,7 +77,13 @@ export function FacetBox(props: FacetBoxProps) {
   const id = React.useMemo(() => idProp ?? uniqueId('filter-facet-'), [idProp]);
 
   return (
-    <Accordion className={classNames(className, { open })} inner={inner} role="listitem">
+    <Accordion
+      className={classNames(className, { open })}
+      data-property={dataProperty}
+      hasEmbeddedFacets={hasEmbeddedFacets}
+      inner={inner}
+      role="listitem"
+    >
       <Header>
         <ChevronAndTitle
           aria-controls={`${id}-panel`}
@@ -106,6 +116,7 @@ export function FacetBox(props: FacetBoxProps) {
                 <ClearIcon
                   Icon={CloseIcon}
                   aria-label={clearIconLabel ?? ''}
+                  data-testid={`clear-${name}`}
                   onClick={onClear}
                   size="small"
                 />
@@ -116,7 +127,7 @@ export function FacetBox(props: FacetBoxProps) {
       </Header>
 
       {open && (
-        <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="region">
+        <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="list">
           {children}
         </div>
       )}
@@ -124,14 +135,19 @@ export function FacetBox(props: FacetBoxProps) {
   );
 }
 
+FacetBox.displayName = 'FacetBox'; // so that tests don't see the obfuscated production name
+
 const Accordion = styled.div<{
+  hasEmbeddedFacets?: boolean;
   inner?: boolean;
 }>`
   ${tw`sw-flex-col`};
   ${tw`sw-flex`};
   ${tw`sw-gap-3`};
 
-  ${({ inner }) => (inner ? tw`sw-gap-1 sw-ml-3` : '')};
+  ${({ hasEmbeddedFacets }) => (hasEmbeddedFacets ? tw`sw-gap-0` : '')};
+
+  ${({ inner }) => (inner ? tw`sw-gap-1 sw-ml-3 sw-mt-1` : '')};
 `;
 
 const BadgeAndIcons = styled.div`
@@ -150,7 +166,7 @@ const ChevronAndTitle = styled(BareButton)<{
   cursor: ${({ expandable }) => (expandable ? 'pointer' : 'default')};
 `;
 
-const ClearIcon = styled(InteractiveIcon)`
+const ClearIcon = styled(DestructiveIcon)`
   --color: ${themeColor('dangerButton')};
 `;
 

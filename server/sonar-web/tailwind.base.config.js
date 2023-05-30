@@ -35,6 +35,7 @@ module.exports = {
     // Define font sizes
     fontSize: {
       code: ['0.875rem', '1.125rem'], // 14px / 18px
+      xs: ['0.75rem', '1rem'], // 12px / 16px
       sm: ['0.875rem', '1.25rem'], // 14px / 20px
       base: ['1rem', '1.5rem'], // 16px / 24px
       md: ['1.313rem', '1.75rem'], // 21px / 28px
@@ -62,8 +63,10 @@ module.exports = {
       3: '3',
       4: '4',
     },
-    // No responsive breakpoint for the webapp
-    screens: {},
+    screens: {
+      sm: '1280px',
+      lg: '1920px',
+    },
     // Defined spacing values based on our grid size
     spacing: {
       0: '0',
@@ -72,6 +75,7 @@ module.exports = {
       2: '0.5rem', // 8px
       3: '0.75rem', // 12px
       4: '1rem', // 16px
+      5: '1.25rem', // 20px
       6: '1.5rem', // 24px
       7: '1.75rem', // 28px
       8: '2rem', // 32px

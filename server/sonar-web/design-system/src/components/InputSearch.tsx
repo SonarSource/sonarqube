@@ -164,7 +164,7 @@ export function InputSearch({
           <StyledInteractiveIcon
             Icon={CloseIcon}
             aria-label={clearIconAriaLabel}
-            className="js-input-search-clear"
+            className="it__search-box-clear"
             onClick={handleClearClick}
             size="small"
           />
@@ -179,6 +179,8 @@ export function InputSearch({
     </InputSearchWrapper>
   );
 }
+
+InputSearch.displayName = 'InputSearch'; // so that tests don't see the obfuscated production name
 
 export const InputSearchWrapper = styled.div`
   width: var(--inputSize);

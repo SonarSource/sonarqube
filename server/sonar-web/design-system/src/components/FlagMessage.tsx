@@ -90,6 +90,8 @@ export function FlagMessage(props: Props & React.HTMLAttributes<HTMLDivElement>)
   );
 }
 
+FlagMessage.displayName = 'FlagMessage'; // so that tests don't see the obfuscated production name
+
 export const StyledFlag = styled.div<{
   variantInfo: VariantInformation;
 }>`

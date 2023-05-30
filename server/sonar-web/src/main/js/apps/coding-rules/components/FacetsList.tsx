@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { Dict } from '../../../types/types';
-import StandardFacet from '../../issues/sidebar/StandardFacet';
 import { Facets, OpenFacets, Query } from '../query';
 import ActivationSeverityFacet from './ActivationSeverityFacet';
 import AvailableSinceFacet from './AvailableSinceFacet';
@@ -29,6 +28,7 @@ import InheritanceFacet from './InheritanceFacet';
 import LanguageFacet from './LanguageFacet';
 import ProfileFacet from './ProfileFacet';
 import RepositoryFacet from './RepositoryFacet';
+import { StandardFacet } from './StandardFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TemplateFacet from './TemplateFacet';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
@@ -361,6 +362,7 @@ describe('issues app', () => {
 
       // Status
       await user.click(ui.statusFacet.get());
+
       await user.click(ui.openStatusFilter.get());
       expect(ui.issueItem6.query()).not.toBeInTheDocument(); // Issue 6 should vanish
 
@@ -376,10 +378,13 @@ describe('issues app', () => {
       // Rule
       await user.click(ui.ruleFacet.get());
       await user.click(screen.getByRole('checkbox', { name: 'other' }));
-      expect(screen.getByRole('checkbox', { name: '(HTML) Advanced rule' })).toBeInTheDocument(); // Name should apply to the rule
+
+      // Name should apply to the rule
+      expect(screen.getByRole('checkbox', { name: '(HTML) Advanced rule' })).toBeInTheDocument();
 
       // Tag
       await user.click(ui.tagFacet.get());
+      await user.type(ui.tagFacetSearch.get(), 'unu');
       await user.click(screen.getByRole('checkbox', { name: 'unused' }));
 
       // Project
@@ -393,6 +398,7 @@ describe('issues app', () => {
 
       // Author
       await user.click(ui.authorFacet.get());
+      await user.type(ui.authorFacetSearch.get(), 'email');
       await user.click(screen.getByRole('checkbox', { name: 'email4@sonarsource.com' }));
       await user.click(screen.getByRole('checkbox', { name: 'email3@sonarsource.com' })); // Change author
       expect(ui.issueItem1.query()).not.toBeInTheDocument();
@@ -455,15 +461,28 @@ describe('issues app', () => {
       const user = userEvent.setup();
       const currentUser = mockLoggedInUser();
       issuesHandler.setCurrentUser(currentUser);
+
       renderIssueApp(currentUser);
+
       await waitOnDataLoaded();
 
       // Select a specific date range such that only one issue matches
       await user.click(ui.creationDateFacet.get());
       await user.click(screen.getByPlaceholderText('start_date'));
-      await user.selectOptions(ui.dateInputMonthSelect.get(), 'January');
-      await user.selectOptions(ui.dateInputYearSelect.get(), '2023');
-      await user.click(screen.getByText('1'));
+
+      const monthSelector = within(ui.dateInputMonthSelect.get()).getByRole('combobox');
+
+      await user.click(monthSelector);
+
+      await user.click(within(ui.dateInputMonthSelect.get()).getByText('Jan'));
+
+      const yearSelector = within(ui.dateInputYearSelect.get()).getByRole('combobox');
+
+      await user.click(yearSelector);
+
+      await user.click(within(ui.dateInputYearSelect.get()).getAllByText('2023')[-1]);
+
+      await user.click(screen.getByText('1', { selector: 'button' }));
       await user.click(screen.getByText('10'));
 
       expect(ui.issueItem1.get()).toBeInTheDocument();
@@ -487,12 +506,12 @@ describe('issues app', () => {
       expect(ui.issueItem3.get()).toBeInTheDocument();
 
       // Only show my issues
-      await user.click(screen.getByRole('button', { name: 'issues.my_issues' }));
+      await user.click(screen.getByRole('radio', { name: 'issues.my_issues' }));
       expect(ui.issueItem2.query()).not.toBeInTheDocument();
       expect(ui.issueItem3.get()).toBeInTheDocument();
 
       // Show all issues again
-      await user.click(screen.getByRole('button', { name: 'all' }));
+      await user.click(screen.getByRole('radio', { name: 'all' }));
       expect(ui.issueItem2.get()).toBeInTheDocument();
       expect(ui.issueItem3.get()).toBeInTheDocument();
     });
@@ -503,13 +522,17 @@ describe('issues app', () => {
       renderIssueApp();
 
       await user.click(await ui.ruleFacet.find());
+
       await user.type(ui.ruleFacetSearch.get(), 'rule');
+
       expect(within(ui.ruleFacetList.get()).getAllByRole('checkbox')).toHaveLength(2);
+
       expect(
         within(ui.ruleFacetList.get()).getByRole('checkbox', {
           name: /Advanced rule/,
         })
       ).toBeInTheDocument();
+
       expect(
         within(ui.ruleFacetList.get()).getByRole('checkbox', {
           name: /Simple rule/,

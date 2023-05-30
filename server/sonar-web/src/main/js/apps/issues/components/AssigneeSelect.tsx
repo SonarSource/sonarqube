@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { components, OptionProps, SingleValueProps } from 'react-select';
@@ -85,7 +86,7 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
     searchAssignees(query)
       .then(({ results }) =>
         results.map((r) => {
-          const userInfo = r.name || r.login;
+          const userInfo = r.name ?? r.login;
 
           return {
             avatar: r.avatar,

@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omit } from 'lodash';
 import * as React from 'react';
 import { searchRules } from '../../../api/rules';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { Facet, IssueType, ReferencedRule } from '../../../types/issues';
 import { Dict, Rule } from '../../../types/types';
 import { Query } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
   fetching: boolean;
@@ -38,9 +39,10 @@ interface Props {
   stats: Dict<number> | undefined;
 }
 
-export default class RuleFacet extends React.PureComponent<Props> {
+export class RuleFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page = 1) => {
     const { languages, types } = this.props.query;
+
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
@@ -64,6 +66,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
 
   getRuleName = (ruleKey: string) => {
     const rule = this.props.referencedRules[ruleKey];
+
     return rule ? this.formatRuleName(rule.name, rule.langName) : ruleKey;
   };
 

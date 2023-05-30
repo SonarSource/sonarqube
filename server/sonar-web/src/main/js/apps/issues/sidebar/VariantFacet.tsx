@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
+import { FacetItemsList } from './FacetItemsList';
+import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface VariantFacetProps {
   fetching: boolean;
@@ -39,7 +38,7 @@ interface VariantFacetProps {
 
 const FACET_NAME = 'codeVariants';
 
-export default function VariantFacet(props: VariantFacetProps) {
+export function VariantFacet(props: VariantFacetProps) {
   const { open, fetching, stats = {}, values, onToggle, onChange } = props;
 
   const handleClear = React.useCallback(() => {
@@ -58,6 +57,7 @@ export default function VariantFacet(props: VariantFacetProps) {
         const newValues = orderBy(
           values.includes(value) ? without(values, value) : [...values, value]
         );
+
         onChange({ [FACET_NAME]: newValues });
       } else {
         onChange({
@@ -65,46 +65,55 @@ export default function VariantFacet(props: VariantFacetProps) {
         });
       }
     },
+
     [values, onChange]
   );
 
   const id = `facet_${FACET_NAME}`;
 
+  const nbSelectableItems = Object.keys(stats).length;
+  const nbSelectedItems = values.length;
+
   return (
-    <FacetBox property={FACET_NAME}>
-      <FacetHeader
-        fetching={fetching}
-        name={translate('issues.facet', FACET_NAME)}
-        id={id}
-        onClear={handleClear}
-        onClick={handleHeaderClick}
-        open={open}
-        values={values}
+    <FacetBox
+      className="it__search-navigator-facet-box it__search-navigator-facet-header"
+      clearIconLabel={translate('clear')}
+      count={nbSelectedItems}
+      countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+      data-property={FACET_NAME}
+      id={id}
+      loading={fetching}
+      name={translate('issues.facet', FACET_NAME)}
+      onClear={handleClear}
+      onClick={handleHeaderClick}
+      open={open}
+    >
+      <FacetItemsList labelledby={id}>
+        {nbSelectableItems === 0 && (
+          <div className="note spacer-bottom">{translate('no_results')}</div>
+        )}
+
+        {sortBy(
+          Object.keys(stats),
+          (key) => -stats[key],
+          (key) => key
+        ).map((codeVariant) => (
+          <FacetItem
+            active={values.includes(codeVariant)}
+            className="it__search-navigator-facet"
+            key={codeVariant}
+            name={codeVariant}
+            onClick={handleItemClick}
+            stat={formatFacetStat(stats[codeVariant])}
+            value={codeVariant}
+          />
+        ))}
+      </FacetItemsList>
+
+      <MultipleSelectionHint
+        nbSelectableItems={nbSelectableItems}
+        nbSelectedItems={nbSelectedItems}
       />
-      {open && (
-        <>
-          <FacetItemsList labelledby={id}>
-            {Object.keys(stats).length === 0 && (
-              <div className="note spacer-bottom">{translate('no_results')}</div>
-            )}
-            {sortBy(
-              Object.keys(stats),
-              (key) => -stats[key],
-              (key) => key
-            ).map((codeVariant) => (
-              <FacetItem
-                active={values.includes(codeVariant)}
-                key={codeVariant}
-                name={codeVariant}
-                onClick={handleItemClick}
-                stat={formatFacetStat(stats[codeVariant])}
-                value={codeVariant}
-              />
-            ))}
-          </FacetItemsList>
-          <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />
-        </>
-      )}
     </FacetBox>
   );
 }

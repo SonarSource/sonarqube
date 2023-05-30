@@ -28,11 +28,11 @@ it('should render an empty disabled facet box', async () => {
 
   const onClick = jest.fn();
 
-  renderComponent({ disabled: true, onClick });
+  renderComponent({ disabled: true, hasEmbeddedFacets: true, onClick });
 
   expect(screen.getByRole('listitem')).toBeInTheDocument();
 
-  expect(screen.queryByRole('region')).not.toBeInTheDocument();
+  expect(screen.queryByRole('list')).not.toBeInTheDocument();
 
   expect(screen.getByText('Test FacetBox')).toBeInTheDocument();
 
@@ -58,7 +58,7 @@ it('should render an inner expanded facet box with count', async () => {
     open: true,
   });
 
-  expect(screen.getByRole('region')).toBeInTheDocument();
+  expect(screen.getByRole('list')).toBeInTheDocument();
 
   expect(screen.getByRole('button', { expanded: true })).toBeInTheDocument();
 

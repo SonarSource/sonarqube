@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
 
@@ -35,7 +36,6 @@ export interface Props {
 export default class FacetItem extends React.PureComponent<Props> {
   static defaultProps = {
     halfWidth: false,
-    loading: false,
   };
 
   handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -53,6 +53,7 @@ export default class FacetItem extends React.PureComponent<Props> {
 
   render() {
     const { name, halfWidth, active, value, tooltip } = this.props;
+
     const className = classNames('search-navigator-facet button-link', this.props.className, {
       active,
     });

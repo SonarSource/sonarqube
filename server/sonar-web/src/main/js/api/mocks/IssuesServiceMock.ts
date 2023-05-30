@@ -19,7 +19,9 @@
  */
 import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
-import { mockIssueChangelog } from '../../helpers/mocks/issues';
+
+import { RESOLUTIONS, SEVERITIES, SOURCE_SCOPES, STATUSES } from '../../helpers/constants';
+import { mockIssueAuthors, mockIssueChangelog } from '../../helpers/mocks/issues';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
 import { mockLoggedInUser, mockPaging, mockRuleDetails } from '../../helpers/testMocks';
@@ -35,10 +37,11 @@ import {
   RawIssuesResponse,
   ReferencedComponent,
 } from '../../types/issues';
+import { MetricKey } from '../../types/metrics';
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, SnippetsByComponent } from '../../types/types';
-import { LoggedInUser, NoticeType } from '../../types/users';
+import { LoggedInUser, NoticeType, User } from '../../types/users';
 import {
   addIssueComment,
   bulkChangeIssues,
@@ -46,6 +49,7 @@ import {
   editIssueComment,
   getIssueChangelog,
   getIssueFlowSnippets,
+  searchIssueAuthors,
   searchIssueTags,
   searchIssues,
   setIssueAssignee,
@@ -103,24 +107,25 @@ export default class IssuesServiceMock {
 
     this.list = cloneDeep(this.defaultList);
 
-    jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
-    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
-    jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
-    (getIssueFlowSnippets as jest.Mock).mockImplementation(this.handleGetIssueFlowSnippets);
-    (bulkChangeIssues as jest.Mock).mockImplementation(this.handleBulkChangeIssues);
-    (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
-    (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
-    (setIssueType as jest.Mock).mockImplementation(this.handleSetIssueType);
-    jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
-    (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
-    (setIssueTransition as jest.Mock).mockImplementation(this.handleSetIssueTransition);
-    (setIssueTags as jest.Mock).mockImplementation(this.handleSetIssueTags);
     jest.mocked(addIssueComment).mockImplementation(this.handleAddComment);
-    jest.mocked(editIssueComment).mockImplementation(this.handleEditComment);
+    jest.mocked(bulkChangeIssues).mockImplementation(this.handleBulkChangeIssues);
     jest.mocked(deleteIssueComment).mockImplementation(this.handleDeleteComment);
-    (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
-    (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
+    jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
+    jest.mocked(editIssueComment).mockImplementation(this.handleEditComment);
+    jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
     jest.mocked(getIssueChangelog).mockImplementation(this.handleGetIssueChangelog);
+    jest.mocked(getIssueFlowSnippets).mockImplementation(this.handleGetIssueFlowSnippets);
+    jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(searchIssueAuthors).mockImplementation(this.handleSearchIssueAuthors);
+    jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
+    jest.mocked(searchIssueTags).mockImplementation(this.handleSearchIssueTags);
+    jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
+    jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
+    jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
+    jest.mocked(setIssueSeverity).mockImplementation(this.handleSetIssueSeverity);
+    jest.mocked(setIssueTags).mockImplementation(this.handleSetIssueTags);
+    jest.mocked(setIssueTransition).mockImplementation(this.handleSetIssueTransition);
+    jest.mocked(setIssueType).mockImplementation(this.handleSetIssueType);
   }
 
   reset = () => {
@@ -162,7 +167,7 @@ export default class IssuesServiceMock {
       .forEach((data) => {
         data.issue.type = query.set_type;
       });
-    return this.reply({});
+    return this.reply(undefined);
   };
 
   handleGetIssueFlowSnippets = (issueKey: string): Promise<Dict<SnippetsByComponent>> => {
@@ -274,6 +279,15 @@ export default class IssuesServiceMock {
           ],
         };
       }
+      if (name === 'scopes') {
+        return {
+          property: name,
+          values: SOURCE_SCOPES.map(({ scope }) => ({
+            val: scope,
+            count: 1, // if 0, the facet can't be clicked in tests
+          })),
+        };
+      }
       if (name === 'codeVariants') {
         return {
           property: 'codeVariants',
@@ -295,7 +309,7 @@ export default class IssuesServiceMock {
           }, [] as RawFacet['values']),
         };
       }
-      if (name === 'projects') {
+      if (name === MetricKey.projects) {
         return {
           property: name,
           values: [
@@ -354,7 +368,13 @@ export default class IssuesServiceMock {
       }
       return {
         property: name,
-        values: [],
+        values: (
+          { resolutions: RESOLUTIONS, severities: SEVERITIES, statuses: STATUSES, types }[name] ??
+          []
+        ).map((val) => ({
+          val,
+          count: 1, // if 0, the facet can't be clicked in tests
+        })),
       };
     });
   };
@@ -577,11 +597,15 @@ export default class IssuesServiceMock {
   };
 
   handleSearchUsers = () => {
-    return this.reply({ users: [mockLoggedInUser()] });
+    return this.reply({ paging: mockPaging(), users: [mockLoggedInUser() as unknown as User] });
+  };
+
+  handleSearchIssueAuthors = () => {
+    return this.reply(mockIssueAuthors());
   };
 
   handleSearchIssueTags = () => {
-    return this.reply(['accessibility', 'android']);
+    return this.reply(['accessibility', 'android', 'unused']);
   };
 
   handleGetIssueChangelog = (_issue: string) => {

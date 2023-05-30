@@ -295,51 +295,6 @@ button.search-navigator-facet:focus,
   padding: 0 10px 16px;
 }
 
-.search-navigator-date-facet-selection {
-  position: relative;
-  padding-left: var(--gridSize);
-  font-size: var(--smallFontSize);
-}
-
-.search-navigator-date-facet-selection:before,
-.search-navigator-date-facet-selection:after {
-  display: table;
-  content: '';
-  line-height: 0;
-}
-
-.search-navigator-date-facet-selection:after {
-  clear: both;
-}
-
-.search-navigator-date-facet-selection .date-input-control-input {
-  width: 115px !important;
-}
-
-.search-navigator-date-facet-selection-dropdown-left {
-  float: left;
-  border-bottom: none;
-}
-
-.search-navigator-date-facet-selection-dropdown-right {
-  float: right;
-  border-bottom: none;
-}
-
-.search-navigator-date-facet-selection-input-left {
-  position: absolute;
-  left: 0;
-  width: 100px;
-  visibility: hidden;
-}
-
-.search-navigator-date-facet-selection-input-right {
-  position: absolute;
-  right: 0;
-  width: 100px;
-  visibility: hidden;
-}
-
 .search-navigator-filters {
   position: relative;
   padding: 5px 10px;

@@ -24,7 +24,7 @@ import { themeColor } from '../helpers';
 
 interface DataPoint {
   description: string;
-  tooltip?: string;
+  tooltip?: string | JSX.Element;
   x: number;
   y: number;
 }

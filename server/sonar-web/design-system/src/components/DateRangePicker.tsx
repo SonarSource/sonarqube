@@ -41,7 +41,7 @@ interface Props {
   separatorText?: string;
   toLabel: string;
   value?: DateRange;
-  valueFormatter: (date?: Date) => string;
+  valueFormatter?: (date?: Date) => string;
 }
 
 export class DateRangePicker extends React.PureComponent<Props> {

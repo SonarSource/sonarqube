@@ -30,9 +30,9 @@ it('should render a disabled facet item', async () => {
 
   renderComponent({ disabled: true, onClick });
 
-  expect(screen.getByRole('listitem')).toHaveAttribute('aria-disabled', 'true');
+  expect(screen.getByRole('checkbox')).toHaveAttribute('aria-disabled', 'true');
 
-  await user.click(screen.getByRole('listitem'));
+  await user.click(screen.getByRole('checkbox'));
 
   expect(onClick).not.toHaveBeenCalled();
 });
@@ -44,16 +44,28 @@ it('should render a non-disabled facet item', async () => {
 
   renderComponent({ active: true, onClick, stat: 3, value: 'foo' });
 
-  expect(screen.getByRole('listitem')).toHaveAttribute('aria-disabled', 'false');
+  expect(screen.getByRole('checkbox')).toHaveAttribute('aria-disabled', 'false');
 
-  await user.click(screen.getByRole('listitem'));
+  await user.click(screen.getByRole('checkbox'));
 
   expect(onClick).toHaveBeenCalledWith('foo', false);
 
   await user.keyboard('{Meta>}');
-  await user.click(screen.getByRole('listitem'));
+  await user.click(screen.getByRole('checkbox'));
 
   expect(onClick).toHaveBeenLastCalledWith('foo', true);
+});
+
+it('should add an aria label if the name is a string', () => {
+  renderComponent({ name: 'Foo' });
+
+  expect(screen.getByRole('checkbox')).toHaveAccessibleName('Foo');
+});
+
+it('should not add an aria label if the name is not a string', () => {
+  renderComponent({ name: <div>Foo</div>, small: true });
+
+  expect(screen.getByRole('checkbox')).not.toHaveAttribute('aria-label');
 });
 
 function renderComponent(props: Partial<FacetItemProps> = {}) {

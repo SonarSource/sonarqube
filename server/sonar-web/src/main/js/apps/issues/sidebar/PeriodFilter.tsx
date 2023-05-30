@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { BasicSeparator, FacetItem } from 'design-system';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
-import { Dict } from '../../../types/types';
-import { formatFacetStat, Query } from '../utils';
+import { MeasuresPanelTabs } from '../../overview/branches/MeasuresPanel';
+import { Query } from '../utils';
+import { FacetItemsList } from './FacetItemsList';
 
 export interface PeriodFilterProps {
-  fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
-  stats: Dict<number> | undefined;
   newCodeSelected: boolean;
 }
 
@@ -38,10 +36,9 @@ enum Period {
 
 const PROPERTY = 'period';
 
-export default function PeriodFilter(props: PeriodFilterProps) {
-  const { fetching, newCodeSelected, stats = {} } = props;
+export function PeriodFilter(props: PeriodFilterProps) {
+  const { newCodeSelected, onChange } = props;
 
-  const { onChange } = props;
   const handleClick = React.useCallback(() => {
     // We need to clear creation date filters they conflict with the new code period
     onChange({
@@ -54,17 +51,16 @@ export default function PeriodFilter(props: PeriodFilterProps) {
   }, [newCodeSelected, onChange]);
 
   return (
-    <FacetBox property={PROPERTY}>
-      <FacetItemsList label={translate('issues.facet', PROPERTY)}>
-        <FacetItem
-          active={newCodeSelected}
-          loading={fetching}
-          name={translate('issues.new_code')}
-          onClick={handleClick}
-          stat={formatFacetStat(stats[Period.NewCode])}
-          value={Period.NewCode}
-        />
-      </FacetItemsList>
-    </FacetBox>
+    <FacetItemsList label={translate('issues.facet', PROPERTY)}>
+      <FacetItem
+        active={newCodeSelected}
+        className="it__search-navigator-facet"
+        name={translate('issues.new_code')}
+        onClick={handleClick}
+        value={newCodeSelected ? MeasuresPanelTabs.New : MeasuresPanelTabs.Overall}
+      />
+
+      <BasicSeparator className="sw-mb-5 sw-mt-4" />
+    </FacetItemsList>
   );
 }

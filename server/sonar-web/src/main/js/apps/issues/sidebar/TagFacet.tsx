@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omit } from 'lodash';
 import * as React from 'react';
 import { searchIssueTags } from '../../../api/issues';
-import { colors } from '../../../app/theme';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import TagsIcon from '../../../components/icons/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
+import { ComponentQualifier } from '../../../types/component';
 import { Facet } from '../../../types/issues';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
+import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
   component: Component | undefined;
@@ -44,11 +44,20 @@ interface Props {
 
 const SEARCH_SIZE = 100;
 
-export default class TagFacet extends React.PureComponent<Props> {
+export class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
     const { component, branch } = this.props;
+
     const project =
-      component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
+      component &&
+      [
+        ComponentQualifier.Project,
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.Application,
+      ].includes(component.qualifier as ComponentQualifier)
+        ? component.key
+        : undefined;
+
     return searchIssueTags({
       project,
       branch,
@@ -65,30 +74,12 @@ export default class TagFacet extends React.PureComponent<Props> {
     return this.props.loadSearchResultCount('tags', { tags });
   };
 
-  renderTag = (tag: string) => {
-    return (
-      <>
-        <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-        {tag}
-      </>
-    );
-  };
-
-  renderSearchResult = (tag: string, term: string) => (
-    <>
-      <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-      {highlightTerm(tag, term)}
-    </>
-  );
-
   render() {
     return (
       <ListStyleFacet<string>
         facetHeader={translate('issues.facet.tags')}
         fetching={this.props.fetching}
         getFacetItemText={this.getTagName}
-        getSearchResultKey={(tag) => tag}
-        getSearchResultText={(tag) => tag}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
@@ -96,8 +87,7 @@ export default class TagFacet extends React.PureComponent<Props> {
         open={this.props.open}
         property="tags"
         query={omit(this.props.query, 'tags')}
-        renderFacetItem={this.renderTag}
-        renderSearchResult={this.renderSearchResult}
+        renderSearchResult={highlightTerm}
         searchPlaceholder={translate('search.search_for_tags')}
         stats={this.props.stats}
         values={this.props.tags}

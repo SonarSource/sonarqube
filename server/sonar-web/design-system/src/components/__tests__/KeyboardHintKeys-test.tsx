@@ -21,24 +21,15 @@
 import { Key } from '../../helpers/keyboard';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import { KeyboardHintKeys } from '../KeyboardHintKeys';
+import { KeyboardHintKeys, mappedKeys } from '../KeyboardHintKeys';
 
-it.each([
-  Key.Control,
-  Key.Command,
-  Key.Alt,
-  Key.Option,
-  Key.ArrowUp,
-  Key.ArrowDown,
-  Key.ArrowLeft,
-  Key.ArrowRight,
-])('should render %s', (key) => {
+it.each(Object.keys(mappedKeys))('should render %s', (key) => {
   const { container } = setupWithProps({ command: key });
   expect(container).toMatchSnapshot();
 });
 
 it('should render multiple keys', () => {
-  const { container } = setupWithProps({ command: `${Key.ArrowUp} ${Key.ArrowDown}` });
+  const { container } = setupWithProps({ command: `Use Ctrl + ${Key.ArrowUp} ${Key.ArrowDown}` });
   expect(container).toMatchSnapshot();
 });
 

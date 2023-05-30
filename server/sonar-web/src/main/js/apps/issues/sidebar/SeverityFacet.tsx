@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  FacetBox,
+  FacetItem,
+  SeverityBlockerIcon,
+  SeverityCriticalIcon,
+  SeverityInfoIcon,
+  SeverityMajorIcon,
+  SeverityMinorIcon,
+} from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
+import { FacetItemsColumns } from './FacetItemsColumns';
+import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -38,9 +44,10 @@ interface Props {
   stats: Dict<number> | undefined;
 }
 
+// can't user SEVERITIES from 'helpers/constants' because of different order
 const SEVERITIES = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
 
-export default class SeverityFacet extends React.PureComponent<Props> {
+export class SeverityFacet extends React.PureComponent<Props> {
   property = 'severities';
 
   static defaultProps = {
@@ -49,10 +56,12 @@ export default class SeverityFacet extends React.PureComponent<Props> {
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { severities } = this.props;
+
     if (multiple) {
       const newValue = orderBy(
         severities.includes(itemValue) ? without(severities, itemValue) : [...severities, itemValue]
       );
+
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
@@ -71,6 +80,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
 
   getStat(severity: string) {
     const { stats } = this.props;
+
     return stats ? stats[severity] : undefined;
   }
 
@@ -81,40 +91,52 @@ export default class SeverityFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth
+        className="it__search-navigator-facet"
+        icon={
+          {
+            BLOCKER: <SeverityBlockerIcon />,
+            CRITICAL: <SeverityCriticalIcon />,
+            INFO: <SeverityInfoIcon />,
+            MAJOR: <SeverityMajorIcon />,
+            MINOR: <SeverityMinorIcon />,
+          }[severity]
+        }
         key={severity}
-        name={<SeverityHelper severity={severity} />}
+        name={translate('severity', severity)}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat)}
-        tooltip={translate('severity', severity)}
+        stat={formatFacetStat(stat) ?? 0}
         value={severity}
       />
     );
   };
 
   render() {
-    const { fetching, open, severities, stats = {} } = this.props;
-    const values = severities.map((severity) => translate('severity', severity));
+    const { fetching, open, severities } = this.props;
+
     const headerId = `facet_${this.property}`;
+    const nbSelectableItems = SEVERITIES.filter(this.getStat.bind(this)).length;
+    const nbSelectedItems = severities.length;
 
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          fetching={fetching}
-          id={headerId}
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={open}
-          values={values}
-        />
+      <FacetBox
+        className="it__search-navigator-facet-box it__search-navigator-facet-header"
+        clearIconLabel={translate('clear')}
+        count={nbSelectedItems}
+        countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+        data-property={this.property}
+        id={headerId}
+        loading={fetching}
+        name={translate('issues.facet', this.property)}
+        onClear={this.handleClear}
+        onClick={this.handleHeaderClick}
+        open={open}
+      >
+        <FacetItemsColumns>{SEVERITIES.map(this.renderItem)}</FacetItemsColumns>
 
-        {open && (
-          <>
-            <FacetItemsList labelledby={headerId}>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
-            <MultipleSelectionHint options={Object.keys(stats).length} values={severities.length} />
-          </>
-        )}
+        <MultipleSelectionHint
+          nbSelectableItems={nbSelectableItems}
+          nbSelectedItems={nbSelectedItems}
+        />
       </FacetBox>
     );
   }
