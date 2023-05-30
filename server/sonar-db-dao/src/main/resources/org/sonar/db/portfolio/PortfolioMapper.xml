@@ -293,6 +293,14 @@
     AND target.kee=#{referenceKey,jdbcType=VARCHAR}
   </select>
 
+   <select id="selectUuidsByKey" parameterType="string" resultType="KeyWithUuid">
+    SELECT ptf.kee, ptf.uuid
+    FROM portfolios ptf
+    INNER JOIN
+    portfolios root ON root.uuid = ptf.root_uuid
+    WHERE root.kee = #{rootKey,jdbcType=VARCHAR}
+   </select>
+
    <insert id="insert" parameterType="Portfolio">
     INSERT INTO portfolios (
       kee,

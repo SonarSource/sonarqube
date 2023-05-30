@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -32,6 +33,7 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 
 public class ComponentTesting {
 
@@ -154,6 +156,19 @@ public class ComponentTesting {
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.VIEW)
       .setPrivate(false);
+  }
+
+  public static PortfolioDto newPortfolioDto(String uuid, String key, String name, @Nullable PortfolioDto parent) {
+    return new PortfolioDto()
+      .setUuid(uuid)
+      .setKey(key)
+      .setParentUuid(parent == null ? null : parent.getUuid())
+      .setRootUuid(parent == null ? uuid : parent.getRootUuid())
+      .setSelectionMode(NONE.name())
+      .setCreatedAt(1L)
+      .setUpdatedAt(1L)
+      .setPrivate(false)
+      .setName(name);
   }
 
   public static ComponentDto newApplication() {

@@ -19,6 +19,8 @@
  */
 package org.sonar.db.portfolio;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
@@ -136,6 +140,27 @@ public class PortfolioDaoIT {
       .containsOnly(
         tuple("NAME_name1", "KEY_name1", "name1", "DESCRIPTION_name1", "name1", null, "NONE", null),
         tuple("NAME_name2", "KEY_name2", "name2", "DESCRIPTION_name2", "name2", null, "NONE", null));
+  }
+
+  @Test
+  public void selectUuidsByKeyFromPortfolioKey_returns_all_uuidByKeyForPortfoliosLinkedToRootKey() {
+    PortfolioDto portfolio1 = ComponentTesting.newPortfolioDto("uuid1", "ptf1", "Portfolio 1", null);
+    PortfolioDto subPortfolio1 = ComponentTesting.newPortfolioDto("sub_uuid11", "sub_ptf1", "SubPortfolio 1", portfolio1);
+    PortfolioDto subSubPortfolio1 = ComponentTesting.newPortfolioDto("sub_uuid12", "sub_sub_ptf1", "SubSubPortfolio 1", portfolio1);
+    PortfolioDto portfolio2 = ComponentTesting.newPortfolioDto("uuid2", "ptf2", "Portfolio 2", null);
+    PortfolioDto subPortfolio2 = ComponentTesting.newPortfolioDto("sub_uuid21", "sub_ptd2", "SubPortfolio 2", portfolio2);
+    Arrays.asList(portfolio1, subPortfolio1, subSubPortfolio1, portfolio2, subPortfolio2)
+      .forEach(portfolio -> portfolioDao.insert(db.getSession(), portfolio));
+
+    List<KeyWithUuidDto> keyWithUuidDtos = portfolioDao.selectUuidsByKey(db.getSession(), portfolio1.getKey());
+
+    KeyWithUuidDto[] expectedKey = {
+      new KeyWithUuidDto(portfolio1.getKee(), portfolio1.getUuid()),
+      new KeyWithUuidDto(subPortfolio1.getKee(), subPortfolio1.getUuid()),
+      new KeyWithUuidDto(subSubPortfolio1.getKee(), subSubPortfolio1.getUuid())
+    };
+
+    assertThat(keyWithUuidDtos).containsExactlyInAnyOrder(expectedKey);
   }
 
   @Test

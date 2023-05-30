@@ -26,6 +26,8 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.portfolio.PortfolioDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -84,4 +86,28 @@ public class ComponentUuidFactoryImplIT {
     // uuid is kept in memory for further calls with same key
     assertThat(underTest.getOrCreateForKey("foo")).isEqualTo(generatedKey);
   }
+
+  @Test
+  public void getOrCreateForKey_whenExistingComponentsInDbForPortfolioAndSubPortfolio_shouldLoadUuidsFromComponentTable() {
+    ComponentDto portfolioDto = db.components().insertPublicPortfolio("pft1", p -> p.setKey("root_portfolio"));
+    ComponentDto subView = db.components().insertSubView(portfolioDto, s -> s.setKey("sub_portfolio").setUuid("subPtf1"));
+    ComponentUuidFactory underTest = new ComponentUuidFactoryImpl(db.getDbClient(), db.getSession(), portfolioDto.getKey(), mockedBranch);
+
+    assertThat(underTest.getOrCreateForKey("root_portfolio")).isEqualTo(portfolioDto.uuid());
+    assertThat(underTest.getOrCreateForKey("sub_portfolio")).isEqualTo(subView.uuid());
+  }
+
+  @Test
+  public void getOrCreateForKey_whenNoExistingComponentsInDbForPortfolioAndSubPortfolio_shouldLoadUuidFromPortfolioTable() {
+    PortfolioDto portfolioDto = ComponentTesting.newPortfolioDto("uuid_ptf1", "ptf1", "Portfolio1", null);
+    db.getDbClient().portfolioDao().insert(db.getSession(), portfolioDto);
+    PortfolioDto subPortfolio = ComponentTesting.newPortfolioDto("subPtf1", "sub_ptf_1", "portfolio", portfolioDto);
+    db.getDbClient().portfolioDao().insert(db.getSession(), subPortfolio);
+
+    ComponentUuidFactory underTest = new ComponentUuidFactoryImpl(db.getDbClient(), db.getSession(), portfolioDto.getKey());
+
+    assertThat(underTest.getOrCreateForKey("ptf1")).isEqualTo(portfolioDto.getUuid());
+    assertThat(underTest.getOrCreateForKey("sub_ptf_1")).isEqualTo(subPortfolio.getUuid());
+  }
+
 }

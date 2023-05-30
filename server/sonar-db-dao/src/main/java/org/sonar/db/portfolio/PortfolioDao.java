@@ -30,6 +30,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.project.ApplicationProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -88,6 +89,10 @@ public class PortfolioDao implements Dao {
       return emptyList();
     }
     return mapper(dbSession).selectByUuids(uuids);
+  }
+
+  public List<KeyWithUuidDto> selectUuidsByKey(DbSession dbSession, String rootKey) {
+    return mapper(dbSession).selectUuidsByKey(rootKey);
   }
 
   /*
@@ -223,8 +228,8 @@ public class PortfolioDao implements Dao {
   }
 
   public PortfolioProjectDto selectPortfolioProjectOrFail(DbSession dbSession, String portfolioUuid, String projectUuid) {
-    return Optional.ofNullable(mapper(dbSession).selectPortfolioProject(portfolioUuid, projectUuid)).orElseThrow(() ->
-      new IllegalArgumentException(format("Project '%s' not selected in portfolio '%s'", projectUuid, portfolioUuid)));
+    return Optional.ofNullable(mapper(dbSession).selectPortfolioProject(portfolioUuid, projectUuid))
+      .orElseThrow(() -> new IllegalArgumentException(format("Project '%s' not selected in portfolio '%s'", projectUuid, portfolioUuid)));
   }
 
   public String addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {

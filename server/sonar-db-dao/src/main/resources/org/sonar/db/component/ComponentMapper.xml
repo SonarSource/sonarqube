@@ -631,8 +631,8 @@
         when b_qualifier = 'DIR' THEN 'DIR'
         when b_qualifier = 'FIL' THEN 'FIL'
         when b_qualifier = 'UTS' THEN 'FIL'
-        <!-- For the few cases where qualifier is not enough to guess the scope (like TRK), just assume the scope remains unchanged -->
-        else scope
+    <!-- For the few cases where qualifier is not enough to guess the scope (like TRK), just assume the scope remains unchanged -->
+    else scope
       end
     ),
     b_changed = ${_false},
