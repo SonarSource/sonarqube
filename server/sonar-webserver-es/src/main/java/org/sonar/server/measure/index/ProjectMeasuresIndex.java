@@ -126,6 +126,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION_LANGUAGE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION_NCLOC;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -405,6 +406,10 @@ public class ProjectMeasuresIndex {
 
     query.getLanguages()
       .ifPresent(languages -> filters.addFilter(FILTER_LANGUAGES, LANGUAGES.getFilterScope(), termsQuery(FIELD_LANGUAGES, languages)));
+
+    //String orgName=query.getOrganizationUuid().get();
+    query.getOrganizationUuid().ifPresent(organizationUuid -> filters.addFilter(FIELD_ORGANIZATION_UUID,  new SimpleFieldFilterScope(FIELD_ORGANIZATION_UUID),termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
+
 
     query.getTags().ifPresent(tags -> filters.addFilter(FIELD_TAGS, TAGS.getFilterScope(), termsQuery(FIELD_TAGS, tags)));
 

@@ -55,6 +55,7 @@ export interface ProjectBase {
 export interface Project extends ProjectBase {
   id: string;
   lastAnalysisDate?: string;
+  organization: string;
 }
 
 export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
@@ -204,6 +205,7 @@ export function getMyProjects(data: {
 
 export interface Component {
   id: string;
+  organization: string;
   key: string;
   name: string;
   isFavorite?: boolean;
@@ -223,6 +225,7 @@ export interface Facet {
 export function searchProjects(data: RequestData): Promise<{
   components: Component[];
   facets: Facet[];
+  organizations: Array<{ key: string; name: string }>;
   paging: Paging;
 }> {
   const url = '/api/components/search_projects';
@@ -242,6 +245,7 @@ export function changeKey(data: { from: string; to: string }) {
 }
 
 export interface SuggestionsResponse {
+  organizations: Array<{ key: string; name: string }>;
   projects: Array<{ key: string; name: string }>;
   results: Array<{
     items: Array<{
@@ -250,6 +254,7 @@ export interface SuggestionsResponse {
       key: string;
       match: string;
       name: string;
+      organization: string;
       project: string;
     }>;
     more: number;

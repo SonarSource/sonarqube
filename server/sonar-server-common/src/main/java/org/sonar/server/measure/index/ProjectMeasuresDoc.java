@@ -40,6 +40,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -66,6 +67,14 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setId(String s) {
     setField(FIELD_UUID, s);
     setParent(AuthorizationDoc.idOf(s));
+    return this;
+  }
+  public String getOrganizationUuid() {
+    return getField(FIELD_ORGANIZATION_UUID);
+  }
+
+  public ProjectMeasuresDoc setOrganizationUuid(String s) {
+    setField(FIELD_ORGANIZATION_UUID, s);
     return this;
   }
 

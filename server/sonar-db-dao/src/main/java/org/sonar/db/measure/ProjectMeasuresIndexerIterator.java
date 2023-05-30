@@ -72,7 +72,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
+  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
     "FROM projects p " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.qualifier in (?, ?)";
@@ -131,13 +131,14 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
          ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
-        String uuid = rs.getString(1);
-        String key = rs.getString(2);
-        String name = rs.getString(3);
-        Long analysisDate = DatabaseUtils.getLong(rs, 4);
-        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 5));
-        String qualifier = rs.getString(6);
-        Project project = new Project(uuid, key, name, qualifier, tags, analysisDate);
+        String orgUuid = rs.getString(1);
+        String uuid = rs.getString(2);
+        String key = rs.getString(3);
+        String name = rs.getString(4);
+        Long analysisDate = DatabaseUtils.getLong(rs, 5);
+        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 6));
+        String qualifier = rs.getString(7);
+        Project project = new Project(orgUuid, uuid, key, name, qualifier, tags, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -318,6 +319,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static class Project {
+    private final String organizationUuid;
     private final String uuid;
     private final String key;
     private final String name;
@@ -325,7 +327,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     private final Long analysisDate;
     private final List<String> tags;
 
-    public Project(String uuid, String key, String name, String qualifier, List<String> tags, @Nullable Long analysisDate) {
+    public Project(String organizationUuid, String uuid, String key, String name, String qualifier, List<String> tags, @Nullable Long analysisDate) {
+      this.organizationUuid = organizationUuid;
       this.uuid = uuid;
       this.key = key;
       this.name = name;
@@ -333,7 +336,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       this.tags = tags;
       this.analysisDate = analysisDate;
     }
-
+    public String getOrganizationUuid() {
+      return organizationUuid;
+    }
     public String getUuid() {
       return uuid;
     }
