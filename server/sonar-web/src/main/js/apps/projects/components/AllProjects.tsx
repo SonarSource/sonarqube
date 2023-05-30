@@ -41,7 +41,8 @@ import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { hasFilterParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
-import { fetchProjectsByOrg, parseSorting, SORTING_SWITCH } from '../utils';import PageHeader from './PageHeader';
+import { fetchProjectsByOrg, parseSorting, SORTING_SWITCH } from '../utils';
+import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
@@ -87,16 +88,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
-          this.handleQueryChange(false, this.props.organization);
-        }
+      this.handleQueryChange(false, this.props.organization);
+    }
 
-        if (
-          prevProps.organization &&
-          this.props.organization &&
-          prevProps.organization !== this.props.organization
-        ) {
-          this.setState({ loading: true });
-        }
+    if (prevProps.organization && this.props.organization && prevProps.organization !== this.props.organization) {
+      this.setState({ loading: true });
+    }
   }
 
   componentWillUnmount() {
@@ -180,16 +177,16 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   handleQueryChange(initialMount: boolean, organization: string) {
-      const query = parseUrlQuery(this.props.location.query);
-      const savedOptions = getStorageOptions();
-      const savedOptionsSet = savedOptions.sort || savedOptions.view;
+    const query = parseUrlQuery(this.props.location.query);
+    const savedOptions = getStorageOptions();
+    const savedOptionsSet = savedOptions.sort || savedOptions.view;
 
-      // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
-      if (initialMount && savedOptionsSet) {
-        this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
-        //this.setState({ loading: false });
-      }
-      this.fetchProjects(query, organization);
+    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
+    if (initialMount && savedOptionsSet) {
+      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
+      //this.setState({ loading: false });
+    }
+    this.fetchProjects(query, organization);
   }
 
   handleSortChange = (sort: string, desc: boolean) => {

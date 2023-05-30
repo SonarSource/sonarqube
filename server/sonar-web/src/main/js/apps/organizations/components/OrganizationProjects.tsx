@@ -20,17 +20,16 @@
 import * as React from 'react';
 import Suggestions from "../../../components/embed-docs-modal/Suggestions";
 import AllProjects from "../../projects/components/AllProjects";
-import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { withOrganizationContext } from "../OrganizationContext";
 import { useParams } from 'react-router-dom';
 
 export default function OrganizationProjects() {
   const { organizationKey } = useParams();
+
   return (
       <>
         <AllProjects
             isFavorite={false}
-            organization={organizationKey}
+            organization={organizationKey!}
         />
         <Suggestions suggestions="organization_projects"/>
       </>

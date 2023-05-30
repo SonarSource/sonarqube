@@ -184,6 +184,7 @@ enum BranchType {
   PULL_REQUEST = 3;
   BRANCH = 4;
 }
+
 message Organization {
   optional string key = 1;
   optional string name = 2;

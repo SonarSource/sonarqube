@@ -336,9 +336,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       this.tags = tags;
       this.analysisDate = analysisDate;
     }
+
     public String getOrganizationUuid() {
       return organizationUuid;
     }
+
     public String getUuid() {
       return uuid;
     }
