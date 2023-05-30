@@ -208,11 +208,12 @@ function renderComponentRoutes() {
   );
 }
 
-function renderAdminRoutes(canAdmin: boolean, canCustomerAdmin: boolean) {
+function renderAdminRoutes(canAdmin: boolean) {
   return (
       <Route path="admin" element={<AdminContainer />}>
         <Route path="extension/:pluginKey/:extensionKey" element={<GlobalAdminPageExtension />} />
         {settingsRoutes()}
+        {backgroundTasksRoutes()}
 
         {canAdmin && (
             <>
@@ -227,8 +228,6 @@ function renderAdminRoutes(canAdmin: boolean, canCustomerAdmin: boolean) {
               {webhooksRoutes()}
             </>
         )}
-
-        {backgroundTasksRoutes()}
       </Route>
   );
 }
@@ -244,7 +243,6 @@ export default function startReactApp(
 
   const el = document.getElementById('content');
   const canAdmin = appState?.canAdmin;
-  const canCustomerAdmin = appState?.canCustomerAdmin;
 
   render(
     <HelmetProvider>
@@ -288,7 +286,7 @@ export default function startReactApp(
 
                         {renderComponentRoutes()}
 
-                        {renderAdminRoutes(canAdmin!, canCustomerAdmin!)}
+                        {renderAdminRoutes(canAdmin!)}
                       </Route>
                       <Route
                         // We don't want this route to have any menu.

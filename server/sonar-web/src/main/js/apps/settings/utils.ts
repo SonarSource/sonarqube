@@ -32,7 +32,7 @@ import {
 } from '../../types/settings';
 import { Component, Dict } from '../../types/types';
 
-export const DEFAULT_CATEGORY = 'general';
+export const DEFAULT_CATEGORY = 'CodeScan';
 
 export type DefaultSpecializedInputProps = DefaultInputProps & {
   className?: string;

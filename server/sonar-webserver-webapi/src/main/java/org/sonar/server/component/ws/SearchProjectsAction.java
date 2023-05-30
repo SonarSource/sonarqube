@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -85,7 +84,6 @@ import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.db.issue.IssueChangeDto.of;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
@@ -237,15 +235,31 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String organizationKey = request.getOrganization();
-      OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-              "No organization for key '%s'", organizationKey);
-      return handleForOrganization(dbSession, request, organization);
+      if (organizationKey == null) {
+        return handleForAnyOrganization(dbSession, request);
+      } else {
+        OrganizationDto organization = checkFoundWithOptional(
+                dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+                "No organization for key '%s'", organizationKey);
+        return handleForOrganization(dbSession, request, organization);
+      }
     }
   }
+
+  private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
+    SearchResults searchResults = searchData(dbSession, request, null);
+    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
+    Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+            .stream()
+            .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
+    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+    return buildResponse(request, searchResults, organizationsByUuid, needIssueSync);
+  }
+
   private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
     SearchResults searchResults = searchData(dbSession, request, organization);
     boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-    return buildResponse(request, searchResults, ImmutableMap.of(organization.getUuid(), organization), needIssueSync);
+    return buildResponse(request, searchResults, Map.of(organization.getUuid(), organization), needIssueSync);
   }
 
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
@@ -348,7 +362,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .filter(ComponentDto::isEnabled)
       .filter(f -> f.qualifier().equals(Qualifiers.PROJECT) || f.qualifier().equals(Qualifiers.APP))
       .map(ComponentDto::uuid)
-      .collect(toSet());
+      .collect(MoreCollectors.toSet());
   }
 
   private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
@@ -403,6 +417,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (request.additionalFields.contains(ORGANIZATIONS)) {
       organizationsByUuidForAdditionalInfo.putAll(organizationsByUuid);
     }
+
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
         .setPageIndex(request.getPage())
@@ -532,7 +547,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
       checkFound(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
       wsComponent
-        .clear().setOrganization(organizationDto.getKey())
+        .clear()
+        .setOrganization(organizationDto.getKey())
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
@@ -668,6 +684,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       this.asc = builder.asc;
       this.additionalFields = builder.additionalFields;
     }
+
     @CheckForNull
     public String getOrganization() {
       return organization;
@@ -723,10 +740,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private RequestBuilder() {
       // enforce static factory method
     }
+
     public RequestBuilder setOrganization(@Nullable String organization) {
       this.organization = organization;
       return this;
     }
+
     public RequestBuilder setFilter(@Nullable String filter) {
       this.filter = filter;
       return this;

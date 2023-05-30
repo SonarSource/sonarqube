@@ -25,11 +25,10 @@ import Link from '../../../../components/common/Link';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { translate } from '../../../../helpers/l10n';
-import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
 import { Extension } from '../../../../types/types';
-import { CurrentUser } from '../../../../types/users';
+import { CurrentUser, LoggedInUser } from '../../../../types/users';
 import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {
@@ -79,7 +78,7 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
       <li>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to={{ pathname: '/issues', query: { resolved: 'false', myIssues: 'true' }, search }}
+          to={{pathname: '/issues', search }}
         >
           {translate('issues.page')}
         </NavLink>
@@ -87,53 +86,26 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderRulesLink() {
-    return (
-      <li>
-        <NavLink
-          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to="/coding_rules"
-        >
-          {translate('coding_rules.page')}
-        </NavLink>
-      </li>
-    );
-  }
-
-  renderProfilesLink() {
-    return (
-      <li>
-        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/profiles">
-          {translate('quality_profiles.page')}
-        </NavLink>
-      </li>
-    );
-  }
-
-  renderQualityGatesLink() {
-    return (
-      <li>
-        <NavLink
-          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to={getQualityGatesUrl()}
-        >
-          {translate('quality_gates.page')}
-        </NavLink>
-      </li>
-    );
-  }
-
+  /**
+   * We will display the link only to the root user who are included into 'sonar-administrators' group
+   * inside default org, and to the customer admin users.
+   */
   renderAdministrationLink() {
-   const isSonarAdminGroupAvailable: boolean = this.props.currentUser.groups.includes('sonar-administrators');
-    const isCustomerAdmin = this.props.currentUser.permissions?.global.includes('customerAdmin');
-    if ((this.props.appState.canAdmin && isSonarAdminGroupAvailable) || (!this.props.appState.canAdmin && isCustomerAdmin)) {
-      return (
-        <li>
-          <Link activeClassName="active" to="/admin">
-            {translate('layout.settings')}
-          </Link>
-        </li>
-      );
+    const { appState, currentUser } = this.props;
+
+    if (currentUser.isLoggedIn) {
+      const loggedInUser = currentUser as LoggedInUser;
+      const isSonarAdminGroupAvailable = loggedInUser.groups.includes('sonar-administrators');
+
+      if ((appState.canAdmin && isSonarAdminGroupAvailable) || (!appState.canAdmin && appState.canCustomerAdmin)) {
+        return (
+            <li>
+              <Link to="/admin">
+                {translate('layout.settings')}
+              </Link>
+            </li>
+        );
+      }
     }
 
     return null;
@@ -186,6 +158,7 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
+        {this.renderAdministrationLink()}
         {this.renderMore()}
       </ul>
     );
