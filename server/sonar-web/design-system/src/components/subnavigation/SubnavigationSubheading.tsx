@@ -17,8 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './SubnavigationAccordion';
-export * from './SubnavigationGroup';
-export * from './SubnavigationHeading';
-export * from './SubnavigationItem';
-export * from './SubnavigationSubheading';
+import styled from '@emotion/styled';
+import tw from 'twin.macro';
+import { themeColor, themeContrast } from '../../helpers/theme';
+
+export const SubnavigationSubheading = styled.div`
+  ${tw`sw-flex`}
+  ${tw`sw-box-border`}
+  ${tw`sw-body-sm`}
+  ${tw`sw-px-4 sw-pt-6 sw-pb-2`}
+  ${tw`sw-w-full`}
+
+  color: ${themeContrast('subnavigationSubheading')};
+  background-color: ${themeColor('subnavigationSubheading')};
+`;
+SubnavigationSubheading.displayName = 'SubnavigationSubheading';

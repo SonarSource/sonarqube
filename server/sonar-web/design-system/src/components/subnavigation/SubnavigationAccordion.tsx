@@ -18,27 +18,43 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ReactNode, useCallback } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../../helpers/theme';
 import { BareButton } from '../buttons';
 import { OpenCloseIndicator } from '../icons/OpenCloseIndicator';
 import { SubnavigationGroup } from './SubnavigationGroup';
 
-interface Props {
+interface CommonProps {
   children: ReactNode;
   className?: string;
-  expanded?: boolean;
   header: ReactNode;
   id: string;
   onSetExpanded?: (expanded: boolean) => void;
 }
 
+interface ControlledProps extends CommonProps {
+  expanded: boolean | undefined;
+  initExpanded?: never;
+}
+
+interface UncontrolledProps extends CommonProps {
+  expanded?: never;
+  initExpanded?: boolean;
+}
+
+type Props = ControlledProps | UncontrolledProps;
+
 export function SubnavigationAccordion(props: Props) {
-  const { children, className, header, id, expanded = true, onSetExpanded } = props;
+  const { children, className, expanded, header, id, initExpanded, onSetExpanded } = props;
+
+  const [innerExpanded, setInnerExpanded] = useState(initExpanded ?? false);
+  const finalExpanded = expanded ?? innerExpanded;
+
   const toggleExpanded = useCallback(() => {
-    onSetExpanded?.(!expanded);
-  }, [expanded, onSetExpanded]);
+    setInnerExpanded(!finalExpanded);
+    onSetExpanded?.(!finalExpanded);
+  }, [finalExpanded, onSetExpanded]);
 
   return (
     <SubnavigationGroup
@@ -49,14 +65,14 @@ export function SubnavigationAccordion(props: Props) {
     >
       <SubnavigationAccordionItem
         aria-controls={`${id}-subnavigation-accordion`}
-        aria-expanded={expanded}
+        aria-expanded={finalExpanded}
         id={`${id}-subnavigation-accordion-button`}
         onClick={toggleExpanded}
       >
         {header}
-        <OpenCloseIndicator open={Boolean(expanded)} />
+        <OpenCloseIndicator open={finalExpanded} />
       </SubnavigationAccordionItem>
-      {expanded && children}
+      {finalExpanded && children}
     </SubnavigationGroup>
   );
 }

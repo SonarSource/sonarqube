@@ -25,12 +25,14 @@ const THROTTLE_DELAY = 10;
 export default function useFollowScroll() {
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
+  const [scrolledOnce, setScrolledOnce] = useState(false);
 
   useEffect(() => {
     const followScroll = throttle(() => {
       if (document.documentElement) {
         setLeft(document.documentElement.scrollLeft);
         setTop(document.documentElement.scrollTop);
+        setScrolledOnce(true);
       }
     }, THROTTLE_DELAY);
 
@@ -38,5 +40,5 @@ export default function useFollowScroll() {
     return () => document.removeEventListener('scroll', followScroll);
   }, []);
 
-  return { left, top };
+  return { left, top, scrolledOnce };
 }

@@ -17,40 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
+
+import { Note } from 'design-system';
+import React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
-  displayLeak?: boolean;
   measure: MeasureEnhanced;
 }
 
-export default function FacetMeasureValue({ measure, displayLeak }: Props) {
-  if (isDiffMetric(measure.metric.key)) {
-    return (
-      <div
-        className={classNames('domain-measures-value', { 'leak-box': displayLeak })}
-        id={`measure-${measure.metric.key}-leak`}
-      >
-        <Measure
-          metricKey={measure.metric.key}
-          metricType={measure.metric.type}
-          value={measure.leak}
-        />
-      </div>
-    );
-  }
+export default function SubnavigationMeasureValue({ measure }: Props) {
+  const isDiff = isDiffMetric(measure.metric.key);
 
   return (
-    <div className="domain-measures-value" id={`measure-${measure.metric.key}-value`}>
+    <Note
+      className="sw-flex sw-items-center sw-mr-1"
+      id={`measure-${measure.metric.key}-${isDiff ? 'leak' : 'value'}`}
+    >
       <Measure
         metricKey={measure.metric.key}
         metricType={measure.metric.type}
-        value={measure.value}
+        value={isDiff ? measure.leak : measure.value}
       />
-    </div>
+    </Note>
   );
 }

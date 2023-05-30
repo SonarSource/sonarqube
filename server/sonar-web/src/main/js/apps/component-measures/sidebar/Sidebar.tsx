@@ -20,23 +20,25 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
+  BareButton,
   FlagMessage,
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
+  SubnavigationGroup,
+  SubnavigationItem,
   themeBorder,
   themeColor,
-} from 'design-system/lib';
+} from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
 import { isPortfolioLike } from '../../../types/component';
-import { Dict, MeasureEnhanced } from '../../../types/types';
-import { KNOWN_DOMAINS, PROJECT_OVERVEW, Query, groupByDomains } from '../utils';
-import DomainFacet from './DomainFacet';
-import ProjectOverviewFacet from './ProjectOverviewFacet';
+import { MeasureEnhanced } from '../../../types/types';
+import { PROJECT_OVERVEW, Query, groupByDomains, isProjectOverview } from '../utils';
+import DomainSubnavigation from './DomainSubnavigation';
 
 interface Props {
   canBrowseAllChildProjects: boolean;
@@ -56,15 +58,7 @@ export default function Sidebar(props: Props) {
     selectedMetric,
     measures,
   } = props;
-  const [openFacets, setOpenFacets] = React.useState(getOpenFacets({}, props));
-  const { top: topScroll } = useFollowScroll();
-
-  const handleToggleFacet = React.useCallback(
-    (name: string) => {
-      setOpenFacets((openFacets) => ({ ...openFacets, [name]: !openFacets[name] }));
-    },
-    [setOpenFacets]
-  );
+  const { top: topScroll, scrolledOnce } = useFollowScroll();
 
   const handleChangeMetric = React.useCallback(
     (metric: string) => {
@@ -73,9 +67,17 @@ export default function Sidebar(props: Props) {
     [updateQuery]
   );
 
-  const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
+  const handleProjectOverviewClick = () => {
+    handleChangeMetric(PROJECT_OVERVEW);
+  };
+
+  const distanceFromBottom = topScroll + window.innerHeight - document.body.scrollHeight;
   const footerVisibleHeight =
-    distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
+    (scrolledOnce &&
+      (distanceFromBottom > -LAYOUT_FOOTER_HEIGHT
+        ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom
+        : 0)) ||
+    0;
 
   return (
     <StyledSidebar
@@ -90,7 +92,7 @@ export default function Sidebar(props: Props) {
       {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
         <FlagMessage
           ariaLabel={translate('component_measures.not_all_measures_are_shown')}
-          className="it__portfolio_warning"
+          className="sw-mt-4 it__portfolio_warning"
           variant="warning"
         >
           {translate('component_measures.not_all_measures_are_shown')}
@@ -109,18 +111,23 @@ export default function Sidebar(props: Props) {
           label={translate('component_measures.skip_to_navigation')}
           weight={10}
         />
-        <ProjectOverviewFacet
-          onChange={handleChangeMetric}
-          selected={selectedMetric}
-          value={PROJECT_OVERVEW}
-        />
-        {groupByDomains(measures).map((domain) => (
-          <DomainFacet
+        <SubnavigationGroup>
+          <SubnavigationItem
+            active={isProjectOverview(selectedMetric)}
+            onClick={handleProjectOverviewClick}
+          >
+            <BareButton>
+              {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
+            </BareButton>
+          </SubnavigationItem>
+        </SubnavigationGroup>
+
+        {groupByDomains(measures).map((domain: Domain) => (
+          <DomainSubnavigation
             domain={domain}
             key={domain.name}
             onChange={handleChangeMetric}
-            onToggle={handleToggleFacet}
-            open={openFacets[domain.name] === true}
+            open={isDomainSelected(selectedMetric, domain)}
             selected={selectedMetric}
             showFullMeasures={showFullMeasures}
           />
@@ -130,15 +137,16 @@ export default function Sidebar(props: Props) {
   );
 }
 
-function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: Props) {
-  const newOpenFacets = { ...openFacets };
-  const measure = measures.find((measure) => measure.metric.key === selectedMetric);
-  if (measure && measure.metric && measure.metric.domain) {
-    newOpenFacets[measure.metric.domain] = true;
-  } else if (KNOWN_DOMAINS.includes(selectedMetric)) {
-    newOpenFacets[selectedMetric] = true;
-  }
-  return newOpenFacets;
+interface Domain {
+  measures: MeasureEnhanced[];
+  name: string;
+}
+
+function isDomainSelected(selectedMetric: string, domain: Domain) {
+  return (
+    selectedMetric === domain.name ||
+    domain.measures.some((measure) => measure.metric.key === selectedMetric)
+  );
 }
 
 const StyledSidebar = withTheme(styled.div`
@@ -147,4 +155,6 @@ const StyledSidebar = withTheme(styled.div`
 
   background-color: ${themeColor('filterbar')};
   border-right: ${themeBorder('default', 'filterbarBorder')};
+  position: sticky;
+  overflow-x: hidden;
 `);

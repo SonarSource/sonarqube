@@ -22,6 +22,7 @@ import Tooltip from '../../components/controls/Tooltip';
 import Level from '../../components/ui/Level';
 import Rating from '../../components/ui/Rating';
 import { formatMeasure } from '../../helpers/measures';
+import { MetricType } from '../../types/metrics';
 import RatingTooltipContent from './RatingTooltipContent';
 
 interface Props {
@@ -47,14 +48,14 @@ export default function Measure({
     return <span className={className}>–</span>;
   }
 
-  if (metricType === 'LEVEL') {
+  if (metricType === MetricType.Level) {
     return <Level className={className} level={value} small={small} />;
   }
 
-  if (metricType !== 'RATING') {
+  if (metricType !== MetricType.Rating) {
     const formattedValue = formatMeasure(value, metricType, {
       decimals,
-      omitExtraDecimalZeros: metricType === 'PERCENT',
+      omitExtraDecimalZeros: metricType === MetricType.Percent,
     });
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }

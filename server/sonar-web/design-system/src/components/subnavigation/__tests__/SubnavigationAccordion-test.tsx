@@ -31,17 +31,17 @@ it('should have correct style and html structure', () => {
 });
 
 it('should display expanded', () => {
-  setupWithProps({ expanded: true });
+  setupWithProps({ initExpanded: true });
 
   expect(screen.getByRole('button', { expanded: true })).toBeVisible();
   expect(screen.getByText('Foo')).toBeVisible();
 });
 
-it('should display expanded by default', () => {
+it('should display collapsed by default', () => {
   setupWithProps();
 
   expect(screen.getByRole('button')).toBeVisible();
-  expect(screen.getByText('Foo')).toBeVisible();
+  expect(screen.queryByText('Foo')).not.toBeInTheDocument();
 });
 
 it('should toggle expand', async () => {

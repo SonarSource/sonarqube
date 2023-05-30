@@ -42,6 +42,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../he
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasure,
   Dict,
@@ -243,7 +244,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
 
     const hideDrilldown =
       isPullRequest(branchLike) &&
-      (metric.key === 'coverage' || metric.key === 'duplicated_lines_density');
+      (metric.key === MetricKey.coverage || metric.key === MetricKey.duplicated_lines_density);
 
     if (hideDrilldown) {
       return (

@@ -74,9 +74,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       onClick={handleClick}
       className="sw-flex-col sw-items-start"
     >
-      <StyledHotspotTitle aria-current={selected} role="button">
-        {hotspot.message}
-      </StyledHotspotTitle>
+      <StyledHotspotTitle aria-current={selected}>{hotspot.message}</StyledHotspotTitle>
       {locations.length > 0 && (
         <StyledHotspotInfo className="sw-flex sw-justify-end sw-w-full">
           <div className="sw-flex sw-mt-2 sw-items-center sw-justify-center sw-gap-1 sw-overflow-hidden">

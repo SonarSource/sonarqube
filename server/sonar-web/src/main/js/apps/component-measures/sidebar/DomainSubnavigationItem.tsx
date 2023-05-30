@@ -17,32 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import { translate } from '../../../helpers/l10n';
+
+import { BareButton, SubnavigationItem } from 'design-system';
+import React from 'react';
+import { MeasureEnhanced } from '../../../types/types';
+import SubnavigationMeasureValue from './SubnavigationMeasureValue';
 
 interface Props {
+  measure: MeasureEnhanced;
+  name: string;
   onChange: (metric: string) => void;
   selected: string;
-  value: string;
 }
 
-export default function ProjectOverviewFacet({ value, selected, onChange }: Props) {
-  const facetName = translate('component_measures.overview', value, 'facet');
+export default function DomainSubnavigationItem({ measure, name, onChange, selected }: Props) {
+  const { key } = measure.metric;
   return (
-    <FacetBox property={value}>
-      <FacetItemsList label={facetName}>
-        <FacetItem
-          active={value === selected}
-          key={value}
-          name={<strong id={`measure-overview-${value}-name`}>{facetName}</strong>}
-          onClick={onChange}
-          tooltip={facetName}
-          value={value}
-        />
-      </FacetItemsList>
-    </FacetBox>
+    <SubnavigationItem active={key === selected} key={key} onClick={onChange} value={key}>
+      <BareButton
+        aria-current={key === selected}
+        className="sw-ml-2 sw-w-full sw-flex sw-justify-between"
+        id={`measure-${key}-name`}
+      >
+        {name}
+        <SubnavigationMeasureValue measure={measure} />
+      </BareButton>
+    </SubnavigationItem>
   );
 }

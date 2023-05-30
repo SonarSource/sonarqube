@@ -26,9 +26,11 @@ import { themeColor } from '../../helpers/theme';
 import { CSSColor, ThemeColors } from '../../types/theme';
 
 interface Props {
+  'aria-hidden'?: boolean | 'true' | 'false';
   'aria-label'?: string;
   children: React.ReactNode;
   className?: string;
+  description?: React.ReactNode;
 }
 
 export interface IconProps extends Omit<Props, 'children'> {
@@ -38,10 +40,17 @@ export interface IconProps extends Omit<Props, 'children'> {
 }
 
 export function CustomIcon(props: Props) {
-  const { 'aria-label': ariaLabel, children, className, ...iconProps } = props;
+  const {
+    'aria-label': ariaLabel,
+    'aria-hidden': ariaHidden,
+    children,
+    className,
+    description,
+    ...iconProps
+  } = props;
   return (
     <svg
-      aria-hidden={ariaLabel ? 'false' : 'true'}
+      aria-hidden={ariaHidden ?? ariaLabel ? 'false' : 'true'}
       aria-label={ariaLabel}
       className={className}
       fill="none"
@@ -63,6 +72,7 @@ export function CustomIcon(props: Props) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       {...iconProps}
     >
+      {description && <desc>{description}</desc>}
       {children}
     </svg>
   );
