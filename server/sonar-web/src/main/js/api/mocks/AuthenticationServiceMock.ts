@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { cloneDeep } from 'lodash';
 import { mockTask } from '../../helpers/mocks/tasks';
+import { GitHubConfigurationStatus, GitHubProvisioningStatus } from '../../types/provisioning';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   activateGithubProvisioning,
   activateScim,
+  checkConfigurationValidity,
   deactivateGithubProvisioning,
   deactivateScim,
   fetchGithubProvisioningStatus,
@@ -30,14 +33,35 @@ import {
 
 jest.mock('../provisioning');
 
+const defaultConfigurationStatus: GitHubConfigurationStatus = {
+  application: {
+    jit: {
+      status: GitHubProvisioningStatus.Success,
+    },
+    autoProvisioning: {
+      status: GitHubProvisioningStatus.Success,
+    },
+  },
+  installations: [
+    {
+      organization: 'testOrg',
+      autoProvisioning: {
+        status: GitHubProvisioningStatus.Success,
+      },
+    },
+  ],
+};
+
 export default class AuthenticationServiceMock {
   scimStatus: boolean;
   githubProvisioningStatus: boolean;
+  githubConfigurationStatus: GitHubConfigurationStatus;
   tasks: Task[];
 
   constructor() {
     this.scimStatus = false;
     this.githubProvisioningStatus = false;
+    this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.tasks = [];
     jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
     jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
@@ -51,6 +75,9 @@ export default class AuthenticationServiceMock {
     jest
       .mocked(fetchGithubProvisioningStatus)
       .mockImplementation(this.handleFetchGithubProvisioningStatus);
+    jest
+      .mocked(checkConfigurationValidity)
+      .mockImplementation(this.handleCheckConfigurationValidity);
   }
 
   addProvisioningTask = (overrides: Partial<Omit<Task, 'type'>> = {}) => {
@@ -61,6 +88,13 @@ export default class AuthenticationServiceMock {
         ...overrides,
       })
     );
+  };
+
+  setConfigurationValidity = (overrides: Partial<GitHubConfigurationStatus> = {}) => {
+    this.githubConfigurationStatus = {
+      ...this.githubConfigurationStatus,
+      ...overrides,
+    };
   };
 
   handleActivateScim = () => {
@@ -115,9 +149,14 @@ export default class AuthenticationServiceMock {
     });
   };
 
+  handleCheckConfigurationValidity = () => {
+    return Promise.resolve(this.githubConfigurationStatus);
+  };
+
   reset = () => {
     this.scimStatus = false;
     this.githubProvisioningStatus = false;
+    this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.tasks = [];
   };
 }

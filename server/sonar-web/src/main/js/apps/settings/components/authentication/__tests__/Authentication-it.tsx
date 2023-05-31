@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
@@ -30,6 +30,7 @@ import { AvailableFeaturesContext } from '../../../../../app/components/availabl
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../../types/features';
+import { GitHubProvisioningStatus } from '../../../../../types/provisioning';
 import { TaskStatuses } from '../../../../../types/tasks';
 import Authentication from '../Authentication';
 
@@ -163,6 +164,26 @@ const ui = {
     githubProvisioningInProgress: byText(/synchronization_in_progress/),
     githubProvisioningSuccess: byText(/synchronization_successful/),
     githubProvisioningAlert: byText(/synchronization_failed/),
+    configurationValidityLoading: byRole('status', {
+      name: /github.configuration.validation.loading/,
+    }),
+    configurationValiditySuccess: byRole('status', {
+      name: /github.configuration.validation.valid/,
+    }),
+    configurationValidityError: byRole('alert', {
+      name: /github.configuration.validation.invalid/,
+    }),
+    checkConfigButton: byRole('button', {
+      name: 'settings.authentication.github.configuration.validation.test',
+    }),
+    viewConfigValidityDetailsButton: byRole('button', {
+      name: 'settings.authentication.github.configuration.validation.details',
+    }),
+    configDetailsDialog: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.validation.details.title',
+    }),
+    getConfigDetailsTitle: () => within(ui.github.configDetailsDialog.get()).getByRole('heading'),
+    getOrgs: () => within(ui.github.configDetailsDialog.get()).getAllByRole('listitem'),
     fillForm: async (user: UserEvent) => {
       const { github } = ui;
       await act(async () => {
@@ -182,6 +203,12 @@ const ui = {
       await act(async () => {
         await user.click(github.saveConfigButton.get());
       });
+    },
+    enableConfiguration: async (user: UserEvent) => {
+      const { github } = ui;
+      await act(async () => user.click(await github.tab.find()));
+      await github.createConfiguration(user);
+      await act(async () => user.click(await github.enableConfigButton.find()));
     },
     enableProvisioning: async (user: UserEvent) => {
       const { github } = ui;
@@ -418,14 +445,15 @@ describe('Github tab', () => {
   });
 
   describe('Github Provisioning', () => {
+    let user: UserEvent;
     beforeEach(() => {
       jest.useFakeTimers({
         advanceTimers: true,
         now: new Date('2022-02-04T12:00:59Z'),
       });
+      user = userEvent.setup();
     });
     it('should display a success status when the synchronisation is a success', async () => {
-      const user = userEvent.setup();
       handler.addProvisioningTask({
         status: TaskStatuses.Success,
         executedAt: '2022-02-03T11:45:35+0200',
@@ -438,7 +466,6 @@ describe('Github tab', () => {
     });
 
     it('should display a success status even when another task is pending', async () => {
-      const user = userEvent.setup();
       handler.addProvisioningTask({
         status: TaskStatuses.Pending,
         executedAt: '2022-02-03T11:55:35+0200',
@@ -449,12 +476,11 @@ describe('Github tab', () => {
       });
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableProvisioning(user);
-      expect(await github.githubProvisioningSuccess.find()).toBeInTheDocument();
-      expect(await github.githubProvisioningPending.find()).toBeInTheDocument();
+      expect(github.githubProvisioningSuccess.get()).toBeInTheDocument();
+      expect(github.githubProvisioningPending.get()).toBeInTheDocument();
     });
 
     it('should display an error alert when the synchronisation failed', async () => {
-      const user = userEvent.setup();
       handler.addProvisioningTask({
         status: TaskStatuses.Failed,
         executedAt: '2022-02-03T11:45:35+0200',
@@ -462,13 +488,12 @@ describe('Github tab', () => {
       });
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableProvisioning(user);
-      expect(await github.githubProvisioningAlert.find()).toBeInTheDocument();
+      expect(github.githubProvisioningAlert.get()).toBeInTheDocument();
       expect(github.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
       expect(github.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
 
     it('should display an error alert even when another task is in progress', async () => {
-      const user = userEvent.setup();
       handler.addProvisioningTask({
         status: TaskStatuses.InProgress,
         executedAt: '2022-02-03T11:55:35+0200',
@@ -480,10 +505,180 @@ describe('Github tab', () => {
       });
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableProvisioning(user);
-      expect(await github.githubProvisioningAlert.find()).toBeInTheDocument();
+      expect(github.githubProvisioningAlert.get()).toBeInTheDocument();
       expect(github.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
       expect(github.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(github.githubProvisioningInProgress.get()).toBeInTheDocument();
+    });
+
+    it('should display that config is valid for both provisioning with 1 org', async () => {
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+    });
+
+    it('should display that config is valid for both provisioning with multiple orgs', async () => {
+      handler.setConfigurationValidity({
+        installations: [
+          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+          { organization: 'org2', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+        ],
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      expect(github.configurationValiditySuccess.get()).toHaveTextContent('2');
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_label'
+      );
+      expect(github.getOrgs()[0]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+      );
+      expect(github.getOrgs()[1]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_labelorg2'
+      );
+    });
+
+    it('should display that config is invalid', async () => {
+      const errorMessage = 'Test error';
+      handler.setConfigurationValidity({
+        application: {
+          jit: {
+            status: GitHubProvisioningStatus.Error,
+            errorMessage,
+          },
+          autoProvisioning: {
+            status: GitHubProvisioningStatus.Error,
+            errorMessage,
+          },
+        },
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      expect(github.configurationValidityError.get()).toBeInTheDocument();
+      expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.invalid_label'
+      );
+      expect(github.configDetailsDialog.get()).toHaveTextContent(errorMessage);
+    });
+
+    it('should display that config is valid for jit, but not for auto', async () => {
+      const errorMessage = 'Test error';
+      handler.setConfigurationValidity({
+        application: {
+          jit: {
+            status: GitHubProvisioningStatus.Success,
+          },
+          autoProvisioning: {
+            status: GitHubProvisioningStatus.Error,
+            errorMessage,
+          },
+        },
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      expect(github.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_label'
+      );
+      await act(() =>
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+      );
+
+      await act(() => user.click(github.githubProvisioningButton.get()));
+
+      expect(github.configurationValidityError.get()).toBeInTheDocument();
+      expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.invalid_label'
+      );
+    });
+
+    it('should display that config is invalid because of orgs', async () => {
+      const errorMessage = 'Test error';
+      handler.setConfigurationValidity({
+        installations: [
+          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+          {
+            organization: 'org2',
+            autoProvisioning: { status: GitHubProvisioningStatus.Error, errorMessage },
+          },
+        ],
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      github.getOrgs().forEach((org) => {
+        expect(org).toHaveTextContent(
+          'settings.authentication.github.configuration.validation.details.valid_label'
+        );
+      });
+      await act(() =>
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+      );
+
+      await act(() => user.click(github.githubProvisioningButton.get()));
+
+      expect(github.configurationValidityError.get()).toBeInTheDocument();
+      expect(github.configurationValidityError.get()).toHaveTextContent(
+        `settings.authentication.github.configuration.validation.invalid_org.org2.${errorMessage}`
+      );
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getOrgs()[1]).toHaveTextContent(
+        `settings.authentication.github.configuration.validation.details.invalid_labelorg2 - ${errorMessage}`
+      );
+    });
+
+    it('should update provisioning validity after clicking Test Configuration', async () => {
+      const errorMessage = 'Test error';
+      handler.setConfigurationValidity({
+        application: {
+          jit: {
+            status: GitHubProvisioningStatus.Error,
+            errorMessage,
+          },
+          autoProvisioning: {
+            status: GitHubProvisioningStatus.Error,
+            errorMessage,
+          },
+        },
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+      handler.setConfigurationValidity({
+        application: {
+          jit: {
+            status: GitHubProvisioningStatus.Success,
+          },
+          autoProvisioning: {
+            status: GitHubProvisioningStatus.Success,
+          },
+        },
+      });
+
+      expect(await github.configurationValidityError.find()).toBeInTheDocument();
+
+      await act(() => user.click(github.checkConfigButton.get()));
+
+      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      expect(github.configurationValidityError.query()).not.toBeInTheDocument();
     });
   });
 });

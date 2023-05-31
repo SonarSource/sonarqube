@@ -25,7 +25,6 @@ import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Provider } from '../../../../components/hooks/useManageProvider';
-import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
@@ -36,8 +35,9 @@ import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
+import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
-import { useIdentityProvierQuery } from './queries/IdentityProvider';
+import { useIdentityProvierQuery } from './queries/identity-provider';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -102,6 +102,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
           </div>
         )}
       </div>
+      {enabled && (
+        <GitHubConfigurationValidity
+          isAutoProvisioning={!!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
+        />
+      )}
       {!hasConfiguration && !hasLegacyConfiguration && (
         <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
           {translate('settings.authentication.github.form.not_configured')}
@@ -130,16 +135,6 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
             <div>
               <h5>{translateWithParameters('settings.authentication.github.appid_x', appId)}</h5>
               <p>{url}</p>
-              <p className="big-spacer-top big-spacer-bottom">
-                {enabled ? (
-                  <span className="authentication-enabled spacer-left">
-                    <CheckIcon className="spacer-right" />
-                    {translate('settings.authentication.form.enabled')}
-                  </span>
-                ) : (
-                  translate('settings.authentication.form.not_enabled')
-                )}
-              </p>
               <Button
                 className="spacer-top"
                 onClick={toggleEnable}

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post } from '../helpers/request';
-import { GithubStatus } from '../types/provisioning';
+import { getJSON, post, postJSON } from '../helpers/request';
+import { GitHubConfigurationStatus, GithubStatus } from '../types/provisioning';
 
 export function fetchIsScimEnabled(): Promise<boolean> {
   return getJSON('/api/scim_management/status')
@@ -45,6 +45,10 @@ export function activateGithubProvisioning(): Promise<void> {
 
 export function deactivateGithubProvisioning(): Promise<void> {
   return post('/api/github_provisioning/disable').catch(throwGlobalError);
+}
+
+export function checkConfigurationValidity(): Promise<GitHubConfigurationStatus> {
+  return postJSON('/api/github_provisioning/check').catch(throwGlobalError);
 }
 
 export function syncNowGithubProvisioning(): Promise<void> {

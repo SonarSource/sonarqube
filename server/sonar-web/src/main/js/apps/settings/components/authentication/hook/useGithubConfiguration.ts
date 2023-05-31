@@ -26,7 +26,7 @@ import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import {
   useGithubStatusQuery,
   useToggleGithubProvisioningMutation,
-} from '../queries/IdentityProvider';
+} from '../queries/identity-provider';
 import useConfiguration from './useConfiguration';
 
 export const GITHUB_ENABLED_FIELD = 'sonar.auth.github.enabled';

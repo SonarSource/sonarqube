@@ -42,7 +42,7 @@ import useSamlConfiguration, {
   SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
 } from './hook/useSamlConfiguration';
-import { useIdentityProvierQuery, useToggleScimMutation } from './queries/IdentityProvider';
+import { useIdentityProvierQuery, useToggleScimMutation } from './queries/identity-provider';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];

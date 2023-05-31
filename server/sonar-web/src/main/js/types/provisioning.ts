@@ -47,3 +47,29 @@ export type GithubStatusEnabled = {
 };
 
 export type GithubStatus = GithubStatusDisabled | GithubStatusEnabled;
+
+export enum GitHubProvisioningStatus {
+  Success = 'SUCCESS',
+  Error = 'ERROR',
+}
+
+type GitHubProvisioning =
+  | {
+      status: GitHubProvisioningStatus.Success;
+      errorMessage?: never;
+    }
+  | {
+      status: GitHubProvisioningStatus.Error;
+      errorMessage: string;
+    };
+
+export interface GitHubConfigurationStatus {
+  application: {
+    jit: GitHubProvisioning;
+    autoProvisioning: GitHubProvisioning;
+  };
+  installations: {
+    organization: string;
+    autoProvisioning: GitHubProvisioning;
+  }[];
+}

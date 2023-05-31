@@ -23,6 +23,7 @@ import { useContext } from 'react';
 import {
   activateGithubProvisioning,
   activateScim,
+  checkConfigurationValidity,
   deactivateGithubProvisioning,
   deactivateScim,
   fetchIsScimEnabled,
@@ -78,3 +79,7 @@ export function useToggleGithubProvisioningMutation() {
     },
   });
 }
+
+export const useCheckGitHubConfigQuery = () => {
+  return useQuery(['identity_provider', 'github_check'], checkConfigurationValidity);
+};
