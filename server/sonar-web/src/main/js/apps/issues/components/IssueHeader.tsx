@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClipboardIconButton,
+  IssueMessageHighlighting,
+  Link,
+  LinkIcon,
+  Note,
+  PageContentFontWrapper,
+} from 'design-system';
 import * as React from 'react';
 import { setIssueAssignee } from '../../../api/issues';
-import Link from '../../../components/common/Link';
-import LinkIcon from '../../../components/icons/LinkIcon';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
-import IssueChangelog from '../../../components/issue/components/IssueChangelog';
-import IssueMessageTags from '../../../components/issue/components/IssueMessageTags';
+import IssueTags from '../../../components/issue/components/IssueTags';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
-import { getComponentIssuesUrl, getRuleUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl, getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { IssueType } from '../../../types/issues';
-import { RuleStatus } from '../../../types/rules';
+import { IssueActions, IssueType } from '../../../types/issues';
 import { Issue, RuleDetails } from '../../../types/types';
 
 interface Props {
@@ -131,65 +134,43 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
       open: issue.key,
       types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
     });
-    const ruleStatus = issue.ruleStatus as RuleStatus | undefined;
-    const { quickFixAvailable } = issue;
+    const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
     return (
-      <>
-        <div className="display-flex-center display-flex-space-between big-padded-top">
-          <h1 className="text-bold spacer-right">
-            <span className="spacer-right issue-header" aria-label={issue.message}>
-              <IssueMessageHighlighting
-                message={issue.message}
-                messageFormattings={issue.messageFormattings}
-              />
-            </span>
-            <IssueMessageTags
-              engine={issue.externalRuleEngine}
-              quickFixAvailable={quickFixAvailable}
-              ruleStatus={ruleStatus}
+      <header className="sw-flex sw-flex-col sw-gap-3 sw-my-6">
+        <div className="sw-flex sw-items-center">
+          <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+            <IssueMessageHighlighting
+              message={issue.message}
+              messageFormattings={issue.messageFormattings}
             />
-          </h1>
-          <div className="issue-meta issue-get-perma-link">
-            <Link
-              className="js-issue-permalink link-no-underline"
-              target="_blank"
-              title={translate('permalink')}
-              to={issueUrl}
-            >
-              {translate('issue.action.permalink')}
-              <LinkIcon />
-            </Link>
-          </div>
+          </PageContentFontWrapper>
+          <ClipboardIconButton
+            Icon={LinkIcon}
+            aria-label={translate('permalink')}
+            className="sw-ml-1 sw-align-bottom"
+            copyValue={getPathUrlAsString(issueUrl, false)}
+            discreet={true}
+          />
         </div>
-        <div className="display-flex-center display-flex-space-between spacer-top big-spacer-bottom">
-          <div>
-            <span className="note padded-right">{name}</span>
+        <div className="sw-flex sw-items-center sw-justify-between">
+          <Note>
+            <span className="sw-pr-1">{name}</span>
             {isExternal ? (
-              <span className="note small">({key})</span>
+              <span>({key})</span>
             ) : (
-              <Link className="small" to={getRuleUrl(key)} target="_blank">
+              <Link to={getRuleUrl(key)} target="_blank">
                 {key}
               </Link>
             )}
-          </div>
-          <div className="issue-meta-list">
-            <div className="issue-meta">
-              <IssueChangelog
-                creationDate={issue.creationDate}
-                isOpen={issuePopupName === 'changelog'}
-                issue={issue}
-                togglePopup={this.handleIssuePopupToggle}
-              />
-            </div>
-            {issue.textRange != null && (
-              <div className="issue-meta">
-                <span className="issue-meta-label" title={translate('line_number')}>
-                  L{issue.textRange.endLine}
-                </span>
-              </div>
-            )}
-          </div>
+          </Note>
+          <IssueTags
+            canSetTags={canSetTags}
+            issue={issue}
+            onChange={this.props.onIssueChange}
+            open={issuePopupName === 'edit-tags' && canSetTags}
+            togglePopup={this.handleIssuePopupToggle}
+          />
         </div>
         <IssueActionsBar
           className="issue-header-actions"
@@ -200,7 +181,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           togglePopup={this.handleIssuePopupToggle}
           showCommentsInPopup
         />
-      </>
+      </header>
     );
   }
 }

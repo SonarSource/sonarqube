@@ -24,6 +24,7 @@ import selectEvent from 'react-select-event';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
+import { findTooltipWithContent } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import {
@@ -775,17 +776,16 @@ describe('issues item', () => {
 
     // open tags popup on key press 't'
 
-    // needs to be fixed with the new header from ambroise!
-    // await user.keyboard('t');
-    // expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
-    // expect(screen.getByText('android')).toBeInTheDocument();
-    // expect(screen.getByText('accessibility')).toBeInTheDocument();
-    // // closing tags popup
-    // await user.click(screen.getByText('issue.no_tag'));
+    await user.keyboard('t');
+    expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
+    expect(screen.getByText('android')).toBeInTheDocument();
+    expect(screen.getByText('accessibility')).toBeInTheDocument();
+    // closing tags popup
+    await user.click(screen.getByText('issue.no_tag'));
 
-    // // open assign popup on key press 'a'
-    // await user.keyboard('a');
-    // expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
+    // open assign popup on key press 'a'
+    await user.keyboard('a');
+    expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
   });
 
   it('should not open the actions popup using keyboard shortcut when keyboard shortcut flag is disabled', async () => {
@@ -864,8 +864,11 @@ describe('issues item', () => {
     await user.click(await ui.issueItemAction7.find());
 
     expect(
-      screen.getByRole('heading', {
-        name: 'Issue with tags issue.quick_fix_available_with_sonarlint_no_link issue.resolution.badge.DEPRECATED',
+      findTooltipWithContent('issue.quick_fix_available_with_sonarlint_no_link')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', {
+        name: 'issue.resolution.badge.DEPRECATED',
       })
     ).toBeInTheDocument();
   });

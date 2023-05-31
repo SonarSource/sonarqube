@@ -33,10 +33,11 @@ import { RuleStatus } from '../../../types/rules';
 import { Issue, RawQuery } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
+import { WorkspaceContext } from '../../workspace/context';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
+import IssueBadges from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
-import IssueMessageTags from './IssueMessageTags';
 import IssueSeverity from './IssueSeverity';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
@@ -58,138 +59,138 @@ interface State {
   commentPlaceholder: string;
 }
 
-export default class IssueActionsBar extends React.PureComponent<Props, State> {
-  state: State = {
+export default function IssueActionsBar(props: Props) {
+  const {
+    issue,
+    currentPopup,
+    onAssign,
+    onChange,
+    togglePopup,
+    className,
+    showComments,
+    showCommentsInPopup,
+    showLine,
+  } = props;
+  const [commentState, setCommentState] = React.useState<State>({
     commentAutoTriggered: false,
     commentPlaceholder: '',
-  };
+  });
 
-  setIssueProperty = (
+  const setIssueProperty = (
     property: keyof Issue,
     popup: string,
     apiCall: (query: RawQuery) => Promise<IssueResponse>,
     value: string
   ) => {
-    const { issue } = this.props;
     if (issue[property] !== value) {
       const newIssue = { ...issue, [property]: value };
-      updateIssue(
-        this.props.onChange,
-        apiCall({ issue: issue.key, [property]: value }),
-        issue,
-        newIssue
-      );
+      updateIssue(onChange, apiCall({ issue: issue.key, [property]: value }), issue, newIssue);
     }
-    this.props.togglePopup(popup, false);
+    togglePopup(popup, false);
   };
 
-  toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
-    this.setState({
+  const toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
+    setCommentState({
       commentPlaceholder: placeholder,
       commentAutoTriggered: autoTriggered,
     });
-    this.props.togglePopup('comment', open);
+    togglePopup('comment', open);
   };
 
-  handleTransition = (issue: Issue) => {
-    this.props.onChange(issue);
+  const handleTransition = (issue: Issue) => {
+    onChange(issue);
     if (
       issue.resolution === IssueResolution.FalsePositive ||
       (issue.resolution === IssueResolution.WontFix && issue.type !== IssueTypeEnum.SecurityHotspot)
     ) {
-      this.toggleComment(true, translate('issue.comment.explain_why'), true);
+      toggleComment(true, translate('issue.comment.explain_why'), true);
     }
   };
 
-  render() {
-    const { issue, className, showComments, showCommentsInPopup, showLine } = this.props;
-    const canAssign = issue.actions.includes(IssueActions.Assign);
-    const canComment = issue.actions.includes(IssueActions.Comment);
-    const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
-    const canSetType = issue.actions.includes(IssueActions.SetType);
-    const hasTransitions = issue.transitions.length > 0;
-    const hasComments = issue.comments && issue.comments.length > 0;
-    const IssueMetaLiClass = classNames(
-      className,
-      'sw-body-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150'
-    );
+  const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
+  const ruleEngine =
+    (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
+    issue.externalRuleEngine;
+  const canAssign = issue.actions.includes(IssueActions.Assign);
+  const canComment = issue.actions.includes(IssueActions.Comment);
+  const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
+  const canSetType = issue.actions.includes(IssueActions.SetType);
+  const hasTransitions = issue.transitions.length > 0;
+  const hasComments = !!issue.comments?.length;
+  const issueMetaListItemClassNames = classNames(
+    className,
+    'sw-body-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150'
+  );
 
-    return (
-      <div className="sw-flex sw-flex-wrap sw-items-center sw-justify-between">
-        <ul className="sw-flex sw-items-center sw-gap-3 sw-body-sm">
-          <li>
-            <IssueType
-              canSetType={canSetType}
-              issue={issue}
-              setIssueProperty={this.setIssueProperty}
-            />
-          </li>
-          <li>
-            <IssueSeverity
-              isOpen={this.props.currentPopup === 'set-severity'}
-              togglePopup={this.props.togglePopup}
-              canSetSeverity={canSetSeverity}
-              issue={issue}
-              setIssueProperty={this.setIssueProperty}
-            />
-          </li>
-          <li>
-            <IssueTransition
-              isOpen={this.props.currentPopup === 'transition'}
-              togglePopup={this.props.togglePopup}
-              hasTransitions={hasTransitions}
-              issue={issue}
-              onChange={this.handleTransition}
-            />
-          </li>
-          <li>
-            <IssueAssign
-              isOpen={this.props.currentPopup === 'assign'}
-              togglePopup={this.props.togglePopup}
-              canAssign={canAssign}
-              issue={issue}
-              onAssign={this.props.onAssign}
-            />
-          </li>
-        </ul>
-        {(canComment || showCommentsInPopup) && (
-          <IssueCommentAction
-            commentAutoTriggered={this.state.commentAutoTriggered}
-            commentPlaceholder={this.state.commentPlaceholder}
-            currentPopup={this.props.currentPopup}
-            issueKey={issue.key}
-            onChange={this.props.onChange}
-            toggleComment={this.toggleComment}
-            comments={issue.comments}
-            canComment={canComment}
-            showCommentsInPopup={showCommentsInPopup}
+  return (
+    <div className="sw-flex sw-flex-wrap sw-items-center sw-justify-between">
+      <ul className="sw-flex sw-items-center sw-gap-3 sw-body-sm">
+        <li>
+          <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
+        </li>
+        <li>
+          <IssueSeverity
+            isOpen={currentPopup === 'set-severity'}
+            togglePopup={togglePopup}
+            canSetSeverity={canSetSeverity}
+            issue={issue}
+            setIssueProperty={setIssueProperty}
           />
+        </li>
+        <li>
+          <IssueTransition
+            isOpen={currentPopup === 'transition'}
+            togglePopup={togglePopup}
+            hasTransitions={hasTransitions}
+            issue={issue}
+            onChange={handleTransition}
+          />
+        </li>
+        <li>
+          <IssueAssign
+            isOpen={currentPopup === 'assign'}
+            togglePopup={togglePopup}
+            canAssign={canAssign}
+            issue={issue}
+            onAssign={onAssign}
+          />
+        </li>
+      </ul>
+      {(canComment || showCommentsInPopup) && (
+        <IssueCommentAction
+          commentAutoTriggered={commentState.commentAutoTriggered}
+          commentPlaceholder={commentState.commentPlaceholder}
+          currentPopup={currentPopup}
+          issueKey={issue.key}
+          onChange={onChange}
+          toggleComment={toggleComment}
+          comments={issue.comments}
+          canComment={canComment}
+          showCommentsInPopup={showCommentsInPopup}
+        />
+      )}
+
+      <ul className="sw-flex sw-items-center sw-gap-2 sw-body-sm">
+        <li className={issueMetaListItemClassNames}>
+          <IssueBadges
+            quickFixAvailable={issue.quickFixAvailable}
+            ruleStatus={issue.ruleStatus as RuleStatus | undefined}
+          />
+        </li>
+
+        {ruleEngine && (
+          <li className={issueMetaListItemClassNames}>
+            <Tooltip
+              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
+            >
+              <Badge>{ruleEngine}</Badge>
+            </Tooltip>
+          </li>
         )}
 
-        <ul className="sw-flex sw-items-center sw-gap-2 sw-body-sm">
-          <li className={IssueMetaLiClass}>
-            <IssueMessageTags
-              engine={issue.externalRuleEngine}
-              quickFixAvailable={issue.quickFixAvailable}
-              ruleStatus={issue.ruleStatus as RuleStatus | undefined}
-            />
-          </li>
-
-          {issue.externalRuleEngine && (
-            <li className={IssueMetaLiClass}>
-              <Tooltip
-                overlay={translateWithParameters(
-                  'issue.from_external_rule_engine',
-                  issue.externalRuleEngine
-                )}
-              >
-                <Badge>{issue.externalRuleEngine}</Badge>
-              </Tooltip>
-            </li>
-          )}
-
-          {issue.codeVariants && issue.codeVariants.length > 0 && (
-            <IssueMetaLi>
+        {!!issue.codeVariants?.length && (
+          <>
+            <IssueMetaListItem>
               <Tooltip overlay={issue.codeVariants.join(', ')}>
                 <>
                   {issue.codeVariants.length > 1
@@ -197,46 +198,46 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
                     : translate('issue.1_code_variant')}
                 </>
               </Tooltip>
-              <SeparatorCircleIcon aria-hidden={true} as="li" />
-            </IssueMetaLi>
-          )}
+            </IssueMetaListItem>
+            <SeparatorCircleIcon aria-hidden={true} as="li" />
+          </>
+        )}
 
-          {showComments && hasComments && (
-            <>
-              <IssueMetaLi className={IssueMetaLiClass}>
-                <CommentIcon aria-label={translate('issue.comment.formlink')} />
-                {issue.comments?.length}
-              </IssueMetaLi>
-              <SeparatorCircleIcon aria-hidden={true} as="li" />
-            </>
-          )}
-          {showLine && isDefined(issue.textRange) && (
-            <>
-              <Tooltip overlay={translate('line_number')}>
-                <IssueMetaLi className={IssueMetaLiClass}>
-                  {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
-                </IssueMetaLi>
-              </Tooltip>
-              <SeparatorCircleIcon aria-hidden={true} as="li" />
-            </>
-          )}
-          {issue.effort && (
-            <>
-              <IssueMetaLi className={IssueMetaLiClass}>
-                {translateWithParameters('issue.x_effort', issue.effort)}
-              </IssueMetaLi>
-              <SeparatorCircleIcon aria-hidden={true} as="li" />
-            </>
-          )}
-          <IssueMetaLi className={IssueMetaLiClass}>
-            <DateFromNow date={issue.creationDate} />
-          </IssueMetaLi>
-        </ul>
-      </div>
-    );
-  }
+        {showComments && hasComments && (
+          <>
+            <IssueMetaListItem className={issueMetaListItemClassNames}>
+              <CommentIcon aria-label={translate('issue.comment.formlink')} />
+              {issue.comments?.length}
+            </IssueMetaListItem>
+            <SeparatorCircleIcon aria-hidden={true} as="li" />
+          </>
+        )}
+        {showLine && isDefined(issue.textRange) && (
+          <>
+            <Tooltip overlay={translate('line_number')}>
+              <IssueMetaListItem className={issueMetaListItemClassNames}>
+                {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
+              </IssueMetaListItem>
+            </Tooltip>
+            <SeparatorCircleIcon aria-hidden={true} as="li" />
+          </>
+        )}
+        {issue.effort && (
+          <>
+            <IssueMetaListItem className={issueMetaListItemClassNames}>
+              {translateWithParameters('issue.x_effort', issue.effort)}
+            </IssueMetaListItem>
+            <SeparatorCircleIcon aria-hidden={true} as="li" />
+          </>
+        )}
+        <IssueMetaListItem className={issueMetaListItemClassNames}>
+          <DateFromNow date={issue.creationDate} />
+        </IssueMetaListItem>
+      </ul>
+    </div>
+  );
 }
 
-const IssueMetaLi = styled.li`
+const IssueMetaListItem = styled.li`
   color: ${themeColor('pageContentLight')};
 `;

@@ -54,6 +54,7 @@ export * from './InputMultiSelect';
 export { InputSearch } from './InputSearch';
 export * from './InputSelect';
 export * from './InteractiveIcon';
+export * from './IssueMessageHighlighting';
 export * from './KeyboardHint';
 export * from './Link';
 export { StandoutLink as Link } from './Link';

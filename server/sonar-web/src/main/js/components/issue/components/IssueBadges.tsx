@@ -17,30 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleStatus } from '../../../types/rules';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
 import Link from '../../common/Link';
+import Tooltip from '../../controls/Tooltip';
 import SonarLintIcon from '../../icons/SonarLintIcon';
-import { WorkspaceContext } from '../../workspace/context';
 
-export interface IssueMessageTagsProps {
-  engine?: string;
+export interface IssueBadgesProps {
   quickFixAvailable?: boolean;
   ruleStatus?: RuleStatus;
 }
 
-export default function IssueMessageTags(props: IssueMessageTagsProps) {
-  const { engine, quickFixAvailable, ruleStatus } = props;
-
-  const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
-  const ruleEngine = (engine && externalRulesRepoNames[engine]) || engine;
+export default function IssueBadges(props: IssueBadgesProps) {
+  const { quickFixAvailable, ruleStatus } = props;
 
   return (
-    <>
+    <div className="sw-flex">
       {quickFixAvailable && (
         <Tooltip
           overlay={
@@ -61,17 +57,19 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           }
           mouseLeaveDelay={0.5}
         >
-          <SonarLintIcon
-            className="it__issues-sonarlint-quick-fix spacer-right"
-            size={15}
-            description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
-          />
+          <div className="sw-flex sw-items-center">
+            <SonarLintIcon
+              className="it__issues-sonarlint-quick-fix"
+              size={15}
+              description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
+            />
+          </div>
         </Tooltip>
       )}
       {ruleStatus &&
         (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
           <DocumentationTooltip
-            className="spacer-left"
+            className="sw-ml-2"
             content={translate('rules.status', ruleStatus, 'help')}
             links={[
               {
@@ -80,16 +78,9 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
               },
             ]}
           >
-            <span className="spacer-right badge badge-error">
-              {translate('issue.resolution.badge', ruleStatus)}
-            </span>
+            <Badge variant="deleted">{translate('issue.resolution.badge', ruleStatus)}</Badge>
           </DocumentationTooltip>
         )}
-      {ruleEngine && (
-        <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-          <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-        </Tooltip>
-      )}
-    </>
+    </div>
   );
 }

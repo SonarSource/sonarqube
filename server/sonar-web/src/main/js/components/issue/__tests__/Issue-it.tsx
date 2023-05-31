@@ -154,21 +154,20 @@ describe('updating', () => {
     expect(ui.updateAssigneeBtn('luke').get()).toBeInTheDocument();
   });
 
-  // Should be re-enabled when tags are re-enabled with ambroise code
   // eslint-disable-next-line jest/no-commented-out-tests
-  // it('should allow updating the tags', async () => {
-  //   const { ui } = getPageObject();
-  //   const issue = mockRawIssue(false, {
-  //     tags: [],
-  //     actions: [IssueActions.SetTags],
-  //   });
-  //   issuesHandler.setIssueList([{ issue, snippets: {} }]);
-  //   renderIssue({ issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'tags') }) });
+  it('should allow updating the tags', async () => {
+    const { ui } = getPageObject();
+    const issue = mockRawIssue(false, {
+      tags: [],
+      actions: [IssueActions.SetTags],
+    });
+    issuesHandler.setIssueList([{ issue, snippets: {} }]);
+    renderIssue({ issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'tags') }) });
 
-  //   await ui.addTag('accessibility');
-  //   await ui.addTag('android', ['accessibility']);
-  //   expect(ui.updateTagsBtn(['accessibility', 'android']).get()).toBeInTheDocument();
-  // });
+    await ui.addTag('accessibility');
+    await ui.addTag('android', ['accessibility']);
+    expect(ui.updateTagsBtn(['accessibility', 'android']).get()).toBeInTheDocument();
+  });
 });
 
 it('should correctly handle keyboard shortcuts', async () => {
@@ -297,7 +296,7 @@ function getPageObject() {
     // Tags
     tagsSearchInput: byRole('searchbox'),
     updateTagsBtn: (currentTags?: string[]) =>
-      byText(`tags_list_x.${currentTags ? currentTags.join(', ') : 'issue.no_tag'}`),
+      byRole('button', { name: `${currentTags ? currentTags.join(', ') : 'issue.no_tag'} +` }),
     toggleTagCheckbox: (name: string) => byRole('checkbox', { name }),
   };
 
