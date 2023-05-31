@@ -79,6 +79,7 @@ export function isNewCodeDefinitionCompliant(newCodePeriod: NewCodePeriod) {
         return false;
       }
       return (
+        !/\D/.test(newCodePeriod.value) &&
         Number.isInteger(+newCodePeriod.value) &&
         MIN_NUMBER_OF_DAYS <= +newCodePeriod.value &&
         +newCodePeriod.value <= MAX_NUMBER_OF_DAYS

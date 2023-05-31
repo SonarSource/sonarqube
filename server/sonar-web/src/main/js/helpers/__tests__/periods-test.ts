@@ -115,13 +115,15 @@ describe('isNewCodeDefinitionCompliant', () => {
   it.each([
     [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '0' }, false],
     [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '15' }, true],
+    [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '15.' }, false],
+    [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '15.0' }, false],
     [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '15.3' }, false],
     [{ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' }, false],
     [{ type: NewCodePeriodSettingType.PREVIOUS_VERSION }, true],
     [{ type: NewCodePeriodSettingType.REFERENCE_BRANCH }, true],
     [{ type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS }, false],
   ])(
-    'should test for new code definition compliance properly',
+    'should test for new code definition compliance properly %s',
     (newCodePeriod: NewCodePeriod, result: boolean) => {
       expect(isNewCodeDefinitionCompliant(newCodePeriod)).toEqual(result);
     }
