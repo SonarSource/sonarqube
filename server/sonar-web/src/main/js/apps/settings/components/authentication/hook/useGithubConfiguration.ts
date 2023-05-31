@@ -24,6 +24,7 @@ import { AvailableFeaturesContext } from '../../../../../app/components/availabl
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import {
+  useCheckGitHubConfigQuery,
   useGithubStatusQuery,
   useToggleGithubProvisioningMutation,
 } from '../queries/identity-provider';
@@ -60,6 +61,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
     Feature.GithubProvisioning
   );
   const { data: githubProvisioningStatus } = useGithubStatusQuery();
+  const { refetch } = useCheckGitHubConfigQuery();
   const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
   const [newGithubProvisioningStatus, setNewGithubProvisioningStatus] = useState<boolean>();
   const hasGithubProvisioningConfigChange =
@@ -78,6 +80,8 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
 
   const reload = useCallback(async () => {
     await reloadConfig();
+    // Temporary solution that will be solved once we migrate to react-query
+    refetch();
   }, [reloadConfig]);
 
   const changeProvisioning = async () => {

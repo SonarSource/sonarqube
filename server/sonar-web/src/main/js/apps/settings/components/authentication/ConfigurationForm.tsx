@@ -121,10 +121,13 @@ export default function ConfigurationForm(props: Props) {
           >
             <Alert variant={hasLegacyConfiguration ? 'warning' : 'info'}>
               <FormattedMessage
-                id={`settings.authentication.${hasLegacyConfiguration ? 'legacy_help' : 'help'}`}
+                id={`settings.authentication.${
+                  hasLegacyConfiguration ? 'legacy_help.github' : 'help'
+                }`}
                 defaultMessage={translate(
-                  `settings.authentication.${hasLegacyConfiguration ? 'legacy_help' : 'help'}`,
-                  tab
+                  `settings.authentication.${
+                    hasLegacyConfiguration ? 'legacy_help.github' : 'help'
+                  }`
                 )}
                 values={{
                   link: (

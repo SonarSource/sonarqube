@@ -66,18 +66,20 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
     const invalidOrgs =
       isValidApp && isAutoProvisioning && data
         ? data.installations.filter(
-            (org) => org.autoProvisioning.status === GitHubProvisioningStatus.Error
+            (org) => org.autoProvisioning.status === GitHubProvisioningStatus.Failed
           )
         : [];
 
     if (isValidApp && invalidOrgs.length === 0) {
       setMessages([
         translateWithParameters(
-          `${intlPrefix}.valid${data.installations.length > 1 ? '.multiple_orgs' : ''}`,
+          `${intlPrefix}.valid${data.installations.length === 1 ? '_one' : ''}`,
           isAutoProvisioning
             ? translate('settings.authentication.github.form.provisioning_with_github_short')
             : translate('settings.authentication.form.provisioning_at_login_short'),
-          data.installations.length
+          data.installations.length === 1
+            ? data.installations[0].organization
+            : data.installations.length
         ),
       ]);
       setAlertVariant('success');
@@ -140,7 +142,7 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
                   />
                   <span className="sw-ml-2">{inst.organization}</span>
                   {isAutoProvisioning &&
-                    inst.autoProvisioning.status === GitHubProvisioningStatus.Error && (
+                    inst.autoProvisioning.status === GitHubProvisioningStatus.Failed && (
                       <span> - {inst.autoProvisioning.errorMessage}</span>
                     )}
                 </li>

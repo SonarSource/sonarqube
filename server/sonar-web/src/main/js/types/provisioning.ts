@@ -50,7 +50,7 @@ export type GithubStatus = GithubStatusDisabled | GithubStatusEnabled;
 
 export enum GitHubProvisioningStatus {
   Success = 'SUCCESS',
-  Error = 'ERROR',
+  Failed = 'FAILED',
 }
 
 type GitHubProvisioning =
@@ -59,7 +59,7 @@ type GitHubProvisioning =
       errorMessage?: never;
     }
   | {
-      status: GitHubProvisioningStatus.Error;
+      status: GitHubProvisioningStatus.Failed;
       errorMessage: string;
     };
 

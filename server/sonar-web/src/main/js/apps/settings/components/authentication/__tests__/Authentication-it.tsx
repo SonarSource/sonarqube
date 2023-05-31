@@ -548,11 +548,11 @@ describe('Github tab', () => {
       handler.setConfigurationValidity({
         application: {
           jit: {
-            status: GitHubProvisioningStatus.Error,
+            status: GitHubProvisioningStatus.Failed,
             errorMessage,
           },
           autoProvisioning: {
-            status: GitHubProvisioningStatus.Error,
+            status: GitHubProvisioningStatus.Failed,
             errorMessage,
           },
         },
@@ -578,7 +578,7 @@ describe('Github tab', () => {
             status: GitHubProvisioningStatus.Success,
           },
           autoProvisioning: {
-            status: GitHubProvisioningStatus.Error,
+            status: GitHubProvisioningStatus.Failed,
             errorMessage,
           },
         },
@@ -615,7 +615,7 @@ describe('Github tab', () => {
           { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
           {
             organization: 'org2',
-            autoProvisioning: { status: GitHubProvisioningStatus.Error, errorMessage },
+            autoProvisioning: { status: GitHubProvisioningStatus.Failed, errorMessage },
           },
         ],
       });
@@ -651,11 +651,11 @@ describe('Github tab', () => {
       handler.setConfigurationValidity({
         application: {
           jit: {
-            status: GitHubProvisioningStatus.Error,
+            status: GitHubProvisioningStatus.Failed,
             errorMessage,
           },
           autoProvisioning: {
-            status: GitHubProvisioningStatus.Error,
+            status: GitHubProvisioningStatus.Failed,
             errorMessage,
           },
         },
