@@ -19,8 +19,9 @@
  */
 package org.sonar.scanner.repository.language;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.Startable;
@@ -33,7 +34,7 @@ import org.sonar.api.resources.Languages;
 @Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
 
-  private Languages languages;
+  private final Languages languages;
 
   public DefaultLanguagesRepository(Languages languages) {
     this.languages = languages;
@@ -53,7 +54,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   @CheckForNull
   public Language get(String languageKey) {
     org.sonar.api.resources.Language language = languages.get(languageKey);
-    return language != null ? new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()) : null;
+    return language != null ? new Language(language) : null;
   }
 
   /**
@@ -61,12 +62,9 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
    */
   @Override
   public Collection<Language> all() {
-    org.sonar.api.resources.Language[] all = languages.all();
-    Collection<Language> result = new ArrayList<>(all.length);
-    for (org.sonar.api.resources.Language language : all) {
-      result.add(new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()));
-    }
-    return result;
+    return Arrays.stream(languages.all())
+      .map(Language::new)
+      .collect(Collectors.toList());
   }
 
   @Override
