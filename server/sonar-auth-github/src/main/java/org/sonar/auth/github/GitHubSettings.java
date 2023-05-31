@@ -238,8 +238,8 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS)
         .name("Organizations")
-        .description("Only members of these organizations will be able to authenticate to the server. " +
-          "If a user is a member of any of the organizations listed they will be authenticated.")
+        .description("Only members of these organizations will be able to authenticate to the server. "
+          + "⚠ if not set, users from any organization where the GitHub App is installed will be able to login to this SonarQube instance.")
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
