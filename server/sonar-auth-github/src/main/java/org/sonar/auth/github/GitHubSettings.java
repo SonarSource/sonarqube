@@ -64,6 +64,7 @@ public class GitHubSettings {
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
 
+
   private final Configuration configuration;
 
   private final InternalProperties internalProperties;
@@ -111,6 +112,10 @@ public class GitHubSettings {
   @CheckForNull
   public String apiURL() {
     return urlWithEndingSlash(configuration.get(API_URL).orElse(""));
+  }
+
+  public String apiURLOrDefault() {
+    return configuration.get(API_URL).map(GitHubSettings::urlWithEndingSlash).orElse(DEFAULT_API_URL);
   }
 
   public Set<String> getOrganizations() {
