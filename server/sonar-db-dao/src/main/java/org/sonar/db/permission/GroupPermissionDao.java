@@ -34,6 +34,7 @@ import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -219,6 +220,20 @@ public class GroupPermissionDao implements Dao {
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
       String componentKey = (componentDto != null) ? componentDto.getKey() : null;
       String componentName = (componentDto != null) ? componentDto.name() : null;
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(rootComponentUuid,
+        componentKey, componentName, permission, groupUuid, groupName, qualifier));
+    }
+  }
+
+  public void delete(DbSession dbSession, String permission, @Nullable String groupUuid,
+    @Nullable String groupName, @Nullable String rootComponentUuid, @Nullable EntityDto entityDto) {
+
+    int deletedRecords = mapper(dbSession).delete(permission, groupUuid, rootComponentUuid);
+
+    if (deletedRecords > 0) {
+      String qualifier = (entityDto != null) ? entityDto.getQualifier() : null;
+      String componentKey = (entityDto != null) ? entityDto.getKey() : null;
+      String componentName = (entityDto != null) ? entityDto.getName() : null;
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(rootComponentUuid,
         componentKey, componentName, permission, groupUuid, groupName, qualifier));
     }

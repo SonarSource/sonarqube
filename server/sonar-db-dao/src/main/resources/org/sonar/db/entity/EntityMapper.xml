@@ -21,6 +21,14 @@
     where p.uuid = #{uuid,jdbcType=VARCHAR})
   </select>
 
+  <sql id="selectAll">
+    (select <include refid="org.sonar.db.entity.EntityMapper.entityProjectColumns"/>
+    from projects p)
+    UNION
+    (select <include refid="org.sonar.db.entity.EntityMapper.entityPortfolioColumns"/>
+    from portfolios p)
+  </sql>
+
   <select id="selectByUuids"  resultType="Entity">
     (select <include refid="entityProjectColumns"/>
     from projects p

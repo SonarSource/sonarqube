@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -45,7 +44,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ProjectsActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -53,10 +52,10 @@ public class ProjectsActionIT {
 
   @Test
   public void list_authorized_projects_only() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    associateProjectsWithProfile(qualityProfile, db.components().getProjectDtoByMainBranch(project1), db.components().getProjectDtoByMainBranch(project2));
+    associateProjectsWithProfile(qualityProfile, project1, project2);
     // user only sees project1
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project1);
@@ -70,7 +69,7 @@ public class ProjectsActionIT {
         "  [\n" +
         "    {\n" +
         "      \"key\": \"" + project1.getKey() + "\",\n" +
-        "      \"name\": \"" + project1.name() + "\",\n" +
+        "      \"name\": \"" + project1.getName() + "\",\n" +
         "      \"selected\": true\n" +
         "    }\n" +
         "  ]}");

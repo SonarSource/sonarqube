@@ -56,7 +56,7 @@ import static org.sonar.db.user.TokenType.USER_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 
 @RunWith(DataProviderRunner.class)
-public class UserTokenAuthenticationTest {
+public class UserTokenAuthenticationIT {
 
   private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
@@ -73,7 +73,7 @@ public class UserTokenAuthenticationTest {
   private static final String GLOBAL_ANALYSIS_TOKEN_HASH = "global-analysis-token-hash";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
   private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);

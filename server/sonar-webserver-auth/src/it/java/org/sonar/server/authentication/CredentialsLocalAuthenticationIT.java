@@ -44,13 +44,13 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.BCRYPT;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.PBKDF2;
 
-public class CredentialsLocalAuthenticationTest {
+public class CredentialsLocalAuthenticationIT {
 
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final String PBKDF2_SALT = generatePBKDF2Salt();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private static final Random RANDOM = new Random();
   private static final MapSettings settings = new MapSettings();

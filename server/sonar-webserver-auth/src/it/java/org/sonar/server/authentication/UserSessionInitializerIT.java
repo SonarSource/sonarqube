@@ -54,10 +54,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
-public class UserSessionInitializerTest {
+public class UserSessionInitializerIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private ThreadLocalUserSession threadLocalSession = mock(ThreadLocalUserSession.class);
   private HttpRequest request = mock(HttpRequest.class);
@@ -206,7 +206,7 @@ public class UserSessionInitializerTest {
     long expirationTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
     UserDto userDto = new UserDto();
     UserTokenDto userTokenDto = new UserTokenDto().setExpirationDate(expirationTimestamp);
-    UserSession session = new TokenUserSession(DbTester.create().getDbClient(), userDto, userTokenDto);
+    UserSession session = new TokenUserSession(DbTester.create(true).getDbClient(), userDto, userTokenDto);
 
     when(authenticator.authenticate(request, response)).thenReturn(session);
     when(threadLocalSession.isLoggedIn()).thenReturn(true);

@@ -54,7 +54,7 @@ import static org.sonar.db.user.UserTesting.newExternalUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-public class UserUpdaterUpdateTest {
+public class UserUpdaterUpdateIT {
 
   private static final String DEFAULT_LOGIN = "marius";
   private static final Consumer<UserDto> EMPTY_USER_CONSUMER = userDto -> {
@@ -63,7 +63,7 @@ public class UserUpdaterUpdateTest {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);

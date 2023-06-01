@@ -57,7 +57,7 @@ import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 @RunWith(DataProviderRunner.class)
-public class UserUpdaterCreateTest {
+public class UserUpdaterCreateIT {
 
   private static final String DEFAULT_LOGIN = "marius";
 
@@ -66,7 +66,7 @@ public class UserUpdaterCreateTest {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);

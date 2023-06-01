@@ -118,8 +118,8 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasChildProjectsPermission(String permission, ProjectDto project) {
-    return hasChildProjectsPermission(permission, project.getUuid());
+  public final boolean hasChildProjectsPermission(String permission, ProjectDto application) {
+    return hasChildProjectsPermission(permission, application.getUuid());
   }
 
   @Override

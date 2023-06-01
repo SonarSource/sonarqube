@@ -36,12 +36,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL;
 
-public class DefaultAdminCredentialsVerifierImplTest {
+public class DefaultAdminCredentialsVerifierImplIT {
 
   private static final String ADMIN_LOGIN = "admin";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public LogTester logTester = new LogTester();
 

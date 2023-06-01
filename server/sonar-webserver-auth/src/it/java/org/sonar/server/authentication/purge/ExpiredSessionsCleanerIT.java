@@ -41,13 +41,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ExpiredSessionsCleanerTest {
+public class ExpiredSessionsCleanerIT {
 
   private static final long NOW = 1_000_000_000L;
 
   private TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   @Rule
   public LogTester logTester = new LogTester();
 

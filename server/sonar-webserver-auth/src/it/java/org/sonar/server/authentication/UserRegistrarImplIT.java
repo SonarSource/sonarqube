@@ -60,7 +60,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source.local;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source.realm;
 
-public class UserRegistrarImplTest {
+public class UserRegistrarImplIT {
   private static final String USER_LOGIN = "johndoo";
 
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
@@ -79,7 +79,7 @@ public class UserRegistrarImplTest {
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
   @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2(), true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

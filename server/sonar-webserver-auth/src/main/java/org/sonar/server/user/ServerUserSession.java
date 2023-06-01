@@ -275,11 +275,11 @@ public class ServerUserSession extends AbstractUserSession {
    */
   private Set<String> loadProjectPermissions(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
-      if (component.isEmpty()) {
+      Optional<EntityDto> entity = dbClient.entityDao().selectByUuid(dbSession, projectUuid);
+      if (entity.isEmpty()) {
         return Collections.emptySet();
       }
-      if (component.get().isPrivate()) {
+      if (entity.get().isPrivate()) {
         return loadDbPermissions(dbSession, projectUuid);
       }
       Set<String> projectPermissions = new HashSet<>();
@@ -291,15 +291,22 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Set<String> loadChildProjectUuids(String applicationUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.componentDao()
+      BranchDto branchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, applicationUuid)
+        .orElseThrow();
+      Set<String> projectBranchesUuid = dbClient.componentDao()
         .selectDescendants(dbSession, ComponentTreeQuery.builder()
-          .setBaseUuid(applicationUuid)
+          .setBaseUuid(branchDto.getUuid())
           .setQualifiers(singleton(Qualifiers.PROJECT))
           .setScopes(singleton(Scopes.FILE))
           .setStrategy(Strategy.CHILDREN).build())
         .stream()
         .map(ComponentDto::getCopyComponentUuid)
         .collect(toSet());
+
+      return dbClient.branchDao().selectByUuids(dbSession, projectBranchesUuid).stream()
+        .map(BranchDto::getProjectUuid)
+        .collect(toSet());
+
     }
   }
 

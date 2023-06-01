@@ -32,6 +32,7 @@ import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,7 @@ public class GroupPermissionDaoWithPersisterIT {
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), null, dto.getRole(), null, null, null);
     assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
 
-    underTest.delete(dbSession, ADMIN, group.getUuid(), group.getName(), null, null);
+    underTest.delete(dbSession, ADMIN, group.getUuid(), group.getName(), null, (EntityDto) null);
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -75,7 +76,7 @@ public class GroupPermissionDaoWithPersisterIT {
 
   @Test
   public void groupGlobalPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
-    underTest.delete(dbSession, ADMIN, "group-uuid", "group-name", null, null);
+    underTest.delete(dbSession, ADMIN, "group-uuid", "group-name", null, (EntityDto) null);
 
     verifyNoInteractions(auditPersister);
   }
@@ -189,7 +190,7 @@ public class GroupPermissionDaoWithPersisterIT {
   private void addGroupPermissionWithoutComponent() {
     group = db.users().insertGroup(g -> g.setUuid("guuid").setName("gname"));
     dto = getGroupPermission(group);
-    underTest.insert(dbSession, dto, null, null);
+    underTest.insert(dbSession, dto, (EntityDto) null, null);
   }
 
   private GroupPermissionDto getGroupPermission(@Nullable GroupDto group, @Nullable ComponentDto project) {

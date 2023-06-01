@@ -28,10 +28,10 @@ import org.sonar.db.user.GroupDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DefaultGroupFinderTest {
+public class DefaultGroupFinderIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient());
 

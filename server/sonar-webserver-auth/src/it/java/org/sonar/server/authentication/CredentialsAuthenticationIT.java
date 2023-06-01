@@ -47,7 +47,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
-public class CredentialsAuthenticationTest {
+public class CredentialsAuthenticationIT {
 
   private static final String LOGIN = "LOGIN";
   private static final String PASSWORD = "PASSWORD";
@@ -57,7 +57,7 @@ public class CredentialsAuthenticationTest {
   private static final String DEPRECATED_HASH_METHOD = "SHA1";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final HttpRequest request = mock(HttpRequest.class);

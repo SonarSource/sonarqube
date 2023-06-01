@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
@@ -35,15 +35,15 @@ import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
 
-public class TokenUserSessionTest {
+public class TokenUserSessionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
   private final DbClient dbClient = db.getDbClient();
 
   @Test
   public void token_can_be_retrieved_from_the_session() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -59,8 +59,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasProjectsPermission_for_UserToken() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -68,14 +68,14 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
   public void test_hasProjectsPermission_for_ProjecAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -84,14 +84,14 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
   public void test_hasProjectsPermission_for_ProjectAnalysisToken_with_global_permission() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -99,8 +99,8 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
@@ -115,8 +115,8 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasGlobalPermission_for_ProjecAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -132,7 +132,7 @@ public class TokenUserSessionTest {
 
   @Test
   public void test_hasGlobalPermission_for_GlobalAnalysisToken() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
 
     UserDto user = db.users().insertUser();
 
@@ -140,7 +140,7 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isFalse();
     assertThat(userSession.hasPermission(GlobalPermission.SCAN)).isTrue();
   }
 
@@ -182,8 +182,8 @@ public class TokenUserSessionTest {
     return new TokenUserSession(dbClient, userDto, mockUserTokenDto());
   }
 
-  private TokenUserSession mockProjectAnalysisTokenUserSession(UserDto userDto, ComponentDto componentDto) {
-    return new TokenUserSession(dbClient, userDto, mockProjectAnalysisTokenDto(componentDto));
+  private TokenUserSession mockProjectAnalysisTokenUserSession(UserDto userDto, ProjectDto projectDto) {
+    return new TokenUserSession(dbClient, userDto, mockProjectAnalysisTokenDto(projectDto));
   }
 
   private TokenUserSession mockGlobalAnalysisTokenUserSession(UserDto userDto) {
@@ -198,14 +198,14 @@ public class TokenUserSessionTest {
     return userTokenDto;
   }
 
-  private static UserTokenDto mockProjectAnalysisTokenDto(ComponentDto componentDto) {
+  private static UserTokenDto mockProjectAnalysisTokenDto(ProjectDto projectDto) {
     UserTokenDto userTokenDto = new UserTokenDto();
     userTokenDto.setType(PROJECT_ANALYSIS_TOKEN.name());
     userTokenDto.setName("Project Analysis Token");
     userTokenDto.setUserUuid("userUid");
-    userTokenDto.setProjectKey(componentDto.getKey());
-    userTokenDto.setProjectName(componentDto.name());
-    userTokenDto.setProjectUuid(componentDto.branchUuid());
+    userTokenDto.setProjectKey(projectDto.getKey());
+    userTokenDto.setProjectName(projectDto.getName());
+    userTokenDto.setProjectUuid(projectDto.getUuid());
     return userTokenDto;
   }
 

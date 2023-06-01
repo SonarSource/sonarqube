@@ -169,16 +169,16 @@
     union
 
     select
-      p.uuid
+      entity.uuid
     from
       user_roles ur
-    inner join components p on
-      p.uuid = ur.component_uuid
+    inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on
+      entity.uuid = ur.component_uuid
     where
       ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_uuid=#{userUuid, jdbcType=INTEGER}
       and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
-        p.uuid=#{element, jdbcType=VARCHAR}
+        entity.uuid=#{element, jdbcType=VARCHAR}
       </foreach>
 
     union
@@ -188,14 +188,14 @@
 
   <sql id="sqlSelectPublicProjectsIfRole">
     select
-    p.uuid
+    entity.uuid
     from
-    components p
+    (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
     where
     <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
-      p.uuid=#{element ,jdbcType=VARCHAR}
+      entity.uuid=#{element ,jdbcType=VARCHAR}
     </foreach>
-    and p.private = ${_false}
+    and entity.isPrivate = ${_false}
     and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
   </sql>
 
@@ -260,10 +260,10 @@
         select
           1
         from
-          components p
+          (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
         where
-          p.uuid =#{componentUuid, jdbcType=VARCHAR}
-          and p.private = ${_false}
+          entity.uuid =#{componentUuid, jdbcType=VARCHAR}
+          and entity.isPrivate = ${_false}
           and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
       )
   </select>
@@ -271,9 +271,9 @@
   <select id="selectProjectPermissions" parameterType="map" resultType="String">
     select ur.role
     from user_roles ur
-    inner join components p on p.uuid = ur.component_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.component_uuid
     where
-      p.uuid = #{projectUuid, jdbcType=VARCHAR} and
+      entity.uuid = #{projectUuid, jdbcType=VARCHAR} and
       ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
 
     union
@@ -281,9 +281,9 @@
     select gr.role
     from group_roles gr
     inner join groups_users gu on gr.group_uuid = gu.group_uuid
-    inner join components p on p.uuid = gr.component_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.component_uuid
     where
-      p.uuid = #{projectUuid, jdbcType=VARCHAR} and
+      entity.uuid = #{projectUuid, jdbcType=VARCHAR} and
       gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
 
     union
@@ -300,10 +300,10 @@
       gr.role
     from
       group_roles gr
-    inner join components p on
-      p.uuid = gr.component_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on
+      entity.uuid = gr.component_uuid
     where
-      p.uuid = #{projectUuid, jdbcType=VARCHAR}
+      entity.uuid = #{projectUuid, jdbcType=VARCHAR}
       and gr.group_uuid is null
   </sql>
 
@@ -348,28 +348,28 @@
         exists (
           select 1
           from user_roles ur
-          inner join components p on p.uuid = ur.component_uuid
+          inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.component_uuid
           where
-            p.kee =  #{projectKey, jdbcType=VARCHAR}
+            entity.kee =  #{projectKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
             and ur.user_uuid = u.uuid
         ) or exists (
           select 1
-          from components p
-          inner join group_roles gr on gr.component_uuid = p.uuid
+          from (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
+          inner join group_roles gr on gr.component_uuid = entity.uuid
           inner join groups_users gu on gu.group_uuid = gr.group_uuid
           where
-            p.kee  =  #{projectKey, jdbcType=VARCHAR}
+            entity.kee  =  #{projectKey, jdbcType=VARCHAR}
             and gu.user_uuid = u.uuid
             and gr.role = #{permission, jdbcType=VARCHAR}
         )
         <if test="permission == 'user' or permission == 'codeviewer'">
           or exists (
             select 1
-            from components p
+            from (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
             where
-              p.kee =  #{projectKey, jdbcType=VARCHAR}
-              and p.private = ${_false}
+              entity.kee =  #{projectKey, jdbcType=VARCHAR}
+              and entity.isPrivate = ${_false}
           )
         </if>
       )

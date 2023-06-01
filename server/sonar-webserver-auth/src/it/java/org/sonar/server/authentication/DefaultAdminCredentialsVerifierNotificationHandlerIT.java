@@ -38,10 +38,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
-public class DefaultAdminCredentialsVerifierNotificationHandlerTest {
+public class DefaultAdminCredentialsVerifierNotificationHandlerIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
 

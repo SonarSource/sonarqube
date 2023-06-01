@@ -29,7 +29,7 @@ import org.sonar.db.user.UserTokenDto;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class UserLastConnectionDatesUpdaterImplTest {
+public class UserLastConnectionDatesUpdaterImplIT {
 
   private static final long NOW = 10_000_000_000L;
   private static final long ONE_MINUTE = 60_000L;
@@ -37,7 +37,7 @@ public class UserLastConnectionDatesUpdaterImplTest {
   private static final long TWO_HOUR = ONE_HOUR * 2L;
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 

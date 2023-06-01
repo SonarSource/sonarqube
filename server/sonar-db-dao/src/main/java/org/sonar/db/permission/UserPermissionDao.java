@@ -126,13 +126,13 @@ public class UserPermissionDao implements Dao {
       templateDto));
   }
 
-  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable EntityDto entity,
+  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable EntityDto entityDto,
     @Nullable UserId userId, @Nullable PermissionTemplateDto templateDto) {
     mapper(dbSession).insert(dto);
 
-    String componentName = (entity != null) ? entity.getName() : null;
-    String componentKey = (entity != null) ? entity.getKey() : null;
-    String qualifier = (entity != null) ? entity.getQualifier() : null;
+    String componentName = (entityDto != null) ? entityDto.getName() : null;
+    String componentKey = (entityDto != null) ? entityDto.getKey() : null;
+    String qualifier = (entityDto != null) ? entityDto.getQualifier() : null;
     auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
       templateDto));
   }
@@ -156,6 +156,17 @@ public class UserPermissionDao implements Dao {
 
     if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.getKey(), component.name(), user, component.qualifier()));
+    }
+  }
+
+  /**
+   * Removes a single project permission from user
+   */
+  public void deleteProjectPermission(DbSession dbSession, UserId user, String permission, EntityDto entity) {
+    int deletedRows = mapper(dbSession).deleteProjectPermission(user.getUuid(), permission, entity.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, entity.getUuid(), entity.getKey(), entity.getName(), user, entity.getQualifier()));
     }
   }
 

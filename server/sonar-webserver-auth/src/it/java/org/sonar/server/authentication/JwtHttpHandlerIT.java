@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
-public class JwtHttpHandlerTest {
+public class JwtHttpHandlerIT {
 
   private static final String JWT_TOKEN = "TOKEN";
   private static final String CSRF_STATE = "CSRF_STATE";
@@ -72,7 +72,7 @@ public class JwtHttpHandlerTest {
   private static final long IN_FIVE_MINUTES = NOW + 5 * 60 * 1000L;
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();

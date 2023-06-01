@@ -151,12 +151,6 @@ public class ComponentDbTester {
   public ProjectData insertPrivateProject(Consumer<BranchDto> branchPopulator, Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     return insertPrivateProjectWithCustomBranch(branchPopulator, componentDtoPopulator, projectDtoPopulator);
   }
-
-  public final ComponentDto insertFile(ProjectDto project) {
-    ComponentDto projectComponent = getComponentDto(project);
-    return insertComponent(ComponentTesting.newFileDto(projectComponent));
-  }
-
   public final ComponentDto insertFile(BranchDto branch) {
     ComponentDto projectComponent = getComponentDto(branch);
     return insertComponent(ComponentTesting.newFileDto(projectComponent));

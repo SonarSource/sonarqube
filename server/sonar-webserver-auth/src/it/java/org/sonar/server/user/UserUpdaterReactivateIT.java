@@ -46,12 +46,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class UserUpdaterReactivateTest {
+public class UserUpdaterReactivateIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
