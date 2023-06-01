@@ -26,7 +26,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class PopulateReportSubscriptions extends DataChange {
-  // TODO should we add a inner join on users to not transfer values of non-existent users?
+
   private static final String SELECT_QUERY = """
     SELECT port.uuid as portfolioUuid, pb.uuid as branchUuid, p.user_uuid as userUuid
     FROM properties p

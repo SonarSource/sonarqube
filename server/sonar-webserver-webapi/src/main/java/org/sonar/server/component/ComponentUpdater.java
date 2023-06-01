@@ -150,12 +150,12 @@ public class ComponentUpdater {
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
     }
 
-    // TODO permissions: probably we want to apply it to the projectDto or portfolioDto
+    // TODO SONAR-19445: probably we want to apply it to the projectDto or portfolioDto
     permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
     return new ComponentCreationData(componentDto, mainBranch, projectDto);
   }
 
-  // TODO, when working on permissions, maybe we could remove the last argument from this method
+  // TODO SONAR-19445, when working on permissions, maybe we could remove the last argument from this method
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin, ComponentDto componentDto) {
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
       favoriteUpdater.add(dbSession, projectDto, userUuid, userLogin, false);

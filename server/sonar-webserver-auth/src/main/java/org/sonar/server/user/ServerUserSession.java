@@ -199,7 +199,7 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
     Set<String> projectsUuids = projects.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
-    // TODO
+    // TODO in SONAR-19445
     Set<String> authorizedProjectsUuids = keepProjectsUuidsByPermission(permission, projectsUuids);
 
     return projects.stream()
