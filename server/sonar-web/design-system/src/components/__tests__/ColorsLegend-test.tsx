@@ -18,29 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import * as React from 'react';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import ColorRatingsLegend, { ColorRatingsLegendProps } from '../ColorRatingsLegend';
+
+import { render } from '../../helpers/testUtils';
+import { FCProps } from '../../types/misc';
+import { ColorsLegend } from '../ColorsLegend';
+
+const colors = [
+  {
+    selected: true,
+    overlay: 'Overlay A',
+    label: 'A',
+    value: '1',
+  },
+  {
+    selected: true,
+    overlay: 'Overlay B',
+    label: 'B',
+    value: '2',
+  },
+];
 
 it('should render correctly', () => {
-  renderColorRatingsLegend();
+  renderColorLegend();
   expect(screen.getByRole('checkbox', { name: 'A' })).toBeInTheDocument();
   expect(screen.getByRole('checkbox', { name: 'B' })).toBeInTheDocument();
-  expect(screen.getByRole('checkbox', { name: 'C' })).toBeInTheDocument();
-  expect(screen.getByRole('checkbox', { name: 'D' })).toBeInTheDocument();
-  expect(screen.getByRole('checkbox', { name: 'E' })).toBeInTheDocument();
 });
 
 it('should react when a rating is clicked', () => {
-  const onRatingClick = jest.fn();
-  renderColorRatingsLegend({ onRatingClick });
+  const onColorClick = jest.fn();
+  renderColorLegend({ onColorClick });
 
-  screen.getByRole('checkbox', { name: 'D' }).click();
-  expect(onRatingClick).toHaveBeenCalledWith(4);
+  screen.getByRole('checkbox', { name: 'A' }).click();
+  expect(onColorClick).toHaveBeenCalledWith(colors[0]);
 });
 
-function renderColorRatingsLegend(props: Partial<ColorRatingsLegendProps> = {}) {
-  return renderComponent(
-    <ColorRatingsLegend filters={{ 2: true }} onRatingClick={jest.fn()} {...props} />
-  );
+function renderColorLegend(props: Partial<FCProps<typeof ColorsLegend>> = {}) {
+  return render(<ColorsLegend colors={colors} onColorClick={jest.fn()} {...props} />);
 }

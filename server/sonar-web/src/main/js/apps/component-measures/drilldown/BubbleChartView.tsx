@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BubbleColorVal, BubbleChart as OriginalBubbleChart } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  BubbleColorVal,
+  HelperHintIcon,
+  Highlight,
+  Link,
+  BubbleChart as OriginalBubbleChart,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
-import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import {
   getLocalizedMetricDomain,
@@ -32,10 +38,11 @@ import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { isProject } from '../../../types/component';
+import { isProject, isView } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasureEnhanced,
+  ComponentMeasure as ComponentMeasureI,
   ComponentMeasureIntern,
   Dict,
   Metric,
@@ -47,12 +54,13 @@ import {
   getBubbleYDomain,
   isProjectOverview,
 } from '../utils';
+import ColorRatingsLegend from './ColorRatingsLegend';
 import EmptyResult from './EmptyResult';
 
 const HEIGHT = 500;
 
 interface Props {
-  componentKey: string;
+  component: ComponentMeasureI;
   components: ComponentMeasureEnhanced[];
   branchLike?: BranchLike;
   domain: string;
@@ -65,7 +73,7 @@ interface State {
   ratingFilters: { [rating: number]: boolean };
 }
 
-export default class BubbleChart extends React.PureComponent<Props, State> {
+export default class BubbleChartView extends React.PureComponent<Props, State> {
   state: State = {
     ratingFilters: {},
   };
@@ -102,7 +110,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
       });
     }
     return (
-      <div className="text-left">
+      <div className="sw-text-left">
         {inner.map((line, index) => (
           <React.Fragment key={index}>
             {line}
@@ -180,7 +188,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
         height={HEIGHT}
         items={items}
         onBubbleClick={this.handleBubbleClick}
-        padding={[0, 4, 50, 60]}
+        padding={[0, 4, 50, 100]}
         yDomain={getBubbleYDomain(this.props.domain)}
         xDomain={xDomain}
       />
@@ -189,7 +197,8 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
 
   renderChartHeader(domain: string, sizeMetric: Metric, colorsMetric?: Metric[]) {
     const { ratingFilters } = this.state;
-    const { paging } = this.props;
+    const { paging, component, branchLike, metrics: propsMetrics } = this.props;
+    const metrics = getBubbleMetrics(domain, propsMetrics);
 
     const title = isProjectOverview(domain)
       ? translate('component_measures.overview', domain, 'title')
@@ -197,40 +206,58 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
           'component_measures.domain_x_overview',
           getLocalizedMetricDomain(domain)
         );
+
     return (
-      <div className="measure-overview-bubble-chart-header">
-        <span className="measure-overview-bubble-chart-title">
-          <div className="display-flex-center">
-            {title}
-            <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)} />
+      <div className="sw-flex sw-justify-between sw-gap-3">
+        <div>
+          <div className="sw-flex sw-items-center sw-whitespace-nowrap">
+            <Highlight className="it__measure-overview-bubble-chart-title">{title}</Highlight>
+            <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)}>
+              <HelperHintIcon />
+            </HelpTooltip>
           </div>
 
           {paging?.total && paging?.total > BUBBLES_FETCH_LIMIT && (
-            <div className="note spacer-top">
+            <div className="sw-mt-2">
               ({translate('component_measures.legend.only_first_500_files')})
             </div>
           )}
-        </span>
-        <span className="measure-overview-bubble-chart-legend">
-          <span className="note">
+          {(isView(component?.qualifier) || isProject(component?.qualifier)) && (
+            <div className="sw-mt-2">
+              <Link
+                to={getComponentDrilldownUrl({
+                  componentKey: component.key,
+                  branchLike,
+                  metric: isProjectOverview(domain) ? MetricKey.violations : metrics.size.key,
+                  listView: true,
+                })}
+              >
+                {translate('component_measures.overview.see_data_as_list')}
+              </Link>
+            </div>
+          )}
+        </div>
+
+        <div className="sw-flex sw-flex-col sw-items-end">
+          <div className="sw-text-right">
             {colorsMetric && (
-              <span className="spacer-right">
-                {translateWithParameters(
-                  'component_measures.legend.color_x',
-                  colorsMetric.length > 1
-                    ? translateWithParameters(
-                        'component_measures.legend.worse_of_x_y',
-                        ...colorsMetric.map((metric) => getLocalizedMetricName(metric))
-                      )
-                    : getLocalizedMetricName(colorsMetric[0])
-                )}
+              <span className="sw-mr-3">
+                <strong className="sw-body-sm-highlight">
+                  {translate('component_measures.legend.color')}
+                </strong>{' '}
+                {colorsMetric.length > 1
+                  ? translateWithParameters(
+                      'component_measures.legend.worse_of_x_y',
+                      ...colorsMetric.map((metric) => getLocalizedMetricName(metric))
+                    )
+                  : getLocalizedMetricName(colorsMetric[0])}
               </span>
             )}
-            {translateWithParameters(
-              'component_measures.legend.size_x',
-              getLocalizedMetricName(sizeMetric)
-            )}
-          </span>
+            <strong className="sw-body-sm-highlight">
+              {translate('component_measures.legend.size')}
+            </strong>{' '}
+            {getLocalizedMetricName(sizeMetric)}
+          </div>
           {colorsMetric && (
             <ColorRatingsLegend
               className="spacer-top"
@@ -238,7 +265,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
               onRatingClick={this.handleRatingFilterClick}
             />
           )}
-        </span>
+        </div>
       </div>
     );
   }
@@ -247,34 +274,27 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     if (this.props.components.length <= 0) {
       return <EmptyResult />;
     }
-    const { domain, componentKey, branchLike } = this.props;
+    const { domain } = this.props;
     const metrics = getBubbleMetrics(domain, this.props.metrics);
 
     return (
-      <div className="measure-overview-bubble-chart">
+      <BubbleChartWrapper className="sw-relative sw-body-sm">
         {this.renderChartHeader(domain, metrics.size, metrics.colors)}
-        <div className="measure-overview-bubble-chart-content">
-          <div className="text-center small spacer-top spacer-bottom">
-            <Link
-              to={getComponentDrilldownUrl({
-                componentKey,
-                branchLike,
-                metric: isProjectOverview(domain) ? MetricKey.violations : metrics.size.key,
-                listView: true,
-              })}
-            >
-              {translate('component_measures.overview.see_data_as_list')}
-            </Link>
-          </div>
-          {this.renderBubbleChart(metrics)}
-        </div>
-        <div className="measure-overview-bubble-chart-axis x">
-          {getLocalizedMetricName(metrics.x)}
-        </div>
-        <div className="measure-overview-bubble-chart-axis y">
+        {this.renderBubbleChart(metrics)}
+        <div className="sw-text-center">{getLocalizedMetricName(metrics.x)}</div>
+        <YAxis className="sw-absolute sw-top-1/2 sw-left-3">
           {getLocalizedMetricName(metrics.y)}
-        </div>
-      </div>
+        </YAxis>
+      </BubbleChartWrapper>
     );
   }
 }
+
+const BubbleChartWrapper = styled.div`
+  color: ${themeColor('pageContentLight')};
+`;
+
+const YAxis = styled.div`
+  transform: rotate(-90deg) translateX(-50%);
+  transform-origin: left;
+`;

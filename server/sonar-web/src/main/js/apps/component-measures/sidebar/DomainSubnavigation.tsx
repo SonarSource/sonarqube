@@ -92,7 +92,7 @@ export default function DomainSubnavigation(props: Props) {
       {sortedItems.map((item) =>
         typeof item === 'string' ? (
           showFullMeasures && (
-            <SubnavigationSubheading>
+            <SubnavigationSubheading key={item}>
               {translate('component_measures.subnavigation_category', item)}
             </SubnavigationSubheading>
           )

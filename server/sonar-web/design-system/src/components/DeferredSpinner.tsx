@@ -41,7 +41,7 @@ const DEFAULT_TIMEOUT = 100;
 
 export class DeferredSpinner extends React.PureComponent<Props, State> {
   timer?: number;
-
+  static displayName = 'DeferredSpinner';
   state: State = { showSpinner: false };
 
   componentDidMount() {

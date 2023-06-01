@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DeferredSpinner } from 'design-system';
 import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
@@ -36,7 +36,7 @@ import {
   Paging,
   Period,
 } from '../../../types/types';
-import BubbleChart from '../drilldown/BubbleChart';
+import BubbleChartView from '../drilldown/BubbleChartView';
 import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
@@ -121,11 +121,11 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     );
   };
 
-  renderContent() {
+  renderContent(isFile: boolean) {
     const { branchLike, component, domain, metrics } = this.props;
     const { paging } = this.state;
 
-    if (isFile(component.qualifier)) {
+    if (isFile) {
       return (
         <div className="measure-details-viewer">
           <SourceViewer
@@ -138,8 +138,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     }
 
     return (
-      <BubbleChart
-        componentKey={component.key}
+      <BubbleChartView
+        component={component}
         branchLike={branchLike}
         components={this.state.components}
         domain={domain}
@@ -153,6 +153,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
   render() {
     const { branchLike, className, component, leakPeriod, loading, rootComponent } = this.props;
     const displayLeak = hasFullMeasures(branchLike);
+    const isFileComponent = isFile(component.qualifier);
+
     return (
       <div className={className}>
         <A11ySkipTarget anchor="measures_main" />
@@ -168,19 +170,26 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
             />
           }
           right={
-            <PageActions
-              componentQualifier={rootComponent.qualifier}
-              current={this.state.components.length}
-            />
+            <>
+              <PageActions
+                componentQualifier={rootComponent.qualifier}
+                current={this.state.components.length}
+              />
+              {leakPeriod && displayLeak && (
+                <LeakPeriodLegend
+                  className="pull-right"
+                  component={component}
+                  period={leakPeriod}
+                />
+              )}
+            </>
           }
         />
-        {leakPeriod && displayLeak && (
-          <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
-        )}
 
-        <DeferredSpinner loading={loading} />
-
-        {!loading && this.renderContent()}
+        <div className="sw-p-6">
+          <DeferredSpinner loading={loading} />
+          {!loading && this.renderContent(isFileComponent)}
+        </div>
       </div>
     );
   }

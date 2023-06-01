@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { themeBorder } from 'design-system';
 import * as React from 'react';
 
 interface Props {
@@ -26,9 +28,13 @@ interface Props {
 
 export default function MeasureContentHeader({ left, right }: Props) {
   return (
-    <div>
+    <StyledHeader className="sw-py-3 sw-px-6 sw-flex sw-justify-between sw-items-center">
       <div>{left}</div>
       <div>{right}</div>
-    </div>
+    </StyledHeader>
   );
 }
+
+const StyledHeader = styled.div`
+  border-bottom: ${themeBorder('default', 'pageBlockBorder')};
+`;

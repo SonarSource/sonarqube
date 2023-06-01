@@ -17,19 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.domain-measures-value {
-  margin-right: 4px;
-}
-
-.domain-measures-value span {
-  line-height: 16px;
-}
-
-.domain-measures-value .rating {
-  margin-left: -4px;
-  margin-right: -4px;
-}
-
 button.search-navigator-facet {
   text-align: start;
 }
@@ -138,61 +125,4 @@ button.search-navigator-facet {
 
 .measure-favorite svg {
   vertical-align: middle;
-}
-
-.measure-overview-bubble-chart {
-  position: relative;
-  border: 1px solid var(--barBorderColor);
-  background-color: #fff;
-}
-
-.measure-overview-bubble-chart-content {
-  padding: 0;
-  padding-left: 60px;
-}
-
-.measure-overview-bubble-chart-header {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid var(--barBorderColor);
-}
-
-.measure-overview-bubble-chart-title {
-  position: absolute;
-}
-
-.measure-overview-bubble-chart-legend {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  flex-grow: 1;
-}
-
-.measure-overview-bubble-chart-footer {
-  padding: 15px 60px;
-  border-top: 1px solid var(--barBorderColor);
-  text-align: center;
-  font-size: var(--smallFontSize);
-  line-height: 1.4;
-}
-
-.measure-overview-bubble-chart-axis {
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
-}
-
-.measure-overview-bubble-chart-axis.x {
-  position: relative;
-  top: -8px;
-  padding-bottom: 8px;
-  text-align: center;
-}
-
-.measure-overview-bubble-chart-axis.y {
-  position: absolute;
-  top: 50%;
-  left: 30px;
-  transform: rotate(-90deg) translateX(-50%);
-  transform-origin: left;
 }

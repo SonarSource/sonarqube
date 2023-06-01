@@ -218,7 +218,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
 
     if (displayOverview) {
       return (
-        <StyledMain className="sw-rounded-1 sw-p-6 sw-mb-4">
+        <StyledMain className="sw-rounded-1 sw-mb-4">
           <MeasureOverviewContainer
             branchLike={branchLike}
             domain={query.metric}
@@ -333,7 +333,6 @@ function AppWithComponentContext() {
 export default AppWithComponentContext;
 
 const StyledMain = withTheme(styled.main`
-  background-color: ${themeColor('filterbar')};
   background-color: ${themeColor('pageBlock')};
   border: ${themeBorder('default', 'pageBlockBorder')};
 `);

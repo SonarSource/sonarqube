@@ -27,6 +27,7 @@ import { CheckIcon } from './icons/CheckIcon';
 import { CustomIcon } from './icons/Icon';
 
 interface Props {
+  ariaLabel?: string;
   checked: boolean;
   children?: React.ReactNode;
   className?: string;
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export function Checkbox({
+  ariaLabel,
   checked,
   disabled,
   children,
@@ -65,7 +67,7 @@ export function Checkbox({
     <CheckboxContainer className={className} disabled={disabled}>
       {right && children}
       <AccessibleCheckbox
-        aria-label={title}
+        aria-label={ariaLabel ?? title}
         checked={checked}
         disabled={disabled ?? loading}
         id={id}

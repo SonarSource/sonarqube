@@ -27,6 +27,7 @@ export * from './BubbleChart';
 export * from './Card';
 export * from './Checkbox';
 export * from './CodeSnippet';
+export * from './ColorsLegend';
 export * from './CoverageIndicator';
 export * from './DatePicker';
 export * from './DateRangePicker';
