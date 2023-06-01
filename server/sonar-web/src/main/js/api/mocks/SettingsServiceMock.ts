@@ -160,6 +160,10 @@ export default class SettingsServiceMock {
     }
 
     this.set(definition.key, value);
+    const def = this.#definitions.find((d) => d.key === definition.key);
+    if (def === undefined) {
+      this.#definitions.push(definition as ExtendedSettingDefinition);
+    }
 
     return this.reply(undefined);
   };

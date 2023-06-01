@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
@@ -288,7 +288,7 @@ describe('SAML tab', () => {
 
     expect(await saml.disableConfigButton.find()).toBeInTheDocument();
     await user.click(saml.disableConfigButton.get());
-    expect(saml.disableConfigButton.query()).not.toBeInTheDocument();
+    await waitFor(() => expect(saml.disableConfigButton.query()).not.toBeInTheDocument());
 
     expect(await saml.enableConfigButton.find()).toBeInTheDocument();
   });
@@ -309,7 +309,7 @@ describe('SAML tab', () => {
     await user.type(saml.groupAttribute.get(), 'group');
     expect(saml.saveScim.get()).toBeEnabled();
     await user.click(saml.saveScim.get());
-    expect(await saml.saveScim.find()).toBeDisabled();
+    await waitFor(() => expect(saml.saveScim.query()).toBeDisabled());
 
     await user.click(saml.scimProvisioningButton.get());
     expect(saml.saveScim.get()).toBeEnabled();
@@ -393,7 +393,7 @@ describe('Github tab', () => {
 
     expect(await github.disableConfigButton.find()).toBeInTheDocument();
     await user.click(github.disableConfigButton.get());
-    expect(github.disableConfigButton.query()).not.toBeInTheDocument();
+    await waitFor(() => expect(github.disableConfigButton.query()).not.toBeInTheDocument());
 
     expect(await github.enableConfigButton.find()).toBeInTheDocument();
   });
@@ -403,6 +403,7 @@ describe('Github tab', () => {
     const user = userEvent.setup();
 
     renderAuthentication();
+    await user.click(await github.tab.find());
 
     await github.createConfiguration(user);
     await user.click(await github.enableConfigButton.find());
@@ -431,7 +432,8 @@ describe('Github tab', () => {
 
     expect(github.saveGithubProvisioning.get()).toBeEnabled();
     await user.click(github.saveGithubProvisioning.get());
-    expect(await github.saveGithubProvisioning.find()).toBeDisabled();
+
+    await waitFor(() => expect(github.saveGithubProvisioning.query()).toBeDisabled());
 
     await user.click(github.githubProvisioningButton.get());
 
@@ -515,7 +517,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
     });
 
     it('should display that config is valid for both provisioning with multiple orgs', async () => {
@@ -528,7 +530,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).toHaveTextContent('2');
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -560,7 +562,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(github.configurationValidityError.get()).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValidityError.query()).toBeInTheDocument());
       expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -586,7 +588,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -622,7 +624,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       github.getOrgs().forEach((org) => {

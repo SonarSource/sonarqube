@@ -43,7 +43,7 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
   const [newScimStatus, setNewScimStatus] = React.useState<boolean>();
   const hasScim = React.useContext(AvailableFeaturesContext).includes(Feature.Scim);
   const config = useConfiguration(definitions, OPTIONAL_FIELDS);
-  const { reload: reloadConfig, values, setNewValue, isValueChange } = config;
+  const { values, setNewValue, isValueChange } = config;
 
   const { data: scimStatus } = useScimStatusQuery();
 
@@ -59,10 +59,6 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
   const hasScimConfigChange =
     isValueChange(SAML_GROUP_NAME) || (newScimStatus !== undefined && newScimStatus !== scimStatus);
 
-  const reload = React.useCallback(async () => {
-    await reloadConfig();
-  }, [reloadConfig]);
-
   return {
     ...config,
     hasScim,
@@ -73,7 +69,6 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
     groupValue,
     values,
     setNewValue,
-    reload,
     hasScimConfigChange,
     newScimStatus,
     setNewScimStatus,

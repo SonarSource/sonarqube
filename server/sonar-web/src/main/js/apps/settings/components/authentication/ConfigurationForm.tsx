@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEmptyArray } from 'formik';
-import { isEmpty, keyBy } from 'lodash';
+import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { resetSettingValue, setSettingValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import Modal from '../../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
@@ -29,6 +27,7 @@ import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { Dict } from '../../../../types/types';
+import { useSaveValuesMutation } from '../../queries/settings';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import { SettingValue } from './hook/useConfiguration';
@@ -40,7 +39,6 @@ interface Props {
   setNewValue: (key: string, value: string | boolean) => void;
   canBeSave: boolean;
   onClose: () => void;
-  onReload: () => Promise<void>;
   tab: AuthenticationTabs;
   excludedField: string[];
   hasLegacyConfiguration?: boolean;
@@ -64,34 +62,22 @@ export default function ConfigurationForm(props: Props) {
   } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
 
+  const { mutateAsync: changeConfig } = useSaveValuesMutation();
+
   const headerLabel = translate('settings.authentication.form', create ? 'create' : 'edit', tab);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (canBeSave) {
-      const r = await Promise.all(
-        Object.values(values)
-          .filter((v) => v.newValue !== undefined)
-          .map(async ({ key, newValue, definition }) => {
-            try {
-              if (isEmptyArray(newValue)) {
-                await resetSettingValue({ keys: definition.key });
-              } else {
-                await setSettingValue(definition, newValue);
-              }
-              return { key, success: true };
-            } catch (error) {
-              return { key, success: false };
-            }
-          })
-      );
-      const errors = r
+      const data = await changeConfig(Object.values(values));
+      const errors = data
         .filter(({ success }) => !success)
         .map(({ key }) => ({ key, message: translate('default_save_field_error_message') }));
+
       setErrors(keyBy(errors, 'key'));
-      if (isEmpty(errors)) {
-        await props.onReload();
+
+      if (errors.length === 0) {
         props.onClose();
       }
     } else {
@@ -122,11 +108,11 @@ export default function ConfigurationForm(props: Props) {
             <Alert variant={hasLegacyConfiguration ? 'warning' : 'info'}>
               <FormattedMessage
                 id={`settings.authentication.${
-                  hasLegacyConfiguration ? 'legacy_help.github' : 'help'
+                  hasLegacyConfiguration ? `legacy_help.${tab}` : 'help'
                 }`}
                 defaultMessage={translate(
                   `settings.authentication.${
-                    hasLegacyConfiguration ? 'legacy_help.github' : 'help'
+                    hasLegacyConfiguration ? `legacy_help.${tab}` : 'help'
                   }`
                 )}
                 values={{

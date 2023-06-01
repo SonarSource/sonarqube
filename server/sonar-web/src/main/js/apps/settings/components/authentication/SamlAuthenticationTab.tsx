@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEmpty } from 'lodash';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { resetSettingValue, setSettingValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
@@ -34,6 +32,7 @@ import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { useSaveValueMutation } from '../../queries/settings';
 import { getPropertyName } from '../../utils';
 import DefinitionDescription from '../DefinitionDescription';
 import ConfigurationForm from './ConfigurationForm';
@@ -60,7 +59,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   const {
     hasScim,
     scimStatus,
-    loading,
+    isLoading,
     samlEnabled,
     name,
     groupValue,
@@ -73,12 +72,12 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     newScimStatus,
     setNewScimStatus,
     setNewGroupSetting,
-    reload,
-    deleteConfiguration,
+    deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
   } = useSamlConfiguration(definitions);
   const toggleScim = useToggleScimMutation();
 
   const { data } = useIdentityProvierQuery();
+  const { mutate: saveSetting } = useSaveValueMutation();
 
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Scim;
 
@@ -90,29 +89,22 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     setShowEditModal(false);
   };
 
-  const handleToggleEnable = async () => {
+  const handleToggleEnable = () => {
     const value = values[SAML_ENABLED_FIELD];
-    await setSettingValue(value.definition, !samlEnabled);
-    await reload();
+    saveSetting({ newValue: !samlEnabled, definition: value.definition });
   };
 
-  const handleSaveGroup = async () => {
+  const handleSaveGroup = () => {
     if (groupValue.newValue !== undefined) {
-      if (isEmpty(groupValue.newValue)) {
-        await resetSettingValue({ keys: groupValue.definition.key });
-      } else {
-        await setSettingValue(groupValue.definition, groupValue.newValue);
-      }
-      await reload();
+      saveSetting({ newValue: groupValue.newValue, definition: groupValue.definition });
     }
   };
 
   const handleConfirmChangeProvisioning = async () => {
     await toggleScim.mutateAsync(!!newScimStatus);
     if (!newScimStatus) {
-      await handleSaveGroup();
+      handleSaveGroup();
     }
-    await reload();
   };
 
   return (
@@ -168,7 +160,11 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                 <EditIcon />
                 {translate('settings.authentication.form.edit')}
               </Button>
-              <Button className="button-red" disabled={samlEnabled} onClick={deleteConfiguration}>
+              <Button
+                className="button-red"
+                disabled={samlEnabled || isDeleting}
+                onClick={deleteConfiguration}
+              >
                 <DeleteIcon />
                 {translate('settings.authentication.form.delete')}
               </Button>
@@ -323,13 +319,12 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
         <ConfigurationForm
           tab={SAML}
           excludedField={SAML_EXCLUDED_FIELD}
-          loading={loading}
+          loading={isLoading}
           values={values}
           setNewValue={setNewValue}
           canBeSave={canBeSave}
           onClose={handleCancelConfiguration}
           create={!hasConfiguration}
-          onReload={reload}
         />
       )}
     </div>

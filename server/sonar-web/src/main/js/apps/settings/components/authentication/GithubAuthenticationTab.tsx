@@ -37,7 +37,7 @@ import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
-import { useIdentityProvierQuery } from './queries/identity-provider';
+import { useCheckGitHubConfigQuery, useIdentityProvierQuery } from './queries/identity-provider';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -59,15 +59,13 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     hasConfiguration,
     hasGithubProvisioning,
     githubProvisioningStatus,
-    loading,
+    isLoading,
     values,
     setNewValue,
     canBeSave,
-    reload,
     url,
     appId,
     enabled,
-    deleteConfiguration,
     newGithubProvisioningStatus,
     setNewGithubProvisioningStatus,
     hasGithubProvisioningConfigChange,
@@ -76,16 +74,19 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     changeProvisioning,
     toggleEnable,
     hasLegacyConfiguration,
+    deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
   } = useGithubConfiguration(definitions);
 
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Github;
   const { canSyncNow, synchronizeNow } = useSyncNow();
+  const { refetch } = useCheckGitHubConfigQuery(enabled);
 
   const handleCreateConfiguration = () => {
     setShowEditModal(true);
   };
 
-  const handleCancelConfiguration = () => {
+  const handleCloseConfiguration = () => {
+    refetch();
     setShowEditModal(false);
   };
 
@@ -150,7 +151,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 <EditIcon />
                 {translate('settings.authentication.form.edit')}
               </Button>
-              <Button className="button-red" disabled={enabled} onClick={deleteConfiguration}>
+              <Button
+                className="button-red"
+                disabled={enabled || isDeleting}
+                onClick={deleteConfiguration}
+              >
                 <DeleteIcon />
                 {translate('settings.authentication.form.delete')}
               </Button>
@@ -320,13 +325,12 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
         <ConfigurationForm
           tab={AlmKeys.GitHub}
           excludedField={GITHUB_EXCLUDED_FIELD}
-          loading={loading}
+          loading={isLoading}
           values={values}
           setNewValue={setNewValue}
           canBeSave={canBeSave}
-          onClose={handleCancelConfiguration}
+          onClose={handleCloseConfiguration}
           create={!hasConfiguration}
-          onReload={reload}
           hasLegacyConfiguration={hasLegacyConfiguration}
         />
       )}

@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { every, isEmpty, keyBy } from 'lodash';
-import React, { useCallback, useState } from 'react';
-import { getValues, resetSettingValue } from '../../../../../api/settings';
+import { UseMutationResult } from '@tanstack/react-query';
+import { every, isEmpty, keyBy, update } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import { Dict } from '../../../../../types/types';
+import { useGetValuesQuery, useResetSettingsMutation } from '../../../queries/settings';
 
 export type SettingValue =
   | {
@@ -47,23 +48,17 @@ export default function useConfiguration(
   definitions: ExtendedSettingDefinition[],
   optionalFields: string[]
 ) {
-  const [loading, setLoading] = useState(true);
+  const keys = definitions.map((definition) => definition.key);
   const [values, setValues] = useState<Dict<SettingValue>>({});
 
-  const reload = useCallback(async () => {
-    const keys = definitions.map((definition) => definition.key);
+  const { isLoading, data } = useGetValuesQuery(keys);
 
-    setLoading(true);
-
-    try {
-      const values = await getValues({
-        keys,
-      });
-
+  useEffect(() => {
+    if (data !== undefined) {
       setValues(
         keyBy(
           definitions.map((definition) => {
-            const value = values.find((v) => v.key === definition.key);
+            const value = data.find((v) => v.key === definition.key);
             const multiValues = definition.multiValues ?? false;
             if (multiValues) {
               return {
@@ -87,16 +82,8 @@ export default function useConfiguration(
           'key'
         )
       );
-    } finally {
-      setLoading(false);
     }
-  }, [...definitions]);
-
-  React.useEffect(() => {
-    (async () => {
-      await reload();
-    })();
-  }, [...definitions]);
+  }, [data, definitions]);
 
   const setNewValue = (key: string, newValue?: string | boolean | string[]) => {
     const value = values[key];
@@ -133,10 +120,11 @@ export default function useConfiguration(
     (v) => !v.isNotSet
   );
 
-  const deleteConfiguration = useCallback(async () => {
-    await resetSettingValue({ keys: Object.keys(values).join(',') });
-    await reload();
-  }, [reload, values]);
+  const deleteMutation = update(
+    useResetSettingsMutation(),
+    'mutate',
+    (mutate) => () => mutate(Object.keys(values))
+  ) as Omit<UseMutationResult<void, unknown, void, unknown>, 'mutateAsync'>;
 
   const isValueChange = useCallback(
     (setting: string) => {
@@ -148,12 +136,11 @@ export default function useConfiguration(
 
   return {
     values,
-    reload,
     setNewValue,
     canBeSave,
-    loading,
+    isLoading,
     hasConfiguration,
     isValueChange,
-    deleteConfiguration,
+    deleteMutation,
   };
 }
