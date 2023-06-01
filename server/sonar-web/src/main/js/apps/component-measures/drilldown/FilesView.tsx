@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, FlagMessage } from 'design-system';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
-import { Button } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
+import { MetricType } from '../../../types/metrics';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
@@ -181,18 +181,34 @@ export default class FilesView extends React.PureComponent<Props, State> {
           view={this.props.view}
         />
         {hidingBestMeasures && this.props.paging && (
-          <Alert className="spacer-top" variant="info">
-            <div className="display-flex-center">
-              {translateWithParameters(
-                'component_measures.hidden_best_score_metrics',
-                formatMeasure(this.props.paging.total - filteredComponents.length, 'INT'),
-                formatMeasure(this.props.metric.bestValue, this.props.metric.type)
-              )}
-              <Button className="button-small spacer-left" onClick={this.handleShowBestMeasures}>
-                {translate('show_them')}
-              </Button>
-            </div>
-          </Alert>
+          <FlagMessage
+            ariaLabel={translateWithParameters(
+              'component_measures.hidden_best_score_metrics',
+              formatMeasure(
+                this.props.paging.total - filteredComponents.length,
+                MetricType.Integer
+              ),
+              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+            )}
+            variant="info"
+            className="sw-mt-4"
+          >
+            {translateWithParameters(
+              'component_measures.hidden_best_score_metrics',
+              formatMeasure(
+                this.props.paging.total - filteredComponents.length,
+                MetricType.Integer
+              ),
+              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+            )}
+            <ButtonSecondary
+              onClick={this.handleShowBestMeasures}
+              className="sw-ml-4"
+              aria-label={translate('component_measures.hidden_best_score_metrics_show_label')}
+            >
+              {translate('show_them')}
+            </ButtonSecondary>
+          </FlagMessage>
         )}
         {!hidingBestMeasures && this.props.paging && this.props.components.length > 0 && (
           <ListFooter

@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, HoverLink, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
-import Link from '../../../components/common/Link';
-import BranchIcon from '../../../components/icons/BranchIcon';
-import LinkIcon from '../../../components/icons/LinkIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { fillBranchLike } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
 import { splitPath } from '../../../helpers/path';
 import { getComponentDrilldownUrlWithSelection, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import {
-  ComponentQualifier,
-  isApplication,
-  isPortfolioLike,
-  isProject,
-} from '../../../types/component';
+import { ComponentQualifier, isApplication, isProject } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../types/types';
@@ -93,34 +84,18 @@ export default function ComponentCell(props: ComponentCellProps) {
   }
 
   return (
-    <td className="measure-details-component-cell">
-      <div className="text-ellipsis">
-        <Link
-          className="link-no-underline"
-          to={path}
-          id={'component-measures-component-link-' + component.key}
-        >
-          {component.refKey && (
-            <span className="big-spacer-right">
-              <LinkIcon />
-            </span>
-          )}
-          <span title={component.key}>
-            <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
-            {head.length > 0 && <span className="note">{head}/</span>}
-            <span>{tail}</span>
-            {(isApplication(rootComponent.qualifier) || isPortfolioLike(rootComponent.qualifier)) &&
-              (component.branch ? (
-                <>
-                  <BranchIcon className="spacer-left little-spacer-right" />
-                  <span className="note">{component.branch}</span>
-                </>
-              ) : (
-                <span className="spacer-left badge">{translate('branches.main_branch')}</span>
-              ))}
-          </span>
-        </Link>
-      </div>
-    </td>
+    <ContentCell className="sw-py-3 sw-truncate sw-flex">
+      <HoverLink
+        aria-hidden={true}
+        tabIndex={-1}
+        icon={<QualifierIcon qualifier={component.qualifier} />}
+        to={path}
+        title={component.path}
+      />
+      <HoverLink to={path} title={component.path}>
+        {head.length > 0 && <Note>{head}/</Note>}
+        <strong>{tail}</strong>
+      </HoverLink>
+    </ContentCell>
   );
 }

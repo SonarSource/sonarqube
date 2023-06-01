@@ -78,18 +78,6 @@ button.search-navigator-facet {
   margin-top: 4px;
 }
 
-.measure-details-component-row.selected {
-  background-color: var(--lightBlue) !important;
-}
-
-.measure-details-component-cell {
-  max-width: 0;
-}
-
-.measure-details-component-cell > div {
-  max-width: 100%;
-}
-
 .domain-measures-value .rating,
 .measure-details-value .rating {
   width: 18px;
@@ -121,8 +109,4 @@ button.search-navigator-facet {
   .measure-details-viewer .issue-list {
     width: calc(60vw - 80px);
   }
-}
-
-.measure-favorite svg {
-  vertical-align: middle;
 }

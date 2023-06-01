@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricsLabel, MetricsRatingBadge, NumericalCell } from 'design-system';
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
-import { isDiffMetric } from '../../../helpers/measures';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
 interface Props {
@@ -35,10 +38,26 @@ export default function MeasureCell({ component, measure, metric }: Props) {
   const value = getValue(measure || component);
 
   return (
-    <td className="thin nowrap text-right">
-      <span id={`component-measures-component-measure-${component.key}-${metric.key}`}>
-        <Measure metricKey={metric.key} metricType={metric.type} value={value} small={true} />
-      </span>
-    </td>
+    <NumericalCell className="sw-py-3">
+      <Measure
+        metricKey={metric.key}
+        metricType={metric.type}
+        value={value}
+        small={true}
+        ratingComponent={
+          <MetricsRatingBadge
+            label={
+              value
+                ? translateWithParameters(
+                    'metric.has_rating_X',
+                    formatMeasure(value, MetricType.Rating)
+                  )
+                : translate('metric.no_rating')
+            }
+            rating={formatMeasure(value, MetricType.Rating) as MetricsLabel}
+          />
+        }
+      />
+    </NumericalCell>
   );
 }

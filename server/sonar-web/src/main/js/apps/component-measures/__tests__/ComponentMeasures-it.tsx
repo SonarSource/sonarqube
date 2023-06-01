@@ -255,7 +255,7 @@ describe('navigation', () => {
       within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' })
     ).toBeInTheDocument();
 
-    await user.click(ui.fileLink('foo:folderA').get());
+    await user.click(ui.fileLink('folderA').get());
     expect(
       within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' })
     ).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe('navigation', () => {
       within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' })
     ).toBeInTheDocument();
 
-    await user.click(ui.fileLink('foo:folderA/out.tsx').get());
+    await user.click(ui.fileLink('out.tsx').get());
     expect((await ui.sourceCode.findAll()).length).toBeGreaterThan(0);
 
     // Go back using the breadcrumbs.
@@ -288,7 +288,7 @@ describe('navigation', () => {
       within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' })
     ).toBeInTheDocument();
 
-    await user.click(ui.fileLink('foo:folderA/out.tsx').get());
+    await user.click(ui.fileLink('out.tsx').get());
     expect((await ui.sourceCode.findAll()).length).toBeGreaterThan(0);
   });
 
@@ -479,7 +479,9 @@ function getPageObject() {
     detailsUnavailableText: byText('component_measures.details_are_not_available'),
     noAccessWarning: byRole('alert'),
     showingOutOfTxt: (x: string, y: string) => byText(`x_of_y_shown.${x}.${y}`),
-    showAllBtn: byRole('button', { name: 'show_them' }),
+    showAllBtn: byRole('button', {
+      name: 'component_measures.hidden_best_score_metrics_show_label',
+    }),
     goToActivityLink: byRole('link', { name: 'component_measures.show_metric_history' }),
   };
 
