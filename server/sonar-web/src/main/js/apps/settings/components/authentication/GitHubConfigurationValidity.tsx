@@ -48,7 +48,7 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
   const [openDetails, setOpenDetails] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
   const [alertVariant, setAlertVariant] = useState<AlertVariant>('loading');
-  const { data, isFetching, refetch } = useCheckGitHubConfigQuery();
+  const { data, isFetching, refetch } = useCheckGitHubConfigQuery(true);
   const modalHeader = translate(`${intlPrefix}.details.title`);
 
   const applicationField = isAutoProvisioning ? 'autoProvisioning' : 'jit';

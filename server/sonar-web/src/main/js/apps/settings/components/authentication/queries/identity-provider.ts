@@ -80,6 +80,8 @@ export function useToggleGithubProvisioningMutation() {
   });
 }
 
-export const useCheckGitHubConfigQuery = () => {
-  return useQuery(['identity_provider', 'github_check'], checkConfigurationValidity);
+export const useCheckGitHubConfigQuery = (githubEnabled: boolean) => {
+  return useQuery(['identity_provider', 'github_check'], checkConfigurationValidity, {
+    enabled: githubEnabled,
+  });
 };
