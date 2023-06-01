@@ -1,5 +1,4 @@
 dependencies {    
-    bundledPlugin 'com.sonarsource.plugins.cayc:sonar-cayc-plugin'
     bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin"
     bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin"
     bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin'
