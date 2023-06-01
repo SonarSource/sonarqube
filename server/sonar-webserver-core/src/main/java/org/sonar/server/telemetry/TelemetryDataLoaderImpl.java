@@ -109,6 +109,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateFinder qualityGateFinder;
   private final ManagedInstanceService managedInstanceService;
+  private final CloudUsageDataProvider cloudUsageDataProvider;
   private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
   private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
   private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
@@ -118,7 +119,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     DockerSupport dockerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
-    ManagedInstanceService managedInstanceService) {
+    ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -129,6 +130,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.qualityGateCaycChecker = qualityGateCaycChecker;
     this.qualityGateFinder = qualityGateFinder;
     this.managedInstanceService = managedInstanceService;
+    this.cloudUsageDataProvider = cloudUsageDataProvider;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -181,6 +183,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .setInstallationVersion(installationVersionProperty.orElse(null))
       .setInDocker(dockerSupport.isRunningInDocker())
       .setManagedInstanceInformation(buildManagedInstanceInformation())
+      .setCloudUsage(buildCloudUsage())
       .build();
   }
 
@@ -443,4 +446,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return new TelemetryData.ManagedInstanceInformation(managedInstanceService.isInstanceExternallyManaged(), provider);
   }
 
+  private TelemetryData.CloudUsage buildCloudUsage() {
+    return cloudUsageDataProvider.getCloudUsage();
+  }
 }

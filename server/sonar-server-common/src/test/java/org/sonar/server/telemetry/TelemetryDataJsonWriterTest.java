@@ -585,6 +585,7 @@ public class TelemetryDataJsonWriterTest {
       .setMessageSequenceNumber(1L)
       .setPlugins(Collections.emptyMap())
       .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(false, null))
+      .setCloudUsage(new TelemetryData.CloudUsage(false))
       .setDatabase(new TelemetryData.Database("H2", "11"))
       .setNcdId(NCD_ID);
   }

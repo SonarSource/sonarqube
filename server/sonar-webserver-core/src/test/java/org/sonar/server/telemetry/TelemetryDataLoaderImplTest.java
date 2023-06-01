@@ -113,11 +113,12 @@ public class TelemetryDataLoaderImplTest {
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final CloudUsageDataProvider cloudUsageDataProvider = mock(CloudUsageDataProvider.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
+    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService);
+    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;

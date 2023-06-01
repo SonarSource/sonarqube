@@ -46,6 +46,7 @@ public class TelemetryData {
   private final String installationVersion;
   private final boolean inDocker;
   private final ManagedInstanceInformation managedInstanceInformation;
+  private final CloudUsage cloudUsage;
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
@@ -76,6 +77,7 @@ public class TelemetryData {
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
     managedInstanceInformation = builder.managedInstanceInformation;
+    cloudUsage = builder.cloudUsage;
     ncdId = builder.ncdId;
     branches = builder.branches;
     newCodeDefinitions = builder.newCodeDefinitions;
@@ -123,6 +125,10 @@ public class TelemetryData {
 
   public ManagedInstanceInformation getManagedInstanceInformation() {
     return managedInstanceInformation;
+  }
+
+  public CloudUsage getCloudUsage() {
+    return cloudUsage;
   }
 
   public Optional<Boolean> hasUnanalyzedC() {
@@ -181,6 +187,7 @@ public class TelemetryData {
     private String installationVersion;
     private boolean inDocker = false;
     private ManagedInstanceInformation managedInstanceInformation;
+    private CloudUsage cloudUsage;
     private Boolean hasUnanalyzedC;
     private Boolean hasUnanalyzedCpp;
     private Set<String> customSecurityConfigs;
@@ -276,6 +283,11 @@ public class TelemetryData {
       return this;
     }
 
+    Builder setCloudUsage(CloudUsage cloudUsage) {
+      this.cloudUsage = cloudUsage;
+      return this;
+    }
+
     TelemetryData build() {
       requireNonNullValues(serverId, version, plugins, database, messageSequenceNumber);
       return new TelemetryData(this);
@@ -338,6 +350,9 @@ public class TelemetryData {
   }
 
   record ManagedInstanceInformation(boolean isManaged, @Nullable String provider) {
+  }
+
+  record CloudUsage(boolean kubernetes) {
   }
 
   public static class ProjectStatistics {

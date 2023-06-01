@@ -37,6 +37,8 @@ public class TelemetryDataJsonWriter {
 
   @VisibleForTesting
   static final String MANAGED_INSTANCE_PROPERTY = "managedInstanceInformation";
+  @VisibleForTesting
+  static final String CLOUD_USAGE_PROPERTY = "cloudUsage";
 
   private static final String LANGUAGE_PROPERTY = "language";
   private static final String VERSION = "version";
@@ -101,6 +103,7 @@ public class TelemetryDataJsonWriter {
     writeNewCodeDefinitions(json, telemetryData);
     writeQualityGates(json, telemetryData);
     writeManagedInstanceInformation(json, telemetryData.getManagedInstanceInformation());
+    writeCloudUsage(json, telemetryData.getCloudUsage());
     extensions.forEach(e -> e.write(json));
 
     json.endObject();
@@ -226,6 +229,13 @@ public class TelemetryDataJsonWriter {
     json.beginObject();
     json.prop("isManaged", provider.isManaged());
     json.prop("provider", provider.isManaged() ? provider.provider() : null);
+    json.endObject();
+  }
+
+  private static void writeCloudUsage(JsonWriter json, TelemetryData.CloudUsage cloudUsage) {
+    json.name(CLOUD_USAGE_PROPERTY);
+    json.beginObject();
+    json.prop("kubernetes", cloudUsage.kubernetes());
     json.endObject();
   }
 

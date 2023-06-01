@@ -237,6 +237,7 @@ import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
+import org.sonar.server.telemetry.CloudUsageDataProvider;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataJsonWriter;
@@ -619,6 +620,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryDataJsonWriter.class,
       TelemetryDaemon.class,
       TelemetryClient.class,
+      CloudUsageDataProvider.class,
 
       // monitoring
       ServerMonitoringMetrics.class,
