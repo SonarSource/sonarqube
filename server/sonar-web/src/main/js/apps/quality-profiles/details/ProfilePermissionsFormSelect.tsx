@@ -19,15 +19,15 @@
  */
 import { debounce, omit } from 'lodash';
 import * as React from 'react';
-import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
+import { ControlProps, OptionProps, SingleValueProps, components } from 'react-select';
 import {
+  SearchUsersGroupsParameters,
   searchGroups,
   searchUsers,
-  SearchUsersGroupsParameters,
 } from '../../../api/quality-profiles';
 import { SearchSelect } from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
-import Avatar from '../../../components/ui/Avatar';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translate } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 import { Group } from './ProfilePermissions';
@@ -115,7 +115,7 @@ function getStringValue(option: Option) {
 function customOptions(option: OptionWithValue) {
   return isUser(option) ? (
     <span className="display-flex-center">
-      <Avatar hash={option.avatar} name={option.name} size={16} />
+      <LegacyAvatar hash={option.avatar} name={option.name} size={16} />
       <strong className="spacer-left">{option.name}</strong>
       <span className="note little-spacer-left">{option.login}</span>
     </span>

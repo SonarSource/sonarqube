@@ -28,6 +28,7 @@ import { ChevronDownIcon } from './icons';
 
 interface SearchSelectDropdownControlProps {
   ariaLabel?: string;
+  className?: string;
   disabled?: boolean;
   isDiscreet?: boolean;
   label?: React.ReactNode | string;
@@ -36,11 +37,11 @@ interface SearchSelectDropdownControlProps {
 }
 
 export function SearchSelectDropdownControl(props: SearchSelectDropdownControlProps) {
-  const { disabled, label, isDiscreet, onClick, size = 'full', ariaLabel = '' } = props;
+  const { className, disabled, label, isDiscreet, onClick, size = 'full', ariaLabel = '' } = props;
   return (
     <StyledControl
       aria-label={ariaLabel}
-      className={classNames({ 'is-discreet': isDiscreet })}
+      className={classNames(className, { 'is-discreet': isDiscreet })}
       onClick={() => {
         if (!disabled) {
           onClick();
@@ -52,17 +53,17 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
         }
       }}
       role="combobox"
+      style={{ '--inputSize': isDiscreet ? 'auto' : INPUT_SIZES[size] }}
       tabIndex={disabled ? -1 : 0}
     >
       <InputValue
-        className={classNames('js-search-input-value', {
+        className={classNames('it__js-search-input-value sw-flex sw-justify-between', {
           'is-disabled': disabled,
           'is-placeholder': !label,
         })}
-        style={{ '--inputSize': isDiscreet ? 'auto' : INPUT_SIZES[size] }}
       >
-        {label}
-        <ChevronDownIcon />
+        <span className="sw-truncate">{label}</span>
+        <ChevronDownIcon className="sw-ml-1" />
       </InputValue>
     </StyledControl>
   );
@@ -72,13 +73,14 @@ const StyledControl = styled.div`
   color: ${themeContrast('inputBackground')};
   background: ${themeColor('inputBackground')};
   border: ${themeBorder('default', 'inputBorder')};
+  width: var(--inputSize);
 
   ${tw`sw-flex sw-justify-between sw-items-center`};
   ${tw`sw-rounded-2`};
   ${tw`sw-box-border`};
   ${tw`sw-px-3 sw-py-2`};
   ${tw`sw-body-sm`};
-  ${tw`sw-w-full sw-h-control`};
+  ${tw`sw-h-control`};
   ${tw`sw-leading-4`};
   ${tw`sw-cursor-pointer`};
 
@@ -113,7 +115,7 @@ const StyledControl = styled.div`
 `;
 
 const InputValue = styled.span`
-  width: var(--inputSize);
+  width: 100%;
   color: ${themeContrast('inputBackground')};
 
   ${tw`sw-truncate`};

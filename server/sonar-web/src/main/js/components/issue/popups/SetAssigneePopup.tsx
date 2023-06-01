@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 import { CurrentUser, isLoggedIn, isUserActive, UserActive, UserBase } from '../../../types/users';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 
 interface Props {
   currentUser: CurrentUser;
@@ -107,7 +107,12 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
             {this.state.users.map((user) => (
               <SelectListItem item={user.login} key={user.login}>
                 {!!user.login && (
-                  <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />
+                  <LegacyAvatar
+                    className="spacer-right"
+                    hash={user.avatar}
+                    name={user.name}
+                    size={16}
+                  />
                 )}
                 <span className="text-middle" style={{ marginLeft: user.login ? 24 : undefined }}>
                   {user.name}

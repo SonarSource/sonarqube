@@ -111,11 +111,11 @@ export function InputSelect<
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
->({ size = 'medium', ...props }: SelectProps<V, Option, IsMulti, Group>) {
+>({ size = 'medium', className, ...props }: SelectProps<V, Option, IsMulti, Group>) {
   return (
     <ReactSelect<Option, IsMulti, Group>
       {...omit(props, 'className', 'large')}
-      className={classNames('react-select', props.className)}
+      className={classNames('react-select', className)}
       classNamePrefix="react-select"
       classNames={{
         container: () => 'sw-relative sw-inline-block sw-align-middle',
@@ -156,13 +156,10 @@ export function selectStyle<
   const theme = themeInfo();
 
   return {
-    container: (base) => ({
-      ...base,
-      width: INPUT_SIZES[size],
-    }),
     control: (base, { isFocused, menuIsOpen, isDisabled }) => ({
       ...base,
       color: themeContrast('inputBackground')({ theme }),
+      cursor: 'pointer',
       background: themeColor('inputBackground')({ theme }),
       transition: 'border 0.2s ease, outline 0.2s ease',
       outline: isFocused && !menuIsOpen ? themeBorder('focus', 'inputFocus')({ theme }) : 'none',

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { PermissionDefinitions, PermissionUser } from '../../types/types';
-import Avatar from '../ui/Avatar';
+import LegacyAvatar from '../ui/LegacyAvatar';
 import PermissionCell from './PermissionCell';
 
 interface Props {
@@ -97,7 +97,7 @@ export default class UserHolder extends React.PureComponent<Props, State> {
       <tr>
         <td className="nowrap text-middle">
           <div className="display-flex-center">
-            <Avatar
+            <LegacyAvatar
               className="text-middle big-spacer-right flex-0"
               hash={user.avatar}
               name={user.name}

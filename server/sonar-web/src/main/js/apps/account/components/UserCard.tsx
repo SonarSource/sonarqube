@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Avatar from '../../../components/ui/Avatar';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { LoggedInUser } from '../../../types/users';
 
 interface Props {
@@ -29,7 +29,7 @@ export default function UserCard({ user }: Props) {
   return (
     <div className="account-user">
       <div className="pull-left account-user-avatar" id="avatar">
-        <Avatar hash={user.avatar} name={user.name} size={60} />
+        <LegacyAvatar hash={user.avatar} name={user.name} size={60} />
       </div>
       <h1 className="pull-left" id="name">
         {user.name}

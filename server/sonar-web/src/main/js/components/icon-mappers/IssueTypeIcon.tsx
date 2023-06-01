@@ -23,12 +23,12 @@ import classNames from 'classnames';
 import {
   BugIcon,
   CodeSmellIcon,
+  IconProps,
   SecurityHotspotIcon,
   VulnerabilityIcon,
   themeColor,
   themeContrast,
 } from 'design-system';
-import { IconProps } from 'design-system/lib/components/icons/Icon';
 import React from 'react';
 import { IssueType } from '../../types/issues';
 

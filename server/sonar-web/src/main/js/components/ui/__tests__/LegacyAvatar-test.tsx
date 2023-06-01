@@ -17,24 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../helpers/testMocks';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import Avatar from '../Avatar';
+import { GlobalSettingKeys } from '../../../types/settings';
+import { LegacyAvatar } from '../LegacyAvatar';
 
 const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
 
-it('renders correctly', () => {
-  renderComponent(<Avatar name="John Doe" hash="johndoe" />, '', {
-    appState: mockAppState({
-      settings: {
-        'sonar.lf.enableGravatar': 'true',
-        'sonar.lf.gravatarServerUrl': gravatarServerUrl,
-      },
-    }),
-  });
-  const image = screen.getByAltText('John Doe');
-  expect(image).toBeInTheDocument();
-  expect(image).toHaveAttribute('src', 'http://example.com/johndoe.jpg?s=48');
+it('should be able to render with hash only', () => {
+  const avatar = shallow(
+    <LegacyAvatar
+      appState={mockAppState({
+        settings: {
+          [GlobalSettingKeys.EnableGravatar]: 'true',
+          [GlobalSettingKeys.GravatarServerUrl]: gravatarServerUrl,
+        },
+      })}
+      hash="7daf6c79d4802916d83f6266e24850af"
+      name="Foo"
+      size={30}
+    />
+  );
+  expect(avatar).toMatchSnapshot();
+});
+
+it('falls back to dummy avatar', () => {
+  const avatar = shallow(
+    <LegacyAvatar appState={mockAppState({ settings: {} })} name="Foo Bar" size={30} />
+  );
+  expect(avatar).toMatchSnapshot();
+});
+
+it('do not fail when name is missing', () => {
+  const avatar = shallow(
+    <LegacyAvatar appState={mockAppState({ settings: {} })} name={undefined} size={30} />
+  );
+  expect(avatar.getElement()).toBeNull();
 });

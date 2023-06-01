@@ -17,32 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  IconProps,
+  SeverityBlockerIcon,
+  SeverityCriticalIcon,
+  SeverityInfoIcon,
+  SeverityMajorIcon,
+  SeverityMinorIcon,
+} from 'design-system';
+import React from 'react';
+import { IssueSeverity } from '../../types/issues';
+import { Dict } from '../../types/types';
 
-import styled from '@emotion/styled';
-import classNames from 'classnames';
-import { ReactNode } from 'react';
-import tw from 'twin.macro';
-import { themeColor } from '../../helpers/theme';
-
-interface Props {
-  children: ReactNode;
-  isScrollable?: boolean;
+interface Props extends IconProps {
+  severity: IssueSeverity | undefined;
 }
 
-export function ModalBody({ children, isScrollable = true }: Props) {
-  return <StyledMain className={classNames({ scrollable: isScrollable })}>{children}</StyledMain>;
-}
+const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
+  blocker: SeverityBlockerIcon,
+  critical: SeverityCriticalIcon,
+  major: SeverityMajorIcon,
+  minor: SeverityMinorIcon,
+  info: SeverityInfoIcon,
+};
 
-const StyledMain = styled.div`
-  ${tw`sw-body-sm`}
-  ${tw`sw-px-3`} // to accomodate a possible scrollbar
-  ${tw`-sw-mx-3`}
-  ${tw`sw-my-12`}
-  ${tw`sw-overflow-x-hidden`}
-
-  color: ${themeColor('pageContent')};
-
-  &.scrollable {
-    overflow-y: auto;
+export default function IssueSeverityIcon({ severity, ...iconProps }: Props) {
+  if (!severity) {
+    return null;
   }
-`;
+
+  const IconComponent = severityIcons[severity.toLowerCase()];
+  return IconComponent ? <IconComponent {...iconProps} /> : null;
+}

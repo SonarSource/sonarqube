@@ -17,27 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Avatar as BaseAvatar } from 'design-system';
-import * as React from 'react';
-import { AppStateContext } from '../../app/components/app-state/AppStateContext';
+import { render, screen } from '@testing-library/react';
 import { FCProps } from '../../types/misc';
-import { GlobalSettingKeys } from '../../types/settings';
+import { InputMultiSelect } from '../InputMultiSelect';
 
-type ExcludedProps =
-  | 'enableGravatar'
-  | 'gravatarServerUrl'
-  | 'organizationAvatar'
-  | 'organizationName';
+it('should render correctly', () => {
+  renderInputMultiSelect();
+  expect(screen.getByText('select')).toBeInTheDocument();
+  expect(screen.queryByText('selected')).not.toBeInTheDocument();
+  expect(screen.queryByText(/\d+/)).not.toBeInTheDocument();
+});
 
-type Props = Omit<FCProps<typeof BaseAvatar>, ExcludedProps>;
+it('should render correctly with a counter', () => {
+  renderInputMultiSelect({ count: 42 });
+  expect(screen.queryByText('select')).not.toBeInTheDocument();
+  expect(screen.getByText('selected')).toBeInTheDocument();
+  expect(screen.getByText('42')).toBeInTheDocument();
+});
 
-export default function Avatar(props: Props) {
-  const { settings } = React.useContext(AppStateContext);
-
-  const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';
-  const gravatarServerUrl = settings[GlobalSettingKeys.GravatarServerUrl] ?? '';
-
-  return (
-    <BaseAvatar enableGravatar={enableGravatar} gravatarServerUrl={gravatarServerUrl} {...props} />
-  );
+function renderInputMultiSelect(props: Partial<FCProps<typeof InputMultiSelect>> = {}) {
+  render(<InputMultiSelect placeholder="select" selectedLabel="selected" {...props} />);
 }

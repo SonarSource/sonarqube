@@ -53,7 +53,7 @@ export function RadioButton({
   };
 
   return (
-    <label className={classNames('sw-flex sw-items-center', className)}>
+    <label className={classNames('sw-flex sw-items-center sw-cursor-pointer', className)}>
       <RadioButtonStyled
         aria-disabled={disabled}
         checked={checked}

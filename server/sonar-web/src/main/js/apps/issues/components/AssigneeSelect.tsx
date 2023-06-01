@@ -17,127 +17,93 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { debounce } from 'lodash';
+import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
-import { LabelValueSelectOption, SearchSelect } from '../../../components/controls/Select';
+import { Options, SingleValue } from 'react-select';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import { CurrentUser, isLoggedIn, isUserActive } from '../../../types/users';
+import { UserActive, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
 
-const DEBOUNCE_DELAY = 250;
 // exported for test
 export const MIN_QUERY_LENGTH = 2;
 
-export interface AssigneeOption extends LabelValueSelectOption {
-  avatar?: string;
-  email?: string;
-  label: string;
-  value: string;
-}
+const UNASSIGNED = { value: '', label: translate('unassigned') };
 
 export interface AssigneeSelectProps {
-  currentUser: CurrentUser;
+  assignee?: SingleValue<LabelValueSelectOption<string>>;
+  className?: string;
   issues: Issue[];
-  onAssigneeSelect: (assignee: AssigneeOption) => void;
+  onAssigneeSelect: (assignee: SingleValue<LabelValueSelectOption<string>>) => void;
   inputId: string;
 }
 
-export default class AssigneeSelect extends React.Component<AssigneeSelectProps> {
-  constructor(props: AssigneeSelectProps) {
-    super(props);
+function userToOption(user: UserActive) {
+  const userInfo = user.name || user.login;
+  return {
+    value: user.login,
+    label: isUserActive(user) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
+    Icon: <Avatar hash={user.avatar} name={user.name} size="xs" />,
+  };
+}
 
-    this.handleAssigneeSearch = debounce(this.handleAssigneeSearch, DEBOUNCE_DELAY);
-  }
+export default function AssigneeSelect(props: AssigneeSelectProps) {
+  const { assignee, className, issues, inputId } = props;
 
-  getDefaultAssignee = () => {
-    const { currentUser, issues } = this.props;
-    const options = [];
+  const { currentUser } = React.useContext(CurrentUserContext);
 
-    if (isLoggedIn(currentUser)) {
-      const canBeAssignedToMe =
-        issues.filter((issue) => issue.assignee !== currentUser.login).length > 0;
-      if (canBeAssignedToMe) {
-        options.push({
-          avatar: currentUser.avatar,
-          label: currentUser.name,
-          value: currentUser.login,
-        });
+  const allowCurrentUserSelection =
+    isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
+
+  const defaultOptions = allowCurrentUserSelection
+    ? [UNASSIGNED, userToOption(currentUser)]
+    : [UNASSIGNED];
+
+  const controlLabel = assignee ? (
+    <>
+      {assignee.Icon} {assignee.label}
+    </>
+  ) : (
+    translate('select_verb')
+  );
+
+  const handleAssigneeSearch = React.useCallback(
+    (query: string, resolve: (options: Options<LabelValueSelectOption<string>>) => void) => {
+      if (query.length < MIN_QUERY_LENGTH) {
+        resolve([]);
+        return;
       }
-    }
 
-    const canBeUnassigned = issues.filter((issue) => issue.assignee).length > 0;
-    if (canBeUnassigned) {
-      options.push({ label: translate('unassigned'), value: '' });
-    }
-
-    return options;
-  };
-
-  handleAssigneeSearch = (query: string, resolve: (options: AssigneeOption[]) => void) => {
-    if (query.length < MIN_QUERY_LENGTH) {
-      resolve([]);
-      return;
-    }
-
-    searchAssignees(query)
-      .then(({ results }) =>
-        results.map((r) => {
-          const userInfo = r.name ?? r.login;
-
-          return {
-            avatar: r.avatar,
-            label: isUserActive(r) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
-            value: r.login,
-          };
-        })
-      )
-      .then(resolve)
-      .catch(() => resolve([]));
-  };
-
-  renderAssignee = (option: AssigneeOption) => {
-    return (
-      <div className="display-flex-center">
-        {option.avatar !== undefined && (
-          <Avatar className="spacer-right" hash={option.avatar} name={option.label} size={16} />
-        )}
-        {option.label}
-      </div>
-    );
-  };
-
-  renderAssigneeOption = (props: OptionProps<AssigneeOption, false>) => (
-    <components.Option {...props}>{this.renderAssignee(props.data)}</components.Option>
+      searchAssignees(query)
+        .then(({ results }) => results.map(userToOption))
+        .then(resolve)
+        .catch(() => resolve([]));
+    },
+    []
   );
 
-  renderSingleAssignee = (props: SingleValueProps<AssigneeOption, false>) => (
-    <components.SingleValue {...props}>{this.renderAssignee(props.data)}</components.SingleValue>
+  return (
+    <SearchSelectDropdown
+      aria-label={translate('search.search_for_users')}
+      className={className}
+      size="full"
+      controlSize="full"
+      inputId={inputId}
+      isClearable
+      defaultOptions={defaultOptions}
+      loadOptions={handleAssigneeSearch}
+      onChange={props.onAssigneeSelect}
+      noOptionsMessage={({ inputValue }) =>
+        inputValue.length < MIN_QUERY_LENGTH
+          ? translateWithParameters('select2.tooShort', MIN_QUERY_LENGTH)
+          : translate('select2.noMatches')
+      }
+      tooShortText={translateWithParameters('search.tooShort', MIN_QUERY_LENGTH)}
+      placeholder={translate('search.search_for_users')}
+      controlLabel={controlLabel}
+      controlAriaLabel={translate('issue_bulk_change.assignee.change')}
+    />
   );
-
-  render() {
-    const { inputId } = this.props;
-    return (
-      <SearchSelect
-        className="input-super-large"
-        inputId={inputId}
-        components={{
-          Option: this.renderAssigneeOption,
-          SingleValue: this.renderSingleAssignee,
-        }}
-        isClearable
-        defaultOptions={this.getDefaultAssignee()}
-        loadOptions={this.handleAssigneeSearch}
-        onChange={this.props.onAssigneeSelect}
-        noOptionsMessage={({ inputValue }) =>
-          inputValue.length < MIN_QUERY_LENGTH
-            ? translateWithParameters('select2.tooShort', MIN_QUERY_LENGTH)
-            : translate('select2.noMatches')
-        }
-      />
-    );
-  }
 }

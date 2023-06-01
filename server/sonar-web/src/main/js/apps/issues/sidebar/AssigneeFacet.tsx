@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Avatar } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
+import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
@@ -120,7 +120,6 @@ export class AssigneeFacet extends React.PureComponent<Props> {
     return (
       <>
         <Avatar className="sw-mr-1" hash={user.avatar} name={userName} size="xs" />
-
         {isUserActive(user) ? userName : translateWithParameters('user.x_deleted', userName)}
       </>
     );

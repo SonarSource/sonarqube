@@ -24,7 +24,7 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue, IssueChangelog } from '../../../types/types';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 
 interface Props {
@@ -88,7 +88,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                       <div>
                         {userName && (
                           <>
-                            <Avatar
+                            <LegacyAvatar
                               className="little-spacer-right"
                               hash={item.avatar}
                               name={userName}

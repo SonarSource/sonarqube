@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { DeleteButton } from '../../../components/controls/buttons';
 import GroupIcon from '../../../components/icons/GroupIcon';
-import Avatar from '../../../components/ui/Avatar';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
 
@@ -35,7 +35,7 @@ export default function PermissionItem(props: PermissionItemProps) {
   return (
     <div className="display-flex-center permission-list-item padded">
       {isUser(item) ? (
-        <Avatar className="spacer-right" hash={item.avatar} name={item.name} size={32} />
+        <LegacyAvatar className="spacer-right" hash={item.avatar} name={item.name} size={32} />
       ) : (
         <GroupIcon className="pull-left spacer-right" size={32} />
       )}

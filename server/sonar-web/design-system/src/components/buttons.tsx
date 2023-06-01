@@ -29,7 +29,7 @@ import { BaseLink, LinkProps } from './Link';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
-  'aria-label' | 'autoFocus' | 'id' | 'name' | 'role' | 'style' | 'title' | 'type'
+  'aria-label' | 'autoFocus' | 'id' | 'name' | 'role' | 'style' | 'title' | 'type' | 'form'
 >;
 
 export interface ButtonProps extends AllowedButtonAttributes {

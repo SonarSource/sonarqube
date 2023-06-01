@@ -19,7 +19,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MultiSelect } from '../MultiSelect';
+import { MultiSelectMenu } from '../MultiSelectMenu';
 
 const elements = ['foo', 'bar', 'baz'];
 
@@ -92,9 +92,9 @@ it('should show no results', () => {
   expect(screen.getByText('no results')).toBeInTheDocument();
 });
 
-function renderMultiselect(props: Partial<MultiSelect['props']> = {}) {
+function renderMultiselect(props: Partial<MultiSelectMenu['props']> = {}) {
   return render(
-    <MultiSelect
+    <MultiSelectMenu
       clearIconAriaLabel="clear"
       createElementLabel="create thing"
       elements={[]}

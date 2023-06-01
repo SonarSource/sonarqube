@@ -24,7 +24,7 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import Modal from '../../../components/controls/Modal';
 import { SearchSelect } from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
-import Avatar from '../../../components/ui/Avatar';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
@@ -92,7 +92,7 @@ export function customOptions(option: OptionWithValue) {
   return (
     <span className="display-flex-center" data-testid="qg-add-permission-option">
       {isUser(option) ? (
-        <Avatar hash={option.avatar} name={option.name} size={16} />
+        <LegacyAvatar hash={option.avatar} name={option.name} size={16} />
       ) : (
         <GroupIcon size={16} />
       )}

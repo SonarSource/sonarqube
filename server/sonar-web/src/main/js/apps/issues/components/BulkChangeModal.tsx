@@ -17,61 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, pickBy, sortBy } from 'lodash';
+import {
+  ButtonPrimary,
+  Checkbox,
+  DeferredSpinner,
+  FlagMessage,
+  FormField,
+  HelperHintIcon,
+  Highlight,
+  InputSelect,
+  LabelValueSelectOption,
+  LightLabel,
+  Modal,
+  RadioButton,
+} from 'design-system';
+import { pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { components, OptionProps, SingleValueProps } from 'react-select';
+import { SingleValue } from 'react-select';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import Modal from '../../../components/controls/Modal';
-import Radio from '../../../components/controls/Radio';
-import Select, {
-  CreatableSelect,
-  LabelValueSelectOption,
-  SearchSelect,
-} from '../../../components/controls/Select';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import { SEVERITIES } from '../../../helpers/constants';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
-import { CurrentUser } from '../../../types/users';
-import AssigneeSelect, { AssigneeOption } from './AssigneeSelect';
-
-const DEBOUNCE_DELAY = 250;
-
-interface TagOption extends LabelValueSelectOption {
-  label: string;
-  value: string;
-}
+import { IssueSeverity } from '../../../types/issues';
+import { Dict, Issue, IssueType, Paging } from '../../../types/types';
+import AssigneeSelect from './AssigneeSelect';
+import TagsSelect from './TagsSelect';
 
 interface Props {
-  component: Component | undefined;
-  currentUser: CurrentUser;
   fetchIssues: (x: {}) => Promise<{ issues: Issue[]; paging: Paging }>;
   onClose: () => void;
   onDone: () => void;
 }
 
 interface FormFields {
-  addTags?: Array<{ label: string; value: string }>;
-  assignee?: AssigneeOption;
+  addTags?: Array<string>;
+  assignee?: SingleValue<LabelValueSelectOption<string>>;
   comment?: string;
   notifications?: boolean;
-  removeTags?: Array<{ label: string; value: string }>;
+  removeTags?: Array<string>;
   severity?: string;
   transition?: string;
   type?: string;
 }
 
 interface State extends FormFields {
-  initialTags: Array<{ label: string; value: string }>;
+  initialTags: Array<string>;
   issues: Issue[];
   // used for initial loading of issues
   loading: boolean;
@@ -90,49 +84,12 @@ enum InputField {
 
 export const MAX_PAGE_SIZE = 500;
 
-function typeFieldTypeRenderer(option: LabelValueSelectOption) {
-  return (
-    <div className="display-flex-center">
-      <IssueTypeIcon query={option.value} />
-      <span className="little-spacer-left">{option.label}</span>
-    </div>
-  );
-}
-
-function TypeFieldOptionComponent(props: OptionProps<LabelValueSelectOption, false>) {
-  return <components.Option {...props}>{typeFieldTypeRenderer(props.data)}</components.Option>;
-}
-
-function TypeFieldSingleValueComponent(props: SingleValueProps<LabelValueSelectOption, false>) {
-  return (
-    <components.SingleValue {...props}>{typeFieldTypeRenderer(props.data)}</components.SingleValue>
-  );
-}
-
-function SeverityFieldOptionComponent(props: OptionProps<LabelValueSelectOption, false>) {
-  return (
-    <components.Option {...props}>
-      {<SeverityHelper className="display-flex-center" severity={props.data.value} />}
-    </components.Option>
-  );
-}
-
-function SeverityFieldSingleValueComponent(props: SingleValueProps<LabelValueSelectOption, false>) {
-  return (
-    <components.SingleValue {...props}>
-      {<SeverityHelper className="display-flex-center" severity={props.data.value} />}
-    </components.SingleValue>
-  );
-}
-
 export default class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
     this.state = { initialTags: [], issues: [], loading: true, submitting: false };
-
-    this.handleTagsSearch = debounce(this.handleTagsSearch, DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
@@ -146,7 +103,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           }
 
           this.setState({
-            initialTags: tags.map((tag) => ({ label: tag, value: tag })),
+            initialTags: tags,
             issues,
             loading: false,
             paging,
@@ -165,19 +122,18 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: MAX_PAGE_SIZE });
   };
 
-  handleAssigneeSelect = (assignee: AssigneeOption) => {
+  handleAssigneeSelect = (assignee: SingleValue<LabelValueSelectOption<string>>) => {
     this.setState({ assignee });
   };
 
-  handleTagsSearch = (query: string, resolve: (option: TagOption[]) => void) => {
-    searchIssueTags({ q: query })
-      .then((tags) => tags.map((tag) => ({ label: tag, value: tag })))
-      .then(resolve)
-      .catch(() => resolve([]));
+  handleTagsSearch = (query: string): Promise<string[]> => {
+    return searchIssueTags({ q: query })
+      .then((tags) => tags)
+      .catch(() => []);
   };
 
   handleTagsSelect =
-    (field: InputField.addTags | InputField.removeTags) => (options: TagOption[]) => {
+    (field: InputField.addTags | InputField.removeTags) => (options: Array<string>) => {
       this.setState<keyof FormFields>({ [field]: options });
     };
 
@@ -198,7 +154,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   handleSelectFieldChange =
-    (field: 'severity' | 'type') => (data: LabelValueSelectOption | null) => {
+    (field: 'severity' | 'type') => (data: LabelValueSelectOption<string> | null) => {
       if (data) {
         this.setState<keyof FormFields>({ [field]: data.value });
       } else {
@@ -211,11 +167,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const query = pickBy(
       {
-        add_tags: this.state.addTags && this.state.addTags.map((t) => t.value).join(),
+        add_tags: this.state.addTags?.join(),
         assign: this.state.assignee ? this.state.assignee.value : null,
         comment: this.state.comment,
         do_transition: this.state.transition,
-        remove_tags: this.state.removeTags && this.state.removeTags.map((t) => t.value).join(),
+        remove_tags: this.state.removeTags?.join(),
         sendNotifications: this.state.notifications,
         set_severity: this.state.severity,
         set_type: this.state.type,
@@ -270,48 +226,26 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     );
   };
 
-  renderLoading = () => (
-    <div>
-      <div className="modal-head">
-        <h2>{translate('bulk_change')}</h2>
-      </div>
-      <div className="modal-body">
-        <div className="text-center">
-          <DeferredSpinner
-            timeout={0}
-            className="spacer"
-            ariaLabel={translate('issues.loading_issues')}
-          />
-        </div>
-      </div>
-      <div className="modal-foot">
-        <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-      </div>
-    </div>
-  );
-
-  renderAffected = (affected: number) => (
-    <div className="pull-right note">
-      ({translateWithParameters('issue_bulk_change.x_issues', affected)})
-    </div>
-  );
-
   renderField = (
     field: InputField,
     label: string,
     affected: number | undefined,
     input: React.ReactNode
   ) => (
-    <div className="modal-field">
-      <label htmlFor={`issues-bulk-change-${field}`}>{translate(label)}</label>
-      {input}
-      {affected !== undefined && this.renderAffected(affected)}
-    </div>
+    <FormField htmlFor={`issues-bulk-change-${field}`} label={translate(label)}>
+      <div className="sw-flex sw-items-center sw-justify-between">
+        {input}
+        {affected !== undefined && (
+          <LightLabel>
+            ({translateWithParameters('issue_bulk_change.x_issues', affected)})
+          </LightLabel>
+        )}
+      </div>
+    </FormField>
   );
 
   renderAssigneeField = () => {
-    const { currentUser } = this.props;
-    const { issues } = this.state;
+    const { assignee, issues } = this.state;
     const affected = this.state.issues.filter(hasAction('assign')).length;
     const field = InputField.assignee;
 
@@ -321,8 +255,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <AssigneeSelect
+        assignee={assignee}
+        className="sw-max-w-abs-300"
         inputId={`issues-bulk-change-${field}`}
-        currentUser={currentUser}
         issues={issues}
         onAssigneeSelect={this.handleAssigneeSelect}
       />
@@ -340,23 +275,21 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     const types: IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-    const options: LabelValueSelectOption[] = types.map((type) => ({
+    const options: LabelValueSelectOption<IssueType>[] = types.map((type) => ({
       label: translate('issue.type', type),
       value: type,
+      Icon: <IssueTypeIcon height={16} type={type} />,
     }));
 
     const input = (
-      <Select
-        className="input-super-large"
+      <InputSelect
+        className="sw-w-abs-300"
         inputId={`issues-bulk-change-${field}`}
         isClearable
         isSearchable={false}
-        components={{
-          Option: TypeFieldOptionComponent,
-          SingleValue: TypeFieldSingleValueComponent,
-        }}
         onChange={this.handleSelectFieldChange('type')}
         options={options}
+        size="full"
       />
     );
 
@@ -371,23 +304,21 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const options: LabelValueSelectOption[] = SEVERITIES.map((severity) => ({
+    const options: LabelValueSelectOption<IssueSeverity>[] = SEVERITIES.map((severity) => ({
       label: translate('severity', severity),
       value: severity,
+      Icon: <IssueSeverityIcon height={16} severity={severity} />,
     }));
 
     const input = (
-      <Select
-        className="input-super-large"
+      <InputSelect
+        className="sw-w-abs-300"
         inputId={`issues-bulk-change-${field}`}
         isClearable
         isSearchable={false}
         onChange={this.handleSelectFieldChange('severity')}
-        components={{
-          Option: SeverityFieldOptionComponent,
-          SingleValue: SeverityFieldSingleValueComponent,
-        }}
         options={options}
+        size="full"
       />
     );
 
@@ -400,26 +331,21 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     allowCreate: boolean
   ) => {
     const { initialTags } = this.state;
+    const tags = this.state[field] ?? [];
     const affected = this.state.issues.filter(hasAction('set_tags')).length;
 
     if (initialTags === undefined || affected === 0) {
       return null;
     }
 
-    const props = {
-      className: 'input-super-large',
-      inputId: `issues-bulk-change-${field}`,
-      isClearable: true,
-      defaultOptions: this.state.initialTags,
-      isMulti: true,
-      onChange: this.handleTagsSelect(field),
-      loadOptions: this.handleTagsSearch,
-    };
-
-    const input = allowCreate ? (
-      <CreatableSelect {...props} formatCreateLabel={createTagPrompt} />
-    ) : (
-      <SearchSelect {...props} />
+    const input = (
+      <TagsSelect
+        allowCreation={allowCreate}
+        inputId={`issues-bulk-change-${field}`}
+        onChange={this.handleTagsSelect(field)}
+        selectedTags={tags}
+        onSearch={this.handleTagsSearch}
+      />
     );
 
     return this.renderField(field, label, affected, input);
@@ -433,23 +359,27 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="modal-field">
+      <div className="sw-mb-6">
         <fieldset>
-          <legend>{translate('issue.transition')}</legend>
+          <Highlight as="legend" className="sw-mb-2">
+            {translate('issue.transition')}
+          </Highlight>
           {transitions.map((transition) => (
-            <span
-              className="bulk-change-radio-button display-flex-center display-flex-space-between"
+            <div
+              className="sw-mb-1 sw-flex sw-items-center sw-justify-between"
               key={transition.transition}
             >
-              <Radio
+              <RadioButton
                 checked={this.state.transition === transition.transition}
                 onCheck={this.handleRadioTransitionChange}
                 value={transition.transition}
               >
                 {translate('issue.transition', transition.transition)}
-              </Radio>
-              {this.renderAffected(transition.count)}
-            </span>
+              </RadioButton>
+              <LightLabel>
+                ({translateWithParameters('issue_bulk_change.x_issues', transition.count)})
+              </LightLabel>
+            </div>
           ))}
         </fieldset>
       </div>
@@ -464,58 +394,62 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="modal-field">
-        <label htmlFor="comment">
-          <span className="text-middle">{translate('issue.comment.formlink')}</span>
-          <HelpTooltip
-            className="spacer-left"
-            overlay={translate('issue_bulk_change.comment.help')}
-          />
-        </label>
+      <FormField
+        label={translate('issue.comment.formlink')}
+        htmlFor="comment"
+        help={
+          <div className="-sw-mt-1" title={translate('issue_bulk_change.comment.help')}>
+            <HelperHintIcon />
+          </div>
+        }
+      >
         <textarea
           id="comment"
           onChange={this.handleCommentChange}
           rows={4}
-          value={this.state.comment || ''}
+          value={this.state.comment ?? ''}
         />
-        <FormattingTips className="modal-field-descriptor text-right" />
-      </div>
+        <FormattingTips className="sw-text-right" />
+      </FormField>
     );
   };
 
   renderNotificationsField = () => (
-    <Checkbox
-      checked={this.state.notifications !== undefined}
-      className="display-inline-block spacer-top"
-      id="send-notifications"
-      onCheck={this.handleFieldCheck('notifications')}
-      right
-    >
-      <strong className="little-spacer-right">{translate('issue.send_notifications')}</strong>
-    </Checkbox>
+    <div>
+      <Checkbox
+        checked={this.state.notifications !== undefined}
+        className="sw-my-2 sw-gap-1/2"
+        id="send-notifications"
+        onCheck={this.handleFieldCheck('notifications')}
+        right
+      >
+        {translate('issue.send_notifications')}
+      </Checkbox>
+    </div>
   );
 
   renderForm = () => {
-    const { issues, paging, submitting } = this.state;
+    const { issues, loading, paging } = this.state;
 
     const limitReached = paging && paging.total > MAX_PAGE_SIZE;
-    const canSubmit = this.canSubmit();
 
     return (
-      <form id="bulk-change-form" onSubmit={this.handleSubmit}>
-        <div className="modal-head">
-          <h2>{translateWithParameters('issue_bulk_change.form.title', issues.length)}</h2>
-        </div>
-
-        <div className="modal-body modal-container">
+      <DeferredSpinner loading={loading}>
+        <form id="bulk-change-form" onSubmit={this.handleSubmit}>
           {limitReached && (
-            <Alert variant="warning">
-              <FormattedMessage
-                defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                id="issue_bulk_change.max_issues_reached"
-                values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-              />
-            </Alert>
+            <FlagMessage
+              ariaLabel={translate('alert.tooltip.warning')}
+              className="sw-mb-4"
+              variant="warning"
+            >
+              <span>
+                <FormattedMessage
+                  defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                  id="issue_bulk_change.max_issues_reached"
+                  values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                />
+              </span>
+            </FlagMessage>
           )}
 
           {this.renderAssigneeField()}
@@ -527,37 +461,47 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
           {issues.length === 0 && (
-            <Alert variant="warning">{translate('issue_bulk_change.no_match')}</Alert>
+            <FlagMessage ariaLabel={translate('alert.tooltip.warning')} variant="warning">
+              {translate('issue_bulk_change.no_match')}
+            </FlagMessage>
           )}
-        </div>
-
-        <div className="modal-foot">
-          {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton
-            disabled={!canSubmit || submitting || issues.length === 0}
-            id="bulk-change-submit"
-          >
-            {translate('apply')}
-          </SubmitButton>
-          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
+        </form>
+      </DeferredSpinner>
     );
   };
 
   render() {
+    const { issues, loading, submitting } = this.state;
+
+    const canSubmit = this.canSubmit();
+
     return (
-      <Modal onRequestClose={this.props.onClose} size="small">
-        {this.state.loading ? this.renderLoading() : this.renderForm()}
-      </Modal>
+      <Modal
+        onClose={this.props.onClose}
+        headerTitle={
+          loading
+            ? translate('bulk_change')
+            : translateWithParameters('issue_bulk_change.form.title', issues.length)
+        }
+        isScrollable={true}
+        loading={submitting}
+        body={this.renderForm()}
+        primaryButton={
+          <ButtonPrimary
+            id="bulk-change-submit"
+            form="bulk-change-form"
+            type="submit"
+            disabled={!canSubmit || submitting || issues.length === 0}
+          >
+            {translate('apply')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }
 
 function hasAction(action: string) {
   return (issue: Issue) => issue.actions && issue.actions.includes(action);
-}
-
-function createTagPrompt(label: string) {
-  return translateWithParameters('issue.create_tag_x', label);
 }

@@ -21,10 +21,12 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { act } from 'react-dom/test-utils';
-import { byRole } from 'testing-library-selector';
+import { byLabelText } from 'testing-library-selector';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { CurrentUser } from '../../../../types/users';
 import AssigneeSelect, { AssigneeSelectProps, MIN_QUERY_LENGTH } from '../AssigneeSelect';
 
 jest.mock('../../utils', () => ({
@@ -52,15 +54,18 @@ jest.mock('../../utils', () => ({
 }));
 
 const ui = {
-  combobox: byRole('combobox'),
+  combobox: byLabelText('issue_bulk_change.assignee.change'),
+  searchbox: byLabelText('search.search_for_users'),
 };
 
 it('should show correct suggestions when there is assignable issue for the current user', async () => {
   const user = userEvent.setup();
-  renderAssigneeSelect({
-    currentUser: mockLoggedInUser({ name: 'Skywalker' }),
-    issues: [mockIssue(false, { assignee: 'someone' })],
-  });
+  renderAssigneeSelect(
+    {
+      issues: [mockIssue(false, { assignee: 'someone' })],
+    },
+    mockLoggedInUser({ name: 'Skywalker' })
+  );
 
   await user.click(ui.combobox.get());
   expect(await screen.findByText('Skywalker')).toBeInTheDocument();
@@ -68,10 +73,12 @@ it('should show correct suggestions when there is assignable issue for the curre
 
 it('should show correct suggestions when all issues are already assigned to current user', async () => {
   const user = userEvent.setup();
-  renderAssigneeSelect({
-    currentUser: mockLoggedInUser({ login: 'luke', name: 'Skywalker' }),
-    issues: [mockIssue(false, { assignee: 'luke' })],
-  });
+  renderAssigneeSelect(
+    {
+      issues: [mockIssue(false, { assignee: 'luke' })],
+    },
+    mockLoggedInUser({ login: 'luke', name: 'Skywalker' })
+  );
 
   await user.click(ui.combobox.get());
   expect(screen.queryByText('Skywalker')).not.toBeInTheDocument();
@@ -79,9 +86,7 @@ it('should show correct suggestions when all issues are already assigned to curr
 
 it('should show correct suggestions when there is no assigneable issue', async () => {
   const user = userEvent.setup();
-  renderAssigneeSelect({
-    currentUser: mockLoggedInUser({ name: 'Skywalker' }),
-  });
+  renderAssigneeSelect({}, mockLoggedInUser({ name: 'Skywalker' }));
 
   await user.click(ui.combobox.get());
   expect(screen.queryByText('Skywalker')).not.toBeInTheDocument();
@@ -92,11 +97,17 @@ it('should handle assignee search correctly', async () => {
   renderAssigneeSelect();
 
   // Minimum MIN_QUERY_LENGTH charachters to trigger search
-  await user.type(ui.combobox.get(), 'a');
+  await act(async () => {
+    await user.click(ui.combobox.get());
+    await user.type(ui.searchbox.get(), 'a');
+  });
   expect(await screen.findByText(`select2.tooShort.${MIN_QUERY_LENGTH}`)).toBeInTheDocument();
 
   // Trigger search
-  await user.type(ui.combobox.get(), 'someone');
+  await act(async () => {
+    await user.click(ui.combobox.get());
+    await user.type(ui.searchbox.get(), 'someone');
+  });
   expect(await screen.findByText('toto')).toBeInTheDocument();
   expect(await screen.findByText('user.x_deleted.tata')).toBeInTheDocument();
   expect(await screen.findByText('user.x_deleted.titi@titi')).toBeInTheDocument();
@@ -108,25 +119,25 @@ it('should handle assignee selection', async () => {
   renderAssigneeSelect({ onAssigneeSelect });
 
   await act(async () => {
-    await user.type(ui.combobox.get(), 'tot');
+    await user.click(ui.combobox.get());
+    await user.type(ui.searchbox.get(), 'tot');
   });
 
   // Do not select assignee until suggestion is selected
   expect(onAssigneeSelect).not.toHaveBeenCalled();
 
   // Select assignee when suggestion is selected
-  await user.click(screen.getByText('toto'));
+  await user.click(screen.getByLabelText('toto'));
   expect(onAssigneeSelect).toHaveBeenCalledTimes(1);
 });
 
-function renderAssigneeSelect(overrides: Partial<AssigneeSelectProps> = {}) {
+function renderAssigneeSelect(
+  overrides: Partial<AssigneeSelectProps> = {},
+  currentUser: CurrentUser = mockCurrentUser()
+) {
   return renderComponent(
-    <AssigneeSelect
-      inputId="id"
-      currentUser={mockCurrentUser()}
-      issues={[]}
-      onAssigneeSelect={jest.fn()}
-      {...overrides}
-    />
+    <CurrentUserContextProvider currentUser={currentUser}>
+      <AssigneeSelect inputId="id" issues={[]} onAssigneeSelect={jest.fn()} {...overrides} />
+    </CurrentUserContextProvider>
   );
 }

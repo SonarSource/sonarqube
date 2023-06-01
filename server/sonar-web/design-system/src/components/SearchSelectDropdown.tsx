@@ -30,7 +30,8 @@ import {
 import { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import tw from 'twin.macro';
-import { DEBOUNCE_DELAY, themeBorder } from '../helpers';
+import { DEBOUNCE_DELAY, PopupPlacement, PopupZLevel, themeBorder } from '../helpers';
+import { InputSizeKeys } from '../types/theme';
 import { DropdownToggler } from './DropdownToggler';
 import { IconOption, LabelValueSelectOption, SelectProps } from './InputSelect';
 import { SearchHighlighterContext } from './SearchHighlighter';
@@ -52,8 +53,10 @@ export interface SearchSelectDropdownProps<
   Group extends GroupBase<Option> = GroupBase<Option>
 > extends SelectProps<V, Option, IsMulti, Group>,
     AsyncProps<Option, IsMulti, Group> {
+  className?: string;
   controlAriaLabel?: string;
   controlLabel?: React.ReactNode | string;
+  controlSize?: InputSizeKeys;
   isDiscreet?: boolean;
 }
 
@@ -64,10 +67,12 @@ export function SearchSelectDropdown<
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: SearchSelectDropdownProps<V, Option, IsMulti, Group>) {
   const {
+    className,
     isDiscreet,
     value,
     loadOptions,
     controlLabel,
+    controlSize,
     isDisabled,
     minLength,
     controlAriaLabel,
@@ -122,7 +127,6 @@ export function SearchSelectDropdown<
     <DropdownToggler
       allowResizing
       className="sw-overflow-visible sw-border-none"
-      isPortal
       onRequestClose={() => {
         toggleDropdown(false);
       }}
@@ -149,15 +153,19 @@ export function SearchSelectDropdown<
           </StyledSearchSelectWrapper>
         </SearchHighlighterContext.Provider>
       }
+      placement={PopupPlacement.BottomLeft}
+      zLevel={PopupZLevel.Global}
     >
       <SearchSelectDropdownControl
         ariaLabel={controlAriaLabel}
+        className={className}
         disabled={isDisabled}
         isDiscreet={isDiscreet}
         label={controlLabel}
         onClick={() => {
           toggleDropdown(true);
         }}
+        size={controlSize}
       />
     </DropdownToggler>
   );

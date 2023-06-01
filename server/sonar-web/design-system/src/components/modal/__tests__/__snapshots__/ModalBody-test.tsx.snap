@@ -6,7 +6,10 @@ exports[`renders with children 1`] = `
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
+  padding-left: 0.75rem;
   padding-right: 0.75rem;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
   margin-top: 3rem;
   margin-bottom: 3rem;
   overflow-x: hidden;

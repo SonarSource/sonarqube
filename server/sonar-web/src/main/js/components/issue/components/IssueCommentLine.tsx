@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
+import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
 import DateFromNow from '../../intl/DateFromNow';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 
@@ -87,7 +87,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
     return (
       <li className="issue-comment">
         <div className="issue-comment-author" title={displayName}>
-          <Avatar
+          <LegacyAvatar
             className="little-spacer-right"
             hash={comment.authorAvatar}
             name={author}

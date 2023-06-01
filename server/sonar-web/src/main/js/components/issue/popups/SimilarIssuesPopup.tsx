@@ -30,7 +30,7 @@ import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import SeverityHelper from '../../shared/SeverityHelper';
 import StatusHelper from '../../shared/StatusHelper';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 
 interface SimilarIssuesPopupProps {
   issue: Issue;
@@ -95,7 +95,7 @@ export default function SimilarIssuesPopup(props: SimilarIssuesPopupProps) {
           {assignee ? (
             <span>
               {translate('assigned_to')}
-              <Avatar
+              <LegacyAvatar
                 className="little-spacer-left little-spacer-right"
                 hash={issue.assigneeAvatar}
                 name={assignee}

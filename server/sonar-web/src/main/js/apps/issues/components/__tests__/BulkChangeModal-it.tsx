@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { bulkChangeIssues } from '../../../../api/issues';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { SEVERITIES } from '../../../../helpers/constants';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { IssueType } from '../../../../types/issues';
 import { Issue } from '../../../../types/types';
+import { CurrentUser } from '../../../../types/users';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
@@ -120,28 +122,31 @@ it('should properly submit', async () => {
     ],
     {
       onDone,
-      currentUser: mockLoggedInUser({
-        login: 'toto',
-        name: 'Toto',
-      }),
-    }
+    },
+    mockLoggedInUser({
+      login: 'toto',
+      name: 'Toto',
+    })
   );
 
   expect(bulkChangeIssues).toHaveBeenCalledTimes(0);
   expect(onDone).toHaveBeenCalledTimes(0);
 
   // Assign
-  await user.click(await screen.findByRole('combobox', { name: 'issue.assign.formlink' }));
+  await user.click(
+    await screen.findByRole('combobox', { name: 'issue_bulk_change.assignee.change' })
+  );
   await user.click(await screen.findByText('Toto'));
 
   // Transition
   await user.click(await screen.findByText('issue.transition.Transition2'));
 
   // Add a tag
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.add_tags' }), [
-    'tag1',
-    'tag2',
-  ]);
+  await act(async () => {
+    await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
+    await user.click(screen.getByText('tag1'));
+    await user.click(screen.getByText('tag2'));
+  });
 
   // Select a type
   await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
@@ -180,24 +185,29 @@ it('should properly submit', async () => {
   });
 });
 
-function renderBulkChangeModal(issues: Issue[], props: Partial<BulkChangeModal['props']> = {}) {
+function renderBulkChangeModal(
+  issues: Issue[],
+  props: Partial<BulkChangeModal['props']> = {},
+  currentUser: CurrentUser = mockLoggedInUser()
+) {
   return renderComponent(
-    <BulkChangeModal
-      component={undefined}
-      currentUser={{ isLoggedIn: true, dismissedNotices: {} }}
-      fetchIssues={() =>
-        Promise.resolve({
-          issues,
-          paging: {
-            pageIndex: issues.length,
-            pageSize: issues.length,
-            total: issues.length,
-          },
-        })
-      }
-      onClose={() => {}}
-      onDone={() => {}}
-      {...props}
-    />
+    <CurrentUserContextProvider currentUser={currentUser}>
+      <BulkChangeModal
+        fetchIssues={() =>
+          Promise.resolve({
+            issues,
+            paging: {
+              pageIndex: issues.length,
+              pageSize: issues.length,
+              total: issues.length,
+            },
+          })
+        }
+        onClose={() => {}}
+        onDone={() => {}}
+        {...props}
+      />
+    </CurrentUserContextProvider>,
+    ''
   );
 }

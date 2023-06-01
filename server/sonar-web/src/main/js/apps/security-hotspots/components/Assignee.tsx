@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Avatar, LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
+import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
 import { assignSecurityHotspot } from '../../../api/security-hotspots';
 import { searchUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
+import Avatar from '../../../components/ui/Avatar';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Hotspot, HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';

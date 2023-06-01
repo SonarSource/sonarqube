@@ -23,7 +23,7 @@ import { PureComponent } from 'react';
 import { Key } from '../helpers/keyboard';
 import { ItemDivider, ItemHeader } from './DropdownMenu';
 import { InputSearch } from './InputSearch';
-import { MultiSelectOption } from './MultiSelectOption';
+import { MultiSelectMenuOption } from './MultiSelectMenuOption';
 
 interface Props {
   allowNewElements?: boolean;
@@ -33,6 +33,7 @@ interface Props {
   elements: string[];
   footerNode?: React.ReactNode;
   headerNode?: React.ReactNode;
+  inputId?: string;
   listSize: number;
   noResultsLabel: string;
   onSearch: (query: string) => Promise<void>;
@@ -60,7 +61,7 @@ interface DefaultProps {
 
 type PropsWithDefault = Props & DefaultProps;
 
-export class MultiSelect extends PureComponent<Props, State> {
+export class MultiSelectMenu extends PureComponent<Props, State> {
   container?: HTMLDivElement | null;
   searchInput?: HTMLInputElement | null;
   mounted = false;
@@ -258,6 +259,7 @@ export class MultiSelect extends PureComponent<Props, State> {
       createElementLabel,
       headerNode = '',
       footerNode = '',
+      inputId,
       clearIconAriaLabel,
       noResultsLabel,
       searchInputAriaLabel,
@@ -275,6 +277,7 @@ export class MultiSelect extends PureComponent<Props, State> {
             autoFocus
             className="sw-mt-1"
             clearIconAriaLabel={clearIconAriaLabel}
+            id={inputId}
             loading={this.state.loading}
             onChange={this.handleSearchChange}
             placeholder={this.props.placeholder}
@@ -291,7 +294,7 @@ export class MultiSelect extends PureComponent<Props, State> {
         >
           {selectedElements.length > 0 &&
             selectedElements.map((element) => (
-              <MultiSelectOption
+              <MultiSelectMenuOption
                 active={activeElement === element}
                 createElementLabel={createElementLabel}
                 element={element}
@@ -303,7 +306,7 @@ export class MultiSelect extends PureComponent<Props, State> {
             ))}
           {unselectedElements.length > 0 &&
             unselectedElements.map((element) => (
-              <MultiSelectOption
+              <MultiSelectMenuOption
                 active={activeElement === element}
                 createElementLabel={createElementLabel}
                 disabled={!allowSelection}
@@ -314,7 +317,7 @@ export class MultiSelect extends PureComponent<Props, State> {
               />
             ))}
           {showNewElement && (
-            <MultiSelectOption
+            <MultiSelectMenuOption
               active={activeElement === query}
               createElementLabel={createElementLabel}
               custom

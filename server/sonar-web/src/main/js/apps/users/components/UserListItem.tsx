@@ -21,7 +21,7 @@ import * as React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import Avatar from '../../../components/ui/Avatar';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../types/types';
 import { User } from '../../../types/users';
@@ -56,7 +56,12 @@ export default function UserListItem(props: UserListItemProps) {
     <tr>
       <td className="thin text-middle">
         <div className="sw-flex sw-items-center">
-          <Avatar className="sw-shrink-0 sw-mr-4" hash={user.avatar} name={user.name} size={36} />
+          <LegacyAvatar
+            className="sw-shrink-0 sw-mr-4"
+            hash={user.avatar}
+            name={user.name}
+            size={36}
+          />
           <UserListItemIdentity
             identityProvider={identityProvider}
             user={user}

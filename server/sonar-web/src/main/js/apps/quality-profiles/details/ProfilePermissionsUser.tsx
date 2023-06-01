@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeUser } from '../../../api/quality-profiles';
-import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import Avatar from '../../../components/ui/Avatar';
+import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translate } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 
@@ -110,7 +110,12 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
           className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}
         />
-        <Avatar className="pull-left spacer-right" hash={user.avatar} name={user.name} size={32} />
+        <LegacyAvatar
+          className="pull-left spacer-right"
+          hash={user.avatar}
+          name={user.name}
+          size={32}
+        />
         <div className="overflow-hidden">
           <strong>{user.name}</strong>
           <div className="note">{user.login}</div>

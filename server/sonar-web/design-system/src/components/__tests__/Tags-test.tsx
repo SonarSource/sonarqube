@@ -86,7 +86,6 @@ function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {
       clearIconAriaLabel="clear"
       createElementLabel="create new tag"
       headerLabel="edit tags"
-      listSize={4}
       noResultsLabel="no results"
       onSearch={jest.fn().mockResolvedValue(undefined)}
       onSelect={(tag) => {

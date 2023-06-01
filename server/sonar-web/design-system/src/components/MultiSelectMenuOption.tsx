@@ -31,7 +31,7 @@ export interface MultiSelectOptionProps {
   selected?: boolean;
 }
 
-export function MultiSelectOption(props: MultiSelectOptionProps) {
+export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
   const { active, createElementLabel, custom, disabled, element, onSelectChange, selected } = props;
   const onHover = () => props.onHover(element);
 

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
+import { ButtonLink } from '../../../components/controls/buttons';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 
 interface Props {
@@ -55,7 +55,12 @@ export default class IssueAssign extends React.PureComponent<Props> {
       return (
         <>
           <span className="text-top">
-            <Avatar className="little-spacer-right" hash={issue.assigneeAvatar} name="" size={16} />
+            <LegacyAvatar
+              className="little-spacer-right"
+              hash={issue.assigneeAvatar}
+              name=""
+              size={16}
+            />
           </span>
           <span className="issue-meta-label" title={assigneeDisplay}>
             {assigneeDisplay}

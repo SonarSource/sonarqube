@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MultiSelect } from './MultiSelect';
+import { MultiSelectMenu } from './MultiSelectMenu';
 
 interface Props {
+  allowNewElements?: boolean;
   clearIconAriaLabel: string;
   createElementLabel: string;
   headerLabel: string;
-  listSize: number;
   noResultsLabel: string;
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
@@ -33,12 +33,14 @@ interface Props {
   tags: string[];
 }
 
+const LIST_SIZE = 10;
+
 export function TagsSelector(props: Props) {
   const {
+    allowNewElements,
     clearIconAriaLabel,
     createElementLabel,
     headerLabel,
-    listSize,
     noResultsLabel,
     searchInputAriaLabel,
     selectedTags,
@@ -46,12 +48,13 @@ export function TagsSelector(props: Props) {
   } = props;
 
   return (
-    <MultiSelect
+    <MultiSelectMenu
+      allowNewElements={allowNewElements}
       clearIconAriaLabel={clearIconAriaLabel}
       createElementLabel={createElementLabel}
       elements={tags}
       headerNode={<div className="sw-mt-4 sw-font-semibold">{headerLabel}</div>}
-      listSize={listSize}
+      listSize={LIST_SIZE}
       noResultsLabel={noResultsLabel}
       onSearch={props.onSearch}
       onSelect={props.onSelect}

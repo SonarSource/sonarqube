@@ -23,7 +23,7 @@ import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
 import { DeleteButton, EditButton } from '../../controls/buttons';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
-import Avatar from '../../ui/Avatar';
+import LegacyAvatar from '../../ui/LegacyAvatar';
 import CommentForm from './CommentForm';
 
 interface CommentTileProps {
@@ -68,7 +68,7 @@ export default class CommentTile extends React.PureComponent<CommentTileProps, C
       <div className="issue-comment-tile spacer-bottom padded">
         <div className="display-flex-center">
           <div className="issue-comment-author display-flex-center" title={displayName}>
-            <Avatar
+            <LegacyAvatar
               className="little-spacer-right"
               hash={comment.authorAvatar}
               name={author}

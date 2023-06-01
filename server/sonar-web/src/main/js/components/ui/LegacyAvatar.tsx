@@ -17,27 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Avatar as BaseAvatar } from 'design-system';
+import classNames from 'classnames';
 import * as React from 'react';
-import { AppStateContext } from '../../app/components/app-state/AppStateContext';
-import { FCProps } from '../../types/misc';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import { AppState } from '../../types/appstate';
 import { GlobalSettingKeys } from '../../types/settings';
+import GenericAvatar from './GenericAvatar';
 
-type ExcludedProps =
-  | 'enableGravatar'
-  | 'gravatarServerUrl'
-  | 'organizationAvatar'
-  | 'organizationName';
+const GRAVATAR_SIZE_MULTIPLIER = 2;
 
-type Props = Omit<FCProps<typeof BaseAvatar>, ExcludedProps>;
+interface Props {
+  appState: AppState;
+  className?: string;
+  hash?: string;
+  name?: string;
+  size: number;
+}
 
-export default function Avatar(props: Props) {
-  const { settings } = React.useContext(AppStateContext);
+/**
+ * @deprecated Use Avatar instead
+ */
+export function LegacyAvatar(props: Props) {
+  const {
+    appState: { settings },
+    className,
+    hash,
+    name,
+    size,
+  } = props;
 
   const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';
+
+  if (!enableGravatar || !hash) {
+    if (!name) {
+      return null;
+    }
+    return <GenericAvatar className={className} name={name} size={size} />;
+  }
+
   const gravatarServerUrl = settings[GlobalSettingKeys.GravatarServerUrl] ?? '';
+  const url = gravatarServerUrl
+    .replace('{EMAIL_MD5}', hash)
+    .replace('{SIZE}', String(size * GRAVATAR_SIZE_MULTIPLIER));
 
   return (
-    <BaseAvatar enableGravatar={enableGravatar} gravatarServerUrl={gravatarServerUrl} {...props} />
+    <img
+      alt={name}
+      className={classNames(className, 'rounded')}
+      height={size}
+      src={url}
+      width={size}
+    />
   );
 }
+
+export default withAppStateContext(LegacyAvatar);

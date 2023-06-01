@@ -41,6 +41,7 @@ export { FlagWarningIcon } from './FlagWarningIcon';
 export { HelperHintIcon } from './HelperHintIcon';
 export { HomeFillIcon } from './HomeFillIcon';
 export { HomeIcon } from './HomeIcon';
+export * from './Icon';
 export { IssueLocationIcon } from './IssueLocationIcon';
 export { LinkIcon } from './LinkIcon';
 export { LockIcon } from './LockIcon';
