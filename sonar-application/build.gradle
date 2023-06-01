@@ -15,6 +15,7 @@ sonar {
 }
 
 configurations {
+  zipDist
   zip
   scanner
   web
@@ -72,6 +73,15 @@ dependencies {
     jdbc_h2 'com.h2database:h2'
     jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
     jdbc_postgresql 'org.postgresql:postgresql'
+
+    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    if (artifactoryUsername && artifactoryPassword) {
+      zipDist "sonarqube:elasticsearch:${elasticsearchVersion}-no-jdk-linux-x86_64@tar.gz"
+    } else {
+      zipDist "sonarqube:elasticsearch:${elasticsearchVersion}-linux-x86_64@tar.gz"
+    }
+
 }
 
 // declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
@@ -90,40 +100,12 @@ task verifySonarProperties(type: Verify) {
   }
 }
 
-def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-
-task verifyElasticSearchDownload(type: Verify) {
-  if (artifactoryUsername && artifactoryPassword) {
-    src new File(buildDir, "$elasticsearchDownloadUrlFileNoJdk")
-    algorithm 'SHA-512'
-    checksum elasticsearchDownloadSha512NoJdk
-  } else {
-    src new File(buildDir, "$elasticsearchDownloadUrlFileJdk")
-    algorithm 'SHA-512'
-    checksum elasticsearchDownloadSha512Jdk
-  }
-}
-
-task downloadElasticSearch(type: Download) {
-  if (artifactoryUsername && artifactoryPassword) {
-    src "$elasticsearchDownloadRepoxUrlPath$elasticsearchDownloadUrlFileNoJdk"
-    username artifactoryUsername
-    password artifactoryPassword
-    dest "$buildDir/$elasticsearchDownloadUrlFileNoJdk"
-  } else {
-    src "$elasticsearchDownloadUrlPath$elasticsearchDownloadUrlFileJdk"
-    dest "$buildDir/$elasticsearchDownloadUrlFileJdk"
-  }
-  onlyIfModified true
-  finalizedBy verifyElasticSearchDownload
-}
 
 downloadLicenses {
   dependencyConfiguration = 'appLicenses'
 }
 
-task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElasticSearch, verifyElasticSearchDownload]) {
+task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
 
@@ -147,8 +129,10 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     }
   }
 
-
-  from(tarTree(downloadElasticSearch.dest)) {
+  ResolvedArtifact elasticSearchArtifact = configurations.zipDist.resolvedConfiguration.resolvedArtifacts.find {
+    it.moduleVersion.id.name == "elasticsearch"
+  }
+  from(tarTree(elasticSearchArtifact.file)) {
     eachFile { fcd ->
       def path = fcd.relativePath.segments - fcd.relativeSourcePath.segments + fcd.relativeSourcePath.segments.drop(1)
       fcd.relativePath = new RelativePath(true, *path)

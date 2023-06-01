@@ -209,8 +209,6 @@ build_task:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 8Gb
-  elasticsearch_distribution_cache:
-    folder: sonar-application/build/elasticsearch-**.tar.gz
   script:
     - ./private/cirrus/cirrus-build.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE

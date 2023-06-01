@@ -75,22 +75,41 @@ allprojects {
 
   repositories {
     def repository = project.hasProperty('qa') ? 'sonarsource-qa' : 'sonarsource'
+    // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
+    // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
+    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+
     maven {
-      // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
-      // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
-      def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-      def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-      if (artifactoryUsername && artifactoryPassword) {
-        credentials {
-          username artifactoryUsername
-          password artifactoryPassword
+        if (artifactoryUsername && artifactoryPassword) {
+            credentials {
+                username artifactoryUsername
+                password artifactoryPassword
+            }
+        } else {
+            // Workaround for artifactory
+            // https://www.jfrog.com/jira/browse/RTFACT-13797
+            repository = 'public'
         }
-      } else {
-        // Workaround for artifactory
-        // https://www.jfrog.com/jira/browse/RTFACT-13797
-        repository = 'public'
-      }
-      url "https://repox.jfrog.io/repox/${repository}"
+        url "https://repox.jfrog.io/repox/${repository}"
+    }
+    ivy {
+          if (artifactoryUsername && artifactoryPassword) {
+              credentials {
+                  username artifactoryUsername
+                  password artifactoryPassword
+              }
+          } else {
+              // Workaround for artifactory
+              // https://www.jfrog.com/jira/browse/RTFACT-13797
+              repository = 'public'
+          }
+          url "https://repox.jfrog.io/repox/sonarsource-bucket"
+
+          patternLayout {
+              artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+          }
+          metadataSources { artifact() }
     }
   }
 
