@@ -63,6 +63,7 @@ import loadIssues from './helpers/loadIssues';
 import './styles.css';
 
 export interface Props {
+  hideHeader?: boolean;
   aroundLine?: number;
   branchLike: BranchLike | undefined;
   component: string;
@@ -560,6 +561,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
   render() {
     const { component, loading, sources, notAccessible, sourceRemoved } = this.state;
+    const { hideHeader } = this.props;
 
     if (loading) {
       return null;
@@ -588,7 +590,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
         <div className="source-viewer">
-          {this.renderHeader(component)}
+          {!hideHeader && this.renderHeader(component)}
           {sourceRemoved && (
             <Alert className="spacer-top" variant="warning">
               {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}

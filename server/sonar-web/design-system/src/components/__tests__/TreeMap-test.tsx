@@ -53,7 +53,7 @@ it('should render correctly and forward click event', async () => {
 
   expect(container).toMatchSnapshot();
 
-  await user.click(screen.getByText('SonarQube_Web'));
+  await user.click(screen.getByRole('link', { name: 'SonarQube_Web' }));
   expect(onRectangleClick).toHaveBeenCalledTimes(1);
   expect(onRectangleClick).toHaveBeenCalledWith(items[1]);
 });

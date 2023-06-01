@@ -38,6 +38,7 @@ import { ChevronDownIcon, ChevronRightIcon } from './icons';
 const WIDTH_OF_BREADCRUMB_DROPDOWN = 32;
 
 interface Props {
+  actions?: React.ReactNode;
   ariaLabel?: string;
   breadcrumbLimit?: number;
   children: React.ReactNode;
@@ -55,6 +56,7 @@ export function Breadcrumbs(props: Props) {
     children,
     expandButtonLabel,
     innerRef,
+    actions,
     maxWidth = LAYOUT_VIEWPORT_MAX_WIDTH_LARGE,
   } = props;
   const [lengthOfChildren, setLengthOfChildren] = React.useState<number[]>([]);
@@ -160,6 +162,7 @@ export function Breadcrumbs(props: Props) {
         </Dropdown>
       )}
       <ul className="sw-truncate sw-leading-6 sw-flex">{[...breadcrumbsToShow].reverse()}</ul>
+      {actions && <div className="sw-ml-2">{actions}</div>}
     </BreadcrumbWrapper>
   );
 }

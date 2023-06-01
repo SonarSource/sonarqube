@@ -129,6 +129,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
       return (
         <div className="measure-details-viewer">
           <SourceViewer
+            hideHeader={true}
             branchLike={branchLike}
             component={component.key}
             onIssueChange={this.props.onIssueChange}

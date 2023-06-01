@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Breadcrumbs, HoverLink } from 'design-system';
+import classNames from 'classnames';
+import { Breadcrumbs, ClipboardIconButton, HoverLink } from 'design-system';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
@@ -25,7 +26,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isProject } from '../../../types/component';
 import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 
 interface Props {
@@ -97,6 +98,7 @@ export default class MeasuresBreadcrumbs extends React.PureComponent<Props, Stat
 
   render() {
     const { breadcrumbs } = this.state;
+    const lastBreadcrumb = breadcrumbs[breadcrumbs.length - 1];
 
     if (breadcrumbs.length <= 0) {
       return null;
@@ -105,8 +107,12 @@ export default class MeasuresBreadcrumbs extends React.PureComponent<Props, Stat
     return (
       <Breadcrumbs
         ariaLabel={translate('breadcrumbs')}
-        className={this.props.className}
+        className={classNames(this.props.className)}
         maxWidth={500}
+        actions={
+          !isProject(lastBreadcrumb.qualifier) &&
+          lastBreadcrumb.path && <ClipboardIconButton copyValue={lastBreadcrumb.path} />
+        }
       >
         {breadcrumbs.map((component) => (
           <HoverLink
