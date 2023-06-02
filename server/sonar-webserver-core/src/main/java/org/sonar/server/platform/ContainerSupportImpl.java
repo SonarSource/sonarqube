@@ -24,15 +24,15 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 import org.sonar.server.util.Paths2;
 
-public class DockerSupportImpl implements DockerSupport {
+public class ContainerSupportImpl implements ContainerSupport {
   private final Paths2 paths2;
 
-  public DockerSupportImpl(Paths2 paths2) {
+  public ContainerSupportImpl(Paths2 paths2) {
     this.paths2 = paths2;
   }
 
   @Override
-  public boolean isRunningInDocker() {
+  public boolean isRunningInContainer() {
     if (paths2.exists("/run/.containerenv")) {
       return true;
     }

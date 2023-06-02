@@ -34,7 +34,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.log.ServerLogging;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.StatisticsSupport;
 
@@ -58,13 +58,13 @@ public class StandaloneSystemSectionTest {
   private final Server server = mock(Server.class);
   private final ServerLogging serverLogging = mock(ServerLogging.class);
   private final OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
-  private final DockerSupport dockerSupport = mock(DockerSupport.class);
+  private final ContainerSupport containerSupport = mock(ContainerSupport.class);
   private final StatisticsSupport statisticsSupport = mock(StatisticsSupport.class);
   private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private final CommonSystemInformation commonSystemInformation = mock(CommonSystemInformation.class);
 
   private final StandaloneSystemSection underTest = new StandaloneSystemSection(config, server, serverLogging,
-    officialDistribution, dockerSupport, statisticsSupport, sonarRuntime, commonSystemInformation);
+    officialDistribution, containerSupport, statisticsSupport, sonarRuntime, commonSystemInformation);
 
   @Before
   public void setUp() {
@@ -168,10 +168,10 @@ public class StandaloneSystemSectionTest {
 
   @Test
   @UseDataProvider("trueOrFalse")
-  public void return_docker_flag_from_DockerSupport(boolean flag) {
-    when(dockerSupport.isRunningInDocker()).thenReturn(flag);
+  public void toProtobuf_whenRunningOrNotRunningInContainer_shouldReturnCorrectFlag(boolean flag) {
+    when(containerSupport.isRunningInContainer()).thenReturn(flag);
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThat(attribute(protobuf, "Docker").getBooleanValue()).isEqualTo(flag);
+    assertThat(attribute(protobuf, "Container").getBooleanValue()).isEqualTo(flag);
   }
 
   @Test

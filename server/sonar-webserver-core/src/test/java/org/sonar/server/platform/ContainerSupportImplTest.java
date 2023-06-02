@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DockerSupportImplTest {
+public class ContainerSupportImplTest {
   private static final String CGROUP_DIR = "/proc/1/cgroup";
   private static final String PODMAN_FILE_PATH = "/run/.containerenv";
 
@@ -42,7 +42,7 @@ public class DockerSupportImplTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private Paths2 paths2 = mock(Paths2.class);
-  private DockerSupportImpl underTest = new DockerSupportImpl(paths2);
+  private ContainerSupportImpl underTest = new ContainerSupportImpl(paths2);
 
   @Test
   public void isInDocker_returns_false_if_cgroup_file_does_not_exist() throws IOException {
@@ -50,7 +50,7 @@ public class DockerSupportImplTest {
     Files.delete(emptyFile);
     when(paths2.get(CGROUP_DIR)).thenReturn(emptyFile);
 
-    assertThat(underTest.isRunningInDocker()).isFalse();
+    assertThat(underTest.isRunningInContainer()).isFalse();
   }
 
   @Test
@@ -58,7 +58,7 @@ public class DockerSupportImplTest {
     Path emptyFile = temporaryFolder.newFile().toPath();
     when(paths2.get(CGROUP_DIR)).thenReturn(emptyFile);
 
-    assertThat(underTest.isRunningInDocker()).isFalse();
+    assertThat(underTest.isRunningInContainer()).isFalse();
   }
 
   @Test
@@ -77,7 +77,7 @@ public class DockerSupportImplTest {
     FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
     when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
 
-    assertThat(underTest.isRunningInDocker()).isFalse();
+    assertThat(underTest.isRunningInContainer()).isFalse();
   }
 
   @Test
@@ -96,7 +96,7 @@ public class DockerSupportImplTest {
     FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
     when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
 
-    assertThat(underTest.isRunningInDocker()).isTrue();
+    assertThat(underTest.isRunningInContainer()).isTrue();
   }
 
   @Test
@@ -116,7 +116,7 @@ public class DockerSupportImplTest {
     FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
     when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
 
-    assertThat(underTest.isRunningInDocker()).isTrue();
+    assertThat(underTest.isRunningInContainer()).isTrue();
   }
 
   @Test
@@ -138,13 +138,13 @@ public class DockerSupportImplTest {
     FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
     when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
 
-    assertThat(underTest.isRunningInDocker()).isTrue();
+    assertThat(underTest.isRunningInContainer()).isTrue();
   }
 
   @Test
   public void isInDocker_returns_true_if_podman_file_exists() throws IOException {
     when(paths2.exists(PODMAN_FILE_PATH)).thenReturn(true);
-    assertThat(underTest.isRunningInDocker()).isTrue();
+    assertThat(underTest.isRunningInContainer()).isTrue();
   }
 
   @Test
@@ -152,7 +152,7 @@ public class DockerSupportImplTest {
     when(paths2.exists(PODMAN_FILE_PATH)).thenReturn(false);
     Path emptyFile = temporaryFolder.newFile().toPath();
     when(paths2.get(CGROUP_DIR)).thenReturn(emptyFile);
-    assertThat(underTest.isRunningInDocker()).isFalse();
+    assertThat(underTest.isRunningInContainer()).isFalse();
   }
 
 }

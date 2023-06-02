@@ -94,7 +94,7 @@ public class TelemetryDataJsonWriter {
     if (telemetryData.getInstallationVersion() != null) {
       json.prop("installationVersion", telemetryData.getInstallationVersion());
     }
-    json.prop("docker", telemetryData.isInDocker());
+    json.prop("container", telemetryData.isInContainer());
 
     writeUserData(json, telemetryData);
     writeProjectData(json, telemetryData);

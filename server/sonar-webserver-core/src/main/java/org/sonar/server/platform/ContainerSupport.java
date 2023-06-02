@@ -19,10 +19,10 @@
  */
 package org.sonar.server.platform;
 
-public interface DockerSupport {
+public interface ContainerSupport {
   /**
    * @return {@code true} if we can detect that SQ is running inside a docker container
    */
-  boolean isRunningInDocker();
+  boolean isRunningInContainer();
 
 }

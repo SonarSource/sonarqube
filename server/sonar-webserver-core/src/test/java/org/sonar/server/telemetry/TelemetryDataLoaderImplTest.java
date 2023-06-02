@@ -57,7 +57,7 @@ import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.management.ManagedInstanceService;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
@@ -108,7 +108,7 @@ public class TelemetryDataLoaderImplTest {
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
   private final Configuration configuration = mock(Configuration.class);
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private final DockerSupport dockerSupport = mock(DockerSupport.class);
+  private final ContainerSupport containerSupport = mock(ContainerSupport.class);
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
@@ -116,9 +116,9 @@ public class TelemetryDataLoaderImplTest {
   private final CloudUsageDataProvider cloudUsageDataProvider = mock(CloudUsageDataProvider.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -228,7 +228,7 @@ public class TelemetryDataLoaderImplTest {
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
       entry("java", "4.12.0.11033"), entry("scmgit", "1.2"), entry("other", "undefined"));
-    assertThat(data.isInDocker()).isFalse();
+    assertThat(data.isInContainer()).isFalse();
 
     assertThat(data.getUserTelemetries())
       .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate, UserTelemetryDto::isActive)

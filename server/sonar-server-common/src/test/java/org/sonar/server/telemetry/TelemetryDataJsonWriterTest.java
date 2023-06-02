@@ -227,17 +227,17 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   @UseDataProvider("getFeatureFlagEnabledStates")
-  public void write_docker_flag(boolean isInDocker) {
+  public void write_container_flag(boolean isIncontainer) {
     TelemetryData data = telemetryBuilder()
-      .setInDocker(isInDocker)
+      .setInContainer(isIncontainer)
       .build();
 
     String json = writeTelemetryData(data);
     assertJson(json).isSimilarTo("""
       {
-        "docker": %s
+        "container": %s
       }
-      """.formatted(isInDocker));
+      """.formatted(isIncontainer));
   }
 
   @DataProvider

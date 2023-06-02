@@ -58,7 +58,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.management.ManagedInstanceService;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -105,7 +105,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final PlatformEditionProvider editionProvider;
   private final Configuration configuration;
   private final InternalProperties internalProperties;
-  private final DockerSupport dockerSupport;
+  private final ContainerSupport containerSupport;
   private final QualityGateCaycChecker qualityGateCaycChecker;
   private final QualityGateFinder qualityGateFinder;
   private final ManagedInstanceService managedInstanceService;
@@ -118,7 +118,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-    DockerSupport dockerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
+    ContainerSupport containerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
     ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider) {
     this.server = server;
     this.dbClient = dbClient;
@@ -126,7 +126,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.editionProvider = editionProvider;
     this.internalProperties = internalProperties;
     this.configuration = configuration;
-    this.dockerSupport = dockerSupport;
+    this.containerSupport = containerSupport;
     this.qualityGateCaycChecker = qualityGateCaycChecker;
     this.qualityGateFinder = qualityGateFinder;
     this.managedInstanceService = managedInstanceService;
@@ -181,7 +181,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
     return data
       .setInstallationVersion(installationVersionProperty.orElse(null))
-      .setInDocker(dockerSupport.isRunningInDocker())
+      .setInContainer(containerSupport.isRunningInContainer())
       .setManagedInstanceInformation(buildManagedInstanceInformation())
       .setCloudUsage(buildCloudUsage())
       .build();

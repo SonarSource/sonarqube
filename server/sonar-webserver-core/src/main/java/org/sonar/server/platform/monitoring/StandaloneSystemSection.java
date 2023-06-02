@@ -25,7 +25,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.process.systeminfo.BaseSectionMBean;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.log.ServerLogging;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.StatisticsSupport;
 
@@ -42,19 +42,19 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private final Server server;
   private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
-  private final DockerSupport dockerSupport;
+  private final ContainerSupport containerSupport;
   private final StatisticsSupport statisticsSupport;
   private final SonarRuntime sonarRuntime;
   private final CommonSystemInformation commonSystemInformation;
 
   public StandaloneSystemSection(Configuration config, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution, DockerSupport dockerSupport, StatisticsSupport statisticsSupport,
+    OfficialDistribution officialDistribution, ContainerSupport containerSupport, StatisticsSupport statisticsSupport,
     SonarRuntime sonarRuntime, CommonSystemInformation commonSystemInformation) {
     this.config = config;
     this.server = server;
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
-    this.dockerSupport = dockerSupport;
+    this.containerSupport = containerSupport;
     this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
     this.commonSystemInformation = commonSystemInformation;
@@ -90,7 +90,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Version", getVersion());
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, NCLOC.getName(), statisticsSupport.getLinesOfCode());
-    setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
+    setAttribute(protobuf, "Container", containerSupport.isRunningInContainer());
     setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedInstanceProviderName());
     setAttribute(protobuf, "External User Authentication", commonSystemInformation.getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers",

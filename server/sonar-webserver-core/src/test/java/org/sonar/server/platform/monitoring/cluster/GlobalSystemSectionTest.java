@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.platform.Server;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.platform.monitoring.CommonSystemInformation;
 
@@ -45,12 +45,12 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class GlobalSystemSectionTest {
 
   private final Server server = mock(Server.class);
-  private final DockerSupport dockerSupport = mock(DockerSupport.class);
+  private final ContainerSupport containerSupport = mock(ContainerSupport.class);
   private final StatisticsSupport statisticsSupport = mock(StatisticsSupport.class);
   private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private final CommonSystemInformation commonSystemInformation = mock(CommonSystemInformation.class);
 
-  private final GlobalSystemSection underTest = new GlobalSystemSection(server, dockerSupport, statisticsSupport, sonarRuntime, commonSystemInformation);
+  private final GlobalSystemSection underTest = new GlobalSystemSection(server, containerSupport, statisticsSupport, sonarRuntime, commonSystemInformation);
 
   @Before
   public void setUp() {
@@ -141,11 +141,11 @@ public class GlobalSystemSectionTest {
 
   @Test
   @UseDataProvider("trueOrFalse")
-  public void get_docker_flag(boolean flag) {
-    when(dockerSupport.isRunningInDocker()).thenReturn(flag);
+  public void toProtobuf_whenRunningOrNotRunningInContainer_shouldReturnCorrectFlag(boolean flag) {
+    when(containerSupport.isRunningInContainer()).thenReturn(flag);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, "Docker", flag);
+    assertThatAttributeIs(protobuf, "Container", flag);
   }
 
   @Test

@@ -25,7 +25,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.platform.monitoring.CommonSystemInformation;
 
@@ -37,15 +37,15 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 public class GlobalSystemSection implements SystemInfoSection, Global {
 
   private final Server server;
-  private final DockerSupport dockerSupport;
+  private final ContainerSupport containerSupport;
   private final StatisticsSupport statisticsSupport;
   private final SonarRuntime sonarRuntime;
   private final CommonSystemInformation commonSystemInformation;
 
-  public GlobalSystemSection(Server server, DockerSupport dockerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime,
+  public GlobalSystemSection(Server server, ContainerSupport containerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime,
     CommonSystemInformation commonSystemInformation) {
     this.server = server;
-    this.dockerSupport = dockerSupport;
+    this.containerSupport = containerSupport;
     this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
     this.commonSystemInformation = commonSystemInformation;
@@ -59,7 +59,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, NCLOC.getName() ,statisticsSupport.getLinesOfCode());
-    setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
+    setAttribute(protobuf, "Container", containerSupport.isRunningInContainer());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External Users and Groups Provisioning",
       commonSystemInformation.getManagedInstanceProviderName());

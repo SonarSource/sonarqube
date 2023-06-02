@@ -44,7 +44,7 @@ public class TelemetryData {
   private final String defaultQualityGate;
   private final Long installationDate;
   private final String installationVersion;
-  private final boolean inDocker;
+  private final boolean inContainer;
   private final ManagedInstanceInformation managedInstanceInformation;
   private final CloudUsage cloudUsage;
   private final List<UserTelemetryDto> users;
@@ -68,7 +68,7 @@ public class TelemetryData {
     defaultQualityGate = builder.defaultQualityGate;
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
-    inDocker = builder.inDocker;
+    inContainer = builder.inContainer;
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
@@ -119,8 +119,8 @@ public class TelemetryData {
     return installationVersion;
   }
 
-  public boolean isInDocker() {
-    return inDocker;
+  public boolean isInContainer() {
+    return inContainer;
   }
 
   public ManagedInstanceInformation getManagedInstanceInformation() {
@@ -185,7 +185,7 @@ public class TelemetryData {
     private String defaultQualityGate;
     private Long installationDate;
     private String installationVersion;
-    private boolean inDocker = false;
+    private boolean inContainer = false;
     private ManagedInstanceInformation managedInstanceInformation;
     private CloudUsage cloudUsage;
     private Boolean hasUnanalyzedC;
@@ -248,8 +248,8 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setInDocker(boolean inDocker) {
-      this.inDocker = inDocker;
+    Builder setInContainer(boolean inContainer) {
+      this.inContainer = inContainer;
       return this;
     }
 
