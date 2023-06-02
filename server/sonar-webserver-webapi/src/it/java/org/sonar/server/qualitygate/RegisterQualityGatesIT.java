@@ -120,6 +120,23 @@ public class RegisterQualityGatesIT {
   }
 
   @Test
+  public void upgrade_should_remove_duplicated_conditions_if_found() {
+    insertMetrics();
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
+    createBuiltInConditions(builtInQualityGate);
+    //Conditions added twice as found in some DB instances
+    createBuiltInConditionsWithoutCheckingDuplicates(builtInQualityGate);
+    dbSession.commit();
+
+    underTest.start();
+
+    assertThat(db.countRowsOfTable("quality_gates")).isOne();
+    verifyCorrectBuiltInQualityGate();
+    assertThat(
+      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+  }
+
+  @Test
   public void upgrade_should_add_missing_condition() {
     insertMetrics();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
@@ -272,4 +289,37 @@ public class RegisterQualityGatesIT {
 
     return conditions;
   }
+
+  private List<QualityGateConditionDto> createBuiltInConditionsWithoutCheckingDuplicates(QualityGateDto qg) {
+    List<QualityGateConditionDto> conditions = new ArrayList<>();
+
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, "80"));
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, "3"));
+    conditions.add(createConditionWithoutCheckingDuplicates(qg,
+      NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, OPERATOR_LESS_THAN, "100"));
+
+    return conditions;
+  }
+
+  private QualityGateConditionDto createConditionWithoutCheckingDuplicates(QualityGateDto qualityGate, String metricKey, String operator,
+    String errorThreshold) {
+    MetricDto metric = metricDao.selectByKey(dbSession, metricKey);
+
+    QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateUuid(qualityGate.getUuid())
+      .setUuid(Uuids.create())
+      .setMetricUuid(metric.getUuid()).setMetricKey(metric.getKey())
+      .setOperator(operator)
+      .setErrorThreshold(errorThreshold);
+    gateConditionDao.insert(newCondition, dbSession);
+    return newCondition;
+  }
+
 }
