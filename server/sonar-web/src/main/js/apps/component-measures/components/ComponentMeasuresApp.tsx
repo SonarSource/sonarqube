@@ -84,7 +84,7 @@ interface State {
   metrics: Dict<Metric>;
 }
 
-export class ComponentMeasuresApp extends React.PureComponent<Props, State> {
+class ComponentMeasuresApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
 
@@ -277,7 +277,7 @@ export class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     if (this.state.loading) {
       return (
         <div className="display-flex-justify-center huge-spacer-top">
-          <i className="spinner" />
+          <i aria-label={translate('loading')} className="spinner" />
         </div>
       );
     }

@@ -174,6 +174,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
 
     return (
       <OriginalBubbleChart<ComponentMeasureEnhanced>
+        data-testid="bubble-chart"
         formatXTick={formatXTick}
         formatYTick={formatYTick}
         height={HEIGHT}

@@ -20,7 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import { times } from 'lodash';
+import { keyBy, times } from 'lodash';
 import { act } from 'react-dom/test-utils';
 import { byRole, byText } from 'testing-library-selector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
@@ -33,13 +33,6 @@ import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
 import routes from '../routes';
-
-jest.mock('../../../api/components');
-jest.mock('../../../api/issues');
-// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
-// This should be removed once IssuesServiceMock is cleaned up.
-jest.mock('../../../api/rules');
-jest.mock('../../../api/users');
 
 jest.mock('../../../components/intl/DateFromNow');
 
@@ -218,7 +211,6 @@ it('should correctly show measures for a project', async () => {
           name: 'folderA',
           qualifier: ComponentQualifier.Directory,
         }),
-        measures: generateMeasures('2.0'),
         ancestors: [component],
         children: [],
       },
@@ -226,12 +218,17 @@ it('should correctly show measures for a project', async () => {
         component: mockComponent({
           key: 'index.tsx',
           name: 'index.tsx',
+          qualifier: ComponentQualifier.File,
         }),
-        measures: [],
         ancestors: [component],
         children: [],
       },
     ],
+  });
+  componentsHandler.registerComponentMeasures({
+    foo: { [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc }) },
+    folderA: generateMeasures('2.0'),
+    'index.tsx': {},
   });
   const ui = getPageObject(userEvent.setup());
   renderCode();
@@ -240,13 +237,13 @@ it('should correctly show measures for a project', async () => {
   // Folder A
   const folderRow = ui.measureRow(/folderA/).get();
   [
-    ['ncloc', '2'],
-    ['bugs', '2'],
-    ['vulnerabilities', '2'],
-    ['code_smells', '2'],
-    ['security_hotspots', '2'],
-    ['coverage', '2.0%'],
-    ['duplicated_lines_density', '2.0%'],
+    [MetricKey.ncloc, '2'],
+    [MetricKey.bugs, '2'],
+    [MetricKey.vulnerabilities, '2'],
+    [MetricKey.code_smells, '2'],
+    [MetricKey.security_hotspots, '2'],
+    [MetricKey.coverage, '2.0%'],
+    [MetricKey.duplicated_lines_density, '2.0%'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(folderRow, domain, value)).toBeInTheDocument();
   });
@@ -254,13 +251,13 @@ it('should correctly show measures for a project', async () => {
   // index.tsx
   const fileRow = ui.measureRow(/index\.tsx/).get();
   [
-    ['ncloc', '—'],
-    ['bugs', '—'],
-    ['vulnerabilities', '—'],
-    ['code_smells', '—'],
-    ['security_hotspots', '—'],
-    ['coverage', '—'],
-    ['duplicated_lines_density', '—'],
+    [MetricKey.ncloc, '—'],
+    [MetricKey.bugs, '—'],
+    [MetricKey.vulnerabilities, '—'],
+    [MetricKey.code_smells, '—'],
+    [MetricKey.security_hotspots, '—'],
+    [MetricKey.coverage, '—'],
+    [MetricKey.duplicated_lines_density, '—'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(fileRow, domain, value)).toBeInTheDocument();
   });
@@ -275,7 +272,6 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   });
   componentsHandler.registerComponentTree({
     component,
-    measures: generateMeasures('1.0', '2.0'),
     ancestors: [],
     children: [
       {
@@ -284,7 +280,6 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
           key: 'child1',
           name: 'Child 1',
         }),
-        measures: generateMeasures('2.0', '3.0'),
         ancestors: [component],
         children: [],
       },
@@ -293,13 +288,21 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
           key: 'child2',
           name: 'Child 2',
         }),
-        measures: [
-          mockMeasure({ metric: MetricKey.alert_status, value: 'ERROR', period: undefined }),
-        ],
         ancestors: [component],
         children: [],
       },
     ],
+  });
+  componentsHandler.registerComponentMeasures({
+    portfolio: generateMeasures('1.0', '2.0'),
+    child1: generateMeasures('2.0', '3.0'),
+    child2: {
+      [MetricKey.alert_status]: mockMeasure({
+        metric: MetricKey.alert_status,
+        value: 'ERROR',
+        period: undefined,
+      }),
+    },
   });
   const ui = getPageObject(userEvent.setup());
   renderCode({ component });
@@ -440,20 +443,45 @@ function getPageObject(user: UserEvent) {
 }
 
 function generateMeasures(overallValue = '1.0', newValue = '2.0') {
-  return [
-    ...Object.values(MetricKey)
-      .filter((metric) => metric !== MetricKey.alert_status)
-      .map((metric) =>
+  return keyBy(
+    [
+      ...[
+        MetricKey.ncloc,
+        MetricKey.new_lines,
+        MetricKey.bugs,
+        MetricKey.new_bugs,
+        MetricKey.vulnerabilities,
+        MetricKey.new_vulnerabilities,
+        MetricKey.code_smells,
+        MetricKey.new_code_smells,
+        MetricKey.security_hotspots,
+        MetricKey.new_security_hotspots,
+        MetricKey.coverage,
+        MetricKey.new_coverage,
+        MetricKey.duplicated_lines_density,
+        MetricKey.new_duplicated_lines_density,
+        MetricKey.releasability_rating,
+        MetricKey.reliability_rating,
+        MetricKey.new_reliability_rating,
+        MetricKey.sqale_rating,
+        MetricKey.new_maintainability_rating,
+        MetricKey.security_rating,
+        MetricKey.new_security_rating,
+        MetricKey.security_review_rating,
+        MetricKey.new_security_review_rating,
+      ].map((metric) =>
         isDiffMetric(metric)
           ? mockMeasure({ metric, period: { index: 1, value: newValue } })
           : mockMeasure({ metric, value: overallValue, period: undefined })
       ),
-    mockMeasure({
-      metric: MetricKey.alert_status,
-      value: overallValue === '1.0' || overallValue === '2.0' ? 'OK' : 'ERROR',
-      period: undefined,
-    }),
-  ];
+      mockMeasure({
+        metric: MetricKey.alert_status,
+        value: overallValue === '1.0' || overallValue === '2.0' ? 'OK' : 'ERROR',
+        period: undefined,
+      }),
+    ],
+    'metric'
+  );
 }
 
 function renderCode({

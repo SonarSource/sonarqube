@@ -39,10 +39,6 @@ import { RuleStatus } from '../../../types/rules';
 import { IssueComment } from '../../../types/types';
 import Issue from '../Issue';
 
-jest.mock('../../../api/issues');
-jest.mock('../../../api/rules');
-jest.mock('../../../api/users');
-
 jest.mock('../../../helpers/preferences', () => ({
   getKeyboardShortcutEnabled: jest.fn(() => true),
 }));

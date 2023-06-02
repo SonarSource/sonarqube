@@ -28,8 +28,6 @@ import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import ProjectKeyApp from '../ProjectKeyApp';
 
-jest.mock('../../../api/components');
-
 const componentsMock = new ComponentsServiceMock();
 
 afterEach(() => {

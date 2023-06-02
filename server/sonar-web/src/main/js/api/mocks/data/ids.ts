@@ -30,6 +30,7 @@ export const FILE6_KEY = 'huge.js';
 export const FOLDER1_KEY = 'folderA';
 //// Inside folderA.
 export const FILE7_KEY = 'out.tsx';
+export const FILE8_KEY = 'in.tsx';
 
 // Rules.
 export const SIMPLE_RULE = 'simpleRuleId';
@@ -46,6 +47,8 @@ export const ISSUE_4 = 'issue4';
 export const ISSUE_11 = 'issue11';
 export const ISSUE_101 = 'issue101';
 export const ISSUE_1101 = 'issue1101';
+export const ISSUE_1102 = 'issue1102';
+export const ISSUE_1103 = 'issue1103';
 
 // Issue to rule map.
 export const ISSUE_TO_RULE = {
@@ -57,6 +60,8 @@ export const ISSUE_TO_RULE = {
   [ISSUE_11]: SIMPLE_RULE,
   [ISSUE_101]: SIMPLE_RULE,
   [ISSUE_1101]: SIMPLE_RULE,
+  [ISSUE_1102]: SIMPLE_RULE,
+  [ISSUE_1103]: SIMPLE_RULE,
 };
 
 // Issue to files map.
@@ -68,5 +73,7 @@ export const ISSUE_TO_FILES = {
   [ISSUE_4]: [FILE3_KEY],
   [ISSUE_11]: [FILE2_KEY, FILE3_KEY],
   [ISSUE_101]: [FILE2_KEY, FILE3_KEY],
-  [ISSUE_1101]: [FILE7_KEY],
+  [ISSUE_1101]: [`${FOLDER1_KEY}/${FILE7_KEY}`],
+  [ISSUE_1102]: [`${FOLDER1_KEY}/${FILE8_KEY}`],
+  [ISSUE_1103]: [`${FOLDER1_KEY}/${FILE8_KEY}`],
 };

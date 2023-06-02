@@ -222,7 +222,7 @@ describe('issues app', () => {
       expect(ui.issueItem8.query()).not.toBeInTheDocument();
 
       await user.click(screen.getByRole('button', { name: 'show_more' }));
-      expect(ui.issueItems.getAll()).toHaveLength(8);
+      expect(ui.issueItems.getAll()).toHaveLength(10);
       expect(ui.issueItem8.get()).toBeInTheDocument();
     });
 
@@ -238,11 +238,11 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(
-        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.8' })
+        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })
       ).toBeInTheDocument();
-      await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.8' }));
+      await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }));
       await user.click(screen.getByRole('button', { name: 'cancel' }));
-      expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.8' })).toHaveFocus();
+      expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
 
       // Check that we bulk change the selected issue
@@ -275,6 +275,7 @@ describe('issues app', () => {
       ).toBeInTheDocument();
     });
   });
+
   describe('filtering', () => {
     it('should handle filtering from a specific issue properly', async () => {
       const user = userEvent.setup();

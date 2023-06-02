@@ -47,6 +47,7 @@ interface BubbleItem<T> {
 }
 
 export interface BubbleChartProps<T> {
+  'data-testid'?: string;
   displayXGrid?: boolean;
   displayXTicks?: boolean;
   displayYGrid?: boolean;
@@ -327,7 +328,13 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
     const yTicks = getTicks(yScale, props.formatYTick);
 
     return (
-      <svg className={classNames('bubble-chart')} height={height} ref={boundNode} width={width}>
+      <svg
+        className={classNames('bubble-chart')}
+        data-testid={props['data-testid']}
+        height={height}
+        ref={boundNode}
+        width={width}
+      >
         <defs>
           <clipPath id="graph-region">
             <rect
@@ -406,12 +413,10 @@ function Bubble<T>(props: BubbleProps<T>) {
     <a href="#" onClick={handleClick}>
       <BubbleStyled
         r={r}
-        style={
-          color && {
-            fill: themeColor(`bubble.${color}`)({ theme }),
-            stroke: themeContrast(`bubble.${color}`)({ theme }),
-          }
-        }
+        style={{
+          fill: color ? themeColor(`bubble.${color}`)({ theme }) : '',
+          stroke: color ? themeContrast(`bubble.${color}`)({ theme }) : '',
+        }}
         transform={`translate(${x}, ${y}) scale(${scale})`}
       />
     </a>

@@ -19,7 +19,6 @@
  */
 
 import { times } from 'lodash';
-import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
 import {
   mockDuplicatedFile,
@@ -28,15 +27,12 @@ import {
   mockSourceLine,
   mockSourceViewerFile,
 } from '../../../helpers/mocks/sources';
-import { mockMeasure } from '../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import {
   Component,
   Dict,
   DuplicatedFile,
   Duplication,
-  Measure,
   SourceLine,
   SourceViewerFile,
 } from '../../../types/types';
@@ -48,6 +44,7 @@ import {
   FILE5_KEY,
   FILE6_KEY,
   FILE7_KEY,
+  FILE8_KEY,
   FOLDER1_KEY,
   PARENT_COMPONENT_KEY,
 } from './ids';
@@ -55,7 +52,6 @@ import {
 export interface ComponentTree {
   component: Component;
   ancestors: Component[];
-  measures?: Measure[];
   children: ComponentTree[];
 }
 
@@ -91,31 +87,13 @@ export function mockFullComponentTree(
       },
     ],
   });
-  const measures = [
-    ...Object.values(MetricKey)
-      .filter((metric) => metric !== MetricKey.alert_status)
-      .map((metric) =>
-        isDiffMetric(metric)
-          ? mockMeasure({ metric, period: { index: 1, value: '1.0' } })
-          : mockMeasure({ metric, value: '2.0', period: undefined })
-      ),
-    mockMeasure({
-      metric: MetricKey.alert_status,
-      value: 'OK',
-      period: undefined,
-    }),
-  ];
-
   return {
     component: baseComponent,
     ancestors: [],
-    measures,
     children: [
       {
         component: folderComponent,
         ancestors: [baseComponent],
-
-        measures,
         children: [
           {
             component: mockComponent({
@@ -133,8 +111,24 @@ export function mockFullComponentTree(
               ],
             }),
             ancestors: [baseComponent, folderComponent],
-
-            measures,
+            children: [],
+          },
+          {
+            component: mockComponent({
+              key: `${baseComponent.key}:${FOLDER1_KEY}/${FILE8_KEY}`,
+              name: FILE8_KEY,
+              path: `${FOLDER1_KEY}/${FILE8_KEY}`,
+              qualifier: ComponentQualifier.File,
+              breadcrumbs: [
+                ...folderComponent.breadcrumbs,
+                {
+                  key: `${baseComponent.key}:${FOLDER1_KEY}/${FILE8_KEY}`,
+                  name: FILE8_KEY,
+                  qualifier: ComponentQualifier.File,
+                },
+              ],
+            }),
+            ancestors: [baseComponent, folderComponent],
             children: [],
           },
         ],
@@ -155,8 +149,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
       {
@@ -175,8 +167,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
       {
@@ -195,8 +185,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
       {
@@ -215,8 +203,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
       {
@@ -235,8 +221,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
       {
@@ -255,8 +239,6 @@ export function mockFullComponentTree(
           ],
         }),
         ancestors: [baseComponent],
-
-        measures,
         children: [],
       },
     ],
@@ -276,6 +258,15 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
     },
     {
       component: mockSourceViewerFile(`${FOLDER1_KEY}/${FILE7_KEY}`, baseComponentKey),
+      lines: times(50, (n) =>
+        mockSourceLine({
+          line: n,
+          code: 'function Test() {}',
+        })
+      ),
+    },
+    {
+      component: mockSourceViewerFile(`${FOLDER1_KEY}/${FILE8_KEY}`, baseComponentKey),
       lines: times(50, (n) =>
         mockSourceLine({
           line: n,

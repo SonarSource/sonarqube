@@ -56,8 +56,14 @@ import {
 } from '../issues';
 import { getRuleDetails, searchRules } from '../rules';
 import { dismissNotice, getCurrentUser, searchUsers } from '../users';
-import { mockIssuesList } from './data/issues';
+import { IssueData, mockIssuesList } from './data/issues';
 import { mockRuleList } from './data/rules';
+
+jest.mock('../../api/issues');
+// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
+// This should be removed once IssuesServiceMock is cleaned up.
+jest.mock('../../api/rules');
+jest.mock('../../api/users');
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -80,11 +86,6 @@ function generateReferenceComponentsForIssues(issueData: IssueData[]) {
       return componentKeys;
     }, [] as string[])
     .map((key) => mockReferenceComponent({ key, enabled: true }));
-}
-
-interface IssueData {
-  issue: RawIssue;
-  snippets: Dict<SnippetsByComponent>;
 }
 
 export default class IssuesServiceMock {

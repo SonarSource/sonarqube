@@ -28,14 +28,17 @@ import {
   IssueSeverity,
   IssueStatus,
   IssueType,
+  RawIssue,
 } from '../../../types/issues';
-import { FlowType } from '../../../types/types';
+import { Dict, FlowType, SnippetsByComponent } from '../../../types/types';
 import {
   ISSUE_0,
   ISSUE_1,
   ISSUE_101,
   ISSUE_11,
   ISSUE_1101,
+  ISSUE_1102,
+  ISSUE_1103,
   ISSUE_2,
   ISSUE_3,
   ISSUE_4,
@@ -44,7 +47,12 @@ import {
   PARENT_COMPONENT_KEY,
 } from './ids';
 
-export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY) {
+export interface IssueData {
+  issue: RawIssue;
+  snippets: Dict<SnippetsByComponent>;
+}
+
+export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueData[] {
   return [
     {
       issue: mockRawIssue(false, {
@@ -375,6 +383,40 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY) {
         rule: ISSUE_TO_RULE[ISSUE_1101],
         textRange: undefined,
         line: undefined,
+      }),
+      snippets: {},
+    },
+    {
+      issue: mockRawIssue(false, {
+        key: ISSUE_1102,
+        component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_1102][0]}`,
+        message: 'Issue inside folderA',
+        creationDate: '2022-01-15T09:36:01+0100',
+        type: IssueType.CodeSmell,
+        rule: ISSUE_TO_RULE[ISSUE_1102],
+        textRange: {
+          startLine: 10,
+          endLine: 10,
+          startOffset: 0,
+          endOffset: 2,
+        },
+      }),
+      snippets: {},
+    },
+    {
+      issue: mockRawIssue(false, {
+        key: ISSUE_1103,
+        component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_1103][0]}`,
+        creationDate: '2022-01-15T09:36:01+0100',
+        message: 'Issue inside folderA',
+        type: IssueType.CodeSmell,
+        rule: ISSUE_TO_RULE[ISSUE_1103],
+        textRange: {
+          startLine: 10,
+          endLine: 10,
+          startOffset: 0,
+          endOffset: 2,
+        },
       }),
       snippets: {},
     },

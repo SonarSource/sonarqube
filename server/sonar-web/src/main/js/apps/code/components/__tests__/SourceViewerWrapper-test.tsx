@@ -26,13 +26,6 @@ import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import SourceViewerWrapper, { SourceViewerWrapperProps } from '../SourceViewerWrapper';
 
-jest.mock('../../../../api/components');
-jest.mock('../../../../api/issues');
-// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
-// This should be removed once IssuesServiceMock is cleaned up.
-jest.mock('../../../../api/rules');
-jest.mock('../../../../api/users');
-
 const issuesHandler = new IssuesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 // eslint-disable-next-line testing-library/no-node-access

@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, flatMap, map, pick } from 'lodash';
+import { cloneDeep, pick } from 'lodash';
+import { DEFAULT_METRICS } from '../../helpers/mocks/metrics';
 import { HttpStatus, RequestData } from '../../helpers/request';
+import { mockMetric } from '../../helpers/testMocks';
+import { isDefined } from '../../helpers/types';
 import { BranchParameters } from '../../types/branch-like';
 import { TreeComponent, Visibility } from '../../types/component';
 import {
@@ -31,11 +34,14 @@ import {
   Paging,
 } from '../../types/types';
 import {
+  ComponentRaw,
   GetTreeParams,
   changeKey,
+  getBreadcrumbs,
   getChildren,
   getComponentData,
   getComponentForSourceViewer,
+  getComponentLeaves,
   getComponentTree,
   getDuplications,
   getSources,
@@ -47,29 +53,11 @@ import {
   mockFullComponentTree,
   mockFullSourceViewerFileList,
 } from './data/components';
+import { mockIssuesList } from './data/issues';
+import { MeasureRecords, mockFullMeasureData } from './data/measures';
+import { listAllComponent, listChildComponent, listLeavesComponent } from './data/utils';
 
-function isLeaf(node: ComponentTree) {
-  return node.children.length === 0;
-}
-
-function listChildComponent(node: ComponentTree): Component[] {
-  return map(node.children, (n) => n.component);
-}
-
-function listAllComponent(node: ComponentTree): Component[] {
-  if (isLeaf(node)) {
-    return [node.component];
-  }
-
-  return [node.component, ...flatMap(node.children, listAllComponent)];
-}
-
-function listLeavesComponent(node: ComponentTree): Component[] {
-  if (isLeaf(node)) {
-    return [node.component];
-  }
-  return flatMap(node.children, listLeavesComponent);
-}
+jest.mock('../components');
 
 export default class ComponentsServiceMock {
   failLoadingComponentStatus: HttpStatus | undefined = undefined;
@@ -77,13 +65,23 @@ export default class ComponentsServiceMock {
   components: ComponentTree[];
   defaultSourceFiles: SourceFile[];
   sourceFiles: SourceFile[];
+  defaultMeasures: MeasureRecords;
+  measures: MeasureRecords;
 
-  constructor(components?: ComponentTree[], sourceFiles?: SourceFile[]) {
+  constructor(components?: ComponentTree[], sourceFiles?: SourceFile[], measures?: MeasureRecords) {
     this.defaultComponents = components || [mockFullComponentTree()];
     this.defaultSourceFiles = sourceFiles || mockFullSourceViewerFileList();
+    const issueList = mockIssuesList();
+    this.defaultMeasures =
+      measures ||
+      this.defaultComponents.reduce(
+        (acc, tree) => ({ ...acc, ...mockFullMeasureData(tree, issueList) }),
+        {}
+      );
 
     this.components = cloneDeep(this.defaultComponents);
     this.sourceFiles = cloneDeep(this.defaultSourceFiles);
+    this.measures = cloneDeep(this.defaultMeasures);
 
     jest.mocked(getComponentTree).mockImplementation(this.handleGetComponentTree);
     jest.mocked(getChildren).mockImplementation(this.handleGetChildren);
@@ -95,27 +93,32 @@ export default class ComponentsServiceMock {
     jest.mocked(getDuplications).mockImplementation(this.handleGetDuplications);
     jest.mocked(getSources).mockImplementation(this.handleGetSources);
     jest.mocked(changeKey).mockImplementation(this.handleChangeKey);
+    jest.mocked(getComponentLeaves).mockImplementation(this.handleGetComponentLeaves);
+    jest.mocked(getBreadcrumbs).mockImplementation(this.handleGetBreadcrumbs);
   }
 
-  findComponentTree = (key: string, from?: ComponentTree): ComponentTree | undefined => {
-    const recurse = (node: ComponentTree): ComponentTree | undefined => {
+  findComponentTree = (key: string, from?: ComponentTree) => {
+    let tree: ComponentTree | undefined;
+    const recurse = (node: ComponentTree): boolean => {
       if (node.component.key === key) {
-        return node;
+        tree = node;
+        return true;
       }
-      return node.children.find((child) => recurse(child));
+      return node.children.some((child) => recurse(child));
     };
 
-    if (from === undefined) {
-      for (let i = 0, len = this.components.length; i < len; i++) {
-        const tree = recurse(this.components[i]);
-        if (tree) {
-          return tree;
-        }
-      }
-      throw new Error(`Couldn't find component tree for key ${key}`);
+    if (from !== undefined) {
+      recurse(from);
+      return tree;
     }
 
-    return recurse(from);
+    for (let i = 0, len = this.components.length; i < len; i++) {
+      if (recurse(this.components[i])) {
+        return tree;
+      }
+    }
+
+    throw new Error(`Couldn't find component tree for key ${key}`);
   };
 
   findSourceFile = (key: string): SourceFile => {
@@ -135,6 +138,10 @@ export default class ComponentsServiceMock {
       this.components = [];
     }
     this.components.push(componentTree);
+  };
+
+  registerComponentMeasures = (measures: MeasureRecords) => {
+    this.measures = measures;
   };
 
   setFailLoadingComponentStatus = (status: HttpStatus.Forbidden | HttpStatus.NotFound) => {
@@ -196,6 +203,7 @@ export default class ComponentsServiceMock {
   reset = () => {
     this.components = cloneDeep(this.defaultComponents);
     this.sourceFiles = cloneDeep(this.defaultSourceFiles);
+    this.measures = cloneDeep(this.defaultMeasures);
   };
 
   handleGetChildren = (
@@ -214,7 +222,7 @@ export default class ComponentsServiceMock {
   handleGetComponentTree = (
     strategy: string,
     key: string,
-    _metrics: string[] = [],
+    metricKeys: string[] = [],
     { p = 1, ps = 100 }: RequestData = {}
   ): Promise<{
     baseComponent: ComponentMeasure;
@@ -239,7 +247,9 @@ export default class ComponentsServiceMock {
 
     const componentsMeasures: ComponentMeasure[] = components.map((c) => {
       return {
-        measures: this.findComponentTree(c.key, base)?.measures,
+        measures: metricKeys
+          .map((metric) => this.measures[c.key] && this.measures[c.key][metric])
+          .filter(isDefined),
         ...pick(c, ['analysisDate', 'key', 'name', 'qualifier']),
       };
     });
@@ -247,7 +257,7 @@ export default class ComponentsServiceMock {
     return this.reply({
       baseComponent: base.component,
       components: componentsMeasures.slice(ps * (p - 1), ps * (p - 1) + ps),
-      metrics: [],
+      metrics: metricKeys.map((metric) => DEFAULT_METRICS[metric] ?? mockMetric({ key: metric })),
       paging: {
         pageSize: ps,
         pageIndex: p,
@@ -294,7 +304,10 @@ export default class ComponentsServiceMock {
     const tree = this.findComponentTree(data.component);
     if (tree) {
       const { component, ancestors } = tree;
-      return this.reply({ component, ancestors });
+      return this.reply({ component, ancestors } as {
+        component: ComponentRaw;
+        ancestors: ComponentRaw[];
+      });
     }
     throw new Error(`Couldn't find component with key ${data.component}`);
   };
@@ -331,6 +344,29 @@ export default class ComponentsServiceMock {
       return this.reply(undefined);
     }
     return Promise.reject({ status: 404, message: 'Component not found' });
+  };
+
+  handleGetComponentLeaves = (
+    component: string,
+    metrics: string[] = [],
+    data: RequestData = {}
+  ): Promise<{
+    baseComponent: ComponentMeasure;
+    components: ComponentMeasure[];
+    metrics: Metric[];
+    paging: Paging;
+  }> => {
+    return this.handleGetComponentTree('leaves', component, metrics, data);
+  };
+
+  handleGetBreadcrumbs = ({ component: key }: { component: string } & BranchParameters) => {
+    const base = this.findComponentTree(key);
+    if (base === undefined) {
+      return Promise.reject({
+        errors: [{ msg: `No component has been found for id ${key}` }],
+      });
+    }
+    return this.reply([...(base.ancestors as ComponentRaw[]), base.component as ComponentRaw]);
   };
 
   reply<T>(response: T): Promise<T> {

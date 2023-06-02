@@ -30,13 +30,6 @@ import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import SourceViewer from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
 
-jest.mock('../../../api/components');
-jest.mock('../../../api/issues');
-// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
-// This should be removed once IssuesServiceMock is cleaned up.
-jest.mock('../../../api/rules');
-jest.mock('../../../api/users');
-
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
   default: jest.fn().mockResolvedValue([]),

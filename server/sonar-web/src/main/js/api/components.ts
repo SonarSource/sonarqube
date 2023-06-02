@@ -64,6 +64,18 @@ export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
   ps?: number;
 }
 
+export interface ComponentRaw {
+  key: string;
+  name: string;
+  isFavorite?: boolean;
+  analysisDate?: string;
+  qualifier: ComponentQualifier;
+  tags: string[];
+  visibility: Visibility;
+  leakPeriodDate?: string;
+  needIssueSync?: boolean;
+}
+
 export function getComponents(parameters: SearchProjectsParameters): Promise<{
   components: Project[];
   paging: Paging;
@@ -168,7 +180,10 @@ export function getDirectories(data: GetTreeParams) {
   return getTree<TreeComponentWithPath>({ ...data, qualifiers: 'DIR' });
 }
 
-export function getComponentData(data: { component: string } & BranchParameters): Promise<any> {
+export function getComponentData(data: { component: string } & BranchParameters): Promise<{
+  ancestors: Array<Omit<ComponentRaw, 'tags'>>;
+  component: Omit<ComponentRaw, 'tags'>;
+}> {
   return getJSON('/api/components/show', data);
 }
 
@@ -189,7 +204,9 @@ export function getParents(component: string): Promise<any> {
   return getComponentShow({ component }).then((r) => r.ancestors);
 }
 
-export function getBreadcrumbs(data: { component: string } & BranchParameters): Promise<any> {
+export function getBreadcrumbs(
+  data: { component: string } & BranchParameters
+): Promise<Array<Omit<ComponentRaw, 'tags'>>> {
   return getComponentShow(data).then((r) => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
@@ -203,26 +220,13 @@ export function getMyProjects(data: {
   return getJSON('/api/projects/search_my_projects', data);
 }
 
-export interface Component {
-  id: string;
-  key: string;
-  name: string;
-  isFavorite?: boolean;
-  analysisDate?: string;
-  qualifier: ComponentQualifier;
-  tags: string[];
-  visibility: Visibility;
-  leakPeriodDate?: string;
-  needIssueSync?: boolean;
-}
-
 export interface Facet {
   property: string;
   values: Array<{ val: string; count: number }>;
 }
 
 export function searchProjects(data: RequestData): Promise<{
-  components: Component[];
+  components: ComponentRaw[];
   facets: Facet[];
   paging: Paging;
 }> {

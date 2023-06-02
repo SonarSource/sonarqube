@@ -30,11 +30,6 @@ import { CurrentUser } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
 import { projectIssuesRoutes } from './routes';
 
-jest.mock('../../api/issues');
-jest.mock('../../api/rules');
-jest.mock('../../api/components');
-jest.mock('../../api/users');
-
 export const issuesHandler = new IssuesServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
 
