@@ -23,19 +23,24 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.auth.github.GitHubSettings;
+import org.sonarqube.ws.client.HttpException;
 
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -53,12 +58,43 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
 
+  private static final String APP_JWT_TOKEN = "APP_TOKEN_JWT";
+  private static final String PAYLOAD_2_ORGS = """
+      [
+        {
+          "id": 1,
+          "account": {
+            "login": "org1",
+            "type": "Organization"
+          },
+          "target_type": "Organization",
+          "permissions": {
+            "members": "read",
+            "metadata": "read"
+          },
+          "suspended_at": "2023-05-30T08:40:55Z"
+        },
+        {
+          "id": 2,
+          "account": {
+            "login": "org2",
+            "type": "Organization"
+          },
+          "target_type": "Organization",
+          "permissions": {
+            "members": "read",
+            "metadata": "read"
+          }
+        }
+      ]""";
+
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
   private GithubApplicationHttpClientImpl httpClient = mock(GithubApplicationHttpClientImpl.class);
   private GithubAppSecurity appSecurity = mock(GithubAppSecurity.class);
   private GithubAppConfiguration githubAppConfiguration = mock(GithubAppConfiguration.class);
+  private GitHubSettings gitHubSettings = mock(GitHubSettings.class);
   private GithubApplicationClient underTest;
 
   private String appUrl = "Any URL";
@@ -66,7 +102,7 @@ public class GithubApplicationClientImplTest {
   @Before
   public void setup() {
     when(githubAppConfiguration.getApiEndpoint()).thenReturn(appUrl);
-    underTest = new GithubApplicationClientImpl(httpClient, appSecurity);
+    underTest = new GithubApplicationClientImpl(httpClient, appSecurity, gitHubSettings);
     logTester.clear();
   }
 
@@ -242,6 +278,31 @@ public class GithubApplicationClientImplTest {
     verify(httpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
   }
 
+  @Test
+  public void getApp_returns_id() throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/app"))
+      .thenReturn(new OkGetResponse("{\"installations_count\": 2}"));
+
+    assertThat(underTest.getApp(githubAppConfiguration).getInstallationsCount()).isEqualTo(2L);
+  }
+
+  @Test
+  public void getApp_whenStatusCodeIsNotOk_shouldThrowHttpException() throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/app"))
+      .thenReturn(new ErrorGetResponse(418, "I'm a teapot"));
+
+    assertThatThrownBy(() -> underTest.getApp(githubAppConfiguration))
+      .isInstanceOfSatisfying(HttpException.class, httpException -> {
+        assertThat(httpException.code()).isEqualTo(418);
+        assertThat(httpException.url()).isEqualTo("Any URL/app");
+        assertThat(httpException.content()).isEqualTo("I'm a teapot");
+      });
+  }
+
   @DataProvider
   public static Object[][] githubServers() {
     return new Object[][] {
@@ -390,6 +451,82 @@ public class GithubApplicationClientImplTest {
 
     assertThat(organizations.getTotal()).isEqualTo(2);
     assertThat(organizations.getOrganizations()).extracting(GithubApplicationClient.Organization::getLogin).containsOnly("github", "octocat");
+  }
+
+  @Test
+  public void getWhitelistedGithubAppInstallations_whenWhitelistNotSpecified_doesNotFilter() throws IOException {
+    List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse(PAYLOAD_2_ORGS);
+    assertOrgDeserialization(allOrgInstallations);
+  }
+
+  private static void assertOrgDeserialization(List<GithubAppInstallation> orgs) {
+    GithubAppInstallation org1 = orgs.get(0);
+    assertThat(org1.installationId()).isEqualTo("1");
+    assertThat(org1.organizationName()).isEqualTo("org1");
+    assertThat(org1.permissions().getMembers()).isEqualTo("read");
+    assertThat(org1.isSuspended()).isTrue();
+
+    GithubAppInstallation org2 = orgs.get(1);
+    assertThat(org2.installationId()).isEqualTo("2");
+    assertThat(org2.organizationName()).isEqualTo("org2");
+    assertThat(org2.permissions().getMembers()).isEqualTo("read");
+    assertThat(org2.isSuspended()).isFalse();
+  }
+
+  @Test
+  public void getWhitelistedGithubAppInstallations_whenWhitelistSpecified_filtersWhitelistedOrgs() throws IOException {
+    when(gitHubSettings.getOrganizations()).thenReturn(Set.of("org2"));
+    List<GithubAppInstallation> orgInstallations = getGithubAppInstallationsFromGithubResponse(PAYLOAD_2_ORGS);
+    assertThat(orgInstallations)
+      .hasSize(1)
+      .extracting(GithubAppInstallation::organizationName)
+      .containsExactlyInAnyOrder("org2");
+  }
+
+  @Test
+  public void getWhitelistedGithubAppInstallations_whenEmptyResponse_shouldReturnEmpty() throws IOException {
+    List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse("[]");
+    assertThat(allOrgInstallations).isEmpty();
+  }
+
+  @Test
+  public void getWhitelistedGithubAppInstallations_whenNoOrganization_shouldReturnEmpty() throws IOException {
+    List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse("""
+      [
+        {
+          "id": 1,
+          "account": {
+            "login": "user1",
+            "type": "User"
+          },
+          "target_type": "User",
+          "permissions": {
+            "metadata": "read"
+          }
+        }
+      ]""");
+    assertThat(allOrgInstallations).isEmpty();
+  }
+
+  private List<GithubAppInstallation> getGithubAppInstallationsFromGithubResponse(String content) throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/app/installations"))
+      .thenReturn(new OkGetResponse(content));
+    return underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration);
+  }
+
+  @Test
+  public void getWhitelistedGithubAppInstallations_whenGithubReturnsError_shouldThrow() throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/app/installations"))
+      .thenReturn(new ErrorGetResponse());
+
+    assertThatThrownBy(() -> underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("An error occurred when retrieving your GitHup App installations. "
+        + "It might be related to your GitHub App configuration or a connectivity problem.");
   }
 
   @Test

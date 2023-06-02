@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.server.ServerSide;
@@ -43,10 +44,18 @@ public interface GithubApplicationClient {
    */
   UserAccessToken createUserAccessToken(String appUrl, String clientId, String clientSecret, String code);
 
+  GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
+
   /**
    * Lists all the organizations accessible to the access token provided.
    */
   Organizations listOrganizations(String appUrl, AccessToken accessToken, int page, int pageSize);
+
+  /**
+   * Retrieve all installations of the GitHub app, filtering out the ones not whitelisted in GitHub Settings (if set)
+   * @throws IllegalArgumentException if one of the arguments is invalid (for example, wrong private key)
+   */
+  List<GithubAppInstallation> getWhitelistedGithubAppInstallations(GithubAppConfiguration githubAppConfiguration);
 
   /**
    * Lists all the repositories of the provided organization accessible to the access token provided.

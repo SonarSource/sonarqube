@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
@@ -36,6 +37,7 @@ import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
 import org.sonar.alm.client.github.GithubBinding.GsonRepositorySearch;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
@@ -44,10 +46,14 @@ import org.sonar.alm.client.gitlab.GsonApp;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.auth.github.GitHubSettings;
+import org.sonar.server.exceptions.ServerException;
+import org.sonarqube.ws.client.HttpException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
@@ -61,10 +67,12 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   protected final GithubApplicationHttpClient appHttpClient;
   protected final GithubAppSecurity appSecurity;
+  private final GitHubSettings gitHubSettings;
 
-  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity) {
+  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings) {
     this.appHttpClient = appHttpClient;
     this.appSecurity = appSecurity;
+    this.gitHubSettings = gitHubSettings;
   }
 
   private static void checkPageArgs(int page, int pageSize) {
@@ -161,6 +169,53 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   }
 
   @Override
+  public List<GithubAppInstallation> getWhitelistedGithubAppInstallations(GithubAppConfiguration githubAppConfiguration) {
+    GithubBinding.GsonInstallation[] gsonAppInstallations = fetchAppInstallationsFromGithub(githubAppConfiguration);
+    Set<String> allowedOrganizations = gitHubSettings.getOrganizations();
+    return convertToGithubAppInstallationAndFilterWhitelisted(gsonAppInstallations, allowedOrganizations);
+  }
+
+  private static List<GithubAppInstallation> convertToGithubAppInstallationAndFilterWhitelisted(GithubBinding.GsonInstallation[] gsonAppInstallations,
+    Set<String> allowedOrganizations) {
+    return Arrays.stream(gsonAppInstallations)
+      .filter(appInstallation -> appInstallation.getAccount().getType().equalsIgnoreCase("Organization"))
+      .map(GithubApplicationClientImpl::toGithubAppInstallation)
+      .filter(appInstallation -> isOrganizationWhiteListed(allowedOrganizations, appInstallation.organizationName()))
+      .toList();
+  }
+
+  private static GithubAppInstallation toGithubAppInstallation(GithubBinding.GsonInstallation gsonInstallation) {
+    return new GithubAppInstallation(
+      Long.toString(gsonInstallation.getId()),
+      gsonInstallation.getAccount().getLogin(),
+      gsonInstallation.getPermissions(),
+      org.apache.commons.lang.StringUtils.isNotEmpty(gsonInstallation.getSuspendedAt()));
+  }
+
+  private static boolean isOrganizationWhiteListed(Set<String> allowedOrganizations, String organizationName) {
+    return allowedOrganizations.isEmpty() || allowedOrganizations.contains(organizationName);
+  }
+
+  private GithubBinding.GsonInstallation[] fetchAppInstallationsFromGithub(GithubAppConfiguration githubAppConfiguration) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endpoint = "/app/installations";
+    return get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint,
+      GithubBinding.GsonInstallation[].class).orElseThrow(
+      () -> new IllegalStateException("An error occurred when retrieving your GitHup App installations. "
+        + "It might be related to your GitHub App configuration or a connectivity problem."));
+  }
+
+  protected <T> Optional<T> get(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
+    try {
+      GetResponse response = appHttpClient.get(baseUrl, token, endPoint);
+      return handleResponse(response, endPoint, gsonClass);
+    } catch (Exception e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
+      return Optional.empty();
+    }
+  }
+
+  @Override
   public Repositories listRepositories(String appUrl, AccessToken accessToken, String organization, @Nullable String query, int page, int pageSize) {
     checkPageArgs(page, pageSize);
     String searchQuery = "fork:true+org:" + organization;
@@ -239,6 +294,25 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       throw new IllegalArgumentException();
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create GitHub's user access token", e);
+    }
+  }
+
+  @Override
+  public GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endpoint = "/app";
+    return getOrThrowIfNotHttpOk(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, GithubBinding.GsonApp.class);
+  }
+
+  private <T> T getOrThrowIfNotHttpOk(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
+    try {
+      GetResponse response = appHttpClient.get(baseUrl, token, endPoint);
+      if (response.getCode() != HTTP_OK) {
+        throw new HttpException(baseUrl + endPoint, response.getCode(), response.getContent().orElse(""));
+      }
+      return handleResponse(response, endPoint, gsonClass).orElseThrow(() -> new ServerException(HTTP_INTERNAL_ERROR, "Http response withuot content"));
+    } catch (IOException e) {
+      throw new ServerException(HTTP_INTERNAL_ERROR, e.getMessage());
     }
   }
 

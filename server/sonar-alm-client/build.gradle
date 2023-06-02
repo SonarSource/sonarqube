@@ -11,6 +11,7 @@ dependencies {
     api 'com.auth0:java-jwt'
     api 'org.bouncycastle:bcpkix-jdk15on:1.70'
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
+    api project(':server:sonar-auth-github')
 
     testImplementation project(':sonar-plugin-api-impl')
 

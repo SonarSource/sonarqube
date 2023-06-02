@@ -32,6 +32,7 @@ import org.sonar.server.almintegration.ws.github.GetGithubClientIdAction;
 import org.sonar.server.almintegration.ws.github.ImportGithubProjectAction;
 import org.sonar.server.almintegration.ws.github.ListGithubOrganizationsAction;
 import org.sonar.server.almintegration.ws.github.ListGithubRepositoriesAction;
+import org.sonar.server.almintegration.ws.github.config.CheckAction;
 import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
 import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
 
@@ -40,6 +41,7 @@ public class AlmIntegrationsWSModule extends Module {
   protected void configureModule() {
     add(
       CheckPatAction.class,
+      CheckAction.class,
       SetPatAction.class,
       ImportBitbucketServerProjectAction.class,
       ImportBitbucketCloudRepoAction.class,

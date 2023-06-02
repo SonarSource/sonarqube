@@ -30,6 +30,7 @@ import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubApplicationHttpClientImpl;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
@@ -59,6 +60,7 @@ import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.almintegration.ws.github.GithubProvisioningWs;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
@@ -543,6 +545,8 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,
       GithubApplicationHttpClientImpl.class,
+      GithubProvisioningConfigValidator.class,
+      GithubProvisioningWs.class,
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
       GitlabHttpClient.class,
