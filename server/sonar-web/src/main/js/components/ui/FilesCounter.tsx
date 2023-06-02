@@ -18,36 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import tw from 'twin.macro';
-import { themeContrast } from '../helpers';
-import { Key } from '../helpers/keyboard';
-import { KeyboardHintKeys } from './KeyboardHintKeys';
+import classNames from 'classnames';
+import { Note, themeColor } from 'design-system';
+import React from 'react';
+import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
+import { isDefined } from '../../helpers/types';
+import { MetricType } from '../../types/metrics';
 
 interface Props {
   className?: string;
-  command: string;
-  title?: string;
+  current?: number;
+  total: number;
 }
 
-export function KeyboardHint({ title, command, className }: Props) {
-  const normalizedCommand = command
-    .replace(Key.Control, isMacOS() ? 'Command' : 'Control')
-    .replace(Key.Alt, isMacOS() ? 'Option' : 'Alt');
-
+export default function FilesCounter({ className, current, total }: Props) {
   return (
-    <Body className={className}>
-      {title && <span className="sw-truncate">{title}</span>}
-      <KeyboardHintKeys command={normalizedCommand} />
-    </Body>
+    <Note className={classNames('sw-whitespace-nowrap', className)}>
+      <Counter className="sw-body-sm-highlight">
+        {isDefined(current) && formatMeasure(current, MetricType.Integer) + '/'}
+        {formatMeasure(total, MetricType.Integer)}
+      </Counter>{' '}
+      {translate('component_measures.files')}
+    </Note>
   );
 }
 
-const Body = styled.div`
-  ${tw`sw-flex sw-gap-2 sw-justify-center`}
-  flex-wrap: wrap;
-  color: ${themeContrast('pageContentLight')};
-`;
+FilesCounter.displayName = 'FilesCounter';
 
-function isMacOS() {
-  return navigator.userAgent.toLocaleLowerCase().includes('mac os');
-}
+const Counter = styled.strong`
+  color: ${themeColor('pageContent')};
+`;

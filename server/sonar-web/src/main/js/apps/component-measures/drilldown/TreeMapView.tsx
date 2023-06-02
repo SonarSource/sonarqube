@@ -30,7 +30,7 @@ import { RATING_COLORS } from '../../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { MetricKey } from '../../../types/metrics';
+import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, ComponentMeasureIntern, Metric } from '../../../types/types';
 import EmptyResult from './EmptyResult';
 
@@ -130,10 +130,10 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
   getRatingColorScale = () => scaleLinear<string, string>().domain([1, 2, 3, 4, 5]).range(COLORS);
 
   getColorScale = (metric: Metric) => {
-    if (metric.type === 'LEVEL') {
+    if (metric.type === MetricType.Level) {
       return this.getLevelColorScale();
     }
-    if (metric.type === 'RATING') {
+    if (metric.type === MetricType.Rating) {
       return this.getRatingColorScale();
     }
     return this.getPercentColorScale(metric);
@@ -174,7 +174,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
   renderLegend() {
     const { metric } = this.props;
     const colorScale = this.getColorScale(metric);
-    if (['LEVEL', 'RATING'].includes(metric.type)) {
+    if ([MetricType.Level, MetricType.Rating].includes(metric.type as MetricType)) {
       return (
         <ColorBoxLegend
           className="measure-details-treemap-legend color-box-full"

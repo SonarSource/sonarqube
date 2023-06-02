@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { ComponentQualifier } from '../../types/component';
+import { MetricType } from '../../types/metrics';
 
 export interface Props {
   componentQualifier?: string;
@@ -55,11 +56,11 @@ export default function PageActions(props: Props) {
             <strong>
               {current !== undefined && (
                 <span>
-                  {formatMeasure(current, 'INT')}
+                  {formatMeasure(current, MetricType.Integer)}
                   {' / '}
                 </span>
               )}
-              {formatMeasure(total, 'INT')}
+              {formatMeasure(total, MetricType.Integer)}
             </strong>{' '}
             {translate('component_measures.files')}
           </span>

@@ -44,7 +44,7 @@ export default function ComponentCell(props: ComponentCellProps) {
   let tail = component.name;
 
   if (
-    view === 'list' &&
+    view === MeasurePageView.list &&
     (
       [
         ComponentQualifier.File,

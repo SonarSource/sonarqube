@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
 import { differenceInDays } from 'date-fns';
+import { Highlight, Note, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
-import { injectIntl, WrappedComponentProps } from 'react-intl';
+import { WrappedComponentProps, injectIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, NewCodePeriodSettingType, Period } from '../../../types/types';
 
-interface Props {
-  className?: string;
+export interface LeakPeriodLegendProps {
   component: ComponentMeasure;
   period: Period;
 }
 
-export class LeakPeriodLegend extends React.PureComponent<Props & WrappedComponentProps> {
+class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & WrappedComponentProps> {
   formatDate = (date: string) => {
     return this.props.intl.formatDate(date, longFormatterOption);
   };
@@ -45,24 +46,26 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
   };
 
   render() {
-    const { className, component, period } = this.props;
-    const leakClass = classNames('domain-measures-header leak-box', className);
-    if (component.qualifier === 'APP') {
-      return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
+    const { component, period } = this.props;
+
+    if (component.qualifier === ComponentQualifier.Application) {
+      return (
+        <LeakPeriodLabel className="sw-px-2 sw-py-1 sw-rounded-1">
+          {translate('issues.new_code_period')}
+        </LeakPeriodLabel>
+      );
     }
 
     const leakPeriodLabel = getPeriodLabel(
       period,
       period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
     );
-    if (!leakPeriodLabel) {
-      return null;
-    }
 
     const label = (
-      <div className={leakClass}>
-        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
-      </div>
+      <LeakPeriodLabel className="sw-px-2 sw-py-1 sw-rounded-1">
+        <Highlight>{translateWithParameters('component_measures.leak_legend.new_code')}</Highlight>{' '}
+        {leakPeriodLabel}
+      </LeakPeriodLabel>
     );
 
     if (period.mode === 'days' || period.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
@@ -87,3 +90,8 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
 }
 
 export default injectIntl(LeakPeriodLegend);
+
+const LeakPeriodLabel = styled(Note)`
+  background-color: ${themeColor('newCodeLegend')};
+  border: ${themeBorder('default', 'newCodeLegendBorder')};
+`;

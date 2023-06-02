@@ -31,7 +31,7 @@ import {
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MeasurePageView } from '../../types/measures';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
@@ -46,7 +46,7 @@ import { domains } from './config/domains';
 
 export const BUBBLES_FETCH_LIMIT = 500;
 export const PROJECT_OVERVEW = 'project_overview';
-export const DEFAULT_VIEW: MeasurePageView = 'tree';
+export const DEFAULT_VIEW = MeasurePageView.tree;
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
@@ -60,20 +60,20 @@ export const KNOWN_DOMAINS = [
   'Complexity',
 ];
 const BANNED_MEASURES = [
-  'blocker_violations',
-  'new_blocker_violations',
-  'critical_violations',
-  'new_critical_violations',
-  'major_violations',
-  'new_major_violations',
-  'minor_violations',
-  'new_minor_violations',
-  'info_violations',
-  'new_info_violations',
+  MetricKey.blocker_violations,
+  MetricKey.new_blocker_violations,
+  MetricKey.critical_violations,
+  MetricKey.new_critical_violations,
+  MetricKey.major_violations,
+  MetricKey.new_major_violations,
+  MetricKey.minor_violations,
+  MetricKey.new_minor_violations,
+  MetricKey.info_violations,
+  MetricKey.new_info_violations,
 ];
 
 export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
-  return measures.filter((measure) => !BANNED_MEASURES.includes(measure.metric.key));
+  return measures.filter((measure) => !BANNED_MEASURES.includes(measure.metric.key as MetricKey));
 }
 
 export function sortMeasures(
@@ -133,10 +133,10 @@ export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
 export function banQualityGateMeasure({ measures = [], qualifier }: ComponentMeasure): Measure[] {
   const bannedMetrics: string[] = [];
   if (ComponentQualifier.Portfolio !== qualifier && ComponentQualifier.SubPortfolio !== qualifier) {
-    bannedMetrics.push('alert_status');
+    bannedMetrics.push(MetricKey.alert_status);
   }
   if (qualifier === ComponentQualifier.Application) {
-    bannedMetrics.push('releasability_rating', 'releasability_effort');
+    bannedMetrics.push(MetricKey.releasability_rating, MetricKey.releasability_effort);
   }
   return measures.filter((measure) => !bannedMetrics.includes(measure.metric));
 }
@@ -157,15 +157,20 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
 });
 
 export function hasList(metric: string): boolean {
-  return !['releasability_rating', 'releasability_effort'].includes(metric);
+  return ![MetricKey.releasability_rating, MetricKey.releasability_effort].includes(
+    metric as MetricKey
+  );
 }
 
 export function hasTree(metric: string): boolean {
-  return metric !== 'alert_status';
+  return metric !== MetricKey.alert_status;
 }
 
 export function hasTreemap(metric: string, type: string): boolean {
-  return ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
+  return (
+    [MetricType.Percent, MetricType.Rating, MetricType.Level].includes(type as MetricType) &&
+    hasTree(metric)
+  );
 }
 
 export function hasBubbleChart(domainName: string): boolean {
@@ -173,7 +178,7 @@ export function hasBubbleChart(domainName: string): boolean {
 }
 
 export function hasFacetStat(metric: string): boolean {
-  return metric !== 'alert_status';
+  return metric !== MetricKey.alert_status;
 }
 
 export function hasFullMeasures(branch?: BranchLike) {
@@ -185,9 +190,9 @@ export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: Branch
 
   if (isPullRequest(branch)) {
     return metricKeys.filter((key) => isDiffMetric(key));
-  } else {
-    return metricKeys;
   }
+
+  return metricKeys;
 }
 
 export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
@@ -208,12 +213,12 @@ export function isProjectOverview(metric: string) {
   return metric === PROJECT_OVERVEW;
 }
 
-function parseView(metric: string, rawView?: string): MeasurePageView {
+function parseView(metric: MetricKey, rawView?: string): MeasurePageView {
   const view = (parseAsString(rawView) || DEFAULT_VIEW) as MeasurePageView;
   if (!hasTree(metric)) {
-    return 'list';
-  } else if (view === 'list' && !hasList(metric)) {
-    return 'tree';
+    return MeasurePageView.list;
+  } else if (view === MeasurePageView.list && !hasList(metric)) {
+    return MeasurePageView.tree;
   }
   return view;
 }
@@ -226,7 +231,7 @@ export interface Query {
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {
-  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+  const metric = (parseAsString(urlQuery['metric']) || DEFAULT_METRIC) as MetricKey;
   return {
     metric,
     selected: parseAsString(urlQuery['selected']),

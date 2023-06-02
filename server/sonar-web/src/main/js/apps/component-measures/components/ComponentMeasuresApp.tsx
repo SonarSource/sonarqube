@@ -42,6 +42,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../he
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasure,
@@ -188,10 +189,10 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
 
     const metric = this.getSelectedMetric(query, false);
     if (metric) {
-      if (query.view === 'treemap' && !hasTreemap(metric.key, metric.type)) {
-        query.view = 'tree';
-      } else if (query.view === 'tree' && !hasTree(metric.key)) {
-        query.view = 'list';
+      if (query.view === MeasurePageView.treemap && !hasTreemap(metric.key, metric.type)) {
+        query.view = MeasurePageView.tree;
+      } else if (query.view === MeasurePageView.tree && !hasTree(metric.key)) {
+        query.view = MeasurePageView.list;
       }
     }
 
@@ -255,7 +256,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     }
 
     return (
-      <StyledMain className="sw-rounded-1 sw-p-6 sw-mb-4">
+      <StyledMain className="sw-rounded-1 sw-mb-4">
         <MeasureContent
           branchLike={branchLike}
           leakPeriod={leakPeriod}

@@ -267,8 +267,8 @@ export function getComponentDrilldownUrlWithSelection(
     selectionKey,
     metric,
     branchLike,
-    treemapView: view === 'treemap',
-    listView: view === 'list',
+    treemapView: view === MeasurePageView.treemap,
+    listView: view === MeasurePageView.list,
   });
 }
 

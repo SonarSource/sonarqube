@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Note } from 'design-system';
+import { MetricsLabel, MetricsRatingBadge, Note } from 'design-system';
 import React from 'react';
 import Measure from '../../../components/measure/Measure';
-import { isDiffMetric } from '../../../helpers/measures';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
@@ -30,6 +32,8 @@ interface Props {
 
 export default function SubnavigationMeasureValue({ measure }: Props) {
   const isDiff = isDiffMetric(measure.metric.key);
+  const value = isDiff ? measure.leak : measure.value;
+  const formatted = formatMeasure(value, MetricType.Rating);
 
   return (
     <Note
@@ -37,9 +41,20 @@ export default function SubnavigationMeasureValue({ measure }: Props) {
       id={`measure-${measure.metric.key}-${isDiff ? 'leak' : 'value'}`}
     >
       <Measure
+        ratingComponent={
+          <MetricsRatingBadge
+            size="xs"
+            label={
+              value
+                ? translateWithParameters('metric.has_rating_X', formatted)
+                : translate('metric.no_rating')
+            }
+            rating={formatted as MetricsLabel}
+          />
+        }
         metricKey={measure.metric.key}
         metricType={measure.metric.type}
-        value={isDiff ? measure.leak : measure.value}
+        value={value}
       />
     </Note>
   );

@@ -49,52 +49,6 @@ button.search-navigator-facet {
   border-bottom-left-radius: 0;
 }
 
-.domain-measures-header {
-  display: inline-block;
-  padding: 4px 10px;
-  white-space: nowrap;
-}
-
-.measure-details-metric {
-  display: flex;
-  align-items: center;
-}
-
-.measure-details-primary {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.measure-details-primary-actions {
-  display: flex;
-  align-items: center;
-}
-
-.measure-details-secondary {
-  display: inline-block;
-  width: 260px;
-  margin-top: 4px;
-}
-
-.domain-measures-value .rating,
-.measure-details-value .rating {
-  width: 18px;
-  height: 18px;
-  margin-top: -2px;
-  margin-bottom: -2px;
-  font-size: var(--smallFontSize);
-}
-
-.domain-measures-value .level {
-  height: 18px;
-  border-radius: 18px;
-  margin-top: -2px;
-  margin-bottom: -2px;
-  margin-right: -4px;
-}
-
 .measure-details-treemap-legend.color-box-legend {
   margin-right: 0;
 }

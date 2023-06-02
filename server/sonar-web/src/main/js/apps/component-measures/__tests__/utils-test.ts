@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../../types/component';
+import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure } from '../../../types/types';
 import * as utils from '../utils';
@@ -142,17 +143,19 @@ describe('parseQuery', () => {
 
 describe('serializeQuery', () => {
   it('should correctly serialize the query', () => {
-    expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({
+    expect(utils.serializeQuery({ metric: '', selected: '', view: MeasurePageView.list })).toEqual({
       view: 'list',
     });
-    expect(utils.serializeQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
+    expect(
+      utils.serializeQuery({ metric: 'foo', selected: 'bar', view: MeasurePageView.tree })
+    ).toEqual({
       metric: 'foo',
       selected: 'bar',
     });
   });
 
   it('should be memoized', () => {
-    const query: utils.Query = { metric: 'foo', selected: 'bar', view: 'tree' };
+    const query: utils.Query = { metric: 'foo', selected: 'bar', view: MeasurePageView.tree };
     expect(utils.serializeQuery(query)).toBe(utils.serializeQuery(query));
   });
 });

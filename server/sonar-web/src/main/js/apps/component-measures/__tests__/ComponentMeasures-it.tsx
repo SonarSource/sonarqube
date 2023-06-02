@@ -420,9 +420,7 @@ function getPageObject() {
     // Overview
     seeDataAsListLink: byRole('link', { name: 'component_measures.overview.see_data_as_list' }),
     bubbleChart: byTestId('bubble-chart'),
-    newCodePeriodTxt: byText(
-      'overview.new_code_period_x.overview.period.previous_version_only_date'
-    ),
+    newCodePeriodTxt: byText('component_measures.leak_legend.new_code'),
 
     // Navigation
     overviewDomainBtn: byRole('button', {
@@ -482,7 +480,7 @@ function getPageObject() {
     showAllBtn: byRole('button', {
       name: 'component_measures.hidden_best_score_metrics_show_label',
     }),
-    goToActivityLink: byRole('link', { name: 'component_measures.show_metric_history' }),
+    goToActivityLink: byRole('link', { name: 'component_measures.see_metric_history' }),
   };
 
   const ui = {

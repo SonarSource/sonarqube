@@ -29,7 +29,7 @@ interface Props {
 export default function MeasureContentHeader({ left, right }: Props) {
   return (
     <StyledHeader className="sw-py-3 sw-px-6 sw-flex sw-justify-between sw-items-center">
-      <div>{left}</div>
+      <div className="sw-flex sw-items-center">{left}</div>
       <div>{right}</div>
     </StyledHeader>
   );

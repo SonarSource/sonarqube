@@ -36,4 +36,8 @@ export interface MeasuresAndMetaWithPeriod {
   period: Period;
 }
 
-export type MeasurePageView = 'list' | 'tree' | 'treemap';
+export enum MeasurePageView {
+  list = 'list',
+  tree = 'tree',
+  treemap = 'treemap',
+}

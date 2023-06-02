@@ -20,6 +20,7 @@
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
+import { MeasurePageView } from '../../types/measures';
 import { SecurityStandard } from '../../types/security';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import { mockLocation } from '../testMocks';
@@ -38,8 +39,8 @@ import {
   getIssuesUrl,
   getPathUrlAsString,
   getProjectSettingsUrl,
-  getQualityGatesUrl,
   getQualityGateUrl,
+  getQualityGatesUrl,
   getReturnUrl,
   isRelativeUrl,
   queryToSearch,
@@ -312,7 +313,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         undefined,
-        'list'
+        MeasurePageView.list
       )
     ).toEqual(
       expect.objectContaining({
@@ -320,7 +321,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         search: queryToSearch({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
-          view: 'list',
+          view: MeasurePageView.list,
           selected: COMPLEX_COMPONENT_KEY,
         }),
       })
@@ -332,7 +333,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockMainBranch(),
-        'treemap'
+        MeasurePageView.treemap
       )
     ).toEqual(
       expect.objectContaining({
@@ -340,7 +341,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         search: queryToSearch({
           id: SIMPLE_COMPONENT_KEY,
           metric: METRIC,
-          view: 'treemap',
+          view: MeasurePageView.treemap,
           selected: COMPLEX_COMPONENT_KEY,
         }),
       })
@@ -352,7 +353,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockPullRequest({ key: '1' }),
-        'tree'
+        MeasurePageView.tree
       )
     ).toEqual(
       expect.objectContaining({

@@ -177,11 +177,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
                 current={this.state.components.length}
               />
               {leakPeriod && displayLeak && (
-                <LeakPeriodLegend
-                  className="pull-right"
-                  component={component}
-                  period={leakPeriod}
-                />
+                <LeakPeriodLegend component={component} period={leakPeriod} />
               )}
             </>
           }

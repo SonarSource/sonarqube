@@ -120,18 +120,19 @@ export function InputSelect<
       classNames={{
         container: () => 'sw-relative sw-inline-block sw-align-middle',
         placeholder: () => 'sw-truncate sw-leading-4',
-        menu: () => 'sw-w-auto',
         menuList: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
         control: ({ isDisabled }) =>
           classNames(
-            'sw-absolut sw-box-border sw-rounded-2 sw-overflow-hidden sw-z-dropdown-menu',
+            'sw-absolut sw-box-border sw-rounded-2 sw-overflow-hidden',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
+        menu: () => 'sw-z-dropdown-menu',
         option: ({ isDisabled }) =>
           classNames(
             'sw-py-2 sw-px-3 sw-cursor-pointer',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
+        ...props.classNames,
       }}
       components={{
         ...props.components,
@@ -178,7 +179,6 @@ export function selectStyle<
     menu: (base) => ({
       ...base,
       width: INPUT_SIZES[size],
-      zIndex: 101,
     }),
     option: (base, { isFocused, isSelected }) => ({
       ...base,

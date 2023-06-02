@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { Router } from '../../../components/hoc/withRouter';
-import PageActions from '../../../components/ui/PageActions';
+import FilesCounter from '../../../components/ui/FilesCounter';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
+import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile, isView } from '../../../types/component';
@@ -118,7 +121,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const componentKey = selected || rootComponent.key;
     const baseComponentMetrics = [requestedMetric.key];
     if (requestedMetric.key === MetricKey.ncloc) {
-      baseComponentMetrics.push('ncloc_language_distribution');
+      baseComponentMetrics.push(MetricKey.ncloc_language_distribution);
     }
     Promise.all([
       getComponentTree(strategy, componentKey, metricKeys, opts),
@@ -205,7 +208,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     metric: Pick<Metric, 'key' | 'direction'>,
     options: Object = {}
   ) {
-    const strategy = view === 'list' ? 'leaves' : 'children';
+    const strategy = view === MeasurePageView.list ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts: RequestData = {
       ...getBranchLikeQuery(this.props.branchLike),
@@ -223,17 +226,17 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     };
 
     const isDiff = isDiffMetric(metric.key);
-    if (view === 'tree') {
+    if (view === MeasurePageView.tree) {
       metricKeys.push(...(complementary[metric.key] || []));
       opts.asc = true;
       opts.s = 'qualifier,name';
-    } else if (view === 'list') {
+    } else if (view === MeasurePageView.list) {
       metricKeys.push(...(complementary[metric.key] || []));
       opts.asc = metric.direction === 1;
       opts.metricSort = metric.key;
       setMetricSort();
-    } else if (view === 'treemap') {
-      const sizeMetric = isDiff ? 'new_lines' : 'ncloc';
+    } else if (view === MeasurePageView.treemap) {
+      const sizeMetric = isDiff ? MetricKey.new_lines : MetricKey.ncloc;
       metricKeys.push(sizeMetric);
       opts.asc = false;
       opts.metricSort = sizeMetric;
@@ -291,7 +294,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   getDefaultShowBestMeasures() {
     const { asc, view } = this.props;
-    if ((asc !== undefined && view === 'list') || view === 'tree') {
+    if ((asc !== undefined && view === MeasurePageView.list) || view === MeasurePageView.tree) {
       return true;
     }
     return false;
@@ -303,7 +306,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     if (!metric) {
       return null;
     }
-    if (view === 'tree' || view === 'list') {
+    if (view === MeasurePageView.list || view === MeasurePageView.tree) {
       const selectedIdx = this.getSelectedIndex();
       return (
         <FilesView
@@ -358,7 +361,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         <MeasureContentHeader
           left={
             <MeasuresBreadcrumbs
-              backToFirst={view === 'list'}
+              backToFirst={view === MeasurePageView.list}
               branchLike={branchLike}
               className="sw-flex-1"
               component={baseComponent}
@@ -367,54 +370,70 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             />
           }
           right={
-            <div className="display-flex-center">
+            <div className="sw-flex sw-items-center">
               {!isFileComponent && metric && (
                 <>
-                  <div id="measures-view-selection-label">
+                  <Highlight className="sw-whitespace-nowrap" id="measures-view-selection-label">
                     {translate('component_measures.view_as')}
-                  </div>
+                  </Highlight>
                   <MeasureViewSelect
-                    className="measure-view-select spacer-left big-spacer-right"
+                    className="measure-view-select sw-ml-2 sw-mr-4"
                     handleViewChange={this.updateView}
                     metric={metric}
                     view={view}
                   />
 
-                  <PageActions
-                    componentQualifier={rootComponent.qualifier}
-                    current={
-                      selectedIdx !== undefined && view !== 'treemap' ? selectedIdx + 1 : undefined
-                    }
-                    showShortcuts={['list', 'tree'].includes(view)}
-                    total={paging && paging.total}
+                  <KeyboardHint
+                    className="sw-mr-4 sw-ml-6"
+                    command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
+                    title={translate('component_measures.select_files')}
                   />
+
+                  <KeyboardHint
+                    command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
+                    title={translate('component_measures.navigate')}
+                  />
+
+                  {paging && paging.total > 0 && (
+                    <FilesCounter
+                      className="sw-min-w-24 sw-text-right"
+                      current={
+                        isDefined(selectedIdx) && view !== MeasurePageView.treemap
+                          ? selectedIdx + 1
+                          : undefined
+                      }
+                      total={paging.total}
+                    />
+                  )}
                 </>
               )}
             </div>
           }
         />
 
-        <MeasureHeader
-          branchLike={branchLike}
-          component={baseComponent}
-          leakPeriod={this.props.leakPeriod}
-          measureValue={measureValue}
-          metric={metric}
-          secondaryMeasure={secondaryMeasure}
-        />
-        {isFileComponent ? (
-          <div className="measure-details-viewer">
-            <SourceViewer
-              hideHeader={true}
-              branchLike={branchLike}
-              component={baseComponent.key}
-              metricKey={this.state.metric?.key}
-              onIssueChange={this.props.onIssueChange}
-            />
-          </div>
-        ) : (
-          this.renderMeasure()
-        )}
+        <div className="sw-p-6">
+          <MeasureHeader
+            branchLike={branchLike}
+            component={baseComponent}
+            leakPeriod={this.props.leakPeriod}
+            measureValue={measureValue}
+            metric={metric}
+            secondaryMeasure={secondaryMeasure}
+          />
+          {isFileComponent ? (
+            <div className="measure-details-viewer">
+              <SourceViewer
+                hideHeader={true}
+                branchLike={branchLike}
+                component={baseComponent.key}
+                metricKey={this.state.metric?.key}
+                onIssueChange={this.props.onIssueChange}
+              />
+            </div>
+          ) : (
+            this.renderMeasure()
+          )}
+        </div>
       </div>
     );
   }
