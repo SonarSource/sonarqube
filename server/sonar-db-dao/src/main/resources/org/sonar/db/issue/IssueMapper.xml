@@ -654,6 +654,7 @@
     i.rule_uuid as ruleUuid,
     i.created_at as createdAt,
     i.status as status,
+    i.resolution as resolution,
     r.rule_type as ruleType,
     r.plugin_name as ruleRepo,
     r.plugin_rule_key as ruleKey,
