@@ -453,7 +453,7 @@ public class ChangeStatusActionIT {
 
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
-    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.uuid()), any(HotspotChangedEvent.class));
+    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.getMainBranchProjectUuid()), any(HotspotChangedEvent.class));
   }
 
   @Test
@@ -472,7 +472,7 @@ public class ChangeStatusActionIT {
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectComponentDto, branchComponentDto);
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
-    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(branchComponentDto.uuid()), any(HotspotChangedEvent.class));
+    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(branchDto.getProjectUuid()), any(HotspotChangedEvent.class));
   }
 
   @Test

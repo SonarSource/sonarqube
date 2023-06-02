@@ -131,7 +131,7 @@ public class AssignAction implements HotspotsWsAction {
         BranchDto branch = issueUpdater.getBranch(dbSession, defaultIssue);
         if (BRANCH.equals(branch.getBranchType())) {
           HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, assignee, hotspotDto.getFilePath());
-          hotspotChangeEventService.distributeHotspotChangedEvent(defaultIssue.projectUuid(), hotspotChangedEvent);
+          hotspotChangeEventService.distributeHotspotChangedEvent(branch.getProjectUuid(), hotspotChangedEvent);
         }
       }
     }

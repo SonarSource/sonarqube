@@ -352,7 +352,7 @@ public class AssignActionIT {
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
     executeRequest(hotspot, assignee.getLogin(), null);
-    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.uuid()), any(HotspotChangedEvent.class));
+    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.getMainBranchProjectUuid()), any(HotspotChangedEvent.class));
   }
 
   @Test
