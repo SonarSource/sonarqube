@@ -53,8 +53,8 @@ export function ColorsLegend(props: ColorLegendProps) {
           <Tooltip overlay={color.overlay}>
             <div>
               <Checkbox
-                ariaLabel={color.ariaLabel}
                 checked={color.selected}
+                label={color.ariaLabel}
                 onCheck={() => {
                   props.onColorClick(color);
                 }}

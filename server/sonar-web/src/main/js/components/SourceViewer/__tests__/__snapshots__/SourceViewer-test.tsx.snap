@@ -48,8 +48,6 @@ exports[`should render correctly 1`] = `
         }
       }
       displayAllIssues={false}
-      displayIssueLocationsCount={true}
-      displayIssueLocationsLink={true}
       displayLocationMarkers={true}
       duplicationsByLine={{}}
       hasSourcesAfter={false}

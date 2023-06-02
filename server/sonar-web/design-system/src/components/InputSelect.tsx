@@ -120,6 +120,7 @@ export function InputSelect<
       classNames={{
         container: () => 'sw-relative sw-inline-block sw-align-middle',
         placeholder: () => 'sw-truncate sw-leading-4',
+        menu: () => 'sw-z-dropdown-menu',
         menuList: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
         control: ({ isDisabled }) =>
           classNames(
@@ -135,13 +136,14 @@ export function InputSelect<
         ...props.classNames,
       }}
       components={{
-        ...props.components,
         Option: IconOption,
         SingleValue,
         IndicatorsContainer,
         IndicatorSeparator: null,
+        ...props.components,
       }}
       isSearchable={props.isSearchable ?? false}
+      onMenuOpen={props.onMenuOpen}
       styles={selectStyle({ size })}
     />
   );

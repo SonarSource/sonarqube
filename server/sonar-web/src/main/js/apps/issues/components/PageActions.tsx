@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { KeyboardHint } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
-import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';
 import IssuesCounter from './IssuesCounter';
@@ -36,20 +36,14 @@ export default function PageActions(props: PageActionsProps) {
   const { canSetHome, effortTotal, paging, selectedIndex } = props;
 
   return (
-    <div className="display-flex-center display-flex-justify-end">
-      <PageShortcutsTooltip
-        leftAndRightLabel={translate('issues.to_navigate')}
-        upAndDownLabel={translate('issues.to_select_issues')}
-      />
+    <div className="sw-body-sm sw-flex sw-gap-6 sw-justify-end">
+      <KeyboardHint title={translate('issues.to_select_issues')} command="ArrowUp ArrowDown" />
+      <KeyboardHint title={translate('issues.to_navigate')} command="ArrowLeft ArrowRight" />
 
-      <div className="spacer-left issues-page-actions">
-        {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
-        {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
-      </div>
+      {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
+      {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
 
-      {canSetHome && (
-        <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'ISSUES' }} />
-      )}
+      {canSetHome && <HomePageSelect currentPage={{ type: 'ISSUES' }} />}
     </div>
   );
 }

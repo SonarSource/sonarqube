@@ -19,7 +19,7 @@
  */
 
 import classNames from 'classnames';
-import { FlagMessage, ToggleButton } from 'design-system';
+import { ButtonSecondary, Checkbox, FlagMessage, ToggleButton } from 'design-system';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -33,9 +33,7 @@ import { PageContext } from '../../../app/components/indexation/PageUnavailableD
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Checkbox from '../../../components/controls/Checkbox';
 import ListFooter from '../../../components/controls/ListFooter';
-import { Button } from '../../../components/controls/buttons';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -924,14 +922,14 @@ export class App extends React.PureComponent<Props, State> {
           title={translate('issues.select_all_issues')}
         />
 
-        <Button
+        <ButtonSecondary
           innerRef={this.bulkButtonRef}
           disabled={checked.length === 0}
           id="issues-bulk-change"
           onClick={this.handleOpenBulkChange}
         >
           {this.getButtonLabel(checked, checkAll, paging)}
-        </Button>
+        </ButtonSecondary>
 
         {bulkChangeModal && (
           <BulkChangeModal
@@ -1130,6 +1128,7 @@ export class App extends React.PureComponent<Props, State> {
             }}
             loading={loadingMore}
             total={paging.total}
+            useMIUIButtons={true}
           />
         )}
 

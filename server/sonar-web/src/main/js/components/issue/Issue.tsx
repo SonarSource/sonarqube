@@ -26,19 +26,15 @@ import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
 import { updateIssue } from './actions';
 import IssueView from './components/IssueView';
-import './Issue.css';
 
 interface Props {
   branchLike?: BranchLike;
   checked?: boolean;
   displayWhyIsThisAnIssue?: boolean;
-  displayLocationsCount?: boolean;
-  displayLocationsLink?: boolean;
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck?: (issue: string) => void;
   onClick?: (issueKey: string) => void;
-  onFilter?: (property: string, issue: TypeIssue) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup?: string;
   selected: boolean;
@@ -118,14 +114,11 @@ export default class Issue extends React.PureComponent<Props> {
         checked={this.props.checked}
         currentPopup={this.props.openPopup}
         displayWhyIsThisAnIssue={this.props.displayWhyIsThisAnIssue}
-        displayLocationsCount={this.props.displayLocationsCount}
-        displayLocationsLink={this.props.displayLocationsLink}
         issue={this.props.issue}
         onAssign={this.handleAssignement}
         onChange={this.props.onChange}
         onCheck={this.props.onCheck}
         onClick={this.props.onClick}
-        onFilter={this.props.onFilter}
         selected={this.props.selected}
         togglePopup={this.togglePopup}
       />

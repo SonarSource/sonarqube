@@ -68,6 +68,7 @@ export * from './NewCodeLegend';
 export * from './OutsideClickHandler';
 export { QualityGateIndicator } from './QualityGateIndicator';
 export * from './RadioButton';
+export * from './SearchHighlighter';
 export * from './SearchSelect';
 export * from './SearchSelectDropdown';
 export * from './SelectionCard';

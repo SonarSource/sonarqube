@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { Badge, themeBorder, themeColor, themeContrast } from 'design-system';
 import * as React from 'react';
 import BranchIcon from '../../../components/icons/BranchIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { ComponentQualifier, isView } from '../../../types/component';
@@ -52,15 +53,13 @@ export default function ComponentBreadcrumbs({
   const projectName = [issue.projectName, issue.branch].filter((s) => !!s).join(' - ');
 
   return (
-    <div
+    <DivStyled
       aria-label={translateWithParameters(
         'issues.on_file_x',
         `${displayProject ? issue.projectName + ', ' : ''}${componentName}`
       )}
-      className="component-name text-ellipsis"
+      className="sw-flex sw-box-border sw-body-sm sw-w-full sw-pb-1 sw-pt-6 sw-truncate"
     >
-      <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
-
       {displayProject && (
         <span title={projectName}>
           {limitComponentName(issue.projectName)}
@@ -73,15 +72,30 @@ export default function ComponentBreadcrumbs({
                   <span>{issue.branch}</span>
                 </>
               ) : (
-                <span className="badge">{translate('branches.main_branch')}</span>
+                <Badge variant="default">{translate('branches.main_branch')}</Badge>
               )}
             </>
           )}
-          <span className="slash-separator" />
+          <SlashSeparator className="sw-mx-1" />
         </span>
       )}
 
       <span title={componentName}>{collapsePath(componentName || '')}</span>
-    </div>
+    </DivStyled>
   );
 }
+
+const DivStyled = styled.div`
+  color: ${themeContrast('subnavigation')};
+  background-color: ${themeColor('subnavigation')};
+  &:not(:last-child) {
+    border-bottom: ${themeBorder('default')};
+  }
+`;
+
+const SlashSeparator = styled.span`
+  &:after {
+    content: '/';
+    color: rgba(68, 68, 68, 0.3);
+  }
+`;

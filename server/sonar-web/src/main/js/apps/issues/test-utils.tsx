@@ -35,6 +35,15 @@ export const componentsHandler = new ComponentsServiceMock();
 
 export const ui = {
   loading: byLabelText('loading'),
+  issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
+  issueItemAction2: byRole('link', { name: 'FlowIssue' }),
+  issueItemAction3: byRole('link', { name: 'Issue on file' }),
+  issueItemAction4: byRole('link', { name: 'Fix this' }),
+  issueItemAction5: byRole('link', { name: 'Fix that' }),
+  issueItemAction6: byRole('link', { name: 'Second issue' }),
+  issueItemAction7: byRole('link', { name: 'Issue with tags' }),
+  issueItemAction8: byRole('link', { name: 'Issue on page 2' }),
+
   issueItems: byRole('region'),
 
   issueItem1: byRole('region', { name: 'Issue with no location message' }),

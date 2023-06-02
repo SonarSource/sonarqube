@@ -76,10 +76,17 @@ export function SearchSelectDropdown<
     isDisabled,
     minLength,
     controlAriaLabel,
+    menuIsOpen,
     ...rest
   } = props;
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
+
+  React.useEffect(() => {
+    if (menuIsOpen) {
+      setOpen(true);
+    }
+  }, [menuIsOpen]);
 
   const ref = React.useRef<Select<Option, IsMulti, Group>>(null);
 

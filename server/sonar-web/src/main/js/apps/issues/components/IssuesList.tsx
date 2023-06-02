@@ -65,9 +65,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     return (
       <React.Fragment key={index}>
         <li>
-          <div className="issues-workspace-list-component note">
-            <ComponentBreadcrumbs component={component} issue={issues[0]} />
-          </div>
+          <ComponentBreadcrumbs component={component} issue={issues[0]} />
         </li>
         <ul>
           {issues.map((issue) => (

@@ -17,95 +17,140 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
-import Toggler from '../../../components/controls/Toggler';
-import { ButtonLink } from '../../../components/controls/buttons';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
+import { Options, SingleValue } from 'react-select';
+import { searchUsers } from '../../../api/users';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import LegacyAvatar from '../../ui/LegacyAvatar';
-import SetAssigneePopup from '../popups/SetAssigneePopup';
+import { isLoggedIn, isUserActive } from '../../../types/users';
+import Avatar from '../../ui/Avatar';
 
 interface Props {
-  isOpen: boolean;
   issue: Issue;
+  isOpen: boolean;
   canAssign: boolean;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default class IssueAssign extends React.PureComponent<Props> {
-  toggleAssign = (open?: boolean) => {
-    this.props.togglePopup('assign', open);
+const minSearchLength = 2;
+
+const UNASSIGNED = { value: '', label: translate('unassigned') };
+
+const renderAvatar = (name?: string, avatar?: string) => (
+  <Avatar hash={avatar} name={name} size="xs" />
+);
+
+export default function IssueAssignee(props: Props) {
+  const {
+    canAssign,
+    issue: { assignee, assigneeName, assigneeLogin, assigneeAvatar },
+  } = props;
+
+  const assinedUser = assigneeName || assignee;
+  const { currentUser } = React.useContext(CurrentUserContext);
+
+  const allowCurrentUserSelection = isLoggedIn(currentUser) && currentUser?.login !== assigneeLogin;
+
+  const defaultOptions = allowCurrentUserSelection
+    ? [
+        UNASSIGNED,
+        {
+          value: currentUser.login,
+          label: currentUser.name,
+          Icon: renderAvatar(currentUser.name, currentUser.avatar),
+        },
+      ]
+    : [UNASSIGNED];
+
+  const controlLabel = assinedUser ? (
+    <>
+      {renderAvatar(assinedUser, assigneeAvatar)} {assinedUser}
+    </>
+  ) : (
+    UNASSIGNED.label
+  );
+
+  const toggleAssign = (open?: boolean) => {
+    props.togglePopup('assign', open);
   };
 
-  handleClose = () => {
-    this.toggleAssign(false);
+  const handleClose = () => {
+    toggleAssign(false);
   };
 
-  renderAssignee() {
-    const { issue } = this.props;
-    const assigneeName = issue.assigneeName || issue.assignee;
+  const handleSearchAssignees = (
+    query: string,
+    cb: (options: Options<LabelValueSelectOption<string>>) => void
+  ) => {
+    searchUsers({ q: query })
+      .then((result) => {
+        const options: Array<LabelValueSelectOption<string>> = result.users
+          .filter(isUserActive)
+          .map((u) => ({
+            label: u.name ?? u.login,
+            value: u.login,
+            Icon: renderAvatar(u.name, u.avatar),
+          }));
+        cb(options);
+      })
+      .catch(() => {
+        cb([]);
+      });
+  };
+
+  const renderAssignee = () => {
+    const { issue } = props;
+    const assigneeName = (issue.assigneeActive && issue.assigneeName) || issue.assignee;
 
     if (assigneeName) {
-      const assigneeDisplay =
-        issue.assigneeActive === false
-          ? translateWithParameters('user.x_deleted', assigneeName)
-          : assigneeName;
       return (
-        <>
-          <span className="text-top">
-            <LegacyAvatar
-              className="little-spacer-right"
-              hash={issue.assigneeAvatar}
-              name=""
-              size={16}
-            />
+        <span className="sw-flex sw-items-center sw-gap-1">
+          <Avatar className="sw-mr-1" hash={issue.assigneeAvatar} name={assigneeName} size="xs" />
+          <span className="sw-truncate sw-max-w-abs-300 fs-mask">
+            {issue.assigneeActive
+              ? assigneeName
+              : translateWithParameters('user.x_deleted', assigneeName)}
           </span>
-          <span className="issue-meta-label" title={assigneeDisplay}>
-            {assigneeDisplay}
-          </span>
-        </>
+        </span>
       );
     }
 
-    return <span className="issue-meta-label">{translate('unassigned')}</span>;
-  }
+    return <span className="sw-flex sw-items-center sw-gap-1">{translate('unassigned')}</span>;
+  };
 
-  render() {
-    const { canAssign, isOpen, issue } = this.props;
-    const assigneeName = issue.assigneeName || issue.assignee;
-
-    if (canAssign) {
-      return (
-        <div className="dropdown">
-          <Toggler
-            closeOnEscape
-            onRequestClose={this.handleClose}
-            open={isOpen}
-            overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}
-          >
-            <ButtonLink
-              aria-expanded={isOpen}
-              aria-label={
-                assigneeName
-                  ? translateWithParameters(
-                      'issue.assign.assigned_to_x_click_to_change',
-                      assigneeName
-                    )
-                  : translate('issue.assign.unassigned_click_to_assign')
-              }
-              className="issue-action issue-action-with-options js-issue-assign"
-              onClick={this.toggleAssign}
-            >
-              {this.renderAssignee()}
-              <DropdownIcon className="little-spacer-left" />
-            </ButtonLink>
-          </Toggler>
-        </div>
-      );
+  const handleAssign = (userOption: SingleValue<LabelValueSelectOption<string>>) => {
+    if (userOption) {
+      props.onAssign(userOption.value);
     }
+  };
 
-    return this.renderAssignee();
+  if (!canAssign) {
+    return renderAssignee();
   }
+
+  return (
+    <SearchSelectDropdown
+      size="medium"
+      controlAriaLabel={
+        assinedUser
+          ? translateWithParameters('issue.assign.assigned_to_x_click_to_change', assinedUser)
+          : translate('issue.assign.unassigned_click_to_assign')
+      }
+      defaultOptions={defaultOptions}
+      onChange={handleAssign}
+      loadOptions={handleSearchAssignees}
+      menuIsOpen={props.isOpen}
+      minLength={minSearchLength}
+      onMenuOpen={() => toggleAssign(true)}
+      onMenuClose={handleClose}
+      isDiscreet
+      controlLabel={controlLabel}
+      tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
+      placeholder={translate('search.search_for_users')}
+      aria-label={translate('search.search_for_users')}
+    />
+  );
 }

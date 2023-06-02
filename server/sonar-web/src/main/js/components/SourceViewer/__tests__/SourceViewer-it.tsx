@@ -21,7 +21,7 @@ import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { act } from 'react-dom/test-utils';
-import { byRole } from 'testing-library-selector';
+import { byText } from 'testing-library-selector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { HttpStatus } from '../../../helpers/request';
@@ -29,6 +29,13 @@ import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import SourceViewer from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
+
+jest.mock('../../../api/components');
+jest.mock('../../../api/issues');
+// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
+// This should be removed once IssuesServiceMock is cleaned up.
+jest.mock('../../../api/rules');
+jest.mock('../../../api/users');
 
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
@@ -44,8 +51,8 @@ jest.mock('../helpers/lines', () => {
 });
 
 const ui = {
-  codeSmellTypeButton: byRole('button', { name: 'issue.type.CODE_SMELL' }),
-  minorSeverityButton: byRole('button', { name: /severity.MINOR/ }),
+  codeSmellTypeButton: byText('issue.type.CODE_SMELL'),
+  minorSeverityButton: byText(/severity.MINOR/),
 };
 
 const componentsHandler = new ComponentsServiceMock();
@@ -140,15 +147,13 @@ it('should be able to interact with issue action', async () => {
 
   //Open Issue type
   await user.click(
-    await screen.findByRole('button', { name: 'issue.type.type_x_click_to_change.issue.type.BUG' })
+    await screen.findByLabelText('issue.type.type_x_click_to_change.issue.type.BUG')
   );
   expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
 
   // Open severity
   await user.click(
-    await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
-    })
+    await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
   );
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
 
@@ -158,16 +163,12 @@ it('should be able to interact with issue action', async () => {
 
   // Change the severity
   await user.click(
-    await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
-    })
+    await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
   );
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
   await user.click(ui.minorSeverityButton.get());
   expect(
-    screen.getByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MINOR',
-    })
+    screen.getByLabelText('issue.severity.severity_x_click_to_change.severity.MINOR')
   ).toBeInTheDocument();
 });
 
@@ -271,8 +272,8 @@ it('should show issue indicator', async () => {
       name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
     })
   );
-  const firstIssueBox = issueRow.getByRole('region', { name: 'First Issue' });
-  const secondIssueBox = issueRow.getByRole('region', { name: 'Second Issue' });
+  const firstIssueBox = issueRow.getByRole('link', { name: 'First Issue' });
+  const secondIssueBox = issueRow.getByRole('link', { name: 'Second Issue' });
   expect(firstIssueBox).toBeInTheDocument();
   expect(secondIssueBox).toBeInTheDocument();
   expect(
@@ -383,8 +384,6 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
       branchLike={undefined}
       component={componentsHandler.getNonEmptyFileKey()}
       displayAllIssues
-      displayIssueLocationsCount
-      displayIssueLocationsLink={false}
       displayLocationMarkers
       onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
@@ -400,8 +399,6 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
         branchLike={undefined}
         component={componentsHandler.getNonEmptyFileKey()}
         displayAllIssues
-        displayIssueLocationsCount
-        displayIssueLocationsLink={false}
         displayLocationMarkers
         onIssueChange={jest.fn()}
         onIssueSelect={jest.fn()}

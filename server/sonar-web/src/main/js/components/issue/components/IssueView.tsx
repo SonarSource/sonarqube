@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { Checkbox } from 'design-system';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
-import Checkbox from '../../controls/Checkbox';
 import { updateIssue } from '../actions';
 import IssueActionsBar from './IssueActionsBar';
-import IssueCommentLine from './IssueCommentLine';
 import IssueTitleBar from './IssueTitleBar';
 
 interface Props {
@@ -34,14 +33,11 @@ interface Props {
   checked?: boolean;
   currentPopup?: string;
   displayWhyIsThisAnIssue?: boolean;
-  displayLocationsCount?: boolean;
-  displayLocationsLink?: boolean;
   issue: Issue;
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   onCheck?: (issue: string) => void;
   onClick?: (issueKey: string) => void;
-  onFilter?: (property: string, issue: Issue) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
 }
@@ -75,71 +71,46 @@ export default class IssueView extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      issue,
-      branchLike,
-      checked,
-      currentPopup,
-      displayWhyIsThisAnIssue,
-      displayLocationsLink,
-      displayLocationsCount,
-    } = this.props;
+    const { issue, branchLike, checked, currentPopup, displayWhyIsThisAnIssue } = this.props;
 
     const hasCheckbox = this.props.onCheck != null;
 
-    const issueClass = classNames('issue', {
+    const issueClass = classNames('sw-py-3 sw-flex sw-items-center sw-justify-between sw-w-full ', {
       'no-click': this.props.onClick === undefined,
-      'issue-with-checkbox': hasCheckbox,
       selected: this.props.selected,
     });
 
     return (
-      <div
-        className={issueClass}
-        onClick={this.handleBoxClick}
-        role="region"
-        aria-label={issue.message}
-      >
-        {hasCheckbox && (
-          <Checkbox
-            checked={checked ?? false}
-            className="issue-checkbox-container"
-            onCheck={this.handleCheck}
-            label={translateWithParameters('issues.action_select.label', issue.message)}
-            title={translate('issues.action_select')}
-          />
-        )}
-        <IssueTitleBar
-          branchLike={branchLike}
-          onClick={this.handleDetailClick}
-          currentPopup={currentPopup}
-          displayLocationsCount={displayLocationsCount}
-          displayLocationsLink={displayLocationsLink}
-          displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-          issue={issue}
-          onFilter={this.props.onFilter}
-          togglePopup={this.props.togglePopup}
-        />
-        <IssueActionsBar
-          className="padded-left"
-          currentPopup={currentPopup}
-          issue={issue}
-          onAssign={this.props.onAssign}
-          onChange={this.props.onChange}
-          togglePopup={this.props.togglePopup}
-        />
-        {issue.comments && issue.comments.length > 0 && (
-          <ul className="issue-comments" data-testid="issue-comments">
-            {issue.comments.map((comment) => (
-              <IssueCommentLine
-                comment={comment}
-                key={comment.key}
-                onDelete={this.deleteComment}
-                onEdit={this.editComment}
-              />
-            ))}
-          </ul>
-        )}
+      <div className={issueClass} role="region" aria-label={issue.message}>
+        <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
+          {hasCheckbox && (
+            <Checkbox
+              checked={checked ?? false}
+              onCheck={this.handleCheck}
+              label={translateWithParameters('issues.action_select.label', issue.message)}
+              title={translate('issues.action_select')}
+            />
+          )}
+          <div className="sw-flex sw-flex-col sw-grow sw-gap-2">
+            <IssueTitleBar
+              currentPopup={currentPopup}
+              branchLike={branchLike}
+              onClick={this.handleDetailClick}
+              displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+              issue={issue}
+              onChange={this.props.onChange}
+              togglePopup={this.props.togglePopup}
+            />
+            <IssueActionsBar
+              currentPopup={currentPopup}
+              issue={issue}
+              onAssign={this.props.onAssign}
+              onChange={this.props.onChange}
+              togglePopup={this.props.togglePopup}
+              showComments={true}
+            />
+          </div>
+        </div>
       </div>
     );
   }

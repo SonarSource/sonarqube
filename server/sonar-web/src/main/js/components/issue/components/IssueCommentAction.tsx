@@ -19,9 +19,7 @@
  */
 import * as React from 'react';
 import { addIssueComment, deleteIssueComment, editIssueComment } from '../../../api/issues';
-import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
-import { translate } from '../../../helpers/l10n';
 import { Issue, IssueComment } from '../../../types/types';
 import { updateIssue } from '../actions';
 import CommentListPopup from '../popups/CommentListPopup';
@@ -93,28 +91,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
               />
             )
           }
-        >
-          <ButtonLink
-            aria-expanded={this.props.currentPopup === 'comment'}
-            aria-label={translate('issue.comment.add_comment')}
-            className="issue-action js-issue-comment"
-            onClick={this.handleCommentClick}
-          >
-            <span className="issue-meta-label">
-              {showCommentsInPopup && comments && (
-                <span>
-                  {comments.length}{' '}
-                  {translate(
-                    comments.length === 1
-                      ? 'issue.comment.formlink.total'
-                      : 'issue.comment.formlink.total.plural'
-                  )}
-                </span>
-              )}
-              {!showCommentsInPopup && translate('issue.comment.formlink')}
-            </span>
-          </ButtonLink>
-        </Toggler>
+        />
       </div>
     );
   }

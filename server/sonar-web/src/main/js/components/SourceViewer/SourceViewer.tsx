@@ -69,8 +69,6 @@ export interface Props {
   component: string;
   componentMeasures?: Measure[];
   displayAllIssues?: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   highlightedLine?: number;
   // `undefined` elements mean they are located in a different file,
@@ -505,8 +503,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       <SourceViewerCode
         branchLike={this.props.branchLike}
         displayAllIssues={this.props.displayAllIssues}
-        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}

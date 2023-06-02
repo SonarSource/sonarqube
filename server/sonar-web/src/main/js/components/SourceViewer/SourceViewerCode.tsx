@@ -48,8 +48,6 @@ const ZERO_LINE = {
 interface Props {
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   duplications: Duplication[] | undefined;
   duplicationsByLine: { [line: number]: number[] };
@@ -200,8 +198,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
           line={line}
           openIssuesByLine={openIssuesByLine}
           branchLike={this.props.branchLike}
-          displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-          displayIssueLocationsLink={this.props.displayIssueLocationsLink}
           issuePopup={this.props.issuePopup}
           onIssueChange={this.props.onIssueChange}
           onIssueClick={this.props.onIssueSelect}

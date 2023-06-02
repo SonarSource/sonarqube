@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import styled from '@emotion/styled';
+import { themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import Issue from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
@@ -103,7 +104,7 @@ export default class ListItem extends React.PureComponent<Props> {
     const { branchLike, issue } = this.props;
 
     return (
-      <li className="issues-workspace-list-item" ref={(node) => (this.nodeRef = node)}>
+      <IssueItem ref={(node) => (this.nodeRef = node)}>
         <Issue
           branchLike={branchLike}
           checked={this.props.checked}
@@ -111,12 +112,30 @@ export default class ListItem extends React.PureComponent<Props> {
           onChange={this.props.onChange}
           onCheck={this.props.onCheck}
           onClick={this.props.onClick}
-          onFilter={this.handleFilter}
           onPopupToggle={this.props.onPopupToggle}
           openPopup={this.props.openPopup}
           selected={this.props.selected}
         />
-      </li>
+      </IssueItem>
     );
   }
 }
+
+const IssueItem = styled.li`
+  box-sizing: border-box;
+  border: ${themeBorder('default', 'transparent')};
+  border-top: ${themeBorder('default')};
+  outline: none;
+
+  &.selected {
+    border: ${themeBorder('default', 'tableRowSelected')};
+  }
+
+  &:hover {
+    background: ${themeColor('tableRowHover')};
+  }
+
+  &:last-child {
+    border-bottom: ${themeBorder('default')};
+  }
+`;

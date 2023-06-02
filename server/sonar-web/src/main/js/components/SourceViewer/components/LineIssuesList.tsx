@@ -19,15 +19,13 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
-import { Issue as TypeIssue, LinearIssueLocation, SourceLine } from '../../../types/types';
+import { LinearIssueLocation, SourceLine, Issue as TypeIssue } from '../../../types/types';
 import Issue from '../../issue/Issue';
 
 export interface LineIssuesListProps {
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
   displayWhyIsThisAnIssue: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   issuesForLine: TypeIssue[];
   issuePopup: { issue: string; name: string } | undefined;
   issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
@@ -69,8 +67,6 @@ export default function LineIssuesList(props: LineIssuesListProps) {
         <Issue
           branchLike={props.branchLike}
           displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-          displayLocationsCount={props.displayIssueLocationsCount}
-          displayLocationsLink={props.displayIssueLocationsLink}
           issue={issue}
           key={issue.key}
           onChange={props.onIssueChange}

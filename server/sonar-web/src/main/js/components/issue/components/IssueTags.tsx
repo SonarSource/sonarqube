@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { PopupPlacement, Tags } from 'design-system';
 import * as React from 'react';
 import { setIssueTags } from '../../../api/issues';
-import { ButtonLink } from '../../../components/controls/buttons';
-import Toggler from '../../../components/controls/Toggler';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import TagsList from '../../tags/TagsList';
+import Tooltip from '../../controls/Tooltip';
 import { updateIssue } from '../actions';
-import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
+import IssueTagsPopup from '../popups/IssueTagsPopup';
 
 interface Props {
   canSetTags: boolean;
-  isOpen: boolean;
   issue: Pick<Issue, 'key' | 'tags'>;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
+  open?: boolean;
 }
 
 export default class IssueTags extends React.PureComponent<Props> {
@@ -56,39 +55,23 @@ export default class IssueTags extends React.PureComponent<Props> {
   };
 
   render() {
-    const { issue } = this.props;
+    const { issue, open } = this.props;
     const { tags = [] } = issue;
 
-    if (this.props.canSetTags) {
-      return (
-        <div className="dropdown">
-          <Toggler
-            onRequestClose={this.handleClose}
-            open={this.props.isOpen}
-            overlay={<SetIssueTagsPopup selectedTags={tags} setTags={this.setTags} />}
-          >
-            <ButtonLink
-              aria-expanded={this.props.isOpen}
-              className="issue-action issue-action-with-options js-issue-edit-tags"
-              onClick={this.toggleSetTags}
-            >
-              <TagsList
-                allowUpdate={this.props.canSetTags}
-                tags={
-                  issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]
-                }
-              />
-            </ButtonLink>
-          </Toggler>
-        </div>
-      );
-    }
-
     return (
-      <TagsList
+      <Tags
         allowUpdate={this.props.canSetTags}
-        className="note"
-        tags={issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]}
+        ariaTagsListLabel={translate('issue.tags')}
+        className="js-issue-edit-tags"
+        emptyText={translate('issue.no_tag')}
+        menuId="issue-tags-menu"
+        overlay={<IssueTagsPopup selectedTags={tags} setTags={this.setTags} />}
+        popupPlacement={PopupPlacement.Bottom}
+        tags={tags}
+        tagsToDisplay={2}
+        tooltip={Tooltip}
+        open={open}
+        onClose={this.handleClose}
       />
     );
   }

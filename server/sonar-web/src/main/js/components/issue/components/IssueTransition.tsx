@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetSelect } from 'design-system';
 import * as React from 'react';
+import { GroupBase, OptionProps, components } from 'react-select';
 import { setIssueTransition } from '../../../api/issues';
-import { ButtonLink } from '../../../components/controls/buttons';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
+import { LabelValueSelectOption } from '../../controls/Select';
+import StatusIcon from '../../icons/StatusIcon';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
-import SetTransitionPopup from '../popups/SetTransitionPopup';
 
 interface Props {
   hasTransitions: boolean;
@@ -37,10 +37,10 @@ interface Props {
 }
 
 export default class IssueTransition extends React.PureComponent<Props> {
-  setTransition = (transition: string) => {
+  setTransition = ({ value }: { value: string }) => {
     updateIssue(
       this.props.onChange,
-      setIssueTransition({ issue: this.props.issue.key, transition })
+      setIssueTransition({ issue: this.props.issue.key, transition: value })
     );
     this.toggleSetTransition(false);
   };
@@ -56,43 +56,59 @@ export default class IssueTransition extends React.PureComponent<Props> {
   render() {
     const { issue } = this.props;
 
+    const transitions = issue.transitions.map((transition) => ({
+      label: translate('issue.transition', transition),
+      value: transition,
+      Icon: <StatusIcon status={transition} />,
+    }));
+
     if (this.props.hasTransitions) {
       return (
-        <div className="dropdown">
-          <Toggler
-            onRequestClose={this.handleClose}
-            open={this.props.isOpen && this.props.hasTransitions}
-            overlay={
-              <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
-            }
-          >
-            <ButtonLink
-              aria-label={translateWithParameters(
-                'issue.transition.status_x_click_to_change',
-                translate('issue.status', issue.status)
-              )}
-              aria-expanded={this.props.isOpen}
-              className="issue-action issue-action-with-options js-issue-transition"
-              onClick={this.toggleSetTransition}
-            >
-              <StatusHelper
-                className="issue-meta-label"
-                resolution={issue.resolution}
-                status={issue.status}
-              />
-              <DropdownIcon className="little-spacer-left" />
-            </ButtonLink>
-          </Toggler>
-        </div>
+        <DiscreetSelect
+          aria-label={translateWithParameters(
+            'issue.transition.status_x_click_to_change',
+            translate('issue.status', issue.status)
+          )}
+          size="medium"
+          className="js-issue-transition"
+          components={{
+            SingleValue: <
+              V,
+              Option extends LabelValueSelectOption<V>,
+              IsMulti extends boolean = false,
+              Group extends GroupBase<Option> = GroupBase<Option>
+            >(
+              props: OptionProps<Option, IsMulti, Group>
+            ) => {
+              return (
+                <components.SingleValue {...props}>
+                  <StatusHelper
+                    className="sw-flex sw-items-center"
+                    resolution={issue.resolution}
+                    status={issue.status}
+                  />
+                </components.SingleValue>
+              );
+            },
+          }}
+          menuIsOpen={this.props.isOpen && this.props.hasTransitions}
+          options={transitions}
+          setValue={this.setTransition}
+          onMenuClose={this.handleClose}
+          onMenuOpen={() => this.toggleSetTransition(true)}
+          value={issue.resolution ?? 'OPEN'}
+          customValue={<StatusHelper resolution={issue.resolution} status={issue.status} />}
+        />
       );
     }
 
+    const resolution = issue.resolution && ` (${translate('issue.resolution', issue.resolution)})`;
     return (
-      <StatusHelper
-        className="issue-meta-label"
-        resolution={issue.resolution}
-        status={issue.status}
-      />
+      <span className="sw-flex sw-items-center sw-gap-1">
+        <StatusIcon status={issue.status} />
+        {translate('issue.status', issue.status)}
+        {resolution}
+      </span>
     );
   }
 }
