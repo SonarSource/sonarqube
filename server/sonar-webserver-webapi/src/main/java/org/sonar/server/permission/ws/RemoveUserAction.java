@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -27,7 +26,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -35,7 +33,6 @@ import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -86,15 +83,14 @@ public class RemoveUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      if (ADMINISTER.getKey().equals(permission) && user.getLogin().equals(userSession.getLogin())) {
-        throw BadRequestException.create("As an admin, you can't remove your own admin right");
-      }
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
+      wsSupport.checkRemovingOwnAdminRight(userSession, user, permission);
+      ComponentDto project = wsSupport.findProject(dbSession, request).orElse(null);
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, project, permission, user);
+      wsSupport.checkPermissionManagementAccess(userSession, project);
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
-        project.orElse(null),
+        project,
         user, permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();

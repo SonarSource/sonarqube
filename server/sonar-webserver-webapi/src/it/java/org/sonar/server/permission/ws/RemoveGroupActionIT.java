@@ -19,8 +19,10 @@
  */
 package org.sonar.server.permission.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -32,11 +34,13 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
+import org.sonar.server.ws.TestRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,12 +54,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
+@RunWith(DataProviderRunner.class)
 public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   private GroupDto aGroup;
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final WsParameters wsParameters = new WsParameters(permissionService);
 
   @Before
   public void setUp() {
@@ -68,7 +73,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void verify_definition() {
+  public void wsAction_shouldHaveDefinition() {
     Action wsDef = wsTester.getDef();
 
     assertThat(wsDef.isInternal()).isFalse();
@@ -80,7 +85,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void remove_permission_using_group_name() {
+  public void wsAction_shouldRemoveGlobalPermission() {
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.PROVISION_PROJECTS);
     loginAsAdmin();
@@ -94,7 +99,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void remove_project_permission() {
+  public void wsAction_shouldRemoveProjectPermission() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
@@ -112,7 +117,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void remove_with_view_uuid() {
+  public void wsAction_whenUsingViewUuid_shouldRemovePermission() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, view);
@@ -130,7 +135,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void remove_with_project_key() {
+  public void wsAction_whenUsingProjectKey_shouldRemovePermission() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
@@ -148,36 +153,33 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void fail_to_remove_last_admin_permission() {
+  public void wsAction_whenLastAdminPermission_shouldFail() {
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.PROVISION_PROJECTS);
     loginAsAdmin();
 
     String administerPermission = GlobalPermission.ADMINISTER.getKey();
-    assertThatThrownBy(() -> {
-      executeRequest(aGroup, administerPermission);
-    })
+    assertThatThrownBy(() -> executeRequest(aGroup, administerPermission))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Last group with permission 'admin'. Permission cannot be removed.");
   }
 
   @Test
-  public void fail_when_project_does_not_exist() {
+  public void wsAction_whenProjectNotFound_shouldFail() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
-        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project id 'unknown-project-uuid' not found");
   }
 
   @Test
-  public void fail_when_project_project_permission_without_project() {
+  public void wsAction_whenUsingProjectPermissionWithoutProject_shouldFail() {
     loginAsAdmin();
 
     assertThatThrownBy(() -> executeRequest(aGroup, UserRole.ISSUE_ADMIN))
@@ -186,7 +188,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void fail_when_component_is_a_directory() {
+  public void wsAction_whenComponentIsDirectory_shouldFail() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
@@ -194,7 +196,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void fail_when_component_is_a_file() {
+  public void wsAction_whenComponentIsFile_shouldFail() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
@@ -202,7 +204,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void fail_when_component_is_a_subview() {
+  public void wsAction_whenComponentIsSubview_shouldFail() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newSubPortfolio(project));
 
@@ -212,56 +214,50 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   private void failIfComponentIsNotAProjectOrView(ComponentDto file) {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .setParam(PARAM_PROJECT_ID, file.uuid())
-        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PROJECT_ID, file.uuid())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
-  public void fail_when_group_name_is_missing() {
+  public void wsAction_whenGroupNameIsMissing_shouldFail() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest().setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'groupName' parameter is missing");
   }
 
   @Test
-  public void fail_when_permission_name_and_id_are_missing() {
+  public void wsAction_whenPermissionNameAndIdMissing_shouldFail() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .execute();
-    })
+    TestRequest testRequest = newRequest().setParam(PARAM_GROUP_NAME, aGroup.getName());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'permission' parameter is missing");
   }
 
   @Test
-  public void fail_when_project_uuid_and_project_key_are_provided() {
+  public void wsAction_whenProjectUuidAndProjectKeyAreProvided_shouldFail() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PROJECT_KEY, project.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_KEY, project.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Project id or project key can be provided, not both.");
   }
@@ -274,38 +270,33 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void removing_global_permission_fails_if_not_system_administrator() {
+  public void wsAction_whenRemovingGlobalPermissionAndNotSystemAdmin_shouldFail() {
     userSession.logIn();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void removing_project_permission_fails_if_not_administrator_of_project() {
+  public void wsAction_whenRemovingProjectPermissionAndNotProjectAdmin_shouldFail() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn();
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, aGroup.getName())
-        .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
-        .setParam(PARAM_PROJECT_KEY, project.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
-  /**
-   * User is project administrator but not system administrator
-   */
   @Test
-  public void removing_project_permission_is_allowed_to_project_administrators() {
+  public void wsAction_whenRemovingProjectPermissionAsProjectAdminButNotSystemAdmin_shouldRemovePermission() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
@@ -321,7 +312,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void no_effect_when_removing_any_permission_from_group_AnyOne_on_a_private_project() {
+  public void wsAction_whenRemovingAnyPermissionFromGroupAnyoneOnPrivateProject_shouldHaveNoEffect() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     permissionService.getAllProjectPermissions()
       .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
@@ -340,87 +331,124 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void fail_when_removing_USER_permission_from_group_AnyOne_on_a_public_project() {
+  public void wsAction_whenRemovingBrowsePermissionFromGroupAnyoneOnPublicProject_shouldFail() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, "anyone")
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PERMISSION, UserRole.USER)
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, UserRole.USER);
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission user can't be removed from a public component");
   }
 
   @Test
-  public void fail_when_removing_CODEVIEWER_permission_from_group_AnyOne_on_a_public_project() {
+  public void wsAction_whenRemovingCodeviewerPermissionFromGroupAnyoneOnPublicProject_shouldFail() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, "anyone")
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
-  public void fail_when_removing_USER_permission_from_group_on_a_public_project() {
+  public void wsAction_whenRemovingBrowsePermissionFromGroupOnPublicProject_shouldFail() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PERMISSION, UserRole.USER)
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, UserRole.USER);
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission user can't be removed from a public component");
   }
 
   @Test
-  public void fail_when_removing_CODEVIEWER_permission_from_group_on_a_public_project() {
+  public void wsAction_whenRemovingCodeviewerPermissionFromGroupOnPublicProject() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
-  public void fail_when_using_branch_uuid() {
+  public void wsAction_whenUsingBranchUuid_shouldFail() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_PROJECT_ID, branch.uuid())
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
-        .execute();
-    })
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_PROJECT_ID, branch.uuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Project id '%s' not found", branch.uuid()));
+  }
+
+  @Test
+  public void wsAction_whenRemovingLastOwnBrowsePermissionForPrivateProject_shouldFail() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    UserDto user = db.users().insertUser();
+    GroupDto projectAdminGroup = db.users().insertGroup();
+    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
+    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
+
+    userSession.logIn(user).setGroups(projectAdminGroup).addProjectPermission(UserRole.USER, project).addProjectPermission(UserRole.ADMIN, project);
+
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_GROUP_NAME, projectAdminGroup.getName())
+      .setParam(PARAM_PERMISSION, UserRole.USER);
+
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission 'Browse' cannot be removed from a private project for a project administrator.");
+  }
+
+  @Test
+  public void wsAction_whenRemovingOwnBrowsePermissionAndHavePermissionFromOtherGroup_shouldRemovePermission() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    UserDto user = db.users().insertUser();
+    GroupDto projectAdminGroup = db.users().insertGroup();
+    GroupDto otherProjectAdminGroup = db.users().insertGroup();
+    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
+    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(otherProjectAdminGroup, UserRole.USER, project);
+    db.users().insertProjectPermissionOnGroup(otherProjectAdminGroup, UserRole.ADMIN, project);
+    userSession.logIn(user).setGroups(projectAdminGroup, otherProjectAdminGroup).addProjectPermission(UserRole.USER, project).addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_GROUP_NAME, projectAdminGroup.getName())
+      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .execute();
+
+    assertThat(db.users().selectGroupPermissions(projectAdminGroup, project)).containsOnly(UserRole.ADMIN);
+    assertThat(db.users().selectGroupPermissions(otherProjectAdminGroup, project)).containsExactlyInAnyOrder(UserRole.USER, UserRole.ADMIN);
   }
 
   private void unsafeInsertProjectPermissionOnAnyone(String perm, ComponentDto project) {

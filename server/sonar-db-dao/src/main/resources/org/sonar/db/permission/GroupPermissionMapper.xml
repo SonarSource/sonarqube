@@ -219,6 +219,17 @@
       )
   </select>
 
+   <select id="selectGroupUuidsWithPermissionOnProject" resultType="string">
+    select
+      distinct gr1.group_uuid
+    from
+      group_roles gr1
+    where
+      gr1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and gr1.group_uuid is not null
+      and gr1.role = #{role,jdbcType=VARCHAR}
+  </select>
+
   <insert id="insert" parameterType="GroupPermission">
     insert into group_roles (
     uuid,

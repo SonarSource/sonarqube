@@ -58,6 +58,8 @@ public interface GroupPermissionMapper {
    */
   Set<String> selectGroupUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
 
+  Set<String> selectGroupUuidsWithPermissionOnProject(@Param("projectUuid") String projectUuid, @Param("role") String permission);
+
   int deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
   int deleteByRootComponentUuidAndGroupUuid(@Param("rootComponentUuid") String rootComponentUuid, @Nullable @Param("groupUuid") String groupUuid);

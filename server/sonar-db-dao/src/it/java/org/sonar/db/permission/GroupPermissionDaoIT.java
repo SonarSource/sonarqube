@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -40,6 +41,7 @@ import org.sonar.db.user.GroupDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
@@ -130,7 +132,7 @@ public class GroupPermissionDaoIT {
       db.users().insertProjectPermissionOnGroup(group, GlobalPermission.SCAN.getKey(), project);
     });
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.users().insertPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(db.users().selectGroup(lastGroupName).orElseGet(() -> fail("group not found")), GlobalPermission.SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery().build()))
       .hasSize(DEFAULT_PAGE_SIZE)
@@ -146,7 +148,7 @@ public class GroupPermissionDaoIT {
     });
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.users().insertProjectPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), GlobalPermission.SCAN.getKey(), project);
+    db.users().insertProjectPermissionOnGroup(db.users().selectGroup(lastGroupName).orElseGet(() -> fail("group not found")), GlobalPermission.SCAN.getKey(), project);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery()
       .setComponent(project)
@@ -298,24 +300,24 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
     db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
 
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(group1.getUuid()), null))
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(group1.getUuid()), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
       .containsOnly(tuple(group1.getUuid(), GlobalPermission.SCAN.getKey(), null));
 
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(group2.getUuid()), null)).isEmpty();
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(group2.getUuid()), null)).isEmpty();
 
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(group3.getUuid()), null))
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(group3.getUuid()), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
       .containsOnly(tuple(group3.getUuid(), GlobalPermission.ADMINISTER.getKey(), null));
 
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(ANYONE_UUID), null))
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(ANYONE_UUID), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
       .containsOnly(
         tuple(ANYONE_UUID, GlobalPermission.SCAN.getKey(), null),
         tuple(ANYONE_UUID, GlobalPermission.PROVISION_PROJECTS.getKey(), null));
 
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(group1.getUuid(), group2.getUuid(), ANYONE_UUID), null)).hasSize(3);
-    assertThat(underTest.selectByGroupUuids(dbSession, asList(MISSING_UUID), null)).isEmpty();
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(group1.getUuid(), group2.getUuid(), ANYONE_UUID), null)).hasSize(3);
+    assertThat(underTest.selectByGroupUuids(dbSession, List.of(MISSING_UUID), null)).isEmpty();
     assertThat(underTest.selectByGroupUuids(dbSession, Collections.emptyList(), null)).isEmpty();
   }
 
@@ -594,7 +596,7 @@ public class GroupPermissionDaoIT {
     ComponentDto project = randomPublicOrPrivateProject();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    GroupDto group3 = db.users().insertGroup();
+    db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group1, "p1", project);
     db.users().insertProjectPermissionOnGroup(group2, "p2", project);
 
@@ -964,6 +966,23 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnGroup(group, "p1");
 
     assertThat(underTest.deleteByRootComponentUuidAndPermission(dbSession, "p1", project)).isZero();
+  }
+
+  @Test
+  public void selectGroupUuidsWithPermissionOnProject_shouldReturnOnlyGroupsWithSpecifiedPermission() {
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    String anyPermission = "any_permission";
+    db.users().insertProjectPermissionOnGroup(group1, anyPermission, project);
+    db.users().insertProjectPermissionOnGroup(group2, "otherPermission", project);
+    db.users().insertProjectPermissionOnGroup(group3, anyPermission, otherProject);
+
+    Set<String> results = underTest.selectGroupUuidsWithPermissionOnProject(dbSession, project.uuid(), anyPermission);
+
+    assertThat(results).containsOnly(group1.getUuid());
   }
 
   private Collection<String> getGlobalPermissionsForAnyone() {
