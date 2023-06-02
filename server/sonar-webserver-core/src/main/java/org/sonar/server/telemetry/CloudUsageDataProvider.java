@@ -19,16 +19,187 @@
  */
 package org.sonar.server.telemetry;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.Gson;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.util.Collection;
+import java.util.Scanner;
+import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.internal.tls.OkHostnameVerifier;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
+import org.sonar.server.util.Paths2;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 @ServerSide
 public class CloudUsageDataProvider {
 
-  public TelemetryData.CloudUsage getCloudUsage() {
-    return new TelemetryData.CloudUsage(isKubernetes());
+  private static final Logger LOG = LoggerFactory.getLogger(CloudUsageDataProvider.class);
+
+  private static final String SERVICEACCOUNT_CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt";
+  static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
+  static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
+  private static final String[] KUBERNETES_PROVIDER_COMMAND = {"bash", "-c", "uname -r"};
+  private final System2 system2;
+  private final Paths2 paths2;
+  private OkHttpClient httpClient;
+
+  @Inject
+  public CloudUsageDataProvider(System2 system2, Paths2 paths2) {
+    this.system2 = system2;
+    this.paths2 = paths2;
+    if (isOnKubernetes()) {
+      initHttpClient();
+    }
   }
 
-  private static boolean isKubernetes() {
-    return true;
+  @VisibleForTesting
+  CloudUsageDataProvider(System2 system2, Paths2 paths2, OkHttpClient httpClient) {
+    this.system2 = system2;
+    this.paths2 = paths2;
+    this.httpClient = httpClient;
+  }
+
+  public TelemetryData.CloudUsage getCloudUsage() {
+    String kubernetesVersion = null;
+    String kubernetesPlatform = null;
+
+    if (isOnKubernetes()) {
+      VersionInfo versionInfo = getVersionInfo();
+      if (versionInfo != null) {
+        kubernetesVersion = versionInfo.major() + "." + versionInfo.minor();
+        kubernetesPlatform = versionInfo.platform();
+      }
+    }
+
+    return new TelemetryData.CloudUsage(
+      isOnKubernetes(),
+      kubernetesVersion,
+      kubernetesPlatform,
+      getKubernetesProvider());
+  }
+
+  private boolean isOnKubernetes() {
+    return StringUtils.isNotBlank(system2.envVariable(KUBERNETES_SERVICE_HOST));
+  }
+
+  /**
+   * Create a http client to call the Kubernetes API.
+   * This is based on the client creation in the official Kubernetes Java client.
+   */
+  private void initHttpClient() {
+    try {
+      TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory.init(getKeyStore());
+      TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(null, trustManagers, new SecureRandom());
+
+      httpClient = new OkHttpClient.Builder()
+        .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0])
+        .hostnameVerifier(OkHostnameVerifier.INSTANCE)
+        .build();
+    } catch (Exception e) {
+      LOG.debug("Failed to create http client for Kubernetes API", e);
+    }
+  }
+
+  private KeyStore getKeyStore() throws GeneralSecurityException, IOException {
+    KeyStore caKeyStore = newEmptyKeyStore();
+
+    try (FileInputStream fis = new FileInputStream(paths2.get(SERVICEACCOUNT_CA_PATH).toFile())) {
+      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+      Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(fis);
+
+      int index = 0;
+      for (Certificate certificate : certificates) {
+        String certificateAlias = "ca" + index;
+        caKeyStore.setCertificateEntry(certificateAlias, certificate);
+        index++;
+      }
+    }
+
+    return caKeyStore;
+  }
+
+  private static KeyStore newEmptyKeyStore() throws GeneralSecurityException, IOException {
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    keyStore.load(null, null);
+    return keyStore;
+  }
+
+  record VersionInfo(String major, String minor, String platform) {
+  }
+
+  private VersionInfo getVersionInfo() {
+    try {
+      Request request = buildRequest();
+      try (Response response = httpClient.newCall(request).execute()) {
+        ResponseBody responseBody = requireNonNull(response.body(), "Response body is null");
+        return new Gson().fromJson(responseBody.string(), VersionInfo.class);
+      }
+    } catch (Exception e) {
+      LOG.debug("Failed to get Kubernetes version info", e);
+      return null;
+    }
+  }
+
+  private Request buildRequest() throws URISyntaxException {
+    String host = system2.envVariable(KUBERNETES_SERVICE_HOST);
+    String port = system2.envVariable(KUBERNETES_SERVICE_PORT);
+    if (host == null || port == null) {
+      throw new IllegalStateException("Kubernetes environment variables are not set");
+    }
+
+    URI uri = new URI("https", null, host, Integer.parseInt(port), "/version", null, null);
+
+    return new Request.Builder()
+      .get()
+      .url(uri.toString())
+      .build();
+  }
+
+  @CheckForNull
+  private static String getKubernetesProvider() {
+    try {
+      Process process = new ProcessBuilder().command(KUBERNETES_PROVIDER_COMMAND).start();
+      try (Scanner scanner = new Scanner(process.getInputStream(), UTF_8)) {
+        scanner.useDelimiter("\n");
+        return scanner.next();
+      } finally {
+        process.destroy();
+      }
+    } catch (Exception e) {
+      LOG.debug("Failed to get Kubernetes provider", e);
+      return null;
+    }
+  }
+
+  @VisibleForTesting
+  OkHttpClient getHttpClient() {
+    return httpClient;
   }
 }

@@ -555,6 +555,15 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
+  public void load_shouldContainCloudUsage() {
+    TelemetryData.CloudUsage cloudUsage = new TelemetryData.CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64");
+    when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
+
+    TelemetryData data = commercialUnderTest.load();
+    assertThat(data.getCloudUsage()).isEqualTo(cloudUsage);
+  }
+
+  @Test
   public void default_quality_gate_sent_with_project() {
     db.components().insertPublicProject().getMainBranchComponent();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("anything").setBuiltIn(true));

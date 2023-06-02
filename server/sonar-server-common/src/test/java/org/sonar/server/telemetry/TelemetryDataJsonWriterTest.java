@@ -280,6 +280,23 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
+  public void writeTelemetryData_shouldWriteCloudUsage() {
+    TelemetryData data = telemetryBuilder().build();
+
+    String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "cloudUsage": {
+          "kubernetes": true,
+          "kubernetesVersion": "1.27",
+          "kubernetesPlatform": "linux/amd64",
+          "kubernetesProvider": "5.4.181-99.354.amzn2.x86_64"
+        }
+      }
+      """);
+  }
+
+  @Test
   public void writes_has_unanalyzed_languages() {
     TelemetryData data = telemetryBuilder()
       .setHasUnanalyzedC(true)
@@ -585,7 +602,7 @@ public class TelemetryDataJsonWriterTest {
       .setMessageSequenceNumber(1L)
       .setPlugins(Collections.emptyMap())
       .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(false, null))
-      .setCloudUsage(new TelemetryData.CloudUsage(false))
+      .setCloudUsage(new TelemetryData.CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64"))
       .setDatabase(new TelemetryData.Database("H2", "11"))
       .setNcdId(NCD_ID);
   }
