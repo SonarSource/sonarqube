@@ -66,6 +66,7 @@ export default function MeasureHeader(props: Props) {
           {!isDiff && hasHistory && (
             <Tooltip overlay={translate('component_measures.show_metric_history')}>
               <Link
+                aria-label={translate('component_measures.show_metric_history')}
                 className="js-show-history spacer-left button button-small"
                 to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}
               >

@@ -54,27 +54,44 @@ afterEach(() => {
 });
 
 describe('rendering', () => {
-  it('should correctly render the default overview', async () => {
-    const { ui } = getPageObject();
+  it('should correctly render the default overview and navigation', async () => {
+    const { ui, user } = getPageObject();
     renderMeasuresApp();
     await ui.appLoaded();
 
+    // Overview.
     expect(ui.seeDataAsListLink.get()).toBeInTheDocument();
-    expect(ui.overviewFacetBtn.get()).toHaveAttribute('aria-current', 'true');
+    expect(ui.overviewDomainBtn.get()).toHaveAttribute('aria-current', 'true');
     expect(ui.bubbleChart.get()).toBeInTheDocument();
     expect(within(ui.bubbleChart.get()).getAllByRole('link')).toHaveLength(8);
     expect(ui.newCodePeriodTxt.get()).toBeInTheDocument();
 
-    // TODO: check all child facets?
-    expect(ui.reliabilityFacetBtn.get()).toBeInTheDocument();
-    expect(ui.securityFacetBtn.get()).toBeInTheDocument();
-    expect(ui.securityReviewFacetBtn.get()).toBeInTheDocument();
-    expect(ui.maintainabilityFacetBtn.get()).toBeInTheDocument();
-    expect(ui.coverageFacetBtn.get()).toBeInTheDocument();
-    expect(ui.duplicationsFacetBtn.get()).toBeInTheDocument();
-    expect(ui.sizeFacetBtn.get()).toBeInTheDocument();
-    expect(ui.complexityFacetBtn.get()).toBeInTheDocument();
-    expect(ui.issuesFacetBtn.get()).toBeInTheDocument();
+    // Sidebar.
+    expect(ui.reliabilityDomainBtn.get()).toBeInTheDocument();
+    expect(ui.securityDomainBtn.get()).toBeInTheDocument();
+    expect(ui.securityReviewDomainBtn.get()).toBeInTheDocument();
+    expect(ui.maintainabilityDomainBtn.get()).toBeInTheDocument();
+    expect(ui.coverageDomainBtn.get()).toBeInTheDocument();
+    expect(ui.duplicationsDomainBtn.get()).toBeInTheDocument();
+    expect(ui.sizeDomainBtn.get()).toBeInTheDocument();
+    expect(ui.complexityDomainBtn.get()).toBeInTheDocument();
+    expect(ui.issuesDomainBtn.get()).toBeInTheDocument();
+
+    // Check one of the domains.
+    await user.click(ui.maintainabilityDomainBtn.get());
+    [
+      'New Code Smells 8',
+      'Added Technical Debt work_duration.x_minutes.1',
+      'Technical Debt Ratio on New Code 1.0%',
+      'Maintainability Rating on New Code metric.has_rating_X.E',
+      'Code Smells 8',
+      'Technical Debt work_duration.x_minutes.1',
+      'Technical Debt Ratio 1.0%',
+      'Maintainability Rating metric.has_rating_X.E',
+      'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
+    ].forEach((measure) => {
+      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+    });
   });
 
   it('should correctly render a list view', async () => {
@@ -206,6 +223,19 @@ describe('rendering', () => {
     await user.click(ui.showAllBtn.get());
     expect(ui.notShowingAllComponentsTxt.query()).not.toBeInTheDocument();
   });
+
+  it('should correctly render a link to the activity page', async () => {
+    const { ui, user } = getPageObject();
+    renderMeasuresApp('component_measures?id=foo&metric=new_code_smells');
+    await ui.appLoaded();
+
+    expect(ui.goToActivityLink.query()).not.toBeInTheDocument();
+    await user.click(ui.measureBtn('Code Smells 8').get());
+    expect(ui.goToActivityLink.get()).toHaveAttribute(
+      'href',
+      '/project/activity?id=foo&graph=custom&custom_metrics=code_smells'
+    );
+  });
 });
 
 describe('navigation', () => {
@@ -215,9 +245,9 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     // Drilldown to the file level.
-    await user.click(ui.maintainabilityFacetBtn.get());
+    await user.click(ui.maintainabilityDomainBtn.get());
 
-    await user.click(ui.metricBtn('Code Smells 8').get());
+    await user.click(ui.measureBtn('Code Smells 8').get());
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' })
     ).toBeInTheDocument();
@@ -247,8 +277,8 @@ describe('navigation', () => {
     renderMeasuresApp();
     await ui.appLoaded();
 
-    await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Code Smells 8').get());
+    await user.click(ui.maintainabilityDomainBtn.get());
+    await user.click(ui.measureBtn('Code Smells 8').get());
     await ui.changeViewToList();
 
     expect(
@@ -267,8 +297,8 @@ describe('navigation', () => {
     renderMeasuresApp();
     await ui.appLoaded();
 
-    await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Maintainability Rating metric.has_rating_X.E').get());
+    await user.click(ui.maintainabilityDomainBtn.get());
+    await user.click(ui.measureBtn('Maintainability Rating metric.has_rating_X.E').get());
     await ui.changeViewToTreeMap();
 
     expect(ui.treeMapCell(/folderA/).get()).toBeInTheDocument();
@@ -289,8 +319,8 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     // Drilldown to the file level.
-    await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Code Smells 8').get());
+    await user.click(ui.maintainabilityDomainBtn.get());
+    await user.click(ui.measureBtn('Code Smells 8').get());
 
     // Select "folderA".
     await ui.arrowDown();
@@ -341,14 +371,14 @@ describe('redirects', () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/bugs');
     await ui.appLoaded();
-    expect(ui.metricBtn('Bugs 0').get()).toHaveAttribute('aria-current', 'true');
+    expect(ui.measureBtn('Bugs 0').get()).toHaveAttribute('aria-current', 'true');
   });
 
   it('should redirect old domain route', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/domain/bugs');
     await ui.appLoaded();
-    expect(ui.reliabilityFacetBtn.get()).toHaveAttribute('aria-expanded', 'true');
+    expect(ui.reliabilityDomainBtn.get()).toHaveAttribute('aria-expanded', 'true');
   });
 });
 
@@ -383,10 +413,6 @@ it('should allow to load more components', async () => {
   expect(ui.showingOutOfTxt('1,000', '1,008').get()).toBeInTheDocument();
 });
 
-// TODO:
-// - activity links
-// - sidebar facet values (issue count, rating, etc)
-
 function getPageObject() {
   const user = userEvent.setup();
 
@@ -398,41 +424,41 @@ function getPageObject() {
       'overview.new_code_period_x.overview.period.previous_version_only_date'
     ),
 
-    // Facets
-    overviewFacetBtn: byRole('button', {
+    // Navigation
+    overviewDomainBtn: byRole('button', {
       name: 'component_measures.overview.project_overview.subnavigation',
     }),
-    releasabilityFacetBtn: byRole('button', {
+    releasabilityDomainBtn: byRole('button', {
       name: 'Releasability component_measures.domain_subnavigation.Releasability.help',
     }),
-    reliabilityFacetBtn: byRole('button', {
+    reliabilityDomainBtn: byRole('button', {
       name: 'Reliability component_measures.domain_subnavigation.Reliability.help',
     }),
-    securityFacetBtn: byRole('button', {
+    securityDomainBtn: byRole('button', {
       name: 'Security component_measures.domain_subnavigation.Security.help',
     }),
-    securityReviewFacetBtn: byRole('button', {
+    securityReviewDomainBtn: byRole('button', {
       name: 'SecurityReview component_measures.domain_subnavigation.SecurityReview.help',
     }),
-    maintainabilityFacetBtn: byRole('button', {
+    maintainabilityDomainBtn: byRole('button', {
       name: 'Maintainability component_measures.domain_subnavigation.Maintainability.help',
     }),
-    coverageFacetBtn: byRole('button', {
+    coverageDomainBtn: byRole('button', {
       name: 'Coverage component_measures.domain_subnavigation.Coverage.help',
     }),
-    duplicationsFacetBtn: byRole('button', {
+    duplicationsDomainBtn: byRole('button', {
       name: 'Duplications component_measures.domain_subnavigation.Duplications.help',
     }),
-    sizeFacetBtn: byRole('button', {
+    sizeDomainBtn: byRole('button', {
       name: 'Size component_measures.domain_subnavigation.Size.help',
     }),
-    complexityFacetBtn: byRole('button', {
+    complexityDomainBtn: byRole('button', {
       name: 'Complexity component_measures.domain_subnavigation.Complexity.help',
     }),
-    issuesFacetBtn: byRole('button', {
+    issuesDomainBtn: byRole('button', {
       name: 'Issues component_measures.domain_subnavigation.Issues.help',
     }),
-    metricBtn: (name: string) => byRole('button', { name }),
+    measureBtn: (name: string) => byRole('button', { name }),
 
     // Measure content
     measuresTable: byRole('table'),
@@ -454,6 +480,7 @@ function getPageObject() {
     noAccessWarning: byRole('alert'),
     showingOutOfTxt: (x: string, y: string) => byText(`x_of_y_shown.${x}.${y}`),
     showAllBtn: byRole('button', { name: 'show_them' }),
+    goToActivityLink: byRole('link', { name: 'component_measures.show_metric_history' }),
   };
 
   const ui = {
