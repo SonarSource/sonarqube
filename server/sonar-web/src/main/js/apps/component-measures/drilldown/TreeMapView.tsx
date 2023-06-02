@@ -205,7 +205,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         ? components[0].measures.find((measure) => measure.metric.key !== metric.key)
         : null;
     return (
-      <div className="measure-details-treemap">
+      <div className="measure-details-treemap" data-testid="treemap">
         <div className="display-flex-start note spacer-bottom">
           <span>
             <strong className="sw-mr-1">{translate('component_measures.legend.color')}</strong>

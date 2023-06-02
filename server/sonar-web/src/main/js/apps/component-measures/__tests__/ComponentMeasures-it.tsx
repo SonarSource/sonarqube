@@ -60,7 +60,7 @@ describe('rendering', () => {
     await ui.appLoaded();
 
     expect(ui.seeDataAsListLink.get()).toBeInTheDocument();
-    expect(ui.overviewFacetBtn.get()).toBeChecked();
+    expect(ui.overviewFacetBtn.get()).toHaveAttribute('aria-current', 'true');
     expect(ui.bubbleChart.get()).toBeInTheDocument();
     expect(within(ui.bubbleChart.get()).getAllByRole('link')).toHaveLength(8);
     expect(ui.newCodePeriodTxt.get()).toBeInTheDocument();
@@ -100,10 +100,10 @@ describe('rendering', () => {
     renderMeasuresApp('component_measures?id=foo&metric=sqale_rating&view=treemap');
     await ui.appLoaded();
 
-    expect(ui.treeMapCells.getAll()).toHaveLength(7);
-    expect(ui.treeMapCell(/folderA C metric\.sqale_rating\.name/).get()).toBeInTheDocument();
-    expect(ui.treeMapCell(/test1\.js B metric\.sqale_rating\.name/).get()).toBeInTheDocument();
-    expect(ui.treeMapCell(/index\.tsx A metric\.sqale_rating\.name/).get()).toBeInTheDocument();
+    expect(within(ui.treeMap.get()).getAllByRole('link')).toHaveLength(7);
+    expect(ui.treeMapCell(/folderA .+ Maintainability Rating: C/).get()).toBeInTheDocument();
+    expect(ui.treeMapCell(/test1\.js .+ Maintainability Rating: B/).get()).toBeInTheDocument();
+    expect(ui.treeMapCell(/index\.tsx .+ Maintainability Rating: A/).get()).toBeInTheDocument();
   });
 
   it('should render correctly for an unknown metric', async () => {
@@ -202,10 +202,6 @@ describe('rendering', () => {
     renderMeasuresApp('component_measures?id=foo&metric=sqale_rating&view=list');
     await ui.appLoaded();
 
-    await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Maintainability Rating').get());
-    await ui.changeViewToList();
-
     expect(ui.notShowingAllComponentsTxt.get()).toBeInTheDocument();
     await user.click(ui.showAllBtn.get());
     expect(ui.notShowingAllComponentsTxt.query()).not.toBeInTheDocument();
@@ -221,7 +217,7 @@ describe('navigation', () => {
     // Drilldown to the file level.
     await user.click(ui.maintainabilityFacetBtn.get());
 
-    await user.click(ui.metricBtn('Code Smells').get());
+    await user.click(ui.metricBtn('Code Smells 8').get());
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' })
     ).toBeInTheDocument();
@@ -252,7 +248,7 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Code Smells').get());
+    await user.click(ui.metricBtn('Code Smells 8').get());
     await ui.changeViewToList();
 
     expect(
@@ -272,19 +268,17 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Maintainability Rating').get());
+    await user.click(ui.metricBtn('Maintainability Rating metric.has_rating_X.E').get());
     await ui.changeViewToTreeMap();
 
     expect(ui.treeMapCell(/folderA/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js/).get()).toBeInTheDocument();
 
-    // TODO: once the new design is live, change this to target a link rather than clicking on some text.
     await user.click(ui.treeMapCell(/folderA/).get());
 
     expect(ui.treeMapCell(/out\.tsx/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/in\.tsx/).get()).toBeInTheDocument();
 
-    // TODO: once the new design is live, change this to target a link rather than clicking on some text.
     await user.click(ui.treeMapCell(/out.tsx/).get());
     expect((await ui.sourceCode.findAll()).length).toBeGreaterThan(0);
   });
@@ -296,7 +290,7 @@ describe('navigation', () => {
 
     // Drilldown to the file level.
     await user.click(ui.maintainabilityFacetBtn.get());
-    await user.click(ui.metricBtn('Code Smells').get());
+    await user.click(ui.metricBtn('Code Smells 8').get());
 
     // Select "folderA".
     await ui.arrowDown();
@@ -347,7 +341,7 @@ describe('redirects', () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/bugs');
     await ui.appLoaded();
-    expect(ui.metricBtn('Bugs').get()).toBeChecked();
+    expect(ui.metricBtn('Bugs 0').get()).toHaveAttribute('aria-current', 'true');
   });
 
   it('should redirect old domain route', async () => {
@@ -405,27 +399,48 @@ function getPageObject() {
     ),
 
     // Facets
-    overviewFacetBtn: byRole('checkbox', {
-      name: 'component_measures.overview.project_overview.facet',
+    overviewFacetBtn: byRole('button', {
+      name: 'component_measures.overview.project_overview.subnavigation',
     }),
-    releasabilityFacetBtn: byRole('button', { name: 'Releasability' }),
-    reliabilityFacetBtn: byRole('button', { name: 'Reliability' }),
-    securityFacetBtn: byRole('button', { name: 'Security' }),
-    securityReviewFacetBtn: byRole('button', { name: 'SecurityReview' }),
-    maintainabilityFacetBtn: byRole('button', { name: 'Maintainability' }),
-    coverageFacetBtn: byRole('button', { name: 'Coverage' }),
-    duplicationsFacetBtn: byRole('button', { name: 'Duplications' }),
-    sizeFacetBtn: byRole('button', { name: 'Size' }),
-    complexityFacetBtn: byRole('button', { name: 'Complexity' }),
-    issuesFacetBtn: byRole('button', { name: 'Issues' }),
-    metricBtn: (name: string) => byRole('checkbox', { name }),
+    releasabilityFacetBtn: byRole('button', {
+      name: 'Releasability component_measures.domain_subnavigation.Releasability.help',
+    }),
+    reliabilityFacetBtn: byRole('button', {
+      name: 'Reliability component_measures.domain_subnavigation.Reliability.help',
+    }),
+    securityFacetBtn: byRole('button', {
+      name: 'Security component_measures.domain_subnavigation.Security.help',
+    }),
+    securityReviewFacetBtn: byRole('button', {
+      name: 'SecurityReview component_measures.domain_subnavigation.SecurityReview.help',
+    }),
+    maintainabilityFacetBtn: byRole('button', {
+      name: 'Maintainability component_measures.domain_subnavigation.Maintainability.help',
+    }),
+    coverageFacetBtn: byRole('button', {
+      name: 'Coverage component_measures.domain_subnavigation.Coverage.help',
+    }),
+    duplicationsFacetBtn: byRole('button', {
+      name: 'Duplications component_measures.domain_subnavigation.Duplications.help',
+    }),
+    sizeFacetBtn: byRole('button', {
+      name: 'Size component_measures.domain_subnavigation.Size.help',
+    }),
+    complexityFacetBtn: byRole('button', {
+      name: 'Complexity component_measures.domain_subnavigation.Complexity.help',
+    }),
+    issuesFacetBtn: byRole('button', {
+      name: 'Issues component_measures.domain_subnavigation.Issues.help',
+    }),
+    metricBtn: (name: string) => byRole('button', { name }),
 
     // Measure content
     measuresTable: byRole('table'),
     measuresRows: byRole('row'),
     measuresRow: (name: string) => byRole('row', { name: new RegExp(name) }),
-    treeMapCells: byRole('treeitem'),
-    treeMapCell: (name: string | RegExp) => byRole('treeitem', { name }),
+    treeMap: byTestId('treemap'),
+    treeMapCells: byRole('link'),
+    treeMapCell: (name: string | RegExp) => byRole('link', { name }),
     fileLink: (name: string) => byRole('link', { name }),
     sourceCode: byText('function Test() {}'),
     notShowingAllComponentsTxt: byText(/component_measures.hidden_best_score_metrics/),

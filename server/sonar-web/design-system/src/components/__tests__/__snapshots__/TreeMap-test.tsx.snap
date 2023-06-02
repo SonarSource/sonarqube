@@ -78,7 +78,16 @@ exports[`should render correctly and forward click event 1`] = `
   text-align: left;
 }
 
-.emotion-18 {
+.emotion-8 {
+  position: absolute!important;
+  left: -10000px!important;
+  top: auto!important;
+  width: 1px!important;
+  height: 1px!important;
+  overflow: hidden!important;
+}
+
+.emotion-22 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -100,7 +109,7 @@ exports[`should render correctly and forward click event 1`] = `
   max-width: 17px;
 }
 
-.emotion-18 .treemap-text {
+.emotion-22 .treemap-text {
   -webkit-flex-shrink: 1;
   -ms-flex-negative: 1;
   flex-shrink: 1;
@@ -120,10 +129,8 @@ exports[`should render correctly and forward click event 1`] = `
       style="left: 0px; top: 0px; width: 83px; height: 60px; background-color: rgb(119, 119, 119); font-size: 12.974358974358974px; line-height: 60px;"
     >
       <a
-        aria-label="SonarQube_Web"
         class="emotion-4 emotion-5"
-        role="link"
-        tabindex="0"
+        href="#"
       >
         <div
           class="emotion-6 emotion-7"
@@ -137,6 +144,9 @@ exports[`should render correctly and forward click event 1`] = `
           >
             SonarQube_Web
           </span>
+          <span
+            class="emotion-8 emotion-9"
+          />
         </div>
       </a>
     </li>
@@ -145,10 +155,8 @@ exports[`should render correctly and forward click event 1`] = `
       style="left: 0px; top: 60px; width: 83px; height: 40px; font-size: 12.276041666666668px; line-height: 40px;"
     >
       <a
-        aria-label="SonarQube_Search"
         class="emotion-4 emotion-5"
-        role="link"
-        tabindex="0"
+        href="#"
       >
         <div
           class="emotion-6 emotion-7"
@@ -156,6 +164,9 @@ exports[`should render correctly and forward click event 1`] = `
         >
           <span
             class="shrink-0"
+          />
+          <span
+            class="emotion-8 emotion-9"
           />
         </div>
       </a>
@@ -165,15 +176,17 @@ exports[`should render correctly and forward click event 1`] = `
       style="left: 83px; top: 0px; width: 17px; height: 100px; background-color: rgb(119, 119, 119); font-size: 11px; line-height: 100px;"
     >
       <a
-        aria-label="SonarQube_Server"
         class="emotion-4 emotion-5"
-        role="link"
-        tabindex="0"
+        href="#"
       >
         <div
-          class="emotion-18 emotion-7"
+          class="emotion-22 emotion-7"
           width="17"
-        />
+        >
+          <span
+            class="emotion-8 emotion-9"
+          />
+        </div>
       </a>
     </li>
   </ul>

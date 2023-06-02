@@ -57,12 +57,7 @@ export function SubnavigationAccordion(props: Props) {
   }, [finalExpanded, onSetExpanded]);
 
   return (
-    <SubnavigationGroup
-      aria-labelledby={`${id}-subnavigation-accordion-button`}
-      className={className}
-      id={`${id}-subnavigation-accordion`}
-      role="region"
-    >
+    <SubnavigationGroup className={className}>
       <SubnavigationAccordionItem
         aria-controls={`${id}-subnavigation-accordion`}
         aria-expanded={finalExpanded}
@@ -72,7 +67,14 @@ export function SubnavigationAccordion(props: Props) {
         {header}
         <OpenCloseIndicator open={finalExpanded} />
       </SubnavigationAccordionItem>
-      {finalExpanded && children}
+      {finalExpanded && (
+        <section
+          aria-labelledby={`${id}-subnavigation-accordion-button`}
+          id={`${id}-subnavigation-accordion`}
+        >
+          {children}
+        </section>
+      )}
     </SubnavigationGroup>
   );
 }

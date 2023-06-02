@@ -39,7 +39,6 @@ export function SubnavigationItem(props: Props) {
   }, [onClick, value]);
   return (
     <StyledSubnavigationItem
-      aria-current={active}
       className={classNames({ active }, className)}
       data-testid="js-subnavigation-item"
       onClick={handleClick}

@@ -102,7 +102,7 @@ export default function Sidebar(props: Props) {
           />
         </FlagMessage>
       )}
-      <nav
+      <section
         className="sw-flex sw-flex-col sw-gap-4 sw-p-4"
         aria-label={translate('component_measures.navigation')}
       >
@@ -116,7 +116,7 @@ export default function Sidebar(props: Props) {
             active={isProjectOverview(selectedMetric)}
             onClick={handleProjectOverviewClick}
           >
-            <BareButton>
+            <BareButton aria-current={isProjectOverview(selectedMetric)}>
               {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
             </BareButton>
           </SubnavigationItem>
@@ -132,7 +132,7 @@ export default function Sidebar(props: Props) {
             showFullMeasures={showFullMeasures}
           />
         ))}
-      </nav>
+      </section>
     </StyledSidebar>
   );
 }

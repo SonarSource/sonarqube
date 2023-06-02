@@ -22,7 +22,6 @@ import { scaleLinear } from 'd3-scale';
 import React from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
-import { Key } from '../helpers/keyboard';
 import { BasePlacement, PopupPlacement } from '../helpers/positioning';
 import Tooltip from './Tooltip';
 
@@ -49,63 +48,60 @@ interface Props {
 }
 
 export function TreeMapRect(props: Props) {
-  function handleRectClick() {
-    props.onClick(props.itemKey);
-  }
+  const {
+    placement,
+    tooltip,
+    onClick,
+    itemKey,
+    x,
+    y,
+    width,
+    height,
+    fill,
+    gradient,
+    label,
+    icon,
+    prefix,
+  } = props;
 
-  function handleRectKeyDown(event: React.KeyboardEvent<HTMLAnchorElement>) {
-    if (event.key === Key.Enter) {
-      props.onClick(props.itemKey);
-    }
-  }
+  const handleRectClick = React.useCallback(() => {
+    onClick(itemKey);
+    return false;
+  }, [onClick, itemKey]);
 
-  function renderCell() {
-    const cellStyles = {
-      left: props.x,
-      top: props.y,
-      width: props.width,
-      height: props.height,
-      backgroundColor: props.fill,
-      backgroundImage: props.gradient,
-      fontSize: SIZE_SCALE(props.width / props.label.length),
-      lineHeight: `${props.height}px`,
-    };
-    const isTextVisible =
-      props.width >= TEXT_VISIBLE_AT_WIDTH && props.height >= TEXT_VISIBLE_AT_HEIGHT;
-    const isIconVisible =
-      props.width >= ICON_VISIBLE_AT_WIDTH && props.height >= ICON_VISIBLE_AT_HEIGHT;
+  const cellStyles = {
+    left: x,
+    top: y,
+    width,
+    height,
+    backgroundColor: fill,
+    backgroundImage: gradient,
+    fontSize: SIZE_SCALE(width / label.length),
+    lineHeight: `${height}px`,
+  };
+  const isTextVisible = width >= TEXT_VISIBLE_AT_WIDTH && height >= TEXT_VISIBLE_AT_HEIGHT;
+  const isIconVisible = width >= ICON_VISIBLE_AT_WIDTH && height >= ICON_VISIBLE_AT_HEIGHT;
 
-    return (
+  return (
+    <Tooltip overlay={tooltip} placement={placement ?? PopupPlacement.Left}>
       <StyledCell style={cellStyles}>
-        <StyledCellLink
-          aria-label={props.prefix ? `${props.prefix} ${props.label}` : props.label}
-          onClick={handleRectClick}
-          onKeyDown={handleRectKeyDown}
-          role="link"
-          tabIndex={0}
-        >
-          <StyledCellLabel width={props.width}>
-            {isIconVisible && <span className="shrink-0">{props.icon}</span>}
+        <StyledCellLink href="#" onClick={handleRectClick}>
+          <StyledCellLabel width={width}>
+            {isIconVisible && <span className="shrink-0">{icon}</span>}
             {isTextVisible &&
-              (props.prefix ? (
+              (prefix ? (
                 <span className="treemap-text">
-                  {props.prefix}
+                  {prefix}
                   <br />
-                  {props.label.substring(props.prefix.length)}
+                  {label.substring(prefix.length)}
                 </span>
               ) : (
-                <span className="treemap-text">{props.label}</span>
+                <span className="treemap-text">{label}</span>
               ))}
+            <StyledA11yHidden>{tooltip}</StyledA11yHidden>
           </StyledCellLabel>
         </StyledCellLink>
       </StyledCell>
-    );
-  }
-
-  const { placement, tooltip } = props;
-  return (
-    <Tooltip overlay={tooltip} placement={placement ?? PopupPlacement.Left}>
-      {renderCell()}
     </Tooltip>
   );
 }
@@ -147,4 +143,13 @@ const StyledCellLabel = styled.div<{ width: number }>`
   .treemap-text {
     ${tw`sw-shrink sw-overflow-hidden sw-whitespace-nowrap sw-text-left sw-text-ellipsis`};
   }
+`;
+
+const StyledA11yHidden = styled.span`
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
 `;

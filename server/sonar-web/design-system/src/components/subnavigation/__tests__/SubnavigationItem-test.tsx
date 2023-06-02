@@ -22,30 +22,18 @@ import { render } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
 import { SubnavigationItem } from '../SubnavigationItem';
 
-it('should render correctly', () => {
-  setupWithProps();
-
-  expect(screen.getByTestId('js-subnavigation-item')).toHaveAttribute('aria-current', 'false');
-});
-
-it('should display selected', () => {
-  setupWithProps({ active: true });
-
-  expect(screen.getByTestId('js-subnavigation-item')).toHaveAttribute('aria-current', 'true');
-});
-
 it('should call onClick with value when clicked', async () => {
   const onClick = jest.fn();
   const { user } = setupWithProps({ onClick });
 
-  await user.click(screen.getByTestId('js-subnavigation-item'));
+  await user.click(screen.getByRole('button'));
   expect(onClick).toHaveBeenCalledWith('foo');
 });
 
 function setupWithProps(props: Partial<FCProps<typeof SubnavigationItem>> = {}) {
   return render(
     <SubnavigationItem active={false} onClick={jest.fn()} value="foo" {...props}>
-      Foo
+      <button type="button">Foo</button>
     </SubnavigationItem>
   );
 }
