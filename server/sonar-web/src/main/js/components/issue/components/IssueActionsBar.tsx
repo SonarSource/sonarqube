@@ -123,8 +123,10 @@ export default function IssueActionsBar(props: Props) {
   );
 
   return (
-    <div className="sw-flex sw-flex-wrap sw-items-center sw-justify-between">
-      <ul className="sw-flex sw-items-center sw-gap-3 sw-body-sm">
+    <div
+      className={classNames(className, 'sw-flex sw-flex-wrap sw-items-center sw-justify-between')}
+    >
+      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
         <li>
           <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
         </li>
@@ -199,7 +201,7 @@ export default function IssueActionsBar(props: Props) {
                 </>
               </Tooltip>
             </IssueMetaListItem>
-            <SeparatorCircleIcon aria-hidden={true} as="li" />
+            <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
 
@@ -209,7 +211,7 @@ export default function IssueActionsBar(props: Props) {
               <CommentIcon aria-label={translate('issue.comment.formlink')} />
               {issue.comments?.length}
             </IssueMetaListItem>
-            <SeparatorCircleIcon aria-hidden={true} as="li" />
+            <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
         {showLine && isDefined(issue.textRange) && (
@@ -219,7 +221,7 @@ export default function IssueActionsBar(props: Props) {
                 {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
               </IssueMetaListItem>
             </Tooltip>
-            <SeparatorCircleIcon aria-hidden={true} as="li" />
+            <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
         {issue.effort && (
@@ -227,7 +229,7 @@ export default function IssueActionsBar(props: Props) {
             <IssueMetaListItem className={issueMetaListItemClassNames}>
               {translateWithParameters('issue.x_effort', issue.effort)}
             </IssueMetaListItem>
-            <SeparatorCircleIcon aria-hidden={true} as="li" />
+            <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
         <IssueMetaListItem className={issueMetaListItemClassNames}>

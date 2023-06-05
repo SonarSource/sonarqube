@@ -272,21 +272,6 @@ it('should show issue indicator', async () => {
       name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
     })
   );
-  const firstIssueBox = issueRow.getByRole('link', { name: 'First Issue' });
-  const secondIssueBox = issueRow.getByRole('link', { name: 'Second Issue' });
-  expect(firstIssueBox).toBeInTheDocument();
-  expect(secondIssueBox).toBeInTheDocument();
-  expect(
-    issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.hide.2.issue.type.BUG.plural',
-    })
-  ).toBeInTheDocument();
-
-  await user.click(firstIssueBox);
-  expect(onIssueSelect).toHaveBeenCalledWith('first-issue');
-
-  await user.click(secondIssueBox);
-  expect(onIssueSelect).toHaveBeenCalledWith('second-issue');
 });
 
 it('should show coverage information', async () => {

@@ -172,9 +172,9 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
           {this.renderGroup(firstGroup, 0, { onlyFirst: true })}
           <div>
             <ExpandLink
-              blurAfterClick={true}
+              blurAfterClick
               onClick={this.handleMoreLocationsClick}
-              preventDefault={true}
+              preventDefault
               to={{}}
             >
               {translateWithParameters(

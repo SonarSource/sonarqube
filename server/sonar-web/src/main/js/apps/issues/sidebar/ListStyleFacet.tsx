@@ -311,7 +311,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
             <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
-                  active={true}
+                  active
                   className="it__search-navigator-facet"
                   key={item}
                   name={this.props.renderFacetItem(item)}
@@ -399,7 +399,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
             loadMoreAriaLabel={showMoreAriaLabel}
             ready={!searching}
             total={searchPaging.total}
-            useMIUIButtons={true}
+            useMIUIButtons
           />
         )}
       </>

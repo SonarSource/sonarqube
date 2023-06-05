@@ -209,10 +209,10 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
 
-      await user.click(await ui.issueItem5.find());
+      await user.click(await ui.issueItemAction5.find());
       expect(ui.projectIssueItem6.getAll()).toHaveLength(2); // there will be 2 buttons one in concise issue and other in code viewer
 
-      await user.click(ui.issueItemAction6.get());
+      await user.click(ui.projectIssueItem6.getAll()[1]);
       expect(screen.getByRole('heading', { level: 1, name: 'Second issue' })).toBeInTheDocument();
     });
 

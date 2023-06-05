@@ -134,6 +134,7 @@ export default function IssueAssignee(props: Props) {
   return (
     <SearchSelectDropdown
       size="medium"
+      className="it__issue-assign"
       controlAriaLabel={
         assinedUser
           ? translateWithParameters('issue.assign.assigned_to_x_click_to_change', assinedUser)

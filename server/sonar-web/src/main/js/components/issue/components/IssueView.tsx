@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Checkbox } from 'design-system';
+import { Checkbox, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -43,6 +44,22 @@ interface Props {
 }
 
 export default class IssueView extends React.PureComponent<Props> {
+  nodeRef: HTMLLIElement | null = null;
+
+  componentDidMount() {
+    const { selected } = this.props;
+    if (this.nodeRef && selected) {
+      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { selected } = this.props;
+    if (!prevProps.selected && selected && this.nodeRef) {
+      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+    }
+  }
+
   handleCheck = () => {
     if (this.props.onCheck) {
       this.props.onCheck(this.props.issue.key);
@@ -75,13 +92,21 @@ export default class IssueView extends React.PureComponent<Props> {
 
     const hasCheckbox = this.props.onCheck != null;
 
-    const issueClass = classNames('sw-py-3 sw-flex sw-items-center sw-justify-between sw-w-full ', {
-      'no-click': this.props.onClick === undefined,
-      selected: this.props.selected,
-    });
+    const issueClass = classNames(
+      'it__issue-item sw-py-3 sw-flex sw-items-center sw-justify-between sw-w-full ',
+      {
+        'no-click': this.props.onClick === undefined,
+        selected: this.props.selected,
+      }
+    );
 
     return (
-      <div className={issueClass} role="region" aria-label={issue.message}>
+      <IssueItem
+        className={issueClass}
+        role="region"
+        aria-label={issue.message}
+        ref={(node) => (this.nodeRef = node)}
+      >
         <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
           {hasCheckbox && (
             <Checkbox
@@ -107,11 +132,11 @@ export default class IssueView extends React.PureComponent<Props> {
               onAssign={this.props.onAssign}
               onChange={this.props.onChange}
               togglePopup={this.props.togglePopup}
-              showComments={true}
+              showComments
             />
           </div>
         </div>
-      </div>
+      </IssueItem>
     );
   }
 }
@@ -124,3 +149,24 @@ function isClickable(node: HTMLElement | undefined | null): boolean {
   const tagName = (node.tagName || '').toUpperCase();
   return clickableTags.includes(tagName) || isClickable(node.parentElement);
 }
+
+const IssueItem = styled.li`
+  box-sizing: border-box;
+  border: ${themeBorder('default', 'transparent')};
+  border-top: ${themeBorder('default')};
+  outline: none;
+
+  &:last-child {
+    border-bottom: ${themeBorder('default')};
+  }
+
+  &.selected {
+    border: ${themeBorder('default', 'tableRowSelected')};
+    &:last-child {
+    }
+  }
+
+  &:hover {
+    background: ${themeColor('tableRowHover')};
+  }
+`;

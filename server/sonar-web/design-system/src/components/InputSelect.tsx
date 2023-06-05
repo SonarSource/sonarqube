@@ -127,10 +127,9 @@ export function InputSelect<
             'sw-absolut sw-box-border sw-rounded-2 sw-overflow-hidden',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
-        menu: () => 'sw-z-dropdown-menu',
         option: ({ isDisabled }) =>
           classNames(
-            'sw-py-2 sw-px-3 sw-cursor-pointer',
+            'it__select-option sw-py-2 sw-px-3 sw-cursor-pointer',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
         ...props.classNames,

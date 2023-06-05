@@ -150,7 +150,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
             aria-label={translate('permalink')}
             className="sw-ml-1 sw-align-bottom"
             copyValue={getPathUrlAsString(issueUrl, false)}
-            discreet={true}
+            discreet
           />
         </div>
         <div className="sw-flex sw-items-center sw-justify-between">

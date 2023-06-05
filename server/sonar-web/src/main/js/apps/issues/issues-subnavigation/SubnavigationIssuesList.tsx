@@ -95,7 +95,7 @@ export default function SubnavigationIssuesList(props: Props) {
           loadMore={props.fetchMoreIssues}
           loading={loadingMore}
           total={paging.total}
-          useMIUIButtons={true}
+          useMIUIButtons
         />
       )}
     </StyledWrapper>

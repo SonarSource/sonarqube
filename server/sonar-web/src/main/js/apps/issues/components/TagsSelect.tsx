@@ -63,7 +63,7 @@ export default function TagsSelect(props: Props) {
 
   return (
     <Dropdown
-      allowResizing={true}
+      allowResizing
       closeOnClick={false}
       id="tag-selector"
       overlay={

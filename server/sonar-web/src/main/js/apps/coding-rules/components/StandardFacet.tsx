@@ -378,7 +378,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
             <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
-                  active={true}
+                  active
                   key={item}
                   name={renderSonarSourceSecurityCategory(this.state.standards, item)}
                   onClick={this.handleSonarSourceSecurityItemClick}

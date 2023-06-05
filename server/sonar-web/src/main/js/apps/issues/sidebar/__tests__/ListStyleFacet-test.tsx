@@ -200,7 +200,7 @@ function shallowRender(props: Partial<Props<string>> = {}) {
       onChange={jest.fn()}
       onSearch={jest.fn()}
       onToggle={jest.fn()}
-      open={true}
+      open
       property="foo"
       searchPlaceholder="search for foo..."
       stats={{ a: 10, b: 8, c: 1 }}

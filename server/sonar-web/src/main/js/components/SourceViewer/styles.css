@@ -23,7 +23,6 @@
   border: 1px solid var(--gray80);
   box-sizing: border-box;
   background-color: #fff;
-  overflow: hidden;
 }
 
 .source-table {

@@ -70,7 +70,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
             translate('issue.status', issue.status)
           )}
           size="medium"
-          className="js-issue-transition"
+          className="it__issue-transition"
           components={{
             SingleValue: <
               V,

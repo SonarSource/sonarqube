@@ -24,7 +24,6 @@ import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
-import Link from '../../common/Link';
 import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 
 export interface IssueMessageProps {
@@ -50,7 +49,7 @@ export default function IssueMessage(props: IssueMessageProps) {
   return (
     <>
       {props.onClick ? (
-        <StandoutLink onClick={props.onClick} preventDefault to={{}}>
+        <StandoutLink onClick={props.onClick} className="it__issue-message" preventDefault to={{}}>
           <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
         </StandoutLink>
       ) : (
@@ -60,14 +59,14 @@ export default function IssueMessage(props: IssueMessageProps) {
       )}
 
       {displayWhyIsThisAnIssue && (
-        <Link
+        <StandoutLink
           aria-label={translate('issue.why_this_issue.long')}
-          className="spacer-right"
           target="_blank"
+          className="sw-ml-2"
           to={whyIsThisAnIssueUrl}
         >
           {translate('issue.why_this_issue')}
-        </Link>
+        </StandoutLink>
       )}
     </>
   );

@@ -474,7 +474,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
             className="it__search-navigator-facet-box it__search-navigator-facet-header"
             data-property={property}
             id={this.getFacetHeaderId(property)}
-            inner={true}
+            inner
             key={property}
             name={translate(`issues.facet.${name}`)}
             open={open}
@@ -489,7 +489,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
           fetching={fetchingCwe}
           getFacetItemText={(item) => renderCWECategory(this.state.standards, item)}
           getSearchResultText={(item) => renderCWECategory(this.state.standards, item)}
-          inner={true}
+          inner
           loadSearchResultCount={this.loadCWESearchResultCount}
           onChange={this.props.onChange}
           onSearch={this.handleCWESearch}
@@ -521,7 +521,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
         count={count}
         countLabel={translateWithParameters('x_selected', count)}
         data-property={this.property}
-        hasEmbeddedFacets={true}
+        hasEmbeddedFacets
         id={this.getFacetHeaderId(this.property)}
         name={translate('issues.facet', this.property)}
         onClear={this.handleClear}

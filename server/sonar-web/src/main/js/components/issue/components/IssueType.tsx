@@ -56,7 +56,7 @@ export default class IssueType extends React.PureComponent<Props> {
             'issue.type.type_x_click_to_change',
             translate('issue.type', issue.type)
           )}
-          className="js-issue-type"
+          className="it__issue-type"
           options={typesOptions}
           setValue={this.setType}
           value={issue.type}

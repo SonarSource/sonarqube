@@ -126,7 +126,7 @@ export default function IssueLocationsNavigator(props: Props) {
             </ExecutionFlowAccordion>
           ))}
         </div>
-        <IssueLocationsNavigatorKeyboardHint showLeftRightHint={true} />
+        <IssueLocationsNavigatorKeyboardHint showLeftRightHint />
       </>
     );
   }

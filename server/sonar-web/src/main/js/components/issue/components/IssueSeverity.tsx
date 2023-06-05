@@ -58,7 +58,7 @@ export default class IssueSeverity extends React.PureComponent<Props> {
     const typesOptions = SEVERITY.map((severity) => ({
       label: translate('severity', severity),
       value: severity,
-      Icon: <SeverityIcon severity={severity} aria-hidden={true} />,
+      Icon: <SeverityIcon severity={severity} aria-hidden />,
     }));
 
     if (this.props.canSetSeverity) {
@@ -69,7 +69,7 @@ export default class IssueSeverity extends React.PureComponent<Props> {
             translate('severity', issue.severity)
           )}
           menuIsOpen={this.props.isOpen && this.props.canSetSeverity}
-          className="js-issue-type"
+          className="it__issue-severity"
           options={typesOptions}
           onMenuClose={this.handleClose}
           onMenuOpen={() => this.toggleSetSeverity(true)}
@@ -81,11 +81,7 @@ export default class IssueSeverity extends React.PureComponent<Props> {
 
     return (
       <span className="sw-flex sw-items-center sw-gap-1">
-        <SeverityIcon
-          className="little-spacer-right"
-          severity={issue.severity}
-          aria-hidden={true}
-        />
+        <SeverityIcon className="little-spacer-right" severity={issue.severity} aria-hidden />
         {translate('severity', issue.severity)}
       </span>
     );
