@@ -199,7 +199,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<String> keepEntitiesUuidsByPermission(String permission, Collection<String> entityUuids) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userUuid = userDto == null ? null : userDto.getUuid();
-      return dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, entityUuids, userUuid, permission);
+      return dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, userUuid, permission);
     }
   }
 
@@ -343,11 +343,11 @@ public class ServerUserSession extends AbstractUserSession {
       .collect(MoreCollectors.toSet(permissionKeys.size()));
   }
 
-  private Set<String> loadDbPermissions(DbSession dbSession, String projectUuid) {
+  private Set<String> loadDbPermissions(DbSession dbSession, String entityUuid) {
     if (userDto != null && userDto.getUuid() != null) {
-      return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getUuid());
+      return dbClient.authorizationDao().selectEntityPermissions(dbSession, entityUuid, userDto.getUuid());
     }
-    return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
+    return dbClient.authorizationDao().selectEntityPermissionsOfAnonymous(dbSession, entityUuid);
   }
 
   @Override
@@ -363,7 +363,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, allProjectUuids, getUuid(), permission);
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, allProjectUuids, getUuid(), permission);
 
       return components.stream()
         .filter(c -> {

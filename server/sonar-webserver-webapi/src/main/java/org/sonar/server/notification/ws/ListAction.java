@@ -159,7 +159,7 @@ public class ListAction implements NotificationsWsAction {
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toSet(properties.size()));
-    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, componentUuids, userSession.getUuid(), UserRole.USER);
+    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, componentUuids, userSession.getUuid(), UserRole.USER);
     return dbClient.componentDao().selectByUuids(dbSession, componentUuids)
       .stream()
       .filter(c -> authorizedProjectUuids.contains(c.uuid()))

@@ -157,7 +157,7 @@ public class AssignAction implements HotspotsWsAction {
   }
 
   private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
-    return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
+    return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
   }
 
   private static HotspotChangedEvent buildEventData(DefaultIssue defaultIssue, @Nullable UserDto assignee, String filePath) {

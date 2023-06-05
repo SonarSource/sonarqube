@@ -45,17 +45,17 @@ public interface AuthorizationMapper {
 
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("permission") String permission, @Param("userUuid") String userUuid);
 
-  List<String> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentUuid") String componentUuid, @Param("userUuids") List<String> userUuids);
+  List<String> keepAuthorizedUsersForRoleAndEntity(@Param("role") String role, @Param("entityUuid") String entityUuid, @Param("userUuids") List<String> userUuids);
 
-  Set<String> keepAuthorizedProjectUuidsForUser(@Param("userUuid") String userUuid, @Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
+  Set<String> keepAuthorizedEntityUuidsForUser(@Param("userUuid") String userUuid, @Param("role") String role, @Param("entityUuids") Collection<String> entityUuids);
 
-  Set<String> keepAuthorizedProjectUuidsForAnonymous(@Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
+  Set<String> keepAuthorizedEntityUuidsForAnonymous(@Param("role") String role, @Param("entityUuids") Collection<String> entityUuids);
 
-  Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userUuid") String userUuid);
+  Set<String> selectEntityPermissions(@Param("entityUuid") String entityUuid, @Param("userUuid") String userUuid);
 
-  Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
+  Set<String> selectEntityPermissionsOfAnonymous(@Param("entityUuid") String entityUuid);
 
-  Set<String> keepAuthorizedLoginsOnProject(@Param("logins") List<String> logins, @Param("projectKey") String projectKey, @Param("permission") String permission);
+  Set<String> keepAuthorizedLoginsOnEntity(@Param("logins") List<String> logins, @Param("entityKey") String projectKey, @Param("permission") String permission);
 
   Set<EmailSubscriberDto> selectEmailSubscribersWithGlobalPermission(@Param("permission") String permission);
 }

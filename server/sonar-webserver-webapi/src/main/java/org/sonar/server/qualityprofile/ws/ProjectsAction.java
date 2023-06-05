@@ -107,7 +107,7 @@ public class ProjectsAction implements QProfileWsAction {
         .map(ProjectQprofileAssociationDto::getProjectUuid)
         .collect(MoreCollectors.toSet());
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(session, projectUuids, userSession.getUuid(), UserRole.USER);
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(session, projectUuids, userSession.getUuid(), UserRole.USER);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(authorizedProjectUuids.size());
 
       List<ProjectQprofileAssociationDto> authorizedProjects = projects.stream()

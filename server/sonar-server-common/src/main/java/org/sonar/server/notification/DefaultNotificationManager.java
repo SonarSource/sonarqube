@@ -174,7 +174,7 @@ public class DefaultNotificationManager implements NotificationManager {
     Set<String> logins = subscribers.stream()
       .map(EmailSubscriberDto::getLogin)
       .collect(Collectors.toSet());
-    Set<String> authorizedLogins = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, permission);
+    Set<String> authorizedLogins = dbClient.authorizationDao().keepAuthorizedLoginsOnEntity(dbSession, logins, projectKey, permission);
     return subscribers.stream()
       .filter(s -> authorizedLogins.contains(s.getLogin()));
   }
