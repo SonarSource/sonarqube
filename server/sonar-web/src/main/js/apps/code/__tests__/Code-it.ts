@@ -381,8 +381,8 @@ function getPageObject(user: UserEvent) {
     sourceCode: byText('function Test() {}'),
     notAccessToAllChildrenTxt: byText('code_viewer.not_all_measures_are_shown'),
     showingOutOfTxt: (x: number, y: number) => byText(`x_of_y_shown.${x}.${y}`),
-    newCodeBtn: byRole('button', { name: 'projects.view.new_code' }),
-    overallCodeBtn: byRole('button', { name: 'projects.view.overall_code' }),
+    newCodeBtn: byRole('radio', { name: 'projects.view.new_code' }),
+    overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byRole('row', { name, exact: false }),
     measureValueCell: (row: HTMLElement, name: string, value: string) => {
       const i = Array.from(screen.getAllByRole('columnheader')).findIndex((c) =>

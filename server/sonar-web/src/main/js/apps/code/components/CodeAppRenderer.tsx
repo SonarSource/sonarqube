@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { LargeCenteredLayout } from 'design-system';
+import { FlagMessage, HelperHintIcon, LargeCenteredLayout } from 'design-system';
 import { intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -28,14 +27,13 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location } from '../../../components/hoc/withRouter';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
 import '../code.css';
 import { getCodeMetrics } from '../utils';
-import Breadcrumbs from './Breadcrumbs';
+import CodeBreadcrumbs from './CodeBreadcrumbs';
 import Components from './Components';
 import Search from './Search';
 import SearchResults from './SearchResults';
@@ -114,27 +112,31 @@ export default function CodeAppRenderer(props: Props) {
 
   return (
     <LargeCenteredLayout className="sw-py-8 sw-body-md">
+      <Suggestions suggestions="code" />
+      <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
+
       <A11ySkipTarget anchor="code_main" />
 
       {!canBrowseAllChildProjects && isPortfolio && (
-        <StyledAlert variant="warning" className="it__portfolio_warning">
-          <AlertContent>
-            {translate('code_viewer.not_all_measures_are_shown')}
-            <HelpTooltip
-              className="spacer-left"
-              overlay={translate('code_viewer.not_all_measures_are_shown.help')}
-            />
-          </AlertContent>
-        </StyledAlert>
+        <FlagMessage
+          ariaLabel={translate('code_viewer.not_all_measures_are_shown')}
+          variant="warning"
+          className="it__portfolio_warning sw-mb-4"
+        >
+          {translate('code_viewer.not_all_measures_are_shown')}
+          <HelpTooltip
+            className="sw-ml-2"
+            overlay={translate('code_viewer.not_all_measures_are_shown.help')}
+          >
+            <HelperHintIcon />
+          </HelpTooltip>
+        </FlagMessage>
       )}
-
-      <Suggestions suggestions="code" />
-
-      <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
       {hasComponents && (
         <Search
           branchLike={branchLike}
+          className="sw-mb-4"
           component={component}
           newCodeSelected={newCodeSelected}
           onNewCodeToggle={props.handleSelectNewCode}
@@ -156,7 +158,7 @@ export default function CodeAppRenderer(props: Props) {
         )}
 
         {showBreadcrumbs && (
-          <Breadcrumbs
+          <CodeBreadcrumbs
             branchLike={branchLike}
             breadcrumbs={breadcrumbs}
             rootComponent={component}
@@ -219,13 +221,3 @@ export default function CodeAppRenderer(props: Props) {
     </LargeCenteredLayout>
   );
 }
-
-const StyledAlert = styled(Alert)`
-  display: inline-flex;
-  margin-bottom: 15px;
-`;
-
-const AlertContent = styled.div`
-  display: flex;
-  align-items: center;
-`;

@@ -115,11 +115,6 @@
   }
 }
 
-.code-search {
-  margin-bottom: 10px;
-  display: flex;
-}
-
 .code-components-header {
   position: sticky;
   top: 105px;

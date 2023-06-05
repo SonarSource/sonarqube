@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Breadcrumbs } from 'design-system';
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { Breadcrumb, ComponentMeasure } from '../../../types/types';
@@ -25,23 +26,25 @@ import ComponentName from './ComponentName';
 interface Props {
   branchLike?: BranchLike;
   breadcrumbs: Breadcrumb[];
+  className?: string;
   rootComponent: ComponentMeasure;
 }
 
-export default function Breadcrumbs({ branchLike, breadcrumbs, rootComponent }: Props) {
+export default function CodeBreadcrumbs(props: Props) {
+  const { branchLike, breadcrumbs, className, rootComponent } = props;
+
   return (
-    <ul className="code-breadcrumbs">
+    <Breadcrumbs className={className}>
       {breadcrumbs.map((component, index) => (
-        <li key={component.key}>
-          <ComponentName
-            branchLike={branchLike}
-            canBrowse={index < breadcrumbs.length - 1}
-            component={component}
-            rootComponent={rootComponent}
-            unclickable
-          />
-        </li>
+        <ComponentName
+          branchLike={branchLike}
+          canBrowse={index < breadcrumbs.length - 1}
+          component={component}
+          key={component.key}
+          rootComponent={rootComponent}
+          unclickable
+        />
       ))}
-    </ul>
+    </Breadcrumbs>
   );
 }
