@@ -17,39 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import classNames from 'classnames';
-import { debounce, intersection } from 'lodash';
+import { debounce, noop } from 'lodash';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import ListFooter from '../../../components/controls/ListFooter';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
+import { ComponentQualifier } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
-import {
-  getCodeMetrics,
-  loadMoreChildren,
-  retrieveComponent,
-  retrieveComponentChildren,
-} from '../utils';
-import Breadcrumbs from './Breadcrumbs';
-import Components from './Components';
-import Search from './Search';
-import SearchResults from './SearchResults';
-import SourceViewerWrapper from './SourceViewerWrapper';
+import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
+import CodeAppRenderer from './CodeAppRenderer';
 
 interface Props {
   branchLike?: BranchLike;
@@ -244,169 +226,27 @@ class CodeApp extends React.Component<Props, State> {
   refreshBranchStatus = () => {
     const { branchLike, component } = this.props;
     if (branchLike && component && isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
+      this.props.fetchBranchStatus(branchLike, component.key).catch(noop);
     }
   };
 
   render() {
-    const { branchLike, component, location } = this.props;
-    const {
-      baseComponent,
-      breadcrumbs,
-      components = [],
-      highlighted,
-      loading,
-      newCodeSelected,
-      total,
-      searchResults,
-      sourceViewer,
-    } = this.state;
-    const { canBrowseAllChildProjects, qualifier } = component;
-
-    const showSearch = searchResults !== undefined;
-
-    const hasComponents = components.length > 0 || searchResults !== undefined;
-
-    const showBreadcrumbs = breadcrumbs.length > 1 && !showSearch;
-
-    const showComponentList = sourceViewer === undefined && components.length > 0 && !showSearch;
-
-    const componentsClassName = classNames('boxed-group', 'spacer-top', {
-      'new-loading': loading,
-      'search-results': showSearch,
-    });
-
-    const metricKeys = intersection(
-      getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
-      Object.keys(this.props.metrics)
-    );
-    const metrics = metricKeys.map((metric) => this.props.metrics[metric]);
-
-    let defaultTitle = translate('code.page');
-    if (isApplication(baseComponent?.qualifier)) {
-      defaultTitle = translate('projects.page');
-    } else if (isPortfolioLike(baseComponent?.qualifier)) {
-      defaultTitle = translate('portfolio_breakdown.page');
-    }
-
-    const isPortfolio = isPortfolioLike(qualifier);
-
     return (
-      <main className="page page-limited">
-        <A11ySkipTarget anchor="code_main" />
-        {!canBrowseAllChildProjects && isPortfolio && (
-          <StyledAlert variant="warning" className="it__portfolio_warning">
-            <AlertContent>
-              {translate('code_viewer.not_all_measures_are_shown')}
-              <HelpTooltip
-                className="spacer-left"
-                overlay={translate('code_viewer.not_all_measures_are_shown.help')}
-              />
-            </AlertContent>
-          </StyledAlert>
-        )}
-        <Suggestions suggestions="code" />
-        <Helmet
-          defer={false}
-          title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle}
-        />
-        {hasComponents && (
-          <Search
-            branchLike={branchLike}
-            component={component}
-            newCodeSelected={newCodeSelected}
-            onNewCodeToggle={this.handleSelectNewCode}
-            onSearchClear={this.handleSearchClear}
-            onSearchResults={this.handleSearchResults}
-          />
-        )}
-
-        <div className="code-components">
-          {!hasComponents && sourceViewer === undefined && (
-            <div className="display-flex-center display-flex-column no-file">
-              <span className="h1 text-muted">
-                {translate(
-                  'code_viewer.no_source_code_displayed_due_to_empty_analysis',
-                  component.qualifier
-                )}
-              </span>
-            </div>
-          )}
-          {showBreadcrumbs && (
-            <Breadcrumbs
-              branchLike={branchLike}
-              breadcrumbs={breadcrumbs}
-              rootComponent={component}
-            />
-          )}
-
-          <div className={componentsClassName}>
-            {showComponentList && (
-              <Components
-                baseComponent={baseComponent}
-                branchLike={branchLike}
-                components={components}
-                cycle
-                metrics={metrics}
-                onEndOfList={this.handleLoadMore}
-                onGoToParent={this.handleGoToParent}
-                onHighlight={this.handleHighlight}
-                onSelect={this.handleSelect}
-                rootComponent={component}
-                selected={highlighted}
-                newCodeSelected={newCodeSelected}
-                showAnalysisDate={isPortfolio}
-              />
-            )}
-
-            {showSearch && (
-              <SearchResults
-                branchLike={this.props.branchLike}
-                components={searchResults}
-                onHighlight={this.handleHighlight}
-                onSelect={this.handleSelect}
-                rootComponent={component}
-                selected={highlighted}
-              />
-            )}
-
-            <div role="status" className={showSearch ? 'text-center big-padded-bottom' : undefined}>
-              {searchResults?.length === 0 && translate('no_results')}
-            </div>
-          </div>
-
-          {showComponentList && (
-            <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />
-          )}
-
-          {sourceViewer !== undefined && !showSearch && (
-            <div className="spacer-top">
-              <SourceViewerWrapper
-                branchLike={branchLike}
-                component={sourceViewer.key}
-                componentMeasures={sourceViewer.measures}
-                isFile
-                location={location}
-                onGoToParent={this.handleGoToParent}
-                onIssueChange={this.handleIssueChange}
-              />
-            </div>
-          )}
-        </div>
-      </main>
+      <CodeAppRenderer
+        {...this.props}
+        {...this.state}
+        handleGoToParent={this.handleGoToParent}
+        handleHighlight={this.handleHighlight}
+        handleIssueChange={this.handleIssueChange}
+        handleLoadMore={this.handleLoadMore}
+        handleSearchClear={this.handleSearchClear}
+        handleSearchResults={this.handleSearchResults}
+        handleSelect={this.handleSelect}
+        handleSelectNewCode={this.handleSelectNewCode}
+      />
     );
   }
 }
-
-const StyledAlert = styled(Alert)`
-  display: inline-flex;
-  margin-bottom: 15px;
-`;
-
-const AlertContent = styled.div`
-  display: flex;
-  align-items: center;
-`;
 
 export default withRouter(
   withComponentContext(withBranchStatusActions(withMetricsContext(CodeApp)))
