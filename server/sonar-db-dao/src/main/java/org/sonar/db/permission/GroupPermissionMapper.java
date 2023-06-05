@@ -62,7 +62,7 @@ public interface GroupPermissionMapper {
 
   int deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
-  int deleteByRootComponentUuidAndGroupUuid(@Param("rootComponentUuid") String rootComponentUuid, @Nullable @Param("groupUuid") String groupUuid);
+  int deleteByEntityUuidAndGroupUuid(@Param("entityUuid") String entityUuid, @Nullable @Param("groupUuid") String groupUuid);
 
-  int deleteByRootComponentUuidAndPermission(@Param("rootComponentUuid") String rootComponentUuid, @Param("permission") String permission);
+  int deleteByEntityUuidAndPermission(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 }

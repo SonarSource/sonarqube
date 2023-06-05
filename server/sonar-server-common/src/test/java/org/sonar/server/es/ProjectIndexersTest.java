@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -47,6 +49,32 @@ public class ProjectIndexersTest {
 
     assertThat(indexer1.calledItems).containsExactlyInAnyOrder(item1a, item1b);
     assertThat(indexer2.calledItems).containsExactlyInAnyOrder(item2);
+  }
+
+  @Test
+  public void commitAndIndexByEntityUuids_calls_indexer_with_only_its_supported_items() {
+    ProjectIndexersTestImpl projectIndexers = new ProjectIndexersTestImpl();
+    ProjectDto p1 = ComponentTesting.newProjectDto();
+    ProjectDto p2 = ComponentTesting.newProjectDto();
+    p1.setUuid("p1");
+    p2.setUuid("p2");
+
+    projectIndexers.commitAndIndexEntities(null, List.of(p1, p2), ProjectIndexer.Cause.PROJECT_CREATION);
+
+    assertThat(projectIndexers.cause).isEqualTo(ProjectIndexer.Cause.PROJECT_CREATION);
+    assertThat(projectIndexers.calledProjectUuids).containsOnly("p1", "p2");
+  }
+
+  private static class ProjectIndexersTestImpl implements ProjectIndexers {
+
+    Collection<String> calledProjectUuids;
+    ProjectIndexer.Cause cause;
+
+    @Override
+    public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
+      this.calledProjectUuids = projectUuids;
+      this.cause = cause;
+    }
   }
 
   private static class FakeIndexer implements ProjectIndexer {

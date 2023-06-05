@@ -104,7 +104,11 @@ public class BranchDao implements Dao {
   }
 
   public Collection<BranchDto> selectByProject(DbSession dbSession, ProjectDto project) {
-    return mapper(dbSession).selectByProjectUuid(project.getUuid());
+    return selectByProjectUuid(dbSession, project.getUuid());
+  }
+
+  public Collection<BranchDto> selectByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectByProjectUuid(projectUuid);
   }
 
   public Optional<BranchDto> selectMainBranchByProjectUuid(DbSession dbSession, String projectUuid) {

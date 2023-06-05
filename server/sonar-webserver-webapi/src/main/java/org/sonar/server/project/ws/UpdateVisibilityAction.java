@@ -19,10 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,9 +27,8 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentMapper;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
@@ -40,6 +36,7 @@ import org.sonar.db.user.UserId;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
@@ -57,7 +54,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class UpdateVisibilityAction implements ProjectsWsAction {
-  private static final Set<String> AUTHORIZED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -78,14 +74,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ProjectsWsParameters.ACTION_UPDATE_VISIBILITY)
-      .setDescription("Updates visibility of a project or view.<br>" +
-        "Requires 'Project administer' permission on the specified project or view")
+      .setDescription("Updates visibility of a project, application or a portfolio.<br>" +
+        "Requires 'Project administer' permission on the specified entity")
       .setSince("6.4")
       .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
-      .setDescription("Project key")
+      .setDescription("Project, application or portfolio key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
 
@@ -95,95 +91,97 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       .setRequired(true);
   }
 
-  private void validateRequest(DbSession dbSession, ComponentDto component) {
-    checkRequest(component.isRootProject() && AUTHORIZED_QUALIFIERS.contains(component.qualifier()), "Component must be a project, a portfolio or an application");
+  private void validateRequest(DbSession dbSession, EntityDto entityDto) {
     boolean isGlobalAdmin = userSession.isSystemAdministrator();
-    boolean isProjectAdmin = userSession.hasComponentPermission(ADMIN, component);
+    boolean isProjectAdmin = userSession.hasEntityPermission(ADMIN, entityDto);
     boolean allowChangingPermissionsByProjectAdmins = configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
       .orElse(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE);
     if (!isProjectAdmin || (!isGlobalAdmin && !allowChangingPermissionsByProjectAdmins)) {
       throw insufficientPrivilegesException();
     }
-    checkRequest(noPendingTask(dbSession, component), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
+    //This check likely can be removed when we remove the column 'private' from components table
+    checkRequest(noPendingTask(dbSession, entityDto.getKey()), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    String entityKey = request.mandatoryParam(PARAM_PROJECT);
     boolean changeToPrivate = Visibility.isPrivate(request.mandatoryParam(PARAM_VISIBILITY));
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
-      validateRequest(dbSession, component);
-      if (changeToPrivate != component.isPrivate()) {
-        setPrivateForRootComponentUuid(dbSession, component, changeToPrivate);
+      EntityDto entityDto = dbClient.entityDao().selectByKey(dbSession, entityKey)
+        .orElseThrow(() -> BadRequestException.create("Component must be a project, a portfolio or an application"));
+
+      validateRequest(dbSession, entityDto);
+      if (changeToPrivate != entityDto.isPrivate()) {
+        setPrivateForRootComponentUuid(dbSession, entityDto, changeToPrivate);
         if (changeToPrivate) {
-          updatePermissionsToPrivate(dbSession, component);
+          updatePermissionsToPrivate(dbSession, entityDto);
         } else {
-          updatePermissionsToPublic(dbSession, component);
+          updatePermissionsToPublic(dbSession, entityDto);
         }
-        projectIndexers.commitAndIndexComponents(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
+        projectIndexers.commitAndIndexEntities(dbSession, singletonList(entityDto), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
 
       response.noContent();
     }
   }
 
-  private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
-    String uuid = component.uuid();
-    dbClient.componentDao().setPrivateForBranchUuid(dbSession, uuid, isPrivate, component.getKey(), component.qualifier(), component.name());
+  private void setPrivateForRootComponentUuid(DbSession dbSession, EntityDto entity, boolean newIsPrivate) {
+    dbClient.componentDao().setPrivateForBranchUuid(dbSession, entity.getUuid(), newIsPrivate, entity.getKey(), entity.getQualifier(), entity.getName());
 
-    if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
-      dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate);
+    if (entity.isProjectOrApp()) {
+      dbClient.projectDao().updateVisibility(dbSession, entity.getUuid(), newIsPrivate);
+
+      dbClient.branchDao().selectByProjectUuid(dbSession, entity.getUuid()).stream()
+        .filter(branch -> !branch.isMain())
+        .forEach(branch -> dbClient.componentDao().setPrivateForBranchUuidWithoutAuditLog(dbSession, branch.getUuid(), newIsPrivate));
+    } else {
+      dbClient.portfolioDao().updateVisibilityByPortfolioUuid(dbSession, entity.getUuid(), newIsPrivate);
     }
-
-    ComponentMapper mapper = dbSession.getMapper(ComponentMapper.class);
-    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
-      .filter(branch -> !uuid.equals(branch.getUuid()))
-      .forEach(branch -> mapper.setPrivateForBranchUuid(branch.getUuid(), isPrivate));
   }
 
-  private boolean noPendingTask(DbSession dbSession, ComponentDto rootComponent) {
-    // FIXME this is probably broken in case a branch is passed to the WS
-    return dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, rootComponent.uuid()).isEmpty();
+  private boolean noPendingTask(DbSession dbSession, String entityKey) {
+    ComponentDto componentDto = componentFinder.getByKey(dbSession, entityKey);
+    return dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, componentDto.uuid()).isEmpty();
   }
 
-  private void updatePermissionsToPrivate(DbSession dbSession, ComponentDto component) {
+  private void updatePermissionsToPrivate(DbSession dbSession, EntityDto entity) {
     // delete project permissions for group AnyOne
-    dbClient.groupPermissionDao().deleteByRootComponentUuidForAnyOne(dbSession, component);
+    dbClient.groupPermissionDao().deleteByEntityUuidForAnyOne(dbSession, entity);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
-      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
-        .forEach(group -> insertProjectPermissionOnGroup(dbSession, component, permission, group));
-      dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
-        .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, component, permission, userUuid));
+      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, entity.getUuid(), permission)
+        .forEach(group -> insertProjectPermissionOnGroup(dbSession, entity, permission, group));
+      dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, entity.getUuid(), permission)
+        .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, entity, permission, userUuid));
     });
   }
 
-  private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, UserId userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()),
-      component, userId, null);
+  private void insertProjectPermissionOnUser(DbSession dbSession, EntityDto entity, String permission, UserId userId) {
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), entity.getUuid()),
+      entity, userId, null);
   }
 
-  private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {
+  private void insertProjectPermissionOnGroup(DbSession dbSession, EntityDto entity, String permission, String groupUuid) {
     String groupName = ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid)).map(GroupDto::getName).orElse(null);
     dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
       .setUuid(uuidFactory.create())
-      .setComponentUuid(component.uuid())
+      .setComponentUuid(entity.getUuid())
       .setGroupUuid(groupUuid)
       .setGroupName(groupName)
       .setRole(permission)
-      .setComponentName(component.name()), component, null);
+      .setComponentName(entity.getName()), entity, null);
   }
 
-  private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {
+  private void updatePermissionsToPublic(DbSession dbSession, EntityDto entity) {
     PUBLIC_PERMISSIONS.forEach(permission -> {
       // delete project group permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.groupPermissionDao().deleteByRootComponentUuidAndPermission(dbSession, permission, component);
+      dbClient.groupPermissionDao().deleteByEntityAndPermission(dbSession, permission, entity);
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.userPermissionDao().deleteProjectPermissionOfAnyUser(dbSession, permission, component);
+      dbClient.userPermissionDao().deleteEntityPermissionOfAnyUser(dbSession, permission, entity);
     });
   }
 

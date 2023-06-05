@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -130,7 +131,15 @@ public class GroupPermissionChanger {
       .map(GroupDto::getName)
       .ifPresent(addedDto::setGroupName);
 
-    dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getProject(), null);
+    //TODO remove this code
+    ProjectDto projectDto = new ProjectDto();
+    ComponentDto project = change.getProject();
+    if (project != null) {
+      projectDto.setKey(project.getKey());
+      projectDto.setQualifier(project.qualifier());
+    }
+
+    dbClient.groupPermissionDao().insert(dbSession, addedDto, projectDto, null);
     return true;
   }
 

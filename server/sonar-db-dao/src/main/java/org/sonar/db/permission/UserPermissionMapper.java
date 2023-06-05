@@ -62,7 +62,7 @@ public interface UserPermissionMapper {
 
   int deleteProjectPermissions(@Param("projectUuid") String projectUuid);
 
-  int deleteProjectPermissionOfAnyUser(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  int deleteEntityPermissionOfAnyUser(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 
   List<String> selectGlobalPermissionsOfUser(@Param("userUuid") String userUuid);
 

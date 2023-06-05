@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
@@ -164,16 +165,16 @@ public class PermissionIndexerDaoIT {
   public void select_by_projects_with_high_number_of_projects() {
     List<String> projectUuids = new ArrayList<>();
     for (int i = 0; i < 3500; i++) {
-      ComponentDto project = dbTester.components().insertPrivateProject(Integer.toString(i)).getMainBranchComponent();
-      projectUuids.add(project.uuid());
+      ProjectData project = dbTester.components().insertPrivateProject(Integer.toString(i));
+      projectUuids.add(project.projectUuid());
       GroupPermissionDto dto = new GroupPermissionDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(group.getUuid())
         .setGroupName(group.getName())
         .setRole(USER)
-        .setComponentUuid(project.uuid())
-        .setComponentName(project.name());
-      dbClient.groupPermissionDao().insert(dbSession, dto, project, null);
+        .setComponentUuid(project.projectUuid())
+        .setComponentName(project.getProjectDto().getName());
+      dbClient.groupPermissionDao().insert(dbSession, dto, project.getProjectDto(), null);
     }
     dbSession.commit();
 

@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
@@ -272,7 +273,12 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
+
+    //TODO, will be removed later
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(project.qualifier());
+    projectDto.setKey(project.getKey());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, projectDto, null);
     db.commit();
     return dto;
   }
@@ -295,7 +301,12 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
+
+    //TODO, will be removed later
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(project.qualifier());
+    projectDto.setKey(project.getKey());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, projectDto, null);
     db.commit();
     return dto;
   }
@@ -328,7 +339,7 @@ public class UserDbTester {
    */
   public UserPermissionDto insertPermissionOnUser(UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, null, user, null);
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, (EntityDto) null, user, null);
     db.commit();
     return dto;
   }

@@ -236,10 +236,6 @@ public class ComponentTesting {
     return newBranchDto(project.branchUuid(), BranchType.BRANCH);
   }
 
-  public static BranchDto newBranchDto(ComponentDto project, boolean isMain) {
-    return newBranchDto(project.branchUuid(), BranchType.BRANCH);
-  }
-
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType, String projectUuid) {
     String key = "branch_" + randomAlphanumeric(248);
 
@@ -258,6 +254,14 @@ public class ComponentTesting {
       .setUuid(branchComponent.uuid())
       .setProjectUuid(projectUUid)
       .setBranchType(BranchType.BRANCH);
+  }
+
+  public static ProjectDto newProjectDto() {
+    return new ProjectDto()
+      .setKey("projectKey")
+      .setUuid("uuid")
+      .setName("projectName")
+      .setQualifier(Qualifiers.PROJECT);
   }
 
   public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {

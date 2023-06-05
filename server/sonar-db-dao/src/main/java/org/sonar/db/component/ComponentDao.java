@@ -337,7 +337,12 @@ public class ComponentDao implements Dao {
 
   public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey, String componentName) {
     ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, componentName, componentKey, isPrivate, qualifier);
+    //TODO we should log change to the visibility in EntityDao, not ComponentDao
     auditPersister.updateComponentVisibility(session, componentNewValue);
+    mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
+  }
+
+  public void setPrivateForBranchUuidWithoutAuditLog(DbSession session, String branchUuid, boolean isPrivate) {
     mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 

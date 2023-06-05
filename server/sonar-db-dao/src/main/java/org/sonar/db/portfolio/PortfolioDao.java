@@ -125,6 +125,10 @@ public class PortfolioDao implements Dao {
     auditPersister.updateComponent(dbSession, toComponentNewValue(portfolio));
   }
 
+  public void updateVisibilityByPortfolioUuid(DbSession dbSession, String uuid, boolean newIsPrivate) {
+    mapper(dbSession).updateVisibilityByPortfolioUuid(uuid, newIsPrivate);
+  }
+
   /*
    * Portfolio references
    */
@@ -272,5 +276,4 @@ public class PortfolioDao implements Dao {
   private static String qualifier(PortfolioDto portfolioDto) {
     return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
   }
-
 }

@@ -249,11 +249,11 @@
     where component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByRootComponentUuidAndGroupUuid">
+  <delete id="deleteByEntityUuidAndGroupUuid">
     delete from
       group_roles
     where
-      component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
+      component_uuid=#{entityUuid,jdbcType=VARCHAR}
       <choose>
         <when test="groupUuid != null">
           and group_uuid = #{groupUuid,jdbcType=VARCHAR}
@@ -264,11 +264,11 @@
       </choose>
   </delete>
 
-  <delete id="deleteByRootComponentUuidAndPermission">
+  <delete id="deleteByEntityUuidAndPermission">
     delete from
       group_roles
     where
-      component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
+      component_uuid=#{entityUuid,jdbcType=VARCHAR}
       and role=#{permission,jdbcType=VARCHAR}
   </delete>
 

@@ -48,10 +48,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -467,12 +469,12 @@ public class SearchActionIT {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
-    grantPermissionToAnyone(project, ISSUE_ADMIN);
+    ProjectData project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
-    IssueDto issue = newIssue(newIssueRule(), project, file)
+    IssueDto issue = newIssue(newIssueRule(), project.getMainBranchComponent(), file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin(fabrice.getLogin())
       .setAssigneeUuid(simon.getUuid());
@@ -481,7 +483,7 @@ public class SearchActionIT {
     indexIssues();
 
     userSession.logIn("john")
-      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+      .addProjectPermission(ISSUE_ADMIN, project.getMainBranchComponent()); // granted by Anyone
     ws.newRequest()
       .setParam("additionalFields", "_all").execute()
       .assertJson(this.getClass(), "load_additional_fields_with_issue_admin_permission.json");
@@ -1864,13 +1866,13 @@ public class SearchActionIT {
     issueIndexer.indexAllIssues();
   }
 
-  private void grantPermissionToAnyone(ComponentDto project, String permission) {
+  private void grantPermissionToAnyone(ProjectDto project, String permission) {
     dbClient.groupPermissionDao().insert(session,
       new GroupPermissionDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(null)
-        .setComponentUuid(project.uuid())
-        .setComponentName(project.name())
+        .setComponentUuid(project.getUuid())
+        .setComponentName(project.getName())
         .setRole(permission),
       project, null);
     session.commit();

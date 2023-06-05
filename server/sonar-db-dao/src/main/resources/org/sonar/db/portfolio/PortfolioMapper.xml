@@ -552,4 +552,11 @@
     WHERE
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
+
+  <update id="updateVisibilityByPortfolioUuid">
+    UPDATE portfolios SET
+    private = #{newIsPrivate,jdbcType=BOOLEAN}
+    WHERE
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
 </mapper>

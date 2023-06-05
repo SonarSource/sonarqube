@@ -166,11 +166,11 @@
     component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteProjectPermissionOfAnyUser" parameterType="map">
+  <delete id="deleteEntityPermissionOfAnyUser" parameterType="map">
     delete from
       user_roles
     where
-      component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      component_uuid = #{entityUuid,jdbcType=VARCHAR}
       and role = #{permission,jdbcType=VARCHAR}
   </delete>
 

@@ -42,6 +42,7 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.es.ProjectIndexer;
@@ -155,7 +156,12 @@ public class PermissionTemplateService {
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid())
           .setComponentName(project.name());
-        dbClient.groupPermissionDao().insert(dbSession, dto, project, template);
+
+        //TODO remove this code
+        ProjectDto projectDto = new ProjectDto();
+        projectDto.setKey(project.getKey());
+        projectDto.setQualifier(project.qualifier());
+        dbClient.groupPermissionDao().insert(dbSession, dto, projectDto, template);
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));

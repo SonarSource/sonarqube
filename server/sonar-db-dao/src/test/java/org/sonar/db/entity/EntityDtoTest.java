@@ -20,7 +20,9 @@
 package org.sonar.db.entity;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,4 +75,55 @@ public class EntityDtoTest {
     assertThat(hash1).isEqualTo(hash2);
   }
 
+  @Test
+  public void getAuthUuid_whenEntityIsSubportfolio_shouldReturnAuthUuid() {
+    PortfolioDto portfolioDto = new PortfolioDto();
+    portfolioDto.qualifier = Qualifiers.SUBVIEW;
+    portfolioDto.authUuid = "authUuid";
+    portfolioDto.setUuid("uuid");
+
+    String authUuid = portfolioDto.getAuthUuid();
+
+    assertThat(authUuid).isEqualTo("authUuid");
+  }
+
+  @Test
+  public void isProjectOrApp_whenQualifierIsProject_shouldReturnTrue() {
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(Qualifiers.PROJECT);
+
+    boolean projectOrApp = projectDto.isProjectOrApp();
+
+    assertThat(projectOrApp).isTrue();
+  }
+
+  @Test
+  public void isProjectOrApp_whenQualifierIsPortfolio_shouldReturnFalse() {
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(Qualifiers.VIEW);
+
+    boolean projectOrApp = projectDto.isProjectOrApp();
+
+    assertThat(projectOrApp).isFalse();
+  }
+
+  @Test
+  public void isPortfolio_whenQualifierIsPortfolio_shouldReturnTrue() {
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(Qualifiers.VIEW);
+
+    boolean projectOrApp = projectDto.isPortfolio();
+
+    assertThat(projectOrApp).isTrue();
+  }
+
+  @Test
+  public void isPortfolio_whenQualifierIsProject_shouldReturnFalse() {
+    ProjectDto projectDto = new ProjectDto();
+    projectDto.setQualifier(Qualifiers.PROJECT);
+
+    boolean projectOrApp = projectDto.isPortfolio();
+
+    assertThat(projectOrApp).isFalse();
+  }
 }

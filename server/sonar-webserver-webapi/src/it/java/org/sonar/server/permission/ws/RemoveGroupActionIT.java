@@ -30,9 +30,11 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -313,20 +315,21 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenRemovingAnyPermissionFromGroupAnyoneOnPrivateProject_shouldHaveNoEffect() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    //TODO use projectDto
+    ProjectData project = db.components().insertPrivateProject();
     permissionService.getAllProjectPermissions()
-      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project.getProjectDto()));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {
         newRequest()
           .setParam(PARAM_GROUP_NAME, "anyone")
-          .setParam(PARAM_PROJECT_ID, project.uuid())
+          .setParam(PARAM_PROJECT_ID, project.projectUuid())
           .setParam(PARAM_PERMISSION, permission)
           .execute();
 
-        assertThat(db.users().selectAnyonePermissions(project)).contains(permission);
+        assertThat(db.users().selectAnyonePermissions(project.getMainBranchComponent())).contains(permission);
       });
   }
 
@@ -451,13 +454,13 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     assertThat(db.users().selectGroupPermissions(otherProjectAdminGroup, project)).containsExactlyInAnyOrder(UserRole.USER, UserRole.ADMIN);
   }
 
-  private void unsafeInsertProjectPermissionOnAnyone(String perm, ComponentDto project) {
+  private void unsafeInsertProjectPermissionOnAnyone(String perm, ProjectDto project) {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(perm)
-      .setComponentUuid(project.uuid())
-      .setComponentName(project.name());
+      .setComponentUuid(project.getUuid())
+      .setComponentName(project.getName());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
     db.commit();
   }

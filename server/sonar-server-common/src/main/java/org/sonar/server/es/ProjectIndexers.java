@@ -24,6 +24,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 
 public interface ProjectIndexers {
@@ -35,6 +36,13 @@ public interface ProjectIndexers {
    * and will lead to lack of indexing.
    */
   void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
+
+  default void commitAndIndexEntities(DbSession dbSession, Collection<EntityDto> entities, ProjectIndexer.Cause cause) {
+    Collection<String> entityUuids = entities.stream()
+      .map(EntityDto::getUuid)
+      .collect(MoreCollectors.toSet(entities.size()));
+    commitAndIndexByProjectUuids(dbSession, entityUuids, cause);
+  }
 
   default void commitAndIndexProjects(DbSession dbSession, Collection<ProjectDto> projects, ProjectIndexer.Cause cause) {
     Collection<String> projectUuids = projects.stream()

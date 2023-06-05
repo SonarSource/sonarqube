@@ -68,6 +68,8 @@ public interface PortfolioMapper {
 
   void update(PortfolioDto portfolio);
 
+  void updateVisibilityByPortfolioUuid(@Param("uuid") String uuid, @Param("newIsPrivate") boolean newIsPrivate);
+
   List<PortfolioDto> selectAllRoots();
 
   List<ApplicationProjectDto> selectAllApplicationProjects(String rootPortfolioUuid);
