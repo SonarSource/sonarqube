@@ -520,19 +520,24 @@ public class TelemetryDataJsonWriterTest {
       {
         "branches": [
           {
-            "projectUuid": "%s",
-            "branchUuid": "%s",
-            "ncdId": %s
+            "projectUuid": "projectUuid1",
+            "branchUuid": "branchUuid1",
+            "ncdId": 12345,
+            "greenQualityGateCount": 1,
+            "analysisCount": 2,
+            "excludeFromPurge": true
           },
           {
-            "projectUuid": "%s",
-            "branchUuid": "%s",
-            "ncdId": %s
-          },
+            "projectUuid": "projectUuid2",
+            "branchUuid": "branchUuid2",
+            "ncdId": 12345,
+            "greenQualityGateCount": 0,
+            "analysisCount": 2,
+            "excludeFromPurge": true
+          }
         ]
-
       }
-      """.formatted("projectUuid1", "branchUuid1", NCD_ID, "projectUuid2", "branchUuid2", NCD_ID));
+      """);
   }
 
   @Test
@@ -632,9 +637,10 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private List<TelemetryData.Branch> attachBranches() {
-    return List.of(new TelemetryData.Branch("projectUuid1", "branchUuid1", NCD_ID),
-      new TelemetryData.Branch("projectUuid2", "branchUuid2", NCD_ID));
+    return List.of(new TelemetryData.Branch("projectUuid1", "branchUuid1", NCD_ID, 1, 2, true),
+      new TelemetryData.Branch("projectUuid2", "branchUuid2", NCD_ID, 0, 2, true));
   }
+
   private List<TelemetryData.NewCodeDefinition> attachNewCodeDefinitions() {
     return List.of(NCD_INSTANCE, NCD_PROJECT);
   }

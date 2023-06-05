@@ -14,6 +14,15 @@
     pb.is_main as isMain
   </sql>
 
+  <sql id="telemetryColumns">
+    pb.uuid as branchUuid,
+    pb.project_uuid as projectUuid,
+    pb.kee as branchKey,
+    pb.exclude_from_purge as excludeFromPurge,
+    coalesce(ag.greenQualityGateCount, 0) as greenQualityGateCount,
+    coalesce(ag.analysisCount, 0) as analysisCount
+  </sql>
+
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     insert into project_branches (
     uuid,
@@ -100,11 +109,20 @@
     </foreach>
   </select>
 
-  <select id="selectAllBranches" resultType="org.sonar.db.component.BranchDto">
+  <select id="selectBranchMeasuresWithCaycMetric" resultType="org.sonar.db.component.BranchMeasuresDto">
     select
-    <include refid="columns"/>
+    <include refid="telemetryColumns"/>
     from project_branches pb
-    where branch_type='BRANCH'
+    left join (
+      select pm.component_uuid as branchUuid, count(case when pm.text_value ='OK' then 1 end) as greenQualityGateCount, count(1) as analysisCount
+      from project_measures pm
+      inner join metrics m on m.uuid = pm.metric_uuid
+      inner join snapshots s on s.uuid = pm.analysis_uuid
+      where m.name = 'alert_status' and s.created_at >= #{yesterday, jdbcType=BIGINT}
+      group by pm.component_uuid
+    ) ag
+    on ag.branchUuid = pb.uuid
+    where pb.branch_type='BRANCH'
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">

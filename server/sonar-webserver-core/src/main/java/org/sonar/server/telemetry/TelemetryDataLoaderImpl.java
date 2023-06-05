@@ -48,7 +48,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
-import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchMeasuresDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -153,8 +153,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       getVersion));
     data.setPlugins(plugins);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      var branchDtos = dbClient.branchDao().selectAllBranches(dbSession);
-      loadNewCodeDefinitions(dbSession, branchDtos);
+      var branchMeasuresDtos = dbClient.branchDao().selectBranchMeasuresWithCaycMetric(dbSession);
+      loadNewCodeDefinitions(dbSession, branchMeasuresDtos);
 
       data.setDatabase(loadDatabaseMetadata(dbSession));
       data.setNcdId(instanceNcd.hashCode());
@@ -166,7 +166,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       resolveUnanalyzedLanguageCode(data, dbSession);
       resolveProjectStatistics(data, dbSession, defaultQualityGateUuid);
       resolveProjects(data, dbSession);
-      resolveBranches(data, branchDtos);
+      resolveBranches(data, branchMeasuresDtos);
       resolveQualityGates(data, dbSession);
       resolveUsers(data, dbSession);
     }
@@ -184,12 +184,14 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .build();
   }
 
-  private void resolveBranches(TelemetryData.Builder data, List<BranchDto> branchDtos) {
-    var branches = branchDtos.stream()
+  private void resolveBranches(TelemetryData.Builder data, List<BranchMeasuresDto> branchMeasuresDtos) {
+    var branches = branchMeasuresDtos.stream()
       .map(dto -> {
         var projectNcd = ncdByProject.getOrDefault(dto.getProjectUuid(), instanceNcd);
-        var ncdId = ncdByBranch.getOrDefault(dto.getUuid(), projectNcd).hashCode();
-        return new TelemetryData.Branch(dto.getProjectUuid(), dto.getUuid(), ncdId);
+        var ncdId = ncdByBranch.getOrDefault(dto.getBranchUuid(), projectNcd).hashCode();
+        return new TelemetryData.Branch(
+          dto.getProjectUuid(), dto.getBranchUuid(), ncdId,
+          dto.getGreenQualityGateCount(), dto.getAnalysisCount(), dto.getExcludeFromPurge());
       })
       .toList();
     data.setBranches(branches);
@@ -203,8 +205,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.instanceNcd = NewCodeDefinition.getInstanceDefault();
   }
 
-  private void loadNewCodeDefinitions(DbSession dbSession, List<BranchDto> branchDtos) {
-    var branchUuidByKey = branchDtos.stream().collect(Collectors.toMap(dto -> createBranchUniqueKey(dto.getProjectUuid(), dto.getBranchKey()), BranchDto::getUuid));
+  private void loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
+    var branchUuidByKey = branchMeasuresDtos.stream()
+      .collect(Collectors.toMap(dto -> createBranchUniqueKey(dto.getProjectUuid(), dto.getBranchKey()), BranchMeasuresDto::getBranchUuid));
     List<NewCodePeriodDto> newCodePeriodDtos = dbClient.newCodePeriodDao().selectAll(dbSession);
     NewCodeDefinition ncd;
     boolean hasInstance = false;

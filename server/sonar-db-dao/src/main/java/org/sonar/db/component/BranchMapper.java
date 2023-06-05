@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
@@ -77,5 +76,5 @@ public interface BranchMapper {
 
   List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 
-  List<BranchDto> selectAllBranches();
+  List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(long yesterday);
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.db.component;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -199,7 +201,8 @@ public class BranchDao implements Dao {
       .orElse(false);
   }
 
-  public List<BranchDto> selectAllBranches(DbSession dbSession) {
-    return mapper(dbSession).selectAllBranches();
+  public List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(DbSession dbSession) {
+    long yesterday = ZonedDateTime.now(ZoneId.systemDefault()).minusDays(1).toInstant().toEpochMilli();
+    return mapper(dbSession).selectBranchMeasuresWithCaycMetric(yesterday);
   }
 }

@@ -157,6 +157,9 @@ public class TelemetryDataJsonWriter {
         json.prop(PROJECT_ID, branch.projectUuid());
         json.prop("branchUuid", branch.branchUuid());
         json.prop(NCD_ID, branch.ncdId());
+        json.prop("greenQualityGateCount", branch.greenQualityGateCount());
+        json.prop("analysisCount", branch.analysisCount());
+        json.prop("excludeFromPurge", branch.excludeFromPurge());
         json.endObject();
       });
       json.endArray();

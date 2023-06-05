@@ -51,6 +51,7 @@ import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
@@ -121,6 +122,30 @@ public class BranchDaoIT {
   }
 
   @Test
+  public void selectBranchMeasuresForTelemetry() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U1");
+    dto.setBranchType(BranchType.BRANCH);
+    dto.setKey("feature");
+    dto.setIsMain(true);
+    dto.setExcludeFromPurge(false);
+    underTest.insert(dbSession, dto);
+
+    MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+    SnapshotDto analysis = db.components().insertSnapshot(dto);
+    db.measures().insertMeasure(dto, analysis, qg, pm -> pm.setData("OK"));
+
+    var branchMeasures = underTest.selectBranchMeasuresWithCaycMetric(dbSession);
+
+    assertThat(branchMeasures)
+      .hasSize(1)
+      .extracting(BranchMeasuresDto::getBranchUuid, BranchMeasuresDto::getBranchKey, BranchMeasuresDto::getProjectUuid,
+        BranchMeasuresDto::getAnalysisCount, BranchMeasuresDto::getGreenQualityGateCount, BranchMeasuresDto::getExcludeFromPurge)
+      .containsExactly(tuple("U1", "feature", "U1", 1, 1, false));
+  }
+
+  @Test
   public void updateExcludeFromPurge() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
@@ -139,7 +164,7 @@ public class BranchDaoIT {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""}
     };
@@ -149,7 +174,7 @@ public class BranchDaoIT {
   public static Object[][] oldAndNewValuesCombinations() {
     String value1 = randomAlphabetic(10);
     String value2 = randomAlphabetic(20);
-    return new Object[][]{
+    return new Object[][] {
       {null, value1},
       {"", value1},
       {value1, null},
@@ -454,7 +479,8 @@ public class BranchDaoIT {
 
     assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::isMain, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
       .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.isMain(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
-        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(), featureBranch.getBranchType(), featureBranch.getMergeBranchUuid()));
+        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(), featureBranch.getBranchType(),
+          featureBranch.getMergeBranchUuid()));
   }
 
   @Test
@@ -597,7 +623,8 @@ public class BranchDaoIT {
     db.measures().insertLiveMeasure(project3, unanalyzedC);
 
     assertThat(underTest.countPrBranchAnalyzedLanguageByProjectUuid(db.getSession()))
-      .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch, PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest)
+      .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch,
+        PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest)
       .containsExactlyInAnyOrder(
         tuple(project1.uuid(), 3L, 3L),
         tuple(project2.uuid(), 1L, 1L),
@@ -805,7 +832,7 @@ public class BranchDaoIT {
 
   @DataProvider
   public static Object[][] booleanValues() {
-    return new Object[][]{
+    return new Object[][] {
       {true},
       {false}
     };

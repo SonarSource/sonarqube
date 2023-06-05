@@ -24,6 +24,9 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +62,7 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.telemetry.TelemetryData.Branch;
 import org.sonar.server.telemetry.TelemetryData.NewCodeDefinition;
 import org.sonar.server.telemetry.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
@@ -72,6 +76,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
@@ -251,7 +256,7 @@ public class TelemetryDataLoaderImplTest {
           Optional.empty(), instanceNcdId));
 
     assertThat(data.getBranches())
-      .extracting(TelemetryData.Branch::branchUuid, TelemetryData.Branch::ncdId)
+      .extracting(Branch::branchUuid, Branch::ncdId)
       .containsExactlyInAnyOrder(
         tuple(branch1.uuid(), projectNcdId),
         tuple(branch2.uuid(), branchNcdId),
@@ -272,6 +277,45 @@ public class TelemetryDataLoaderImplTest {
         tuple(qualityGate1.getUuid(), "non-compliant"),
         tuple(qualityGate2.getUuid(), "non-compliant")
       );
+  }
+
+  @Test
+  public void send_branch_measures_data() {
+    Long analysisDate = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+    MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+
+    SnapshotDto project1Analysis1 = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project1Analysis2 = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(project2, t -> t.setLast(true).setBuildDate(analysisDate));
+    db.measures().insertMeasure(project1, project1Analysis1, qg, pm -> pm.setData("OK"));
+    db.measures().insertMeasure(project1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
+    db.measures().insertMeasure(project2, project2Analysis, qg, pm -> pm.setData("ERROR"));
+
+    var branch1 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("reference"));
+    var branch2 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("custom"));
+
+    db.newCodePeriods().insert(project1.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    db.newCodePeriods().insert(project1.uuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
+
+    var instanceNcdId = NewCodeDefinition.getInstanceDefault().hashCode();
+    var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
+    var branchNcdId = new NewCodeDefinition(NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid(), "branch").hashCode();
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getBranches())
+      .extracting(Branch::branchUuid, Branch::ncdId, Branch::greenQualityGateCount, Branch::analysisCount)
+      .containsExactlyInAnyOrder(
+        tuple(branch1.uuid(), projectNcdId, 0, 0),
+        tuple(branch2.uuid(), branchNcdId, 0, 0),
+        tuple(project1.uuid(), projectNcdId, 1, 2),
+        tuple(project2.uuid(), instanceNcdId, 0, 1));
+
   }
 
   private List<UserDto> composeActiveUsers(int count) {
@@ -355,7 +399,7 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(tuple(2L, projectNcdId));
 
     assertThat(data.getBranches())
-      .extracting(TelemetryData.Branch::branchUuid, TelemetryData.Branch::ncdId)
+      .extracting(Branch::branchUuid, Branch::ncdId)
       .contains(tuple(branch.uuid(), projectNcdId));
   }
 
