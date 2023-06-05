@@ -58,7 +58,7 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
           <label htmlFor="name">{translate('name')}</label>
           <input
             id="name"
-            autoFocus={true}
+            autoFocus
             onChange={this.handleNameChange}
             type="text"
             value={this.state.name}

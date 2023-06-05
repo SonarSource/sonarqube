@@ -332,7 +332,7 @@ function shallowRender(props: Partial<ProfileActions['props']> = {}) {
   const router = mockRouter();
   return shallow<ProfileActions>(
     <ProfileActions
-      isComparable={true}
+      isComparable
       profile={PROFILE}
       router={router}
       updateProfiles={jest.fn()}

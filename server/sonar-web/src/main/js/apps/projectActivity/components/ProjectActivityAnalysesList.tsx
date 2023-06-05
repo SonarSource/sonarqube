@@ -147,7 +147,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                     key={day}
                   >
                     <h3>
-                      <DateFormatter date={Number(day)} long={true} />
+                      <DateFormatter date={Number(day)} long />
                     </h3>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&

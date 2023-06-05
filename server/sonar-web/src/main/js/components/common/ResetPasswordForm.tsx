@@ -115,7 +115,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             id="old_password"
             name="old_password"
             ref={(elem) => (this.oldPassword = elem)}
-            required={true}
+            required
             type="password"
           />
         </div>
@@ -129,7 +129,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             id="password"
             name="password"
             ref={(elem) => (this.password = elem)}
-            required={true}
+            required
             type="password"
           />
         </div>
@@ -143,7 +143,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             id="password_confirmation"
             name="password_confirmation"
             ref={(elem) => (this.passwordConfirmation = elem)}
-            required={true}
+            required
             type="password"
           />
         </div>

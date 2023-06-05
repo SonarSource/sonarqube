@@ -33,7 +33,7 @@ export default function TaskDay({ submittedAt, prevSubmittedAt }: Props) {
 
   return (
     <td className="thin nowrap text-right small">
-      {shouldDisplay ? <DateFormatter date={submittedAt} long={true} /> : ''}
+      {shouldDisplay ? <DateFormatter date={submittedAt} long /> : ''}
     </td>
   );
 }

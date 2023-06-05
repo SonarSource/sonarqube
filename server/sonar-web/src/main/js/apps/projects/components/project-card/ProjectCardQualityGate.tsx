@@ -36,7 +36,7 @@ export default function ProjectCardQualityGate({ status }: Props) {
 
   return (
     <div className="big-spacer-left" title={title}>
-      <Level aria-label={title} level={status} small={true} />
+      <Level aria-label={title} level={status} small />
       {status === 'WARN' && (
         <HelpTooltip
           className="little-spacer-left"

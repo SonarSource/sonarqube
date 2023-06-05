@@ -90,14 +90,14 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             {translate('login')}
           </label>
           <input
-            autoFocus={true}
+            autoFocus
             className="login-input"
             id="login"
             maxLength={255}
             name="login"
             onChange={this.handleLoginChange}
             placeholder={translate('login')}
-            required={true}
+            required
             type="text"
             value={this.state.login}
           />
@@ -113,7 +113,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             name="password"
             onChange={this.handlePwdChange}
             placeholder={translate('password')}
-            required={true}
+            required
             type="password"
             value={this.state.password}
           />

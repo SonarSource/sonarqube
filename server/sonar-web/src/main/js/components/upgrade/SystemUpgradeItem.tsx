@@ -77,7 +77,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
       <p className="spacer-top">{lastUpgrade.description}</p>
       <div className="big-spacer-top">
         {lastUpgrade.releaseDate && (
-          <DateFormatter date={lastUpgrade.releaseDate} long={true}>
+          <DateFormatter date={lastUpgrade.releaseDate} long>
             {(formattedDate) => (
               <span>{translateWithParameters('system.released_x', formattedDate)}</span>
             )}

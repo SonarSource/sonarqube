@@ -47,7 +47,7 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps>
             placeholder={this.props.placeholder}
             onCancel={this.handleCancelClick}
             onSaveComment={this.props.onComment}
-            showFormatHelp={true}
+            showFormatHelp
             comment={comment?.markdown}
             autoTriggered={autoTriggered}
           />

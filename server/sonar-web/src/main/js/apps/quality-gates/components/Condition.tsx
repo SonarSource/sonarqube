@@ -194,7 +194,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                       confirmButtonText={translate('delete')}
                       confirmData={condition}
                       header={translate('quality_gates.delete_condition')}
-                      isDestructive={true}
+                      isDestructive
                       onClose={this.closeDeleteForm}
                       onConfirm={this.removeCondition}
                     >

@@ -77,7 +77,7 @@ export function BranchLikeRow(props: BranchLikeRowProps) {
               {translate('project_branch_pull_request.branch.rename')}
             </ActionsDropdownItem>
           ) : (
-            <ActionsDropdownItem className="js-delete" destructive={true} onClick={props.onDelete}>
+            <ActionsDropdownItem className="js-delete" destructive onClick={props.onDelete}>
               {translate(
                 isPullRequest(branchLike)
                   ? 'project_branch_pull_request.pull_request.delete'

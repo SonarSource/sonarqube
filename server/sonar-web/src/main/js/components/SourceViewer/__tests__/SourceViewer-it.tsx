@@ -382,10 +382,10 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
       aroundLine={1}
       branchLike={undefined}
       component={componentsHandler.getNonEmptyFileKey()}
-      displayAllIssues={true}
-      displayIssueLocationsCount={true}
+      displayAllIssues
+      displayIssueLocationsCount
       displayIssueLocationsLink={false}
-      displayLocationMarkers={true}
+      displayLocationMarkers
       onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
       onLoaded={jest.fn()}
@@ -399,10 +399,10 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
         aroundLine={1}
         branchLike={undefined}
         component={componentsHandler.getNonEmptyFileKey()}
-        displayAllIssues={true}
-        displayIssueLocationsCount={true}
+        displayAllIssues
+        displayIssueLocationsCount
         displayIssueLocationsLink={false}
-        displayLocationMarkers={true}
+        displayLocationMarkers
         onIssueChange={jest.fn()}
         onIssueSelect={jest.fn()}
         onLoaded={jest.fn()}

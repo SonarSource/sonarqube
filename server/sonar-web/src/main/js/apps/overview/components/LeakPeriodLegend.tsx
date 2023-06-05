@@ -84,7 +84,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
       differenceInDays(new Date(), leakPeriodDate) < 1 ? (
         <DateTimeFormatter date={leakPeriodDate}>{formattedDateFunction}</DateTimeFormatter>
       ) : (
-        <DateFormatter date={leakPeriodDate} long={true}>
+        <DateFormatter date={leakPeriodDate} long>
           {formattedDateFunction}
         </DateFormatter>
       );

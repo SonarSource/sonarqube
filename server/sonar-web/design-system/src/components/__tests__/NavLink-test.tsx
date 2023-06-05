@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 it('should remove focus after link is clicked', async () => {
-  const { user } = setupWithMemoryRouter(<NavLink blurAfterClick={true} to="/initial" />);
+  const { user } = setupWithMemoryRouter(<NavLink blurAfterClick to="/initial" />);
 
   await user.click(screen.getByRole('link'));
 
@@ -43,7 +43,7 @@ it('should remove focus after link is clicked', async () => {
 });
 
 it('should prevent default when preventDefault is true', async () => {
-  const { user } = setupWithMemoryRouter(<NavLink preventDefault={true} to="/second" />);
+  const { user } = setupWithMemoryRouter(<NavLink preventDefault to="/second" />);
 
   expect(screen.getByText('/initial')).toBeVisible();
 
@@ -59,7 +59,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 
   const { user } = setupWithMemoryRouter(
     <button onClick={buttonOnClick} type="button">
-      <NavLink stopPropagation={true} to="/second" />
+      <NavLink stopPropagation to="/second" />
     </button>
   );
 
@@ -71,7 +71,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 it('should call onClick when one is passed', async () => {
   const onClick = jest.fn();
   const { user } = setupWithMemoryRouter(
-    <NavLink onClick={onClick} stopPropagation={true} to="/second" />
+    <NavLink onClick={onClick} stopPropagation to="/second" />
   );
 
   await user.click(screen.getByRole('link'));

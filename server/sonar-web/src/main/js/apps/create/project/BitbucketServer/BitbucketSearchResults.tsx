@@ -65,10 +65,10 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
           <BitbucketProjectAccordion
             disableRepositories={disableRepositories}
             onSelectRepository={props.onSelectRepository}
-            open={true}
+            open
             repositories={filteredSearchResults}
             selectedRepository={selectedRepository}
-            showingAllRepositories={true}
+            showingAllRepositories
           />
         )}
 
@@ -80,11 +80,11 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
               disableRepositories={disableRepositories}
               key={project.key}
               onSelectRepository={props.onSelectRepository}
-              open={true}
+              open
               project={project}
               repositories={repositories}
               selectedRepository={selectedRepository}
-              showingAllRepositories={true}
+              showingAllRepositories
             />
           );
         })}

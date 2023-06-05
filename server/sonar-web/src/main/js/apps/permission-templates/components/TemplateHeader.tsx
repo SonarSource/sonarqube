@@ -46,7 +46,7 @@ export default function TemplateHeader(props: Props) {
 
       <div className="pull-right">
         <ActionsCell
-          fromDetails={true}
+          fromDetails
           permissionTemplate={template}
           refresh={props.refresh}
           topQualifiers={props.topQualifiers}

@@ -38,7 +38,7 @@ export default function TagsList({ allowUpdate = false, className, tags }: Props
       className={classNames('tags-list', className)}
     >
       <TagsIcon className="text-middle" />
-      <span aria-hidden={true} className="text-ellipsis text-middle" title={tags.join(', ')}>
+      <span aria-hidden className="text-ellipsis text-middle" title={tags.join(', ')}>
         {tags.join(', ')}
       </span>
       {allowUpdate && <DropdownIcon className="text-middle" />}

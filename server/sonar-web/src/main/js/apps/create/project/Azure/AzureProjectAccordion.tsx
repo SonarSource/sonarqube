@@ -147,7 +147,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                       <Radio
                         checked={isSelected(repo)}
                         className="overflow-hidden"
-                        alignLabel={true}
+                        alignLabel
                         disabled={importing}
                         onCheck={() => props.onSelectRepository(repo)}
                         value={repo.name}

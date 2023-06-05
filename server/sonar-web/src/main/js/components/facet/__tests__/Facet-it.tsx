@@ -100,7 +100,7 @@ function renderFacet(
         {open && (
           <FacetItemsList labelledby={headerId}>
             <FacetItem
-              active={true}
+              active
               name="Foo/Bar"
               onClick={jest.fn()}
               value="bar"

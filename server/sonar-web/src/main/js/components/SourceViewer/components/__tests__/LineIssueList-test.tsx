@@ -38,7 +38,7 @@ function shallowRender(props: Partial<LineIssuesListProps> = {}) {
   return shallow(
     <LineIssuesList
       selectedIssue=""
-      displayWhyIsThisAnIssue={true}
+      displayWhyIsThisAnIssue
       onIssueChange={jest.fn()}
       onIssueClick={jest.fn()}
       onIssuePopupToggle={jest.fn()}

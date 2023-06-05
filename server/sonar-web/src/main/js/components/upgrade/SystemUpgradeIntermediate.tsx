@@ -59,7 +59,7 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
           upgrades.map((upgrade) => (
             <div className="note system-upgrade-intermediate" key={upgrade.version}>
               {upgrade.releaseDate && (
-                <DateFormatter date={upgrade.releaseDate} long={true}>
+                <DateFormatter date={upgrade.releaseDate} long>
                   {(formattedDate) => (
                     <p>
                       <b className="little-spacer-right">SonarQube {upgrade.version}</b>

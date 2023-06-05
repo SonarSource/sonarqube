@@ -58,7 +58,7 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
           <Tooltip
             placement={PopupPlacement.Right}
             visible={popupOpen}
-            isInteractive={true}
+            isInteractive
             overlay={popupOpen ? props.renderDuplicationPopup(index, line.line) : undefined}
             classNameInner="sw-max-w-abs-400"
           >

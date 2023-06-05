@@ -73,7 +73,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
       className={className}
       onShow={handleShowTooltip}
       onHide={handleHideTooltip}
-      isInteractive={true}
+      isInteractive
       innerRef={helpRef}
       overlay={
         <div className="big-padded-top big-padded-bottom">

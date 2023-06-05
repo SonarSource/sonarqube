@@ -33,7 +33,7 @@ export default function GraphsTooltipsContentEvents({ addSeparator, events }: Pr
         <td colSpan={3}>
           {events.map((event) => (
             <div className="little-spacer-bottom" key={event.key}>
-              <EventInner event={event} readonly={true} />
+              <EventInner event={event} readonly />
             </div>
           ))}
         </td>

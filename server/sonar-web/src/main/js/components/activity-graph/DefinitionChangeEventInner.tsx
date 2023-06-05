@@ -156,7 +156,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
             <ButtonLink
               className="project-activity-event-inner-more-link"
               onClick={this.toggleProjectsList}
-              stopPropagation={true}
+              stopPropagation
             >
               {expanded ? translate('hide') : translate('more')}
               <DropdownIcon className="little-spacer-left" turned={expanded} />

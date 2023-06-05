@@ -349,7 +349,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <Select
         className="input-super-large"
         inputId={`issues-bulk-change-${field}`}
-        isClearable={true}
+        isClearable
         isSearchable={false}
         components={{
           Option: TypeFieldOptionComponent,
@@ -380,7 +380,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <Select
         className="input-super-large"
         inputId={`issues-bulk-change-${field}`}
-        isClearable={true}
+        isClearable
         isSearchable={false}
         onChange={this.handleSelectFieldChange('severity')}
         components={{
@@ -489,7 +489,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       className="display-inline-block spacer-top"
       id="send-notifications"
       onCheck={this.handleFieldCheck('notifications')}
-      right={true}
+      right
     >
       <strong className="little-spacer-right">{translate('issue.send_notifications')}</strong>
     </Checkbox>

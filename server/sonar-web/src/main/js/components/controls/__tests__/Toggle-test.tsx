@@ -37,7 +37,5 @@ it('should call onChange when clicked', () => {
 });
 
 function shallowRender(props?: Partial<Toggle['props']>) {
-  return shallow(
-    <Toggle disabled={true} name="toggle-name" onChange={jest.fn()} value={true} {...props} />
-  );
+  return shallow(<Toggle disabled name="toggle-name" onChange={jest.fn()} value {...props} />);
 }

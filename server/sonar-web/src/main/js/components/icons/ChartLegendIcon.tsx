@@ -33,7 +33,7 @@ export function ChartLegendIcon({ index, className }: Props) {
   const theme = useTheme() as Theme;
 
   return (
-    <Icon className={className} aria-hidden={true} width={20}>
+    <Icon className={className} aria-hidden width={20}>
       <path
         className={classNames('line-chart-path line-chart-path-legend', `line-chart-path-${index}`)}
         d="M0 8 L 20 8"

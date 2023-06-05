@@ -101,7 +101,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
               copyLabel={translate('copy_to_clipboard')}
               className="sw-ml-2"
               copyValue={permalink}
-              discreet={true}
+              discreet
             />
           </StyledPageTitle>
           <div className="sw-mt-2 sw-mb-4 sw-body-sm">

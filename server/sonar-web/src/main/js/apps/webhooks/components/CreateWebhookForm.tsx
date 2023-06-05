@@ -88,7 +88,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
             <MandatoryFieldsExplanation className="big-spacer-bottom" />
 
             <InputValidationField
-              autoFocus={true}
+              autoFocus
               dirty={dirty}
               disabled={isSubmitting}
               error={errors.name}

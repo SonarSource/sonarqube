@@ -217,10 +217,10 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 </label>
                 <input
                   id="generate-token-input"
-                  autoFocus={true}
+                  autoFocus
                   className="input-super-large spacer-right spacer-top text-middle"
                   onChange={this.handleTokenNameChange}
-                  required={true}
+                  required
                   type="text"
                   value={tokenName || ''}
                 />
@@ -288,10 +288,10 @@ export default class TokenStep extends React.PureComponent<Props, State> {
             </label>
             <input
               id="existing-token-input"
-              autoFocus={true}
+              autoFocus
               className="input-super-large spacer-right spacer-top text-middle"
               onChange={this.handleExisingTokenChange}
-              required={true}
+              required
               type="text"
               value={this.state.existingToken}
             />

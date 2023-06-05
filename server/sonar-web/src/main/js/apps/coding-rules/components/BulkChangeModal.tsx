@@ -192,9 +192,9 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return (
       <Select
         aria-labelledby="coding-rules-bulk-change-profile-header"
-        isMulti={true}
+        isMulti
         isClearable={false}
-        isSearchable={true}
+        isSearchable
         menuPortalTarget={this.state.modalWrapperNode}
         menuPosition="fixed"
         noOptionsMessage={() => translate('coding_rules.bulk_change.no_quality_profile')}

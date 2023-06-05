@@ -86,7 +86,7 @@ export class InteractiveIconBase extends React.PureComponent<InteractiveIconProp
           {...props}
           onClick={onClick}
           showExternalIcon={false}
-          stopPropagation={true}
+          stopPropagation
           to={to}
         >
           <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} />

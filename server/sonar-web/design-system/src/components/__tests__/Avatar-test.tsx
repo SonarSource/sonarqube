@@ -64,6 +64,6 @@ it('should display organization avatar correctly', () => {
 
 function setupWithProps(props: Partial<FCProps<typeof Avatar>> = {}) {
   return render(
-    <Avatar enableGravatar={true} gravatarServerUrl={gravatarServerUrl} name="foo" {...props} />
+    <Avatar enableGravatar gravatarServerUrl={gravatarServerUrl} name="foo" {...props} />
   );
 }

@@ -37,11 +37,11 @@ it('should display the field with an error', () => {
 function getWrapper(props = {}) {
   return shallow(
     <ModalValidationField
-      dirty={true}
+      dirty
       error="Is required"
       // eslint-disable-next-line jsx-a11y/label-has-associated-control
       label={<label>Foo</label>}
-      touched={true}
+      touched
       {...props}
     >
       {({ className }) => <input className={className} type="text" />}

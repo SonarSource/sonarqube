@@ -69,7 +69,7 @@ function LineSCM({ line, previousLine }: Props) {
           overlay={<SCMPopup line={line} />}
           placement={PopupPlacement.Right}
           visible={isOpen}
-          isInteractive={true}
+          isInteractive
           classNameInner="sw-max-w-abs-600"
         >
           <LineSCMStyled aria-label={ariaLabel} onClick={handleToggle} role="button">

@@ -118,7 +118,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
                   <MandatoryFieldMarker />
                 </label>
                 <input
-                  autoFocus={true}
+                  autoFocus
                   id="view-edit-name"
                   maxLength={100}
                   name="name"

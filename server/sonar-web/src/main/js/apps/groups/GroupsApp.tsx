@@ -83,7 +83,7 @@ export default function GroupsApp() {
       <Helmet defer={false} title={translate('user_groups.page')} />
       <main className="page page-limited" id="groups-page">
         <Header reload={fetchGroups} manageProvider={manageProvider} />
-        {manageProvider === Provider.Github && <GitHubSynchronisationWarning short={true} />}
+        {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
 
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           <ManagedFilter

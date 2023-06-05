@@ -120,9 +120,9 @@ export function SearchSelectDropdown<
 
   return (
     <DropdownToggler
-      allowResizing={true}
+      allowResizing
       className="sw-overflow-visible sw-border-none"
-      isPortal={true}
+      isPortal
       onRequestClose={() => {
         toggleDropdown(false);
       }}
@@ -131,7 +131,7 @@ export function SearchSelectDropdown<
         <SearchHighlighterContext.Provider value={inputValue}>
           <StyledSearchSelectWrapper>
             <SearchSelect
-              cacheOptions={true}
+              cacheOptions
               {...rest}
               components={{
                 SingleValue: () => null,
@@ -140,7 +140,7 @@ export function SearchSelectDropdown<
               }}
               inputValue={inputValue}
               loadOptions={debouncedLoadOptions.current}
-              menuIsOpen={true}
+              menuIsOpen
               minLength={minLength}
               onChange={handleChange}
               onInputChange={handleInputChange}

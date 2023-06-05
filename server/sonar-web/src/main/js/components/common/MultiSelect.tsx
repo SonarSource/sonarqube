@@ -203,7 +203,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
       <div className="multi-select">
         <div className="menu-search">
           <SearchBox
-            autoFocus={true}
+            autoFocus
             className="little-spacer-top"
             loading={this.state.loading}
             onChange={this.handleSearchChange}

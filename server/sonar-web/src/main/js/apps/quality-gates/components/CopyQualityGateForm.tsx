@@ -79,11 +79,11 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
             <MandatoryFieldMarker />
           </label>
           <input
-            autoFocus={true}
+            autoFocus
             id="quality-gate-form-name"
             maxLength={100}
             onChange={this.handleNameChange}
-            required={true}
+            required
             size={50}
             type="text"
             value={name}

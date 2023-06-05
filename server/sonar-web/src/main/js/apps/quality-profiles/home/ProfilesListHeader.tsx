@@ -55,13 +55,13 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
         </label>
         <Select
           className="input-medium"
-          autoFocus={true}
+          autoFocus
           id="quality-profiles-filter"
           inputId="quality-profiles-filter-input"
-          isClearable={true}
+          isClearable
           onChange={this.handleChange}
           options={options}
-          isSearchable={true}
+          isSearchable
           value={options.filter((o) => o.value === currentFilter)}
         />
       </div>

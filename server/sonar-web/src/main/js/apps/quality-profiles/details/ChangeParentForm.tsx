@@ -113,14 +113,14 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
               </label>
               <Select
                 className="width-100"
-                autoFocus={true}
+                autoFocus
                 name="parentKey"
                 isClearable={false}
                 id="change-profile-parent"
                 inputId="change-profile-parent-input"
                 onChange={this.handleSelectChange}
                 options={options}
-                isSearchable={true}
+                isSearchable
                 value={options.filter((o) => o.value === selectedValue)}
               />
             </div>

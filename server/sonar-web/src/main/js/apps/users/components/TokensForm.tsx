@@ -288,7 +288,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
             maxLength={100}
             onChange={this.handleNewTokenChange}
             placeholder={translate('users.tokens.enter_name')}
-            required={true}
+            required
             type="text"
             value={newTokenName}
           />

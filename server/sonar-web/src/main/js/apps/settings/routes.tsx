@@ -24,7 +24,7 @@ import EncryptionApp from './encryption/EncryptionApp';
 
 const routes = () => (
   <Route path="settings">
-    <Route index={true} element={<SettingsApp />} />
+    <Route index element={<SettingsApp />} />
     <Route path="encryption" element={<EncryptionApp />} />
   </Route>
 );

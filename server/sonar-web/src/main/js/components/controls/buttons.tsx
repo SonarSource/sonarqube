@@ -134,7 +134,7 @@ export function ButtonIcon(props: ButtonIconProps) {
     <Tooltip mouseEnterDelay={0.4} overlay={tooltip} {...tooltipProps}>
       <Button
         className={classNames(className, 'button-icon')}
-        stopPropagation={true}
+        stopPropagation
         style={{ color: color || colors.darkBlue }}
         {...other}
       />

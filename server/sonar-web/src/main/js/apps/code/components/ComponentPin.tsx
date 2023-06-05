@@ -47,7 +47,7 @@ export default class ComponentPin extends React.PureComponent<Props> {
     return (
       <ButtonPlain
         className="link-no-underline"
-        preventDefault={true}
+        preventDefault
         onClick={this.handleClick}
         title={translateWithParameters('component_viewer.open_in_workspace_X', name)}
       >

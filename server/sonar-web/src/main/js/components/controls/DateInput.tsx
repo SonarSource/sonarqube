@@ -142,7 +142,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 name={name}
                 onFocus={this.openCalendar}
                 placeholder={placeholder}
-                readOnly={true}
+                readOnly
                 type="text"
                 value={selectedDay}
               />

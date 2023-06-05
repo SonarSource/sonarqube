@@ -103,7 +103,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth={true}
+        halfWidth
         key={resolution}
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}

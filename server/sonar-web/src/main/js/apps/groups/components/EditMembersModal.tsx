@@ -164,7 +164,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
             onUnselect={this.handleUnselect}
             renderElement={this.renderElement}
             selectedElements={this.state.selectedUsers}
-            withPaging={true}
+            withPaging
           />
         </div>
 

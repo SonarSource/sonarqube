@@ -150,7 +150,7 @@ describe('renderActions', () => {
 function shallowRender(props?: Partial<RuleListItem['props']>) {
   return shallow<RuleListItem>(
     <RuleListItem
-      isLoggedIn={true}
+      isLoggedIn
       onActivate={jest.fn()}
       onDeactivate={jest.fn()}
       onFilterChange={jest.fn()}

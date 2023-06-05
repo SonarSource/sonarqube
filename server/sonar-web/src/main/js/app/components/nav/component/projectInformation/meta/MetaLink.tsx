@@ -71,7 +71,7 @@ export default class MetaLink extends React.PureComponent<Props, State> {
             <input
               className="overview-key width-80"
               onClick={this.handleSelect}
-              readOnly={true}
+              readOnly
               type="text"
               value={link.url}
             />

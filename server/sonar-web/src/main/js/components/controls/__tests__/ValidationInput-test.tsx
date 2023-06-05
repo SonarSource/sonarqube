@@ -54,9 +54,9 @@ function shallowRender(props: Partial<ValidationInputProps> = {}) {
       error={undefined}
       labelHtmlFor="field-id"
       isInvalid={false}
-      isValid={true}
+      isValid
       label="Field label"
-      required={true}
+      required
       {...props}
     >
       <div />

@@ -50,7 +50,7 @@ it('should render', () => {
   expect(shallowRenderTooltipInner()).toMatchSnapshot();
   expect(
     shallow(
-      <TooltipInner overlay={<span id="overlay" />} visible={true}>
+      <TooltipInner overlay={<span id="overlay" />} visible>
         <div id="tooltip" />
       </TooltipInner>,
       { disableLifecycleMethods: true }

@@ -178,13 +178,13 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   </label>
                   <input
                     autoComplete="off"
-                    autoFocus={true}
+                    autoFocus
                     id="create-user-login"
                     maxLength={255}
                     minLength={3}
                     name="login"
                     onChange={this.handleLoginChange}
-                    required={true}
+                    required
                     type="text"
                     value={this.state.login}
                   />
@@ -204,7 +204,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   maxLength={200}
                   name="name"
                   onChange={this.handleNameChange}
-                  required={true}
+                  required
                   type="text"
                   value={this.state.name}
                 />
@@ -233,7 +233,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
                     id="create-user-password"
                     name="password"
                     onChange={this.handlePasswordChange}
-                    required={true}
+                    required
                     type="password"
                     value={this.state.password}
                   />

@@ -99,7 +99,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url" />
             </p>
             <CodeSnippet
-              isOneLine={true}
+              isOneLine
               snippet={buildUrlSnippet(
                 branchesEnabled,
                 isBitbucketCloud,

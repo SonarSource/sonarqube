@@ -207,12 +207,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
       )}
 
       {selectedTutorial === TutorialModes.Local && (
-        <OtherTutorial
-          component={component}
-          baseUrl={baseUrl}
-          isLocal={true}
-          currentUser={currentUser}
-        />
+        <OtherTutorial component={component} baseUrl={baseUrl} isLocal currentUser={currentUser} />
       )}
 
       {selectedTutorial === TutorialModes.OtherCI && (

@@ -34,7 +34,7 @@ export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
         <input
           className="overview-key"
           aria-labelledby="project-key"
-          readOnly={true}
+          readOnly
           type="text"
           value={componentKey}
         />

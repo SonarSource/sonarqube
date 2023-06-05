@@ -69,7 +69,7 @@ export default function Header(props: HeaderProps) {
         )}
       </div>
       {createModal && (
-        <GroupForm onClose={() => setCreateModal(false)} create={true} reload={props.reload} />
+        <GroupForm onClose={() => setCreateModal(false)} create reload={props.reload} />
       )}
     </>
   );

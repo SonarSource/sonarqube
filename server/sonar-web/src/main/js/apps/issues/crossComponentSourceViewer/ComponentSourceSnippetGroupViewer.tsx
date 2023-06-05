@@ -328,7 +328,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
                         messageFormattings={issue.messageFormattings}
                       />
                     }
-                    selected={true}
+                    selected
                     ref={ctx?.registerPrimaryLocationRef}
                     onIssueSelect={this.props.onIssueSelect}
                     className="sw-m-0 sw-cursor-default"

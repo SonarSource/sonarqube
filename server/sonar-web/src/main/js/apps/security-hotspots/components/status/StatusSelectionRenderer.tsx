@@ -45,7 +45,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         onClick={() => props.onStatusChange(statusOption)}
         selected={statusOption === status}
         title={translate('hotspots.status_option', statusOption)}
-        vertical={true}
+        vertical
       >
         <Note className="sw-mt-1 sw-mr-12">
           {translate('hotspots.status_option', statusOption, 'description')}
@@ -59,7 +59,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
       headerTitle={translate('hotspots.status.review_title')}
       headerDescription={translate('hotspots.status.select')}
       loading={loading}
-      isScrollable={true}
+      isScrollable
       onClose={props.onCancel}
       secondaryButtonLabel={translate('cancel')}
       body={

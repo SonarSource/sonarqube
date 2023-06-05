@@ -109,10 +109,10 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
             isInvalid={isInvalid}
             isValid={false}
             label={translate('onboarding.create_project.enter_pat')}
-            required={true}
+            required
           >
             <input
-              autoFocus={true}
+              autoFocus
               className={classNames('width-100 little-spacer-bottom', {
                 'is-invalid': isInvalid,
               })}

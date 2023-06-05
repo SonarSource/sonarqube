@@ -69,7 +69,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
             aria-label={translate('project_activity.filter_events')}
             className={isApp ? 'input-large' : 'input-medium'}
             id="filter-events"
-            isClearable={true}
+            isClearable
             isSearchable={false}
             onChange={handleCategoryChange}
             options={options}

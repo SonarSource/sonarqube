@@ -69,7 +69,7 @@ it('should not be actionnable when no click handler', () => {
 function renderSelectionCard(props: Partial<FCProps<typeof SelectionCard>> = {}) {
   return render(
     <SelectionCard
-      recommended={true}
+      recommended
       recommendedReason="Recommended for you"
       title="Selection Card"
       titleInfo="info"

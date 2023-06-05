@@ -96,7 +96,7 @@ it('should edit tags', () => {
 function shallowRender(props: Partial<RuleDetailsMeta['props']> = {}) {
   return shallow(
     <RuleDetailsMeta
-      canWrite={true}
+      canWrite
       onFilterChange={jest.fn()}
       onTagsChange={jest.fn()}
       referencedRepositories={{}}

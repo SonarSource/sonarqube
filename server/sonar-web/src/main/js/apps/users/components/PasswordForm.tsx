@@ -123,7 +123,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                   id="old-user-password"
                   name="old-password"
                   onChange={this.handleOldPasswordChange}
-                  required={true}
+                  required
                   type="password"
                   value={this.state.oldPassword}
                 />
@@ -140,7 +140,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 id="user-password"
                 name="password"
                 onChange={this.handleNewPasswordChange}
-                required={true}
+                required
                 type="password"
                 value={this.state.newPassword}
               />
@@ -156,7 +156,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 id="confirm-user-password"
                 name="confirm-password"
                 onChange={this.handleConfirmPasswordChange}
-                required={true}
+                required
                 type="password"
                 value={this.state.confirmPassword}
               />

@@ -85,7 +85,7 @@ function renderAnalysis(args: {
           )}
           onCheck={() => {}}
           value=""
-          disabled={true}
+          disabled
         />
       </div>
     </li>
@@ -127,7 +127,7 @@ function BranchAnalysisListRenderer(
           {translate('baseline.analysis_from')}
         </label>
         <Select
-          blurInputOnSelect={true}
+          blurInputOnSelect
           inputId="branch-analysis-from-input"
           className="input-medium spacer-left"
           onChange={props.handleRangeChange}
@@ -177,7 +177,7 @@ function BranchAnalysisListRenderer(
                           key={day}
                         >
                           <div className="branch-analysis-date">
-                            <DateFormatter date={Number(day)} long={true} />
+                            <DateFormatter date={Number(day)} long />
                           </div>
                           <ul className="branch-analysis-analyses-list">
                             {version.byDay[day]?.map((analysis) =>

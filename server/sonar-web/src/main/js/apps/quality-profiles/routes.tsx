@@ -33,7 +33,7 @@ export enum QualityProfilePath {
 }
 const routes = () => (
   <Route path="profiles" element={<QualityProfilesApp />}>
-    <Route index={true} element={<HomeContainer />} />
+    <Route index element={<HomeContainer />} />
     <Route element={<ProfileContainer />}>
       <Route path={QualityProfilePath.SHOW} element={<ProfileDetails />} />
       <Route path={QualityProfilePath.CHANGELOG} element={<ChangelogContainer />} />

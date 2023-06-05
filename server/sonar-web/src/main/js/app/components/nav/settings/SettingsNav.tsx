@@ -102,17 +102,17 @@ export class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu dropdown-menu">
             <li>
-              <NavLink end={true} to="/admin/settings">
+              <NavLink end to="/admin/settings">
                 {translate('settings.page')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/settings/encryption">
+              <NavLink end to="/admin/settings/encryption">
                 {translate('property.category.security.encryption')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/webhooks">
+              <NavLink end to="/admin/webhooks">
                 {translate('webhooks.page')}
               </NavLink>
             </li>
@@ -154,12 +154,12 @@ export class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu dropdown-menu">
             <li>
-              <NavLink end={true} to="/admin/projects_management">
+              <NavLink end to="/admin/projects_management">
                 {translate('management')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/background_tasks">
+              <NavLink end to="/admin/background_tasks">
                 {translate('background_tasks.page')}
               </NavLink>
             </li>
@@ -190,22 +190,22 @@ export class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu dropdown-menu">
             <li>
-              <NavLink end={true} to="/admin/users">
+              <NavLink end to="/admin/users">
                 {translate('users.page')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/groups">
+              <NavLink end to="/admin/groups">
                 {translate('user_groups.page')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/permissions">
+              <NavLink end to="/admin/permissions">
                 {translate('global_permissions.page')}
               </NavLink>
             </li>
             <li>
-              <NavLink end={true} to="/admin/permission_templates">
+              <NavLink end to="/admin/permission_templates">
                 {translate('permission_templates')}
               </NavLink>
             </li>
@@ -272,20 +272,20 @@ export class SettingsNav extends React.PureComponent<Props> {
           {this.renderProjectsTab()}
 
           <li>
-            <NavLink end={true} to="/admin/system">
+            <NavLink end to="/admin/system">
               {translate('sidebar.system')}
             </NavLink>
           </li>
 
           <li>
-            <NavLink end={true} to="/admin/marketplace">
+            <NavLink end to="/admin/marketplace">
               {translate('marketplace.page')}
             </NavLink>
           </li>
 
           {hasGovernanceExtension && (
             <li>
-              <NavLink end={true} to="/admin/audit">
+              <NavLink end to="/admin/audit">
                 {translate('audit_logs.page')}
               </NavLink>
             </li>
@@ -293,7 +293,7 @@ export class SettingsNav extends React.PureComponent<Props> {
 
           {hasSupportExtension && (
             <li>
-              <NavLink end={true} to="/admin/extension/license/support">
+              <NavLink end to="/admin/extension/license/support">
                 {translate('support')}
               </NavLink>
             </li>

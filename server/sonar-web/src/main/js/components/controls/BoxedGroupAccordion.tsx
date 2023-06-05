@@ -53,7 +53,7 @@ export default function BoxedGroupAccordion(props: BoxedGroupAccordionProps) {
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div onClick={handleClick} className="display-flex-center boxed-group-header">
         <ButtonPlain
-          stopPropagation={true}
+          stopPropagation
           className="boxed-group-accordion-title flex-grow"
           onClick={handleClick}
           id={`${id}-header`}
@@ -63,7 +63,7 @@ export default function BoxedGroupAccordion(props: BoxedGroupAccordionProps) {
           {title}
         </ButtonPlain>
         {renderHeader && renderHeader()}
-        <OpenCloseIcon aria-hidden={true} className="spacer-left" open={open} />
+        <OpenCloseIcon aria-hidden className="spacer-left" open={open} />
       </div>
       <div id={`${id}-panel`} aria-labelledby={`${id}-header`} role="region">
         {open && <div className="boxed-group-inner">{props.children}</div>}

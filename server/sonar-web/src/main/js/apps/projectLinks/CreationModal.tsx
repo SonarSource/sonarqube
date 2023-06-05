@@ -75,12 +75,12 @@ export default class CreationModal extends React.PureComponent<Props, State> {
                   <MandatoryFieldMarker />
                 </label>
                 <input
-                  autoFocus={true}
+                  autoFocus
                   id="create-link-name"
                   maxLength={128}
                   name="name"
                   onChange={this.handleNameChange}
-                  required={true}
+                  required
                   type="text"
                   value={this.state.name}
                 />
@@ -96,7 +96,7 @@ export default class CreationModal extends React.PureComponent<Props, State> {
                   maxLength={128}
                   name="url"
                   onChange={this.handleUrlChange}
-                  required={true}
+                  required
                   type="text"
                   value={this.state.url}
                 />

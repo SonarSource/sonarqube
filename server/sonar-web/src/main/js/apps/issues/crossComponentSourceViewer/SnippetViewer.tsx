@@ -158,13 +158,13 @@ function SnippetViewer(props: Props) {
               const displayNewCodeUnderline = hoveredLine?.newCodeBlock === line.line;
               return (
                 <Line
-                  displayCoverage={true}
+                  displayCoverage
                   displayCoverageUnderline={displayCoverageUnderline}
                   displayNewCodeUnderline={displayNewCodeUnderline}
                   displayDuplications={displayDuplications}
                   displayIssues={false}
                   displayLineNumberOptions={displayLineNumberOptions}
-                  displayLocationMarkers={true}
+                  displayLocationMarkers
                   displaySCM={displaySCM}
                   duplications={lineDuplications}
                   duplicationsCount={duplicationsCount}

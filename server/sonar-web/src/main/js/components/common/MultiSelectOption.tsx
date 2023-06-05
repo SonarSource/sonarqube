@@ -60,7 +60,7 @@ export default function MultiSelectOption(props: MultiSelectOptionProps) {
             aria-label={`${translate('create_new_element')}: ${label}`}
             className="little-spacer-left"
           >
-            <span aria-hidden={true} className="little-spacer-right">
+            <span aria-hidden className="little-spacer-right">
               +
             </span>
             {label}

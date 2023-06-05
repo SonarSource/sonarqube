@@ -130,7 +130,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                   analysis.buildString || formatDate(parsedDate, formatterOption)
                 )}
                 overlayPlacement={PopupPlacement.BottomRight}
-                small={true}
+                small
                 toggleClassName="js-analysis-actions"
               >
                 {canAddVersion && (
@@ -153,7 +153,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                 {canDeleteAnalyses && (
                   <ActionsDropdownItem
                     className="js-delete-analysis"
-                    destructive={true}
+                    destructive
                     onClick={() => setRemoveAnalysisForm(true)}
                   >
                     {translate('project_activity.delete_analysis')}

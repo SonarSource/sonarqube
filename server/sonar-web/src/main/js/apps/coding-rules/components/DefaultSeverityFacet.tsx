@@ -32,7 +32,7 @@ export default class DefaultSeverityFacet extends React.PureComponent<BasicProps
     return (
       <Facet
         {...this.props}
-        halfWidth={true}
+        halfWidth
         options={SEVERITIES}
         property="severities"
         renderName={this.renderName}

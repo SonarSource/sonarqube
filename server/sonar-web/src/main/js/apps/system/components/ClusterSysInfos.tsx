@@ -43,7 +43,7 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
   return (
     <>
       <HealthCard
-        biggerHealth={true}
+        biggerHealth
         health={getHealth(sysInfoData)}
         healthCauses={getHealthCauses(sysInfoData)}
         name={mainCardName}

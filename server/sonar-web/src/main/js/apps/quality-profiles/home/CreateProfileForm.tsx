@@ -210,7 +210,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 </label>
                 <div className="display-flex-row spacer-top">
                   <RadioCard
-                    noRadio={true}
+                    noRadio
                     selected={action === ProfileActionModals.Extend}
                     onClick={this.handleSelectExtend}
                     title={<ExtendQualityProfileIcon size={64} />}
@@ -224,7 +224,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                     <p>{translate('quality_profiles.creation_from_extend_description_2')}</p>
                   </RadioCard>
                   <RadioCard
-                    noRadio={true}
+                    noRadio
                     selected={action === ProfileActionModals.Copy}
                     onClick={this.handleSelectCopy}
                     title={<CopyQualityProfileIcon size={64} />}
@@ -238,7 +238,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                     <p>{translate('quality_profiles.creation_from_copy_description_2')}</p>
                   </RadioCard>
                   <RadioCard
-                    noRadio={true}
+                    noRadio
                     onClick={this.handleSelectBlank}
                     selected={action === undefined}
                     title={<NewQualityProfileIcon size={64} />}
@@ -257,18 +257,18 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 className="form-field"
                 labelHtmlFor="create-profile-language-input"
                 label={translate('language')}
-                required={true}
+                required
                 isInvalid={isValidLanguage !== undefined && !isValidLanguage}
                 isValid={!!isValidLanguage}
               >
                 <Select
-                  autoFocus={true}
+                  autoFocus
                   inputId="create-profile-language-input"
                   name="language"
                   isClearable={false}
                   onChange={this.handleLanguageChange}
                   options={languagesOptions}
-                  isSearchable={true}
+                  isSearchable
                   value={languagesOptions.filter((o) => o.value === selectedLanguage)}
                 />
               </ValidationInput>
@@ -281,18 +281,18 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                       ? 'quality_profiles.creation.choose_copy_quality_profile'
                       : 'quality_profiles.creation.choose_parent_quality_profile'
                   )}
-                  required={true}
+                  required
                   isInvalid={isValidProflie !== undefined && !isValidProflie}
                   isValid={!!isValidProflie}
                 >
                   <Select
-                    autoFocus={true}
+                    autoFocus
                     inputId="create-profile-parent-input"
                     name="parentKey"
                     isClearable={false}
                     onChange={this.handleQualityProfileChange}
                     options={profiles}
-                    isSearchable={true}
+                    isSearchable
                     value={profiles.filter((o) => o.value === this.state.profile)}
                   />
                 </ValidationInput>
@@ -302,12 +302,12 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 labelHtmlFor="create-profile-name"
                 label={translate('name')}
                 error={translate('quality_profiles.name_invalid')}
-                required={true}
+                required
                 isInvalid={isValidName !== undefined && !isValidName}
                 isValid={!!isValidName}
               >
                 <input
-                  autoFocus={true}
+                  autoFocus
                   id="create-profile-name"
                   maxLength={100}
                   name="name"

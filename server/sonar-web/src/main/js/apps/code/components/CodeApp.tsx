@@ -346,7 +346,7 @@ class CodeApp extends React.Component<Props, State> {
                 baseComponent={baseComponent}
                 branchLike={branchLike}
                 components={components}
-                cycle={true}
+                cycle
                 metrics={metrics}
                 onEndOfList={this.handleLoadMore}
                 onGoToParent={this.handleGoToParent}
@@ -385,7 +385,7 @@ class CodeApp extends React.Component<Props, State> {
                 branchLike={branchLike}
                 component={sourceViewer.key}
                 componentMeasures={sourceViewer.measures}
-                isFile={true}
+                isFile
                 location={location}
                 onGoToParent={this.handleGoToParent}
                 onIssueChange={this.handleIssueChange}

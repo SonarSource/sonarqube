@@ -126,7 +126,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
           <ConfirmButton
             confirmButtonText={translate('delete')}
             confirmData={rule.key}
-            isDestructive={true}
+            isDestructive
             modalBody={translateWithParameters('coding_rules.delete.custom.confirm', rule.name)}
             modalHeader={translate('coding_rules.delete_rule')}
             onConfirm={this.handleRuleDelete}

@@ -65,7 +65,7 @@ export function MenuItem(props: MenuItemProps) {
           branchLike={branchLike}
           component={component}
           className="sw-flex sw-items-center sw-w-24"
-          showStatusText={true}
+          showStatusText
         />
       </div>
     </ItemButton>

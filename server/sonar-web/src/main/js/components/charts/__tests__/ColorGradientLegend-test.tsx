@@ -31,7 +31,7 @@ it('should render properly', () => {
     <ColorGradientLegend
       className="measure-details-treemap-legend"
       colorScale={colorScale}
-      showColorNA={true}
+      showColorNA
       height={20}
       width={200}
     />

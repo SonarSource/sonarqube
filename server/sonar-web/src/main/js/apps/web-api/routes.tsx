@@ -23,7 +23,7 @@ import WebApiApp from './components/WebApiApp';
 
 const routes = () => (
   <Route path="web_api">
-    <Route index={true} element={<WebApiApp />} />
+    <Route index element={<WebApiApp />} />
     <Route path="*" element={<WebApiApp />} />
   </Route>
 );

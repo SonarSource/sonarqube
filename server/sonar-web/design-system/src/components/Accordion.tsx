@@ -57,7 +57,7 @@ export function Accordion(props: AccordionProps) {
         onClick={handleClick}
       >
         {header}
-        <OpenCloseIndicator aria-hidden={true} className="sw-ml-2" open={open} />
+        <OpenCloseIndicator aria-hidden className="sw-ml-2" open={open} />
       </BareButton>
       <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="region">
         {open && <div>{props.children}</div>}

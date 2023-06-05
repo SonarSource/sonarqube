@@ -102,7 +102,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
               <SingleFileLocationNavigator
                 key={index}
                 index={index}
-                concealedMarker={true}
+                concealedMarker
                 message={location.msg}
                 messageFormattings={location.msgFormattings}
                 onClick={props.onLocationClick}

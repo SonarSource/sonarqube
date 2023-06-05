@@ -87,11 +87,11 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <DropdownOverlay noPadding={true}>
+      <DropdownOverlay noPadding>
         <div className="multi-select">
           <div className="menu-search">
             <SearchBox
-              autoFocus={true}
+              autoFocus
               className="little-spacer-top"
               minLength={2}
               onChange={this.handleSearchChange}

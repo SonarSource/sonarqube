@@ -30,6 +30,6 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
-    <PageActions componentQualifier={ComponentQualifier.Project} showShortcuts={true} {...props} />
+    <PageActions componentQualifier={ComponentQualifier.Project} showShortcuts {...props} />
   );
 }

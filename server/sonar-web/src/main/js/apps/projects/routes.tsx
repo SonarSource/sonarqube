@@ -28,12 +28,12 @@ import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER } from './utils';
 function PersistNavigate() {
   save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
 
-  return <Navigate to="/projects" replace={true} />;
+  return <Navigate to="/projects" replace />;
 }
 
 const routes = () => (
   <Route path="projects">
-    <Route index={true} element={<DefaultPageSelector />} />
+    <Route index element={<DefaultPageSelector />} />
     <Route path="all" element={<PersistNavigate />} />
     <Route path="favorite" element={<FavoriteProjectsContainer />} />
     <Route path="create" element={<CreateProjectPage />} />

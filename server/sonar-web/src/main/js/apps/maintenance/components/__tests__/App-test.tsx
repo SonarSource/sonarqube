@@ -264,11 +264,7 @@ describe('Setup', () => {
   function renderSetupApp(props: Partial<App['props']> = {}) {
     return renderApp(
       '/',
-      <App
-        location={mockLocation({ query: { return_to: '/return/to' } })}
-        setup={true}
-        {...props}
-      />
+      <App location={mockLocation({ query: { return_to: '/return/to' } })} setup {...props} />
     );
   }
 });

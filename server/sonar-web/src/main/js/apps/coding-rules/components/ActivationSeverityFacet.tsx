@@ -38,7 +38,7 @@ export default class ActivationSeverityFacet extends React.PureComponent<Props> 
         {...this.props}
         disabled={this.props.disabled}
         disabledHelper={translate('coding_rules.filters.active_severity.inactive')}
-        halfWidth={true}
+        halfWidth
         options={SEVERITIES}
         property="activationSeverities"
         renderName={this.renderName}

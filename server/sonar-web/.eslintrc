@@ -6,6 +6,7 @@
     "camelcase": "off",
     "promise/no-return-wrap": "warn",
     "react/jsx-curly-brace-presence": "warn",
+    "react/jsx-boolean-value": ["error", "never"],
     "testing-library/render-result-naming-convention": "off",
     /* Local rules, defined in ./eslint-local-rules/ */
     "local-rules/use-componentqualifier-enum": "warn",

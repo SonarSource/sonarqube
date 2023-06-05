@@ -58,7 +58,7 @@ export class Form extends React.PureComponent<Props> {
     return (
       <ConfirmButton
         confirmButtonText={translate('delete')}
-        isDestructive={true}
+        isDestructive
         modalBody={translateWithParameters(
           'project_deletion.delete_resource_confirmation',
           component.name

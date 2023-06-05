@@ -218,10 +218,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                             isGitLab ? 'set_mr_ref_specs' : 'set_pr_ref_specs'
                           }`}
                         />
-                        <CodeSnippet
-                          isOneLine={true}
-                          snippet="+refs/heads/*:refs/remotes/@{remote}/*"
-                        />
+                        <CodeSnippet isOneLine snippet="+refs/heads/*:refs/remotes/@{remote}/*" />
                       </li>
                     </ul>
                   </li>

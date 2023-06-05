@@ -48,7 +48,7 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
       </p>
       <p className="spacer-bottom">{translate('webhooks.delivery.payload')}</p>
       <DeferredSpinner className="spacer-left spacer-top" loading={loading}>
-        {payload && <CodeSnippet noCopy={true} snippet={formatPayload(payload)} />}
+        {payload && <CodeSnippet noCopy snippet={formatPayload(payload)} />}
       </DeferredSpinner>
     </div>
   );

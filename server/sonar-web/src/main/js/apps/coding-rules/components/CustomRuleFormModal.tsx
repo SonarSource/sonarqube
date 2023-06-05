@@ -162,11 +162,11 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         {translate('name')} <MandatoryFieldMarker />
       </label>
       <input
-        autoFocus={true}
+        autoFocus
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-creation-name"
         onChange={this.handleNameChange}
-        required={true}
+        required
         type="text"
         value={this.state.name}
       />
@@ -188,7 +188,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           disabled={this.state.submitting}
           id="coding-rules-custom-rule-creation-key"
           onChange={this.handleKeyChange}
-          required={true}
+          required
           type="text"
           value={this.state.key}
         />
@@ -206,7 +206,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-creation-html-description"
         onChange={this.handleDescriptionChange}
-        required={true}
+        required
         rows={5}
         value={this.state.description}
       />

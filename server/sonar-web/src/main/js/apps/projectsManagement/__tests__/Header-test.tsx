@@ -58,7 +58,7 @@ it('changes default visibility', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <Header
-      hasProvisionPermission={true}
+      hasProvisionPermission
       onChangeDefaultProjectVisibility={jest.fn()}
       onProjectCreate={jest.fn()}
       {...props}

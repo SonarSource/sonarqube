@@ -193,7 +193,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         secondaryIssueLocations={secondaryIssueLocations}
       >
         <LineIssuesList
-          displayWhyIsThisAnIssue={true}
+          displayWhyIsThisAnIssue
           displayAllIssues={displayAllIssues}
           issueLocationsByLine={issueLocationsByLine}
           issuesForLine={issuesForLine}

@@ -43,7 +43,7 @@ export default class InheritanceFacet extends React.PureComponent<Props> {
         property="inheritance"
         renderName={this.renderName}
         renderTextName={this.renderName}
-        singleSelection={true}
+        singleSelection
         values={value ? [value] : []}
       />
     );

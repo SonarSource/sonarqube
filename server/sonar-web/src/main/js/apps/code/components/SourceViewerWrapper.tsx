@@ -55,7 +55,7 @@ function SourceViewerWrapper(props: SourceViewerWrapperProps) {
       highlightedLine={finalLine}
       onIssueChange={props.onIssueChange}
       onLoaded={handleLoaded}
-      showMeasures={true}
+      showMeasures
     />
   );
 }

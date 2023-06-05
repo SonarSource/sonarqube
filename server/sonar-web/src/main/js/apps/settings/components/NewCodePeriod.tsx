@@ -185,7 +185,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                     <DeferredSpinner loading={loading} timeout={500}>
                       <form onSubmit={this.onSubmit}>
                         <BaselineSettingPreviousVersion
-                          isDefault={true}
+                          isDefault
                           onSelect={this.onSelectSetting}
                           selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
                         />

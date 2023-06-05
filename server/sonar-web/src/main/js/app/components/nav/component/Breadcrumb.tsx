@@ -49,7 +49,7 @@ export function Breadcrumb(props: BreadcrumbProps) {
               />
             )}
             <HoverLink
-              blurAfterClick={true}
+              blurAfterClick
               className="js-project-link sw-flex"
               key={breadcrumbElement.name}
               title={breadcrumbElement.name}

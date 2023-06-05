@@ -165,7 +165,7 @@ export class Menu extends React.PureComponent<Props, State> {
       >
         <InputSearch
           className="sw-mx-3 sw-my-2"
-          autoFocus={true}
+          autoFocus
           onChange={this.handleSearchChange}
           onKeyDown={this.handleKeyDown}
           placeholder={translate('branch_like_navigation.search_for_branch_like')}

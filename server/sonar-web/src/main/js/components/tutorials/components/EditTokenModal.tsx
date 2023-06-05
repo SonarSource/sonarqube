@@ -219,7 +219,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                           <input
                             className="input-large spacer-right text-middle"
                             onChange={this.handleTokenNameChange}
-                            required={true}
+                            required
                             id="token-name"
                             type="text"
                             placeholder={translate('onboarding.token.name.placeholder')}

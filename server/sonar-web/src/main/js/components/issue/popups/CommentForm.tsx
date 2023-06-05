@@ -40,7 +40,7 @@ export default function CommentForm(props: CommentFormProps) {
     <>
       <div className="issue-comment-form-text">
         <textarea
-          autoFocus={true}
+          autoFocus
           style={{ resize: 'vertical' }}
           placeholder={placeholder}
           aria-label={translate('issue.comment.enter_comment')}

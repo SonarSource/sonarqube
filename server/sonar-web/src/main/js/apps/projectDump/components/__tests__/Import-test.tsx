@@ -59,7 +59,7 @@ it('should render correctly', () => {
 function shallowRender(overrides: Partial<Import['props']> = {}) {
   return shallow<Import>(
     <Import
-      importEnabled={true}
+      importEnabled
       analysis={undefined}
       componentKey="key"
       loadStatus={jest.fn()}

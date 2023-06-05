@@ -156,7 +156,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
       return (
         <LargeCenteredLayout>
           <div className="sw-p-6">
-            <DeferredSpinner loading={true} />
+            <DeferredSpinner loading />
           </div>
         </LargeCenteredLayout>
       );
@@ -220,7 +220,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                   <div>
                     <QualityGateConditions
                       branchLike={branchLike}
-                      collapsible={true}
+                      collapsible
                       component={component}
                       failedConditions={failedConditions}
                     />
@@ -246,7 +246,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                     <MeasuresPanelIssueMeasure
                       branchLike={branchLike}
                       component={component}
-                      isNewCodeTab={true}
+                      isNewCodeTab
                       measures={measures}
                       type={type}
                     />
@@ -262,7 +262,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                         measures={measures}
                         ratingIcon={renderMeasureIcon(type)}
                         type={type}
-                        useDiffMetric={true}
+                        useDiffMetric
                       />
                     </Card>
                   )

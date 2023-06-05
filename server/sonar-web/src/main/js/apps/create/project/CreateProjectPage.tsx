@@ -267,7 +267,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
               alm={creatingAlmDefinition}
               onCancel={this.handleOnCancelCreation}
               afterSubmit={this.handleAfterSubmit}
-              enforceValidation={true}
+              enforceValidation
             />
           )}
         </div>

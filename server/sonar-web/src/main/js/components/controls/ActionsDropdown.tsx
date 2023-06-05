@@ -116,7 +116,7 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
         <ButtonPlain
           className={className}
           disabled={this.props.disabled}
-          preventDefault={true}
+          preventDefault
           id={this.props.id}
           onClick={this.handleClick}
           aria-label={label}

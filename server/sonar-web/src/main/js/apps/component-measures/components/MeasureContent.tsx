@@ -423,7 +423,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           {isFileComponent ? (
             <div className="measure-details-viewer">
               <SourceViewer
-                hideHeader={true}
+                hideHeader
                 branchLike={branchLike}
                 component={baseComponent.key}
                 metricKey={this.state.metric?.key}

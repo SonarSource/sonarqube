@@ -39,7 +39,7 @@ export function SearchHighlighter({ children = '', term }: Props) {
   if (searchTerm) {
     return (
       <StyledHighlighter
-        autoEscape={true}
+        autoEscape
         sanitize={deburr}
         searchWords={[searchTerm]}
         textToHighlight={children}

@@ -37,7 +37,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.bitbucket.help')}
         id="name.bitbucket"
         maxLength={200}
@@ -87,13 +87,13 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
             }}
           />
         }
-        isTextArea={true}
+        isTextArea
         onFieldChange={props.onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken || ''}
         maxLength={2000}
-        isSecret={true}
+        isSecret
       />
     </>
   );

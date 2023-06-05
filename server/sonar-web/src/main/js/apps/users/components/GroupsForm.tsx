@@ -165,7 +165,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
             onUnselect={this.handleUnselect}
             renderElement={this.renderElement}
             selectedElements={this.state.selectedGroups}
-            withPaging={true}
+            withPaging
           />
         </div>
 

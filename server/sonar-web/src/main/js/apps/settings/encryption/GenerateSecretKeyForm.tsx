@@ -73,7 +73,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                 aria-labelledby="secret-key-title"
                 className="input-clear input-code input-large"
                 id="secret-key"
-                readOnly={true}
+                readOnly
                 type="text"
                 value={secretKey}
               />

@@ -105,7 +105,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                   onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
                     props.onPasswordChange(e.currentTarget.value);
                   }}
-                  required={true}
+                  required
                   type="password"
                   value={passwordValue}
                 />
@@ -122,7 +122,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                   onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
                     props.onConfirmPasswordChange(e.currentTarget.value);
                   }}
-                  required={true}
+                  required
                   type="password"
                   value={confirmPasswordValue}
                 />

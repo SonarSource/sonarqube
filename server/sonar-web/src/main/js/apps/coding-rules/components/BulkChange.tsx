@@ -82,7 +82,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     if (!canBulkChange) {
       return (
         <Tooltip overlay={translate('coding_rules.can_not_bulk_change')}>
-          <Button className="js-bulk-change" disabled={true}>
+          <Button className="js-bulk-change" disabled>
             {translate('bulk_change')}
           </Button>
         </Tooltip>

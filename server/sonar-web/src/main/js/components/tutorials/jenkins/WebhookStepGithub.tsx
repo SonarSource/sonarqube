@@ -66,7 +66,7 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url" />
             </p>
-            <CodeSnippet isOneLine={true} snippet={webhookUrl} />
+            <CodeSnippet isOneLine snippet={webhookUrl} />
           </li>
         </ul>
       </li>

@@ -189,7 +189,7 @@ export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
     return (
       <LineCodeLayers className="it__source-line-code" data-line-number={line.line}>
         {(displayCoverageUnderlineLabel || displayNewCodeUnderlineLabel) && (
-          <UnderlineLabels aria-hidden={true} transparentBackground={previousLineHasUnderline}>
+          <UnderlineLabels aria-hidden transparentBackground={previousLineHasUnderline}>
             {displayCoverageUnderlineLabel && line.coverageStatus === 'covered' && (
               <CoveredUnderlineLabel>
                 {translate('source_viewer.coverage.covered')}
@@ -207,13 +207,13 @@ export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
             )}
           </UnderlineLabels>
         )}
-        {line.isNew && <NewCodeUnderline aria-hidden={true} data-testid="new-code-underline" />}
+        {line.isNew && <NewCodeUnderline aria-hidden data-testid="new-code-underline" />}
         {displayCoverageUnderline && line.coverageStatus === 'covered' && (
-          <CoveredUnderline aria-hidden={true} data-testid="covered-underline" />
+          <CoveredUnderline aria-hidden data-testid="covered-underline" />
         )}
         {displayCoverageUnderline &&
           (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered') && (
-            <UncoveredUnderline aria-hidden={true} data-testid="uncovered-underline" />
+            <UncoveredUnderline aria-hidden data-testid="uncovered-underline" />
           )}
 
         <LineCodeLayer className="sw-px-3">

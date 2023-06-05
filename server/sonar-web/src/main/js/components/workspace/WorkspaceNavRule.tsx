@@ -40,7 +40,7 @@ export default class WorkspaceNavRule extends React.PureComponent<Props> {
   render() {
     return (
       <WorkspaceNavItem onClose={this.handleClose} onOpen={this.handleOpen}>
-        <WorkspaceRuleTitle limited={true} rule={this.props.rule} />
+        <WorkspaceRuleTitle limited rule={this.props.rule} />
       </WorkspaceNavItem>
     );
   }

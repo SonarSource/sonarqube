@@ -45,10 +45,7 @@ export default function WebhookStepGitLab({ branchesEnabled }: WebhookStepGitLab
               <p>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_with_branches" />
               </p>
-              <CodeSnippet
-                isOneLine={true}
-                snippet="***JENKINS_SERVER_URL***/gitlab-webhook/post"
-              />
+              <CodeSnippet isOneLine snippet="***JENKINS_SERVER_URL***/gitlab-webhook/post" />
             </li>
           ) : (
             <>

@@ -40,7 +40,7 @@ describe('ActionsDropdown', () => {
         className="foo"
         onOpen={jest.fn()}
         overlayPlacement={PopupPlacement.Bottom}
-        small={true}
+        small
         toggleClassName="bar"
         {...props}
       >

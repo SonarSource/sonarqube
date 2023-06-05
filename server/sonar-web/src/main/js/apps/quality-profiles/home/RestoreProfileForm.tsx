@@ -121,7 +121,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
                     {translate('backup')}
                     <MandatoryFieldMarker />
                   </label>
-                  <input id="restore-profile-backup" name="backup" required={true} type="file" />
+                  <input id="restore-profile-backup" name="backup" required type="file" />
                 </div>
               </>
             )}

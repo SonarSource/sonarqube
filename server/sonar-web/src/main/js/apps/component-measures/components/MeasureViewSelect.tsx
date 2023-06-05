@@ -66,7 +66,7 @@ export default function MeasureViewSelect(props: MeasureViewSelectProps) {
     <InputSelect
       size="small"
       aria-labelledby="measures-view-selection-label"
-      blurInputOnSelect={true}
+      blurInputOnSelect
       className={className}
       onChange={handleChange}
       options={options}

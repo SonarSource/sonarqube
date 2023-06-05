@@ -37,7 +37,7 @@ beforeEach(() => {
 // This functionality won't be needed once we update the breadcrumbs
 it('should remove focus after link is clicked', async () => {
   const { user } = setupWithMemoryRouter(
-    <Link blurAfterClick={true} icon={<div>Icon</div>} to="/initial" />
+    <Link blurAfterClick icon={<div>Icon</div>} to="/initial" />
   );
 
   await user.click(screen.getByRole('link'));
@@ -46,7 +46,7 @@ it('should remove focus after link is clicked', async () => {
 });
 
 it('should prevent default when preventDefault is true', async () => {
-  const { user } = setupWithMemoryRouter(<Link preventDefault={true} to="/second" />);
+  const { user } = setupWithMemoryRouter(<Link preventDefault to="/second" />);
 
   expect(screen.getByText('/initial')).toBeVisible();
 
@@ -62,7 +62,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 
   const { user } = setupWithMemoryRouter(
     <button onClick={buttonOnClick} type="button">
-      <Link stopPropagation={true} to="/second" />
+      <Link stopPropagation to="/second" />
     </button>
   );
 
@@ -74,7 +74,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 it('should call onClick when one is passed', async () => {
   const onClick = jest.fn();
   const { user } = setupWithMemoryRouter(
-    <Link onClick={onClick} stopPropagation={true} to="/second" />
+    <Link onClick={onClick} stopPropagation to="/second" />
   );
 
   await user.click(screen.getByRole('link'));

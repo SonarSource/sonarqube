@@ -111,7 +111,7 @@ export function SonarLintConnection({ currentUser }: Props) {
               </h1>
               <img
                 alt=""
-                aria-hidden={true}
+                aria-hidden
                 className="big-spacer-top big-spacer-bottom"
                 src="/images/SonarLint-connection-request.png"
               />
@@ -133,7 +133,7 @@ export function SonarLintConnection({ currentUser }: Props) {
             <>
               <img
                 alt=""
-                aria-hidden={true}
+                aria-hidden
                 className="big-spacer-top big-spacer-bottom padded-top"
                 src="/images/cross.svg"
               />
@@ -163,7 +163,7 @@ export function SonarLintConnection({ currentUser }: Props) {
             <>
               <img
                 alt=""
-                aria-hidden={true}
+                aria-hidden
                 className="big-spacer-top big-spacer-bottom padded-top"
                 src="/images/check.svg"
               />
@@ -204,7 +204,7 @@ export function SonarLintConnection({ currentUser }: Props) {
               </h1>
               <img
                 alt=""
-                aria-hidden={true}
+                aria-hidden
                 className="big-spacer-bottom"
                 src="/images/SonarLint-connection-ok.png"
               />

@@ -111,7 +111,7 @@ function render(props?: { [P in keyof Props]?: Props[P] }) {
     <BulkApplyTemplateModal
       analyzedBefore={parseDate('2017-04-08T00:00:00.000Z')}
       onClose={jest.fn()}
-      provisioned={true}
+      provisioned
       qualifier="TRK"
       query="bla"
       selection={[]}

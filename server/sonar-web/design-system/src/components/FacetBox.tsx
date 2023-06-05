@@ -88,7 +88,7 @@ export function FacetBox(props: FacetBoxProps) {
             }
           }}
         >
-          {expandable && <OpenCloseIndicator aria-hidden={true} open={open} />}
+          {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
           <HeaderTitle disabled={disabled}>{name}</HeaderTitle>
         </ChevronAndTitle>

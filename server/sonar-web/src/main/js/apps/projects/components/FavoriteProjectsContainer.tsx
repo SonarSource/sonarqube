@@ -21,5 +21,5 @@ import * as React from 'react';
 import AllProjects from './AllProjects';
 
 export default function FavoriteProjectsContainer(props: any) {
-  return <AllProjects isFavorite={true} {...props} />;
+  return <AllProjects isFavorite {...props} />;
 }

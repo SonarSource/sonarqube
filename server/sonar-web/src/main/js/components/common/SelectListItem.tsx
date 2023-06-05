@@ -62,7 +62,7 @@ export default class SelectListItem extends React.PureComponent<Props, State> {
     return (
       <li>
         <ButtonPlain
-          preventDefault={true}
+          preventDefault
           aria-selected={this.props.active === this.props.item}
           className={classNames(
             {

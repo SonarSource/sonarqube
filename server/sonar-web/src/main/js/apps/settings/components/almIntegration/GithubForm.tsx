@@ -37,7 +37,7 @@ export default function GithubForm(props: GithubFormProps) {
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.github.help')}
         id="name.github"
         onFieldChange={onFieldChange}
@@ -101,18 +101,18 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         value={formData.clientSecret}
-        isSecret={true}
+        isSecret
       />
       <AlmBindingDefinitionFormField
         id="private_key"
         help={translate('settings.almintegration.form.private_key.github.help')}
-        isTextArea={true}
+        isTextArea
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="privateKey"
         value={formData.privateKey}
         maxLength={2500}
-        isSecret={true}
+        isSecret
       />
       <AlmBindingDefinitionFormField
         id="webhook_secret.github"
@@ -122,8 +122,8 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="webhookSecret"
         value={formData.webhookSecret}
-        isSecret={true}
-        optional={true}
+        isSecret
+        optional
       />
     </>
   );

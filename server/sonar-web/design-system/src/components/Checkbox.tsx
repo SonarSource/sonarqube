@@ -77,7 +77,7 @@ export function Checkbox({
         type="checkbox"
       />
       <DeferredSpinner loading={loading}>
-        <StyledCheckbox aria-hidden={true} data-clickable="true" title={title}>
+        <StyledCheckbox aria-hidden data-clickable="true" title={title}>
           <CheckboxIcon checked={checked} thirdState={thirdState} />
         </StyledCheckbox>
       </DeferredSpinner>

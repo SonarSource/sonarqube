@@ -23,5 +23,5 @@ import GenericAvatar from '../GenericAvatar';
 
 it('should render properly', () => {
   expect(shallow(<GenericAvatar name="foo" size={40} />)).toMatchSnapshot();
-  expect(shallow(<GenericAvatar name="foo" size={40} round={true} />)).toMatchSnapshot();
+  expect(shallow(<GenericAvatar name="foo" size={40} round />)).toMatchSnapshot();
 });

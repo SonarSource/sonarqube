@@ -292,7 +292,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           {actions.delete && (
             <ActionsDropdownItem
               className="it__quality-profiles__delete"
-              destructive={true}
+              destructive
               onClick={this.handleDeleteClick}
             >
               {translate('delete')}

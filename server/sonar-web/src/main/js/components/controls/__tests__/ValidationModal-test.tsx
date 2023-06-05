@@ -48,7 +48,7 @@ function shallowRender(props: Partial<ValidationModal<{ field: string }>['props'
       confirmButtonText="confirm"
       header="title"
       initialValues={{ field: 'foo' }}
-      isDestructive={true}
+      isDestructive
       onClose={jest.fn()}
       onSubmit={jest.fn()}
       validate={jest.fn()}

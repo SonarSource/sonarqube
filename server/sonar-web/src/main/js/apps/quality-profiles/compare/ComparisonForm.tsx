@@ -69,13 +69,13 @@ export default class ComparisonForm extends React.PureComponent<Props> {
         </label>
         <Select
           className="input-super-large"
-          autoFocus={true}
+          autoFocus
           isClearable={false}
           id="quality-profiles-comparision"
           inputId="quality-profiles-comparison-input"
           onChange={this.handleChange}
           options={options}
-          isSearchable={true}
+          isSearchable
           components={{
             Option: this.optionRenderer.bind(this, options),
             SingleValue: this.singleValueRenderer.bind(null, options),

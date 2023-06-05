@@ -28,5 +28,5 @@ it('should render with a list of tag', () => {
 });
 
 it('should render with a caret on the right if update is allowed', () => {
-  expect(shallow(<TagsList allowUpdate={true} tags={tags} />)).toMatchSnapshot();
+  expect(shallow(<TagsList allowUpdate tags={tags} />)).toMatchSnapshot();
 });

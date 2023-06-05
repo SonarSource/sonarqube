@@ -54,7 +54,7 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         property="template"
         renderName={this.renderName}
         renderTextName={this.renderName}
-        singleSelection={true}
+        singleSelection
         values={value !== undefined ? [String(value)] : []}
       >
         <HelpTooltip

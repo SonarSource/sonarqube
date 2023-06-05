@@ -81,7 +81,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth={true}
+        halfWidth
         key={severity}
         name={<SeverityHelper severity={severity} />}
         onClick={this.handleItemClick}

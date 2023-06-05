@@ -298,7 +298,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
             <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
               {selectedBelowLimit.map((item) => (
                 <FacetItem
-                  active={true}
+                  active
                   key={item}
                   name={this.props.renderFacetItem(item)}
                   onClick={this.handleItemClick}

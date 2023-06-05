@@ -147,7 +147,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
 
         <div className="modal-body modal-container" id="profile-projects">
           <SelectList
-            allowBulkSelection={true}
+            allowBulkSelection
             elements={this.state.projects.map((project) => project.key)}
             elementsTotalCount={this.state.projectsTotalCount}
             labelAll={translate('quality_gates.projects.all')}
@@ -163,7 +163,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
             onUnselect={this.handleUnselect}
             renderElement={this.renderElement}
             selectedElements={this.state.selectedProjects}
-            withPaging={true}
+            withPaging
           />
         </div>
 

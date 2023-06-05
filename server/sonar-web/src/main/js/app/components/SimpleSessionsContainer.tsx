@@ -31,7 +31,7 @@ export default function SimpleSessionsContainer() {
         <div className="page-wrapper" id="container">
           <Outlet />
         </div>
-        <GlobalFooter hideLoggedInInfo={true} />
+        <GlobalFooter hideLoggedInInfo />
       </div>
     </>
   );

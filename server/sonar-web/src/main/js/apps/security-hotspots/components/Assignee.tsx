@@ -119,7 +119,7 @@ export default function Assignee(props: Props) {
       onChange={handleAssign}
       loadOptions={handleSearchAssignees}
       minLength={minSearchLength}
-      isDiscreet={true}
+      isDiscreet
       controlLabel={controlLabel}
       tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
       placeholder={translate('search.search_for_users')}

@@ -127,7 +127,7 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
           Option: this.renderAssigneeOption,
           SingleValue: this.renderSingleAssignee,
         }}
-        isClearable={true}
+        isClearable
         defaultOptions={this.getDefaultAssignee()}
         loadOptions={this.handleAssigneeSearch}
         onChange={this.props.onAssigneeSelect}

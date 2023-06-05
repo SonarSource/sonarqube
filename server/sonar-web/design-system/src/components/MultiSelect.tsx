@@ -272,7 +272,7 @@ export class MultiSelect extends PureComponent<Props, State> {
       <div ref={(div) => (this.container = div)}>
         <div className="sw-px-3">
           <InputSearch
-            autoFocus={true}
+            autoFocus
             className="sw-mt-1"
             clearIconAriaLabel={clearIconAriaLabel}
             loading={this.state.loading}
@@ -298,7 +298,7 @@ export class MultiSelect extends PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
-                selected={true}
+                selected
               />
             ))}
           {unselectedElements.length > 0 &&
@@ -317,7 +317,7 @@ export class MultiSelect extends PureComponent<Props, State> {
             <MultiSelectOption
               active={activeElement === query}
               createElementLabel={createElementLabel}
-              custom={true}
+              custom
               element={query}
               key={query}
               onHover={this.handleElementHover}

@@ -75,7 +75,7 @@ function renderAnalysisErrorMessage(
       component={mockComponent()}
       currentTask={mockTask()}
       onLeave={jest.fn()}
-      currentTaskOnSameBranch={true}
+      currentTaskOnSameBranch
       {...overrides}
     />
   );

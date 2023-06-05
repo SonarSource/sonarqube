@@ -97,7 +97,7 @@ function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUse
       }}
     >
       <PageSidebar
-        applicationsEnabled={true}
+        applicationsEnabled
         onClearAll={jest.fn()}
         onQueryChange={jest.fn()}
         query={{ view: 'overall' }}

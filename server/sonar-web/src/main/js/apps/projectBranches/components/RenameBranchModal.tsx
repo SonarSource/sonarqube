@@ -96,12 +96,12 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
                 <MandatoryFieldMarker />
               </label>
               <input
-                autoFocus={true}
+                autoFocus
                 id="rename-branch-name"
                 maxLength={100}
                 name="name"
                 onChange={this.handleNameChange}
-                required={true}
+                required
                 size={50}
                 type="text"
                 value={this.state.name !== undefined ? this.state.name : branch.name}

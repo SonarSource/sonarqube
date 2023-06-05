@@ -58,7 +58,7 @@ function Event(props: EventProps) {
               className="button-small"
               data-test="project-activity__edit-event"
               onClick={() => setChanging(true)}
-              stopPropagation={true}
+              stopPropagation
             />
           )}
           {canDelete && (
@@ -67,7 +67,7 @@ function Event(props: EventProps) {
               className="button-small"
               data-test="project-activity__delete-event"
               onClick={() => setDeleting(true)}
-              stopPropagation={true}
+              stopPropagation
             />
           )}
         </span>

@@ -39,7 +39,7 @@ export default function SelectAlmStep(props: SelectAlmStepProps) {
   const { alm, open } = props;
   return (
     <Step
-      finished={true}
+      finished
       open={open}
       onOpen={props.onOpen}
       renderForm={() => (

@@ -67,7 +67,7 @@ function CategoriesList(props: CategoriesListProps) {
         return (
           <li key={c.key}>
             <NavLink
-              end={true}
+              end
               className={(_) =>
                 classNames({
                   active: c.key.toLowerCase() === selectedCategory.toLowerCase(),

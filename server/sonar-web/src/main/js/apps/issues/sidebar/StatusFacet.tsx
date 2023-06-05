@@ -79,7 +79,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        halfWidth={true}
+        halfWidth
         key={status}
         name={<StatusHelper resolution={undefined} status={status} />}
         onClick={this.handleItemClick}

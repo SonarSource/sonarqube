@@ -233,7 +233,7 @@ function renderAzurePipelinesTutorial(
       baseUrl="https://sonarqube.example.com/"
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
-      willRefreshAutomatically={true}
+      willRefreshAutomatically
       {...props}
     />,
     { languages }

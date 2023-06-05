@@ -205,7 +205,7 @@ export default class LineChart extends React.PureComponent<Props> {
     return this.props.width !== undefined ? (
       this.renderChart(this.props.width)
     ) : (
-      <AutoSizer disableHeight={true}>{(size) => this.renderChart(size.width)}</AutoSizer>
+      <AutoSizer disableHeight>{(size) => this.renderChart(size.width)}</AutoSizer>
     );
   }
 }

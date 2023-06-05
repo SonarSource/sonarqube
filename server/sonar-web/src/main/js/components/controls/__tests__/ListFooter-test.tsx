@@ -137,7 +137,7 @@ describe('ListFooter using MIUI buttons', () => {
 
   function renderListFooter(props: Partial<ListFooterProps> = {}) {
     return renderComponent(
-      <ListFooter count={3} loadMore={jest.fn()} total={5} useMIUIButtons={true} {...props} />
+      <ListFooter count={3} loadMore={jest.fn()} total={5} useMIUIButtons {...props} />
     );
   }
 });

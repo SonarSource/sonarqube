@@ -85,7 +85,7 @@ export default function ProjectCard({ project }: Props) {
         <div className="account-project-links">
           <ul className="list-inline">
             {orderedLinks.map((link) => (
-              <MetaLink iconOnly={true} key={link.id} link={link} />
+              <MetaLink iconOnly key={link.id} link={link} />
             ))}
           </ul>
         </div>

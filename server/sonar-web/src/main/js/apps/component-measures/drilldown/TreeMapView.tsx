@@ -186,7 +186,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     return (
       <ColorGradientLegend
         className="measure-details-treemap-legend"
-        showColorNA={true}
+        showColorNA
         colorScale={colorScale}
         height={30}
         width={200}
@@ -221,7 +221,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           </span>
           <span>{this.renderLegend()}</span>
         </div>
-        <AutoSizer disableHeight={true}>
+        <AutoSizer disableHeight>
           {({ width }) => (
             <TreeMap<ComponentMeasureIntern>
               height={HEIGHT}

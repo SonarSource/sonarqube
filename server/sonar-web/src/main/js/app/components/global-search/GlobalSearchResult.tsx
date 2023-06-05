@@ -56,7 +56,7 @@ export default class GlobalSearchResult extends React.PureComponent<Props> {
         <div className="sw-flex sw-justify-between sw-items-center sw-w-full">
           <TextBold match={component.match} name={component.name} />
           <div className="sw-ml-2">
-            {component.isFavorite && <FavoriteIcon favorite={true} size={16} />}
+            {component.isFavorite && <FavoriteIcon favorite size={16} />}
             {!component.isFavorite && component.isRecentlyBrowsed && (
               <ClockIcon aria-label={translate('recently_browsed')} />
             )}

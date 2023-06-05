@@ -201,7 +201,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
               </CustomRuleButton>
               <ConfirmButton
                 confirmButtonText={translate('delete')}
-                isDestructive={true}
+                isDestructive
                 modalBody={translateWithParameters(
                   'coding_rules.delete.custom.confirm',
                   ruleDetails.name

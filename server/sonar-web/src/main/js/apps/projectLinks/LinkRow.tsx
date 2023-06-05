@@ -70,7 +70,7 @@ export default class LinkRow extends React.PureComponent<Props> {
       <ConfirmButton
         confirmButtonText={translate('delete')}
         confirmData={link.id}
-        isDestructive={true}
+        isDestructive
         modalBody={translateWithParameters(
           'project_links.are_you_sure_to_delete_x_link',
           link.name!

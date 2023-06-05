@@ -41,10 +41,6 @@ it('should render correctly if not lifetime has been fetch', () => {
 
 function shallowRender(props?: Partial<LifetimeInformationRendererProps>) {
   return shallow(
-    <LifetimeInformationRenderer
-      branchAndPullRequestLifeTimeInDays="30"
-      loading={true}
-      {...props}
-    />
+    <LifetimeInformationRenderer branchAndPullRequestLifeTimeInDays="30" loading {...props} />
   );
 }

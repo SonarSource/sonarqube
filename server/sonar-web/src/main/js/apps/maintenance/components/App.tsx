@@ -284,7 +284,7 @@ export default class App extends React.PureComponent<Props, State> {
                     <DateFromNow date={this.state.startedAt} />
                     <br />
                     <small className="text-muted">
-                      <TimeFormatter date={this.state.startedAt} long={true} />
+                      <TimeFormatter date={this.state.startedAt} long />
                     </small>
                   </p>
                 )}

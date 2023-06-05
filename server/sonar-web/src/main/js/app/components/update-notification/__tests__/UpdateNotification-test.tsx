@@ -186,7 +186,7 @@ it('should show correct alert when not dismissable', async () => {
 function shallowRender(props: Partial<UpdateNotification['props']> = {}) {
   return shallow(
     <UpdateNotification
-      dismissable={true}
+      dismissable
       appState={mockAppState()}
       currentUser={mockCurrentUser()}
       {...props}

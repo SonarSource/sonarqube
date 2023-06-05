@@ -89,7 +89,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
               component={component}
               currentUser={currentUser}
               projectBinding={projectBinding}
-              willRefreshAutomatically={true}
+              willRefreshAutomatically
             />
           )}
         </>

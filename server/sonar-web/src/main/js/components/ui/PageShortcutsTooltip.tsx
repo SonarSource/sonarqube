@@ -97,7 +97,7 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
           'page-shortcuts-tooltip note text-center display-inline-block'
         )}
       >
-        <div aria-hidden={true}>
+        <div aria-hidden>
           <div>
             <span className="shortcut-button shortcut-button-tiny">↑</span>
           </div>

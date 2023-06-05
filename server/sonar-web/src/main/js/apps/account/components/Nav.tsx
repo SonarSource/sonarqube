@@ -27,7 +27,7 @@ export default function Nav() {
     <nav className="account-nav">
       <NavBarTabs>
         <li>
-          <NavLink end={true} to="/account">
+          <NavLink end to="/account">
             {translate('my_account.profile')}
           </NavLink>
         </li>

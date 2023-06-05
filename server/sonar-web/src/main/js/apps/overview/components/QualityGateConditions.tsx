@@ -72,7 +72,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
       ))}
       {renderCollapsed && (
         <li className="sw-flex sw-justify-center sw-my-3">
-          <Link onClick={handleToggleCollapsed} to={{}} preventDefault={true}>
+          <Link onClick={handleToggleCollapsed} to={{}} preventDefault>
             <span className="sw-font-semibold sw-text-sm">{translate('show_more')}</span>
           </Link>
         </li>

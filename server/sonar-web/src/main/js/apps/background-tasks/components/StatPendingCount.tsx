@@ -46,7 +46,7 @@ function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Props)
           <ConfirmButton
             cancelButtonText={translate('close')}
             confirmButtonText={translate('background_tasks.cancel_all_tasks.submit')}
-            isDestructive={true}
+            isDestructive
             modalBody={translate('background_tasks.cancel_all_tasks.text')}
             modalHeader={translate('background_tasks.cancel_all_tasks')}
             onConfirm={onCancelAllPending}

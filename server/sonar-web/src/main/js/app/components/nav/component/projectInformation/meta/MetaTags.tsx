@@ -69,14 +69,14 @@ export default class MetaTags extends React.PureComponent<Props> {
       <div className="big-spacer-top project-info-tags">
         <Dropdown
           closeOnClick={false}
-          closeOnClickOutside={true}
+          closeOnClickOutside
           overlay={
             <MetaTagsSelector selectedTags={tags} setProjectTags={this.handleSetProjectTags} />
           }
           overlayPlacement={PopupPlacement.BottomLeft}
         >
-          <ButtonLink stopPropagation={true}>
-            <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
+          <ButtonLink stopPropagation>
+            <TagsList allowUpdate tags={tags.length ? tags : [translate('no_tags')]} />
           </ButtonLink>
         </Dropdown>
       </div>

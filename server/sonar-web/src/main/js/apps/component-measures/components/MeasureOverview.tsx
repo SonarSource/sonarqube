@@ -129,7 +129,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
       return (
         <div className="measure-details-viewer">
           <SourceViewer
-            hideHeader={true}
+            hideHeader
             branchLike={branchLike}
             component={component.key}
             onIssueChange={this.props.onIssueChange}
@@ -163,7 +163,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
         <MeasureContentHeader
           left={
             <MeasuresBreadcrumbs
-              backToFirst={true}
+              backToFirst
               branchLike={branchLike}
               component={component}
               handleSelect={this.props.updateSelected}

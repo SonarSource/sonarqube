@@ -37,7 +37,7 @@ it('should render correctly', () => {
         recommended="Recommended for you"
         title="Radio Card Vertical"
         titleInfo="info"
-        vertical={true}
+        vertical
       >
         <div>content</div>
       </RadioCard>

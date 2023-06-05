@@ -62,7 +62,7 @@ export default function SettingsSearchRenderer(props: SettingsSearchRendererProp
           value={searchQuery}
         />
         {showResults && (
-          <DropdownOverlay noPadding={true}>
+          <DropdownOverlay noPadding>
             <ul
               className="settings-search-results menu"
               title={translate('settings.search.results')}

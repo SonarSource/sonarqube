@@ -86,7 +86,7 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
           <>
             <RuleDetailsMeta
               canWrite={false}
-              hideSimilarRulesFilter={true}
+              hideSimilarRulesFilter
               onFilterChange={this.noOp}
               onTagsChange={this.noOp}
               referencedRepositories={this.state.referencedRepositories}

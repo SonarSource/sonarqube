@@ -26,7 +26,7 @@ import ComponentMeasuresApp from './components/ComponentMeasuresApp';
 
 const routes = () => (
   <Route path="component_measures">
-    <Route index={true} element={<ComponentMeasuresApp />} />
+    <Route index element={<ComponentMeasuresApp />} />
     <Route
       path="domain/:domainName"
       element={
@@ -61,7 +61,7 @@ function MetricRedirect() {
         })
       ).toString(),
     };
-    return <Navigate to={to} replace={true} />;
+    return <Navigate to={to} replace />;
   }
   const to = {
     pathname: '/component_measures',
@@ -73,7 +73,7 @@ function MetricRedirect() {
       })
     ).toString(),
   };
-  return <Navigate to={to} replace={true} />;
+  return <Navigate to={to} replace />;
 }
 
 export default routes;

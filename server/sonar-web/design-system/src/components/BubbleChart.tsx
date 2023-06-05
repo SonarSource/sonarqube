@@ -381,7 +381,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
           </ButtonSecondary>
         )}
       </div>
-      <AutoSizer disableHeight={true}>{(size) => renderChart(size.width)}</AutoSizer>
+      <AutoSizer disableHeight>{(size) => renderChart(size.width)}</AutoSizer>
     </div>
   );
 }

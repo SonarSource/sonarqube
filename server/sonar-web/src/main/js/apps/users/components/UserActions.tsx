@@ -95,7 +95,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
         {isUserActive(user) && (!this.isInstanceManaged() || this.isUserLocal()) && (
           <ActionsDropdownItem
             className="js-user-deactivate"
-            destructive={true}
+            destructive
             onClick={this.handleOpenDeactivateForm}
           >
             {translate('users.deactivate')}

@@ -72,7 +72,7 @@ function renderAlmBindingDefinitionForm(props: Partial<AlmBindingDefinitionFormP
     <AlmBindingDefinitionForm
       onCancel={onCancel}
       afterSubmit={jest.fn()}
-      enforceValidation={true}
+      enforceValidation
       alm={AlmKeys.GitLab}
       {...props}
     />

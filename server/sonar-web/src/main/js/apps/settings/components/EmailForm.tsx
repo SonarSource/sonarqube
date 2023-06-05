@@ -131,7 +131,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
               disabled={loading}
               id="test-email-to"
               onChange={this.onRecipientChange}
-              required={true}
+              required
               type="email"
               value={recipient}
             />
@@ -159,7 +159,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
               disabled={loading}
               id="test-email-message"
               onChange={this.onMessageChange}
-              required={true}
+              required
               rows={5}
               value={message}
             />

@@ -101,13 +101,13 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           {token.project?.name}
         </td>
         <td className="thin nowrap">
-          <DateFromNow date={token.lastConnectionDate} hourPrecision={true} />
+          <DateFromNow date={token.lastConnectionDate} hourPrecision />
         </td>
         <td className="thin nowrap text-right">
-          <DateFormatter date={token.createdAt} long={true} />
+          <DateFormatter date={token.createdAt} long />
         </td>
         <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
-          {token.expirationDate ? <DateFormatter date={token.expirationDate} long={true} /> : '–'}
+          {token.expirationDate ? <DateFormatter date={token.expirationDate} long /> : '–'}
         </td>
         <td className="thin nowrap text-right">
           {token.isExpired && (
@@ -125,7 +125,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           {!token.isExpired && deleteConfirmation === 'modal' && (
             <ConfirmButton
               confirmButtonText={translate('yes')}
-              isDestructive={true}
+              isDestructive
               modalBody={
                 <FormattedMessage
                   defaultMessage={translate('users.tokens.sure_X')}

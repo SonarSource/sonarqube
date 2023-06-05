@@ -90,7 +90,7 @@ function renderSearchSelectDropdown(props: Partial<FCProps<typeof SearchSelectDr
       aria-label="label"
       controlLabel="not assigned"
       defaultOptions={defaultOptions}
-      isDiscreet={true}
+      isDiscreet
       loadOptions={loadOptions}
       placeholder="search for things"
       {...props}

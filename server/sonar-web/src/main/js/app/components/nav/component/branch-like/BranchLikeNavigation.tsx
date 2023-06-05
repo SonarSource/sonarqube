@@ -71,7 +71,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   return (
     <div className="sw-flex sw-items-center it__branch-like-navigation-toggler-container">
       <Popup
-        allowResizing={true}
+        allowResizing
         overlay={
           isMenuOpen && (
             <FocusOutHandler onFocusOut={handleOutsideClick}>

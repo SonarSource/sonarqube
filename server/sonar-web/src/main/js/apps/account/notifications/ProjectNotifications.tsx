@@ -83,7 +83,7 @@ export default function ProjectNotifications(props: Props) {
           notifications={props.notifications}
           onAdd={handleAddNotification}
           onRemove={handleRemoveNotification}
-          project={true}
+          project
           types={props.types}
         />
       </table>

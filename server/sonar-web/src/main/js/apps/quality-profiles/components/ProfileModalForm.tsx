@@ -80,14 +80,14 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
               <MandatoryFieldMarker />
             </label>
             <input
-              autoFocus={true}
+              autoFocus
               id="profile-name"
               maxLength={100}
               name="name"
               onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
                 setName(e.currentTarget.value);
               }}
-              required={true}
+              required
               size={50}
               type="text"
               value={name ?? profile.name}

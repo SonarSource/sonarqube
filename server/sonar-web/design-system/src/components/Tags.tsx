@@ -75,7 +75,7 @@ export function Tags({
     >
       {allowUpdate ? (
         <Dropdown
-          allowResizing={true}
+          allowResizing
           closeOnClick={false}
           id={menuId}
           overlay={overlay}

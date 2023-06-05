@@ -366,7 +366,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     const search = (
       <div className="sw-min-w-abs-200 sw-max-w-abs-350 sw-w-full">
         <Popup
-          allowResizing={true}
+          allowResizing
           overlay={
             open && (
               <DropdownMenu
@@ -427,7 +427,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
               className="it__search-icon"
               Icon={MenuSearchIcon}
               aria-label={translate('search_verb')}
-              currentColor={true}
+              currentColor
               onClick={this.handleFocus}
               size="medium"
             />

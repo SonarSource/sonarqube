@@ -64,7 +64,7 @@ export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationB
             messageFormattings={hotspot.messageFormattings}
           />
         }
-        selected={true}
+        selected
         className="sw-cursor-default"
       />
     </div>

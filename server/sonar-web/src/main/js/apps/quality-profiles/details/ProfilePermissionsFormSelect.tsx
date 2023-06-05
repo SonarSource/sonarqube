@@ -84,16 +84,16 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     return (
       <SearchSelect
         className="width-100"
-        autoFocus={true}
+        autoFocus
         isClearable={false}
         id="change-profile-permission"
         inputId="change-profile-permission-input"
         onChange={this.props.onChange}
-        defaultOptions={true}
+        defaultOptions
         loadOptions={this.handleSearch}
         placeholder=""
         noOptionsMessage={() => noResultsText}
-        large={true}
+        large
         components={{
           Option: this.optionRenderer,
           SingleValue: this.singleValueRenderer,

@@ -53,7 +53,7 @@ export default function IssueMessage(props: IssueMessageProps) {
     <>
       <div className="display-inline-flex-center issue-message break-word">
         {props.onClick ? (
-          <ButtonPlain preventDefault={true} className="spacer-right" onClick={props.onClick}>
+          <ButtonPlain preventDefault className="spacer-right" onClick={props.onClick}>
             <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
           </ButtonPlain>
         ) : (

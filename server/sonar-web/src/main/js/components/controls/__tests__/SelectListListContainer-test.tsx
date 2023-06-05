@@ -29,7 +29,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<SelectListListContainer['props']> = {}) {
   return shallow(
     <SelectListListContainer
-      allowBulkSelection={true}
+      allowBulkSelection
       disabledElements={[]}
       elements={['foo', 'bar', 'baz']}
       filter={SelectListFilter.All}

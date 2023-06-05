@@ -176,11 +176,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
           </ActionsDropdownItem>
 
           {t.defaultFor.length === 0 && (
-            <ActionsDropdownItem
-              className="js-delete"
-              destructive={true}
-              onClick={this.handleDeleteClick}
-            >
+            <ActionsDropdownItem className="js-delete" destructive onClick={this.handleDeleteClick}>
               {translate('delete')}
             </ActionsDropdownItem>
           )}

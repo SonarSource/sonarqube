@@ -196,7 +196,7 @@ function shallowRender(props: Partial<Props<string>> = {}) {
       onChange={jest.fn()}
       onSearch={jest.fn()}
       onToggle={jest.fn()}
-      open={true}
+      open
       property="foo"
       renderFacetItem={identity}
       renderSearchResult={identity}

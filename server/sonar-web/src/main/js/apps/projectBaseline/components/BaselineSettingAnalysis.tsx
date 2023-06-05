@@ -30,7 +30,7 @@ export interface Props {
 export default function BaselineSettingAnalysis({ onSelect, selected }: Props) {
   return (
     <RadioCard
-      disabled={true}
+      disabled
       onClick={() => onSelect(NewCodePeriodSettingType.SPECIFIC_ANALYSIS)}
       selected={selected}
       title={translate('baseline.specific_analysis')}

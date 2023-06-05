@@ -27,7 +27,7 @@ import Security from './security/Security';
 
 const routes = () => (
   <Route path="account" element={<Account />}>
-    <Route index={true} element={<Profile />} />
+    <Route index element={<Profile />} />
     <Route path="security" element={<Security />} />
     <Route path="projects" element={<ProjectsContainer />} />
     <Route path="notifications" element={<Notifications />} />

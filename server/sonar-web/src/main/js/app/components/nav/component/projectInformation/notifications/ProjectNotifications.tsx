@@ -92,7 +92,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
             notifications={projectNotifications}
             onAdd={handleAddNotification}
             onRemove={handleRemoveNotification}
-            project={true}
+            project
             types={perProjectTypes}
           />
         </table>

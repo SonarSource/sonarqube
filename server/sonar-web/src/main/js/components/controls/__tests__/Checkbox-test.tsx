@@ -66,10 +66,8 @@ it('should render the checkbox on the right', () => {
 });
 
 function renderCheckbox(override?: Partial<Checkbox['props']>) {
-  const { rerender } = renderComponent(
-    <Checkbox checked={true} onCheck={jest.fn()} {...override} />
-  );
+  const { rerender } = renderComponent(<Checkbox checked onCheck={jest.fn()} {...override} />);
   return function (reoverride?: Partial<Checkbox['props']>) {
-    rerender(<Checkbox checked={true} onCheck={jest.fn()} {...override} {...reoverride} />);
+    rerender(<Checkbox checked onCheck={jest.fn()} {...override} {...reoverride} />);
   };
 }

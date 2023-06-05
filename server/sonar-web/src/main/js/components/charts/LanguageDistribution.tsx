@@ -55,7 +55,7 @@ export function LanguageDistribution(props: LanguageDistributionProps) {
     <Histogram
       bars={data}
       height={parsedDistribution.length * 25}
-      leftAlignTicks={true}
+      leftAlignTicks
       padding={[0, 60, 0, 80]}
       width={260}
       yTicks={yTicks}

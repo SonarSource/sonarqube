@@ -107,7 +107,7 @@ export default function ConfigurationForm(props: Props) {
       contentLabel={headerLabel}
       onRequestClose={props.onClose}
       shouldCloseOnOverlayClick={false}
-      shouldCloseOnEsc={true}
+      shouldCloseOnEsc
       size="medium"
     >
       <form onSubmit={handleSubmit}>

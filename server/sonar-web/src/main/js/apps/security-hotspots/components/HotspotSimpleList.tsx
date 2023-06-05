@@ -110,7 +110,7 @@ export default function HotspotSimpleList(props: HotspotSimpleListProps) {
             </SubNavigationContainer>
           }
           id="hotspot-category"
-          expanded={true}
+          expanded
         >
           {hotspots.map((hotspot) => (
             <HotspotListItem

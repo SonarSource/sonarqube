@@ -92,7 +92,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
         {!isStaticListOfHotspots && (isBranch(branchLike) || userLoggedIn || isFiltered) && (
           <div className="sw-flex-grow sw-flex sw-justify-end">
             <Dropdown
-              allowResizing={true}
+              allowResizing
               closeOnClick={false}
               id="filter-hotspots-menu"
               overlay={
@@ -140,7 +140,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
                 </>
               }
               placement={PopupPlacement.BottomRight}
-              isPortal={true}
+              isPortal
             >
               <DiscreetInteractiveIcon
                 Icon={FilterIcon}

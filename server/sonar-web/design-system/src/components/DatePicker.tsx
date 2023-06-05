@@ -167,7 +167,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
         <OutsideClickHandler onClickOutside={this.closeCalendar}>
           <EscKeydownHandler onKeydown={this.closeCalendar}>
             <Popup
-              allowResizing={true}
+              allowResizing
               className="sw-overflow-visible" //Necessary for the month & year selectors
               overlay={
                 open ? (
@@ -218,7 +218,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
                   onClick={this.openCalendar}
                   onFocus={this.openCalendar}
                   placeholder={placeholder}
-                  readOnly={true}
+                  readOnly
                   ref={inputRef}
                   size={size}
                   title={this.props.valueFormatter(selectedDay)}

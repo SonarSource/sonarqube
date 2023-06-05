@@ -31,7 +31,7 @@ export function BranchStatus(props: BranchStatusProps) {
     return null;
   }
 
-  return <Level level={status} small={true} />;
+  return <Level level={status} small />;
 }
 
 export default withBranchStatus(BranchStatus);

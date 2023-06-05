@@ -94,7 +94,7 @@ export default function DataTableModal(props: DataTableModalProps) {
   ).map(({ date, ...values }) => (
     <tr key={date.getTime()}>
       <td className="nowrap">
-        <DateFormatter long={true} date={date} />
+        <DateFormatter long date={date} />
         <div className="small note">
           <TimeFormatter date={date} />
         </div>
@@ -108,7 +108,7 @@ export default function DataTableModal(props: DataTableModalProps) {
         <ul>
           {getAnalysisEventsForDate(analyses, date).map((event) => (
             <li className="little-spacer-bottom" key={event.key}>
-              <EventInner event={event} readonly={true} />
+              <EventInner event={event} readonly />
             </li>
           ))}
         </ul>
@@ -119,8 +119,8 @@ export default function DataTableModal(props: DataTableModalProps) {
   const rowCount = rows.length;
 
   if (rowCount === 0) {
-    const start = graphStartDate && <DateFormatter long={true} date={graphStartDate} />;
-    const end = graphEndDate && <DateFormatter long={true} date={graphEndDate} />;
+    const start = graphStartDate && <DateFormatter long date={graphStartDate} />;
+    const end = graphEndDate && <DateFormatter long date={graphEndDate} />;
     let suffix = '';
     if (start && end) {
       suffix = '_x_y';

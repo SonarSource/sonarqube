@@ -49,7 +49,7 @@ export default function ClangGCCCustom(props: ClangGCCCustomProps) {
         component={component}
         os={os}
         token={token}
-        cfamily={true}
+        cfamily
       />
     </div>
   );

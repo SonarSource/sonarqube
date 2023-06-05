@@ -108,7 +108,7 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
           <ActionsDropdownDivider />
           <ActionsDropdownItem
             className="js-webhook-delete"
-            destructive={true}
+            destructive
             onClick={this.handleDeleteClick}
           >
             {translate('delete')}

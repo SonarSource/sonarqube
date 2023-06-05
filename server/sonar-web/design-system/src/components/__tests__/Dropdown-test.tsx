@@ -42,7 +42,7 @@ describe('Dropdown with Portal Wrapper', () => {
 
   function setupWithChildren(children?: Dropdown['props']['children']) {
     return renderWithRouter(
-      <Dropdown id="test-menu" isPortal={true} overlay={<div id="overlay" />}>
+      <Dropdown id="test-menu" isPortal overlay={<div id="overlay" />}>
         {children ?? <ButtonSecondary />}
       </Dropdown>
     );

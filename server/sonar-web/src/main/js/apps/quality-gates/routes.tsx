@@ -23,7 +23,7 @@ import App from './components/App';
 
 const routes = () => (
   <Route path="quality_gates">
-    <Route index={true} element={<App />} />
+    <Route index element={<App />} />
     <Route path="show/:name" element={<App />} />
   </Route>
 );

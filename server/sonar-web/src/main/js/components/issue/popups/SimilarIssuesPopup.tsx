@@ -55,7 +55,7 @@ export default function SimilarIssuesPopup(props: SimilarIssuesPopupProps) {
   const assignee = issue.assigneeName ?? issue.assignee;
 
   return (
-    <DropdownOverlay noPadding={true}>
+    <DropdownOverlay noPadding>
       <div className="menu-search">
         <h6>{translate('issue.filter_similar_issues')}</h6>
       </div>

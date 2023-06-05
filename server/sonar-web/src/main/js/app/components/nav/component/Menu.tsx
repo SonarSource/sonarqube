@@ -305,7 +305,7 @@ export class Menu extends React.PureComponent<Props> {
                 ? translate('layout.settings', component.qualifier)
                 : translate('layout.settings')
             }
-            withChevron={true}
+            withChevron
             to={{}}
             {...a11yAttrs}
           />
@@ -356,7 +356,7 @@ export class Menu extends React.PureComponent<Props> {
         <li className="sw-body-md sw-pb-4">
           <Link
             onClick={this.props.onToggleProjectInfo}
-            preventDefault={true}
+            preventDefault
             ref={(node: HTMLAnchorElement | null) => (this.projectInfoLink = node)}
             to={{}}
           >
@@ -603,9 +603,9 @@ export class Menu extends React.PureComponent<Props> {
           <NavBarTabLink
             active={open}
             onClick={onToggleClick}
-            preventDefault={true}
+            preventDefault
             text={translate('more')}
-            withChevron={true}
+            withChevron
             to={{}}
             {...a11yAttrs}
           />

@@ -95,11 +95,7 @@ export default function FlowsList(props: Props) {
                 : flow.description
             }
             renderHeader={() => (
-              <ConciseIssueLocationBadge
-                count={flow.locations.length}
-                flow={true}
-                selected={open}
-              />
+              <ConciseIssueLocationBadge count={flow.locations.length} flow selected={open} />
             )}
           >
             {fileLocationNavigator}

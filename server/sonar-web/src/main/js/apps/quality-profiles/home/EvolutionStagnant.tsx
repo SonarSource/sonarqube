@@ -54,7 +54,7 @@ export default function EvolutionStagnant(props: Props) {
               </ProfileLink>
             </div>
             {profile.rulesUpdatedAt && (
-              <DateFormatter date={profile.rulesUpdatedAt} long={true}>
+              <DateFormatter date={profile.rulesUpdatedAt} long>
                 {(formattedDate) => (
                   <div className="note">
                     {translateWithParameters(

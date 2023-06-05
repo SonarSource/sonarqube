@@ -75,11 +75,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
     const showClearButton = values != null && values.length > 0 && this.props.onClear != null;
     const header = disabled ? (
       <Tooltip overlay={disabledHelper}>
-        <ButtonLink
-          className="disabled"
-          aria-disabled={true}
-          aria-label={`${name}, ${disabledHelper}`}
-        >
+        <ButtonLink className="disabled" aria-disabled aria-label={`${name}, ${disabledHelper}`}>
           {name}
         </ButtonLink>
       </Tooltip>

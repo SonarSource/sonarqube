@@ -166,7 +166,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
             <NewCodeDefinitionWarning
               newCodeDefinitionType={currentSetting}
               newCodeDefinitionValue={currentSettingValue}
-              isBranchSupportEnabled={true}
+              isBranchSupportEnabled
               level="branch"
             />
             <div className="display-flex-row huge-spacer-bottom" role="radiogroup">

@@ -198,7 +198,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           onAssign={this.handleAssignement}
           onChange={this.props.onIssueChange}
           togglePopup={this.handleIssuePopupToggle}
-          showCommentsInPopup={true}
+          showCommentsInPopup
         />
       </>
     );

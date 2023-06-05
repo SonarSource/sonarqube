@@ -53,7 +53,7 @@ function shallowRender(props?: any) {
       onApplyTemplate={jest.fn()}
       onProjectCheck={jest.fn()}
       project={project}
-      selected={true}
+      selected
       {...props}
     />
   );

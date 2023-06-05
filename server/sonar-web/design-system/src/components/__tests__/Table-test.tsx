@@ -47,7 +47,7 @@ it('check that the html structure and style is correct for a regular table', () 
           <NumericalCell>NumericalCell 1</NumericalCell>
           <CheckboxCell>CheckboxCell 1</CheckboxCell>
         </TableRowInteractive>
-        <TableRowInteractive selected={true}>
+        <TableRowInteractive selected>
           <ContentCell>ContentCell 2</ContentCell>
           <NumericalCell>NumericalCell 2</NumericalCell>
           <CheckboxCell>CheckboxCell 2</CheckboxCell>

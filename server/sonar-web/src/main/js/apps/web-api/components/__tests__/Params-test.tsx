@@ -34,9 +34,7 @@ it('should render deprecated and internal parameters', () => {
     { ...DEFAULT_PARAM, deprecatedSince: '5.0' },
     { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true },
   ];
-  expect(
-    shallow(<Params params={params} showDeprecated={true} showInternal={true} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Params params={params} showDeprecated showInternal />)).toMatchSnapshot();
 });
 
 it('should not render deprecated parameters', () => {
@@ -51,9 +49,7 @@ it('should render deprecated key', () => {
     { ...DEFAULT_PARAM, deprecatedKey: 'foo-deprecated', deprecatedKeySince: '5.0' },
     { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true },
   ];
-  expect(
-    shallow(<Params params={params} showDeprecated={true} showInternal={false} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Params params={params} showDeprecated showInternal={false} />)).toMatchSnapshot();
 });
 
 it('should render different value constraints', () => {
@@ -68,7 +64,5 @@ it('should render different value constraints', () => {
     maxValuesAllowed: 1000,
     possibleValues: ['foo', 'bar'],
   };
-  expect(
-    shallow(<Params params={[param]} showDeprecated={true} showInternal={true} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Params params={[param]} showDeprecated showInternal />)).toMatchSnapshot();
 });

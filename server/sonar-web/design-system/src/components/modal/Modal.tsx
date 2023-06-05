@@ -93,10 +93,10 @@ export function Modal({
         isOpen={isOpen}
         onRequestClose={onClose}
         overlayClassName="design-system-modal-overlay"
-        shouldCloseOnEsc={true}
+        shouldCloseOnEsc
         shouldCloseOnOverlayClick={closeOnOverlayClick}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
+        shouldFocusAfterRender
+        shouldReturnFocusAfterClose
       >
         {hasNoChildren(props) ? (
           <>

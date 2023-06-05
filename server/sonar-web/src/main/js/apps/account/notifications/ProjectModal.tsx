@@ -180,7 +180,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
               <div className="modal-field abs-width-400">
                 <label>{translate('my_account.set_notifications_for')}</label>
                 <SearchBox
-                  autoFocus={true}
+                  autoFocus
                   onChange={this.handleSearch}
                   onKeyDown={this.handleKeyDown}
                   placeholder={translate('search.placeholder')}
@@ -191,7 +191,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
                 {!loading && open && (
                   <div className="position-relative">
-                    <DropdownOverlay className="abs-width-400" noPadding={true}>
+                    <DropdownOverlay className="abs-width-400" noPadding>
                       {suggestions && suggestions.length > 0 ? (
                         <ul className="notifications-add-project-search-results">
                           {suggestions.map((suggestion) => (

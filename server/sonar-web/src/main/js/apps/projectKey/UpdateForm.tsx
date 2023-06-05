@@ -79,7 +79,7 @@ export default function UpdateForm(props: UpdateFormProps) {
             touched={hasChanged}
             placeholder={translate('update_key.new_key')}
             projectKey={value}
-            autofocus={true}
+            autofocus
           />
 
           <div className="spacer-top">

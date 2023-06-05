@@ -28,7 +28,7 @@ export interface MandatoryFieldsExplanationProps {
 
 export default function MandatoryFieldsExplanation({ className }: MandatoryFieldsExplanationProps) {
   return (
-    <div aria-hidden={true} className={classNames('text-muted', className)}>
+    <div aria-hidden className={classNames('text-muted', className)}>
       <FormattedMessage
         id="fields_marked_with_x_required"
         defaultMessage={translate('fields_marked_with_x_required')}

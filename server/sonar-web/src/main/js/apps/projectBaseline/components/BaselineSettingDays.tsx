@@ -69,7 +69,7 @@ export default function BaselineSettingDays(props: Props) {
                 MAX_NUMBER_OF_DAYS
               )}
               label={translate('baseline.specify_days')}
-              required={true}
+              required
             >
               <input
                 id="baseline_number_of_days"

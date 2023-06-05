@@ -51,7 +51,7 @@ export function MultiSelectOption(props: MultiSelectOptionProps) {
           className="sw-ml-3"
           title={createElementLabel}
         >
-          <span aria-hidden={true} className="sw-mr-1">
+          <span aria-hidden className="sw-mr-1">
             +
           </span>
           {element}

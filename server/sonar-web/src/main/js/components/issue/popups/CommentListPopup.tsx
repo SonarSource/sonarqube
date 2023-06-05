@@ -68,7 +68,7 @@ export default class CommentListPopup extends React.PureComponent<Props, {}> {
               placeholder={placeholder}
               onCancel={this.handleCancelClick}
               onSaveComment={this.handleCommentClick}
-              showFormatHelp={true}
+              showFormatHelp
             />
           )}
         </div>

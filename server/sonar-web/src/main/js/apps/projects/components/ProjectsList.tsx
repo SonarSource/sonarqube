@@ -76,12 +76,12 @@ export default class ProjectsList extends React.PureComponent<Props> {
     return (
       <WindowScroller>
         {({ height, isScrolling, onChildScroll, scrollTop }) => (
-          <AutoSizer disableHeight={true}>
+          <AutoSizer disableHeight>
             {({ width }) => (
               <div>
                 <List
                   aria-label={translate('project_plural')}
-                  autoHeight={true}
+                  autoHeight
                   height={height}
                   isScrolling={isScrolling}
                   onScroll={onChildScroll}

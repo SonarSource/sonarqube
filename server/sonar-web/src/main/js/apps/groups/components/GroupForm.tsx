@@ -96,14 +96,14 @@ export default function GroupForm(props: Props) {
                 <MandatoryFieldMarker />
               </label>
               <input
-                autoFocus={true}
+                autoFocus
                 id="create-group-name"
                 maxLength={255}
                 name="name"
                 onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
                   setName(event.currentTarget.value);
                 }}
-                required={true}
+                required
                 size={50}
                 type="text"
                 value={name}

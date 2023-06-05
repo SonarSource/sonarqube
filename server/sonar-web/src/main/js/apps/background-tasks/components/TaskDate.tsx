@@ -39,7 +39,7 @@ export default function TaskDate({ date, baseDate }: Props) {
     <td className="thin nowrap text-right">
       {diff > 0 && <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>}
 
-      {parsedDate && isValidDate(parsedDate) ? <TimeFormatter date={parsedDate} long={true} /> : ''}
+      {parsedDate && isValidDate(parsedDate) ? <TimeFormatter date={parsedDate} long /> : ''}
     </td>
   );
 }

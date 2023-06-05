@@ -648,7 +648,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
             <div className="layout-page-main-inner">
               {openRule ? (
                 <RuleDetails
-                  allowCustomRules={true}
+                  allowCustomRules
                   canWrite={this.state.canWrite}
                   onActivate={this.handleRuleActivate}
                   onDeactivate={this.handleRuleDeactivate}

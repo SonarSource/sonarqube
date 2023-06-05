@@ -53,7 +53,7 @@ function SearchResults(props: SearchResultsProps) {
           >
             <ComponentName
               branchLike={branchLike}
-              canBrowse={true}
+              canBrowse
               component={component}
               rootComponent={rootComponent}
               newCodeSelected={newCodeSelected}

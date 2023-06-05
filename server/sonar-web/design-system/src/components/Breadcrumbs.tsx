@@ -144,7 +144,7 @@ export function Breadcrumbs(props: Props) {
     >
       {showDropdownMenu && (
         <Dropdown
-          allowResizing={true}
+          allowResizing
           className="sw-px-2"
           id="breadcrumb-menu"
           overlay={React.Children.map(children, (child) => (

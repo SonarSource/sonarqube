@@ -60,10 +60,10 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
           <FormattedMessage
             defaultMessage={translate('event.quality_gate.still_x')}
             id="event.quality_gate.still_x"
-            values={{ status: <Level level={event.qualityGate.status} small={true} /> }}
+            values={{ status: <Level level={event.qualityGate.status} small /> }}
           />
         ) : (
-          <Level level={event.qualityGate.status} small={true} />
+          <Level level={event.qualityGate.status} small />
         )}
 
         <div>
@@ -71,7 +71,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
             <ResetButtonLink
               className="project-activity-event-inner-more-link"
               onClick={this.toggleProjectsList}
-              stopPropagation={true}
+              stopPropagation
             >
               {expanded ? translate('hide') : translate('more')}
               <DropdownIcon className="little-spacer-left" turned={expanded} />
@@ -87,7 +87,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
                   aria-label={translate('quality_gates.status')}
                   className="spacer-right"
                   level={event.qualityGate.status}
-                  small={true}
+                  small
                 />
                 <div className="flex-1 text-ellipsis">
                   <ClickEventBoundary>

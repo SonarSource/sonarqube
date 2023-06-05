@@ -37,7 +37,7 @@ export default function AzureForm(props: AzureFormProps) {
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.azure.help')}
         id="name.azure"
         onFieldChange={onFieldChange}
@@ -90,13 +90,13 @@ export default function AzureForm(props: AzureFormProps) {
           />
         }
         id="personal_access_token"
-        isTextArea={true}
+        isTextArea
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken}
         maxLength={2000}
-        isSecret={true}
+        isSecret
       />
     </>
   );

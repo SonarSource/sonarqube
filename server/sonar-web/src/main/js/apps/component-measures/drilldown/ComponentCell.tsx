@@ -86,7 +86,7 @@ export default function ComponentCell(props: ComponentCellProps) {
   return (
     <ContentCell className="sw-py-3 sw-truncate sw-flex">
       <HoverLink
-        aria-hidden={true}
+        aria-hidden
         tabIndex={-1}
         icon={<QualifierIcon qualifier={component.qualifier} />}
         to={path}

@@ -248,7 +248,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             isInvalid={projectNameIsInvalid}
             isValid={projectNameIsValid}
             label={translate('onboarding.create_project.display_name')}
-            required={true}
+            required
           >
             <input
               className={classNames('input-super-large', {
@@ -261,7 +261,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
               type="text"
               value={projectName}
-              autoFocus={true}
+              autoFocus
             />
           </ValidationInput>
           <ProjectKeyInput
@@ -293,7 +293,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             isInvalid={mainBranchNameIsInvalid}
             isValid={mainBranchNameIsValid}
             label={translate('onboarding.create_project.main_branch_name')}
-            required={true}
+            required
           >
             <input
               id="main-branch-name"

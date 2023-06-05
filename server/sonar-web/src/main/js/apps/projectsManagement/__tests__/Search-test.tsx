@@ -150,7 +150,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       provisioned={false}
       qualifiers="TRK"
       query=""
-      ready={true}
+      ready
       selection={[]}
       appState={mockAppState({ qualifiers: ['TRK'] })}
       total={17}

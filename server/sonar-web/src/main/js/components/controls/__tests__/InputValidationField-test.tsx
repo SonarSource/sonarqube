@@ -29,14 +29,14 @@ function getWrapper(props = {}) {
   return shallow(
     <InputValidationField
       description="Field description"
-      dirty={true}
+      dirty
       disabled={false}
       error="Bad formatting"
       label="Foo field"
       name="field"
       onBlur={jest.fn()}
       onChange={jest.fn()}
-      touched={true}
+      touched
       value="foo"
       {...props}
     />

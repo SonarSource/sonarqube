@@ -97,10 +97,10 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
       <div>
         <DropdownToggler
           onRequestClose={() => this.cleanState()}
-          allowResizing={true}
+          allowResizing
           open={ides.length > 1}
           placement={PopupPlacement.BottomLeft}
-          isPortal={true}
+          isPortal
           overlay={
             <DropdownMenu size="auto">
               {ides.map((ide) => {

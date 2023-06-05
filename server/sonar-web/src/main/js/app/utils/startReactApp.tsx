@@ -205,7 +205,7 @@ export default function startReactApp(
                         {sessionsRoutes()}
 
                         <Route path="/" element={<App />}>
-                          <Route index={true} element={<Landing />} />
+                          <Route index element={<Landing />} />
 
                           <Route element={<GlobalContainer />}>
                             {accountRoutes()}

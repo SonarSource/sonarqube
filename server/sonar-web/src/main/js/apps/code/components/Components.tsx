@@ -79,7 +79,7 @@ function Components(props: ComponentsProps) {
                 canBePinned={canBePinned}
                 component={baseComponent}
                 hasBaseComponent={false}
-                isBaseComponent={true}
+                isBaseComponent
                 key={baseComponent.key}
                 metrics={metrics}
                 rootComponent={rootComponent}
@@ -104,7 +104,7 @@ function Components(props: ComponentsProps) {
               <Component
                 branchLike={branchLike}
                 canBePinned={canBePinned}
-                canBrowse={true}
+                canBrowse
                 component={component}
                 hasBaseComponent={baseComponent !== undefined}
                 key={getComponentMeasureUniqueKey(component)}

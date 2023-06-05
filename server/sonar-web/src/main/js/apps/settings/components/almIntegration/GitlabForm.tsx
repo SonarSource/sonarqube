@@ -37,7 +37,7 @@ export default function GitlabForm(props: GitlabFormProps) {
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.gitlab.help')}
         id="name.gitlab"
         onFieldChange={onFieldChange}
@@ -86,13 +86,13 @@ export default function GitlabForm(props: GitlabFormProps) {
           />
         }
         id="personal_access_token"
-        isTextArea={true}
+        isTextArea
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken}
         maxLength={2000}
-        isSecret={true}
+        isSecret
       />
     </>
   );

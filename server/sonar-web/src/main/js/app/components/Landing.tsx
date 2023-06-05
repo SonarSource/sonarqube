@@ -35,7 +35,7 @@ export function Landing({ currentUser }: LandingProps) {
     redirectUrl = '/projects';
   }
 
-  return <Navigate to={redirectUrl} replace={true} />;
+  return <Navigate to={redirectUrl} replace />;
 }
 
 export default withCurrentUserContext(Landing);

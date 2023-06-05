@@ -74,7 +74,7 @@ export default function ScopeFacet(props: ScopeFacetProps) {
                       <QualifierIcon
                         className="little-spacer-right"
                         qualifier={qualifier}
-                        aria-hidden={true}
+                        aria-hidden
                       />{' '}
                       {translate('issue.scope', scope)}
                     </span>

@@ -43,7 +43,7 @@ export default function MeasureCell({ component, measure, metric }: Props) {
         metricKey={metric.key}
         metricType={metric.type}
         value={value}
-        small={true}
+        small
         ratingComponent={
           <MetricsRatingBadge
             label={

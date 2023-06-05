@@ -42,7 +42,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
   return (
     <>
       <AlmBindingDefinitionFormField
-        autoFocus={true}
+        autoFocus
         help={translate('settings.almintegration.form.name.bitbucketcloud.help')}
         id="name.bitbucket"
         maxLength={200}
@@ -116,7 +116,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         propKey="clientSecret"
         value={formData.clientSecret || ''}
         maxLength={160}
-        isSecret={true}
+        isSecret
       />
     </>
   );

@@ -126,7 +126,7 @@ export default function UsersApp() {
       <Suggestions suggestions="users" />
       <Helmet defer={false} title={translate('users.page')} />
       <Header onUpdateUsers={fetchUsers} manageProvider={manageProvider} />
-      {manageProvider === Provider.Github && <GitHubSynchronisationWarning short={true} />}
+      {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
       <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
         <ManagedFilter
           manageProvider={manageProvider}

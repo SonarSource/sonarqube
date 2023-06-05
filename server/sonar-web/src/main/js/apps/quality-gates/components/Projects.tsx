@@ -172,7 +172,7 @@ export default class Projects extends React.PureComponent<Props, State> {
         readOnly={!this.props.canEdit}
         renderElement={this.renderElement}
         selectedElements={this.state.selectedProjects}
-        withPaging={true}
+        withPaging
         autoFocusSearch={false}
       />
     );

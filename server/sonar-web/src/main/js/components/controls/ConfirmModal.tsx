@@ -90,7 +90,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
           <footer className="modal-foot">
             <DeferredSpinner className="spacer-right" loading={submitting} />
             <SubmitButton
-              autoFocus={true}
+              autoFocus
               className={isDestructive ? 'button-red' : undefined}
               disabled={submitting || confirmDisable}
             >

@@ -69,7 +69,7 @@ export default function GlobalContainer() {
                           <MetricsContextProvider>
                             <SystemAnnouncement />
                             <IndexationNotification />
-                            <UpdateNotification dismissable={true} />
+                            <UpdateNotification dismissable />
                             <GlobalNav location={location} />
                             <Outlet />
                           </MetricsContextProvider>

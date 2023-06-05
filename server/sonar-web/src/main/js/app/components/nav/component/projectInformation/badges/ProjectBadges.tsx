@@ -151,10 +151,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
             <DeferredSpinner className="spacer-top spacer-bottom" loading={isRenewing} />
           </div>
         ) : (
-          <CodeSnippet
-            isOneLine={true}
-            snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
-          />
+          <CodeSnippet isOneLine snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)} />
         )}
 
         <Alert variant="warning">

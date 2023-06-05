@@ -46,7 +46,7 @@ function shallowRender(props?: Partial<VisibilitySelectorProps>) {
   return shallow<VisibilitySelectorProps>(
     <VisibilitySelector
       className="test-classname"
-      canTurnToPrivate={true}
+      canTurnToPrivate
       onChange={jest.fn()}
       visibility={Visibility.Public}
       {...props}

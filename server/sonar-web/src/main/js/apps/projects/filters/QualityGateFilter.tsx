@@ -62,7 +62,7 @@ export default function QualityGateFilter(props: Props) {
 function renderOption(option: string, selected: boolean) {
   return (
     <>
-      <Level level={option} muted={!selected} small={true} />
+      <Level level={option} muted={!selected} small />
       {option === 'WARN' && (
         <HelpTooltip
           className="little-spacer-left"

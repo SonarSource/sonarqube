@@ -218,7 +218,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       return (
         <div className="page page-limited">
           <Helmet defer={false} title={translate('background_tasks.page')} />
-          <DeferredSpinner loading={true} />
+          <DeferredSpinner loading />
         </div>
       );
     }

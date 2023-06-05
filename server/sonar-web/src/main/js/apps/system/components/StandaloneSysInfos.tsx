@@ -40,7 +40,7 @@ export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleC
   return (
     <>
       <HealthCard
-        biggerHealth={true}
+        biggerHealth
         health={getHealth(sysInfoData)}
         healthCauses={getHealthCauses(sysInfoData)}
         name={mainCardName}

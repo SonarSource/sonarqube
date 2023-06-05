@@ -80,7 +80,7 @@ class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & Wrapp
         {differenceInDays(new Date(), date) < 1 ? (
           <DateTimeFormatter date={date} />
         ) : (
-          <DateFormatter date={date} long={true} />
+          <DateFormatter date={date} long />
         )}
       </div>
     );

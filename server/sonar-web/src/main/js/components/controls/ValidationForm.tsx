@@ -61,7 +61,7 @@ export default class ValidationForm<V extends FormikValues> extends React.Compon
         initialValues={this.props.initialValues}
         onSubmit={this.handleSubmit}
         validate={this.props.validate}
-        validateOnMount={true}
+        validateOnMount
       >
         {({ handleSubmit, ...props }) => (
           <form onSubmit={handleSubmit}>{this.props.children(props)}</form>

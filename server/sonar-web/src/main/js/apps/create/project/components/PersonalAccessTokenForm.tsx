@@ -337,7 +337,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
     } = this.state;
 
     if (checkingPat) {
-      return <DeferredSpinner className="spacer-left" loading={true} />;
+      return <DeferredSpinner className="spacer-left" loading />;
     }
 
     const suffixTranslationKey = alm === AlmKeys.BitbucketCloud ? '.bitbucketcloud' : '';
@@ -371,10 +371,10 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
               isInvalid={false}
               isValid={false}
               label={translate('onboarding.create_project.enter_username')}
-              required={true}
+              required
             >
               <input
-                autoFocus={true}
+                autoFocus
                 className={classNames('input-super-large', {
                   'is-invalid': isInvalid,
                 })}
@@ -394,7 +394,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
             isInvalid={false}
             isValid={false}
             label={translate(`onboarding.create_project.enter_pat${suffixTranslationKey}`)}
-            required={true}
+            required
           >
             <input
               autoFocus={alm !== AlmKeys.BitbucketCloud}

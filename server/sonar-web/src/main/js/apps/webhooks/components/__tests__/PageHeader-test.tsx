@@ -24,7 +24,7 @@ import PageHeader from '../PageHeader';
 it('should render correctly', () => {
   expect(
     shallow(
-      <PageHeader loading={true}>
+      <PageHeader loading>
         <div />
       </PageHeader>
     )
