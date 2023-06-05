@@ -26,13 +26,14 @@ import { CurrentUserContextInterface } from '../../app/components/current-user/C
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
-import { RuleDetails } from '../../types/types';
+import { Issue, RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import BoxedTabs, { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
+
 import './style.css';
 
 interface RuleTabViewerProps extends CurrentUserContextInterface {
@@ -40,8 +41,12 @@ interface RuleTabViewerProps extends CurrentUserContextInterface {
   extendedDescription?: string;
   ruleDescriptionContextKey?: string;
   codeTabContent?: React.ReactNode;
+  activityTabContent?: React.ReactNode;
   scrollInTab?: boolean;
   location: Location;
+  selectedFlowIndex?: number;
+  selectedLocationIndex?: number;
+  issue?: Issue;
 }
 
 interface State {
@@ -62,6 +67,7 @@ export enum TabKeys {
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
+  Activity = 'activity',
   MoreInfo = 'more_info',
 }
 
@@ -98,19 +104,31 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   }
 
   componentDidUpdate(prevProps: RuleTabViewerProps, prevState: State) {
-    const { ruleDetails, codeTabContent, ruleDescriptionContextKey, currentUser } = this.props;
+    const {
+      ruleDetails,
+      ruleDescriptionContextKey,
+      currentUser,
+      issue,
+      selectedFlowIndex,
+      selectedLocationIndex,
+    } = this.props;
     const { selectedTab } = this.state;
 
     if (
       prevProps.ruleDetails.key !== ruleDetails.key ||
       prevProps.ruleDescriptionContextKey !== ruleDescriptionContextKey ||
-      prevProps.codeTabContent !== codeTabContent ||
+      prevProps.issue !== issue ||
+      prevProps.selectedFlowIndex !== selectedFlowIndex ||
+      prevProps.selectedLocationIndex !== selectedLocationIndex ||
       prevProps.currentUser !== currentUser
     ) {
       this.setState((pState) =>
         this.computeState(
           pState,
-          prevProps.ruleDetails !== ruleDetails || prevProps.codeTabContent !== codeTabContent
+          prevProps.ruleDetails !== ruleDetails ||
+            (prevProps.issue && issue && prevProps.issue.key !== issue.key) ||
+            prevProps.selectedFlowIndex !== selectedFlowIndex ||
+            prevProps.selectedLocationIndex !== selectedLocationIndex
         )
       );
     }
@@ -158,6 +176,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       ruleDetails: { descriptionSections, educationPrinciples, type: ruleType },
       ruleDescriptionContextKey,
       extendedDescription,
+      activityTabContent,
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
@@ -220,6 +239,11 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             defaultContextKey={ruleDescriptionContextKey}
           />
         ),
+      },
+      {
+        key: TabKeys.Activity,
+        label: translate('coding_rules.description_section.title', TabKeys.Activity),
+        content: activityTabContent,
       },
       {
         key: TabKeys.MoreInfo,

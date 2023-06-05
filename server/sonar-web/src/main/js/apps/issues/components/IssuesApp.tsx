@@ -93,6 +93,7 @@ import {
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueHeader from './IssueHeader';
+import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
@@ -1196,6 +1197,9 @@ export class App extends React.PureComponent<Props, State> {
                 ruleDetails={openRuleDetails}
                 extendedDescription={openRuleDetails.htmlNote}
                 ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                issue={openIssue}
+                selectedFlowIndex={this.state.selectedFlowIndex}
+                selectedLocationIndex={this.state.selectedLocationIndex}
                 codeTabContent={
                   <IssuesSourceViewer
                     branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
@@ -1209,6 +1213,12 @@ export class App extends React.PureComponent<Props, State> {
                   />
                 }
                 scrollInTab
+                activityTabContent={
+                  <IssueReviewHistoryAndComments
+                    issue={openIssue}
+                    onChange={this.handleIssueChange}
+                  />
+                }
               />
             </>
           ) : (

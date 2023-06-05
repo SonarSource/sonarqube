@@ -888,3 +888,74 @@ describe('redirects', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('Activity', () => {
+  it('should be able to add or update comment', async () => {
+    const user = userEvent.setup();
+    issuesHandler.setIsAdmin(true);
+    renderIssueApp();
+    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+
+    expect(
+      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+    );
+
+    // Add comment to the issue
+    await user.click(
+      screen.getByRole('button', {
+        name: `issue.activity.add_comment`,
+      })
+    );
+    await user.click(screen.getByRole('textbox'));
+    await user.keyboard('activity comment');
+    await user.click(screen.getByText('hotspots.comment.submit'));
+    expect(screen.getByText('activity comment')).toBeInTheDocument();
+
+    // Cancel editing the comment
+    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+    await user.click(screen.getByRole('textbox'));
+    await user.keyboard(' new');
+    await user.click(screen.getByRole('button', { name: 'cancel' }));
+    expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
+
+    // Edit the comment
+    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+    await user.click(screen.getByRole('textbox'));
+    await user.keyboard(' new');
+    await user.click(screen.getByText('hotspots.comment.submit'));
+    expect(screen.getByText('activity comment new')).toBeInTheDocument();
+
+    // Delete the comment
+    await user.click(screen.getByRole('button', { name: 'issue.comment.delete' }));
+    await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
+    expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
+  });
+
+  it('should be able to show changelog', async () => {
+    const user = userEvent.setup();
+    issuesHandler.setIsAdmin(true);
+    renderIssueApp();
+
+    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+
+    await user.click(
+      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+    );
+
+    expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'issue.changelog.changed_to.issue.changelog.field.assign.darth.vader (issue.changelog.was.luke.skywalker)'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'issue.changelog.changed_to.issue.changelog.field.status.REOPENED (issue.changelog.was.CONFIRMED)'
+      )
+    ).toBeInTheDocument();
+  });
+});

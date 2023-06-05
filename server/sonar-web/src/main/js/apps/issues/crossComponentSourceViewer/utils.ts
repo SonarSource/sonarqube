@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import { isDefined } from '../../../helpers/types';
 import { ComponentQualifier } from '../../../types/component';
+import { ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
 import {
   ExpandDirection,
   FlowLocation,
   Issue,
+  IssueChangelog,
   LineMap,
   Snippet,
   SnippetGroup,
@@ -243,4 +246,58 @@ export function expandSnippet({
 
 export function inSnippet(line: number, snippet: SourceLine[]) {
   return line >= snippet[0].line && line <= snippet[snippet.length - 1].line;
+}
+
+export function getIssueReviewHistory(
+  issue: Issue,
+  changelog: IssueChangelog[]
+): ReviewHistoryElement[] {
+  const history: ReviewHistoryElement[] = [];
+
+  if (issue.creationDate) {
+    history.push({
+      type: ReviewHistoryType.Creation,
+      date: issue.creationDate,
+      user: {
+        active: issue.assigneeActive,
+        avatar: issue.assigneeAvatar,
+        name: issue.assigneeName || issue.assigneeLogin,
+      },
+    });
+  }
+
+  if (changelog && changelog.length > 0) {
+    history.push(
+      ...changelog.map((log) => ({
+        type: ReviewHistoryType.Diff,
+        date: log.creationDate,
+        user: {
+          active: log.isUserActive,
+          avatar: log.avatar,
+          name: log.userName || log.user,
+        },
+        diffs: log.diffs,
+      }))
+    );
+  }
+
+  if (issue.comments && issue.comments.length > 0) {
+    history.push(
+      ...issue.comments.map((comment) => ({
+        type: ReviewHistoryType.Comment,
+        date: comment.createdAt,
+        updatable: comment.updatable,
+        user: {
+          active: comment.authorActive,
+          avatar: comment.authorAvatar,
+          name: comment.authorName || comment.authorLogin,
+        },
+        html: comment.htmlText,
+        key: comment.key,
+        markdown: comment.markdown,
+      }))
+    );
+  }
+
+  return sortBy(history, (elt) => elt.date).reverse();
 }
