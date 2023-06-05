@@ -214,7 +214,7 @@ public class ListActionIT {
 
     String response = ws.newRequest().execute().getInput();
 
-    assertJson(response).ignoreFields("id", "default")
+    assertJson(response).ignoreFields("default")
       .isSimilarTo(getClass().getResource("list-example.json"));
   }
 

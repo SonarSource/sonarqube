@@ -80,7 +80,6 @@ public class GetByProjectActionIT {
       .getInput();
 
     assertJson(result)
-      .ignoreFields("id")
       .isSimilarTo(getClass().getResource("get_by_project-example.json"));
   }
 
