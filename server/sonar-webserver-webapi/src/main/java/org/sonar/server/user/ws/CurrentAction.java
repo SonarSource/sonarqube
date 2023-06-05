@@ -194,7 +194,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private boolean shouldCleanProjectHomepage(Optional<ProjectDto> projectOptional, Optional<BranchDto> branchOptional) {
-    return !projectOptional.isPresent() || !branchOptional.isPresent() || !userSession.hasProjectPermission(USER, projectOptional.get());
+    return !projectOptional.isPresent() || !branchOptional.isPresent() || !userSession.hasEntityPermission(USER, projectOptional.get());
   }
 
   private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {

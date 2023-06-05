@@ -95,7 +95,7 @@ public class AnalysisStatusAction implements CeWsAction {
   private void doHandle(Request request, Response response, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(UserRole.USER, project);
       BranchDto branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, pullRequestKey);
 
       AnalysisStatusWsResponse.Builder responseBuilder = AnalysisStatusWsResponse.newBuilder();

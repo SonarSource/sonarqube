@@ -82,7 +82,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(USER, project);
+      userSession.checkEntityPermission(USER, project);
       ProjectAlmSettingDto projectAlmSetting = dbClient.projectAlmSettingDao().selectByProject(dbSession, project)
         .orElseThrow(() -> new NotFoundException(format("Project '%s' is not bound to any DevOps Platform", project.getKey())));
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, projectAlmSetting.getAlmSettingUuid())

@@ -118,13 +118,13 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+      protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
         // always root
         return Optional.of(componentUuid);
       }
 
       @Override
-      protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+      protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
         return true;
       }
 

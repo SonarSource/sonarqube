@@ -45,7 +45,7 @@ public class WebhookSupport {
   }
 
   void checkPermission(ProjectDto projectDto) {
-    userSession.checkProjectPermission(UserRole.ADMIN, projectDto);
+    userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
   }
 
   void checkPermission() {

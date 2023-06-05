@@ -756,7 +756,7 @@ public class ServerUserSessionIT {
     ProjectData privateProject = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(publicProject.getProjectDto(), privateProject.getProjectDto());
-    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(UserRole.USER, projectDto);
+    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedEntities(UserRole.USER, projectDto);
 
     assertThat(projectDtos).containsExactly(publicProject.getProjectDto());
   }
@@ -768,7 +768,7 @@ public class ServerUserSessionIT {
     ProjectData privateProject = db.components().insertPrivateProject();
 
     Set<ProjectDto> projectDto = Set.of(publicProject.getProjectDto(), privateProject.getProjectDto());
-    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(UserRole.USER, projectDto);
+    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedEntities(UserRole.USER, projectDto);
 
     assertThat(projectDtos).containsExactly(publicProject.getProjectDto());
   }
@@ -783,7 +783,7 @@ public class ServerUserSessionIT {
     ProjectDto privateProjectWithoutPermission = db.components().insertPrivateProject().getProjectDto();
 
     Set<ProjectDto> projectDto = Set.of(publicProject, privateProject, privateProjectWithoutPermission);
-    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(permission, projectDto);
+    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedEntities(permission, projectDto);
 
     assertThat(projectDtos).containsExactly(privateProject);
   }
@@ -798,7 +798,7 @@ public class ServerUserSessionIT {
     ProjectDto privateProjectWithoutPermission = db.components().insertPrivateProject().getProjectDto();
 
     Set<ProjectDto> projectDto = Set.of(publicProject, privateProject, privateProjectWithoutPermission);
-    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(permission, projectDto);
+    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedEntities(permission, projectDto);
 
     assertThat(projectDtos).isEmpty();
   }

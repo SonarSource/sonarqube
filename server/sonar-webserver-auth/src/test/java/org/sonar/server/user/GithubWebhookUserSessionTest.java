@@ -91,12 +91,12 @@ public class GithubWebhookUserSessionTest {
 
   @Test
   public void componentUuidToProjectUuid() {
-    assertThat(githubWebhookUserSession.componentUuidToProjectUuid("test")).isEmpty();
+    assertThat(githubWebhookUserSession.componentUuidToEntityUuid("test")).isEmpty();
   }
 
   @Test
   public void hasProjectUuidPermission() {
-    assertThat(githubWebhookUserSession.hasProjectUuidPermission("perm", "project")).isFalse();
+    assertThat(githubWebhookUserSession.hasEntityUuidPermission("perm", "project")).isFalse();
   }
 
   @Test

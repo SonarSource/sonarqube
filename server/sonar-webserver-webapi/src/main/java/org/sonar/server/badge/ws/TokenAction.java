@@ -81,7 +81,7 @@ public class TokenAction implements ProjectBadgesWsAction {
 
       ProjectDto projectDto = dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
         .orElseThrow(() -> new IllegalArgumentException(PROJECT_OR_APP_NOT_FOUND));
-      userSession.checkProjectPermission(UserRole.USER, projectDto);
+      userSession.checkEntityPermission(UserRole.USER, projectDto);
       ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
 
       if (projectBadgeTokenDto == null) {

@@ -117,7 +117,7 @@ public class AddProjectAction implements QProfileWsAction {
   }
 
   private void checkPermissions(QProfileDto profile, ProjectDto project) {
-    if (wsSupport.canAdministrate(profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
+    if (wsSupport.canAdministrate(profile) || userSession.hasEntityPermission(UserRole.ADMIN, project)) {
       return;
     }
 

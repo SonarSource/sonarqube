@@ -172,7 +172,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     void ensureAdminPermission(UserSession userSession) {
       if (!projectUuidMap.isEmpty()) {
-        List<ProjectDto> projectsUserHasAccessTo = userSession.keepAuthorizedProjects(UserRole.ADMIN, projectUuidMap.values());
+        List<ProjectDto> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.ADMIN, projectUuidMap.values());
         if (projectsUserHasAccessTo.size() != projectUuidMap.size()) {
           throw new ForbiddenException("Insufficient privileges");
         }

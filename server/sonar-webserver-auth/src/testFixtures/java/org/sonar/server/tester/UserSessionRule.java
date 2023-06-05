@@ -259,18 +259,13 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasProjectPermission(String permission, ProjectDto project) {
-    return currentUserSession.hasProjectPermission(permission, project);
-  }
-
-  @Override
   public boolean hasEntityPermission(String permission, EntityDto entity) {
-    return currentUserSession.hasProjectPermission(permission, entity.getUuid());
+    return currentUserSession.hasEntityPermission(permission, entity.getUuid());
   }
 
   @Override
-  public boolean hasProjectPermission(String permission, String projectUuid) {
-    return currentUserSession.hasProjectPermission(permission, projectUuid);
+  public boolean hasEntityPermission(String permission, String entityUuid) {
+    return currentUserSession.hasEntityPermission(permission, entityUuid);
   }
 
   @Override
@@ -301,11 +296,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> entities) {
     return currentUserSession.keepAuthorizedEntities(permission, entities);
-  }
-
-  @Override
-  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
-    return currentUserSession.keepAuthorizedProjects(permission, projects);
   }
 
   @Override
@@ -383,12 +373,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkEntityPermission(String projectPermission, EntityDto entity) {
     currentUserSession.checkEntityPermission(projectPermission, entity);
-    return this;
-  }
-
-  @Override
-  public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
-    currentUserSession.checkProjectPermission(projectPermission, project);
     return this;
   }
 

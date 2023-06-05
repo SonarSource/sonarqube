@@ -102,7 +102,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
 
       if (projectKey != null) {
         ProjectDto project = getProject(dbSession, projectKey);
-        userSession.checkProjectPermission(UserRole.ADMIN, project);
+        userSession.checkEntityPermission(UserRole.ADMIN, project);
         projectUuid = project.getUuid();
 
         if (branchKey != null) {

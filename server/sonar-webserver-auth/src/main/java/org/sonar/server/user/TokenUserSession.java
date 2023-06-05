@@ -39,15 +39,15 @@ public class TokenUserSession extends ServerUserSession {
   }
 
   @Override
-  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     switch (tokenType) {
       case USER_TOKEN:
-        return super.hasProjectUuidPermission(permission, projectUuid);
+        return super.hasEntityUuidPermission(permission, entityUuid);
       case PROJECT_ANALYSIS_TOKEN:
         return SCAN.equals(permission) &&
-          projectUuid.equals(userToken.getProjectUuid()) &&
-          (super.hasProjectUuidPermission(SCAN, projectUuid) || super.hasPermissionImpl(GlobalPermission.SCAN));
+               entityUuid.equals(userToken.getProjectUuid()) &&
+               (super.hasEntityUuidPermission(SCAN, entityUuid) || super.hasPermissionImpl(GlobalPermission.SCAN));
       case GLOBAL_ANALYSIS_TOKEN:
         //The case with a global analysis token has to return false always, since it is based on the assumption that the user
         // has global analysis privileges

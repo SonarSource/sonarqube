@@ -71,7 +71,7 @@ public class TagsWsSupport {
   }
 
   private void updateTagsForProjectsOrApplication(DbSession dbSession, List<String> tags, ProjectDto projectOrApplication) {
-    userSession.checkProjectPermission(UserRole.ADMIN, projectOrApplication);
+    userSession.checkEntityPermission(UserRole.ADMIN, projectOrApplication);
     projectOrApplication.setTags(tags);
     projectOrApplication.setUpdatedAt(system2.now());
     dbClient.projectDao().updateTags(dbSession, projectOrApplication);

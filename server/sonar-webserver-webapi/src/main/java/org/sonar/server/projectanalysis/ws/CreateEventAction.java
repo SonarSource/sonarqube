@@ -140,7 +140,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private void checkRequest(CreateEventRequest request, ProjectDto project) {
-    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(UserRole.ADMIN, project);
     checkArgument(EventCategory.VERSION != request.getCategory() || Qualifiers.PROJECT.equals(project.getQualifier()), "A version event must be created on a project");
     checkVersionName(request.getCategory(), request.getName());
   }

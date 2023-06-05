@@ -68,8 +68,8 @@ public class TokenUserSessionIT {
 
     TokenUserSession userSession = mockTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
@@ -84,8 +84,8 @@ public class TokenUserSessionIT {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
@@ -99,8 +99,8 @@ public class TokenUserSessionIT {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.getUuid())).isFalse();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project1.getUuid())).isTrue();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project2.getUuid())).isFalse();
   }
 
   @Test
@@ -140,7 +140,7 @@ public class TokenUserSessionIT {
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.getUuid())).isFalse();
+    assertThat(userSession.hasEntityUuidPermission(SCAN, project1.getUuid())).isFalse();
     assertThat(userSession.hasPermission(GlobalPermission.SCAN)).isTrue();
   }
 

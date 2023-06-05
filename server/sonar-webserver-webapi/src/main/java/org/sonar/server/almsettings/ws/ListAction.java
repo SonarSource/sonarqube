@@ -86,7 +86,7 @@ public class ListAction implements AlmSettingsWsAction {
       Request.StringParam projectKey = request.getParam(PARAM_PROJECT);
       if (projectKey.isPresent()) {
         ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey.getValue());
-        userSession.checkProjectPermission(ADMIN, project);
+        userSession.checkEntityPermission(ADMIN, project);
       } else {
         userSession.checkPermission(PROVISION_PROJECTS);
       }

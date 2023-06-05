@@ -70,7 +70,7 @@ public class SonarLintClientPermissionsValidator {
   private static void validateProjectPermissions(UserSession userSession, List<ProjectDto> projectDtos) {
     validateUsersDeactivationStatus(userSession);
     for (ProjectDto projectDto : projectDtos) {
-      userSession.checkProjectPermission(UserRole.USER, projectDto);
+      userSession.checkEntityPermission(UserRole.USER, projectDto);
     }
   }
 

@@ -334,7 +334,7 @@ public class SearchAction implements HotspotsWsAction {
       if (!SUPPORTED_QUALIFIERS.contains(appOrProjectAndBranch.getProject().getQualifier())) {
         throw new NotFoundException(format("Project '%s' not found", projectKey));
       }
-      userSession.checkProjectPermission(USER, appOrProjectAndBranch.getProject());
+      userSession.checkEntityPermission(USER, appOrProjectAndBranch.getProject());
       userSession.checkChildProjectsPermission(USER, appOrProjectAndBranch.getProject());
       return appOrProjectAndBranch;
     });

@@ -78,7 +78,7 @@ public class TokenRenewAction implements ProjectBadgesWsAction {
 
       ProjectDto projectDto = dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
         .orElseThrow(() -> new IllegalArgumentException(PROJECT_OR_APP_NOT_FOUND));
-      userSession.checkProjectPermission(UserRole.ADMIN, projectDto);
+      userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
       String newGeneratedToken = tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN);
       dbClient.projectBadgeTokenDao().upsert(dbSession, newGeneratedToken, projectDto, userSession.getUuid(), userSession.getLogin());
       dbSession.commit();

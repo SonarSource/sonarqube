@@ -92,7 +92,7 @@ public class RenameAction implements BranchWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(UserRole.ADMIN, project);
   }
 
 }

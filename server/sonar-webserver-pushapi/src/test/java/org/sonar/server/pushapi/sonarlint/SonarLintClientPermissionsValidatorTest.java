@@ -86,7 +86,7 @@ public class SonarLintClientPermissionsValidatorTest {
     UserDto userDto = new UserDto();
     when(userDao.selectByUuid(any(), any())).thenReturn(userDto);
     when(userSession.isActive()).thenReturn(true);
-    when(userSession.checkProjectPermission(any(), any())).thenThrow(ForbiddenException.class);
+    when(userSession.checkEntityPermission(any(), any())).thenThrow(ForbiddenException.class);
 
     assertThrows(ForbiddenException.class,
       () -> underTest.validateUserCanReceivePushEventForProjectUuids(USER_UUID, exampleProjectuuids));

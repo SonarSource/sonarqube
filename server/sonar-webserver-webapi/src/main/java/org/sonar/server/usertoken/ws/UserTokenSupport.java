@@ -97,7 +97,7 @@ public class UserTokenSupport {
   }
 
   private void validateProjectScanPermission(ProjectDto projectDto) {
-    if (userSession.hasProjectPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
+    if (userSession.hasEntityPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();

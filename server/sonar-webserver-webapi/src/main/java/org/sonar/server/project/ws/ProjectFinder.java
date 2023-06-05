@@ -52,7 +52,7 @@ public class ProjectFinder {
   public SearchResult search(DbSession dbSession, @Nullable String searchQuery) {
     List<ProjectDto> allProjects = dbClient.projectDao().selectProjects(dbSession);
 
-    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedProjects(UserRole.SCAN, allProjects)
+    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.SCAN, allProjects)
       .stream()
       .map(ProjectDto::getKey)
       .collect(toSet());

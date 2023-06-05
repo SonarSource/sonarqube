@@ -45,7 +45,7 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.shouldResetPassword()).isFalse();
     assertThat(underTest.isSystemAdministrator()).isFalse();
     assertThat(underTest.hasPermissionImpl(GlobalPermission.ADMINISTER)).isFalse();
-    assertThat(underTest.hasProjectUuidPermission(UserRole.USER, "foo")).isFalse();
+    assertThat(underTest.hasEntityUuidPermission(UserRole.USER, "foo")).isFalse();
     assertThat(underTest.hasChildProjectsPermission(UserRole.USER, "foo")).isFalse();
     assertThat(underTest.hasPortfolioChildProjectsPermission(UserRole.USER, "foo")).isFalse();
   }

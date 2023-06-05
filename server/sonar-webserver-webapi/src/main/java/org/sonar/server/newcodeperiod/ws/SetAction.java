@@ -156,7 +156,7 @@ public class SetAction implements NewCodePeriodsWsAction {
 
       if (projectKey != null) {
         project = getProject(dbSession, projectKey);
-        userSession.checkProjectPermission(UserRole.ADMIN, project);
+        userSession.checkEntityPermission(UserRole.ADMIN, project);
 
         if (branchKey != null) {
           branch = getBranch(dbSession, project, branchKey);

@@ -106,7 +106,7 @@ public class CreateAction implements ProjectLinksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, createWsRequest);
 
-      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
 
       ProjectLinkDto link = new ProjectLinkDto()
         .setUuid(uuidFactory.create())

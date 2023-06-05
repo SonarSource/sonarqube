@@ -145,7 +145,7 @@ public abstract class BasePullAction implements WsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, wsRequest.projectKey);
-      userSession.checkProjectPermission(USER, projectDto);
+      userSession.checkEntityPermission(USER, projectDto);
       BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, projectDto, wsRequest.branchName, null);
       IssueQueryParams issueQueryParams = initializeQueryParams(branchDto, wsRequest.languages, wsRequest.repositories,
         wsRequest.resolvedOnly, wsRequest.changedSinceTimestamp);

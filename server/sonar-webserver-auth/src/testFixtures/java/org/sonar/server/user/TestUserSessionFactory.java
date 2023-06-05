@@ -118,12 +118,12 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+    protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
       throw notImplemented();
     }
 
     @Override
-    protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
+    protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
       throw notImplemented();
     }
 

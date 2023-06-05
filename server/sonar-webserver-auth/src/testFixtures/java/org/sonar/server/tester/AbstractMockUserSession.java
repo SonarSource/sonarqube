@@ -195,24 +195,24 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+  protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
     return Optional.ofNullable(Optional.ofNullable(projectUuidByBranchUuid.get(componentUuid))
       .orElse(projectUuidByComponentUuid.get(componentUuid)));
   }
 
   @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return componentUuidToProjectUuid(component.uuid())
-      .or(() -> componentUuidToProjectUuid(component.branchUuid()))
-      .map(projectUuid -> hasProjectUuidPermission(permission, projectUuid)).orElseGet(() -> {
+    return componentUuidToEntityUuid(component.uuid())
+      .or(() -> componentUuidToEntityUuid(component.branchUuid()))
+      .map(projectUuid -> hasEntityUuidPermission(permission, projectUuid)).orElseGet(() -> {
         LOGGER.warn("No project uuid for branchUuid : {}", component.branchUuid());
         return false;
       });
   }
 
   @Override
-  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
-    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(entityUuid);
   }
 
   @Override

@@ -136,12 +136,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
-    get().checkProjectPermission(projectPermission, project);
-    return this;
-  }
-
-  @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
     get().checkChildProjectsPermission(projectPermission, component);
     return this;
@@ -186,13 +180,8 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasProjectPermission(String permission, ProjectDto project) {
-    return get().hasProjectPermission(permission, project);
-  }
-
-  @Override
-  public boolean hasProjectPermission(String permission, String projectUuid) {
-    return get().hasProjectPermission(permission, projectUuid);
+  public boolean hasEntityPermission(String permission, String entityUuid) {
+    return get().hasEntityPermission(permission, entityUuid);
   }
 
   @Override
@@ -223,10 +212,5 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> entities) {
     return get().keepAuthorizedEntities(permission, entities);
-  }
-
-  @Override
-  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
-    return get().keepAuthorizedProjects(permission, projects);
   }
 }

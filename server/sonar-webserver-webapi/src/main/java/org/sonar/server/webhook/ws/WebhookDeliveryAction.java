@@ -96,7 +96,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
     }
 
     void writeTo(Request request, Response response) {

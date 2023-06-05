@@ -96,7 +96,7 @@ public class StatusAction implements ProjectDumpAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, uuid, key);
-      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(UserRole.ADMIN, project);
 
       WsResponse wsResponse = new WsResponse();
       checkDumps(project, wsResponse);

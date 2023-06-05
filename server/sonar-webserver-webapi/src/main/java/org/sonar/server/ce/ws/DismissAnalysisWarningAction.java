@@ -86,7 +86,7 @@ public class DismissAnalysisWarningAction implements CeWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = getUser(dbSession, userLogin);
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(UserRole.USER, project);
 
       CeTaskMessageDto messageDto = dbClient.ceTaskMessageDao()
         .selectByUuid(dbSession, messageKey)

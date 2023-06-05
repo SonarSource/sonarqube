@@ -207,7 +207,7 @@ public class SearchEventsAction implements DevelopersWsAction {
 
   private List<ProjectDto> searchProjects(DbSession dbSession, List<String> projectKeys) {
     List<ProjectDto> projects = dbClient.projectDao().selectProjectsByKeys(dbSession, new HashSet<>(projectKeys));
-    return userSession.keepAuthorizedProjects(UserRole.USER, projects);
+    return userSession.keepAuthorizedEntities(UserRole.USER, projects);
   }
 
   private String computeIssuesSearchLink(ProjectDto project, BranchDto branch, long functionalFromDate, String login) {

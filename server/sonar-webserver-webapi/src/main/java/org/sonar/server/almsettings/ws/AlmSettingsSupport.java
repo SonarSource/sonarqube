@@ -88,7 +88,7 @@ public class AlmSettingsSupport {
 
   public ProjectDto getProject(DbSession dbSession, String projectKey, String projectPermission) {
     ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-    userSession.checkProjectPermission(projectPermission, project);
+    userSession.checkEntityPermission(projectPermission, project);
     return project;
   }
 
