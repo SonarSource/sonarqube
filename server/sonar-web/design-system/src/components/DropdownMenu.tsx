@@ -71,18 +71,20 @@ interface ListItemProps {
 }
 
 type ItemLinkProps = Omit<ListItemProps, 'innerRef'> &
-  Pick<LinkProps, 'disabled' | 'icon' | 'onClick' | 'to'> & {
+  Pick<LinkProps, 'disabled' | 'icon' | 'isExternal' | 'onClick' | 'to'> & {
     innerRef?: React.Ref<HTMLAnchorElement>;
   };
 
 export function ItemLink(props: ItemLinkProps) {
-  const { children, className, disabled, icon, onClick, innerRef, to, ...liProps } = props;
+  const { children, className, disabled, icon, isExternal, onClick, innerRef, to, ...liProps } =
+    props;
   return (
     <li {...liProps}>
       <ItemLinkStyled
         className={classNames(className, { disabled })}
         disabled={disabled}
         icon={icon}
+        isExternal={isExternal}
         onClick={onClick}
         ref={innerRef}
         role="menuitem"

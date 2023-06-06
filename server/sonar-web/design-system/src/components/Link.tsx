@@ -32,6 +32,7 @@ export interface LinkProps extends RouterLinkProps {
   disabled?: boolean;
   forceExternal?: boolean;
   icon?: React.ReactNode;
+  isExternal?: boolean;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   preventDefault?: boolean;
   showExternalIcon?: boolean;
@@ -45,6 +46,7 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
     blurAfterClick,
     disabled,
     icon,
+    isExternal: isExternalProp = false,
     onClick,
     preventDefault,
     showExternalIcon = !icon,
@@ -53,7 +55,12 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
     to,
     ...rest
   } = props;
-  const isExternal = typeof to === 'string' && to.startsWith('http');
+
+  const toAsString =
+    typeof to === 'string' ? to : `${to.pathname ?? ''}${to.search ?? ''}${to.hash ?? ''}`;
+
+  const isExternal = isExternalProp || toAsString.startsWith('http');
+
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       if (blurAfterClick) {
@@ -75,20 +82,24 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
     [onClick, blurAfterClick, preventDefault, stopPropagation, disabled]
   );
 
-  return isExternal ? (
-    <a
-      {...rest}
-      href={to}
-      onClick={handleClick}
-      ref={ref}
-      rel="noopener noreferrer"
-      target={target}
-    >
-      {icon}
-      {children}
-      {showExternalIcon && <OpenNewTabIcon className="sw-ml-1" />}
-    </a>
-  ) : (
+  if (isExternal) {
+    return (
+      <a
+        {...rest}
+        href={toAsString}
+        onClick={handleClick}
+        ref={ref}
+        rel="noopener noreferrer"
+        target={target}
+      >
+        {icon}
+        {children}
+        {showExternalIcon && <OpenNewTabIcon className="sw-ml-1" />}
+      </a>
+    );
+  }
+
+  return (
     <RouterLink ref={ref} {...rest} onClick={handleClick} to={to}>
       {icon}
       {children}

@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
 import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import { translate } from '../../../helpers/l10n';
-import { isAvailablePlugin, isInstalledPlugin, Plugin } from '../../../types/plugins';
+import { Plugin, isAvailablePlugin, isInstalledPlugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
 
 interface Props {
@@ -76,7 +76,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     const { plugin } = this.props;
 
     return (
-      <div className="js-actions">
+      <div className="it__js-actions">
         {isAvailablePlugin(plugin) && (
           <div>
             <p className="little-spacer-bottom">
@@ -120,7 +120,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
 
     const { loading } = this.state;
     return (
-      <div className="js-actions">
+      <div className="it__js-actions">
         {isAvailablePlugin(plugin) && plugin.termsAndConditionsUrl && (
           <p className="little-spacer-bottom">
             <Checkbox

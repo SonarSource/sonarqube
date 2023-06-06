@@ -2,7 +2,7 @@
 
 exports[`should render available plugin correctly 1`] = `
 <div
-  className="js-actions"
+  className="it__js-actions"
 >
   <p
     className="little-spacer-bottom"
@@ -46,7 +46,7 @@ exports[`should render available plugin correctly 1`] = `
 
 exports[`should render available plugin correctly 2`] = `
 <div
-  className="js-actions"
+  className="it__js-actions"
 >
   <div>
     <p
@@ -60,7 +60,7 @@ exports[`should render available plugin correctly 2`] = `
 
 exports[`should render installed plugin correctly 1`] = `
 <div
-  className="js-actions"
+  className="it__js-actions"
 >
   <PluginUpdateButton
     disabled={false}
@@ -89,7 +89,7 @@ exports[`should render installed plugin correctly 1`] = `
 
 exports[`should render installed plugin correctly 2`] = `
 <div
-  className="js-actions"
+  className="it__js-actions"
 >
   <p>
     <CheckIcon

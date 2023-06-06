@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
@@ -42,7 +43,6 @@ import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
-import './IssueSourceViewerHeader.css';
 
 export const INTERACTIVE_TOOLTIP_DELAY = 0.5;
 

@@ -47,6 +47,7 @@ export { LinkIcon } from './LinkIcon';
 export { LockIcon } from './LockIcon';
 export { MainBranchIcon } from './MainBranchIcon';
 export { MenuHelpIcon } from './MenuHelpIcon';
+export { MenuIcon } from './MenuIcon';
 export { MenuSearchIcon } from './MenuSearchIcon';
 export { NoDataIcon } from './NoDataIcon';
 export { OpenCloseIndicator } from './OpenCloseIndicator';
