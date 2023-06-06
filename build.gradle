@@ -48,6 +48,18 @@ allprojects {
       version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
   }
 
+
+  task cacheDependencies {
+    doLast {
+      configurations.each { conf ->
+        if (conf.isCanBeResolved()) {
+          if (conf.getName() != 'appZip')
+            conf.resolve()
+        }
+      }
+    }
+  }
+
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
@@ -445,6 +457,7 @@ subprojects {
         }
     }
   }
+
 
   gradle.buildFinished {
     if (!failedTests.empty) {

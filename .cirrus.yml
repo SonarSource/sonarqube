@@ -28,6 +28,9 @@ auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_
 skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
   skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
 
+cache_dependencies_dependant_task_template: &CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  depends_on: cache_dependencies
+
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
 
@@ -35,10 +38,10 @@ nightly_task_template: &NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY
 
 master_and_nightly_task_template: &MASTER_AND_NIGHTLY_TASK_TEMPLATE
-    only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
+  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
 
 master_or_nightly_or_maintenance_task_template: &MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
-    only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
+  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
 
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH != $BRANCH_NIGHTLY
@@ -139,7 +142,7 @@ yarn_cache_template: &YARN_CACHE_TEMPLATE
 gradle_cache_template: &GRADLE_CACHE_TEMPLATE
   gradle_cache:
     folder: "~/.gradle/caches"
-    fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) -exec cat {} +
+    fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
 
 jar_cache_template: &JAR_CACHE_TEMPLATE
   jar_cache:
@@ -185,11 +188,23 @@ default_template: &DEFAULT_TEMPLATE
   env:
     FETCH_DEPTH: --depth=1
 
+cache_dependencies_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 7.5
+    memory: 8Gb
+  script:
+    - ./private/cirrus/cirrus-cache-dependencies.sh
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
 build_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -220,6 +235,7 @@ yarn_lint_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -232,6 +248,7 @@ yarn_check_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -246,6 +263,7 @@ yarn_validate_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -258,6 +276,7 @@ junit_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -289,6 +308,7 @@ sq_analysis_task:
 qa_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   eks_container:
@@ -416,6 +436,7 @@ qa_performance_task:
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
