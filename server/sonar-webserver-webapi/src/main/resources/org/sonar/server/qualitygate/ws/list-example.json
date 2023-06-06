@@ -12,7 +12,8 @@
         "delete": false,
         "manageConditions": false,
         "delegate": false
-      }
+      },
+      "caycStatus": "compliant"
     },
     {
       "name": "Sonar way - Without Coverage",
@@ -26,7 +27,8 @@
         "delete": true,
         "manageConditions": true,
         "delegate": true
-      }
+      },
+      "caycStatus": "non-compliant"
     }
   ],
   "actions": {

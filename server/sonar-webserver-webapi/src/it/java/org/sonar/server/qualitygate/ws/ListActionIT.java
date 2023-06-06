@@ -209,8 +209,10 @@ public class ListActionIT {
   public void json_example() {
     userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
-    db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), eq(defaultQualityGate.getUuid()))).thenReturn(COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), eq(otherQualityGate.getUuid()))).thenReturn(NON_COMPLIANT);
 
     String response = ws.newRequest().execute().getInput();
 

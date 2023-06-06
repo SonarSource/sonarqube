@@ -23,5 +23,6 @@
     "delete": true,
     "manageConditions": true,
     "delegate": true
-  }
+  },
+  "caycStatus": "non-compliant"
 }

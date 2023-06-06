@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.Qualitygates.Actions;
 
@@ -303,6 +304,7 @@ public class ShowActionIT {
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("tests"));
     db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0"));
     db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold("10"));
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())
