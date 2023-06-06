@@ -63,7 +63,7 @@ public class IssueChangeEventServiceImplTest {
   public final IssueChangeEventServiceImpl underTest = new IssueChangeEventServiceImpl(db.getDbClient());
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_severityChange() {
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldChangeSeverity() {
     ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
@@ -74,7 +74,7 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_typeChange() {
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldChangeType() {
     ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
@@ -85,7 +85,7 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_transitionChanges() {
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldExecuteTransitionChanges() {
     ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
@@ -103,7 +103,18 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void distributeIssueChangeEvent_singleIssueChange_severalChanges() {
+  public void distributeIssueChangeEvent_whenSingleIssueChangeOnABranch_shouldChangeSeverity() {
+    ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
+    BranchDto featureBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature1"));
+    ComponentDto branchComponent = db.components().insertFile(featureBranch);
+    RuleDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, branchComponent, i -> i.setSeverity(MAJOR.name()));
+    assertPushEventIsPersisted(project, featureBranch, issue, BLOCKER.name(), null, null, null, 1);
+  }
+
+  @Test
+  public void distributeIssueChangeEvent_whenSingleIssueChange_shouldExecuteSeveralChanges() {
     ComponentDto componentDto = db.components().insertPublicProject().getMainBranchComponent();
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
@@ -114,7 +125,7 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void distributeIssueChangeEvent_bulkIssueChange() {
+  public void distributeIssueChangeEvent_whenBulkIssueChange_shouldDistributesEvents() {
     RuleDto rule = db.rules().insert();
 
     ComponentDto componentDto1 = db.components().insertPublicProject().getMainBranchComponent();
@@ -185,7 +196,7 @@ public class IssueChangeEventServiceImplTest {
   }
 
   @Test
-  public void doNotDistributeIssueChangeEvent_forPullRequestIssues() {
+  public void distributeIssueChangeEvent_whenPullRequestIssues_shouldNotDistributeEvents() {
     RuleDto rule = db.rules().insert();
 
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();

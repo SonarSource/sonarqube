@@ -79,7 +79,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
     IssueChangedEvent event = new IssueChangedEvent(projectKey, new Issue[]{changedIssue},
       resolved, severity, type);
 
-    persistEvent(event, issue.projectUuid());
+    persistEvent(event, branch.getProjectUuid());
   }
 
   @Override
@@ -106,7 +106,8 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       IssueChangedEvent event = getIssueChangedEvent(projectKey, issuesInProject, issueChanges);
 
       if (event != null) {
-        persistEvent(event, entry.getValue().branchUuid());
+        BranchDto branchDto = branchesByProjectUuid.get(entry.getKey());
+        persistEvent(event, branchDto.getProjectUuid());
       }
     }
   }
