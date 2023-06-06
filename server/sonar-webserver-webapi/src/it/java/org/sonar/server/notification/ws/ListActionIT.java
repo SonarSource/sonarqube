@@ -26,7 +26,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -56,7 +57,7 @@ public class ListActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -110,16 +111,16 @@ public class ListActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.users().insertProjectPermissionOnUser(user, USER, project);
-    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
-    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
+    ProjectData project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(user, USER, project.getMainBranchComponent());
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project.getProjectDto());
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, anotherProject);
     dbSession.commit();
 
     ListResponse result = call();
 
-    assertThat(result.getNotificationsList()).extracting(Notification::getProject).containsOnly(project.getKey());
+    assertThat(result.getNotificationsList()).extracting(Notification::getProject).containsOnly(project.getProjectDto().getKey());
   }
 
   @Test
@@ -155,10 +156,10 @@ public class ListActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.users().insertProjectPermissionOnUser(user, USER, project);
-    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
-    notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, project);
+    ProjectData project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(user, USER, project.getMainBranchComponent());
+    notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project.getProjectDto());
+    notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, project.getProjectDto());
     dbSession.commit();
 
     ListResponse result = call();
@@ -174,7 +175,7 @@ public class ListActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
@@ -241,8 +242,9 @@ public class ListActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project")).getMainBranchComponent();
-    db.users().insertProjectPermissionOnUser(user, USER, project);
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ProjectDto project = projectData.getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, USER, projectData.getMainBranchComponent());
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);

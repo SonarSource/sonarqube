@@ -83,7 +83,7 @@ public class DeleteCommentAction implements HotspotsWsAction {
   }
 
   private void validate(DbSession dbSession, IssueChangeDto issueChangeDto) {
-    hotspotWsSupport.loadAndCheckProject(dbSession, issueChangeDto.getIssueKey());
+    hotspotWsSupport.loadAndCheckBranch(dbSession, issueChangeDto.getIssueKey());
     checkArgument(Objects.equals(issueChangeDto.getUserUuid(), userSession.getUuid()), "You can only delete your own comments");
   }
 

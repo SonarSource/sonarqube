@@ -142,7 +142,7 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application) {
+  public UserSession checkChildProjectsPermission(String projectPermission, EntityDto application) {
     get().checkChildProjectsPermission(projectPermission, application);
     return this;
   }
@@ -190,8 +190,8 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasChildProjectsPermission(String permission, ProjectDto project) {
-    return get().hasChildProjectsPermission(permission, project);
+  public boolean hasChildProjectsPermission(String permission, EntityDto application) {
+    return get().hasChildProjectsPermission(permission, application);
   }
 
   @Override

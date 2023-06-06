@@ -177,9 +177,9 @@ public class ShowAction implements HotspotsWsAction {
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
     responseBuilder
-      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getProject(), components.getBranch(), components.getPullRequest()))
+      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getBranchComponent(), components.getBranch(), components.getPullRequest()))
       .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent(), components.getBranch(), components.getPullRequest()));
-    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
+    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getBranchComponent()));
   }
 
   private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDto) {
@@ -266,7 +266,7 @@ public class ShowAction implements HotspotsWsAction {
       .filter(Optional::isPresent)
       .map(Optional::get)
       .collect(toSet());
-    Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.project, components.component);
+    Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.branchComponent, components.component);
     FormattingContext formattingContext = issueChangeSupport
       .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, preloadedComponents);
 
@@ -298,27 +298,26 @@ public class ShowAction implements HotspotsWsAction {
 
   private Components loadComponents(DbSession dbSession, IssueDto hotspot) {
     String componentUuid = hotspot.getComponentUuid();
-
-    ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
-    BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.branchUuid()).orElseThrow(() -> new IllegalStateException("Can't find branch " + project.branchUuid()));
-
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
-    boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
-    ComponentDto component = hotspotOnProject ? project
-      : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
-    return new Components(project, component, branch);
+    BranchDto branch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
+        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+    boolean hotspotOnBranch = Objects.equals(branch.getUuid(), componentUuid);
+    ComponentDto branchComponent = hotspotOnBranch ? component : dbClient.componentDao().selectByUuid(dbSession, branch.getUuid())
+      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+
+    return new Components(branchComponent, component, branch);
   }
 
   private static final class Components {
-    private final ComponentDto project;
+    private final ComponentDto branchComponent;
     private final ComponentDto component;
     private final String branch;
     private final String pullRequest;
 
-    private Components(ComponentDto project, ComponentDto component, BranchDto branch) {
-      this.project = project;
+    private Components(ComponentDto branchComponent, ComponentDto component, BranchDto branch) {
+      this.branchComponent = branchComponent;
       this.component = component;
       if (branch.isMain()) {
         this.branch = null;
@@ -342,8 +341,8 @@ public class ShowAction implements HotspotsWsAction {
       return pullRequest;
     }
 
-    public ComponentDto getProject() {
-      return project;
+    public ComponentDto getBranchComponent() {
+      return branchComponent;
     }
 
     public ComponentDto getComponent() {

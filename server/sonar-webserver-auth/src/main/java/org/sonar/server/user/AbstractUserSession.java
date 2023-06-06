@@ -113,7 +113,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasChildProjectsPermission(String permission, ProjectDto application) {
+  public final boolean hasChildProjectsPermission(String permission, EntityDto application) {
     return hasChildProjectsPermission(permission, application.getUuid());
   }
 
@@ -211,7 +211,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application) {
+  public UserSession checkChildProjectsPermission(String projectPermission, EntityDto application) {
     if (!APP.equals(application.getQualifier()) || hasChildProjectsPermission(projectPermission, application)) {
       return this;
     }

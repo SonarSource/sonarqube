@@ -88,14 +88,14 @@ public class SettingValidations {
   }
 
   private static boolean checkComponentQualifier(SettingData data, @Nullable PropertyDefinition definition) {
-    EntityDto component = data.entity;
-    if (component == null) {
+    EntityDto entity = data.entity;
+    if (entity == null) {
       return true;
     }
     if (definition == null) {
-      return SUPPORTED_QUALIFIERS.contains(component.getQualifier());
+      return SUPPORTED_QUALIFIERS.contains(entity.getQualifier());
     }
-    return definition.qualifiers().contains(component.getQualifier());
+    return definition.qualifiers().contains(entity.getQualifier());
   }
 
   public Consumer<SettingData> valueType() {

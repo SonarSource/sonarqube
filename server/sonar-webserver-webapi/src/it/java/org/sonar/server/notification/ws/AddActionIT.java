@@ -27,6 +27,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -62,18 +63,18 @@ public class AddActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
 
-  private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
-  private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
+  private final NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
+  private final NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
   // default channel, based on class simple name
-  private NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
+  private final NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
 
-  private Dispatchers dispatchers = mock(Dispatchers.class);
+  private final Dispatchers dispatchers = mock(Dispatchers.class);
 
-  private WsActionTester ws = new WsActionTester(new AddAction(new NotificationCenter(
+  private final WsActionTester ws = new WsActionTester(new AddAction(new NotificationCenter(
     new NotificationDispatcherMetadata[] {},
     new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}),
     new NotificationUpdater(dbClient), dispatchers, dbClient, TestComponentFinder.from(db), userSession));
@@ -104,7 +105,7 @@ public class AddActionIT {
   public void add_notification_on_private_with_USER_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.addProjectPermission(USER, project);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
@@ -118,8 +119,8 @@ public class AddActionIT {
   public void add_notification_on_public_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    userSession.registerProjects(project);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
@@ -134,7 +135,7 @@ public class AddActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.addProjectPermission(USER, project);
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
@@ -150,7 +151,7 @@ public class AddActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
     userSession.addProjectPermission(USER, project);
@@ -166,8 +167,8 @@ public class AddActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    userSession.registerProjects(project);
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
@@ -210,12 +211,23 @@ public class AddActionIT {
   }
 
   @Test
-  public void fail_if_login_provided_and_not_system_administrsator() {
+  public void fail_if_login_provided_and_not_system_administrator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin()))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_if_project_provided_and_not_project_user() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -299,8 +311,8 @@ public class AddActionIT {
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, "VIEW_1", null))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessageContaining("Component 'VIEW_1' must be a project");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'VIEW_1' not found");
   }
 
   @Test

@@ -32,7 +32,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.scannercache.ScannerCache;
@@ -85,10 +87,11 @@ public class GetAction implements AnalysisCacheWsAction {
     String branchKey = request.param(BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, null);
-      checkPermission(component);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      checkPermission(project);
+      BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, null);
 
-      try (DbInputStream dbInputStream = cache.get(component.uuid())) {
+      try (DbInputStream dbInputStream = cache.get(branchDto.getUuid())) {
         if (dbInputStream == null) {
           throw new NotFoundException("No cache for given branch or pull request");
         }
@@ -117,9 +120,9 @@ public class GetAction implements AnalysisCacheWsAction {
       .orElse(false);
   }
 
-  private void checkPermission(ComponentDto project) {
-    if (userSession.hasComponentPermission(UserRole.SCAN, project) ||
-      userSession.hasComponentPermission(UserRole.ADMIN, project) ||
+  private void checkPermission(ProjectDto project) {
+    if (userSession.hasEntityPermission(UserRole.SCAN, project) ||
+      userSession.hasEntityPermission(UserRole.ADMIN, project) ||
       userSession.hasPermission(SCAN)) {
       return;
     }

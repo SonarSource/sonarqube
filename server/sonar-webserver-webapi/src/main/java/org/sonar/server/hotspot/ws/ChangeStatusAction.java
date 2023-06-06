@@ -111,7 +111,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     String newResolution = resolutionParam(request, newStatus);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.SECURITYHOTSPOT_ADMIN);
+      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.SECURITYHOTSPOT_ADMIN);
 
       if (needStatusUpdate(hotspot, newStatus, newResolution)) {
         String transitionKey = toTransitionKey(newStatus, newResolution);

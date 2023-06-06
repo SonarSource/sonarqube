@@ -47,6 +47,7 @@ import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ActivityResponse;
@@ -167,8 +168,8 @@ public class ActivityAction implements CeWsAction {
   private ActivityResponse doHandle(Request request) {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = loadComponent(dbSession, request);
-      checkPermission(component);
+      EntityDto entity = loadEntity(dbSession, request);
+      checkPermission(entity);
       // if a task searched by uuid is found all other parameters are ignored
       Optional<Ce.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
@@ -178,7 +179,7 @@ public class ActivityAction implements CeWsAction {
           Paging.forPageIndex(1).withPageSize(1).andTotal(1), 0);
       }
 
-      CeTaskQuery query = buildQuery(dbSession, request, component);
+      CeTaskQuery query = buildQuery(dbSession, request, entity);
 
       return buildPaginatedResponse(dbSession, query, parseInt(request.getP()), parseInt(request.getPs()));
     }
@@ -230,26 +231,26 @@ public class ActivityAction implements CeWsAction {
   }
 
   @CheckForNull
-  private ComponentDto loadComponent(DbSession dbSession, Request request) {
+  private EntityDto loadEntity(DbSession dbSession, Request request) {
     String componentKey = request.getComponent();
 
     if (componentKey != null) {
-      Optional<ComponentDto> foundComponent;
-      foundComponent = dbClient.componentDao().selectByKey(dbSession, componentKey);
+      Optional<EntityDto> foundComponent;
+      foundComponent = dbClient.entityDao().selectByKey(dbSession, componentKey);
       return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentKey);
     } else {
       return null;
     }
   }
 
-  private void checkPermission(@Nullable ComponentDto component) {
+  private void checkPermission(@Nullable EntityDto entity) {
     // fail fast if not logged in
     userSession.checkLoggedIn();
 
-    if (component == null) {
+    if (entity == null) {
       userSession.checkIsSystemAdministrator();
     } else {
-      userSession.checkComponentPermission(UserRole.ADMIN, component);
+      userSession.checkEntityPermission(UserRole.ADMIN, entity);
     }
   }
 
@@ -268,7 +269,7 @@ public class ActivityAction implements CeWsAction {
     return activity.map(ceActivityDto -> formatter.formatActivity(dbSession, ceActivityDto, null));
   }
 
-  private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable ComponentDto component) {
+  private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable EntityDto entity) {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(parseBoolean(request.getOnlyCurrents()));
@@ -283,8 +284,8 @@ public class ActivityAction implements CeWsAction {
     }
 
     String componentQuery = request.getQ();
-    if (component != null) {
-      query.setMainComponentUuid(component.uuid());
+    if (entity != null) {
+      query.setMainComponentUuid(entity.getUuid());
     } else if (componentQuery != null) {
       query.setMainComponentUuids(loadComponents(dbSession, componentQuery).stream()
         .map(ComponentDto::uuid)

@@ -92,7 +92,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getTemplateName()));
 
-      ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
+      ComponentDto project = wsSupport.getRootComponent(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
       checkGlobalAdmin(userSession);
 
       permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(project));

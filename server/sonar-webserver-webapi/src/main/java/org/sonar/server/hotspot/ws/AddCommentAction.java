@@ -80,7 +80,7 @@ public class AddCommentAction implements HotspotsWsAction {
     String comment = request.mandatoryParam(PARAM_COMMENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
+      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
 
       DefaultIssue defaultIssue = hotspot.toDefaultIssue();
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithoutMeasureRefresh();

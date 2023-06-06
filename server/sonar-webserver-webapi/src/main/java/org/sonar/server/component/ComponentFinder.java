@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -45,6 +46,7 @@ public class ComponentFinder {
   private static final String LABEL_PROJECT = "Project";
   private static final String LABEL_COMPONENT = "Component";
   private static final String LABEL_PROJECT_NOT_FOUND = "Project '%s' not found";
+  private static final String LABEL_ENTITY_NOT_FOUND = "Component '%s' not found";
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
@@ -62,6 +64,25 @@ public class ComponentFinder {
     }
 
     return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
+  }
+
+  public EntityDto getEntityByUuidOrKey(DbSession dbSession, @Nullable String entityUuid, @Nullable String entityKey, ParamNames parameterNames) {
+    checkByUuidOrKey(entityUuid, entityKey, parameterNames);
+
+    if (entityUuid != null) {
+      return getEntityByUuid(dbSession, checkParamNotEmpty(entityUuid, parameterNames.getUuidParam()));
+    }
+    return getEntityByKey(dbSession, checkParamNotEmpty(entityKey, parameterNames.getKeyParam()));
+  }
+
+  public EntityDto getEntityByKey(DbSession dbSession, String entityKey) {
+    return dbClient.entityDao().selectByKey(dbSession, entityKey)
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_ENTITY_NOT_FOUND, entityKey)));
+  }
+
+  public EntityDto getEntityByUuid(DbSession dbSession, String entityUuid) {
+    return dbClient.entityDao().selectByUuid(dbSession, entityUuid)
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_ENTITY_NOT_FOUND, entityUuid)));
   }
 
   public ProjectDto getProjectByKey(DbSession dbSession, String projectKey) {
@@ -105,12 +126,8 @@ public class ComponentFinder {
       .orElseThrow(() -> new NotFoundException(String.format("Branch uuid '%s' not found", branchUuid)));
   }
 
-  public BranchDto getBranchOrPullRequest(DbSession dbSession, ComponentDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
-    return getBranchOrPullRequest(dbSession, project.uuid(), project.getKey(), branchKey, pullRequestKey);
-  }
-
-  public BranchDto getBranchOrPullRequest(DbSession dbSession, ProjectDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
-    return getBranchOrPullRequest(dbSession, project.getUuid(), project.getKey(), branchKey, pullRequestKey);
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, EntityDto entity, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    return getBranchOrPullRequest(dbSession, entity.getUuid(), entity.getKey(), branchKey, pullRequestKey);
   }
 
   public ProjectAndBranch getAppOrProjectAndBranch(DbSession dbSession, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {

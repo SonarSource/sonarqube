@@ -300,11 +300,6 @@ public class UserDbTester {
     return dto;
   }
 
-  public void deleteProjectPermissionFromAnyone(ComponentDto project, String permission) {
-    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, null, null, project.uuid(), project);
-    db.commit();
-  }
-
   public void deleteProjectPermissionFromAnyone(EntityDto project, String permission) {
     db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, null, null, project.getUuid(), project);
     db.commit();
@@ -389,11 +384,6 @@ public class UserDbTester {
     db.commit();
   }
 
-  public void deletePermissionFromUser(ComponentDto project, UserDto user, String permission) {
-    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user, permission, project);
-    db.commit();
-  }
-
   public void deletePermissionFromUser(EntityDto project, UserDto user, String permission) {
     db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user, permission, project);
     db.commit();
@@ -406,10 +396,10 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     EntityDto entityDto;
-    if (project.qualifier().equals(Qualifiers.VIEW) || project.qualifier().equals(Qualifiers.SUBVIEW)){
+    if (project.qualifier().equals(Qualifiers.VIEW) || project.qualifier().equals(Qualifiers.SUBVIEW)) {
       entityDto = db.getDbClient().portfolioDao().selectByUuid(db.getSession(), project.uuid())
         .orElseThrow();
-    }else{
+    } else {
       BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid())
         .orElseThrow();
       // I don't know if this check is worth it

@@ -25,7 +25,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -42,22 +42,22 @@ public class NotificationDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ComponentDto component) {
+  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setEntityUuid(component == null ? null : component.uuid())
-      .setUserUuid(userUuid)
-      .build(), dbSession).stream()
-      .filter(prop -> component == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
+        .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
+        .setEntityUuid(project == null ? null : project.getUuid())
+        .setUserUuid(userUuid)
+        .build(), dbSession).stream()
+      .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
       .collect(MoreCollectors.toList());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }
 
-  public void assertDoesNotExist(String channel, String dispatcher, String userUuid, @Nullable ComponentDto component) {
+  public void assertDoesNotExist(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setEntityUuid(component == null ? null : component.uuid())
+      .setEntityUuid(project == null ? null : project.getUuid())
       .setUserUuid(userUuid)
       .build(), dbSession);
     assertThat(result).isEmpty();

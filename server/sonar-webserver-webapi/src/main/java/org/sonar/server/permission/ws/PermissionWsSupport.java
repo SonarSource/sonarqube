@@ -81,7 +81,7 @@ public class PermissionWsSupport {
     return Optional.empty();
   }
 
-  public ComponentDto getRootComponentOrModule(DbSession dbSession, ProjectWsRef projectRef) {
+  public ComponentDto getRootComponent(DbSession dbSession, ProjectWsRef projectRef) {
     return componentFinder.getRootComponentByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 

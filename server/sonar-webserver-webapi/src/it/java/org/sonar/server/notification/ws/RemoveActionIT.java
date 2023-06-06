@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -61,7 +62,7 @@ public class RemoveActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
@@ -111,7 +112,7 @@ public class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
@@ -126,7 +127,7 @@ public class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
@@ -287,8 +288,8 @@ public class RemoveActionIT {
 
     RemoveRequest request = this.request.setProject("VIEW_1");
     assertThatThrownBy(() -> call(request))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component 'VIEW_1' must be a project");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'VIEW_1' not found");
   }
 
   @Test

@@ -102,7 +102,7 @@ public class EditCommentAction implements HotspotsWsAction {
   }
 
   private void validate(DbSession dbSession, IssueChangeDto issueChangeDto) {
-    hotspotWsSupport.loadAndCheckProject(dbSession, issueChangeDto.getIssueKey());
+    hotspotWsSupport.loadAndCheckBranch(dbSession, issueChangeDto.getIssueKey());
     checkArgument(Objects.equals(issueChangeDto.getUserUuid(), userSession.getUuid()), "You can only edit your own comments");
   }
 

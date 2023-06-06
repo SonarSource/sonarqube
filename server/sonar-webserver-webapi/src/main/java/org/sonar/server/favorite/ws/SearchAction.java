@@ -124,12 +124,12 @@ public class SearchAction implements FavoritesWsAction {
       .forEach(builder::addFavorites);
   }
 
-  private static Favorite toWsFavorite(Favorite.Builder builder, EntityDto componentDto) {
+  private static Favorite toWsFavorite(Favorite.Builder builder, EntityDto entity) {
     builder
       .clear()
-      .setKey(componentDto.getKey());
-    ofNullable(componentDto.getName()).ifPresent(builder::setName);
-    ofNullable(componentDto.getQualifier()).ifPresent(builder::setQualifier);
+      .setKey(entity.getKey());
+    ofNullable(entity.getName()).ifPresent(builder::setName);
+    ofNullable(entity.getQualifier()).ifPresent(builder::setQualifier);
     return builder.build();
   }
 

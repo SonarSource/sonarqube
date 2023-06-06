@@ -153,7 +153,7 @@ public interface UserSession {
 
   boolean hasChildProjectsPermission(String permission, ComponentDto component);
 
-  boolean hasChildProjectsPermission(String permission, ProjectDto component);
+  boolean hasChildProjectsPermission(String permission, EntityDto application);
 
   boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto component);
 
@@ -185,7 +185,7 @@ public interface UserSession {
   UserSession checkComponentPermission(String projectPermission, ComponentDto component);
 
   /**
-   * Ensures that {@link #hasEntityPermission(String, ProjectDto)} is {@code true},
+   * Ensures that {@link #hasEntityPermission(String, EntityDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkEntityPermission(String projectPermission, EntityDto entity);
@@ -197,10 +197,10 @@ public interface UserSession {
   UserSession checkChildProjectsPermission(String projectPermission, ComponentDto project);
 
   /**
-   * Ensures that {@link #hasChildProjectsPermission(String, ProjectDto)} is {@code true}
+   * Ensures that {@link #hasChildProjectsPermission(String, EntityDto)} is {@code true}
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application);
+  UserSession checkChildProjectsPermission(String projectPermission, EntityDto application);
 
   /**
    * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},

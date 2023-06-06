@@ -37,6 +37,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -120,10 +121,10 @@ public class ListAction implements NotificationsWsAction {
   private UnaryOperator<ListResponse.Builder> addNotifications(DbSession dbSession, UserDto user) {
     return response -> {
       List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession);
-      Map<String, ComponentDto> componentsByUuid = searchProjects(dbSession, properties);
+      Map<String, EntityDto> entitiesByUuid = searchProjects(dbSession, properties);
 
       Predicate<PropertyDto> isNotification = prop -> prop.getKey().startsWith("notification.");
-      Predicate<PropertyDto> isComponentInDb = prop -> prop.getEntityUuid() == null || componentsByUuid.containsKey(prop.getEntityUuid());
+      Predicate<PropertyDto> isComponentInDb = prop -> prop.getEntityUuid() == null || entitiesByUuid.containsKey(prop.getEntityUuid());
 
       Notification.Builder notification = Notification.newBuilder();
 
@@ -131,7 +132,7 @@ public class ListAction implements NotificationsWsAction {
         .filter(isNotification)
         .filter(channelAndDispatcherAuthorized())
         .filter(isComponentInDb)
-        .map(toWsNotification(notification, componentsByUuid))
+        .map(toWsNotification(notification, entitiesByUuid))
         .sorted(comparing(Notification::getProject, nullsFirst(naturalOrder()))
           .thenComparing(Notification::getChannel)
           .thenComparing(Notification::getType))
@@ -154,19 +155,19 @@ public class ListAction implements NotificationsWsAction {
     return (prop.getEntityUuid() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
   }
 
-  private Map<String, ComponentDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {
-    Set<String> componentUuids = properties.stream()
+  private Map<String, EntityDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {
+    Set<String> entityUuids = properties.stream()
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toSet(properties.size()));
-    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, componentUuids, userSession.getUuid(), UserRole.USER);
-    return dbClient.componentDao().selectByUuids(dbSession, componentUuids)
+    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, userSession.getUuid(), UserRole.USER);
+    return dbClient.entityDao().selectByUuids(dbSession, entityUuids)
       .stream()
-      .filter(c -> authorizedProjectUuids.contains(c.uuid()))
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
+      .filter(c -> authorizedProjectUuids.contains(c.getUuid()))
+      .collect(MoreCollectors.uniqueIndex(EntityDto::getUuid));
   }
 
-  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification, Map<String, ComponentDto> projectsByUuid) {
+  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification, Map<String, EntityDto> projectsByUuid) {
     return property -> {
       notification.clear();
       List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());
@@ -178,12 +179,11 @@ public class ListAction implements NotificationsWsAction {
     };
   }
 
-  private static void populateProjectFields(Builder notification, String componentUuid,
-    Map<String, ComponentDto> projectsByUuid) {
-    ComponentDto project = projectsByUuid.get(componentUuid);
+  private static void populateProjectFields(Builder notification, String componentUuid, Map<String, EntityDto> projectsByUuid) {
+    EntityDto project = projectsByUuid.get(componentUuid);
     notification
       .setProject(project.getKey())
-      .setProjectName(project.name());
+      .setProjectName(project.getName());
   }
 
   private void checkPermissions(Request request) {

@@ -275,8 +275,12 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertSubportfolio(ComponentDto parentPortfolio) {
-    ComponentDto subPortfolioComponent = ComponentTesting.newSubPortfolio(parentPortfolio);
-    return insertComponentAndPortfolio(subPortfolioComponent, true, defaults(), sp -> sp.setParentUuid(sp.getRootUuid()));
+    return insertSubportfolio(parentPortfolio, defaults());
+  }
+
+  public final ComponentDto insertSubportfolio(ComponentDto parentPortfolio, Consumer<ComponentDto> consumer) {
+    ComponentDto subPortfolioComponent = ComponentTesting.newSubPortfolio(parentPortfolio).setPrivate(true);
+    return insertComponentAndPortfolio(subPortfolioComponent, true, consumer, sp -> sp.setParentUuid(sp.getRootUuid()));
   }
 
   public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
@@ -481,6 +485,11 @@ public class ComponentDbTester {
   public SnapshotDto insertSnapshot(ProjectDto project, Consumer<SnapshotDto> consumer) {
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(project.getUuid());
     consumer.accept(snapshotDto);
+    return insertSnapshot(snapshotDto);
+  }
+
+  public SnapshotDto insertSnapshot(PortfolioDto portfolio) {
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(portfolio.getUuid());
     return insertSnapshot(snapshotDto);
   }
 
