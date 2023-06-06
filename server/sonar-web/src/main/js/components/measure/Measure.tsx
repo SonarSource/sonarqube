@@ -45,7 +45,7 @@ export default function Measure({
   ratingComponent,
 }: Props) {
   if (value === undefined) {
-    return <span className={className}>–</span>;
+    return <span className={className}>—</span>;
   }
 
   if (metricType === MetricType.Level) {
@@ -57,11 +57,11 @@ export default function Measure({
       decimals,
       omitExtraDecimalZeros: metricType === MetricType.Percent,
     });
-    return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
+    return <span className={className}>{formattedValue ?? '—'}</span>;
   }
 
   const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
-  const rating = ratingComponent || <Rating value={value} />;
+  const rating = ratingComponent ?? <Rating value={value} />;
 
   if (tooltip) {
     return (

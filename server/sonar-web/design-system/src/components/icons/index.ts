@@ -54,6 +54,7 @@ export { OpenNewTabIcon } from './OpenNewTabIcon';
 export { OverviewQGNotComputedIcon } from './OverviewQGNotComputedIcon';
 export { OverviewQGPassedIcon } from './OverviewQGPassedIcon';
 export { PencilIcon } from './PencilIcon';
+export { PinIcon } from './PinIcon';
 export { ProjectIcon } from './ProjectIcon';
 export { PullRequestIcon } from './PullRequestIcon';
 export { QualifierIcon } from './QualifierIcon';

@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HoverLink, LightLabel, QualifierIcon } from 'design-system';
+import { Badge, BranchIcon, HoverLink, LightLabel, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
-import BranchIcon from '../../../components/icons/BranchIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { CodeScope, getComponentOverviewUrl, queryToSearch } from '../../../helpers/urls';
@@ -75,8 +74,8 @@ export default function ComponentName({
     )
   ) {
     return (
-      <span className="max-width-100 display-inline-flex-center">
-        <span className="text-ellipsis" title={getTooltip(component)} aria-label={ariaLabel}>
+      <span className="sw-flex sw-items-center sw-overflow-hidden">
+        <div className="sw-truncate" title={getTooltip(component)} aria-label={ariaLabel}>
           {renderNameWithIcon(
             branchLike,
             component,
@@ -86,14 +85,16 @@ export default function ComponentName({
             canBrowse,
             newCodeSelected
           )}
-        </span>
+        </div>
         {component.branch ? (
-          <span className="text-ellipsis spacer-left">
+          <div className="sw-truncate sw-ml-2">
             <BranchIcon className="sw-mr-1" />
-            <span className="note">{component.branch}</span>
-          </span>
+            <Note>{component.branch}</Note>
+          </div>
         ) : (
-          <span className="spacer-left badge flex-1">{translate('branches.main_branch')}</span>
+          <Badge className="sw-ml-1" variant="default">
+            {translate('branches.main_branch')}
+          </Badge>
         )}
       </span>
     );
@@ -129,6 +130,7 @@ function renderNameWithIcon(
       : undefined;
     return (
       <HoverLink
+        icon={<QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
         to={getComponentOverviewUrl(
           component.refKey ?? component.key,
           component.qualifier,
@@ -136,8 +138,7 @@ function renderNameWithIcon(
           codeType
         )}
       >
-        <QualifierIcon className="sw-mr-1" qualifier={component.qualifier} />
-        <span>{name}</span>
+        {name}
       </HoverLink>
     );
   } else if (canBrowse) {
@@ -146,15 +147,17 @@ function renderNameWithIcon(
       Object.assign(query, { selected: component.key });
     }
     return (
-      <HoverLink to={{ pathname: '/code', search: queryToSearch(query) }}>
-        <QualifierIcon className="sw-mr-1" qualifier={component.qualifier} />
-        <span>{name}</span>
+      <HoverLink
+        icon={<QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
+        to={{ pathname: '/code', search: queryToSearch(query) }}
+      >
+        {name}
       </HoverLink>
     );
   }
   return (
-    <span className="sw-flex sw-items-center">
-      <QualifierIcon className="sw-mr-1" qualifier={component.qualifier} />
+    <span>
+      <QualifierIcon className="sw-mr-2 sw-align-text-bottom" qualifier={component.qualifier} />
       {name}
     </span>
   );

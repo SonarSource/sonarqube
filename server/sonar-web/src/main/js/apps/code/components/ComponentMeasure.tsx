@@ -17,35 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ContentCell,
+  MetricsEnum,
+  MetricsRatingBadge,
+  NumericalCell,
+  QualityGateIndicator,
+  RatingCell,
+} from 'design-system';
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { getLeakValue } from '../../../components/measure/utils';
-import { isDiffMetric } from '../../../helpers/measures';
-import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { isApplication, isProject } from '../../../types/component';
+import { MetricKey, MetricType } from '../../../types/metrics';
+import { Metric, Status, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 
 interface Props {
   component: TypeComponentMeasure;
   metric: Metric;
 }
 
-export default class ComponentMeasure extends React.PureComponent<Props> {
-  render() {
-    const { component, metric } = this.props;
-    const isProject = component.qualifier === 'TRK';
-    const isReleasability = metric.key === 'releasability_rating';
+export default function ComponentMeasure(props: Props) {
+  const { component, metric } = props;
+  const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
+  const isReleasability = metric.key === MetricKey.releasability_rating;
 
-    const finalMetricKey = isProject && isReleasability ? 'alert_status' : metric.key;
-    const finalMetricType = isProject && isReleasability ? 'LEVEL' : metric.type;
+  const finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;
+  const finalMetricType = isProjectLike && isReleasability ? MetricType.Level : metric.type;
 
-    const measure =
-      Array.isArray(component.measures) &&
-      component.measures.find((measure) => measure.metric === finalMetricKey);
+  const measure = Array.isArray(component.measures)
+    ? component.measures.find((measure) => measure.metric === finalMetricKey)
+    : undefined;
 
-    if (!measure) {
-      return measure === false ? <span /> : <span>—</span>;
+  const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
+
+  switch (finalMetricType) {
+    case MetricType.Level: {
+      const formatted = formatMeasure(value, MetricType.Level);
+      const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
+
+      return (
+        <ContentCell>
+          <QualityGateIndicator
+            status={(value as Status) ?? 'NONE'}
+            className="sw-mr-2"
+            ariaLabel={ariaLabel}
+            size="sm"
+          />
+          <span>{formatted}</span>
+        </ContentCell>
+      );
     }
-
-    const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;
-    return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />;
+    case MetricType.Rating:
+      return (
+        <RatingCell>
+          <MetricsRatingBadge
+            label={value ?? '—'}
+            rating={formatMeasure(value, MetricType.Rating) as MetricsEnum}
+          />
+        </RatingCell>
+      );
+    default:
+      return (
+        <NumericalCell>
+          <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />
+        </NumericalCell>
+      );
   }
 }

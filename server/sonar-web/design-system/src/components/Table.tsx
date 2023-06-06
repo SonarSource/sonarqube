@@ -152,13 +152,13 @@ export const TableRowInteractive = styled(TableRowInteractiveBase)`
 `;
 
 export const ContentCell = styled(CellComponent)`
-  ${tw`sw-text-left`}
+  ${tw`sw-text-left sw-justify-start`}
 `;
 export const NumericalCell = styled(CellComponent)`
-  ${tw`sw-text-right`}
+  ${tw`sw-text-right sw-justify-end`}
 `;
 export const RatingCell = styled(CellComponent)`
-  ${tw`sw-text-right`}
+  ${tw`sw-text-right sw-justify-end`}
 `;
 export const CheckboxCell = styled(CellComponent)`
   ${tw`sw-text-center`}
@@ -181,7 +181,7 @@ const StyledTable = styled.table<GenericTableProps | CustomTableProps>`
 
 const CellComponentStyled = styled.td`
   color: ${themeColor('pageContent')};
-
+  ${tw`sw-flex sw-items-center`}
   ${tw`sw-body-sm`}
   ${tw`sw-py-4 sw-px-2`}
   ${tw`sw-align-top`}

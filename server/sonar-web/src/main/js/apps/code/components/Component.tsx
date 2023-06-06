@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { ContentCell, NumericalCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
-import { withScrollTo } from '../../../components/hoc/withScrollTo';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
+import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';
 import ComponentPin from './ComponentPin';
@@ -34,7 +33,6 @@ interface Props {
   canBePinned?: boolean;
   canBrowse?: boolean;
   component: TypeComponentMeasure;
-  hasBaseComponent: boolean;
   isBaseComponent?: boolean;
   metrics: Metric[];
   previous?: TypeComponentMeasure;
@@ -44,75 +42,64 @@ interface Props {
   showAnalysisDate?: boolean;
 }
 
-class Component extends React.PureComponent<Props> {
-  render() {
-    const {
-      branchLike,
-      canBePinned = true,
-      canBrowse = false,
-      component,
-      hasBaseComponent,
-      isBaseComponent = false,
-      metrics,
-      previous,
-      rootComponent,
-      selected = false,
-      newCodeSelected,
-      showAnalysisDate,
-    } = this.props;
+export default function Component(props: Props) {
+  const {
+    branchLike,
+    canBePinned = true,
+    canBrowse = false,
+    component,
+    isBaseComponent = false,
+    metrics,
+    previous,
+    rootComponent,
+    selected = false,
+    newCodeSelected,
+    showAnalysisDate,
+  } = props;
 
-    const isFile =
-      component.qualifier === ComponentQualifier.File ||
-      component.qualifier === ComponentQualifier.TestFile;
+  const isFile =
+    component.qualifier === ComponentQualifier.File ||
+    component.qualifier === ComponentQualifier.TestFile;
 
-    return (
-      <tr className={classNames({ selected, 'current-folder': isBaseComponent })}>
-        {canBePinned && (
-          <td className="thin nowrap">
-            {isFile && (
-              <WorkspaceContext.Consumer>
-                {({ openComponent }) => (
-                  <ComponentPin
-                    branchLike={branchLike}
-                    component={component}
-                    openComponent={openComponent}
-                  />
-                )}
-              </WorkspaceContext.Consumer>
-            )}
-          </td>
-        )}
-        <td className="code-name-cell">
-          <div className="display-flex-center">
-            {hasBaseComponent && <div className="code-child-component-icon" />}
-            <ComponentName
-              branchLike={branchLike}
-              canBrowse={canBrowse}
-              component={component}
-              previous={previous}
-              rootComponent={rootComponent}
-              unclickable={isBaseComponent}
-              newCodeSelected={newCodeSelected}
-            />
-          </div>
-        </td>
+  return (
+    <TableRowInteractive selected={selected}>
+      {canBePinned && (
+        <ContentCell className="sw-py-3">
+          {isFile && (
+            <WorkspaceContext.Consumer>
+              {({ openComponent }) => (
+                <ComponentPin
+                  branchLike={branchLike}
+                  component={component}
+                  openComponent={openComponent}
+                />
+              )}
+            </WorkspaceContext.Consumer>
+          )}
+        </ContentCell>
+      )}
+      <ContentCell className="it__code-name-cell sw-overflow-hidden">
+        <ComponentName
+          branchLike={branchLike}
+          canBrowse={canBrowse}
+          component={component}
+          previous={previous}
+          rootComponent={rootComponent}
+          unclickable={isBaseComponent}
+          newCodeSelected={newCodeSelected}
+        />
+      </ContentCell>
 
-        {metrics.map((metric) => (
-          <td className="text-center" key={metric.key}>
-            <ComponentMeasure component={component} metric={metric} />
-          </td>
-        ))}
+      {metrics.map((metric) => (
+        <ComponentMeasure component={component} key={metric.key} metric={metric} />
+      ))}
 
-        {showAnalysisDate && isBaseComponent && <td />}
-
-        {showAnalysisDate && !isBaseComponent && (
-          <td className="text-center">
-            {component.analysisDate ? <DateFromNow date={component.analysisDate} /> : '—'}
-          </td>
-        )}
-      </tr>
-    );
-  }
+      {showAnalysisDate && (
+        <NumericalCell>
+          {!isBaseComponent &&
+            (component.analysisDate ? <DateFromNow date={component.analysisDate} /> : '—')}
+        </NumericalCell>
+      )}
+    </TableRowInteractive>
+  );
 }
-
-export default withScrollTo(Component);

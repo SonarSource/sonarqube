@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { FlagMessage, HelperHintIcon, LargeCenteredLayout } from 'design-system';
+import {
+  Card,
+  DeferredSpinner,
+  FlagMessage,
+  HelperHintIcon,
+  LargeCenteredLayout,
+  LightLabel,
+} from 'design-system';
 import { intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -36,7 +42,6 @@ import { getCodeMetrics } from '../utils';
 import CodeBreadcrumbs from './CodeBreadcrumbs';
 import Components from './Components';
 import Search from './Search';
-import SearchResults from './SearchResults';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
 interface Props {
@@ -90,11 +95,6 @@ export default function CodeAppRenderer(props: Props) {
 
   const showComponentList = sourceViewer === undefined && components.length > 0 && !showSearch;
 
-  const componentsClassName = classNames('boxed-group', 'spacer-top', {
-    'new-loading': loading,
-    'search-results': showSearch,
-  });
-
   const metricKeys = intersection(
     getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
     Object.keys(metrics)
@@ -111,7 +111,7 @@ export default function CodeAppRenderer(props: Props) {
   const isPortfolio = isPortfolioLike(qualifier);
 
   return (
-    <LargeCenteredLayout className="sw-py-8 sw-body-md">
+    <LargeCenteredLayout className="sw-py-8 sw-body-md" id="code-page">
       <Suggestions suggestions="code" />
       <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
@@ -145,15 +145,15 @@ export default function CodeAppRenderer(props: Props) {
         />
       )}
 
-      <div className="code-components">
+      <div>
         {!hasComponents && sourceViewer === undefined && (
-          <div className="display-flex-center display-flex-column no-file">
-            <span className="h1 text-muted">
+          <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
+            <LightLabel>
               {translate(
                 'code_viewer.no_source_code_displayed_due_to_empty_analysis',
                 component.qualifier
               )}
-            </span>
+            </LightLabel>
           </div>
         )}
 
@@ -165,47 +165,46 @@ export default function CodeAppRenderer(props: Props) {
           />
         )}
 
-        <div className={componentsClassName}>
-          {showComponentList && (
-            <Components
-              baseComponent={baseComponent}
-              branchLike={branchLike}
-              components={components}
-              cycle
-              metrics={filteredMetrics}
-              onEndOfList={props.handleLoadMore}
-              onGoToParent={props.handleGoToParent}
-              onHighlight={props.handleHighlight}
-              onSelect={props.handleSelect}
-              rootComponent={component}
-              selected={highlighted}
-              newCodeSelected={newCodeSelected}
-              showAnalysisDate={isPortfolio}
-            />
-          )}
+        <Card className="sw-mt-2">
+          <DeferredSpinner loading={loading}>
+            {showComponentList && (
+              <Components
+                baseComponent={baseComponent}
+                branchLike={branchLike}
+                components={components}
+                cycle
+                metrics={filteredMetrics}
+                onEndOfList={props.handleLoadMore}
+                onGoToParent={props.handleGoToParent}
+                onHighlight={props.handleHighlight}
+                onSelect={props.handleSelect}
+                rootComponent={component}
+                selected={highlighted}
+                newCodeSelected={newCodeSelected}
+                showAnalysisDate={isPortfolio}
+              />
+            )}
 
-          {showSearch && (
-            <SearchResults
-              branchLike={branchLike}
-              components={searchResults}
-              onHighlight={props.handleHighlight}
-              onSelect={props.handleSelect}
-              rootComponent={component}
-              selected={highlighted}
-            />
-          )}
-
-          <div role="status" className={showSearch ? 'text-center big-padded-bottom' : undefined}>
-            {searchResults?.length === 0 && translate('no_results')}
-          </div>
-        </div>
+            {showSearch && (
+              <Components
+                branchLike={branchLike}
+                components={searchResults}
+                metrics={[]}
+                onHighlight={props.handleHighlight}
+                onSelect={props.handleSelect}
+                rootComponent={component}
+                selected={highlighted}
+              />
+            )}
+          </DeferredSpinner>
+        </Card>
 
         {showComponentList && (
           <ListFooter count={components.length} loadMore={props.handleLoadMore} total={total} />
         )}
 
         {sourceViewer !== undefined && !showSearch && (
-          <div className="spacer-top">
+          <div className="sw-mt-2">
             <SourceViewerWrapper
               branchLike={branchLike}
               component={sourceViewer.key}

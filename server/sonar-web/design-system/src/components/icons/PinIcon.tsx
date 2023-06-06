@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Note, TableRow } from 'design-system';
-import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { PinIcon as OcticonPinIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-export default function ComponentsEmpty() {
-  return (
-    <TableRow>
-      <ContentCell className="sw-col-span-full">
-        <Note role="status">{translate('no_results')}</Note>
-      </ContentCell>
-    </TableRow>
-  );
-}
+export const PinIcon = OcticonHoc(OcticonPinIcon, 'PinIcon');

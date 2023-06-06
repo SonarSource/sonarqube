@@ -38,9 +38,14 @@ const SIZE_MAPPING = {
 export function MetricsRatingBadge({ className, size = 'sm', label, rating, ...ariaAttrs }: Props) {
   if (!rating) {
     return (
-      <span aria-label={label} className={className} {...ariaAttrs}>
-        –
-      </span>
+      <StyledNoRatingBadge
+        aria-label={label}
+        className={className}
+        size={SIZE_MAPPING[size]}
+        {...ariaAttrs}
+      >
+        —
+      </StyledNoRatingBadge>
     );
   }
   return (
@@ -56,6 +61,15 @@ export function MetricsRatingBadge({ className, size = 'sm', label, rating, ...a
   );
 }
 
+const StyledNoRatingBadge = styled.div<{ size: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: ${getProp('size')};
+  height: ${getProp('size')};
+`;
+
 const MetricsRatingBadgeStyled = styled.div<{ rating: MetricsLabel; size: string }>`
   width: ${getProp('size')};
   height: ${getProp('size')};
@@ -63,7 +77,10 @@ const MetricsRatingBadgeStyled = styled.div<{ rating: MetricsLabel; size: string
   font-size: ${({ size }) => (size === '2rem' ? '0.875rem' : '0.75rem')};
   background-color: ${({ rating }) => themeColor(`rating.${rating}`)};
 
-  ${tw`sw-inline-flex sw-items-center sw-justify-center`};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   ${tw`sw-rounded-pill`};
   ${tw`sw-font-semibold`};
 `;

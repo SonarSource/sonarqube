@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, NumericalCell, RatingCell } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { isPortfolioLike } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure } from '../../../types/types';
 
 interface ComponentsHeaderProps {
@@ -31,16 +33,17 @@ interface ComponentsHeaderProps {
 }
 
 const SHORT_NAME_METRICS = [
-  'duplicated_lines_density',
-  'new_lines',
-  'new_coverage',
-  'new_duplicated_lines_density',
+  MetricKey.duplicated_lines_density,
+  MetricKey.new_lines,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
 ];
 
 export default function ComponentsHeader(props: ComponentsHeaderProps) {
   const { baseComponent, canBePinned = true, metrics, rootComponent, showAnalysisDate } = props;
   const isPortfolio = isPortfolioLike(rootComponent.qualifier);
   let columns: string[] = [];
+  let Cell: typeof NumericalCell;
   if (isPortfolio) {
     columns = [
       translate('metric_domain.Releasability'),
@@ -54,24 +57,25 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
     if (showAnalysisDate) {
       columns.push(translate('code.last_analysis_date'));
     }
+
+    Cell = RatingCell;
   } else {
     columns = metrics.map((metric) =>
-      translate('metric', metric, SHORT_NAME_METRICS.includes(metric) ? 'short_name' : 'name')
+      translate(
+        'metric',
+        metric,
+        SHORT_NAME_METRICS.includes(metric as MetricKey) ? 'short_name' : 'name'
+      )
     );
+
+    Cell = NumericalCell;
   }
 
   return (
-    <thead>
-      <tr className="code-components-header">
-        {canBePinned && <th className="thin" aria-label={translate('code.pin')} />}
-        <th className="code-name-cell" aria-label={translate('code.name')} />
-        {baseComponent &&
-          columns.map((column) => (
-            <th className="text-center" key={column}>
-              {column}
-            </th>
-          ))}
-      </tr>
-    </thead>
+    <>
+      {canBePinned && <ContentCell aria-label={translate('code.pin')} />}
+      <ContentCell aria-label={translate('code.name')} />
+      {baseComponent && columns.map((column) => <Cell key={column}>{column}</Cell>)}
+    </>
   );
 }

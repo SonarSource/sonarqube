@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InteractiveIcon, PinIcon } from 'design-system';
 import * as React from 'react';
-import theme from '../../../app/theme';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import PinIcon from '../../../components/icons/PinIcon';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -32,27 +30,23 @@ interface Props {
   openComponent: WorkspaceContextShape['openComponent'];
 }
 
-export default class ComponentPin extends React.PureComponent<Props> {
-  handleClick = () => {
-    this.props.openComponent({
-      branchLike: this.props.branchLike,
-      key: this.props.component.key,
-      name: this.props.component.path,
-      qualifier: this.props.component.qualifier,
-    });
-  };
+export default function ComponentPin(props: Props) {
+  const { branchLike, component, openComponent } = props;
 
-  render() {
-    const { name } = this.props.component;
-    return (
-      <ButtonPlain
-        className="link-no-underline"
-        preventDefault
-        onClick={this.handleClick}
-        title={translateWithParameters('component_viewer.open_in_workspace_X', name)}
-      >
-        <PinIcon fill={theme.colors.primary} />
-      </ButtonPlain>
-    );
-  }
+  const handleClick = React.useCallback(() => {
+    openComponent({
+      branchLike,
+      key: component.key,
+      name: component.path,
+      qualifier: component.qualifier,
+    });
+  }, [branchLike, component, openComponent]);
+
+  const label = translateWithParameters('component_viewer.open_in_workspace_X', component.name);
+
+  return (
+    <span title={label}>
+      <InteractiveIcon aria-label={label} Icon={PinIcon} onClick={handleClick} />
+    </span>
+  );
 }
