@@ -28,7 +28,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isView } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike, isView } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 
 interface Props {
@@ -141,11 +141,13 @@ class Search extends React.PureComponent<Props, State> {
   render() {
     const { className, component, newCodeSelected } = this.props;
     const { loading, query } = this.state;
-    const isViewLike = isView(component.qualifier);
+    const isPortfolio = isPortfolioLike(component.qualifier);
+
+    const searchPlaceholder = getSearchPlaceholderLabel(component.qualifier as ComponentQualifier);
 
     return (
       <div className={classNames('sw-flex sw-items-center', className)} id="code-search">
-        {isViewLike && (
+        {isPortfolio && (
           <div className="sw-mr-4">
             <ToggleButton
               disabled={!isEmpty(query)}
@@ -166,15 +168,11 @@ class Search extends React.PureComponent<Props, State> {
         )}
         <InputSearch
           clearIconAriaLabel={translate('clear')}
-          searchInputAriaLabel={translate(
-            isViewLike ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
-          )}
+          searchInputAriaLabel={searchPlaceholder}
           minLength={3}
           onChange={this.handleQueryChange}
           onKeyDown={this.handleKeyDown}
-          placeholder={translate(
-            isViewLike ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
-          )}
+          placeholder={searchPlaceholder}
           size="large"
           value={this.state.query}
         />
@@ -185,3 +183,17 @@ class Search extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(Search);
+
+function getSearchPlaceholderLabel(qualifier: ComponentQualifier) {
+  switch (qualifier) {
+    case ComponentQualifier.Portfolio:
+    case ComponentQualifier.SubPortfolio:
+      return translate('code.search_placeholder.portfolio');
+
+    case ComponentQualifier.Application:
+      return translate('code.search_placeholder.application');
+
+    default:
+      return translate('code.search_placeholder.portfolio');
+  }
+}
