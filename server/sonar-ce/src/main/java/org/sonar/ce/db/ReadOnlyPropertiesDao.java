@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.db;
 
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;

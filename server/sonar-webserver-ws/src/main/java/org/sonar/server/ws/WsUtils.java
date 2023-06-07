@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 
-import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;

@@ -24,7 +24,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

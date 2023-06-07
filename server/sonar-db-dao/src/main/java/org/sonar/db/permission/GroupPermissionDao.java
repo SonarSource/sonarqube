@@ -34,7 +34,6 @@ import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
