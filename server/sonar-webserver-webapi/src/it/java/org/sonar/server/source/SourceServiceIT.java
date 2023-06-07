@@ -45,7 +45,7 @@ public class SourceServiceIT {
   public static final String FILE_UUID = "FILE_UUID";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
 
   HtmlSourceDecorator htmlDecorator = mock(HtmlSourceDecorator.class);

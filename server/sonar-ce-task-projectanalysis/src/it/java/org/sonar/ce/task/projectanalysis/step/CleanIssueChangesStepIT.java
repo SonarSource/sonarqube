@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CleanIssueChangesStepIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final IssueChangesToDeleteRepository repository = new IssueChangesToDeleteRepository();
   private final CleanIssueChangesStep cleanIssueChangesStep = new CleanIssueChangesStep(repository, db.getDbClient());
   private final TestComputationStepContext context = new TestComputationStepContext();

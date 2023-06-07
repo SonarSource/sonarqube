@@ -66,7 +66,7 @@ public class PersistFileSourcesStepIT extends BaseStepTest {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 

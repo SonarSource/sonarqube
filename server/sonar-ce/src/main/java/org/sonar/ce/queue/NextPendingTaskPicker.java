@@ -108,8 +108,8 @@ public class NextPendingTaskPicker {
   }
 
   private static List<PrOrBranchTask> filterOldestPerProject(List<PrOrBranchTask> queuedPrOrBranches) {
-    Set<String> mainComponentUuidsSeen = new HashSet<>();
-    return queuedPrOrBranches.stream().filter(t -> mainComponentUuidsSeen.add(t.getMainComponentUuid())).toList();
+    Set<String> entityUuidsSeen = new HashSet<>();
+    return queuedPrOrBranches.stream().filter(t -> entityUuidsSeen.add(t.getEntityUuid())).toList();
   }
 
   /**
@@ -120,9 +120,9 @@ public class NextPendingTaskPicker {
    * This method returns the longest waiting branch in the queue which can be scheduled concurrently with pull requests.
    */
   private static boolean canRunBranch(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
-    String mainComponentUuid = task.getMainComponentUuid();
+    String entityUuid = task.getEntityUuid();
     List<PrOrBranchTask> sameComponentTasks = inProgress.stream()
-      .filter(t -> t.getMainComponentUuid().equals(mainComponentUuid))
+      .filter(t -> t.getEntityUuid().equals(entityUuid))
       .toList();
     //we can peek branch analysis task only if all the other in progress tasks for this component uuid are pull requests
     return sameComponentTasks.stream().map(PrOrBranchTask::getBranchType).allMatch(s -> Objects.equals(s, PULL_REQUEST));
@@ -135,7 +135,7 @@ public class NextPendingTaskPicker {
   private static boolean canRunPr(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
     // return true unless the same PR is already in progress
     return inProgress.stream()
-      .noneMatch(pr -> pr.getMainComponentUuid().equals(task.getMainComponentUuid()) && Objects.equals(pr.getBranchType(), PULL_REQUEST) &&
+      .noneMatch(pr -> pr.getEntityUuid().equals(task.getEntityUuid()) && Objects.equals(pr.getBranchType(), PULL_REQUEST) &&
         Objects.equals(pr.getComponentUuid(), (task.getComponentUuid())));
   }
 }

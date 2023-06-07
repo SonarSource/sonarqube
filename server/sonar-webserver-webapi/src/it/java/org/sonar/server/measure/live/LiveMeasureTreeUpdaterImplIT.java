@@ -54,7 +54,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STA
 
 public class LiveMeasureTreeUpdaterImplIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final Configuration config = new MapSettings().setProperty(RATING_GRID, "0.05,0.1,0.2,0.5").asConfig();
   private LiveMeasureTreeUpdaterImpl treeUpdater;

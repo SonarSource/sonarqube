@@ -47,7 +47,7 @@ public class QualityGateUserPermissionsDaoIT {
   private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister, true);
 
   private final DbSession dbSession = db.getSession();
   private final UserDbTester userDbTester = new UserDbTester(db);

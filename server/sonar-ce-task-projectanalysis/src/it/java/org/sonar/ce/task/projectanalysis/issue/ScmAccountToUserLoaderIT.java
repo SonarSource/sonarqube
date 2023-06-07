@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 public class ScmAccountToUserLoaderIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

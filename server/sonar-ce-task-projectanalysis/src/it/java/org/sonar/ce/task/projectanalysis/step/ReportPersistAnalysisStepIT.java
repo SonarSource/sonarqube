@@ -54,7 +54,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
   private static final String REVISION_ID = "5f6432a1";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

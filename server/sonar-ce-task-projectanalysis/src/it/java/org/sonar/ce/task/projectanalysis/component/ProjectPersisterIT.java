@@ -48,7 +48,7 @@ public class ProjectPersisterIT {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   public TestSystem2 system2 = new TestSystem2();
@@ -74,8 +74,8 @@ public class ProjectPersisterIT {
 
   @Test
   public void update_description() {
-    ProjectDto p1 = dbTester.components().insertPublicProject(
-      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC")).getProjectDto();
+    ProjectDto p1 = dbTester.components().insertPublicProject("PROJECT_UUID",
+      p -> p.setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC")).getProjectDto();
 
     assertProject("OLD_DESC", ROOT.getName(), p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
@@ -84,8 +84,8 @@ public class ProjectPersisterIT {
 
   @Test
   public void update_name() {
-    ProjectDto p1 = dbTester.components().insertPublicProject(
-      c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription())).getProjectDto();
+    ProjectDto p1 = dbTester.components().insertPublicProject("PROJECT_UUID",
+      p -> p.setKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription())).getProjectDto();
 
     assertProject(ROOT.getDescription(), "OLD_NAME", p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());

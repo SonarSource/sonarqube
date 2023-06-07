@@ -51,14 +51,14 @@ public class AuditPurgeStepIT {
     .setValue(MONTHLY.name());
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = dbTester.getDbClient();
 
   private final System2 system2 = new System2();
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
 
   private final AuditHousekeepingFrequencyHelper auditHousekeepingFrequencyHelper = mock(AuditHousekeepingFrequencyHelper.class);
 

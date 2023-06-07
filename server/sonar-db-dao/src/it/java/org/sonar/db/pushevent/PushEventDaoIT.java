@@ -36,7 +36,7 @@ public class PushEventDaoIT {
   private final TestSystem2 system2 = new TestSystem2().setNow(1L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbSession session = db.getSession();
   private final PushEventDao underTest = db.getDbClient().pushEventDao();

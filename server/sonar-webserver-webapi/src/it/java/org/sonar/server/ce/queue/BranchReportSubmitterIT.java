@@ -260,7 +260,7 @@ public class BranchReportSubmitterIT {
     assertThat(ceTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(ceTask.getComponent()).isPresent();
     assertThat(ceTask.getComponent().get().getUuid()).isEqualTo(branch.uuid());
-    assertThat(ceTask.getComponent().get().getMainComponentUuid()).isEqualTo(project.uuid());
+    assertThat(ceTask.getComponent().get().getEntityUuid()).isEqualTo(project.uuid());
   }
 
   private static BranchSupport.ComponentKey createComponentKeyOfBranch(String projectKey) {

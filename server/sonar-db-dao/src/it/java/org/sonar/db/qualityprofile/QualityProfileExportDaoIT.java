@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityProfileExportDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2(), true);
 
   private final DbSession dbSession = db.getSession();
   private final QualityProfileExportDao underTest = db.getDbClient().qualityProfileExportDao();

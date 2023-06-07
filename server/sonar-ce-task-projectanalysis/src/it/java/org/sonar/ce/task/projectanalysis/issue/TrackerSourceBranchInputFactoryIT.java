@@ -39,7 +39,7 @@ public class TrackerSourceBranchInputFactoryIT {
   private final static String COMPONENT_UUID = "uuid1";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
   private final SourceBranchComponentUuids sourceBranchComponentUuids = mock(SourceBranchComponentUuids.class);

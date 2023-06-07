@@ -743,11 +743,12 @@ public class CeWorkerImplIT {
     for (int i = 0; i < characteristics.length; i += 2) {
       characteristicMap.put(characteristics[i], characteristics[i + 1]);
     }
-    CeTask.Component component = new CeTask.Component("PROJECT_1", null, null);
+    CeTask.Component entity = new CeTask.Component("PROJECT_1", null, null);
+    CeTask.Component component = new CeTask.Component("BRANCH_1", null, null);
     return new CeTask.Builder()
       .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
       .setComponent(component)
-      .setMainComponent(component)
+      .setEntity(entity)
       .setSubmitter(submitter)
       .setCharacteristics(characteristicMap)
       .build();

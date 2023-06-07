@@ -20,13 +20,13 @@
 package org.sonar.db.ce;
 
 public class PrOrBranchTask extends CeTaskDtoLight {
-  private String mainComponentUuid;
+  private String entityUuid;
   private String taskType;
   private String branchType;
   private String componentUuid;
 
-  public String getMainComponentUuid() {
-    return mainComponentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   public String getBranchType() {

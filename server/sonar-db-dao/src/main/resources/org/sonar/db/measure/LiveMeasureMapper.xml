@@ -23,15 +23,15 @@
     </foreach>
   </select>
 
-  <select id="selectForProjectsByMetricUuids" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
-    select <include refid="columns"/> from live_measures lm
+  <select id="selectForProjectMainBranchesByMetricUuids" parameterType="map" resultType="org.sonar.db.measure.ProjectMainBranchLiveMeasureDto">
+    select p.uuid as projectUuid, lm.metric_uuid as metricUuid, lm.value as value, lm.text_value as textValue
+    from live_measures lm
+    inner join project_branches pb on pb.uuid = lm.component_uuid
+    inner join projects p on p.uuid = pb.project_uuid
     where
     lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
                                close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
-    and component_uuid in (SELECT
-      p.uuid as uuid
-    FROM projects p
-    where p.qualifier = 'TRK')
+    and p.qualifier = 'TRK'
   </select>
 
   <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
@@ -124,7 +124,9 @@
     select count(1)
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid AND m.name = #{metric, jdbcType=VARCHAR}
-      inner join projects p on p.uuid = lm.project_uuid and p.qualifier = 'TRK'
+      inner join project_branches pb on pb.uuid = lm.project_uuid
+      inner join projects p on p.uuid = pb.project_uuid and p.qualifier = 'TRK'
+
   </select>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">

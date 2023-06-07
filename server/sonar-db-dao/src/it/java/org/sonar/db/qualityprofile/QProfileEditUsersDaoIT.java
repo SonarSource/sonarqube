@@ -56,7 +56,7 @@ public class QProfileEditUsersDaoIT {
   private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  public DbTester db = DbTester.create(system2, auditPersister, true);
 
   private final QProfileEditUsersDao underTest = db.getDbClient().qProfileEditUsersDao();
 

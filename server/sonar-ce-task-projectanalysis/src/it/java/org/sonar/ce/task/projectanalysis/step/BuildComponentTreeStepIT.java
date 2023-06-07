@@ -86,7 +86,7 @@ public class BuildComponentTreeStepIT {
   private static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_BUILD_STRING));
   @Rule

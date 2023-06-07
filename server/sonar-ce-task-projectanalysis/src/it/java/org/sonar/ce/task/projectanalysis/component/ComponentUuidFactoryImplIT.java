@@ -39,7 +39,7 @@ public class ComponentUuidFactoryImplIT {
   private final Branch mockedBranch = mock(Branch.class);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   @Test
   public void getOrCreateForKey_when_existingComponentsInDbForMainBranch_should_load() {

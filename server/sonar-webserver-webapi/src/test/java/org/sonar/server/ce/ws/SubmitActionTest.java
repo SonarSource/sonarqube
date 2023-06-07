@@ -46,12 +46,14 @@ import static org.mockito.Mockito.when;
 public class SubmitActionTest {
 
   private static final String PROJECT_UUID = "PROJECT_1";
-  private static final CeTask.Component COMPONENT = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
+  private static final String BRANCH_UUID = "BRANCH_1";
+  private static final CeTask.Component ENTITY = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
+  private static final CeTask.Component COMPONENT = new CeTask.Component(BRANCH_UUID, "KEY_1", "NAME_1");
   private static final CeTask A_CE_TASK = new CeTask.Builder()
     .setUuid("TASK_1")
     .setType(CeTaskTypes.REPORT)
     .setComponent(COMPONENT)
-    .setMainComponent(COMPONENT)
+    .setEntity(ENTITY)
     .setSubmitter(new CeTask.User("UUID_1", "LOGIN_1"))
     .build();
 
@@ -75,7 +77,7 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
+    assertThat(submitResponse.getProjectId()).isEqualTo(BRANCH_UUID);
   }
 
   @Test
@@ -114,7 +116,7 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq(expectedName), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
+    assertThat(submitResponse.getProjectId()).isEqualTo(BRANCH_UUID);
   }
 
   @Test

@@ -47,13 +47,13 @@ public class ExportLiveMeasuresStepIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
-  private ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
-  private MutableMetricRepository metricRepository = new MutableMetricRepositoryImpl();
-  private ProjectHolder projectHolder = mock(ProjectHolder.class);
-  private FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private ExportLiveMeasuresStep underTest = new ExportLiveMeasuresStep(dbTester.getDbClient(), projectHolder, componentRepository, metricRepository, dumpWriter);
+  private final ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
+  private final MutableMetricRepository metricRepository = new MutableMetricRepositoryImpl();
+  private final ProjectHolder projectHolder = mock(ProjectHolder.class);
+  private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
+  private final ExportLiveMeasuresStep underTest = new ExportLiveMeasuresStep(dbTester.getDbClient(), projectHolder, componentRepository, metricRepository, dumpWriter);
 
   @Before
   public void before() {

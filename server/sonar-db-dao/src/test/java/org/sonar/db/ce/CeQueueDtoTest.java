@@ -48,20 +48,20 @@ public class CeQueueDtoTest {
   }
 
   @Test
-  public void setMainComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
-    underTest.setMainComponentUuid(null);
-    underTest.setMainComponentUuid("");
-    underTest.setMainComponentUuid("bar");
-    underTest.setMainComponentUuid(STR_40_CHARS);
+  public void setEntityUuid_accepts_null_empty_and_string_40_chars_or_less() {
+    underTest.setEntityUuid(null);
+    underTest.setEntityUuid("");
+    underTest.setEntityUuid("bar");
+    underTest.setEntityUuid(STR_40_CHARS);
   }
 
   @Test
-  public void setMainComponentUuid_throws_IAE_if_value_is_41_chars() {
+  public void setEntityUuid_throws_IAE_if_value_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
-    assertThatThrownBy(() -> underTest.setMainComponentUuid(str_41_chars))
+    assertThatThrownBy(() -> underTest.setEntityUuid(str_41_chars))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value is too long for column CE_QUEUE.MAIN_COMPONENT_UUID: " + str_41_chars);
+      .hasMessage("Value is too long for column CE_QUEUE.ENTITY_UUID: " + str_41_chars);
   }
 
   @Test

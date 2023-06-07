@@ -48,7 +48,7 @@ public class ProjectTrackerBaseLazyInputIT {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(ANALYSIS_DATE);
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public ActiveRulesHolderRule activeRulesHolderRule = new ActiveRulesHolderRule();
   @Rule

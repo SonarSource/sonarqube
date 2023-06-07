@@ -41,7 +41,10 @@ public class DbVersion102 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry.add(10_2_000, "Rename 'component_uuid' in 'user_roles' table to 'entity_uuid'", RenameComponentUuidInUserRoles.class)
-      .add(10_2_001, "Rename 'component_uuid' in 'group_roles' table to 'entity_uuid'", RenameComponentUuidInGroupRoles.class);
+      .add(10_2_001, "Rename 'component_uuid' in 'group_roles' table to 'entity_uuid'", RenameComponentUuidInGroupRoles.class)
+      .add(10_2_002, "Rename 'main_component_uuid' in 'ce_activity' table to 'entity_uuid'", RenameMainComponentUuidInCeActivity.class)
+      .add(10_2_003, "Rename 'main_component_uuid' in 'ce_queue' table to 'entity_uuid'", RenameMainComponentUuidInCeQueue.class)
+    ;
   }
 
 }

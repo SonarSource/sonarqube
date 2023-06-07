@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.portfolio.PortfolioDto;
-import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -116,20 +115,16 @@ public final class CeTaskSubmit {
   }
 
   public static class Component {
-    private String uuid;
-    private String mainComponentUuid;
+    private final String uuid;
+    private final String entityUuid;
 
-    public Component(String uuid, String mainComponentUuid) {
+    public Component(String uuid, String entityUuid) {
       this.uuid = requireNonNull(nullToEmpty(uuid), "uuid can't be null");
-      this.mainComponentUuid = requireNonNull(nullToEmpty(mainComponentUuid), "mainComponentUuid can't be null");
+      this.entityUuid = requireNonNull(nullToEmpty(entityUuid), "mainComponentUuid can't be null");
     }
 
-    public static Component fromDto(String componentUuid, String mainComponentUuid) {
-      return new Component(componentUuid, mainComponentUuid);
-    }
-
-    public static Component fromDto(ProjectDto dto) {
-      return new Component(dto.getUuid(), dto.getUuid());
+    public static Component fromDto(String componentUuid, String entityUuid) {
+      return new Component(componentUuid, entityUuid);
     }
 
     public static Component fromDto(PortfolioDto dto) {
@@ -140,23 +135,19 @@ public final class CeTaskSubmit {
       return new Component(dto.getUuid(), dto.getProjectUuid());
     }
 
-    public static Component fromProjectUuid(String projectUuid) {
-      return new Component(projectUuid, projectUuid);
-    }
-
     public String getUuid() {
       return uuid;
     }
 
-    public String getMainComponentUuid() {
-      return mainComponentUuid;
+    public String getEntityUuid() {
+      return entityUuid;
     }
 
     @Override
     public String toString() {
       return "Component{" +
         "uuid='" + uuid + '\'' +
-        ", mainComponentUuid='" + mainComponentUuid + '\'' +
+        ", entityUuid='" + entityUuid + '\'' +
         '}';
     }
 
@@ -169,12 +160,12 @@ public final class CeTaskSubmit {
         return false;
       }
       Component component = (Component) o;
-      return uuid.equals(component.uuid) && mainComponentUuid.equals(component.mainComponentUuid);
+      return uuid.equals(component.uuid) && entityUuid.equals(component.entityUuid);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(uuid, mainComponentUuid);
+      return Objects.hash(uuid, entityUuid);
     }
   }
 }

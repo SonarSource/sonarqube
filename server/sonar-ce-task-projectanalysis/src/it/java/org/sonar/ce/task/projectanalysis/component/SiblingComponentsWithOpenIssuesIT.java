@@ -45,7 +45,7 @@ public class SiblingComponentsWithOpenIssuesIT {
   public AnalysisMetadataHolderRule metadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private SiblingComponentsWithOpenIssues underTest;
 

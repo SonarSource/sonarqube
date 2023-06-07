@@ -44,6 +44,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.Project;
@@ -62,7 +63,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
   private static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
@@ -70,14 +71,14 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final TestPluginRepository pluginRepository = new TestPluginRepository();
-  private ComponentDto project;
+  private ProjectDto project;
   private ComputationStep underTest;
 
   @Before
   public void setUp() {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY);
     underTest = createStep(defaultOrgCeTask);
-    project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY)).getMainBranchComponent();
+    project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY)).getProjectDto();
   }
 
   @Test
@@ -127,10 +128,10 @@ public class LoadReportAnalysisMetadataHolderStepIT {
     underTest.execute(new TestComputationStepContext());
 
     Project project = analysisMetadataHolder.getProject();
-    assertThat(project.getUuid()).isEqualTo(this.project.uuid());
+    assertThat(project.getUuid()).isEqualTo(this.project.getUuid());
     assertThat(project.getKey()).isEqualTo(this.project.getKey());
-    assertThat(project.getName()).isEqualTo(this.project.name());
-    assertThat(project.getDescription()).isEqualTo(this.project.description());
+    assertThat(project.getName()).isEqualTo(this.project.getName());
+    assertThat(project.getDescription()).isEqualTo(this.project.getDescription());
   }
 
   @Test
@@ -186,14 +187,14 @@ public class LoadReportAnalysisMetadataHolderStepIT {
     CeTask res = mock(CeTask.class);
     Optional<CeTask.Component> component = Optional.of(new CeTask.Component("main_prj_uuid", null, null));
     when(res.getComponent()).thenReturn(component);
-    when(res.getMainComponent()).thenReturn(component);
+    when(res.getEntity()).thenReturn(component);
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = createStep(res);
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(MessageException.class)
-      .hasMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
+      .hasMessage("Compute Engine task entity key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
   }
 
   @Test
@@ -201,7 +202,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
     CeTask res = mock(CeTask.class);
     Optional<CeTask.Component> component = Optional.of(new CeTask.Component("prj_uuid", null, null));
     when(res.getComponent()).thenReturn(component);
-    when(res.getMainComponent()).thenReturn(Optional.of(new CeTask.Component("main_prj_uuid", "main_prj_key", null)));
+    when(res.getEntity()).thenReturn(Optional.of(new CeTask.Component("main_prj_uuid", "main_prj_key", null)));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = createStep(res);
@@ -308,9 +309,10 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   private CeTask createCeTask(String projectKey) {
     CeTask res = mock(CeTask.class);
-    Optional<CeTask.Component> component = Optional.of(new CeTask.Component(projectKey + "_uuid", projectKey, projectKey + "_name"));
+    Optional<CeTask.Component> entity = Optional.of(new CeTask.Component(projectKey + "_uuid", projectKey, projectKey + "_name"));
+    Optional<CeTask.Component> component = Optional.of(new CeTask.Component(projectKey + "branch_uuid", projectKey, projectKey + "_name"));
     when(res.getComponent()).thenReturn(component);
-    when(res.getMainComponent()).thenReturn(component);
+    when(res.getEntity()).thenReturn(entity);
     return res;
   }
 

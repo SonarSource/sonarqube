@@ -45,6 +45,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.project.Project;
 
@@ -84,12 +86,13 @@ public class PullRequestFileMoveDetectionStepIT {
   @Rule
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public LogTester logTester = new LogTester();
 
   private ComponentDto branch;
-  private ComponentDto project;
+  private ComponentDto mainBranch;
+  private ProjectDto project;
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final AnalysisMetadataHolderRule analysisMetadataHolder = mock(AnalysisMetadataHolderRule.class);
@@ -98,9 +101,11 @@ public class PullRequestFileMoveDetectionStepIT {
 
   @Before
   public void setUp() throws Exception {
-    project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    branch = dbTester.components().insertProjectBranch(project, branchDto -> branchDto.setUuid(BRANCH_UUID).setKey(TARGET_BRANCH));
-    treeRootHolder.setRoot(builder(Component.Type.PROJECT, Integer.parseInt(ROOT_REF)).setUuid(project.uuid()).build());
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    mainBranch = projectData.getMainBranchComponent();
+    project = projectData.getProjectDto();
+    branch = dbTester.components().insertProjectBranch(mainBranch, branchDto -> branchDto.setUuid(BRANCH_UUID).setKey(TARGET_BRANCH));
+    treeRootHolder.setRoot(builder(Component.Type.PROJECT, Integer.parseInt(ROOT_REF)).setUuid(mainBranch.uuid()).build());
   }
 
   @Test
@@ -285,7 +290,7 @@ public class PullRequestFileMoveDetectionStepIT {
   private void insertFileComponentsInReport(Set<Component> files) {
     treeRootHolder
       .setRoot(builder(PROJECT, Integer.parseInt(ROOT_REF))
-      .setUuid(project.uuid())
+      .setUuid(mainBranch.uuid())
       .addChildren(files.toArray(Component[]::new))
       .build());
   }
@@ -306,7 +311,7 @@ public class PullRequestFileMoveDetectionStepIT {
 
   private ComponentDto composeComponentDto(String uuid) {
     return ComponentTesting
-      .newFileDto(project)
+      .newFileDto(mainBranch)
       .setBranchUuid(branch.uuid())
       .setKey("key_" + uuid)
       .setUuid(uuid)

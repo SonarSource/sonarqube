@@ -59,7 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 public class LiveMeasureComputerImplIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final TestProjectIndexers projectIndexer = new TestProjectIndexers();
   private MetricDto metric1;

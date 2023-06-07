@@ -289,14 +289,6 @@
       and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectQProfileUuidsByProjectUuid" parameterType="String" resultType="String">
-    SELECT profile_key
-    FROM project_qprofiles
-    <where>
-      AND project_uuid=#{projectUuid}
-    </where>
-  </select>
-
   <select id="selectQProfilesByProjectUuid" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>

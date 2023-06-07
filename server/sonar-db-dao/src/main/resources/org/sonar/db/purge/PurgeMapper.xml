@@ -481,7 +481,7 @@
         created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
         and (
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
         )
       </when>
       <when test="createdAtBefore != null">
@@ -489,7 +489,7 @@
       </when>
       <when test="rootUuid != null">
         component_uuid=#{rootUuid,jdbcType=VARCHAR}
-        or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+        or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       </when>
       <!-- safety net when both variables are null to never generate a
            delete statement deleting the whole table -->
@@ -508,7 +508,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -521,7 +521,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -534,7 +534,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -547,7 +547,7 @@
         from ce_queue
         where
           component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
       )
   </delete>
 
@@ -555,7 +555,7 @@
     delete from ce_queue
     where
       component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteNewCodePeriodsByRootUuid">

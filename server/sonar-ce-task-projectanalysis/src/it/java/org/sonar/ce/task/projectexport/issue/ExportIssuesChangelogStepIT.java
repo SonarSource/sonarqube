@@ -39,11 +39,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -63,7 +63,7 @@ public class ExportIssuesChangelogStepIT {
   private static final String ISSUE_CLOSED_UUID = "issue closed uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -73,21 +73,22 @@ public class ExportIssuesChangelogStepIT {
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private final ExportIssuesChangelogStep underTest = new ExportIssuesChangelogStep(dbClient, projectHolder, dumpWriter);
 
+  private BranchDto mainBranch;
   private int issueChangeUuidGenerator = 0;
 
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto projectDto = dbTester.components().insertPublicProject(p -> p.setUuid(PROJECT_UUID)).getMainBranchComponent();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(projectDto));
-    when(projectHolder.branches()).thenReturn(newArrayList(
-      new BranchDto().setBranchType(BranchType.BRANCH).setKey("master").setProjectUuid(PROJECT_UUID).setUuid(PROJECT_UUID)));
+    ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
+    mainBranch = projectData.getMainBranchDto();
+    when(projectHolder.projectDto()).thenReturn(projectData.getProjectDto());
+    when(projectHolder.branches()).thenReturn(List.of(mainBranch));
 
-    insertIssue(PROJECT_UUID, ISSUE_OPEN_UUID, STATUS_OPEN);
-    insertIssue(PROJECT_UUID, ISSUE_CONFIRMED_UUID, STATUS_CONFIRMED);
-    insertIssue(PROJECT_UUID, ISSUE_REOPENED_UUID, STATUS_REOPENED);
-    insertIssue(PROJECT_UUID, ISSUE_RESOLVED_UUID, STATUS_RESOLVED);
-    insertIssue(PROJECT_UUID, ISSUE_CLOSED_UUID, STATUS_CLOSED);
+    insertIssue(mainBranch.getUuid(), ISSUE_OPEN_UUID, STATUS_OPEN);
+    insertIssue(mainBranch.getUuid(), ISSUE_CONFIRMED_UUID, STATUS_CONFIRMED);
+    insertIssue(mainBranch.getUuid(), ISSUE_REOPENED_UUID, STATUS_REOPENED);
+    insertIssue(mainBranch.getUuid(), ISSUE_RESOLVED_UUID, STATUS_RESOLVED);
+    insertIssue(mainBranch.getUuid(), ISSUE_CLOSED_UUID, STATUS_CLOSED);
   }
 
   @After
@@ -145,7 +146,7 @@ public class ExportIssuesChangelogStepIT {
       .setChangeType("change type")
       .setUserUuid("user_uuid")
       .setIssueChangeCreationDate(454135L)
-      .setProjectUuid(PROJECT_UUID);
+      .setProjectUuid(mainBranch.getUuid());
     insertIssueChange(issueChangeDto);
 
     underTest.execute(new TestComputationStepContext());
@@ -193,7 +194,7 @@ public class ExportIssuesChangelogStepIT {
 
   @Test
   public void execute_sets_createAt_to_zero_if_both_createdAt_and_issueChangeDate_are_null() {
-    insertIssueChange(new IssueChangeDto().setUuid(Uuids.createFast()).setIssueKey(ISSUE_REOPENED_UUID).setProjectUuid(PROJECT_UUID));
+    insertIssueChange(new IssueChangeDto().setUuid(Uuids.createFast()).setIssueKey(ISSUE_REOPENED_UUID).setProjectUuid(mainBranch.getUuid()));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -262,10 +263,10 @@ public class ExportIssuesChangelogStepIT {
     return dto;
   }
 
-  private void insertIssue(String projectUuid, String uuid, String status) {
+  private void insertIssue(String branchUuid, String uuid, String status) {
     IssueDto dto = new IssueDto()
       .setKee(uuid)
-      .setProjectUuid(projectUuid)
+      .setProjectUuid(branchUuid)
       .setStatus(status);
     dbClient.issueDao().insert(dbSession, dto);
     dbSession.commit();

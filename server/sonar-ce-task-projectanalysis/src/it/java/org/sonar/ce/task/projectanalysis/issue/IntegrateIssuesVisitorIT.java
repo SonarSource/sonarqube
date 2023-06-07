@@ -103,7 +103,7 @@ public class IntegrateIssuesVisitorIT {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

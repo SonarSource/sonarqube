@@ -199,7 +199,7 @@ public class SelectActionIT {
   }
 
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {
-    Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByProjectUuid(project.uuid());
     assertThat(qGateUuid)
       .isNotNull()
       .isNotEmpty()

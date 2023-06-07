@@ -58,11 +58,11 @@ public class ExportSettingsStepIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
-  private MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
-  private MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
-  private FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private ExportSettingsStep underTest = new ExportSettingsStep(dbTester.getDbClient(), projectHolder, componentRepository, dumpWriter);
+  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
+  private final MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
+  private final MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
+  private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
+  private final ExportSettingsStep underTest = new ExportSettingsStep(dbTester.getDbClient(), projectHolder, componentRepository, dumpWriter);
 
   @Before
   public void setUp() {

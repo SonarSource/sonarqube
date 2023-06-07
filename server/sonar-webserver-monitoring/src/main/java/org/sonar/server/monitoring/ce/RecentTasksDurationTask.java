@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
 
 import static java.util.Objects.requireNonNull;
@@ -54,14 +54,14 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<CeActivityDto> recentSuccessfulTasks = getRecentSuccessfulTasks(dbSession);
 
-      Collection<String> componentUuids = recentSuccessfulTasks.stream()
-        .map(CeActivityDto::getMainComponentUuid)
+      Collection<String> entityUuids = recentSuccessfulTasks.stream()
+        .map(CeActivityDto::getEntityUuid)
         .toList();
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
-      Map<String, String> componentUuidAndKeys = componentDtos.stream()
-        .collect(Collectors.toMap(ComponentDto::uuid, ComponentDto::getKey));
+      List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
+      Map<String, String> entityUuidAndKeys = entities.stream()
+        .collect(Collectors.toMap(EntityDto::getUuid, EntityDto::getKey));
 
-      reportObservedDurationForTasks(recentSuccessfulTasks, componentUuidAndKeys);
+      reportObservedDurationForTasks(recentSuccessfulTasks, entityUuidAndKeys);
     }
     lastUpdatedTimestamp = system.now();
   }
@@ -73,15 +73,15 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
       .toList();
   }
 
-  private void reportObservedDurationForTasks(List<CeActivityDto> tasks, Map<String, String> componentUuidAndKeys) {
+  private void reportObservedDurationForTasks(List<CeActivityDto> tasks, Map<String, String> entityUuidAndKeys) {
     for (CeActivityDto task : tasks) {
-      String mainComponentUuid = task.getMainComponentUuid();
+      String mainComponentUuid = task.getEntityUuid();
       Long executionTimeMs = task.getExecutionTimeMs();
       try {
         requireNonNull(mainComponentUuid);
         requireNonNull(executionTimeMs);
 
-        String mainComponentKey = componentUuidAndKeys.get(mainComponentUuid);
+        String mainComponentKey = entityUuidAndKeys.get(mainComponentUuid);
         requireNonNull(mainComponentKey);
 
         metrics.observeComputeEngineTaskDuration(executionTimeMs, task.getTaskType(), mainComponentKey);

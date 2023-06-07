@@ -101,8 +101,8 @@ public class QualityGateDbTester {
     return condition;
   }
 
-  public Optional<String> selectQGateUuidByComponentUuid(String componentUuid) {
-    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, componentUuid);
+  public Optional<String> selectQGateUuidByProjectUuid(String projectUuid) {
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid);
   }
 
   public void addGroupPermission(QualityGateDto qualityGateDto, GroupDto group) {

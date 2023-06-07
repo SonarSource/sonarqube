@@ -53,7 +53,6 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
@@ -105,8 +104,7 @@ public class UpdateVisibilityActionIT {
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final Configuration configuration = mock(Configuration.class);
 
-  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
-    userSessionRule, projectIndexers, new SequenceUuidFactory(), configuration);
+  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, projectIndexers, new SequenceUuidFactory(), configuration);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -278,7 +276,7 @@ public class UpdateVisibilityActionIT {
   public void execute_throws_BadRequestException_if_specified_component_has_pending_tasks() {
     ProjectData project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .forEach(i -> insertPendingTask(project.getMainBranchComponent().uuid()));
+      .forEach(i -> insertPendingTask(project.getMainBranchDto()));
     request.setParam(PARAM_PROJECT, project.projectKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
@@ -292,7 +290,7 @@ public class UpdateVisibilityActionIT {
   public void execute_throws_BadRequestException_if_main_component_of_specified_component_has_in_progress_tasks() {
     ProjectData project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .forEach(i -> insertInProgressTask(project.getMainBranchComponent().uuid()));
+      .forEach(i -> insertInProgressTask(project.getMainBranchDto()));
     request.setParam(PARAM_PROJECT, project.projectKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
@@ -670,21 +668,21 @@ public class UpdateVisibilityActionIT {
       .containsAll(permissionService.getAllProjectPermissions());
   }
 
-  private void insertPendingTask(String projectUuid) {
-    insertCeQueueDto(projectUuid, CeQueueDto.Status.PENDING);
+  private void insertPendingTask(BranchDto branch) {
+    insertCeQueueDto(branch, CeQueueDto.Status.PENDING);
   }
 
-  private void insertInProgressTask(String projectUuid) {
-    insertCeQueueDto(projectUuid, CeQueueDto.Status.IN_PROGRESS);
+  private void insertInProgressTask(BranchDto branch) {
+    insertCeQueueDto(branch, CeQueueDto.Status.IN_PROGRESS);
   }
 
   private int counter = 0;
 
-  private void insertCeQueueDto(String projectUuid, CeQueueDto.Status status) {
+  private void insertCeQueueDto(BranchDto branch, CeQueueDto.Status status) {
     dbClient.ceQueueDao().insert(dbTester.getSession(), new CeQueueDto()
       .setUuid("pending" + counter++)
-      .setComponentUuid(projectUuid)
-      .setMainComponentUuid(projectUuid)
+      .setComponentUuid(branch.getUuid())
+      .setEntityUuid(branch.getProjectUuid())
       .setTaskType("foo")
       .setStatus(status));
     dbTester.commit();

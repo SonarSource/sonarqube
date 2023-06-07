@@ -43,7 +43,7 @@ public class EnableAnalysisStepIT {
   private static final String CURRENT_ANALYSIS_UUID = "ANALYSIS_2";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

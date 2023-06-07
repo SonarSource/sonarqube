@@ -41,7 +41,6 @@ import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.project.Project.from;
 
 public class DeleteAction implements BranchWsAction {
   private final DbClient dbClient;

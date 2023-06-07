@@ -46,21 +46,19 @@ public class MeasureDaoIT {
   private MetricDto coverage;
   private MetricDto complexity;
   private MetricDto ncloc;
-  private MetricDto nclocDistribution;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private MeasureDao underTest = db.getDbClient().measureDao();
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final MeasureDao underTest = db.getDbClient().measureDao();
 
   @Before
   public void before() {
     coverage = db.measures().insertMetric(m -> m.setKey("coverage"));
     complexity = db.measures().insertMetric(m -> m.setKey("complexity"));
     ncloc = db.measures().insertMetric(m -> m.setKey("ncloc"));
-    nclocDistribution = db.measures().insertMetric(m -> m.setKey("ncloc_language_distribution"));
+    db.measures().insertMetric(m -> m.setKey("ncloc_language_distribution"));
   }
 
   @Test

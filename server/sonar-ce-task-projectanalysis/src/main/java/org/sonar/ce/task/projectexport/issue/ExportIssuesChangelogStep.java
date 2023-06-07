@@ -41,11 +41,10 @@ public class ExportIssuesChangelogStep implements ComputationStep {
   private static final String STATUS_CLOSED = "CLOSED";
   private static final String QUERY = "select" +
     " ic.kee, ic.issue_key, ic.change_type, ic.change_data, ic.user_login," +
-    " ic.issue_change_creation_date, ic.created_at, p.uuid" +
+    " ic.issue_change_creation_date, ic.created_at, pb.uuid" +
     " from issue_changes ic" +
     " join issues i on i.kee = ic.issue_key" +
-    " join projects p on p.uuid = i.project_uuid" +
-    " join project_branches pb on pb.uuid = p.uuid" +
+    " join project_branches pb on pb.uuid = i.project_uuid" +
     " where pb.project_uuid = ? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge = ? " +
     " and i.status <> ?" +
     " order by ic.created_at asc";

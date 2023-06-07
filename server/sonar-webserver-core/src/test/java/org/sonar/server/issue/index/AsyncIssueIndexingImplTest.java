@@ -175,16 +175,16 @@ public class AsyncIssueIndexingImplTest {
     dbTester.components().insertProjectBranch(projectDto, b -> b.setBranchType(BRANCH).setUuid(branchUuid));
 
     CeQueueDto mainBranchTask = new CeQueueDto().setUuid("uuid_2").setTaskType(BRANCH_ISSUE_SYNC)
-      .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(projectDto.getUuid());
+      .setEntityUuid(projectDto.getUuid()).setComponentUuid(projectDto.getUuid());
     dbClient.ceQueueDao().insert(dbTester.getSession(), mainBranchTask);
 
     CeQueueDto branchTask = new CeQueueDto().setUuid("uuid_3").setTaskType(BRANCH_ISSUE_SYNC)
-      .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
+      .setEntityUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
     dbClient.ceQueueDao().insert(dbTester.getSession(), branchTask);
 
     ProjectDto anotherProjectDto = dbTester.components().insertPrivateProject().getProjectDto();
     CeQueueDto taskOnAnotherProject = new CeQueueDto().setUuid("uuid_4").setTaskType(BRANCH_ISSUE_SYNC)
-      .setMainComponentUuid(anotherProjectDto.getUuid()).setComponentUuid("another-branchUuid");
+      .setEntityUuid(anotherProjectDto.getUuid()).setComponentUuid("another-branchUuid");
     CeActivityDto canceledTaskOnAnotherProject = new CeActivityDto(taskOnAnotherProject).setStatus(Status.CANCELED);
     dbClient.ceActivityDao().insert(dbTester.getSession(), canceledTaskOnAnotherProject);
 
@@ -200,7 +200,7 @@ public class AsyncIssueIndexingImplTest {
     // verify that the canceled tasks on anotherProject is still here, and was not removed by the project reindexation
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC))
       .hasSize(1)
-      .extracting(CeActivityDto::getMainComponentUuid)
+      .extracting(CeActivityDto::getEntityUuid)
       .containsExactly(anotherProjectDto.getUuid());
 
     assertThat(logTester.logs(Level.INFO))

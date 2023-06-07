@@ -38,7 +38,7 @@ public class CeQueueTesting {
     return new CeQueueDto()
       .setUuid(uuid)
       .setComponentUuid(randomAlphanumeric(40))
-      .setMainComponentUuid(randomAlphanumeric(39))
+      .setEntityUuid(randomAlphanumeric(39))
       .setStatus(CeQueueDto.Status.PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setSubmitterUuid(randomAlphanumeric(255))

@@ -20,7 +20,7 @@
     ca.node_name as nodeName,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
-    ca.main_component_uuid as mainComponentUuid,
+    ca.entity_uuid as entityUuid,
     ca.analysis_uuid as analysisUuid,
     ca.status as status,
     ca.submitter_uuid as submitterUuid,
@@ -102,9 +102,9 @@
       <if test="query.onlyCurrents">
         and ca.main_is_last=${_true}
       </if>
-      <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
-        and ca.main_component_uuid in
-        <foreach collection="query.mainComponentUuids" open="(" close=")" item="cUuid" separator=",">
+      <if test="query.entityUuids != null and query.entityUuids.size()>0">
+        and ca.entity_uuid in
+        <foreach collection="query.entityUuids" open="(" close=")" item="cUuid" separator=",">
           #{cUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
@@ -151,7 +151,7 @@
       ca.created_at &gt; #{afterDate,jdbcType=BIGINT}
   </select>
 
-  <select id="countLastByStatusAndMainComponentUuid" resultType="int">
+  <select id="countLastByStatusAndEntityUuid" resultType="int">
     select
       count(1)
     from
@@ -159,8 +159,8 @@
     where
       main_is_last=${_true}
       and status=#{status,jdbcType=VARCHAR}
-      <if test="mainComponentUuid!=null">
-        and main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      <if test="entityUuid!=null">
+        and entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
@@ -169,7 +169,7 @@
       uuid,
       node_name,
       component_uuid,
-      main_component_uuid,
+      entity_uuid,
       analysis_uuid,
       status,
       task_type,
@@ -194,7 +194,7 @@
       #{uuid,jdbcType=VARCHAR},
       #{nodeName,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
-      #{mainComponentUuid,jdbcType=VARCHAR},
+      #{entityUuid,jdbcType=VARCHAR},
       #{analysisUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},

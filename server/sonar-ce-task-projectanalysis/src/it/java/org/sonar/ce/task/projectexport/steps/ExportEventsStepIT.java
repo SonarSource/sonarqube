@@ -58,7 +58,7 @@ public class ExportEventsStepIT {
 
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public LogTester logTester = new LogTester();

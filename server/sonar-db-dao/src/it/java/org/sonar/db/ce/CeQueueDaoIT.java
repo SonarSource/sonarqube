@@ -58,8 +58,8 @@ public class CeQueueDaoIT {
   private static final long INIT_TIME = 1_450_000_000_000L;
   private static final String TASK_UUID_1 = "TASK_1";
   private static final String TASK_UUID_2 = "TASK_2";
-  private static final String MAIN_COMPONENT_UUID_1 = "PROJECT_1";
-  private static final String MAIN_COMPONENT_UUID_2 = "PROJECT_2";
+  private static final String ENTITY_UUID_1 = "PROJECT_1";
+  private static final String ENTITY_UUID_2 = "PROJECT_2";
   private static final String COMPONENT_UUID_1 = "BRANCH_1";
   private static final String TASK_UUID_3 = "TASK_3";
   private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
@@ -84,7 +84,7 @@ public class CeQueueDaoIT {
     long now = 1_334_333L;
     CeQueueDto dto = new CeQueueDto()
       .setTaskType(CeTaskTypes.REPORT)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setSubmitterUuid(SUBMITTER_LOGIN);
 
@@ -104,7 +104,7 @@ public class CeQueueDaoIT {
         CeQueueDto saved = underTest.selectByUuid(db.getSession(), uuid).get();
         assertThat(saved.getUuid()).isEqualTo(uuid);
         assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
-        assertThat(saved.getComponentUuid()).isEqualTo(MAIN_COMPONENT_UUID_1);
+        assertThat(saved.getComponentUuid()).isEqualTo(ENTITY_UUID_1);
         assertThat(saved.getStatus()).isEqualTo(PENDING);
         assertThat(saved.getSubmitterUuid()).isEqualTo(SUBMITTER_LOGIN);
         assertThat(saved.getWorkerUuid()).isNull();
@@ -115,7 +115,7 @@ public class CeQueueDaoIT {
     CeQueueDto saved = underTest.selectByUuid(db.getSession(), uuid4).get();
     assertThat(saved.getUuid()).isEqualTo(uuid4);
     assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(saved.getComponentUuid()).isEqualTo(MAIN_COMPONENT_UUID_1);
+    assertThat(saved.getComponentUuid()).isEqualTo(ENTITY_UUID_1);
     assertThat(saved.getStatus()).isEqualTo(PENDING);
     assertThat(saved.getSubmitterUuid()).isEqualTo(SUBMITTER_LOGIN);
     assertThat(saved.getWorkerUuid()).isNull();
@@ -126,13 +126,13 @@ public class CeQueueDaoIT {
 
   @Test
   public void test_selectByUuid() {
-    CeQueueDto ceQueueDto = insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
+    CeQueueDto ceQueueDto = insertPending(TASK_UUID_1, ENTITY_UUID_1);
 
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_UNKNOWN")).isEmpty();
     CeQueueDto saved = underTest.selectByUuid(db.getSession(), TASK_UUID_1).get();
     assertThat(saved.getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(saved.getMainComponentUuid()).isEqualTo(MAIN_COMPONENT_UUID_1);
+    assertThat(saved.getEntityUuid()).isEqualTo(ENTITY_UUID_1);
     assertThat(saved.getComponentUuid()).isEqualTo(ceQueueDto.getComponentUuid());
     assertThat(saved.getStatus()).isEqualTo(PENDING);
     assertThat(saved.getSubmitterUuid()).isEqualTo("henri");
@@ -144,19 +144,19 @@ public class CeQueueDaoIT {
 
   @Test
   public void test_selectByMainComponentUuid() {
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
+    insertPending(TASK_UUID_1, ENTITY_UUID_1);
+    insertPending(TASK_UUID_2, ENTITY_UUID_1);
     insertPending(TASK_UUID_3, "PROJECT_2");
 
-    assertThat(underTest.selectByMainComponentUuid(db.getSession(), "UNKNOWN")).isEmpty();
-    assertThat(underTest.selectByMainComponentUuid(db.getSession(), MAIN_COMPONENT_UUID_1)).extracting("uuid").containsOnly(TASK_UUID_1, TASK_UUID_2);
-    assertThat(underTest.selectByMainComponentUuid(db.getSession(), "PROJECT_2")).extracting("uuid").containsOnly(TASK_UUID_3);
+    assertThat(underTest.selectByEntityUuid(db.getSession(), "UNKNOWN")).isEmpty();
+    assertThat(underTest.selectByEntityUuid(db.getSession(), ENTITY_UUID_1)).extracting("uuid").containsOnly(TASK_UUID_1, TASK_UUID_2);
+    assertThat(underTest.selectByEntityUuid(db.getSession(), "PROJECT_2")).extracting("uuid").containsOnly(TASK_UUID_3);
   }
 
   @Test
   public void test_selectAllInAscOrder() {
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
+    insertPending(TASK_UUID_1, ENTITY_UUID_1);
+    insertPending(TASK_UUID_2, ENTITY_UUID_1);
     insertPending(TASK_UUID_3, "PROJECT_2");
 
     assertThat(underTest.selectAllInAscOrder(db.getSession())).extracting("uuid").containsOnly(TASK_UUID_1, TASK_UUID_2, TASK_UUID_3);
@@ -182,17 +182,17 @@ public class CeQueueDaoIT {
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
       dto.setUpdatedAt(time + 500);
-      dto.setMainComponentUuid("c1");
+      dto.setEntityUuid("c1");
     });
     insertPending("p2", dto -> {
       dto.setCreatedAt(time + 1000);
       dto.setUpdatedAt(time + 2000);
-      dto.setMainComponentUuid("c2");
+      dto.setEntityUuid("c2");
     });
 
-    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setMainComponentUuid("c3")));
+    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setEntityUuid("c3")));
 
-    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), null))
+    assertThat(underTest.selectCreationDateOfOldestPendingByEntityUuid(db.getSession(), null))
       .isEqualTo(Optional.of(time));
   }
 
@@ -202,29 +202,29 @@ public class CeQueueDaoIT {
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
       dto.setUpdatedAt(time + 500);
-      dto.setMainComponentUuid("c2");
+      dto.setEntityUuid("c2");
     });
     insertPending("p2", dto -> {
       dto.setCreatedAt(time + 2000);
       dto.setUpdatedAt(time + 3000);
-      dto.setMainComponentUuid("c1");
+      dto.setEntityUuid("c1");
     });
     insertPending("p3", dto -> {
       dto.setCreatedAt(time + 4000);
       dto.setUpdatedAt(time + 5000);
-      dto.setMainComponentUuid("c1");
+      dto.setEntityUuid("c1");
     });
 
-    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setMainComponentUuid("c1")));
+    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setEntityUuid("c1")));
 
-    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), "c1"))
+    assertThat(underTest.selectCreationDateOfOldestPendingByEntityUuid(db.getSession(), "c1"))
       .isEqualTo(Optional.of(time + 2000));
   }
 
   @Test
   public void selectCreationDateOfOldestPendingByMainComponentUuid_returns_empty_when_no_pending_tasks() {
     makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1"));
-    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), null))
+    assertThat(underTest.selectCreationDateOfOldestPendingByEntityUuid(db.getSession(), null))
       .isEmpty();
   }
 
@@ -244,8 +244,8 @@ public class CeQueueDaoIT {
 
   @Test
   public void test_delete() {
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
+    insertPending(TASK_UUID_1, ENTITY_UUID_1);
+    insertPending(TASK_UUID_2, ENTITY_UUID_1);
 
     int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN");
     assertThat(deletedCount).isZero();
@@ -262,7 +262,7 @@ public class CeQueueDaoIT {
 
   @Test
   public void test_delete_with_expected_status() {
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
+    insertPending(TASK_UUID_1, ENTITY_UUID_1);
     insertInProgress(TASK_UUID_2, "workerUuid", System2.INSTANCE.now());
 
     int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN", null);
@@ -425,42 +425,42 @@ public class CeQueueDaoIT {
   public void select_by_query() {
     // task status not in query
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
     // too early
     insertPending(newCeQueueDto(TASK_UUID_3)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(90_000L));
 
     // task type not in query
     insertPending(newCeQueueDto("TASK_4")
-      .setMainComponentUuid("PROJECT_2")
+      .setEntityUuid("PROJECT_2")
       .setStatus(PENDING)
       .setTaskType("ANOTHER_TYPE")
       .setCreatedAt(100_000L));
 
     // correct
     insertPending(newCeQueueDto(TASK_UUID_2)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
     // correct submitted later
     insertPending(newCeQueueDto("TASK_5")
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(120_000L));
 
     // select by component uuid, status, task type and minimum submitted at
     CeTaskQuery query = new CeTaskQuery()
-      .setMainComponentUuids(newArrayList(MAIN_COMPONENT_UUID_1, "PROJECT_2"))
+      .setEntityUuids(newArrayList(ENTITY_UUID_1, "PROJECT_2"))
       .setStatuses(singletonList(PENDING.name()))
       .setType(CeTaskTypes.REPORT)
       .setMinSubmittedAt(100_000L);
@@ -475,7 +475,7 @@ public class CeQueueDaoIT {
   @Test
   public void select_by_query_returns_empty_list_when_only_current() {
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
@@ -492,7 +492,7 @@ public class CeQueueDaoIT {
   @Test
   public void select_by_query_returns_empty_list_when_max_submitted_at() {
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
@@ -507,14 +507,14 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void select_by_query_returns_empty_list_when_empty_list_of_main_component_uuid() {
+  public void select_by_query_returns_empty_list_when_empty_list_of_entity_uuid() {
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    CeTaskQuery query = new CeTaskQuery().setMainComponentUuids(Collections.emptyList());
+    CeTaskQuery query = new CeTaskQuery().setEntityUuids(Collections.emptyList());
 
     List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);
@@ -524,57 +524,57 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void count_by_status_and_main_component_uuid() {
+  public void count_by_status_and_entity_uuid() {
     // task retrieved in the queue
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
     // on component uuid 2, not returned
     insertPending(newCeQueueDto(TASK_UUID_2)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_2)
+      .setEntityUuid(ENTITY_UUID_2)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
     // pending status, not returned
     insertPending(newCeQueueDto(TASK_UUID_3)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    assertThat(underTest.countByStatusAndMainComponentUuid(db.getSession(), IN_PROGRESS, MAIN_COMPONENT_UUID_1)).isOne();
+    assertThat(underTest.countByStatusAndEntityUuid(db.getSession(), IN_PROGRESS, ENTITY_UUID_1)).isOne();
     assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
   }
 
   @Test
-  public void count_by_status_and_main_component_uuids() {
+  public void count_by_status_and_entity_uuids() {
     // task retrieved in the queue
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
     // on component uuid 2, not returned
     insertPending(newCeQueueDto(TASK_UUID_2)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_2)
+      .setEntityUuid(ENTITY_UUID_2)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
     // pending status, not returned
     insertPending(newCeQueueDto(TASK_UUID_3)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    assertThat(underTest.countByStatusAndMainComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of())).isEmpty();
-    assertThat(underTest.countByStatusAndMainComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of("non existing component uuid"))).isEmpty();
-    assertThat(underTest.countByStatusAndMainComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of(MAIN_COMPONENT_UUID_1, MAIN_COMPONENT_UUID_2)))
-      .containsOnly(entry(MAIN_COMPONENT_UUID_1, 1), entry(MAIN_COMPONENT_UUID_2, 1));
-    assertThat(underTest.countByStatusAndMainComponentUuids(db.getSession(), PENDING, ImmutableSet.of(MAIN_COMPONENT_UUID_1, MAIN_COMPONENT_UUID_2)))
-      .containsOnly(entry(MAIN_COMPONENT_UUID_1, 1));
+    assertThat(underTest.countByStatusAndEntityUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of())).isEmpty();
+    assertThat(underTest.countByStatusAndEntityUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of("non existing component uuid"))).isEmpty();
+    assertThat(underTest.countByStatusAndEntityUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of(ENTITY_UUID_1, ENTITY_UUID_2)))
+      .containsOnly(entry(ENTITY_UUID_1, 1), entry(ENTITY_UUID_2, 1));
+    assertThat(underTest.countByStatusAndEntityUuids(db.getSession(), PENDING, ImmutableSet.of(ENTITY_UUID_1, ENTITY_UUID_2)))
+      .containsOnly(entry(ENTITY_UUID_1, 1));
     assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
   }
 
@@ -603,7 +603,7 @@ public class CeQueueDaoIT {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
       .setCreatedAt(100_000L));
@@ -616,7 +616,7 @@ public class CeQueueDaoIT {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 
     insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
       .setCreatedAt(100_000L));
@@ -628,13 +628,13 @@ public class CeQueueDaoIT {
   public void selectOldestPendingPrOrBranch_returns_oldest_100_pr_or_branch_tasks() {
     for (int i = 1; i < 110; i++) {
       insertPending(newCeQueueDto("task" + i)
-        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
+        .setComponentUuid(ENTITY_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
     }
     for (int i = 1; i < 10; i++) {
       insertPending(newCeQueueDto("progress" + i)
-        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(IN_PROGRESS).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
+        .setComponentUuid(ENTITY_UUID_1).setStatus(IN_PROGRESS).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
       insertPending(newCeQueueDto("sync" + i)
-        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC).setCreatedAt(i));
+        .setComponentUuid(ENTITY_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC).setCreatedAt(i));
     }
 
     List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
@@ -647,7 +647,7 @@ public class CeQueueDaoIT {
   public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_no_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
@@ -655,15 +655,15 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
   public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_unrelated_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
@@ -672,15 +672,15 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
   public void selectOldestPendingPrOrBranch_returns_all_fields() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
@@ -690,15 +690,15 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
   public void selectInProgressWithCharacteristics_returns_all_fields() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
@@ -708,15 +708,15 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
   public void selectInProgressWithCharacteristics_returns_branch_branch_type_if_no_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setEntityUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
@@ -725,8 +725,8 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   private void insertPending(CeQueueDto dto) {
@@ -758,7 +758,7 @@ public class CeQueueDaoIT {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(uuid);
     dto.setTaskType(CeTaskTypes.REPORT);
-    dto.setMainComponentUuid(mainComponentUuid);
+    dto.setEntityUuid(mainComponentUuid);
     dto.setComponentUuid("uuid_" + pendingComponentUuidGenerator++);
     dto.setStatus(PENDING);
     dto.setSubmitterUuid("henri");

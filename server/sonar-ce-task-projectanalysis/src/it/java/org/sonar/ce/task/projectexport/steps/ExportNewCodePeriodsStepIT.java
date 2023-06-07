@@ -38,6 +38,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,13 +51,6 @@ public class ExportNewCodePeriodsStepIT {
 
   private static final String PROJECT_UUID = "project_uuid";
   private static final String ANOTHER_PROJECT_UUID = "another_project_uuid";
-  private static final ComponentDto PROJECT = new ComponentDto()
-    .setUuid(PROJECT_UUID)
-    .setUuidPath(UUID_PATH_OF_ROOT)
-    .setBranchUuid(PROJECT_UUID)
-    .setQualifier(Qualifiers.PROJECT)
-    .setName("project")
-    .setKey("the_project");
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
     .setUuid(ANOTHER_PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
@@ -76,10 +70,12 @@ public class ExportNewCodePeriodsStepIT {
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(ANOTHER_PROJECT_UUID).setKey("branch-3").setUuid("branch-uuid-3").setMergeBranchUuid("master")
       .setExcludeFromPurge(true).setIsMain(false));
 
+  private ProjectDto project;
+
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
+  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
 
   private MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
   private FakeDumpWriter dumpWriter = new FakeDumpWriter();
@@ -89,14 +85,14 @@ public class ExportNewCodePeriodsStepIT {
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
-    PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectDto, branch).setCreatedAt(createdAt));
+    project = dbTester.components().insertPrivateProject(PROJECT_UUID).getProjectDto();
+    PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(project, branch).setCreatedAt(createdAt));
 
     ComponentDto anotherProjectDto = dbTester.components().insertPublicProject(ANOTHER_PROJECT).getMainBranchComponent();
     ANOTHER_PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(anotherProjectDto, branch).setCreatedAt(createdAt));
 
     dbTester.commit();
-    projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(PROJECT));
+    projectHolder.setProjectDto(project);
   }
 
   @Test
@@ -109,10 +105,10 @@ public class ExportNewCodePeriodsStepIT {
 
   @Test
   public void export_only_project_new_code_periods_on_branches_excluded_from_purge() {
-    NewCodePeriodDto newCodePeriod1 = newDto("uuid1", PROJECT.uuid(), null, SPECIFIC_ANALYSIS, "analysis-uuid");
-    NewCodePeriodDto newCodePeriod2 = newDto("uuid2", PROJECT.uuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid");
+    NewCodePeriodDto newCodePeriod1 = newDto("uuid1", project.getUuid(), null, SPECIFIC_ANALYSIS, "analysis-uuid");
+    NewCodePeriodDto newCodePeriod2 = newDto("uuid2", project.getUuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid");
     // the following new code periods are not exported
-    NewCodePeriodDto newCodePeriod3 = newDto("uuid3", PROJECT.uuid(), "branch-uuid-2", SPECIFIC_ANALYSIS, "analysis-uuid");
+    NewCodePeriodDto newCodePeriod3 = newDto("uuid3", project.getUuid(), "branch-uuid-2", SPECIFIC_ANALYSIS, "analysis-uuid");
     NewCodePeriodDto anotherProjectNewCodePeriods = newDto("uuid4", ANOTHER_PROJECT.uuid(), "branch-uuid-3", SPECIFIC_ANALYSIS, "analysis-uuid");
     NewCodePeriodDto globalNewCodePeriod = newDto("uuid5", null, null, PREVIOUS_VERSION, null);
     insertNewCodePeriods(newCodePeriod1, newCodePeriod2, newCodePeriod3, anotherProjectNewCodePeriods, globalNewCodePeriod);
@@ -127,7 +123,7 @@ public class ExportNewCodePeriodsStepIT {
 
   @Test
   public void test_exported_fields() {
-    NewCodePeriodDto dto = newDto("uuid1", PROJECT.uuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid");
+    NewCodePeriodDto dto = newDto("uuid1", project.getUuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid");
     insertNewCodePeriods(dto);
 
     underTest.execute(new TestComputationStepContext());
@@ -144,8 +140,8 @@ public class ExportNewCodePeriodsStepIT {
   public void throws_ISE_if_error() {
     dumpWriter.failIfMoreThan(1, DumpElement.NEW_CODE_PERIODS);
     insertNewCodePeriods(
-      newDto("uuid1", PROJECT.uuid(), null, SPECIFIC_ANALYSIS, "analysis-uuid"),
-      newDto("uuid2", PROJECT.uuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid"));
+      newDto("uuid1", project.getUuid(), null, SPECIFIC_ANALYSIS, "analysis-uuid"),
+      newDto("uuid2", project.getUuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid"));
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)

@@ -20,7 +20,6 @@
 package org.sonar.server.ce.queue;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -28,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -149,7 +147,7 @@ public class ReportSubmitterIT {
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.uuid()) && cpt.getMainComponentUuid().equals(project.uuid())).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.uuid()) && cpt.getEntityUuid().equals(project.uuid())).isPresent()
       && submit.getSubmitterUuid().equals(user.getUuid())
       && submit.getUuid().equals(TASK_UUID)));
   }
@@ -168,7 +166,7 @@ public class ReportSubmitterIT {
     ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getMainComponentUuid().equals(createdProject.uuid())).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(createdProject.uuid())).isPresent()
       && submit.getUuid().equals(TASK_UUID)));
   }
 

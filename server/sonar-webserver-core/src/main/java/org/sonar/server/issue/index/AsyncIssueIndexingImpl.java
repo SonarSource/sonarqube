@@ -153,12 +153,12 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   private void removeExistingIndexationTasksForProject(DbSession dbSession, String projectUuid) {
-    Set<String> ceQueueUuidsForProject = dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, projectUuid)
+    Set<String> ceQueueUuidsForProject = dbClient.ceQueueDao().selectByEntityUuid(dbSession, projectUuid)
       .stream().filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
       .map(CeQueueDto::getUuid).collect(Collectors.toSet());
     Set<String> ceActivityUuidsForProject = dbClient.ceActivityDao().selectByTaskType(dbSession, BRANCH_ISSUE_SYNC)
       .stream()
-      .filter(ceActivityDto -> projectUuid.equals(ceActivityDto.getMainComponentUuid()))
+      .filter(ceActivityDto -> projectUuid.equals(ceActivityDto.getEntityUuid()))
       .map(CeActivityDto::getUuid).collect(Collectors.toSet());
     removeIndexationTasks(dbSession, ceQueueUuidsForProject, ceActivityUuidsForProject);
   }

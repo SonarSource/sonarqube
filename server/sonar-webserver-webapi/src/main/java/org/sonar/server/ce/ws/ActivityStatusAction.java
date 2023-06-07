@@ -83,14 +83,14 @@ public class ActivityStatusAction implements CeWsAction {
 
   private ActivityStatusWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<EntityDto> component = searchComponent(dbSession, request);
-      String componentUuid = component.map(EntityDto::getUuid).orElse(null);
-      checkPermissions(component.orElse(null));
-      int pendingCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
-      int inProgressCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
-      int failingCount = dbClient.ceActivityDao().countLastByStatusAndMainComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
+      Optional<EntityDto> entity = searchEntity(dbSession, request);
+      String entityUuid = entity.map(EntityDto::getUuid).orElse(null);
+      checkPermissions(entity.orElse(null));
+      int pendingCount = dbClient.ceQueueDao().countByStatusAndEntityUuid(dbSession, CeQueueDto.Status.PENDING, entityUuid);
+      int inProgressCount = dbClient.ceQueueDao().countByStatusAndEntityUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, entityUuid);
+      int failingCount = dbClient.ceActivityDao().countLastByStatusAndEntityUuid(dbSession, CeActivityDto.Status.FAILED, entityUuid);
 
-      Optional<Long> creationDate = dbClient.ceQueueDao().selectCreationDateOfOldestPendingByMainComponentUuid(dbSession, componentUuid);
+      Optional<Long> creationDate = dbClient.ceQueueDao().selectCreationDateOfOldestPendingByEntityUuid(dbSession, entityUuid);
 
       ActivityStatusWsResponse.Builder builder = ActivityStatusWsResponse.newBuilder()
         .setPending(pendingCount)
@@ -106,7 +106,7 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private Optional<EntityDto> searchComponent(DbSession dbSession, Request request) {
+  private Optional<EntityDto> searchEntity(DbSession dbSession, Request request) {
     EntityDto entity = null;
     if (request.getComponentKey() != null) {
       entity = componentFinder.getEntityByKey(dbSession, request.getComponentKey());

@@ -167,7 +167,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private static Project createProject(org.sonar.ce.task.CeTask ceTask) {
-    return ceTask.getMainComponent()
+    return ceTask.getEntity()
       .map(c -> new ProjectImpl(
         c.getUuid(),
         c.getKey().orElseThrow(() -> new IllegalStateException("Missing project key")),

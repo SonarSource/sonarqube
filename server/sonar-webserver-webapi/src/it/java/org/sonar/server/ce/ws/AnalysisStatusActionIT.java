@@ -367,7 +367,7 @@ public class AnalysisStatusActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(taskType);
     queueDto.setComponentUuid(branch.getUuid());
-    queueDto.setMainComponentUuid(branch.getUuid());
+    queueDto.setEntityUuid(branch.getUuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

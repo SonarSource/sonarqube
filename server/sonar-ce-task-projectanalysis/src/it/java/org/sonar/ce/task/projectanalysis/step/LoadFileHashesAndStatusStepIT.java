@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 public class LoadFileHashesAndStatusStepIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   public PreviousSourceHashRepositoryImpl previousFileHashesRepository = new PreviousSourceHashRepositoryImpl();

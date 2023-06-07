@@ -205,7 +205,7 @@ public class NextPendingTaskPickerIT {
     // we have branch task in progress.
     insertInProgress("1");
     // The PR can run in parallel, but needs to wait for this other project to finish. We dont allow PRs to jump ahead
-    insertPending("2", c -> c.setMainComponentUuid("different project"));
+    insertPending("2", c -> c.setEntityUuid("different project"));
     insertPendingPullRequest("3");
 
     Optional<CeQueueDto> ceQueueDto = underTest.findPendingTask("workerUuid", db.getSession(), true);
@@ -220,7 +220,7 @@ public class NextPendingTaskPickerIT {
     insertInProgress("1");
     // The PR can run in parallel and is ahead of the other project
     insertPendingPullRequest("2");
-    insertPending("3", c -> c.setMainComponentUuid("different project"));
+    insertPending("3", c -> c.setEntityUuid("different project"));
 
     Optional<CeQueueDto> ceQueueDto = underTest.findPendingTask("workerUuid", db.getSession(), true);
 
@@ -247,7 +247,7 @@ public class NextPendingTaskPickerIT {
   public void findPendingTask_excludingViewPickUpOrphanBranches() {
     insertPending("1", dto -> dto
       .setComponentUuid("1")
-      .setMainComponentUuid("non-existing-uuid")
+      .setEntityUuid("non-existing-uuid")
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
       .setCreatedAt(100_000L));
@@ -260,11 +260,11 @@ public class NextPendingTaskPickerIT {
   @Test
   public void exclude_portfolios_computation_when_indexing_issues() {
     String taskUuid1 = "1", taskUuid2 = "2";
-    String mainComponentUuid = "1";
-    insertBranch(mainComponentUuid);
+    String branchUuid = "1";
+    insertBranch(branchUuid);
     insertPending(taskUuid1, dto -> dto
-      .setComponentUuid(mainComponentUuid)
-      .setMainComponentUuid(mainComponentUuid)
+      .setComponentUuid(branchUuid)
+      .setEntityUuid("entity_uuid")
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
       .setCreatedAt(100_000L));
@@ -273,7 +273,7 @@ public class NextPendingTaskPickerIT {
     insertView(view_uuid);
     insertPending(taskUuid2, dto -> dto
       .setComponentUuid(view_uuid)
-      .setMainComponentUuid(view_uuid)
+      .setEntityUuid(view_uuid)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
@@ -351,7 +351,7 @@ public class NextPendingTaskPickerIT {
     dto.setStatus(status);
     dto.setSubmitterUuid("henri");
     dto.setComponentUuid(UUID.randomUUID().toString());
-    dto.setMainComponentUuid("1");
+    dto.setEntityUuid("1");
     if (ceQueueDtoConsumer != null) {
       ceQueueDtoConsumer.accept(dto);
     }

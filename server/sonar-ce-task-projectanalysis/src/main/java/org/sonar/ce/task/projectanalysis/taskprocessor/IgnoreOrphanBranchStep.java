@@ -40,11 +40,11 @@ public final class IgnoreOrphanBranchStep implements ComputationStep {
 
   @Override
   public void execute(Context context) {
-    String mainComponentUuid = ceTask.getMainComponent().orElseThrow(() -> new UnsupportedOperationException("main component not found in task")).getUuid();
+    String entityUuid = ceTask.getEntity().orElseThrow(() -> new UnsupportedOperationException("entity not found in task")).getUuid();
     String componentUuid = ceTask.getComponent().orElseThrow(() -> new UnsupportedOperationException("component not found in task")).getUuid();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, mainComponentUuid);
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, entityUuid);
       if(!componentDto.isPresent()){
         LOG.info("reindexation task has been trigger on an orphan branch. removing any exclude_from_purge flag, and skip the indexation");
         dbClient.branchDao().updateExcludeFromPurge(dbSession, componentUuid, false);

@@ -137,7 +137,7 @@ public class ExportActionIT {
       .setType(CeTaskTypes.PROJECT_EXPORT)
       .setUuid(TASK_ID)
       .setComponent(component)
-      .setMainComponent(component)
+      .setEntity(component)
       .build();
   }
 }

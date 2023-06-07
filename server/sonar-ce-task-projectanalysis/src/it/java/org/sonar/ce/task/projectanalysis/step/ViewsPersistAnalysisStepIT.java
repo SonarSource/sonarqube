@@ -53,7 +53,7 @@ public class ViewsPersistAnalysisStepIT extends BaseStepTest {
   private static final String ANALYSIS_UUID = "U1";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

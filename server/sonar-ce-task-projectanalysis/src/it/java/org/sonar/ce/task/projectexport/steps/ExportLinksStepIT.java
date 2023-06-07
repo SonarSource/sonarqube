@@ -58,7 +58,7 @@ public class ExportLinksStepIT {
     .setBranchUuid(PROJECT_UUID);
 
   @Rule
-  public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
+  public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
 
 
   @Rule

@@ -29,13 +29,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -58,16 +56,13 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBIL
 public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
   private final UuidFactory uuidFactory;
   private final Configuration configuration;
 
-  public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, UuidFactory uuidFactory, Configuration configuration) {
+  public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers, UuidFactory uuidFactory, Configuration configuration) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
     this.uuidFactory = uuidFactory;
@@ -148,8 +143,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private boolean noPendingTask(DbSession dbSession, String entityKey) {
-    ComponentDto componentDto = componentFinder.getByKey(dbSession, entityKey);
-    return dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, componentDto.uuid()).isEmpty();
+    EntityDto entityDto = dbClient.entityDao().selectByKey(dbSession, entityKey).orElseThrow(() -> new IllegalStateException("Can't find entity " + entityKey));
+    return dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid()).isEmpty();
   }
 
   private void updatePermissionsToPrivate(DbSession dbSession, EntityDto entity) {

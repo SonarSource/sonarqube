@@ -88,11 +88,12 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   private final ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.Context.class);
   private final CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
+  private final CeTask.Component entity = new CeTask.Component("entity uuid", "component key", "component name");
   private final CeTask ceTask = new CeTask.Builder()
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
-    .setMainComponent(component)
+    .setEntity(entity)
     .build();
   private final PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
   private final PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
@@ -189,9 +190,9 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
 
     Project project = taskContextCaptor.getValue().getProjectAnalysis().getProject();
-    assertThat(project.getUuid()).isEqualTo(ceTask.getComponent().get().getUuid());
-    assertThat(project.getKey()).isEqualTo(ceTask.getComponent().get().getKey().get());
-    assertThat(project.getName()).isEqualTo(ceTask.getComponent().get().getName().get());
+    assertThat(project.getUuid()).isEqualTo(ceTask.getEntity().get().getUuid());
+    assertThat(project.getKey()).isEqualTo(ceTask.getEntity().get().getKey().get());
+    assertThat(project.getName()).isEqualTo(ceTask.getEntity().get().getName().get());
   }
 
   @Test

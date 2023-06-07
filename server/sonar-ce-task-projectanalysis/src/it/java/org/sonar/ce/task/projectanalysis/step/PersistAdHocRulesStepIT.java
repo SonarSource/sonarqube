@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PersistAdHocRulesStepIT extends BaseStepTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = db.getDbClient();
 

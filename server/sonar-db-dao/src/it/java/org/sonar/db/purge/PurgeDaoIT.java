@@ -904,7 +904,7 @@ public class PurgeDaoIT {
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("ce_queue")).isOne();
-    assertThat(db.countSql("select count(*) from ce_queue where main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isZero();
+    assertThat(db.countSql("select count(*) from ce_queue where entity_uuid='" + projectToBeDeleted.uuid() + "'")).isZero();
   }
 
   @Test
@@ -1273,9 +1273,9 @@ public class PurgeDaoIT {
   public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
     LocalDateTime now = LocalDateTime.now();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    Consumer<CeQueueDto> belongsToProject2 = t -> t.setMainComponentUuid(project2.uuid()).setComponentUuid(project2.uuid());
+    Consumer<CeQueueDto> belongsToProject2 = t -> t.setEntityUuid(project2.uuid()).setComponentUuid(project2.uuid());
 
     insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
@@ -1332,8 +1332,8 @@ public class PurgeDaoIT {
     LocalDateTime now = LocalDateTime.now();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setExcludeFromPurge(true));
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
-    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(branch1.uuid());
 
     insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
@@ -1390,8 +1390,8 @@ public class PurgeDaoIT {
     LocalDateTime now = LocalDateTime.now();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project1);
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
-    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(branch1.uuid());
 
     insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
@@ -1873,7 +1873,7 @@ public class PurgeDaoIT {
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setMainComponentUuid(mainBranch);
+    queueDto.setEntityUuid(mainBranch);
     queueDto.setSubmitterUuid("submitter uuid");
     queueDto.setCreatedAt(1_300_000_000_000L);
     queueDto.setStatus(status);
@@ -1898,7 +1898,7 @@ public class PurgeDaoIT {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskType("foo")
       .setComponentUuid(component.uuid())
-      .setMainComponentUuid(mainBranch)
+      .setEntityUuid(mainBranch)
       .setStatus(Status.PENDING)
       .setCreatedAt(1_2323_222L)
       .setUpdatedAt(1_2323_222L);

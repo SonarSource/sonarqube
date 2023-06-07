@@ -33,20 +33,18 @@ public class CeQueueDto {
   private String uuid;
   private String taskType;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
-   * at the same time as {@link #mainComponentUuid}.
+   * Can be {@code null} when task is not associated to any data in the components table, but must always be non {@code null}
+   * at the same time as {@link #entityUuid}.
    * <p>
-   * The component uuid of a any component (project or not) is its own UUID.
+   * The component uuid of any component is its own UUID.
    */
   private String componentUuid;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * Can be {@code null} when task is not associated to any entity, but must always be non {@code null}
    * at the same time as {@link #componentUuid}.
    * <p>
-   * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
-   * project UUID of the main branch of that project
    */
-  private String mainComponentUuid;
+  private String entityUuid;
   private Status status;
   private String submitterUuid;
   /**
@@ -79,13 +77,13 @@ public class CeQueueDto {
   }
 
   @CheckForNull
-  public String getMainComponentUuid() {
-    return mainComponentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
-  public CeQueueDto setMainComponentUuid(@Nullable String s) {
-    checkUuid(s, "MAIN_COMPONENT_UUID");
-    this.mainComponentUuid = s;
+  public CeQueueDto setEntityUuid(@Nullable String s) {
+    checkUuid(s, "ENTITY_UUID");
+    this.entityUuid = s;
     return this;
   }
 
@@ -166,7 +164,7 @@ public class CeQueueDto {
       "uuid='" + uuid + '\'' +
       ", taskType='" + taskType + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
-      ", mainComponentUuid='" + mainComponentUuid + '\'' +
+      ", entityUuid='" + entityUuid + '\'' +
       ", status=" + status +
       ", submitterLogin='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +

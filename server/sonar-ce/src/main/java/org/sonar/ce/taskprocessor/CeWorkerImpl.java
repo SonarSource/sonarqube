@@ -270,7 +270,7 @@ public class CeWorkerImpl implements CeWorker {
   private static Profiler startLogProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG)
       .logTimeLast(true)
-      .addContext("project", task.getMainComponent().flatMap(CeTask.Component::getKey).orElse(null))
+      .addContext("project", task.getEntity().flatMap(CeTask.Component::getKey).orElse(null))
       .addContext("type", task.getType());
     for (Map.Entry<String, String> characteristic : task.getCharacteristics().entrySet()) {
       profiler.addContext(characteristic.getKey(), characteristic.getValue());

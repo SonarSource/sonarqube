@@ -58,7 +58,7 @@ public class QualityProfileDaoIT {
 
   private final System2 system = mock(System2.class);
   @Rule
-  public DbTester db = DbTester.create(system);
+  public DbTester db = DbTester.create(system, true);
 
   private final DbSession dbSession = db.getSession();
   private final QualityProfileDao underTest = db.getDbClient().qualityProfileDao();
@@ -674,29 +674,6 @@ public class QualityProfileDaoIT {
   }
 
   @Test
-  public void test_selectQProfileUuidsByProjectUuid() {
-    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
-    QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
-    QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
-    QProfileDto cProfile = db.qualityProfiles().insert(p -> p.setLanguage("c"));
-    db.qualityProfiles().associateWithProject(project1, javaProfile, cProfile);
-    db.qualityProfiles().associateWithProject(project2, jsProfile);
-
-    assertThat(underTest.selectQProfileUuidsByProjectUuid(dbSession, project1.getUuid()))
-      .hasSize(2)
-      .containsExactly(javaProfile.getKee(), cProfile.getKee());
-
-    assertThat(underTest.selectQProfileUuidsByProjectUuid(dbSession, project2.getUuid()))
-      .hasSize(1)
-      .containsExactly(jsProfile.getKee());
-
-    assertThat(underTest.selectQProfileUuidsByProjectUuid(dbSession, project3.getUuid()))
-      .isEmpty();
-  }
-
-  @Test
   public void test_selectQProfilesByProjectUuid() {
     ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
@@ -746,27 +723,27 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_selected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getProjectDto();
     db.components().insertPrivateProject(t -> t.setName("Project4 name")).getMainBranchComponent();
     db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().associateWithProject(project2, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project3), profile2);
+    db.qualityProfiles().associateWithProject(project3, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectSelectedProjects(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.uuid(), project1.getKey(), project1.name(), profile1.getKee()),
-        tuple(project2.uuid(), project2.getKey(), project2.name(), profile1.getKee()));
+        tuple(project1.getUuid(), project1.getKey(), project1.getName(), profile1.getKee()),
+        tuple(project2.getUuid(), project2.getKey(), project2.getName(), profile1.getKee()));
 
     assertThat(underTest.selectSelectedProjects(dbSession, profile1, "ect1")).hasSize(1);
     assertThat(underTest.selectSelectedProjects(dbSession, profile3, null)).isEmpty();
@@ -774,24 +751,24 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_deselected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getProjectDto();
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectDeselectedProjects(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsExactly(
-        tuple(project2.uuid(), project2.getKey(), project2.name(), null),
-        tuple(project3.uuid(), project3.getKey(), project3.name(), null));
+        tuple(project2.getUuid(), project2.getKey(), project2.getName(), null),
+        tuple(project3.getUuid(), project3.getKey(), project3.getName(), null));
 
     assertThat(underTest.selectDeselectedProjects(dbSession, profile1, "ect2")).hasSize(1);
     assertThat(underTest.selectDeselectedProjects(dbSession, profile3, null)).hasSize(3);
@@ -799,26 +776,26 @@ public class QualityProfileDaoIT {
 
   @Test
   public void select_project_associations() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getProjectDto();
     db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project1), profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(project2), profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectProjectAssociations(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.uuid(), project1.getKey(), project1.name(), profile1.getKee()),
-        tuple(project2.uuid(), project2.getKey(), project2.name(), null),
-        tuple(project3.uuid(), project3.getKey(), project3.name(), null));
+        tuple(project1.getUuid(), project1.getKey(), project1.getName(), profile1.getKee()),
+        tuple(project2.getUuid(), project2.getKey(), project2.getName(), null),
+        tuple(project3.getUuid(), project3.getKey(), project3.getName(), null));
 
     assertThat(underTest.selectProjectAssociations(dbSession, profile1, "ect2")).hasSize(1);
     assertThat(underTest.selectProjectAssociations(dbSession, profile3, null)).hasSize(3);
@@ -879,33 +856,33 @@ public class QualityProfileDaoIT {
 
   @Test
   public void selectProjectAssociations_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
+    ProjectDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getProjectDto();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
 
     List<ProjectQprofileAssociationDto> results = underTest.selectProjectAssociations(dbSession, qProfileDto, "key");
 
-    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.getUuid());
   }
 
   @Test
   public void selectSelectedProjects_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
+    ProjectDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getProjectDto();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
-    db.qualityProfiles().associateWithProject(db.components().getProjectDtoByMainBranch(privateProject), qProfileDto);
+    db.qualityProfiles().associateWithProject(privateProject, qProfileDto);
 
     List<ProjectQprofileAssociationDto> results = underTest.selectSelectedProjects(dbSession, qProfileDto, "key");
 
-    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.getUuid());
   }
 
   @Test
   public void selectDeselectedProjects_shouldFindResult_whenQueryMatchingKey() {
-    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getMainBranchComponent();
+    ProjectDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key")).getProjectDto();
     QProfileDto qProfileDto = db.qualityProfiles().insert();
 
     List<ProjectQprofileAssociationDto> results = underTest.selectDeselectedProjects(dbSession, qProfileDto, "key");
 
-    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.getUuid());
   }
 
   private List<QProfileDto> createSharedData() {

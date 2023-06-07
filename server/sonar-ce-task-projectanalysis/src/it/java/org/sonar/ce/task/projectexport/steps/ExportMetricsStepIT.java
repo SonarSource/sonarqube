@@ -52,7 +52,7 @@ public class ExportMetricsStepIT {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   MutableMetricRepository metricsHolder = new MutableMetricRepositoryImpl();
   FakeDumpWriter dumpWriter = new FakeDumpWriter();

@@ -77,7 +77,7 @@ public class CeActivityDao implements Dao {
    * Ordered by id desc -> newest to oldest
    */
   public List<CeActivityDto> selectByQuery(DbSession dbSession, CeTaskQuery query, Pagination pagination) {
-    if (query.isShortCircuitedByMainComponentUuids()) {
+    if (query.isShortCircuitedByEntityUuids()) {
       return Collections.emptyList();
     }
 
@@ -88,8 +88,8 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public int countLastByStatusAndMainComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String mainComponentUuid) {
-    return mapper(dbSession).countLastByStatusAndMainComponentUuid(status, mainComponentUuid);
+  public int countLastByStatusAndEntityUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String entityUuid) {
+    return mapper(dbSession).countLastByStatusAndEntityUuid(status, entityUuid);
   }
 
   public Optional<CeActivityDto> selectLastByComponentUuidAndTaskType(DbSession dbSession, String componentUuid, String taskType) {

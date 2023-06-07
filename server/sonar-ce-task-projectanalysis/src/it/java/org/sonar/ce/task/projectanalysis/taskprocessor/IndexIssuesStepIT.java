@@ -38,32 +38,27 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class IndexIssuesStepIT {
-
-  private String BRANCH_UUID = "branch_uuid";
-
+  private final String ENTITY_UUID = "entity_uuid";
+  private final String BRANCH_UUID = "branch_uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
-  private DbClient dbClient = dbTester.getDbClient();
-
-  private CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");
-  private CeTask ceTask = new CeTask.Builder()
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final CeTask.Component entity = new CeTask.Component(ENTITY_UUID, "component key", "component name");
+  private final CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");
+  private final CeTask ceTask = new CeTask.Builder()
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
-    .setMainComponent(component)
+    .setEntity(entity)
     .build();
 
   @Rule
   public EsTester es = EsTester.create();
-  private System2 system2 = new System2();
-  @Rule
-  public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = mock(IssueIndexer.class);
-
-  private IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
+  private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  private final IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
 
   @Test
   public void execute() {
@@ -107,7 +102,7 @@ public class IndexIssuesStepIT {
       .setType("type")
       .setUuid("uuid")
       .setComponent(null)
-      .setMainComponent(null)
+      .setEntity(null)
       .build();
     IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
 

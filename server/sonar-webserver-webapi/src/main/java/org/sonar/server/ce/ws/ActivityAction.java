@@ -285,9 +285,9 @@ public class ActivityAction implements CeWsAction {
 
     String componentQuery = request.getQ();
     if (entity != null) {
-      query.setMainComponentUuid(entity.getUuid());
+      query.setEntityUuid(entity.getUuid());
     } else if (componentQuery != null) {
-      query.setMainComponentUuids(loadComponents(dbSession, componentQuery).stream()
+      query.setEntityUuids(loadComponents(dbSession, componentQuery).stream()
         .map(ComponentDto::uuid)
         .collect(toList()));
     }

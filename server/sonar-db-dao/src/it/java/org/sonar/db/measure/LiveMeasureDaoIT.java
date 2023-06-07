@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -55,7 +56,7 @@ import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 public class LiveMeasureDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
   private MetricDto metric;
@@ -148,26 +149,27 @@ public class LiveMeasureDaoIT {
   public void selectForProjectsByMetricUuids() {
     MetricDto metric = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
-    underTest.insert(db.getSession(), newLiveMeasure(project, metric2).setValue(4.54).setData((String) null));
-    underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(99.99).setData((String) null));
+    BranchDto projectBranch = db.components().insertPrivateProject().getMainBranchDto();
+    BranchDto project2Branch = db.components().insertPrivateProject().getMainBranchDto();
+    underTest.insert(db.getSession(), newLiveMeasure(projectBranch, metric).setValue(3.14).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(projectBranch, metric2).setValue(4.54).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(project2Branch, metric).setValue(99.99).setData((String) null));
 
-    List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), List.of(metric.getUuid(), metric2.getUuid()));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid(), metric2.getUuid()));
     assertThat(selected)
-      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
+      .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid, ProjectMainBranchLiveMeasureDto::getMetricUuid,
+        ProjectMainBranchLiveMeasureDto::getValue, ProjectMainBranchLiveMeasureDto::getTextValue)
       .containsExactlyInAnyOrder(
-        tuple(project.uuid(), project.uuid(), metric.getUuid(), 3.14, null),
-        tuple(project.uuid(), project.uuid(), metric2.getUuid(), 4.54, null),
-        tuple(project2.uuid(), project2.uuid(), metric.getUuid(), 99.99, null));
+        tuple(projectBranch.getProjectUuid(), metric.getUuid(), 3.14, null),
+        tuple(projectBranch.getProjectUuid(), metric2.getUuid(), 4.54, null),
+        tuple(project2Branch.getProjectUuid(), metric.getUuid(), 99.99, null));
   }
 
   @Test
   public void selectForProjectsByMetricUuids_whenMetricDoesNotMatch_shouldReturnEmptyList() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
-    List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), singletonList("_other_"));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), singletonList("_other_"));
     assertThat(selected).isEmpty();
   }
 
@@ -182,10 +184,10 @@ public class LiveMeasureDaoIT {
     underTest.insert(db.getSession(), newLiveMeasure(project.getMainBranchComponent(), metric).setValue(4.54).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project2.getMainBranchComponent(), metric).setValue(5.56).setData((String) null));
 
-    List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), List.of(metric.getUuid()));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid()));
 
     assertThat(selected)
-      .extracting(LiveMeasureDto::getProjectUuid)
+      .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid)
       .containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
   }
 
@@ -344,8 +346,8 @@ public class LiveMeasureDaoIT {
     LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
 
     assertThat(result).as("Fail to map fields of %s", result.toString()).extracting(
-      LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue,
-      LiveMeasureDto::getDataAsString, LiveMeasureDto::getTextValue)
+        LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue,
+        LiveMeasureDto::getDataAsString, LiveMeasureDto::getTextValue)
       .contains(project.uuid(), file.uuid(), metric.getUuid(), 3.14, "text_value", "text_value");
   }
 
@@ -354,21 +356,21 @@ public class LiveMeasureDaoIT {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData simpleProject = db.components().insertPublicProject();
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
+    ProjectData projectWithBiggerBranch = db.components().insertPublicProject();
+    BranchDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectWithLinesButNoLoc = db.components().insertPublicProject();
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), simpleProject.uuid())).isEqualTo(10L);
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithBiggerBranch.uuid())).isEqualTo(200L);
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithLinesButNoLoc.uuid())).isZero();
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), simpleProject.projectUuid())).isEqualTo(10L);
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithBiggerBranch.projectUuid())).isEqualTo(200L);
+    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithLinesButNoLoc.projectUuid())).isZero();
   }
 
   @Test
@@ -392,17 +394,25 @@ public class LiveMeasureDaoIT {
     Map<String, MetricDto> metrics = setupMetrics();
     MetricDto ncloc = metrics.get("ncloc");
     MetricDto nclocLanguageDistribution = metrics.get("ncloc_language_distribution");
-    Map<String, ComponentDto> components = setupProjectsWithLoc(ncloc, nclocLanguageDistribution, metrics.get("lines"));
+    setupProjectsWithLoc(ncloc, nclocLanguageDistribution, metrics.get("lines"));
 
     List<ProjectLocDistributionDto> results = underTest.selectLargestBranchesLocDistribution(db.getSession(), ncloc.getUuid(), nclocLanguageDistribution.getUuid());
 
     assertThat(results)
       .containsExactlyInAnyOrder(
-        new ProjectLocDistributionDto(components.get("projectWithTieOnBranchSize").uuid(), components.get("projectWithTieOnBranchSize").uuid(), "java=250;js=0"),
-        new ProjectLocDistributionDto(components.get("projectWithTieOnOtherBranches").uuid(), components.get("tieBranch1").uuid(), "java=230;js=0"),
-        new ProjectLocDistributionDto(components.get("projectWithBranchBiggerThanMaster").uuid(), components.get("notMasterBranch").uuid(), "java=100;js=100"),
-        new ProjectLocDistributionDto(components.get("simpleProject").uuid(), components.get("simpleProject").uuid(), "java=10;js=0"),
-        new ProjectLocDistributionDto(components.get("projectWithLinesButNoLoc").uuid(), components.get("projectWithLinesButNoLoc").uuid(), "java=0;js=0"));
+        new ProjectLocDistributionDto("projectWithTieOnBranchSize", getMainBranchUuid("projectWithTieOnBranchSize"), "java=250;js=0"),
+        new ProjectLocDistributionDto("projectWithTieOnOtherBranches", getBranchUuid("projectWithTieOnOtherBranches", "tieBranch1"), "java=230;js=0"),
+        new ProjectLocDistributionDto("projectWithBranchBiggerThanMaster", getBranchUuid("projectWithBranchBiggerThanMaster", "notMasterBranch"), "java=100;js=100"),
+        new ProjectLocDistributionDto("simpleProject", getMainBranchUuid("simpleProject"), "java=10;js=0"),
+        new ProjectLocDistributionDto("projectWithLinesButNoLoc", getMainBranchUuid("projectWithLinesButNoLoc"), "java=0;js=0"));
+  }
+
+  private String getBranchUuid(String projectUuid, String branchKey) {
+    return db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectUuid, branchKey).get().getUuid();
+  }
+
+  private String getMainBranchUuid(String projectUuid) {
+    return db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), projectUuid).get().getUuid();
   }
 
   @Test
@@ -696,63 +706,58 @@ public class LiveMeasureDaoIT {
       "lines", lines);
   }
 
-  private Map<String, ComponentDto> setupProjectsWithLoc(MetricDto ncloc, MetricDto nclocDistribution, MetricDto lines) {
-    ComponentDto simpleProject = addProjectWithMeasure("simpleProject", ncloc, 10d);
-    addMeasureToComponent(simpleProject, nclocDistribution, "java=10;js=0");
+  private void setupProjectsWithLoc(MetricDto ncloc, MetricDto nclocDistribution, MetricDto lines) {
+    ProjectData simpleProject = addProjectWithMeasure("simpleProject", ncloc, 10d);
+    addMeasureToMainBranch(simpleProject, nclocDistribution, "java=10;js=0");
 
-    ComponentDto projectWithBranchBiggerThanMaster = addProjectWithMeasure("projectWithBranchBiggerThanMaster", ncloc, 100d);
-    addMeasureToComponent(projectWithBranchBiggerThanMaster, nclocDistribution, "java=100;js=0");
+    ProjectData projectWithBranchBiggerThanMaster = addProjectWithMeasure("projectWithBranchBiggerThanMaster", ncloc, 100d);
+    addMeasureToMainBranch(projectWithBranchBiggerThanMaster, nclocDistribution, "java=100;js=0");
 
-    ComponentDto notMasterBranch = addBranchToProjectWithMeasure(projectWithBranchBiggerThanMaster, "notMasterBranch", ncloc, 200d);
-    addMeasureToComponent(notMasterBranch, nclocDistribution, "java=100;js=100");
+    BranchDto notMasterBranch = addBranchToProjectWithMeasure(projectWithBranchBiggerThanMaster, "notMasterBranch", ncloc, 200d);
+    addMeasureToBranch(notMasterBranch, nclocDistribution, "java=100;js=100");
 
-    ComponentDto projectWithLinesButNoLoc = addProjectWithMeasure("projectWithLinesButNoLoc", lines, 365d);
-    addMeasureToComponent(projectWithLinesButNoLoc, nclocDistribution, "java=0;js=0");
-    addMeasureToComponent(projectWithLinesButNoLoc, ncloc, 0d, false);
+    ProjectData projectWithLinesButNoLoc = addProjectWithMeasure("projectWithLinesButNoLoc", lines, 365d);
+    addMeasureToMainBranch(projectWithLinesButNoLoc, nclocDistribution, "java=0;js=0");
+    addMeasureToBranch(projectWithLinesButNoLoc.getMainBranchDto(), ncloc, 0d, false);
 
-    ComponentDto projectWithTieOnBranchSize = addProjectWithMeasure("projectWithTieOnBranchSize", ncloc, 250d);
-    addMeasureToComponent(projectWithTieOnBranchSize, nclocDistribution, "java=250;js=0");
-    ComponentDto tieBranch = addBranchToProjectWithMeasure(projectWithTieOnBranchSize, "tieBranch", ncloc, 250d);
-    addMeasureToComponent(tieBranch, nclocDistribution, "java=250;js=0");
+    ProjectData projectWithTieOnBranchSize = addProjectWithMeasure("projectWithTieOnBranchSize", ncloc, 250d);
+    addMeasureToMainBranch(projectWithTieOnBranchSize, nclocDistribution, "java=250;js=0");
+    BranchDto tieBranch = addBranchToProjectWithMeasure(projectWithTieOnBranchSize, "tieBranch", ncloc, 250d);
+    addMeasureToBranch(tieBranch, nclocDistribution, "java=250;js=0");
 
-    ComponentDto projectWithTieOnOtherBranches = addProjectWithMeasure("projectWithTieOnOtherBranches", ncloc, 220d);
-    addMeasureToComponent(projectWithTieOnOtherBranches, nclocDistribution, "java=220;js=0");
-    ComponentDto tieBranch1 = addBranchToProjectWithMeasure(projectWithTieOnOtherBranches, "tieBranch1", ncloc, 230d);
-    addMeasureToComponent(tieBranch1, nclocDistribution, "java=230;js=0");
-    ComponentDto tieBranch2 = addBranchToProjectWithMeasure(projectWithTieOnOtherBranches, "tieBranch2", ncloc, 230d);
-    addMeasureToComponent(tieBranch2, nclocDistribution, "java=230;js=0");
-
-    return Map.of("simpleProject", simpleProject,
-      "projectWithBranchBiggerThanMaster", projectWithBranchBiggerThanMaster,
-      "notMasterBranch", notMasterBranch,
-      "projectWithLinesButNoLoc", projectWithLinesButNoLoc,
-      "projectWithTieOnBranchSize", projectWithTieOnBranchSize,
-      "tieBranch", tieBranch,
-      "projectWithTieOnOtherBranches", projectWithTieOnOtherBranches,
-      "tieBranch1", tieBranch1,
-      "tieBranch2", tieBranch2);
+    ProjectData projectWithTieOnOtherBranches = addProjectWithMeasure("projectWithTieOnOtherBranches", ncloc, 220d);
+    addMeasureToMainBranch(projectWithTieOnOtherBranches, nclocDistribution, "java=220;js=0");
+    BranchDto tieBranch1 = addBranchToProjectWithMeasure(projectWithTieOnOtherBranches, "tieBranch1", ncloc, 230d);
+    addMeasureToBranch(tieBranch1, nclocDistribution, "java=230;js=0");
+    BranchDto tieBranch2 = addBranchToProjectWithMeasure(projectWithTieOnOtherBranches, "tieBranch2", ncloc, 230d);
+    addMeasureToBranch(tieBranch2, nclocDistribution, "java=230;js=0");
   }
 
-  private ComponentDto addProjectWithMeasure(String projectKey, MetricDto metric, double metricValue) {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectKey)).getMainBranchComponent();
-    addMeasureToComponent(project, metric, metricValue, true);
+  private ProjectData addProjectWithMeasure(String projectKey, MetricDto metric, double metricValue) {
+    ProjectData project = db.components().insertPublicProject(projectKey, p -> p.setKey(projectKey));
+    addMeasureToBranch(project.getMainBranchDto(), metric, metricValue, true);
     return project;
   }
 
-  private void addMeasureToComponent(ComponentDto component, MetricDto metric, double metricValue, boolean addSnapshot) {
+  private void addMeasureToBranch(BranchDto component, MetricDto metric, double metricValue, boolean addSnapshot) {
     db.measures().insertLiveMeasure(component, metric, m -> m.setValue(metricValue));
     if (addSnapshot) {
       db.components().insertSnapshot(component, t -> t.setLast(true));
     }
   }
 
-  private void addMeasureToComponent(ComponentDto component, MetricDto metric, String metricValue) {
+  private void addMeasureToMainBranch(ProjectData projectData, MetricDto metric, String metricValue) {
+    addMeasureToBranch(projectData.getMainBranchDto(), metric, metricValue);
+  }
+
+  private void addMeasureToBranch(BranchDto component, MetricDto metric, String metricValue) {
     db.measures().insertLiveMeasure(component, metric, m -> m.setData(metricValue));
   }
 
-  private ComponentDto addBranchToProjectWithMeasure(ComponentDto project, String branchKey, MetricDto metric, double metricValue) {
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setKey(branchKey));
-    addMeasureToComponent(branch, metric, metricValue, true);
+  private BranchDto addBranchToProjectWithMeasure(ProjectData project, String branchKey, MetricDto metric, double metricValue) {
+    BranchDto branch = db.components()
+      .insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setKey(branchKey));
+    addMeasureToBranch(branch, metric, metricValue, true);
     return branch;
   }
 

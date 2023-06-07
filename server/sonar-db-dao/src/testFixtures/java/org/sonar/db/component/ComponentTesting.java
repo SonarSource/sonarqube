@@ -53,19 +53,19 @@ public class ComponentTesting {
     return newFileDto(projectOrBranch, directory, Uuids.createFast(), mainBranchUuid);
   }
 
-  public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory, String fileUuid) {
-    return newFileDto(project, directory, fileUuid, null);
+  public static ComponentDto newFileDto(ComponentDto branch, @Nullable ComponentDto directory, String fileUuid) {
+    return newFileDto(branch, directory, fileUuid, null);
   }
 
-  public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory, String fileUuid, @Nullable String mainBranchUuid) {
+  public static ComponentDto newFileDto(ComponentDto branch, @Nullable ComponentDto directory, String fileUuid, @Nullable String mainBranchUuid) {
     String filename = "NAME_" + fileUuid;
-    String path = directory != null ? directory.path() + "/" + filename : project.path() + "/" + filename;
-    return newChildComponent(fileUuid, project, directory == null ? project : directory)
+    String path = directory != null ? directory.path() + "/" + filename : branch.path() + "/" + filename;
+    return newChildComponent(fileUuid, branch, directory == null ? branch : directory)
       .setKey("FILE_KEY_" + fileUuid)
       .setName(filename)
       .setLongName(path)
       .setScope(Scopes.FILE)
-      .setBranchUuid(project.branchUuid())
+      .setBranchUuid(branch.branchUuid())
       .setMainBranchProjectUuid(mainBranchUuid)
       .setQualifier(Qualifiers.FILE)
       .setPath(path)
@@ -207,18 +207,18 @@ public class ComponentTesting {
       .setLanguage(null);
   }
 
-  public static ComponentDto newChildComponent(String uuid, ComponentDto project, ComponentDto parent) {
-    checkArgument(project.isPrivate() == parent.isPrivate(),
-      "private flag inconsistent between moduleOrProject (%s) and parent (%s)",
-      project.isPrivate(), parent.isPrivate());
+  public static ComponentDto newChildComponent(String uuid, ComponentDto branch, ComponentDto parent) {
+    checkArgument(branch.isPrivate() == parent.isPrivate(),
+      "private flag inconsistent between branch (%s) and parent (%s)",
+      branch.isPrivate(), parent.isPrivate());
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(formatUuidPathFromParent(parent))
       .setKey(uuid)
-      .setBranchUuid(project.branchUuid())
+      .setBranchUuid(branch.branchUuid())
       .setCreatedAt(new Date())
       .setEnabled(true)
-      .setPrivate(project.isPrivate());
+      .setPrivate(branch.isPrivate());
   }
 
 

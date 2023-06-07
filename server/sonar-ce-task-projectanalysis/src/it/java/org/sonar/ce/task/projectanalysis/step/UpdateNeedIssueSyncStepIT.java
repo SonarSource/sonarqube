@@ -37,7 +37,7 @@ public class UpdateNeedIssueSyncStepIT {
   private static final Component PROJECT = ReportComponent.DUMB_PROJECT;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);

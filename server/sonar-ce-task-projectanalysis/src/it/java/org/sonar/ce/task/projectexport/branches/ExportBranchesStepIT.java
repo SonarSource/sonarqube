@@ -42,6 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectExportMapper;
 
 import static java.util.stream.Collectors.toMap;
@@ -53,20 +54,9 @@ import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 
 public class ExportBranchesStepIT {
   private static final String PROJECT_UUID = "PROJECT_UUID";
-  private static final ComponentDto PROJECT = new ComponentDto()
-    // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
-    .setKey("the_project")
-    .setName("The Project")
-    .setDescription("The project description")
-    .setEnabled(true)
-    .setUuid(PROJECT_UUID)
-    .setUuidPath(UUID_PATH_OF_ROOT)
-    .setBranchUuid(PROJECT_UUID);
 
   @Rule
-  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
+  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -109,13 +99,13 @@ public class ExportBranchesStepIT {
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
     Date createdAt = new Date();
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent().setCreatedAt(createdAt);
+    ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
     for (BranchDto branch : branches) {
       createdAt = DateUtils.addMinutes(createdAt, 10);
-      dbTester.components().insertProjectBranch(PROJECT, branch).setCreatedAt(createdAt);
+      dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt);
     }
     dbTester.commit();
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(projectDto));
+    when(projectHolder.projectDto()).thenReturn(projectData.getProjectDto());
   }
 
   @Test
@@ -127,7 +117,7 @@ public class ExportBranchesStepIT {
       .stream()
       .collect(toMap(ProjectDump.Branch::getUuid, Function.identity()));
     assertThat(branches).hasSize(3);
-    ProjectDump.Branch mainBranch = branches.get(PROJECT_UUID);
+    ProjectDump.Branch mainBranch = branches.values().stream().filter(ProjectDump.Branch::getIsMain).findFirst().get();
     assertThat(mainBranch).isNotNull();
     assertThat(mainBranch.getKee()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(mainBranch.getProjectUuid()).isEqualTo(PROJECT_UUID);

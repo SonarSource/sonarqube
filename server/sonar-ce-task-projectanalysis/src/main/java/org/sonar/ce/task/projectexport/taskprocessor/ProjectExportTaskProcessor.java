@@ -65,8 +65,8 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
   }
 
   private static void failIfNotMain(CeTask.Component exportComponent, CeTask task) {
-    task.getMainComponent().filter(mainComponent -> mainComponent.equals(exportComponent))
-      .orElseThrow(() -> new IllegalStateException("Component of task must be the same as main component"));
+    task.getEntity().filter(entity -> entity.equals(exportComponent))
+      .orElseThrow(() -> new IllegalStateException("Component of task must be the same as entity"));
   }
 
   private static CeTask.Component mandatoryComponent(CeTask task, String type) {

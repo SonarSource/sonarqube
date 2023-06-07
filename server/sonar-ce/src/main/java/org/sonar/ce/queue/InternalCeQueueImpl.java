@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
@@ -46,14 +45,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.server.platform.NodeInformation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @ComputeEngineSide
@@ -88,13 +85,10 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         return Optional.empty();
       }
       CeQueueDto taskDto = opt.get();
-      Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
       Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
         .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
 
-      CeTask task = convertToTask(dbSession, taskDto, characteristics,
-        ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
-        ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
+      CeTask task = convertToTask(dbSession, taskDto, characteristics);
       queueStatus.addInProgress();
       return Optional.of(task);
     }

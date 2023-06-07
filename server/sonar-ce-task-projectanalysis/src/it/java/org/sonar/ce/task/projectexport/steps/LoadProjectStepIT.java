@@ -37,7 +37,7 @@ public class LoadProjectStepIT {
   private static final String PROJECT_KEY = "project_key";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final ProjectDescriptor descriptor = new ProjectDescriptor("project_uuid", PROJECT_KEY, "Project Name");
   private final MutableProjectHolder definitionHolder = new MutableProjectHolderImpl();

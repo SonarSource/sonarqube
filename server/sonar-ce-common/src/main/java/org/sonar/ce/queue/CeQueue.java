@@ -59,7 +59,7 @@ public interface CeQueue {
    * <p>
    * This method is equivalent to calling {@code massSubmit(Collections.singletonList(submission))}.
    *
-   * @return empty if {@code options} contains {@link SubmitOption#UNIQUE_QUEUE_PER_MAIN_COMPONENT UNIQUE_QUEUE_PER_MAIN_COMPONENT}
+   * @return empty if {@code options} contains {@link SubmitOption#UNIQUE_QUEUE_PER_ENTITY UNIQUE_QUEUE_PER_MAIN_COMPONENT}
    *         and there's already a queued task, otherwise the created task.
    */
   Optional<CeTask> submit(CeTaskSubmit submission, SubmitOption... options);
@@ -124,7 +124,7 @@ public interface CeQueue {
   int clear();
 
   enum SubmitOption {
-    UNIQUE_QUEUE_PER_MAIN_COMPONENT,
+    UNIQUE_QUEUE_PER_ENTITY,
     UNIQUE_QUEUE_PER_TASK_TYPE
   }
 

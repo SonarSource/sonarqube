@@ -59,7 +59,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class LinesActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -351,15 +351,16 @@ public class LinesActionIT {
   @Test
   public void hide_scmAuthors() {
     ProjectData projectData = db.components().insertPublicProject();
-    ComponentDto publicProject = projectData.getMainBranchComponent();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
 
     userSession.registerProjects(projectData.getProjectDto());
+    userSession.addProjectBranchMapping(projectData.projectUuid(), mainBranch);
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
       .addLines(newLineBuilder().setScmAuthor("isaac@asimov.com"))
       .build();
 
-    ComponentDto file = insertFileWithData(data, publicProject);
+    ComponentDto file = insertFileWithData(data, mainBranch);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())
@@ -370,15 +371,16 @@ public class LinesActionIT {
   @Test
   public void show_scmAuthors() {
     ProjectData projectData = db.components().insertPublicProject();
-    ComponentDto publicProject = projectData.getMainBranchComponent();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).registerProjects(projectData.getProjectDto());
+    userSession.addProjectBranchMapping(projectData.projectUuid(), mainBranch);
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
       .addLines(newLineBuilder().setScmAuthor("isaac@asimov.com"))
       .build();
 
-    ComponentDto file = insertFileWithData(data, publicProject);
+    ComponentDto file = insertFileWithData(data, mainBranch);
 
     tester.newRequest()
       .setParam("uuid", file.uuid())

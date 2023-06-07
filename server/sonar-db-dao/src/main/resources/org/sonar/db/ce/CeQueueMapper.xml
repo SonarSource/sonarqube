@@ -7,7 +7,7 @@
     cq.uuid,
     cq.task_type as taskType,
     cq.component_uuid as componentUuid,
-    cq.main_component_uuid as mainComponentUuid,
+    cq.entity_uuid as entityUuid,
     cq.status as status,
     cq.submitter_uuid as submitterUuid,
     cq.worker_uuid as workerUuid,
@@ -37,43 +37,43 @@
       cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="countByStatusAndMainComponentUuid" parameterType="map" resultType="int">
+  <select id="countByStatusAndEntityUuid" parameterType="map" resultType="int">
     select
       count(1)
     from
       ce_queue
     where
       status=#{status,jdbcType=VARCHAR}
-      <if test="mainComponentUuid!=null">
-        and main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      <if test="entityUuid!=null">
+        and entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
-  <select id="selectCreationDateOfOldestPendingByMainComponentUuid" parameterType="map" resultType="Long">
+  <select id="selectCreationDateOfOldestPendingByEntityUuid" parameterType="map" resultType="Long">
     select
       min(created_at)
     from
       ce_queue
     where
       status='PENDING'
-      <if test="mainComponentUuid!=null">
-        and main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      <if test="entityUuid!=null">
+        and entity_uuid=#{entityUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
-  <select id="countByStatusAndMainComponentUuids" resultType="org.sonar.db.ce.QueueCount">
+  <select id="countByStatusAndEntityUuids" resultType="org.sonar.db.ce.QueueCount">
     select
-      main_component_uuid as mainComponentUuid,
+      entity_uuid as entityUuid,
       count(1) as total
     from
       ce_queue
     where
       status=#{status,jdbcType=VARCHAR}
-      and main_component_uuid in
-      <foreach collection="mainComponentUuids" open="(" close=")" item="mainComponentUuid" separator=",">
-        #{mainComponentUuid,jdbcType=VARCHAR}
+      and entity_uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="entityUuid" separator=",">
+        #{entityUuid,jdbcType=VARCHAR}
       </foreach>
-    group by main_component_uuid
+    group by entity_uuid
   </select>
 
   <select id="countAll" resultType="int">
@@ -83,13 +83,13 @@
       ce_queue
   </select>
 
-  <select id="selectByMainComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
+  <select id="selectByEntityUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
     select
       <include refid="columns"/>
     from
       ce_queue cq
     where
-      cq.main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      cq.entity_uuid=#{entityUuid,jdbcType=VARCHAR}
     <include refid="orderByDateAndUuid"/>
   </select>
 
@@ -118,10 +118,10 @@
     from
       ce_queue cq
     <where>
-      <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
-        and cq.main_component_uuid in
-        <foreach collection="query.mainComponentUuids" open="(" close=")" item="mainComponentUuid" separator=",">
-          #{mainComponentUuid,jdbcType=VARCHAR}
+      <if test="query.entityUuids != null and query.entityUuids.size()>0">
+        and cq.entity_uuid in
+        <foreach collection="query.entityUuids" open="(" close=")" item="entityUuid" separator=",">
+          #{entityUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.statuses != null">
@@ -180,9 +180,9 @@
     from
       ce_queue cq
     <if test="excludeViewRefresh">
-        left join components c on c.uuid = cq.main_component_uuid and c.qualifier &lt;&gt; 'VW'
+        left join components c on c.uuid = cq.entity_uuid and c.qualifier &lt;&gt; 'VW'
     </if>
-      left join ce_queue cq2 on cq.main_component_uuid=cq2.main_component_uuid and cq2.status &lt;&gt;'PENDING'
+      left join ce_queue cq2 on cq.entity_uuid=cq2.entity_uuid and cq2.status &lt;&gt;'PENDING'
     where
       cq.status='PENDING'
       and cq.started_at is null
@@ -234,7 +234,7 @@
       uuid,
       task_type,
       component_uuid,
-      main_component_uuid,
+      entity_uuid,
       status,
       submitter_uuid,
       worker_uuid,
@@ -247,7 +247,7 @@
       #{uuid,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
-      #{mainComponentUuid,jdbcType=VARCHAR},
+      #{entityUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{submitterUuid,jdbcType=VARCHAR},
       #{workerUuid,jdbcType=VARCHAR},
@@ -356,7 +356,7 @@
 
   <sql id="oldestPendingPrOrBranch">
     cq.uuid as ceTaskUuid,
-      cq.main_component_uuid as mainComponentUuid,
+      cq.entity_uuid as entityUuid,
       cq.component_uuid as componentUuid,
       cq.created_at as createdAt,
       cq.task_type as taskType,
@@ -374,7 +374,7 @@
   <select id="selectInProgressWithCharacteristics" resultType="org.sonar.db.ce.PrOrBranchTask">
     select
       cq.uuid as ceTaskUuid,
-      cq.main_component_uuid as mainComponentUuid,
+      cq.entity_uuid as entityUuid,
       cq.created_at as createdAt,
       coalesce(ctc.kee, 'branch') as branchType,
       cq.task_type as taskType,

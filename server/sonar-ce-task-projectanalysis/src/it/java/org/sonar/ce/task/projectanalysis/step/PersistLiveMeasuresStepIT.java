@@ -73,7 +73,7 @@ public class PersistLiveMeasuresStepIT extends BaseStepTest {
   private static final int REF_4 = 4;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

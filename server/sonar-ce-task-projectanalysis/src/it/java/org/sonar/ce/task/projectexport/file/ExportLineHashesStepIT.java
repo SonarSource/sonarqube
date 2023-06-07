@@ -55,16 +55,15 @@ public class ExportLineHashesStepIT {
   private static final String FILE_UUID_2 = "file-2-uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbClient.openSession(false);
-  private FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
-
-  private ExportLineHashesStep underTest = new ExportLineHashesStep(dbClient, dumpWriter, componentRepository);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbClient.openSession(false);
+  private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
+  private final MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
+  private final ExportLineHashesStep underTest = new ExportLineHashesStep(dbClient, dumpWriter, componentRepository);
 
   @Before
   public void before() {

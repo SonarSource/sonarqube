@@ -55,7 +55,7 @@ public class PersistPushEventsStepIT {
   private final TestSystem2 system2 = new TestSystem2().setNow(1L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   public final PushEventFactory pushEventFactory = mock(PushEventFactory.class);
   @Rule
@@ -143,7 +143,7 @@ public class PersistPushEventsStepIT {
 
   @Test
   public void store_push_events_for_branch() {
-    var project = db.components().insertPrivateProject().getMainBranchComponent();
+    var project = db.components().insertPrivateProject().getProjectDto();
     db.components().insertProjectBranch(project, b -> b.setUuid("uuid_1"));
 
     protoIssueCache.newAppender()
@@ -155,7 +155,7 @@ public class PersistPushEventsStepIT {
         .setComponentKey("ck2"))
       .close();
 
-    when(pushEventFactory.raiseEventOnIssue(eq(project.uuid()), any(DefaultIssue.class))).thenReturn(
+    when(pushEventFactory.raiseEventOnIssue(eq(project.getUuid()), any(DefaultIssue.class))).thenReturn(
       Optional.of(createPushEvent()),
       Optional.of(createPushEvent()));
 

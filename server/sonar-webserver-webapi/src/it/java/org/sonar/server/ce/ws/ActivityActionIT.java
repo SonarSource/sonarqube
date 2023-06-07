@@ -609,7 +609,7 @@ public class ActivityActionIT {
     queueDto.setTaskType(CeTaskTypes.REPORT);
     if (project != null ) {
       queueDto.setComponentUuid(project.uuid());
-      queueDto.setMainComponentUuid(project.uuid());
+      queueDto.setEntityUuid(project.uuid());
     }
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
@@ -626,7 +626,7 @@ public class ActivityActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(project.uuid());
-    queueDto.setMainComponentUuid(project.uuid());
+    queueDto.setEntityUuid(project.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setCreatedAt(EXECUTED_AT);
     CeActivityDto activityDto = new CeActivityDto(queueDto);

@@ -77,7 +77,7 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   @Override
   public Optional<Long> getLongestTimePending() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.ceQueueDao().selectCreationDateOfOldestPendingByMainComponentUuid(dbSession, null)
+      return dbClient.ceQueueDao().selectCreationDateOfOldestPendingByEntityUuid(dbSession, null)
         .map(creationDate -> system.now() - creationDate);
     }
   }

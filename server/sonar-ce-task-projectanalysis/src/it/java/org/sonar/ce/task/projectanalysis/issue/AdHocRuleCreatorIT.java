@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AdHocRuleCreatorIT {
 
   @org.junit.Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @org.junit.Rule
   public EsTester es = EsTester.create();
 

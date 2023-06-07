@@ -25,9 +25,11 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.project.Project;
 
 import static java.util.Collections.emptyList;
@@ -36,7 +38,7 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 
 public class ProjectNclocComputationStepIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final DbClient dbClient = db.getDbClient();
 
   @Rule
@@ -47,12 +49,12 @@ public class ProjectNclocComputationStepIT {
   @Test
   public void test_computing_branch_ncloc() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(200d));
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    BranchDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch2, ncloc, m -> m.setValue(10d));
-    analysisMetadataHolder.setProject(new Project(project.uuid(), project.getKey(), project.name(), project.description(), emptyList()));
+    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), emptyList()));
     step.execute(TestComputationStepContext.TestStatistics::new);
 
     assertThat(dbClient.projectDao().getNclocSum(db.getSession())).isEqualTo(200L);

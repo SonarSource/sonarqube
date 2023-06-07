@@ -33,22 +33,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class IgnoreOrphanBranchStepIT {
-
-  private String BRANCH_UUID = "branch_uuid";
+  private final String ENTITY_UUID = "entity_uuid";
+  private final String BRANCH_UUID = "branch_uuid";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
-  private CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");
-  private CeTask ceTask = new CeTask.Builder()
+  private final CeTask.Component entity = new CeTask.Component(ENTITY_UUID, "component key", "component name");
+  private final CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");
+  private final CeTask ceTask = new CeTask.Builder()
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
-    .setMainComponent(component)
+    .setEntity(entity)
     .build();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private IgnoreOrphanBranchStep underTest = new IgnoreOrphanBranchStep(ceTask, dbClient);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final IgnoreOrphanBranchStep underTest = new IgnoreOrphanBranchStep(ceTask, dbClient);
 
   @Test
   public void execute() {
@@ -94,13 +95,13 @@ public class IgnoreOrphanBranchStepIT {
       .setType("type")
       .setUuid("uuid")
       .setComponent(null)
-      .setMainComponent(null)
+      .setEntity(null)
       .build();
     IgnoreOrphanBranchStep underTest = new IgnoreOrphanBranchStep(ceTask, dbClient);
 
     assertThatThrownBy(() -> underTest.execute(() -> null))
       .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("main component not found in task");
+      .hasMessage("entity not found in task");
   }
 
   @Test

@@ -37,11 +37,11 @@ import static org.mockito.Mockito.when;
 
 public class DbLineHashVersionIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
-  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
-  private DbLineHashVersion underTest = new DbLineHashVersion(db.getDbClient(), analysisMetadataHolder, referenceBranchComponentUuids);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final DbLineHashVersion underTest = new DbLineHashVersion(db.getDbClient(), analysisMetadataHolder, referenceBranchComponentUuids);
 
   @Test
   public void hasLineHashWithSignificantCode_should_return_true() {

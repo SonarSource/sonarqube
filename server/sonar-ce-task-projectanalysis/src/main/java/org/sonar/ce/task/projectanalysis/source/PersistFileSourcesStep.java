@@ -78,7 +78,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private class FileSourceVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
-    private String projectUuid;
+    private String branchUuid;
 
     private FileSourceVisitor(DbSession session) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
@@ -86,8 +86,8 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
 
     @Override
-    public void visitProject(Component project) {
-      this.projectUuid = project.getUuid();
+    public void visitProject(Component branch) {
+      this.branchUuid = branch.getUuid();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
           .setUuid(uuidFactory.create())
-          .setProjectUuid(projectUuid)
+          .setProjectUuid(branchUuid)
           .setFileUuid(file.getUuid())
           .setBinaryData(binaryData)
           .setSrcHash(srcHash)

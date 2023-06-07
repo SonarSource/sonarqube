@@ -90,10 +90,6 @@ public class PermissionWsSupport {
     return null;
   }
 
-  public ComponentDto getRootComponent(DbSession dbSession, ProjectWsRef projectRef) {
-    return componentFinder.getRootComponentByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
-  }
-
   public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupName);

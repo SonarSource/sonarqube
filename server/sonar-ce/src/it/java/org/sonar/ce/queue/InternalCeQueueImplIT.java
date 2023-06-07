@@ -45,8 +45,10 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueTesting;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.platform.NodeInformation;
 
@@ -71,20 +73,19 @@ public class InternalCeQueueImplIT {
   private static final String WORKER_UUID_2 = "worker uuid 2";
   private static final String NODE_NAME = "nodeName1";
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbSession session = db.getSession();
-
-  private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient(), mock(System2.class));
-  private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
-  private Configuration config = mock(Configuration.class);
-  private NextPendingTaskPicker nextPendingTaskPicker = new NextPendingTaskPicker(config, db.getDbClient());
-  private NodeInformation nodeInformation = mock(NodeInformation.class);
-  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus,
+  private final DbSession session = db.getSession();
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
+  private final CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient(), mock(System2.class));
+  private final ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
+  private final Configuration config = mock(Configuration.class);
+  private final NextPendingTaskPicker nextPendingTaskPicker = new NextPendingTaskPicker(config, db.getDbClient());
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
+  private final InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus,
     computeEngineStatus, nextPendingTaskPicker, nodeInformation);
 
   @Before
@@ -96,8 +97,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
-    ComponentDto project1 = newProjectDto("PROJECT_1");
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, project1, project1, "rob");
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "entity", "component", "rob");
     CeTask task = underTest.submit(taskSubmit);
     UserDto userDto = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit.getSubmitterUuid());
     verifyCeTask(taskSubmit, task, null, userDto);
@@ -106,12 +106,12 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto = insertComponent(newProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto, componentDto, null);
+    ProjectData projectData = newProject("PROJECT_1");
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, projectData, null);
 
     CeTask task = underTest.submit(taskSubmit);
 
-    verifyCeTask(taskSubmit, task, componentDto, null);
+    verifyCeTask(taskSubmit, task, projectData.getMainBranchComponent(), null);
   }
 
   @Test
@@ -125,8 +125,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
-    ComponentDto project1 = newProjectDto("PROJECT_1");
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, project1, project1, "rob");
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, "entity", "component", "rob");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
@@ -141,15 +140,14 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto1 = insertComponent(newProjectDto("PROJECT_1"));
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1, componentDto1, null);
-    ComponentDto nonExistingComponent = newProjectDto("non existing component uuid");
-    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", nonExistingComponent, nonExistingComponent, null);
+    ProjectData project = newProject("PROJECT_1");
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, project, null);
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", project.projectUuid(), "non-existing", null);
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
     assertThat(tasks).hasSize(2);
-    verifyCeTask(taskSubmit1, tasks.get(0), componentDto1, null);
+    verifyCeTask(taskSubmit1, tasks.get(0), project.getMainBranchComponent(), null);
     verifyCeTask(taskSubmit2, tasks.get(1), null, null);
   }
 
@@ -162,7 +160,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void test_remove() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
@@ -194,7 +192,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void remove_does_not_set_analysisUuid_in_CeActivity_when_CeTaskResult_has_no_analysis_uuid() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null), null);
 
@@ -206,7 +204,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void remove_sets_analysisUuid_in_CeActivity_when_CeTaskResult_has_analysis_uuid() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
@@ -220,7 +218,7 @@ public class InternalCeQueueImplIT {
   @Test
   public void remove_sets_nodeName_in_CeActivity_when_nodeInformation_defines_node_name() {
     when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
@@ -233,7 +231,7 @@ public class InternalCeQueueImplIT {
   @Test
   public void remove_do_not_set_nodeName_in_CeActivity_when_nodeInformation_does_not_define_node_name() {
     when(nodeInformation.getNodeName()).thenReturn(Optional.empty());
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
@@ -247,7 +245,7 @@ public class InternalCeQueueImplIT {
   public void remove_saves_error_message_and_stacktrace_when_exception_is_provided() {
     Throwable error = new NullPointerException("Fake NPE to test persistence to DB");
 
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
@@ -263,7 +261,7 @@ public class InternalCeQueueImplIT {
   public void remove_saves_error_when_TypedMessageException_is_provided() {
     Throwable error = new TypedExceptionImpl("aType", "aMessage");
 
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
@@ -277,7 +275,7 @@ public class InternalCeQueueImplIT {
   public void remove_updates_queueStatus_success_even_if_task_does_not_exist_in_DB() {
     CEQueueStatus queueStatus = mock(CEQueueStatus.class);
 
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
 
@@ -295,7 +293,7 @@ public class InternalCeQueueImplIT {
   public void remove_updates_queueStatus_failure_even_if_task_does_not_exist_in_DB() {
     CEQueueStatus queueStatusMock = mock(CEQueueStatus.class);
 
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
     InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformation);
@@ -313,7 +311,7 @@ public class InternalCeQueueImplIT {
 
     CEQueueStatus queueStatusMock = mock(CEQueueStatus.class);
 
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     db.executeUpdateSql("update ce_queue set status = 'PENDING', started_at = 123 where uuid = '" + task.getUuid() + "'");
     db.commit();
     InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformation);
@@ -360,7 +358,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void fail_to_remove_if_not_in_queue() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
 
     assertThatThrownBy(() -> underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null))
@@ -369,14 +367,16 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void test_peek() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    ProjectData projectData = newProject("PROJECT_1");
+    ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
+    CeTask task = submit(CeTaskTypes.REPORT, projectData);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(peek.get().getComponent()).contains(new CeTask.Component("PROJECT_1", null, null));
-    assertThat(peek.get().getMainComponent()).contains(peek.get().getComponent().get());
+    assertThat(peek.get().getComponent()).contains(new CeTask.Component(mainBranchComponent.uuid(), mainBranchComponent.getKey(), mainBranchComponent.name()));
+    assertThat(peek.get().getEntity()).contains(peek.get().getComponent().get());
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);
@@ -385,16 +385,16 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void peek_populates_name_and_key_for_existing_component_and_main_component() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    CeTask task = submit(CeTaskTypes.REPORT, project, branch);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project);
+    CeTask task = submit(CeTaskTypes.REPORT, branch);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(peek.get().getComponent()).contains(new CeTask.Component(branch.uuid(), branch.getKey(), branch.name()));
-    assertThat(peek.get().getMainComponent()).contains(new CeTask.Component(project.uuid(), project.getKey(), project.name()));
+    assertThat(peek.get().getComponent()).contains(new CeTask.Component(branch.getUuid(), project.getKey(), project.getName()));
+    assertThat(peek.get().getEntity()).contains(new CeTask.Component(project.getUuid(), project.getKey(), project.getName()));
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);
@@ -403,7 +403,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void peek_is_paused_then_resumed() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     underTest.pauseWorkers();
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
@@ -429,7 +429,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void peek_nothing_if_application_status_stopping() {
-    submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
@@ -512,7 +512,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void cancel_pending() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     underTest.cancel(db.getSession(), queueDto);
@@ -524,7 +524,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void fail_to_cancel_if_in_progress() {
-    CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask task = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
     underTest.peek(WORKER_UUID_2, true);
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
@@ -535,9 +535,9 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void cancelAll_pendings_but_not_in_progress() {
-    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_2"));
-    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_3"));
+    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newProject("PROJECT_1"));
+    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newProject("PROJECT_2"));
+    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newProject("PROJECT_3"));
     underTest.peek(WORKER_UUID_2, true);
 
     int canceledCount = underTest.cancelAll();
@@ -675,40 +675,43 @@ public class InternalCeQueueImplIT {
     assertThat(dto.getTaskType()).isEqualTo(taskSubmit.getType());
     Optional<CeTaskSubmit.Component> component = taskSubmit.getComponent();
     if (component.isPresent()) {
-      assertThat(dto.getMainComponentUuid()).isEqualTo(component.get().getMainComponentUuid());
+      assertThat(dto.getEntityUuid()).isEqualTo(component.get().getEntityUuid());
       assertThat(dto.getComponentUuid()).isEqualTo(component.get().getUuid());
     } else {
-      assertThat(dto.getMainComponentUuid()).isNull();
+      assertThat(dto.getEntityUuid()).isNull();
       assertThat(dto.getComponentUuid()).isNull();
     }
     assertThat(dto.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
     assertThat(dto.getCreatedAt()).isEqualTo(dto.getUpdatedAt());
   }
 
-  private ComponentDto newProjectDto(String uuid) {
-    return ComponentTesting.newPublicProjectDto(uuid).setName("name_" + uuid).setKey("key_" + uuid);
+  private ProjectData newProject(String uuid) {
+    return db.components().insertPublicProject(uuid);
   }
 
-  private CeTask submit(String reportType, ComponentDto mainBranchComponent) {
-    return underTest.submit(createTaskSubmit(reportType, mainBranchComponent, mainBranchComponent, null));
+  private CeTask submit(String reportType, BranchDto branchDto) {
+    return underTest.submit(createTaskSubmit(reportType, branchDto.getProjectUuid(), branchDto.getUuid(), null));
   }
 
-  private CeTask submit(String reportType, ComponentDto mainBranchComponent, ComponentDto branchComponent) {
-    return underTest.submit(createTaskSubmit(reportType, mainBranchComponent, branchComponent, null));
+  private CeTask submit(String reportType, ProjectData projectData) {
+    return underTest.submit(createTaskSubmit(reportType, projectData.getProjectDto().getUuid(), projectData.getMainBranchDto().getUuid(), null));
   }
 
   private CeTaskSubmit createTaskSubmit(String type) {
     return createTaskSubmit(type, null, null, null);
   }
 
-  private CeTaskSubmit createTaskSubmit(String type, @Nullable ComponentDto mainBranchComponentDto, @Nullable ComponentDto componentDto,
-    @Nullable String submitterUuid) {
+  private CeTaskSubmit createTaskSubmit(String type, ProjectData projectData, @Nullable String submitterUuid) {
+    return createTaskSubmit(type, projectData.projectUuid(), projectData.getMainBranchDto().getUuid(), submitterUuid);
+  }
+
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable String entityUuid, @Nullable String componentUuid, @Nullable String submitterUuid) {
     CeTaskSubmit.Builder builder = underTest.prepareSubmit()
       .setType(type)
       .setSubmitterUuid(submitterUuid)
       .setCharacteristics(emptyMap());
-    if (componentDto != null && mainBranchComponentDto != null) {
-      builder.setComponent(CeTaskSubmit.Component.fromDto(componentDto.uuid(), mainBranchComponentDto.uuid()));
+    if (componentUuid != null && entityUuid != null) {
+      builder.setComponent(CeTaskSubmit.Component.fromDto(componentUuid, entityUuid));
     }
     return builder.build();
   }
@@ -717,10 +720,6 @@ public class InternalCeQueueImplIT {
     CeTaskResult taskResult = mock(CeTaskResult.class);
     when(taskResult.getAnalysisUuid()).thenReturn(java.util.Optional.ofNullable(analysisUuid));
     return taskResult;
-  }
-
-  private ComponentDto insertComponent(ComponentDto componentDto) {
-    return db.components().insertComponent(componentDto);
   }
 
   private CeQueueDto makeInProgress(CeQueueDto ceQueueDto, String workerUuid) {

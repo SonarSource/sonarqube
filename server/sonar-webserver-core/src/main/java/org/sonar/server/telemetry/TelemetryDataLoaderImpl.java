@@ -53,6 +53,7 @@ import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectLocDistributionDto;
+import org.sonar.db.measure.ProjectMainBranchLiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -413,9 +414,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       return Collections.emptyMap();
     }
 
-    return dbClient.liveMeasureDao().selectForProjectsByMetricUuids(dbSession, metricNamesByUuid.keySet())
+    return dbClient.liveMeasureDao().selectForProjectMainBranchesByMetricUuids(dbSession, metricNamesByUuid.keySet())
       .stream()
-      .collect(groupingBy(LiveMeasureDto::getProjectUuid,
+      .collect(groupingBy(ProjectMainBranchLiveMeasureDto::getProjectUuid,
         toMap(lmDto -> metricNamesByUuid.get(lmDto.getMetricUuid()),
           lmDto -> Optional.ofNullable(lmDto.getValue()).orElseGet(() -> Double.valueOf(lmDto.getTextValue())),
           (oldValue, newValue) -> newValue, HashMap::new)));

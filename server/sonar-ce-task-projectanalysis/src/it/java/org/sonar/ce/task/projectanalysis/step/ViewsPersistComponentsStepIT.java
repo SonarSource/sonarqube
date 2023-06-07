@@ -80,7 +80,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
   private static final String PROJECT_VIEW_1_UUID = "PV1_UUID";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

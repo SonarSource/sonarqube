@@ -27,6 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.project.Project;
 
@@ -43,7 +44,7 @@ public class NewCodeReferenceBranchComponentUuidsIT {
   @Rule
   public PeriodHolderRule periodHolder = new PeriodHolderRule();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private NewCodeReferenceBranchComponentUuids underTest = new NewCodeReferenceBranchComponentUuids(analysisMetadataHolder, periodHolder, db.getDbClient());
 
@@ -61,12 +62,12 @@ public class NewCodeReferenceBranchComponentUuidsIT {
   public void setUp() {
     analysisMetadataHolder.setProject(project);
 
-    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
-    when(project.getUuid()).thenReturn(projectDto.uuid());
-    branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch1"));
-    branch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch2"));
-    pr1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("pr1").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
-    pr2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("pr2").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
+    ProjectData projectData = db.components().insertPublicProject();
+    when(project.getUuid()).thenReturn(projectData.projectUuid());
+    branch1 = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch1"));
+    branch2 = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch2"));
+    pr1 = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("pr1").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
+    pr2 = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("pr2").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
     branch1File = ComponentTesting.newFileDto(branch1, null, "file").setUuid("branch1File");
     branch2File = ComponentTesting.newFileDto(branch2, null, "file").setUuid("branch2File");
     pr1File = ComponentTesting.newFileDto(pr1, null, "file").setUuid("file1");

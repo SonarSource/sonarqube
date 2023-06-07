@@ -52,8 +52,8 @@ public class LiveMeasureDao implements Dao {
       componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuids));
   }
 
-  public List<LiveMeasureDto> selectForProjectsByMetricUuids(DbSession dbSession, Collection<String> metricUuids) {
-    return mapper(dbSession).selectForProjectsByMetricUuids(metricUuids);
+  public List<ProjectMainBranchLiveMeasureDto> selectForProjectMainBranchesByMetricUuids(DbSession dbSession, Collection<String> metricUuids) {
+    return mapper(dbSession).selectForProjectMainBranchesByMetricUuids(metricUuids);
   }
 
   public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys, ResultHandler<LiveMeasureDto> handler) {

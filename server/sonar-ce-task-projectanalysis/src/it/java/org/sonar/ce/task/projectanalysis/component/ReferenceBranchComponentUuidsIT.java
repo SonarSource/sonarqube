@@ -40,7 +40,7 @@ public class ReferenceBranchComponentUuidsIT {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private ReferenceBranchComponentUuids underTest;
   private Branch branch = mock(Branch.class);

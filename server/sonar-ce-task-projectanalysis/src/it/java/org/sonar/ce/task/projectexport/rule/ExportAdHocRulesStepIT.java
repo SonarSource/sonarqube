@@ -44,6 +44,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -56,19 +57,6 @@ import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 
 public class ExportAdHocRulesStepIT {
   private static final String PROJECT_UUID = "some-uuid";
-
-  private static final ComponentDto PROJECT = new ComponentDto()
-    // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
-    .setKey("the_project")
-    .setName("The Project")
-    .setDescription("The project description")
-    .setEnabled(true)
-    .setUuid(PROJECT_UUID)
-    .setUuidPath(UUID_PATH_OF_ROOT)
-    .setBranchUuid(PROJECT_UUID);
-
   private static final List<BranchDto> BRANCHES = ImmutableList.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master").setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-2").setUuid("branch-2-uuid").setMergeBranchUuid("master")
@@ -78,14 +66,14 @@ public class ExportAdHocRulesStepIT {
 
   @Rule
   public LogTester logTester = new LogTester();
-
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private int issueUuidGenerator = 1;
-  private FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private ProjectHolder projectHolder = mock(ProjectHolder.class);
-  private ExportAdHocRulesStep underTest = new ExportAdHocRulesStep(dbTester.getDbClient(), projectHolder, dumpWriter);
+  private ComponentDto mainBranch;
+  private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
+  private final ProjectHolder projectHolder = mock(ProjectHolder.class);
+  private final ExportAdHocRulesStep underTest = new ExportAdHocRulesStep(dbTester.getDbClient(), projectHolder, dumpWriter);
 
   @Before
   public void setup() {
@@ -110,7 +98,7 @@ public class ExportAdHocRulesStepIT {
     RuleDto rule2 = insertAddHocRule( "rule-2");
     insertAddHocRule( "rule-3");
     insertIssue(rule1, differentProject, differentProject);
-    insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
+    insertIssue(rule2, mainBranch.uuid(), mainBranch.uuid());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -125,9 +113,9 @@ public class ExportAdHocRulesStepIT {
     RuleDto rule1 = insertStandardRule("rule-1");
     RuleDto rule2 = insertExternalRule("rule-2");
     RuleDto rule3 = insertAddHocRule("rule-3");
-    insertIssue(rule1, PROJECT_UUID, PROJECT_UUID);
-    insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
-    insertIssue(rule3, PROJECT_UUID, PROJECT_UUID);
+    insertIssue(rule1, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule2, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule3, mainBranch.uuid(), mainBranch.uuid());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -160,9 +148,9 @@ public class ExportAdHocRulesStepIT {
     RuleDto rule1 = insertAddHocRule("rule-1");
     RuleDto rule2 = insertAddHocRule("rule-2");
     RuleDto rule3 = insertAddHocRule("rule-3");
-    insertIssue(rule1, PROJECT_UUID, PROJECT_UUID);
-    insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
-    insertIssue(rule3, PROJECT_UUID, PROJECT_UUID);
+    insertIssue(rule1, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule2, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule3, mainBranch.uuid(), mainBranch.uuid());
     dumpWriter.failIfMoreThan(2, DumpElement.AD_HOC_RULES);
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
@@ -177,14 +165,15 @@ public class ExportAdHocRulesStepIT {
 
   private ProjectDto createProject() {
     Date createdAt = new Date();
-    ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT).getMainBranchComponent();
-    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectDto, branch).setCreatedAt(createdAt));
+    ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
+    mainBranch = projectData.getMainBranchComponent();
+    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt));
     dbTester.commit();
-    return dbTester.components().getProjectDtoByMainBranch(projectDto);
+    return projectData.getProjectDto();
   }
 
-  private void insertIssue(RuleDto ruleDto, String projectUuid, String componentUuid) {
-    IssueDto dto = createBaseIssueDto(ruleDto, projectUuid, componentUuid);
+  private void insertIssue(RuleDto ruleDto, String branchUuid, String componentUuid) {
+    IssueDto dto = createBaseIssueDto(ruleDto, branchUuid, componentUuid);
     insertIssue(dto);
   }
 
@@ -193,11 +182,11 @@ public class ExportAdHocRulesStepIT {
     dbTester.commit();
   }
 
-  private IssueDto createBaseIssueDto(RuleDto ruleDto, String projectUuid, String componentUuid) {
+  private IssueDto createBaseIssueDto(RuleDto ruleDto, String branchUuid, String componentUuid) {
     return new IssueDto()
       .setKee("issue_uuid_" + issueUuidGenerator++)
       .setComponentUuid(componentUuid)
-      .setProjectUuid(projectUuid)
+      .setProjectUuid(branchUuid)
       .setRuleUuid(ruleDto.getUuid())
       .setStatus("OPEN");
   }

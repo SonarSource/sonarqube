@@ -50,7 +50,7 @@ public class ScmActionIT {
   private static final String PROJECT_UUID = "PROJECT_A";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

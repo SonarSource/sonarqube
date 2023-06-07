@@ -309,7 +309,7 @@ public class ComponentActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setMainComponentUuid(component.uuid());
+    queueDto.setEntityUuid(component.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
     db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
@@ -325,7 +325,7 @@ public class ComponentActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setMainComponentUuid(component.uuid());
+    queueDto.setEntityUuid(component.uuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

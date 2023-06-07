@@ -38,7 +38,7 @@ public interface CeActivityMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  int countLastByStatusAndMainComponentUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
+  int countLastByStatusAndEntityUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("entityUuid") String entityUuid);
 
   void insert(CeActivityDto dto);
 

@@ -28,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
 
@@ -44,7 +45,7 @@ public class TargetBranchComponentUuidsIT {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private TargetBranchComponentUuids underTest;
   private final Branch branch = mock(Branch.class);
@@ -59,13 +60,14 @@ public class TargetBranchComponentUuidsIT {
     analysisMetadataHolder.setProject(project);
     analysisMetadataHolder.setBranch(branch);
 
-    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
-    when(project.getUuid()).thenReturn(projectDto.uuid());
-    branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey(BRANCH_KEY));
-    ComponentDto pr1branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(PR_KEY)
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    when(project.getUuid()).thenReturn(projectData.projectUuid());
+    branch1 = db.components().insertProjectBranch(mainBranch, b -> b.setKey(BRANCH_KEY));
+    ComponentDto pr1branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(PR_KEY)
       .setBranchType(BranchType.PULL_REQUEST)
       .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setTarget(BRANCH_KEY).build())
-      .setMergeBranchUuid(projectDto.uuid()));
+      .setMergeBranchUuid(mainBranch.uuid()));
     branch1File = ComponentTesting.newFileDto(branch1, null, "file").setUuid("branch1File");
     pr1File = ComponentTesting.newFileDto(pr1branch, null, "file").setUuid("file1");
     db.components().insertComponents(branch1File, pr1File);

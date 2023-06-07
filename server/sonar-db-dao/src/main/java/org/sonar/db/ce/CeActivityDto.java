@@ -40,20 +40,18 @@ public class CeActivityDto {
 
   private String uuid;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
-   * at the same time as {@link #mainComponentUuid}.
+   * Can be {@code null} when task is not associated to any data in table COMPONENTS, but must always be non {@code null}
+   * at the same time as {@link #entityUuid}.
    * <p>
-   * The component uuid of a any component (project or not) is its own UUID.
+   * The component uuid of any component (project or not) is its own UUID.
    */
   private String componentUuid;
   /**
-   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * Can be {@code null} when task is not associated to any component, but must always be non {@code null}
    * at the same time as {@link #componentUuid}.
    * <p>
-   * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
-   * project UUID of the main branch of that project
    */
-  private String mainComponentUuid;
+  private String entityUuid;
   private String analysisUuid;
   private Status status;
   private String taskType;
@@ -117,9 +115,9 @@ public class CeActivityDto {
     this.uuid = queueDto.getUuid();
     this.taskType = queueDto.getTaskType();
     this.componentUuid = queueDto.getComponentUuid();
-    this.mainComponentUuid = queueDto.getMainComponentUuid();
+    this.entityUuid = queueDto.getEntityUuid();
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
-    this.mainIsLastKey = format("%s%s", taskType, Strings.nullToEmpty(mainComponentUuid));
+    this.mainIsLastKey = format("%s%s", taskType, Strings.nullToEmpty(entityUuid));
     this.submitterUuid = queueDto.getSubmitterUuid();
     this.workerUuid = queueDto.getWorkerUuid();
     this.submittedAt = queueDto.getCreatedAt();
@@ -157,13 +155,13 @@ public class CeActivityDto {
   }
 
   @CheckForNull
-  public String getMainComponentUuid() {
-    return mainComponentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
-  public CeActivityDto setMainComponentUuid(@Nullable String s) {
-    validateUuid(s, "MAIN_COMPONENT_UUID");
-    this.mainComponentUuid = s;
+  public CeActivityDto setEntityUuid(@Nullable String s) {
+    validateUuid(s, "ENTITY_UUID");
+    this.entityUuid = s;
     return this;
   }
 
@@ -351,7 +349,7 @@ public class CeActivityDto {
       "uuid='" + uuid + '\'' +
       ", nodeName='" + nodeName + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
-      ", mainComponentUuid='" + mainComponentUuid + '\'' +
+      ", entityUuid='" + entityUuid + '\'' +
       ", analysisUuid='" + analysisUuid + '\'' +
       ", status=" + status +
       ", taskType='" + taskType + '\'' +

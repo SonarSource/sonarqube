@@ -28,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
 
@@ -45,7 +46,7 @@ public class SourceBranchComponentUuidsIT {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private SourceBranchComponentUuids underTest;
   private final Branch branch = mock(Branch.class);
@@ -60,8 +61,9 @@ public class SourceBranchComponentUuidsIT {
     analysisMetadataHolder.setProject(project);
     analysisMetadataHolder.setBranch(branch);
 
-    ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
-    when(project.getUuid()).thenReturn(projectDto.uuid());
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto projectDto = projectData.getMainBranchComponent();
+    when(project.getUuid()).thenReturn(projectData.projectUuid());
     branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey(BRANCH_KEY));
     ComponentDto pr1branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(PR_KEY)
       .setBranchType(BranchType.PULL_REQUEST)

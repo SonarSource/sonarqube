@@ -331,7 +331,7 @@ public class IssueIndexSyncProgressCheckerTest {
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setComponentUuid(projectDto.getUuid());
-    dto.setMainComponentUuid(projectDto.getUuid());
+    dto.setEntityUuid(projectDto.getUuid());
     dto.setStatus(status);
     dto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
     dto.setAnalysisUuid(uuid + "_AA");
