@@ -18,24 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getGitlabProjects, importGitlabProject } from '../../../../api/alm-integrations';
+import { getGitlabProjects, setupGitlabProjectCreation } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
+import { CreateProjectApiCallback } from '../types';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKey: string) => void;
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
 }
 
 interface State {
-  importingGitlabProjectId?: string;
   loading: boolean;
   loadingMore: boolean;
   projects?: GitlabProject[];
@@ -134,34 +134,13 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     }
   };
 
-  doImport = async (gitlabProjectId: string) => {
+  handleImport = (gitlabProjectId: string) => {
     const { selectedAlmInstance } = this.state;
 
-    if (!selectedAlmInstance) {
-      return Promise.resolve(undefined);
-    }
-
-    try {
-      return await importGitlabProject({
-        almSetting: selectedAlmInstance.key,
-        gitlabProjectId,
-      });
-    } catch (_) {
-      return this.handleError();
-    }
-  };
-
-  handleImport = async (gitlabProjectId: string) => {
-    this.setState({ importingGitlabProjectId: gitlabProjectId });
-
-    const result = await this.doImport(gitlabProjectId);
-
-    if (this.mounted) {
-      this.setState({ importingGitlabProjectId: undefined });
-
-      if (result) {
-        this.props.onProjectCreate(result.project.key);
-      }
+    if (selectedAlmInstance) {
+      this.props.onProjectSetupDone(
+        setupGitlabProjectCreation({ almSetting: selectedAlmInstance.key, gitlabProjectId })
+      );
     }
   };
 
@@ -221,7 +200,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   render() {
     const { loadingBindings, location, almInstances, canAdmin } = this.props;
     const {
-      importingGitlabProjectId,
       loading,
       loadingMore,
       projects,
@@ -238,7 +216,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         canAdmin={canAdmin}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
-        importingGitlabProjectId={importingGitlabProjectId}
         loading={loading || loadingBindings}
         loadingMore={loadingMore}
         onImport={this.handleImport}

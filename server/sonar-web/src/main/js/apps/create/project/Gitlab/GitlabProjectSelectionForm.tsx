@@ -27,17 +27,14 @@ import { Button } from '../../../../components/controls/buttons';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import QualifierIcon from '../../../../components/icons/QualifierIcon';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { ComponentQualifier } from '../../../../types/component';
 import { Paging } from '../../../../types/types';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 import { CreateProjectModes } from '../types';
 
 export interface GitlabProjectSelectionFormProps {
-  importingGitlabProjectId?: string;
   loadingMore: boolean;
   onImport: (gitlabProjectId: string) => void;
   onLoadMore: () => void;
@@ -49,14 +46,7 @@ export interface GitlabProjectSelectionFormProps {
 }
 
 export default function GitlabProjectSelectionForm(props: GitlabProjectSelectionFormProps) {
-  const {
-    importingGitlabProjectId,
-    loadingMore,
-    projects = [],
-    projectsPaging,
-    searching,
-    searchQuery,
-  } = props;
+  const { loadingMore, projects = [], projectsPaging, searching, searchQuery } = props;
 
   if (projects.length === 0 && searchQuery.length === 0 && !searching) {
     return (
@@ -82,92 +72,82 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
   }
 
   return (
-    <>
-      <InstanceNewCodeDefinitionComplianceWarning />
-      <div className="boxed-group big-padded create-project-import">
-        <SearchBox
-          className="spacer"
-          loading={searching}
-          minLength={3}
-          onChange={props.onSearch}
-          placeholder={translate('onboarding.create_project.search_prompt')}
-        />
+    <div className="boxed-group big-padded create-project-import">
+      <SearchBox
+        className="spacer"
+        loading={searching}
+        minLength={3}
+        onChange={props.onSearch}
+        placeholder={translate('onboarding.create_project.search_prompt')}
+      />
 
-        <hr />
+      <hr />
 
-        {projects.length === 0 ? (
-          <div className="padded">{translate('no_results')}</div>
-        ) : (
-          <table className="data zebra zebra-hover">
-            <tbody>
-              {projects.map((project) => (
-                <tr key={project.id}>
+      {projects.length === 0 ? (
+        <div className="padded">{translate('no_results')}</div>
+      ) : (
+        <table className="data zebra zebra-hover">
+          <tbody>
+            {projects.map((project) => (
+              <tr key={project.id}>
+                <td>
+                  <Tooltip overlay={project.slug}>
+                    <strong className="project-name display-inline-block text-ellipsis">
+                      {project.sqProjectKey ? (
+                        <Link to={getProjectUrl(project.sqProjectKey)}>
+                          <QualifierIcon
+                            className="spacer-right"
+                            qualifier={ComponentQualifier.Project}
+                          />
+                          {project.sqProjectName}
+                        </Link>
+                      ) : (
+                        project.name
+                      )}
+                    </strong>
+                  </Tooltip>
+                  <br />
+                  <Tooltip overlay={project.pathSlug}>
+                    <span className="text-muted project-path display-inline-block text-ellipsis">
+                      {project.pathName}
+                    </span>
+                  </Tooltip>
+                </td>
+                <td>
+                  <Link
+                    className="display-inline-flex-center big-spacer-right"
+                    to={project.url}
+                    target="_blank"
+                  >
+                    {translate('onboarding.create_project.gitlab.link')}
+                  </Link>
+                </td>
+                {project.sqProjectKey ? (
                   <td>
-                    <Tooltip overlay={project.slug}>
-                      <strong className="project-name display-inline-block text-ellipsis">
-                        {project.sqProjectKey ? (
-                          <Link to={getProjectUrl(project.sqProjectKey)}>
-                            <QualifierIcon
-                              className="spacer-right"
-                              qualifier={ComponentQualifier.Project}
-                            />
-                            {project.sqProjectName}
-                          </Link>
-                        ) : (
-                          project.name
-                        )}
-                      </strong>
-                    </Tooltip>
-                    <br />
-                    <Tooltip overlay={project.pathSlug}>
-                      <span className="text-muted project-path display-inline-block text-ellipsis">
-                        {project.pathName}
-                      </span>
-                    </Tooltip>
+                    <span className="display-flex-center display-flex-justify-end already-set-up">
+                      <CheckIcon className="little-spacer-right" size={12} />
+                      {translate('onboarding.create_project.repository_imported')}
+                    </span>
                   </td>
-                  <td>
-                    <Link
-                      className="display-inline-flex-center big-spacer-right"
-                      to={project.url}
-                      target="_blank"
-                    >
-                      {translate('onboarding.create_project.gitlab.link')}
-                    </Link>
+                ) : (
+                  <td className="text-right">
+                    <Button onClick={() => props.onImport(project.id)}>
+                      {translate('onboarding.create_project.set_up')}
+                    </Button>
                   </td>
-                  {project.sqProjectKey ? (
-                    <td>
-                      <span className="display-flex-center display-flex-justify-end already-set-up">
-                        <CheckIcon className="little-spacer-right" size={12} />
-                        {translate('onboarding.create_project.repository_imported')}
-                      </span>
-                    </td>
-                  ) : (
-                    <td className="text-right">
-                      <Button
-                        disabled={!!importingGitlabProjectId}
-                        onClick={() => props.onImport(project.id)}
-                      >
-                        {translate('onboarding.create_project.set_up')}
-                        <DeferredSpinner
-                          className="spacer-left"
-                          loading={importingGitlabProjectId === project.id}
-                        />
-                      </Button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <ListFooter
-          count={projects.length}
-          loadMore={props.onLoadMore}
-          loading={loadingMore}
-          pageSize={projectsPaging.pageSize}
-          total={projectsPaging.total}
-        />
-      </div>
-    </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <ListFooter
+        count={projects.length}
+        loadMore={props.onLoadMore}
+        loading={loadingMore}
+        pageSize={projectsPaging.pageSize}
+        total={projectsPaging.total}
+      />
+    </div>
   );
 }

@@ -26,9 +26,7 @@ import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
-import { mockNewCodePeriod } from '../../../../helpers/mocks/new-code-period';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { NewCodePeriodSettingType } from '../../../../types/types';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
@@ -108,16 +106,24 @@ it('should show import project feature when PAT is already set', async () => {
     '/dashboard?id=key'
   );
 
-  projectItem = screen.getByRole('row', {
-    name: 'Gitlab project 2 Company / Best Projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.set_up',
-  });
-  const importProjectButton = within(projectItem).getByRole('button', {
+  projectItem = screen.getByRole('row', { name: /Gitlab project 2/ });
+  const setupButton = within(projectItem).getByRole('button', {
     name: 'onboarding.create_project.set_up',
   });
 
-  await act(async () => {
-    await user.click(importProjectButton);
-  });
+  await user.click(setupButton);
+
+  expect(
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
+  await user.click(
+    screen.getByRole('button', {
+      name: 'onboarding.create_project.new_code_definition.create_project',
+    })
+  );
+
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
 });
 
@@ -180,24 +186,6 @@ it('should show no result message when there are no projects', async () => {
   });
 
   expect(screen.getByText('onboarding.create_project.gitlab.no_projects')).toBeInTheDocument();
-});
-
-it('should display a warning if the instance default new code definition is not CaYC compliant', async () => {
-  const user = userEvent.setup();
-  newCodePeriodHandler.setNewCodePeriod(
-    mockNewCodePeriod({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' })
-  );
-  renderCreateProject();
-  await act(async () => {
-    await user.click(ui.gitlabCreateProjectButton.get());
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
-  });
-
-  expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
-  expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
-  expect(
-    screen.getByText('onboarding.create_project.new_code_option.warning.title')
-  ).toBeInTheDocument();
 });
 
 function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {

@@ -255,9 +255,9 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             canAdmin={!!canAdmin}
             loadingBindings={loading}
             location={location}
-            onProjectCreate={this.handleProjectCreate}
             router={router}
             almInstances={gitlabSettings}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }

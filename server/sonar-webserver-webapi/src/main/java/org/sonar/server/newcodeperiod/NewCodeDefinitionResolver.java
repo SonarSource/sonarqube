@@ -43,7 +43,7 @@ public class NewCodeDefinitionResolver {
   private static final String BEGIN_ITEM_LIST = "<li>";
   private static final String END_ITEM_LIST = "</li>";
 
-  public static final String NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION = "Type<br/>" +
+  public static final String NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION = "Project New Code Definition Type<br/>" +
     "New code definitions of the following types are allowed:" +
     BEGIN_LIST +
     BEGIN_ITEM_LIST + PREVIOUS_VERSION.name() + END_ITEM_LIST +
@@ -51,7 +51,7 @@ public class NewCodeDefinitionResolver {
     BEGIN_ITEM_LIST + REFERENCE_BRANCH.name() + " - will default to the main branch." + END_ITEM_LIST +
     END_LIST;
 
-  public static final String NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION = "Value<br/>" +
+  public static final String NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION = "Project New Code Definition Value<br/>" +
     "For each new code definition type, a different value is expected:" +
     BEGIN_LIST +
     BEGIN_ITEM_LIST + "no value, when the new code definition type is " + PREVIOUS_VERSION.name() + " and " + REFERENCE_BRANCH.name() + END_ITEM_LIST +

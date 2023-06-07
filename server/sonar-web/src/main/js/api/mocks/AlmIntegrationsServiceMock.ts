@@ -60,6 +60,7 @@ import {
   setupAzureProjectCreation,
   setupBitbucketCloudProjectCreation,
   setupBitbucketServerProjectCreation,
+  setupGitlabProjectCreation,
 } from '../alm-integrations';
 
 export default class AlmIntegrationsServiceMock {
@@ -187,6 +188,7 @@ export default class AlmIntegrationsServiceMock {
       .mockImplementation(this.checkPersonalAccessTokenIsValid);
     jest.mocked(setAlmPersonalAccessToken).mockImplementation(this.setAlmPersonalAccessToken);
     jest.mocked(getGitlabProjects).mockImplementation(this.getGitlabProjects);
+    jest.mocked(setupGitlabProjectCreation).mockReturnValue(() => this.importProject());
     jest.mocked(importGitlabProject).mockImplementation(this.importProject);
     jest.mocked(setupBitbucketCloudProjectCreation).mockReturnValue(() => this.importProject());
     jest.mocked(importBitbucketCloudRepository).mockImplementation(this.importProject);

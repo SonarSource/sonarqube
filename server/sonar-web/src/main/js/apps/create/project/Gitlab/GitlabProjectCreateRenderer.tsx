@@ -31,7 +31,6 @@ import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 
 export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;
-  importingGitlabProjectId?: string;
   loading: boolean;
   loadingMore: boolean;
   onImport: (gitlabProjectId: string) => void;
@@ -52,7 +51,6 @@ export interface GitlabProjectCreateRendererProps {
 export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
   const {
     canAdmin,
-    importingGitlabProjectId,
     loading,
     loadingMore,
     projects,
@@ -104,7 +102,6 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
           />
         ) : (
           <GitlabProjectSelectionForm
-            importingGitlabProjectId={importingGitlabProjectId}
             loadingMore={loadingMore}
             onImport={props.onImport}
             onLoadMore={props.onLoadMore}

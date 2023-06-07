@@ -250,13 +250,16 @@ export function getGitlabProjects(data: {
     .catch(throwGlobalError);
 }
 
+export function setupGitlabProjectCreation(data: { almSetting: string; gitlabProjectId: string }) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    importGitlabProject({ ...data, newCodeDefinitionType, newCodeDefinitionValue });
+}
+
 export function importGitlabProject(data: {
   almSetting: string;
   gitlabProjectId: string;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
 }): Promise<{ project: ProjectBase }> {
-  const { almSetting, gitlabProjectId } = data;
-  return postJSON('/api/alm_integrations/import_gitlab_project', {
-    almSetting,
-    gitlabProjectId,
-  }).catch(throwGlobalError);
+  return postJSON('/api/alm_integrations/import_gitlab_project', data).catch(throwGlobalError);
 }
