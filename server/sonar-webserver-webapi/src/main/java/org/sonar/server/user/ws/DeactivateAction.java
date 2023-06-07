@@ -29,7 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -45,15 +45,15 @@ public class DeactivateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final UserDeactivator userDeactivator;
-  private final ManagedInstanceChecker managedInstanceChecker;
+  private final ManagedInstanceService managedInstanceService;
 
   public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter,
-    UserDeactivator userDeactivator, ManagedInstanceChecker managedInstanceChecker) {
+    UserDeactivator userDeactivator, ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.userDeactivator = userDeactivator;
-    this.managedInstanceChecker = managedInstanceChecker;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -94,10 +94,7 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void preventManagedUserDeactivationIfManagedInstance(DbSession dbSession, String login) {
-    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
-    if (userDto != null && !userDto.isLocal()) {
-      managedInstanceChecker.throwIfInstanceIsManaged();
-    }
+    checkRequest(!managedInstanceService.isUserManaged(dbSession, login), "Operation not allowed when the instance is externally managed.");
   }
 
   private void writeResponse(Response response, String login) {

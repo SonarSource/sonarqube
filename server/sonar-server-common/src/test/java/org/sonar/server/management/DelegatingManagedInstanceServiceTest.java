@@ -112,6 +112,20 @@ public class DelegatingManagedInstanceServiceTest {
   }
 
   @Test
+  public void isUserManaged_delegatesToRightService_andPropagateAnswer() {
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+
+    assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isTrue();
+  }
+
+  @Test
+  public void isUserManaged_whenNoDelegates_returnsFalse() {
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of());
+
+    assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isFalse();
+  }
+
+  @Test
   public void getGroupUuidToManaged_delegatesToRightService_andPropagateAnswer() {
     Set<String> groupUuids = Set.of("a", "b");
     Map<String, Boolean> serviceResponse = Map.of("a", false, "b", true);
@@ -217,6 +231,11 @@ public class DelegatingManagedInstanceServiceTest {
     public String getManagedGroupsSqlFilter(boolean filterByManaged) {
       return null;
     }
+
+    @Override
+    public boolean isUserManaged(DbSession dbSession, String login) {
+      return false;
+    }
   }
 
   private static class AlwaysManagedInstanceService implements ManagedInstanceService {
@@ -249,6 +268,11 @@ public class DelegatingManagedInstanceServiceTest {
     @Override
     public String getManagedGroupsSqlFilter(boolean filterByManaged) {
       return "any filter";
+    }
+
+    @Override
+    public boolean isUserManaged(DbSession dbSession, String login) {
+      return true;
     }
   }
 

@@ -82,6 +82,13 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
       .orElseThrow(() -> NOT_MANAGED_INSTANCE_EXCEPTION);
   }
 
+  @Override
+  public boolean isUserManaged(DbSession dbSession, String login) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.isUserManaged(dbSession, login))
+      .orElse(false);
+  }
+
   private Optional<ManagedInstanceService> findManagedInstanceService() {
     Set<ManagedInstanceService> managedInstanceServices = delegates.stream()
       .filter(ManagedInstanceService::isInstanceExternallyManaged)
