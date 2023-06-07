@@ -22,7 +22,6 @@ import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
@@ -171,15 +170,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
             />
           }
           right={
-            <>
-              <PageActions
-                componentQualifier={rootComponent.qualifier}
-                current={this.state.components.length}
-              />
-              {leakPeriod && displayLeak && (
-                <LeakPeriodLegend component={component} period={leakPeriod} />
-              )}
-            </>
+            leakPeriod &&
+            displayLeak && <LeakPeriodLegend component={component} period={leakPeriod} />
           }
         />
 

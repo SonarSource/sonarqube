@@ -22,6 +22,7 @@ import {
   DeferredSpinner,
   FlagMessage,
   HelperHintIcon,
+  KeyboardHint,
   LargeCenteredLayout,
   LightLabel,
 } from 'design-system';
@@ -33,6 +34,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location } from '../../../components/hoc/withRouter';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isPortfolioLike } from '../../../types/component';
@@ -133,38 +135,57 @@ export default function CodeAppRenderer(props: Props) {
         </FlagMessage>
       )}
 
-      {hasComponents && (
-        <Search
-          branchLike={branchLike}
-          className="sw-mb-4"
-          component={component}
-          newCodeSelected={newCodeSelected}
-          onNewCodeToggle={props.handleSelectNewCode}
-          onSearchClear={props.handleSearchClear}
-          onSearchResults={props.handleSearchResults}
-        />
-      )}
+      <div className="sw-flex sw-justify-between">
+        <div>
+          {hasComponents && (
+            <Search
+              branchLike={branchLike}
+              className="sw-mb-4"
+              component={component}
+              newCodeSelected={newCodeSelected}
+              onNewCodeToggle={props.handleSelectNewCode}
+              onSearchClear={props.handleSearchClear}
+              onSearchResults={props.handleSearchResults}
+            />
+          )}
 
-      <div>
-        {!hasComponents && sourceViewer === undefined && (
-          <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
-            <LightLabel>
-              {translate(
-                'code_viewer.no_source_code_displayed_due_to_empty_analysis',
-                component.qualifier
-              )}
-            </LightLabel>
+          {!hasComponents && sourceViewer === undefined && (
+            <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
+              <LightLabel>
+                {translate(
+                  'code_viewer.no_source_code_displayed_due_to_empty_analysis',
+                  component.qualifier
+                )}
+              </LightLabel>
+            </div>
+          )}
+
+          {showBreadcrumbs && (
+            <CodeBreadcrumbs
+              branchLike={branchLike}
+              breadcrumbs={breadcrumbs}
+              rootComponent={component}
+            />
+          )}
+        </div>
+
+        {(showComponentList || showSearch) && (
+          <div className="sw-flex sw-items-end sw-body-sm">
+            <KeyboardHint
+              className="sw-mr-4 sw-ml-6"
+              command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
+              title={translate('component_measures.select_files')}
+            />
+
+            <KeyboardHint
+              command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
+              title={translate('component_measures.navigate')}
+            />
           </div>
         )}
+      </div>
 
-        {showBreadcrumbs && (
-          <CodeBreadcrumbs
-            branchLike={branchLike}
-            breadcrumbs={breadcrumbs}
-            rootComponent={component}
-          />
-        )}
-
+      {(showComponentList || showSearch) && (
         <Card className="sw-mt-2">
           <DeferredSpinner loading={loading}>
             {showComponentList && (
@@ -198,25 +219,25 @@ export default function CodeAppRenderer(props: Props) {
             )}
           </DeferredSpinner>
         </Card>
+      )}
 
-        {showComponentList && (
-          <ListFooter count={components.length} loadMore={props.handleLoadMore} total={total} />
-        )}
+      {showComponentList && (
+        <ListFooter count={components.length} loadMore={props.handleLoadMore} total={total} />
+      )}
 
-        {sourceViewer !== undefined && !showSearch && (
-          <div className="sw-mt-2">
-            <SourceViewerWrapper
-              branchLike={branchLike}
-              component={sourceViewer.key}
-              componentMeasures={sourceViewer.measures}
-              isFile
-              location={location}
-              onGoToParent={props.handleGoToParent}
-              onIssueChange={props.handleIssueChange}
-            />
-          </div>
-        )}
-      </div>
+      {sourceViewer !== undefined && !showSearch && (
+        <div className="sw-mt-2">
+          <SourceViewerWrapper
+            branchLike={branchLike}
+            component={sourceViewer.key}
+            componentMeasures={sourceViewer.measures}
+            isFile
+            location={location}
+            onGoToParent={props.handleGoToParent}
+            onIssueChange={props.handleIssueChange}
+          />
+        </div>
+      )}
     </LargeCenteredLayout>
   );
 }

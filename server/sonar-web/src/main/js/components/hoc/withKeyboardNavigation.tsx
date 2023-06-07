@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PageActions from '../../components/ui/PageActions';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
@@ -157,13 +156,7 @@ export default function withKeyboardNavigation<P>(
     };
 
     render() {
-      return (
-        <>
-          <PageActions showShortcuts={!this.props.isFile} />
-
-          <WrappedComponent {...this.props} />
-        </>
-      );
+      return <WrappedComponent {...this.props} />;
     }
   };
 }
