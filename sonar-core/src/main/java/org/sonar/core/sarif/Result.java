@@ -40,7 +40,7 @@ public class Result {
   @SerializedName("level")
   private final String level;
 
-  private Result(String ruleId, String message, LinkedHashSet<Location> locations,
+  private Result(String ruleId, String message, @Nullable LinkedHashSet<Location> locations,
     @Nullable String primaryLocationLineHash, @Nullable List<CodeFlow> codeFlows, @Nullable String level) {
     this.ruleId = ruleId;
     this.message = WrappedText.of(message);
@@ -58,6 +58,7 @@ public class Result {
     return message;
   }
 
+  @CheckForNull
   public Set<Location> getLocations() {
     return locations;
   }

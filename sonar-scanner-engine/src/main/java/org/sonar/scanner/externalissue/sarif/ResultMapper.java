@@ -22,6 +22,7 @@ package org.sonar.scanner.externalissue.sarif;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -72,10 +73,11 @@ public class ResultMapper {
 
   private void mapLocations(Result result, NewExternalIssue newExternalIssue) {
     NewIssueLocation newIssueLocation = newExternalIssue.newLocation();
-    if (result.getLocations().isEmpty()) {
+    Set<Location> locations = result.getLocations();
+    if (locations == null || locations.isEmpty()) {
       newExternalIssue.at(locationMapper.fillIssueInProjectLocation(result, newIssueLocation));
     } else {
-      Location firstLocation = result.getLocations().iterator().next();
+      Location firstLocation = locations.iterator().next();
       NewIssueLocation primaryLocation = fillFileOrProjectLocation(result, newIssueLocation, firstLocation);
       newExternalIssue.at(primaryLocation);
     }

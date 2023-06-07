@@ -129,7 +129,19 @@ public class ResultMapperTest {
   }
 
   @Test
-  public void mapResult_whenLocationNotFound_createsProjectLocation() {
+  public void mapResult_whenLocationsIsEmpty_createsProjectLocation() {
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
+
+    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
+    verifyNoMoreInteractions(locationMapper);
+    verify(newExternalIssue).at(newExternalIssueLocation);
+    verify(newExternalIssue, never()).addLocation(any());
+    verify(newExternalIssue, never()).addFlow(any());
+  }
+
+  @Test
+  public void mapResult_whenLocationsIsNull_createsProjectLocation() {
+    when(result.getLocations()).thenReturn(null);
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
 
     verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
