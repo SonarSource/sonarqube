@@ -23,7 +23,6 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { colors, sizes } from '../../app/theme';
 import { translate } from '../../helpers/l10n';
-import { Dict } from '../../types/types';
 import AlertErrorIcon from '../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import AlertWarnIcon from '../icons/AlertWarnIcon';
@@ -36,35 +35,11 @@ export type AlertVariant = 'error' | 'warning' | 'success' | 'info' | 'loading';
 export interface AlertProps {
   display?: AlertDisplay;
   variant: AlertVariant;
-}
-
-interface AlertVariantInformation {
-  icon: JSX.Element;
-  color: string;
-  borderColor: string;
-  backGroundColor: string;
-  role: string;
+  live?: boolean;
 }
 
 const DOUBLE = 2;
 const QUADRUPLE = 4;
-
-const StyledAlertIcon = styled.div<{ isBanner: boolean; variantInfo: AlertVariantInformation }>`
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: calc(${({ isBanner }) => (isBanner ? DOUBLE : QUADRUPLE)} * ${sizes.gridSize});
-  border-right: ${({ isBanner }) => (!isBanner ? '1px solid' : 'none')};
-  border-color: ${({ variantInfo }) => variantInfo.borderColor};
-`;
-
-const StyledAlertContent = styled.div`
-  flex: 1 1 auto;
-  overflow: auto;
-  text-align: left;
-  padding: ${sizes.gridSize} calc(2 * ${sizes.gridSize});
-`;
 
 const alertInnerIsBannerMixin = () => css`
   min-width: ${sizes.minPageWidth};
@@ -76,19 +51,19 @@ const alertInnerIsBannerMixin = () => css`
   box-sizing: border-box;
 `;
 
-const StyledAlertInner = styled.div<{ isBanner: boolean }>`
-  display: flex;
-  align-items: stretch;
-  ${({ isBanner }) => (isBanner ? alertInnerIsBannerMixin : null)}
-`;
-
-const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInformation }>`
+const StyledAlert = styled.div<{
+  isInline: boolean;
+  color: string;
+  backGroundColor: string;
+  borderColor: string;
+  isBanner: boolean;
+}>`
   border: 1px solid;
   border-radius: 2px;
   margin-bottom: ${sizes.gridSize};
-  border-color: ${({ variantInfo }) => variantInfo.borderColor};
-  background-color: ${({ variantInfo }) => variantInfo.backGroundColor};
-  color: ${({ variantInfo }) => variantInfo.color};
+  border-color: ${({ borderColor }) => borderColor};
+  background-color: ${({ backGroundColor }) => backGroundColor};
+  color: ${({ color }) => color};
   display: ${({ isInline }) => (isInline ? 'inline-block' : 'block')};
 
   :empty {
@@ -104,10 +79,33 @@ const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInf
   .button-link:hover {
     border-color: ${colors.darkBlue};
   }
+
+  & .alert-inner {
+    display: flex;
+    align-items: stretch;
+    ${({ isBanner }) => (isBanner ? alertInnerIsBannerMixin : null)}
+  }
+
+  & .alert-icon {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: calc(${({ isBanner }) => (isBanner ? DOUBLE : QUADRUPLE)} * ${sizes.gridSize});
+    border-right: ${({ isBanner }) => (!isBanner ? '1px solid' : 'none')};
+    border-color: ${({ borderColor }) => borderColor};
+  }
+
+  & .alert-content {
+    flex: 1 1 auto;
+    overflow: auto;
+    text-align: left;
+    padding: ${sizes.gridSize} calc(2 * ${sizes.gridSize});
+  }
 `;
 
-function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
-  const variantList: Dict<AlertVariantInformation> = {
+function getAlertVariantInfo(variant: AlertVariant) {
+  const variantList = {
     error: {
       icon: (
         <AlertErrorIcon label={translate('alert.tooltip.error')} fill={colors.alertIconError} />
@@ -115,7 +113,6 @@ function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
       color: colors.alertTextError,
       borderColor: colors.alertBorderError,
       backGroundColor: colors.alertBackgroundError,
-      role: 'alert',
     },
     warning: {
       icon: (
@@ -124,7 +121,6 @@ function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
       color: colors.alertTextWarning,
       borderColor: colors.alertBorderWarning,
       backGroundColor: colors.alertBackgroundWarning,
-      role: 'alert',
     },
     success: {
       icon: (
@@ -136,29 +132,26 @@ function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
       color: colors.alertTextSuccess,
       borderColor: colors.alertBorderSuccess,
       backGroundColor: colors.alertBackgroundSuccess,
-      role: 'status',
     },
     info: {
       icon: <InfoIcon label={translate('alert.tooltip.info')} fill={colors.alertIconInfo} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,
-      role: 'status',
     },
     loading: {
       icon: <DeferredSpinner timeout={0} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,
-      role: 'status',
     },
-  };
+  } as const;
 
   return variantList[variant];
 }
 
 export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) {
-  const { className, display, variant, ...domProps } = props;
+  const { className, display, variant, children, live, ...domProps } = props;
   const isInline = display === 'inline';
   const isBanner = display === 'banner';
   const variantInfo = getAlertVariantInfo(variant);
@@ -166,17 +159,19 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) 
   return (
     <StyledAlert
       className={classNames('alert', className)}
+      isBanner={isBanner}
       isInline={isInline}
-      role={variantInfo.role}
-      variantInfo={variantInfo}
+      color={variantInfo.color}
+      borderColor={variantInfo.borderColor}
+      backGroundColor={variantInfo.backGroundColor}
       {...domProps}
     >
-      <StyledAlertInner isBanner={isBanner}>
-        <StyledAlertIcon isBanner={isBanner} variantInfo={variantInfo}>
-          {variantInfo.icon}
-        </StyledAlertIcon>
-        <StyledAlertContent className="alert-content">{props.children}</StyledAlertContent>
-      </StyledAlertInner>
+      {children && (
+        <div className="alert-inner">
+          <div className="alert-icon">{variantInfo.icon}</div>
+          <div className="alert-content">{children}</div>
+        </div>
+      )}
     </StyledAlert>
   );
 }

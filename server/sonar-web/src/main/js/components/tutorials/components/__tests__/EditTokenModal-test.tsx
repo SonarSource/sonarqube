@@ -81,9 +81,7 @@ it('should behave correctly', async () => {
 
   expect(lastToken.type).toBe(TokenType.Project);
   expect(lastToken.expirationDate).toBe(computeTokenExpirationDate(365));
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+  expect(screen.getByText(`users.tokens.new_token_created.${lastToken.token}`)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
   // Revoke token.
@@ -104,9 +102,7 @@ it('should behave correctly', async () => {
   }
   expect(lastToken.type).toBe(TokenType.Project);
   expect(lastToken.expirationDate).toBe(computeTokenExpirationDate(365));
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+  expect(screen.getByText(`users.tokens.new_token_created.${lastToken.token}`)).toBeInTheDocument();
 });
 
 it('should allow setting a preferred token type', async () => {

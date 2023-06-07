@@ -19,6 +19,7 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
+import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../../components/common/Link';
@@ -29,7 +30,7 @@ import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
 export interface IndexationNotificationRendererProps {
-  type: IndexationNotificationType;
+  type?: IndexationNotificationType;
   percentCompleted: number;
   isSystemAdmin: boolean;
 }
@@ -45,20 +46,23 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
   const { type } = props;
 
   return (
-    <div className="indexation-notification-wrapper">
+    <div className={classNames({ 'indexation-notification-wrapper': type })}>
       <Alert
         className="indexation-notification-banner"
         display="banner"
-        variant={NOTIFICATION_VARIANTS[type]}
+        variant={type ? NOTIFICATION_VARIANTS[type] : 'success'}
+        aria-live="assertive"
       >
-        <div className="display-flex-center">
-          {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
-          {type === IndexationNotificationType.CompletedWithFailure &&
-            renderCompletedWithFailureBanner(props)}
-          {type === IndexationNotificationType.InProgress && renderInProgressBanner(props)}
-          {type === IndexationNotificationType.InProgressWithFailure &&
-            renderInProgressWithFailureBanner(props)}
-        </div>
+        {type !== undefined && (
+          <div className="display-flex-center">
+            {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
+            {type === IndexationNotificationType.CompletedWithFailure &&
+              renderCompletedWithFailureBanner(props)}
+            {type === IndexationNotificationType.InProgress && renderInProgressBanner(props)}
+            {type === IndexationNotificationType.InProgressWithFailure &&
+              renderInProgressWithFailureBanner(props)}
+          </div>
+        )}
       </Alert>
     </div>
   );

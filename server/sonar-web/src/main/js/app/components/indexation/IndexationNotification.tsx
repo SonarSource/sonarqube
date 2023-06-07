@@ -97,10 +97,6 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       },
     } = this.props;
 
-    if (notificationType === undefined) {
-      return null;
-    }
-
     return (
       <IndexationNotificationRenderer
         type={notificationType}

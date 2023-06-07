@@ -170,7 +170,7 @@ const ui = {
     configurationValiditySuccess: byRole('status', {
       name: /github.configuration.validation.valid/,
     }),
-    configurationValidityError: byRole('alert', {
+    configurationValidityError: byRole('status', {
       name: /github.configuration.validation.invalid/,
     }),
     checkConfigButton: byRole('button', {

@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEmpty, keyBy, throttle } from 'lodash';
+import classNames from 'classnames';
+import { keyBy, throttle } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
 import { Alert } from '../../components/ui/Alert';
 import { Feature } from '../../types/features';
 import { GlobalSettingKeys, SettingValue } from '../../types/settings';
+import './SystemAnnouncement.css';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
-import './SystemAnnouncement.css';
 
 const THROTTLE_TIME_MS = 10000;
 
@@ -75,19 +76,18 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
 
   render() {
     const { displayMessage, message } = this.state;
-    if (!displayMessage || isEmpty(message)) {
-      return null;
-    }
 
     return (
-      <div className="system-announcement-wrapper">
+      <div className={classNames({ 'system-announcement-wrapper': displayMessage && message })}>
         <Alert
           className="system-announcement-banner"
           title={message}
           display="banner"
           variant="warning"
+          aria-live="assertive"
+          role="alert"
         >
-          {message}
+          {displayMessage && message}
         </Alert>
       </div>
     );

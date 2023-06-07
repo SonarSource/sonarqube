@@ -25,7 +25,7 @@ exports[`should render banner alert with correct css 1`] = `
   border-color: #236a97;
 }
 
-.emotion-1 {
+.emotion-0 .alert-inner {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -43,7 +43,7 @@ exports[`should render banner alert with correct css 1`] = `
   box-sizing: border-box;
 }
 
-.emotion-2 {
+.emotion-0 .alert-icon {
   -webkit-flex: 0 0 auto;
   -ms-flex: 0 0 auto;
   flex: 0 0 auto;
@@ -64,7 +64,7 @@ exports[`should render banner alert with correct css 1`] = `
   border-color: #f4b1b0;
 }
 
-.emotion-3 {
+.emotion-0 .alert-content {
   -webkit-flex: 1 1 auto;
   -ms-flex: 1 1 auto;
   flex: 1 1 auto;
@@ -75,14 +75,14 @@ exports[`should render banner alert with correct css 1`] = `
 
 <div
   class="alert alert-test emotion-0"
+  color="#862422"
   id="error-message"
-  role="alert"
 >
   <div
-    class="emotion-1"
+    class="alert-inner"
   >
     <div
-      class="emotion-2"
+      class="alert-icon"
     >
       <svg
         height="16"
@@ -103,7 +103,7 @@ exports[`should render banner alert with correct css 1`] = `
       </svg>
     </div>
     <div
-      class="alert-content emotion-3"
+      class="alert-content"
     >
       This is an error!
     </div>
@@ -113,115 +113,40 @@ exports[`should render banner alert with correct css 1`] = `
 
 exports[`should render properly 1`] = `
 <Styled(div)
+  backGroundColor="#f2dede"
+  borderColor="#f4b1b0"
   className="alert alert-test"
+  color="#862422"
   id="error-message"
+  isBanner={false}
   isInline={false}
-  role="alert"
-  variantInfo={
-    {
-      "backGroundColor": "#f2dede",
-      "borderColor": "#f4b1b0",
-      "color": "#862422",
-      "icon": <AlertErrorIcon
-        fill="#a4030f"
-        label="alert.tooltip.error"
-      />,
-      "role": "alert",
-    }
-  }
 >
-  <Styled(div)
-    isBanner={false}
+  <div
+    className="alert-inner"
   >
-    <Styled(div)
-      isBanner={false}
-      variantInfo={
-        {
-          "backGroundColor": "#f2dede",
-          "borderColor": "#f4b1b0",
-          "color": "#862422",
-          "icon": <AlertErrorIcon
-            fill="#a4030f"
-            label="alert.tooltip.error"
-          />,
-          "role": "alert",
-        }
-      }
+    <div
+      className="alert-icon"
     >
       <AlertErrorIcon
         fill="#a4030f"
         label="alert.tooltip.error"
       />
-    </Styled(div)>
-    <Styled(div)
+    </div>
+    <div
       className="alert-content"
     >
       This is an error!
-    </Styled(div)>
-  </Styled(div)>
+    </div>
+  </div>
 </Styled(div)>
 `;
 
-exports[`verification of all variants of alert 1`] = `
-{
-  "backGroundColor": "#f2dede",
-  "borderColor": "#f4b1b0",
-  "color": "#862422",
-  "icon": <AlertErrorIcon
-    fill="#a4030f"
-    label="alert.tooltip.error"
-  />,
-  "role": "alert",
-}
-`;
+exports[`verification of all variants of alert 1`] = `undefined`;
 
-exports[`verification of all variants of alert 2`] = `
-{
-  "backGroundColor": "#fcf8e3",
-  "borderColor": "#faebcc",
-  "color": "#6f4f17",
-  "icon": <AlertWarnIcon
-    fill="#db781a"
-    label="alert.tooltip.warning"
-  />,
-  "role": "alert",
-}
-`;
+exports[`verification of all variants of alert 2`] = `undefined`;
 
-exports[`verification of all variants of alert 3`] = `
-{
-  "backGroundColor": "#dff0d8",
-  "borderColor": "#d6e9c6",
-  "color": "#215821",
-  "icon": <AlertSuccessIcon
-    fill="#6d9867"
-    label="alert.tooltip.success"
-  />,
-  "role": "status",
-}
-`;
+exports[`verification of all variants of alert 3`] = `undefined`;
 
-exports[`verification of all variants of alert 4`] = `
-{
-  "backGroundColor": "#d9edf7",
-  "borderColor": "#b1dff3",
-  "color": "#0e516f",
-  "icon": <InfoIcon
-    fill="#0271b9"
-    label="alert.tooltip.info"
-  />,
-  "role": "status",
-}
-`;
+exports[`verification of all variants of alert 4`] = `undefined`;
 
-exports[`verification of all variants of alert 5`] = `
-{
-  "backGroundColor": "#d9edf7",
-  "borderColor": "#b1dff3",
-  "color": "#0e516f",
-  "icon": <DeferredSpinner
-    timeout={0}
-  />,
-  "role": "status",
-}
-`;
+exports[`verification of all variants of alert 5`] = `undefined`;

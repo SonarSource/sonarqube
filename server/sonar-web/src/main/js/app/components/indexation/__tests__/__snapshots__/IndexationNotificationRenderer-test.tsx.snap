@@ -5,6 +5,7 @@ exports[`should render correctly for type="Completed" & isSystemAdmin=false 1`] 
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="success"
@@ -27,6 +28,7 @@ exports[`should render correctly for type="Completed" & isSystemAdmin=true 1`] =
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="success"
@@ -49,6 +51,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="error"
@@ -79,6 +82,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="error"
@@ -118,6 +122,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=false 1`]
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="warning"
@@ -148,6 +153,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="warning"
@@ -200,6 +206,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="error"
@@ -238,6 +245,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
   className="indexation-notification-wrapper"
 >
   <Alert
+    aria-live="assertive"
     className="indexation-notification-banner"
     display="banner"
     variant="error"

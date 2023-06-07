@@ -24,8 +24,8 @@ import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceM
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
 import {
-  renderAppWithComponentContext,
   RenderContext,
+  renderAppWithComponentContext,
 } from '../../../helpers/testReactTestingUtils';
 import { Component } from '../../../types/types';
 import routes from '../routes';
@@ -52,7 +52,7 @@ const ui = {
   saveButton: byRole('button', { name: 'save' }),
   statusMessage: byRole('status'),
   noConditionsNewCodeWarning: byText('project_quality_gate.no_condition_on_new_code'),
-  alertMessage: byRole('alert'),
+  alertMessage: byText('unknown'),
 };
 
 beforeAll(() => {
@@ -106,7 +106,7 @@ it('renders nothing and shows alert when any API fails', async () => {
   handler.setThrowOnGetGateForProject(true);
   renderProjectQualityGateApp();
 
-  expect(await ui.alertMessage.find()).toHaveTextContent('unknown');
+  expect(await ui.alertMessage.find()).toBeInTheDocument();
   expect(ui.qualityGateHeading.query()).not.toBeInTheDocument();
 });
 

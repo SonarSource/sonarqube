@@ -139,7 +139,6 @@ it("should show a warning if there's an authorization error", async () => {
   const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
   expect(heading).toBeInTheDocument();
 
-  expect(screen.getByRole('alert')).toBeInTheDocument();
   expect(screen.getByText('login.unauthorized_access_alert')).toBeInTheDocument();
 });
 

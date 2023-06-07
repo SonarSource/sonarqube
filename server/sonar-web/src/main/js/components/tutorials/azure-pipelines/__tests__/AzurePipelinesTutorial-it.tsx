@@ -24,7 +24,7 @@ import * as React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
 import { getCopyToClipboardValue } from '../../test-utils';
@@ -69,13 +69,13 @@ it('should render correctly and allow navigating between the different steps', a
   const modal = screen.getByRole('dialog');
   await clickButton(user, 'onboarding.token.generate', modal);
   const lastToken = tokenMock.getLastToken();
-  if (lastToken === undefined) {
-    throw new Error("Couldn't find the latest generated token.");
-  }
-  expect(lastToken.type).toBe(TokenType.Global);
-  expect(within(modal).getByRole('alert')).toHaveTextContent(
-    `users.tokens.new_token_created.${lastToken.token}`
-  );
+
+  expect(lastToken).toBeDefined();
+
+  expect(lastToken!.type).toBe(TokenType.Global);
+  expect(
+    within(modal).getByText(`users.tokens.new_token_created.${lastToken!.token}`)
+  ).toBeInTheDocument();
   await clickButton(user, 'continue', modal);
 
   // Continue.

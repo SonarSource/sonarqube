@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole } from 'testing-library-selector';
+import { byRole, byText } from 'testing-library-selector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
@@ -46,7 +46,7 @@ const ui = {
     byRole('textbox', { name: `settings.almintegration.form.${id}` }),
   saveConfigurationButton: byRole('button', { name: 'settings.almintegration.form.save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
-  validationError: byRole('alert'),
+  validationError: (text: string) => byText(text),
 };
 
 const onCancel = jest.fn();
@@ -61,7 +61,7 @@ it('enforceValidation enabled', async () => {
   await userEvent.type(ui.configurationInput('personal_access_token').get(), 'Access Token');
 
   await userEvent.click(ui.saveConfigurationButton.get());
-  expect(ui.validationError.get()).toHaveTextContent('Validation Error');
+  expect(ui.validationError('Validation Error').get()).toBeInTheDocument();
 
   await userEvent.click(ui.cancelButton.get());
   expect(onCancel).toHaveBeenCalled();

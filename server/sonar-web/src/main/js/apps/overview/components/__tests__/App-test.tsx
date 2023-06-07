@@ -30,16 +30,14 @@ import { App } from '../App';
 it('should render Empty Overview for Application with no analysis', async () => {
   renderApp({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
 
-  expect(
-    await screen.findByRole('alert', { name: 'provisioning.no_analysis.application' })
-  ).toBeInTheDocument();
+  expect(await screen.findByText('provisioning.no_analysis.application')).toBeInTheDocument();
 });
 
 it('should render Empty Overview on main branch with no analysis', async () => {
   renderApp({}, mockCurrentUser());
 
   expect(
-    await screen.findByRole('alert', { name: 'provisioning.no_analysis_on_main_branch.master' })
+    await screen.findByText('provisioning.no_analysis_on_main_branch.master')
   ).toBeInTheDocument();
 });
 
@@ -47,9 +45,9 @@ it('should render Empty Overview on main branch with multiple branches with bad 
   renderApp({ branchLikes: [mockBranch(), mockBranch()] });
 
   expect(
-    await screen.findByRole('alert', {
-      name: 'provisioning.no_analysis_on_main_branch.bad_configuration.master.branches.main_branch',
-    })
+    await screen.findByText(
+      'provisioning.no_analysis_on_main_branch.bad_configuration.master.branches.main_branch'
+    )
   ).toBeInTheDocument();
 });
 

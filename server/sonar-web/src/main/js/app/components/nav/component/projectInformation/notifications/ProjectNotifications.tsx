@@ -69,7 +69,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
         {translate('project.info.notifications')}
       </h3>
 
-      <Alert className="spacer-top" variant="info" aria-live="off">
+      <Alert className="spacer-top" variant="info">
         {translate('notification.dispatcher.information')}
       </Alert>
 

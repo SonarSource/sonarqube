@@ -176,8 +176,7 @@ function getPageObjects() {
     confirmDelete: byRole('button', { name: 'delete' }),
     checkConfigurationButton: (key: string) =>
       byRole('button', { name: `settings.almintegration.check_configuration_x.${key}` }),
-    validationErrorMessage: byRole('alert'),
-    validationSuccessMessage: byRole('status'),
+    validationMessage: (text: string) => byText(text),
   };
 
   async function createConfiguration(
@@ -221,15 +220,15 @@ function getPageObjects() {
     // Existing configuration is edited
     expect(screen.queryByRole('heading', { name: currentName })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: newName })).toBeInTheDocument();
-    expect(ui.validationErrorMessage.get()).toHaveTextContent('Something is wrong');
+    expect(ui.validationMessage('Something is wrong').get()).toBeInTheDocument();
   }
 
   async function checkConfiguration(name: string) {
     almSettings.setDefinitionErrorMessage('');
     await userEvent.click(ui.checkConfigurationButton(name).get());
-    expect(ui.validationSuccessMessage.getAll()[0]).toHaveTextContent(
-      'alert.tooltip.successsettings.almintegration.configuration_valid'
-    );
+    expect(
+      ui.validationMessage('settings.almintegration.configuration_valid').getAll()[0]
+    ).toBeInTheDocument();
   }
 
   async function deleteConfiguration(name: string) {

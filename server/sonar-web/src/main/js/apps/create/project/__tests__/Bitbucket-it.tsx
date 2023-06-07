@@ -158,7 +158,7 @@ it('should show no result message when there are no projects', async () => {
     await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
   });
 
-  expect(screen.getByRole('alert')).toHaveTextContent('onboarding.create_project.no_bbs_projects');
+  expect(screen.getByText('onboarding.create_project.no_bbs_projects')).toBeInTheDocument();
 });
 
 function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {

@@ -103,7 +103,14 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
 
   return (
     <>
-      <Alert title={messages[0]} variant={alertVariant}>
+      <Alert
+        title={messages[0]}
+        variant={alertVariant}
+        aria-live="polite"
+        role="status"
+        aria-atomic={true}
+        aria-busy={isFetching}
+      >
         <div className="sw-flex sw-justify-between sw-items-center">
           <div>
             {messages.map((msg) => (

@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first } from 'lodash';
-import { byRole } from 'testing-library-selector';
+import { byRole, byText } from 'testing-library-selector';
 import SystemServiceMock from '../../../../api/mocks/SystemServiceMock';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import routes from '../../routes';
@@ -59,12 +59,10 @@ describe('System Info Standalone', () => {
     await user.click(ui.changeLogLevelButton.get());
     expect(ui.logLevelWarning.queryAll()).toHaveLength(0);
     await user.click(ui.logLevelsRadioButton(LogsLevels.DEBUG).get());
-    expect(ui.logLevelWarning.get()).toHaveTextContent(
-      'alert.tooltip.warningsystem.log_level.warning'
-    );
+    expect(ui.logLevelWarning.get()).toBeInTheDocument();
 
     await user.click(ui.saveButton.get());
-    expect(ui.logLevelWarning.queryAll()).toHaveLength(2);
+    expect(ui.logLevelWarningShort.queryAll()).toHaveLength(2);
   });
 
   it('can download logs & system info', async () => {
@@ -100,7 +98,7 @@ describe('System Info Cluster', () => {
     );
 
     // Renders health checks
-    expect(ui.healthCauseWarning.getAll()).toHaveLength(3);
+    expect(ui.healthCauseWarning.get()).toBeInTheDocument();
 
     // Renders App node
     expect(first(ui.sectionButton('server1.example.com').getAll())).toBeInTheDocument();
@@ -125,8 +123,9 @@ function getPageObjects() {
     sectionButton: (name: string) => byRole('button', { name }),
     changeLogLevelButton: byRole('button', { name: 'system.logs_level.change' }),
     logLevelsRadioButton: (name: LogsLevels) => byRole('radio', { name }),
-    logLevelWarning: byRole('alert'),
-    healthCauseWarning: byRole('alert'),
+    logLevelWarning: byText('system.log_level.warning'),
+    logLevelWarningShort: byText('system.log_level.warning.short'),
+    healthCauseWarning: byText('Friendly warning'),
     saveButton: byRole('button', { name: 'save' }),
   };
 

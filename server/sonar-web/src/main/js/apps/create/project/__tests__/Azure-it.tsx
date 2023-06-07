@@ -129,7 +129,7 @@ it('should show search filter when PAT is already set', async () => {
   // Should search with empty results
   almIntegrationHandler.setSearchAzureRepositories([]);
   await user.keyboard('f');
-  expect(screen.getByRole('alert')).toHaveTextContent('onboarding.create_project.azure.no_results');
+  expect(screen.getByText('onboarding.create_project.azure.no_results')).toBeInTheDocument();
 });
 
 function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {

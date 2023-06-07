@@ -20,7 +20,7 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
-import { byRole } from 'testing-library-selector';
+import { byRole, byText } from 'testing-library-selector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import CurrentUserContextProvider from '../../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockComponent } from '../../../../../helpers/mocks/component';
@@ -110,11 +110,11 @@ it.each([
     }
     // Save form and check for errors
     await user.click(ui.saveButton.get());
-    expect(ui.validationErrorMsg.get()).toHaveTextContent('cute error');
+    expect(ui.validationMsg('cute error').get()).toBeInTheDocument();
 
     // Check validation with errors
     await user.click(ui.validateButton.get());
-    expect(ui.validationErrorMsg.get()).toHaveTextContent('cute error');
+    expect(ui.validationMsg('cute error').get()).toBeInTheDocument();
 
     // Save form and check for errors
     almSettings.setProjectBindingConfigurationErrors(undefined);
@@ -123,22 +123,22 @@ it.each([
       'Anything'
     );
     await user.click(ui.saveButton.get());
-    expect(await ui.validationSuccessMsg.find()).toHaveTextContent(
-      'settings.pr_decoration.binding.check_configuration.success'
-    );
+    expect(
+      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find()
+    ).toBeInTheDocument();
 
     await user.click(ui.validateButton.get());
-    expect(ui.validationSuccessMsg.get()).toHaveTextContent(
-      'settings.pr_decoration.binding.check_configuration.success'
-    );
+    expect(
+      ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').get()
+    ).toBeInTheDocument();
 
     // Rerender and verify that validation is done for binding
     rerender(
       <MockedPRDecorationBinding component={mockComponent()} currentUser={mockCurrentUser()} />
     );
-    expect(await ui.validationSuccessMsg.find()).toHaveTextContent(
-      'settings.pr_decoration.binding.check_configuration.success'
-    );
+    expect(
+      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find()
+    ).toBeInTheDocument();
     expect(ui.saveButton.query()).not.toBeInTheDocument();
 
     // Reset binding
@@ -172,8 +172,7 @@ function getPageObjects() {
     validateButton: byRole('button', {
       name: 'settings.pr_decoration.binding.check_configuration',
     }),
-    validationErrorMsg: byRole('alert'),
-    validationSuccessMsg: byRole('status'),
+    validationMsg: (text: string) => byText(text),
     setInput,
   };
 

@@ -179,9 +179,7 @@ it('should show no result message when there are no projects', async () => {
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
 
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    'onboarding.create_project.gitlab.no_projects'
-  );
+  expect(screen.getByText('onboarding.create_project.gitlab.no_projects')).toBeInTheDocument();
 });
 
 it('should display a warning if the instance default new code definition is not CaYC compliant', async () => {
@@ -197,9 +195,9 @@ it('should display a warning if the instance default new code definition is not 
 
   expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    'onboarding.create_project.new_code_option.warning.title'
-  );
+  expect(
+    screen.getByText('onboarding.create_project.new_code_option.warning.title')
+  ).toBeInTheDocument();
 });
 
 function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
