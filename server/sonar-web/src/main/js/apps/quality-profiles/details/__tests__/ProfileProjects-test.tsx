@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { getProfileProjects } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import ChangeProjectsForm from '../ChangeProjectsForm';
@@ -61,6 +62,8 @@ it('should render correctly', async () => {
   });
   wrapper.setState({ projects: [] });
   expect(wrapper).toMatchSnapshot('no active rules, no associated projects');
+  wrapper.instance().loadMore();
+  expect(getProfileProjects).toHaveBeenLastCalledWith({ p: 2, key: 'key' });
 });
 
 it('should open and close the form', async () => {

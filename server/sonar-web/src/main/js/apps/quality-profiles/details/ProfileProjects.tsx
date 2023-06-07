@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -82,13 +82,14 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     }
 
     this.setState({ loading: true });
-    const data = { key: this.props.profile.key, page: this.state.page };
+    const data = { key: this.props.profile.key, p: 1 };
     getProfileProjects(data).then(({ paging, results }) => {
       if (this.mounted) {
         this.setState({
           projects: results,
           total: paging.total,
           loading: false,
+          page: 1,
         });
       }
     }, this.stopLoading);
@@ -96,13 +97,14 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   loadMore = () => {
     this.setState({ loadingMore: true });
-    const data = { key: this.props.profile.key, page: this.state.page + 1 };
+    const data = { key: this.props.profile.key, p: this.state.page + 1 };
     getProfileProjects(data).then(({ paging, results }) => {
       if (this.mounted) {
         this.setState((state) => ({
           projects: [...state.projects, ...results],
           total: paging.total,
           loadingMore: false,
+          page: state.page + 1,
         }));
       }
     }, this.stopLoading);
