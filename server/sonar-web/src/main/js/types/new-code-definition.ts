@@ -18,20 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { NewCodePeriod, NewCodePeriodBranch, NewCodePeriodSettingType } from '../../types/types';
-
-export function mockNewCodePeriod(overrides: Partial<NewCodePeriod> = {}) {
-  return {
-    type: NewCodePeriodSettingType.PREVIOUS_VERSION,
-    ...overrides,
-  };
+export enum NewCodeDefinitionType {
+  PreviousVersion = 'PREVIOUS_VERSION',
+  NumberOfDays = 'NUMBER_OF_DAYS',
+  SpecificAnalysis = 'SPECIFIC_ANALYSIS',
+  ReferenceBranch = 'REFERENCE_BRANCH',
+  Inherited = 'INHERITED',
 }
 
-export function mockNewCodePeriodBranch(overrides: Partial<NewCodePeriodBranch> = {}) {
-  return {
-    projectKey: 'pkey',
-    branchKey: 'bKey',
-    ...mockNewCodePeriod(),
-    ...overrides,
-  };
+export interface NewCodeDefinition {
+  type: NewCodeDefinitionType;
+  value?: string;
+  effectiveValue?: string;
+  inherited?: boolean;
+}
+
+export interface NewCodeDefinitiondWithCompliance {
+  type?: NewCodeDefinitionType;
+  value?: string;
+  isCompliant: boolean;
+}
+
+export interface NewCodeDefinitionBranch extends NewCodeDefinition {
+  projectKey: string;
+  branchKey: string;
 }

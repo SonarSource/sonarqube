@@ -27,9 +27,10 @@ import DateFormatter, { longFormatterOption } from '../../../components/intl/Dat
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { getNewCodePeriodDate, getNewCodePeriodLabel } from '../../../helpers/new-code-period';
 import { ComponentQualifier } from '../../../types/component';
-import { ComponentMeasure, NewCodePeriodSettingType, Period } from '../../../types/types';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
+import { ComponentMeasure, Period } from '../../../types/types';
 
 export interface LeakPeriodLegendProps {
   component: ComponentMeasure;
@@ -56,7 +57,7 @@ class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & Wrapp
       );
     }
 
-    const leakPeriodLabel = getPeriodLabel(
+    const leakPeriodLabel = getNewCodePeriodLabel(
       period,
       period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
     );
@@ -68,11 +69,11 @@ class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & Wrapp
       </LeakPeriodLabel>
     );
 
-    if (period.mode === 'days' || period.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
+    if (period.mode === 'days' || period.mode === NewCodeDefinitionType.NumberOfDays) {
       return label;
     }
 
-    const date = getPeriodDate(period);
+    const date = getNewCodePeriodDate(period);
     const tooltip = date && (
       <div>
         <DateFromNow date={date} />

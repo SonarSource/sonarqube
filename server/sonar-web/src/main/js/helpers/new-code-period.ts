@@ -17,12 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseDate } from '../helpers/dates';
-import { translate, translateWithParameters } from '../helpers/l10n';
 import { ApplicationPeriod } from '../types/application';
-import { NewCodePeriod, NewCodePeriodSettingType, Period } from '../types/types';
+import { NewCodeDefinitionType } from '../types/new-code-definition';
+import { Period } from '../types/types';
+import { parseDate } from './dates';
+import { translate, translateWithParameters } from './l10n';
 
-export function getPeriodLabel(
+export function getNewCodePeriodDate(period?: { date?: string }): Date | undefined {
+  return period?.date ? parseDate(period.date) : undefined;
+}
+
+export function getNewCodePeriodLabel(
   period: Period | undefined,
   dateFormatter: (date: string) => string
 ) {
@@ -33,10 +38,10 @@ export function getPeriodLabel(
   let parameter = period.modeParam || period.parameter || '';
 
   switch (period.mode) {
-    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
+    case NewCodeDefinitionType.SpecificAnalysis:
       parameter = dateFormatter(period.date);
       break;
-    case NewCodePeriodSettingType.PREVIOUS_VERSION:
+    case NewCodeDefinitionType.PreviousVersion:
       parameter = parameter || dateFormatter(period.date);
       break;
     /*
@@ -59,34 +64,8 @@ export function getPeriodLabel(
   return translateWithParameters(`overview.period.${period.mode.toLowerCase()}`, parameter);
 }
 
-export function getPeriodDate(period?: { date?: string }): Date | undefined {
-  return period && period.date ? parseDate(period.date) : undefined;
-}
-
-export function isApplicationPeriod(
+export function isApplicationNewCodePeriod(
   period: Period | ApplicationPeriod
 ): period is ApplicationPeriod {
   return (period as ApplicationPeriod).project !== undefined;
-}
-
-export const MIN_NUMBER_OF_DAYS = 1;
-export const MAX_NUMBER_OF_DAYS = 90;
-
-export function isNewCodeDefinitionCompliant(newCodePeriod: NewCodePeriod) {
-  switch (newCodePeriod.type) {
-    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
-      if (!newCodePeriod.value) {
-        return false;
-      }
-      return (
-        !/\D/.test(newCodePeriod.value) &&
-        Number.isInteger(+newCodePeriod.value) &&
-        MIN_NUMBER_OF_DAYS <= +newCodePeriod.value &&
-        +newCodePeriod.value <= MAX_NUMBER_OF_DAYS
-      );
-    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
-      return false;
-    default:
-      return true;
-  }
 }

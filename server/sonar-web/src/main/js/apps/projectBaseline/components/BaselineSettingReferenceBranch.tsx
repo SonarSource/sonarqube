@@ -26,14 +26,14 @@ import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { NewCodePeriodSettingType } from '../../../types/types';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 
 export interface BaselineSettingReferenceBranchProps {
   branchList: BranchOption[];
   className?: string;
   disabled?: boolean;
   onChangeReferenceBranch: (value: string) => void;
-  onSelect: (selection: NewCodePeriodSettingType) => void;
+  onSelect: (selection: NewCodeDefinitionType) => void;
   referenceBranch: string;
   selected: boolean;
   settingLevel: 'project' | 'branch';
@@ -98,7 +98,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
       noRadio
       className={className}
       disabled={disabled}
-      onClick={() => props.onSelect(NewCodePeriodSettingType.REFERENCE_BRANCH)}
+      onClick={() => props.onSelect(NewCodeDefinitionType.ReferenceBranch)}
       selected={selected}
       title={translate('baseline.reference_branch')}
     >

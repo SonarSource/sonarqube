@@ -27,7 +27,8 @@ import { getBaseUrl } from '../../../helpers/system';
 import { queryToSearch } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { Component, NewCodePeriodSettingType, Period } from '../../../types/types';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
+import { Component, Period } from '../../../types/types';
 
 export interface MeasuresPanelNoNewCodeProps {
   branch?: Branch;
@@ -41,7 +42,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   const isApp = component.qualifier === ComponentQualifier.Application;
 
   const hasBadReferenceBranch =
-    !isApp && !!period && !period.date && period.mode === NewCodePeriodSettingType.REFERENCE_BRANCH;
+    !isApp && !!period && !period.date && period.mode === NewCodeDefinitionType.ReferenceBranch;
   /*
    * If the period is "reference branch"-based, and if there's no date, it means
    * that we're not lacking a second analysis, but that we'll never have new code because the

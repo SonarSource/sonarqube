@@ -20,15 +20,17 @@
 import { RadioButton } from 'design-system/lib';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { useEffect } from 'react';
 import { getNewCodePeriod } from '../../api/newCodePeriod';
 import { translate } from '../../helpers/l10n';
-import { isNewCodeDefinitionCompliant } from '../../helpers/periods';
 import {
-  NewCodePeriod,
-  NewCodePeriodSettingType,
-  NewCodePeriodWithCompliance,
-} from '../../types/types';
+  getNumberOfDaysDefaultValue,
+  isNewCodeDefinitionCompliant,
+} from '../../helpers/new-code-definition';
+import {
+  NewCodeDefinition,
+  NewCodeDefinitionType,
+  NewCodeDefinitiondWithCompliance,
+} from '../../types/new-code-definition';
 import RadioCard from '../controls/RadioCard';
 import Tooltip from '../controls/Tooltip';
 import { Alert } from '../ui/Alert';
@@ -38,28 +40,31 @@ import NewCodeDefinitionPreviousVersionOption from './NewCodeDefinitionPreviousV
 
 interface Props {
   canAdmin: boolean | undefined;
-  onNcdChanged: (ncd: NewCodePeriodWithCompliance) => void;
+  onNcdChanged: (ncd: NewCodeDefinitiondWithCompliance) => void;
 }
-
-const INITIAL_DAYS = '30';
 
 export default function NewCodeDefinitionSelector(props: Props) {
   const { canAdmin, onNcdChanged } = props;
 
-  const [globalNcd, setGlobalNcd] = React.useState<NewCodePeriod | null>(null);
-  const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodePeriodSettingType | null>(
-    null
-  );
-  const [days, setDays] = React.useState<string>(INITIAL_DAYS);
+  const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
+  const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
+  const [days, setDays] = React.useState<string>('');
 
-  const iGlobalNcdCompliant = React.useMemo(
+  const isGlobalNcdCompliant = React.useMemo(
     () => Boolean(globalNcd && isNewCodeDefinitionCompliant(globalNcd)),
     [globalNcd]
   );
 
+  const initialNumberOfDays = React.useMemo(() => {
+    const numberOfDays = getNumberOfDaysDefaultValue(globalNcd);
+    setDays(numberOfDays);
+
+    return numberOfDays;
+  }, [globalNcd]);
+
   const isChanged = React.useMemo(
-    () => selectedNcdType === NewCodePeriodSettingType.NUMBER_OF_DAYS && days !== INITIAL_DAYS,
-    [selectedNcdType, days]
+    () => selectedNcdType === NewCodeDefinitionType.NumberOfDays && days !== initialNumberOfDays,
+    [selectedNcdType, days, initialNumberOfDays]
   );
 
   const isCompliant = React.useMemo(
@@ -72,7 +77,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
     [selectedNcdType, days]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     function fetchGlobalNcd() {
       getNewCodePeriod().then(setGlobalNcd, noop);
     }
@@ -80,11 +85,11 @@ export default function NewCodeDefinitionSelector(props: Props) {
     fetchGlobalNcd();
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedNcdType) {
       const type =
-        selectedNcdType === NewCodePeriodSettingType.INHERITED ? undefined : selectedNcdType;
-      const value = selectedNcdType === NewCodePeriodSettingType.NUMBER_OF_DAYS ? days : undefined;
+        selectedNcdType === NewCodeDefinitionType.Inherited ? undefined : selectedNcdType;
+      const value = selectedNcdType === NewCodeDefinitionType.NumberOfDays ? days : undefined;
       onNcdChanged({ isCompliant, type, value });
     }
   }, [selectedNcdType, days, isCompliant, onNcdChanged]);
@@ -97,15 +102,15 @@ export default function NewCodeDefinitionSelector(props: Props) {
       <div className="big-spacer-top spacer-bottom" role="radiogroup">
         <RadioButton
           aria-label={translate('new_code_definition.global_setting')}
-          checked={selectedNcdType === NewCodePeriodSettingType.INHERITED}
+          checked={selectedNcdType === NewCodeDefinitionType.Inherited}
           className="big-spacer-bottom"
-          disabled={!iGlobalNcdCompliant}
-          onCheck={() => setSelectedNcdType(NewCodePeriodSettingType.INHERITED)}
+          disabled={!isGlobalNcdCompliant}
+          onCheck={() => setSelectedNcdType(NewCodeDefinitionType.Inherited)}
           value="general"
         >
           <Tooltip
             overlay={
-              iGlobalNcdCompliant
+              isGlobalNcdCompliant
                 ? null
                 : translate('new_code_definition.compliance.warning.title.global')
             }
@@ -118,7 +123,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           {globalNcd && (
             <GlobalNewCodeDefinitionDescription
               globalNcd={globalNcd}
-              isGlobalNcdCompliant={iGlobalNcdCompliant}
+              isGlobalNcdCompliant={isGlobalNcdCompliant}
               canAdmin={canAdmin}
             />
           )}
@@ -126,11 +131,9 @@ export default function NewCodeDefinitionSelector(props: Props) {
 
         <RadioButton
           aria-label={translate('new_code_definition.specific_setting')}
-          checked={Boolean(
-            selectedNcdType && selectedNcdType !== NewCodePeriodSettingType.INHERITED
-          )}
+          checked={Boolean(selectedNcdType && selectedNcdType !== NewCodeDefinitionType.Inherited)}
           className="huge-spacer-top"
-          onCheck={() => setSelectedNcdType(NewCodePeriodSettingType.PREVIOUS_VERSION)}
+          onCheck={() => setSelectedNcdType(NewCodeDefinitionType.PreviousVersion)}
           value="specific"
         >
           {translate('new_code_definition.specific_setting')}
@@ -141,31 +144,31 @@ export default function NewCodeDefinitionSelector(props: Props) {
         <div className="display-flex-row big-spacer-bottom" role="radiogroup">
           <NewCodeDefinitionPreviousVersionOption
             disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodePeriodSettingType.INHERITED
+              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
             )}
             onSelect={setSelectedNcdType}
-            selected={selectedNcdType === NewCodePeriodSettingType.PREVIOUS_VERSION}
+            selected={selectedNcdType === NewCodeDefinitionType.PreviousVersion}
           />
 
           <NewCodeDefinitionDaysOption
             days={days}
             disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodePeriodSettingType.INHERITED
+              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
             )}
             isChanged={isChanged}
             isValid={isCompliant}
             onChangeDays={setDays}
             onSelect={setSelectedNcdType}
-            selected={selectedNcdType === NewCodePeriodSettingType.NUMBER_OF_DAYS}
+            selected={selectedNcdType === NewCodeDefinitionType.NumberOfDays}
           />
 
           <RadioCard
             noRadio
             disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodePeriodSettingType.INHERITED
+              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
             )}
-            onClick={() => setSelectedNcdType(NewCodePeriodSettingType.REFERENCE_BRANCH)}
-            selected={selectedNcdType === NewCodePeriodSettingType.REFERENCE_BRANCH}
+            onClick={() => setSelectedNcdType(NewCodeDefinitionType.ReferenceBranch)}
+            selected={selectedNcdType === NewCodeDefinitionType.ReferenceBranch}
             title={translate('new_code_definition.reference_branch')}
           >
             <div>
@@ -173,7 +176,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
                 {translate('new_code_definition.reference_branch.description')}
               </p>
               <p className="sw-mb-4">{translate('new_code_definition.reference_branch.usecase')}</p>
-              {selectedNcdType === NewCodePeriodSettingType.REFERENCE_BRANCH && (
+              {selectedNcdType === NewCodeDefinitionType.ReferenceBranch && (
                 <Alert variant="info">
                   {translate('new_code_definition.reference_branch.notice')}
                 </Alert>

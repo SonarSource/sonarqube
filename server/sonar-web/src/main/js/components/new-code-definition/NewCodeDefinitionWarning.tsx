@@ -20,13 +20,13 @@
 
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { isNewCodeDefinitionCompliant } from '../../helpers/periods';
-import { NewCodePeriodSettingType } from '../../types/types';
+import { isNewCodeDefinitionCompliant } from '../../helpers/new-code-definition';
+import { NewCodeDefinitionType } from '../../types/new-code-definition';
 import DocLink from '../common/DocLink';
 import { Alert } from '../ui/Alert';
 
 export interface NewCodeDefinitionWarningProps {
-  newCodeDefinitionType: NewCodePeriodSettingType | undefined;
+  newCodeDefinitionType: NewCodeDefinitionType | undefined;
   newCodeDefinitionValue: string | undefined;
   isBranchSupportEnabled: boolean | undefined;
   level: 'branch' | 'project' | 'global';
@@ -45,7 +45,7 @@ export default function NewCodeDefinitionWarning({
     return null;
   }
 
-  if (newCodeDefinitionType === NewCodePeriodSettingType.SPECIFIC_ANALYSIS) {
+  if (newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis) {
     return (
       <Alert variant="warning" className="sw-mb-4 sw-max-w-[800px]">
         <p className="sw-mb-2 sw-font-bold">
@@ -64,7 +64,7 @@ export default function NewCodeDefinitionWarning({
     );
   }
 
-  if (newCodeDefinitionType === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
+  if (newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays) {
     return (
       <Alert variant="warning" className="sw-mb-4 sw-max-w-[800px]">
         <p className="sw-mb-2 sw-font-bold">

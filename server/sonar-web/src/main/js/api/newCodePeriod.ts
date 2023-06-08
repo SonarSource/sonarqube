@@ -19,19 +19,23 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post } from '../helpers/request';
-import { NewCodePeriod, NewCodePeriodBranch, NewCodePeriodSettingType } from '../types/types';
+import {
+  NewCodeDefinition,
+  NewCodeDefinitionBranch,
+  NewCodeDefinitionType,
+} from '../types/new-code-definition';
 
 export function getNewCodePeriod(data?: {
   project?: string;
   branch?: string;
-}): Promise<Omit<NewCodePeriod, 'effectiveValue'>> {
+}): Promise<Omit<NewCodeDefinition, 'effectiveValue'>> {
   return getJSON('/api/new_code_periods/show', data).catch(throwGlobalError);
 }
 
 export function setNewCodePeriod(data: {
   project?: string;
   branch?: string;
-  type: NewCodePeriodSettingType;
+  type: NewCodeDefinitionType;
   value?: string;
 }): Promise<void> {
   return post('/api/new_code_periods/set', data).catch(throwGlobalError);
@@ -43,6 +47,6 @@ export function resetNewCodePeriod(data: { project?: string; branch?: string }):
 
 export function listBranchesNewCodePeriod(data: {
   project: string;
-}): Promise<{ newCodePeriods: NewCodePeriodBranch[] }> {
+}): Promise<{ newCodePeriods: NewCodeDefinitionBranch[] }> {
   return getJSON('/api/new_code_periods/list', data).catch(throwGlobalError);
 }

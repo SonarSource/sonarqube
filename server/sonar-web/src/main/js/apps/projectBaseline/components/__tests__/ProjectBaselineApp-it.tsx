@@ -25,7 +25,7 @@ import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServi
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-period';
+import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-definition';
 import { mockAppState } from '../../../../helpers/testMocks';
 import {
   RenderContext,
@@ -33,7 +33,7 @@ import {
 } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
-import { NewCodePeriodSettingType } from '../../../../types/types';
+import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import routes from '../../routes';
 
 jest.mock('../../../../api/newCodePeriod');
@@ -65,7 +65,7 @@ it('renders correctly without branch support feature', async () => {
 
 it('prevents selection of global setting if it is not compliant and warns non-admin about it', async () => {
   codePeriodsMock.setNewCodePeriod({
-    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+    type: NewCodeDefinitionType.NumberOfDays,
     value: '99',
     inherited: true,
   });
@@ -81,7 +81,7 @@ it('prevents selection of global setting if it is not compliant and warns non-ad
 
 it('prevents selection of global setting if it is not compliant and warns admin about it', async () => {
   codePeriodsMock.setNewCodePeriod({
-    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+    type: NewCodeDefinitionType.NumberOfDays,
     value: '99',
     inherited: true,
   });
@@ -177,7 +177,7 @@ it('can set reference branch specific setting', async () => {
 it('cannot set specific analysis setting', async () => {
   const { ui } = getPageObjects();
   codePeriodsMock.setNewCodePeriod({
-    type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
+    type: NewCodeDefinitionType.SpecificAnalysis,
     value: 'analysis_id',
   });
   renderProjectBaselineApp();
@@ -246,7 +246,7 @@ it('cannot set a specific analysis setting for branch', async () => {
   codePeriodsMock.setListBranchesNewCode([
     mockNewCodePeriodBranch({
       branchKey: 'main',
-      type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
+      type: NewCodeDefinitionType.SpecificAnalysis,
       value: 'analysis_id',
     }),
   ]);

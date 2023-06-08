@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ProjectBase } from '../../../api/components';
-import { NewCodePeriodSettingType } from '../../../types/types';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 
 export enum CreateProjectModes {
   Manual = 'manual',
@@ -30,6 +30,6 @@ export enum CreateProjectModes {
 }
 
 export type CreateProjectApiCallback = (
-  newCodeDefinitionType?: NewCodePeriodSettingType,
+  newCodeDefinitionType?: NewCodeDefinitionType,
   newCodeDefinitionValue?: string
 ) => Promise<{ project: ProjectBase }>;

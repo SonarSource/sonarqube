@@ -23,7 +23,7 @@ import * as React from 'react';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import { NewCodePeriodSettingType } from '../../../../types/types';
+import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import NewCodePeriod from '../NewCodePeriod';
 
 let newCodeMock: NewCodePeriodsServiceMock;
@@ -93,7 +93,7 @@ it('renders and behaves as expected', async () => {
 
 it('renders and behaves properly when the current value is not compliant', async () => {
   const user = userEvent.setup();
-  newCodeMock.setNewCodePeriod({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '91' });
+  newCodeMock.setNewCodePeriod({ type: NewCodeDefinitionType.NumberOfDays, value: '91' });
   renderNewCodePeriod();
 
   expect(await ui.newCodeTitle.find()).toBeInTheDocument();

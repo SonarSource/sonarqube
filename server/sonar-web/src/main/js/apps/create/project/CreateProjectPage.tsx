@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -31,12 +32,13 @@ import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import NewCodeDefinitionSelector from '../../../components/new-code-definition/NewCodeDefinitionSelector';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
-import { NewCodePeriodWithCompliance } from '../../../types/types';
+import { NewCodeDefinitiondWithCompliance } from '../../../types/new-code-definition';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './Azure/AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloud/BitbucketCloudProjectCreate';
@@ -48,8 +50,6 @@ import CreateProjectPageHeader from './components/CreateProjectPageHeader';
 import ManualProjectCreate from './manual/ManualProjectCreate';
 import './style.css';
 import { CreateProjectApiCallback, CreateProjectModes } from './types';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
-import classNames from 'classnames';
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
@@ -66,7 +66,7 @@ interface State {
   loading: boolean;
   isProjectSetupDone: boolean;
   creatingAlmDefinition?: AlmKeys;
-  selectedNcd: NewCodePeriodWithCompliance | null;
+  selectedNcd: NewCodeDefinitiondWithCompliance | null;
   submitting: boolean;
 }
 
@@ -177,7 +177,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     }
   };
 
-  handleNcdChanged = (ncd: NewCodePeriodWithCompliance) => {
+  handleNcdChanged = (ncd: NewCodeDefinitiondWithCompliance) => {
     this.setState({
       selectedNcd: ncd,
     });

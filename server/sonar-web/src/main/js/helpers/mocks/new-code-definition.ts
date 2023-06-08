@@ -18,7 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { NewCodePeriodSettingType } from '../../types/types';
+import {
+  NewCodeDefinition,
+  NewCodeDefinitionBranch,
+  NewCodeDefinitionType,
+} from '../../types/new-code-definition';
 
-export const DEFAULT_GENERAL_SETTING_TYPE: NewCodePeriodSettingType =
-  NewCodePeriodSettingType.PREVIOUS_VERSION;
+export function mockNewCodePeriod(overrides: Partial<NewCodeDefinition> = {}): NewCodeDefinition {
+  return {
+    type: NewCodeDefinitionType.PreviousVersion,
+    ...overrides,
+  };
+}
+
+export function mockNewCodePeriodBranch(
+  overrides: Partial<NewCodeDefinitionBranch> = {}
+): NewCodeDefinitionBranch {
+  return {
+    projectKey: 'pkey',
+    branchKey: 'bKey',
+    ...mockNewCodePeriod(),
+    ...overrides,
+  };
+}

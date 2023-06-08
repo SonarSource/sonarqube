@@ -20,6 +20,7 @@
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import { ComponentQualifier, Visibility } from './component';
 import { MessageFormatting } from './issues';
+import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
 
 export type Dict<T> = { [key: string]: T };
@@ -397,32 +398,6 @@ export interface MyProject {
   qualityGate?: string;
 }
 
-export interface NewCodePeriod {
-  type: NewCodePeriodSettingType;
-  value?: string;
-  effectiveValue?: string;
-  inherited?: boolean;
-}
-
-export interface NewCodePeriodWithCompliance {
-  type?: NewCodePeriodSettingType;
-  value?: string;
-  isCompliant: boolean;
-}
-
-export interface NewCodePeriodBranch extends NewCodePeriod {
-  projectKey: string;
-  branchKey: string;
-}
-
-export enum NewCodePeriodSettingType {
-  PREVIOUS_VERSION = 'PREVIOUS_VERSION',
-  NUMBER_OF_DAYS = 'NUMBER_OF_DAYS',
-  SPECIFIC_ANALYSIS = 'SPECIFIC_ANALYSIS',
-  REFERENCE_BRANCH = 'REFERENCE_BRANCH',
-  INHERITED = 'INHERITED',
-}
-
 export interface Paging {
   pageIndex: number;
   pageSize: number;
@@ -432,7 +407,7 @@ export interface Paging {
 export interface Period {
   date: string;
   index?: number;
-  mode: PeriodMode | NewCodePeriodSettingType;
+  mode: PeriodMode | NewCodeDefinitionType;
   modeParam?: string;
   parameter?: string;
 }

@@ -22,16 +22,18 @@ import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newC
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { DEFAULT_NEW_CODE_DEFINITION_TYPE } from '../../../helpers/new-code-definition';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
-import { Component, NewCodePeriod } from '../../../types/types';
-import { DEFAULT_GENERAL_SETTING_TYPE } from '../constants';
+import { NewCodeDefinition } from '../../../types/new-code-definition';
+import { Component } from '../../../types/types';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';
 
 interface Props {
   branchList: Branch[];
   component: Component;
-  inheritedSetting: NewCodePeriod;
+  inheritedSetting: NewCodeDefinition;
+  generalSetting: NewCodeDefinition;
 }
 
 interface State {
@@ -75,7 +77,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
           if (!newCodePeriod) {
             return b;
           }
-          const { type = DEFAULT_GENERAL_SETTING_TYPE, value, effectiveValue } = newCodePeriod;
+          const { type = DEFAULT_NEW_CODE_DEFINITION_TYPE, value, effectiveValue } = newCodePeriod;
           return {
             ...b,
             newCodePeriod: { type, value, effectiveValue },
@@ -90,7 +92,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     );
   }
 
-  updateBranchNewCodePeriod = (branch: string, newSetting: NewCodePeriod | undefined) => {
+  updateBranchNewCodePeriod = (branch: string, newSetting: NewCodeDefinition | undefined) => {
     const { branches } = this.state;
 
     const updated = branches.find((b) => b.name === branch);
@@ -104,7 +106,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.setState({ editedBranch: branch });
   };
 
-  closeEditModal = (branch?: string, newSetting?: NewCodePeriod) => {
+  closeEditModal = (branch?: string, newSetting?: NewCodeDefinition) => {
     if (branch) {
       this.setState({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),
@@ -125,7 +127,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchList, inheritedSetting } = this.props;
+    const { branchList, inheritedSetting, generalSetting } = this.props;
     const { branches, editedBranch, loading } = this.state;
 
     if (branches.length < 1) {
@@ -167,6 +169,8 @@ export default class BranchList extends React.PureComponent<Props, State> {
             branchList={branchList}
             component={this.props.component.key}
             onClose={this.closeEditModal}
+            inheritedSetting={inheritedSetting}
+            generalSetting={generalSetting}
           />
         )}
       </>

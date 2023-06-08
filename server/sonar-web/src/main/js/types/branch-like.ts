@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NewCodeDefinition } from './new-code-definition';
 import { QualityGateStatusCondition } from './quality-gates';
-import { NewCodePeriod, Status } from './types';
+import { Status } from './types';
 
 export interface Branch {
   analysisDate?: string;
@@ -61,7 +62,7 @@ export interface BranchLikeTree {
 export type BranchParameters = { branch?: string } | { pullRequest?: string };
 
 export interface BranchWithNewCodePeriod extends Branch {
-  newCodePeriod?: NewCodePeriod;
+  newCodePeriod?: NewCodeDefinition;
 }
 
 export interface BranchStatusData {

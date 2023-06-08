@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../types/types';
+import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
 import Link from '../common/Link';
 import { Alert } from '../ui/Alert';
 
 interface Props {
-  globalNcd: NewCodePeriod;
+  globalNcd: NewCodeDefinition;
   isGlobalNcdCompliant: boolean;
   canAdmin?: boolean;
 }
@@ -38,7 +38,7 @@ export default function GlobalNewCodeDefinitionDescription({
   let setting: string;
   let description: string;
   let useCase: string;
-  if (globalNcd.type === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
+  if (globalNcd.type === NewCodeDefinitionType.NumberOfDays) {
     setting = `${translate('new_code_definition.number_days')} (${translateWithParameters(
       'duration.days',
       globalNcd.value ?? '?'

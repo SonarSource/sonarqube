@@ -19,17 +19,18 @@
  */
 import * as React from 'react';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definition';
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { ParsedAnalysis } from '../../../types/project-activity';
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
@@ -39,7 +40,9 @@ interface Props {
   branch: BranchWithNewCodePeriod;
   branchList: Branch[];
   component: string;
-  onClose: (branch?: string, newSetting?: NewCodePeriod) => void;
+  onClose: (branch?: string, newSetting?: NewCodeDefinition) => void;
+  inheritedSetting: NewCodeDefinition;
+  generalSetting: NewCodeDefinition;
 }
 
 interface State {
@@ -48,7 +51,7 @@ interface State {
   days: string;
   referenceBranch: string;
   saving: boolean;
-  selected?: NewCodePeriodSettingType;
+  selected?: NewCodeDefinitionType;
 }
 
 export default class BranchBaselineSettingModal extends React.PureComponent<Props, State> {
@@ -57,16 +60,19 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
   constructor(props: Props) {
     super(props);
 
-    const otherBranches = props.branchList.filter((b) => b.name !== props.branch.name);
+    const { branch, branchList, inheritedSetting, generalSetting } = props;
+    const otherBranches = branchList.filter((b) => b.name !== branch.name);
     const defaultBranch = otherBranches.length > 0 ? otherBranches[0].name : '';
 
     this.state = {
-      analysis: this.getValueFromProps(NewCodePeriodSettingType.SPECIFIC_ANALYSIS) || '',
-      days: this.getValueFromProps(NewCodePeriodSettingType.NUMBER_OF_DAYS) || '30',
+      analysis: this.getValueFromProps(NewCodeDefinitionType.SpecificAnalysis) || '',
+      days:
+        this.getValueFromProps(NewCodeDefinitionType.NumberOfDays) ||
+        getNumberOfDaysDefaultValue(generalSetting, inheritedSetting),
       referenceBranch:
-        this.getValueFromProps(NewCodePeriodSettingType.REFERENCE_BRANCH) || defaultBranch,
+        this.getValueFromProps(NewCodeDefinitionType.ReferenceBranch) || defaultBranch,
       saving: false,
-      selected: this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type,
+      selected: branch.newCodePeriod?.type,
     };
   }
 
@@ -78,7 +84,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     this.mounted = false;
   }
 
-  getValueFromProps(type: NewCodePeriodSettingType) {
+  getValueFromProps(type: NewCodeDefinitionType) {
     return this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type === type
       ? this.props.branch.newCodePeriod.value
       : null;
@@ -108,19 +114,23 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
         branch: branch.name,
       }).then(
         () => {
-          this.setState({
-            saving: false,
-          });
-          this.props.onClose(branch.name, {
-            type,
-            value,
-            effectiveValue: analysisDate && toISO8601WithOffsetString(analysisDate),
-          });
+          if (this.mounted) {
+            this.setState({
+              saving: false,
+            });
+            this.props.onClose(branch.name, {
+              type,
+              value,
+              effectiveValue: analysisDate && toISO8601WithOffsetString(analysisDate),
+            });
+          }
         },
         () => {
-          this.setState({
-            saving: false,
-          });
+          if (this.mounted) {
+            this.setState({
+              saving: false,
+            });
+          }
         }
       );
     }
@@ -135,7 +145,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   handleSelectReferenceBranch = (referenceBranch: string) => this.setState({ referenceBranch });
 
-  handleSelectSetting = (selected: NewCodePeriodSettingType) => this.setState({ selected });
+  handleSelectSetting = (selected: NewCodeDefinitionType) => this.setState({ selected });
 
   render() {
     const { branch, branchList } = this.props;
@@ -143,8 +153,8 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
 
-    const currentSetting = branch.newCodePeriod && branch.newCodePeriod.type;
-    const currentSettingValue = branch.newCodePeriod && branch.newCodePeriod.value;
+    const currentSetting = branch.newCodePeriod?.type;
+    const currentSettingValue = branch.newCodePeriod?.value;
 
     const { isChanged, isValid } = validateSetting({
       analysis,
@@ -173,7 +183,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}
                 onSelect={this.handleSelectSetting}
-                selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
+                selected={selected === NewCodeDefinitionType.PreviousVersion}
               />
               <NewCodeDefinitionDaysOption
                 days={days}
@@ -181,24 +191,24 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 isValid={isValid}
                 onChangeDays={this.handleSelectDays}
                 onSelect={this.handleSelectSetting}
-                selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
+                selected={selected === NewCodeDefinitionType.NumberOfDays}
               />
               <BaselineSettingReferenceBranch
                 branchList={branchList.map(this.branchToOption)}
                 onChangeReferenceBranch={this.handleSelectReferenceBranch}
                 onSelect={this.handleSelectSetting}
                 referenceBranch={referenceBranch}
-                selected={selected === NewCodePeriodSettingType.REFERENCE_BRANCH}
+                selected={selected === NewCodeDefinitionType.ReferenceBranch}
                 settingLevel="branch"
               />
-              {currentSetting === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
+              {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
                 <BaselineSettingAnalysis
                   onSelect={() => {}}
-                  selected={selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS}
+                  selected={selected === NewCodeDefinitionType.SpecificAnalysis}
                 />
               )}
             </div>
-            {selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
+            {selected === NewCodeDefinitionType.SpecificAnalysis && (
               <BranchAnalysisList
                 analysis={analysis}
                 branch={branch.name}

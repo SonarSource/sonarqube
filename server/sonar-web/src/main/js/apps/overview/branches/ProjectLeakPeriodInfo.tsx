@@ -23,8 +23,9 @@ import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { NewCodePeriodSettingType, Period } from '../../../types/types';
+import { getNewCodePeriodDate, getNewCodePeriodLabel } from '../../../helpers/new-code-period';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
+import { Period } from '../../../types/types';
 
 export interface ProjectLeakPeriodInfoProps extends WrappedComponentProps {
   leakPeriod: Period;
@@ -36,9 +37,9 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
     leakPeriod,
   } = props;
 
-  const leakPeriodLabel = getPeriodLabel(
+  const leakPeriodLabel = getNewCodePeriodLabel(
     leakPeriod,
-    ['manual_baseline', NewCodePeriodSettingType.SPECIFIC_ANALYSIS].includes(leakPeriod.mode)
+    ['manual_baseline', NewCodeDefinitionType.SpecificAnalysis].includes(leakPeriod.mode)
       ? (date: string) => formatTime(date, formatterOption)
       : (date: string) => formatDate(date, longFormatterOption)
   );
@@ -49,13 +50,13 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
 
   if (
     leakPeriod.mode === 'days' ||
-    leakPeriod.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS ||
-    leakPeriod.mode === NewCodePeriodSettingType.REFERENCE_BRANCH
+    leakPeriod.mode === NewCodeDefinitionType.NumberOfDays ||
+    leakPeriod.mode === NewCodeDefinitionType.ReferenceBranch
   ) {
     return <div>{leakPeriodLabel} </div>;
   }
 
-  const leakPeriodDate = getPeriodDate(leakPeriod);
+  const leakPeriodDate = getNewCodePeriodDate(leakPeriod);
 
   if (!leakPeriodDate) {
     return null;

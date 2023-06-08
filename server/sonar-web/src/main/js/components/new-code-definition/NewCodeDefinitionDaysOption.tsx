@@ -19,8 +19,11 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { MAX_NUMBER_OF_DAYS, MIN_NUMBER_OF_DAYS } from '../../helpers/periods';
-import { NewCodePeriodSettingType } from '../../types/types';
+import {
+  NUMBER_OF_DAYS_MAX_VALUE,
+  NUMBER_OF_DAYS_MIN_VALUE,
+} from '../../helpers/new-code-definition';
+import { NewCodeDefinitionType } from '../../types/new-code-definition';
 import RadioCard from '../controls/RadioCard';
 import ValidationInput, { ValidationInputErrorPlacement } from '../controls/ValidationInput';
 import MandatoryFieldsExplanation from '../ui/MandatoryFieldsExplanation';
@@ -32,7 +35,7 @@ export interface Props {
   isChanged: boolean;
   isValid: boolean;
   onChangeDays: (value: string) => void;
-  onSelect: (selection: NewCodePeriodSettingType) => void;
+  onSelect: (selection: NewCodeDefinitionType) => void;
   selected: boolean;
 }
 
@@ -44,7 +47,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
       noRadio
       className={className}
       disabled={disabled}
-      onClick={() => onSelect(NewCodePeriodSettingType.NUMBER_OF_DAYS)}
+      onClick={() => onSelect(NewCodeDefinitionType.NumberOfDays)}
       selected={selected}
       title={translate('new_code_definition.number_days')}
     >
@@ -64,8 +67,8 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
               errorPlacement={ValidationInputErrorPlacement.Bottom}
               error={translateWithParameters(
                 'new_code_definition.number_days.invalid',
-                MIN_NUMBER_OF_DAYS,
-                MAX_NUMBER_OF_DAYS
+                NUMBER_OF_DAYS_MIN_VALUE,
+                NUMBER_OF_DAYS_MAX_VALUE
               )}
               label={translate('new_code_definition.number_days.specify_days')}
               required

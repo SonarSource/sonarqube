@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isApplicationPeriod } from '../../../helpers/periods';
+import { isApplicationNewCodePeriod } from '../../../helpers/new-code-period';
 import { ApplicationPeriod } from '../../../types/application';
 import { Period } from '../../../types/types';
 import ApplicationLeakPeriodInfo from './ApplicationLeakPeriodInfo';
@@ -29,7 +29,7 @@ export interface LeakPeriodInfoProps {
 }
 
 export function LeakPeriodInfo({ leakPeriod }: LeakPeriodInfoProps) {
-  if (isApplicationPeriod(leakPeriod)) {
+  if (isApplicationNewCodePeriod(leakPeriod)) {
     return <ApplicationLeakPeriodInfo leakPeriod={leakPeriod} />;
   }
   return <ProjectLeakPeriodInfo leakPeriod={leakPeriod} />;

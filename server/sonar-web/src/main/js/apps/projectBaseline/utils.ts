@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isNewCodeDefinitionCompliant } from '../../helpers/periods';
-import { NewCodePeriodSettingType } from '../../types/types';
+import { isNewCodeDefinitionCompliant } from '../../helpers/new-code-definition';
+import { NewCodeDefinitionType } from '../../types/new-code-definition';
 
 export function getSettingValue({
   analysis,
@@ -29,14 +29,14 @@ export function getSettingValue({
   analysis?: string;
   days?: string;
   referenceBranch?: string;
-  type?: NewCodePeriodSettingType;
+  type?: NewCodeDefinitionType;
 }) {
   switch (type) {
-    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
+    case NewCodeDefinitionType.NumberOfDays:
       return days;
-    case NewCodePeriodSettingType.REFERENCE_BRANCH:
+    case NewCodeDefinitionType.ReferenceBranch:
       return referenceBranch;
-    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
+    case NewCodeDefinitionType.SpecificAnalysis:
       return analysis;
     default:
       return undefined;
@@ -45,12 +45,12 @@ export function getSettingValue({
 
 export function validateSetting(state: {
   analysis?: string;
-  currentSetting?: NewCodePeriodSettingType;
+  currentSetting?: NewCodeDefinitionType;
   currentSettingValue?: string;
   days: string;
   overrideGeneralSetting?: boolean;
   referenceBranch?: string;
-  selected?: NewCodePeriodSettingType;
+  selected?: NewCodeDefinitionType;
 }) {
   const {
     analysis = '',
@@ -69,10 +69,9 @@ export function validateSetting(state: {
     isChanged =
       overrideGeneralSetting === false ||
       selected !== currentSetting ||
-      (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS && days !== currentSettingValue) ||
-      (selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS &&
-        analysis !== currentSettingValue) ||
-      (selected === NewCodePeriodSettingType.REFERENCE_BRANCH &&
+      (selected === NewCodeDefinitionType.NumberOfDays && days !== currentSettingValue) ||
+      (selected === NewCodeDefinitionType.SpecificAnalysis && analysis !== currentSettingValue) ||
+      (selected === NewCodeDefinitionType.ReferenceBranch &&
         referenceBranch !== currentSettingValue);
   }
 
@@ -83,8 +82,8 @@ export function validateSetting(state: {
         type: selected,
         value: days,
       }) &&
-      (selected !== NewCodePeriodSettingType.SPECIFIC_ANALYSIS || analysis.length > 0) &&
-      (selected !== NewCodePeriodSettingType.REFERENCE_BRANCH || referenceBranch.length > 0));
+      (selected !== NewCodeDefinitionType.SpecificAnalysis || analysis.length > 0) &&
+      (selected !== NewCodeDefinitionType.ReferenceBranch || referenceBranch.length > 0));
 
   return { isChanged, isValid };
 }

@@ -18,8 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockNewCodePeriod, mockNewCodePeriodBranch } from '../../helpers/mocks/new-code-period';
-import { NewCodePeriod, NewCodePeriodBranch, NewCodePeriodSettingType } from '../../types/types';
+import {
+  mockNewCodePeriod,
+  mockNewCodePeriodBranch,
+} from '../../helpers/mocks/new-code-definition';
+import {
+  NewCodeDefinition,
+  NewCodeDefinitionBranch,
+  NewCodeDefinitionType,
+} from '../../types/new-code-definition';
 import {
   getNewCodePeriod,
   listBranchesNewCodePeriod,
@@ -34,13 +41,13 @@ export default class NewCodePeriodsServiceMock {
     mockNewCodePeriodBranch({ inherited: true, branchKey: 'main' }),
     mockNewCodePeriodBranch({
       branchKey: 'feature',
-      type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
+      type: NewCodeDefinitionType.NumberOfDays,
       value: '1',
     }),
   ];
 
-  #newCodePeriod: NewCodePeriod;
-  #listBranchesNewCode: NewCodePeriodBranch[];
+  #newCodePeriod: NewCodeDefinition;
+  #listBranchesNewCode: NewCodeDefinitionBranch[];
 
   constructor() {
     this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
@@ -58,14 +65,14 @@ export default class NewCodePeriodsServiceMock {
   handleSetNewCodePeriod = (data: {
     project?: string;
     branch?: string;
-    type: NewCodePeriodSettingType;
+    type: NewCodeDefinitionType;
     value?: string;
   }) => {
     const { type, value, branch } = data;
     if (branch) {
       const branchNewCode = this.#listBranchesNewCode.find(
         (bNew) => bNew.branchKey === branch
-      ) as NewCodePeriodBranch;
+      ) as NewCodeDefinitionBranch;
       branchNewCode.type = type;
       branchNewCode.value = value;
     } else {
@@ -93,11 +100,11 @@ export default class NewCodePeriodsServiceMock {
     return this.reply({ newCodePeriods: this.#listBranchesNewCode });
   };
 
-  setNewCodePeriod = (newCodePeriod: NewCodePeriod) => {
+  setNewCodePeriod = (newCodePeriod: NewCodeDefinition) => {
     this.#newCodePeriod = newCodePeriod;
   };
 
-  setListBranchesNewCode = (listBranchesNewCode: NewCodePeriodBranch[]) => {
+  setListBranchesNewCode = (listBranchesNewCode: NewCodeDefinitionBranch[]) => {
     this.#listBranchesNewCode = listBranchesNewCode;
   };
 

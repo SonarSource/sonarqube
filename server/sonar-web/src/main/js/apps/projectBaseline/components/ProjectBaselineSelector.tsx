@@ -29,10 +29,10 @@ import NewCodeDefinitionWarning from '../../../components/new-code-definition/Ne
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
 import { Branch } from '../../../types/branch-like';
+import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { ParsedAnalysis } from '../../../types/project-activity';
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
@@ -45,20 +45,20 @@ export interface ProjectBaselineSelectorProps {
   branchesEnabled?: boolean;
   canAdmin: boolean | undefined;
   component: string;
-  currentSetting?: NewCodePeriodSettingType;
+  currentSetting?: NewCodeDefinitionType;
   currentSettingValue?: string;
   days: string;
-  generalSetting: NewCodePeriod;
+  generalSetting: NewCodeDefinition;
   onCancel: () => void;
   onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
   onSelectReferenceBranch: (value: string) => void;
-  onSelectSetting: (value?: NewCodePeriodSettingType) => void;
+  onSelectSetting: (value?: NewCodeDefinitionType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onToggleSpecificSetting: (selection: boolean) => void;
   referenceBranch?: string;
   saving: boolean;
-  selected?: NewCodePeriodSettingType;
+  selected?: NewCodeDefinitionType;
   overrideGeneralSetting: boolean;
 }
 
@@ -146,9 +146,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           <NewCodeDefinitionPreviousVersionOption
             disabled={!overrideGeneralSetting}
             onSelect={props.onSelectSetting}
-            selected={
-              overrideGeneralSetting && selected === NewCodePeriodSettingType.PREVIOUS_VERSION
-            }
+            selected={overrideGeneralSetting && selected === NewCodeDefinitionType.PreviousVersion}
           />
           <NewCodeDefinitionDaysOption
             days={days}
@@ -157,9 +155,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             isValid={isValid}
             onChangeDays={props.onSelectDays}
             onSelect={props.onSelectSetting}
-            selected={
-              overrideGeneralSetting && selected === NewCodePeriodSettingType.NUMBER_OF_DAYS
-            }
+            selected={overrideGeneralSetting && selected === NewCodeDefinitionType.NumberOfDays}
           />
           {branchesEnabled && (
             <BaselineSettingReferenceBranch
@@ -169,23 +165,23 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
               onSelect={props.onSelectSetting}
               referenceBranch={referenceBranch || ''}
               selected={
-                overrideGeneralSetting && selected === NewCodePeriodSettingType.REFERENCE_BRANCH
+                overrideGeneralSetting && selected === NewCodeDefinitionType.ReferenceBranch
               }
               settingLevel="project"
             />
           )}
-          {!branchesEnabled && currentSetting === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
+          {!branchesEnabled && currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
             <BaselineSettingAnalysis
               onSelect={() => {}}
               selected={
-                overrideGeneralSetting && selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS
+                overrideGeneralSetting && selected === NewCodeDefinitionType.SpecificAnalysis
               }
             />
           )}
         </div>
         {!branchesEnabled &&
           overrideGeneralSetting &&
-          selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
+          selected === NewCodeDefinitionType.SpecificAnalysis && (
             <BranchAnalysisList
               analysis={analysis || ''}
               branch={branch.name}

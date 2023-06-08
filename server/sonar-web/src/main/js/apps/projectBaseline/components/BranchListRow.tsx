@@ -24,21 +24,21 @@ import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
-import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
+import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 
 export interface BranchListRowProps {
   branch: BranchWithNewCodePeriod;
   existingBranches: Array<string>;
-  inheritedSetting: NewCodePeriod;
+  inheritedSetting: NewCodeDefinition;
   onOpenEditModal: (branch: BranchWithNewCodePeriod) => void;
   onResetToDefault: (branchName: string) => void;
 }
 
-function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
+function renderNewCodePeriodSetting(newCodePeriod: NewCodeDefinition) {
   switch (newCodePeriod.type) {
-    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
+    case NewCodeDefinitionType.SpecificAnalysis:
       return (
         <>
           {`${translate('baseline.specific_analysis')}: `}
@@ -49,11 +49,11 @@ function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
           )}
         </>
       );
-    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
+    case NewCodeDefinitionType.NumberOfDays:
       return `${translate('new_code_definition.number_days')}: ${newCodePeriod.value}`;
-    case NewCodePeriodSettingType.PREVIOUS_VERSION:
+    case NewCodeDefinitionType.PreviousVersion:
       return translate('new_code_definition.previous_version');
-    case NewCodePeriodSettingType.REFERENCE_BRANCH:
+    case NewCodeDefinitionType.ReferenceBranch:
       return `${translate('baseline.reference_branch')}: ${newCodePeriod.value}`;
     default:
       return newCodePeriod.type;
@@ -62,11 +62,11 @@ function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
 
 function branchInheritsItselfAsReference(
   branch: BranchWithNewCodePeriod,
-  inheritedSetting: NewCodePeriod
+  inheritedSetting: NewCodeDefinition
 ) {
   return (
     !branch.newCodePeriod &&
-    inheritedSetting.type === NewCodePeriodSettingType.REFERENCE_BRANCH &&
+    inheritedSetting.type === NewCodeDefinitionType.ReferenceBranch &&
     branch.name === inheritedSetting.value
   );
 }
@@ -78,7 +78,7 @@ function referenceBranchDoesNotExist(
   return (
     branch.newCodePeriod &&
     branch.newCodePeriod.value &&
-    branch.newCodePeriod.type === NewCodePeriodSettingType.REFERENCE_BRANCH &&
+    branch.newCodePeriod.type === NewCodeDefinitionType.ReferenceBranch &&
     !existingBranches.includes(branch.newCodePeriod.value)
   );
 }

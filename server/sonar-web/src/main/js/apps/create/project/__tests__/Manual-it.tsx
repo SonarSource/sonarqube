@@ -27,7 +27,7 @@ import { mockProject } from '../../../../helpers/mocks/projects';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import { NewCodePeriodSettingType } from '../../../../types/types';
+import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-settings');
@@ -124,7 +124,7 @@ it('should fill form and move to NCD selection and back', async () => {
 it('should select the global NCD when it is compliant', async () => {
   jest
     .mocked(getNewCodePeriod)
-    .mockResolvedValue({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '30' });
+    .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '30' });
   const user = userEvent.setup();
   renderCreateProject();
   await fillFormAndNext('test', user);
@@ -142,7 +142,7 @@ it('should select the global NCD when it is compliant', async () => {
 it('global NCD option should be disabled if not compliant', async () => {
   jest
     .mocked(getNewCodePeriod)
-    .mockResolvedValue({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '96' });
+    .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
   const user = userEvent.setup();
   renderCreateProject();
   await fillFormAndNext('test', user);
@@ -161,7 +161,7 @@ it.each([
   async ({ canAdmin, message }) => {
     jest
       .mocked(getNewCodePeriod)
-      .mockResolvedValue({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '96' });
+      .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
     const user = userEvent.setup();
     renderCreateProject({ appState: mockAppState({ canAdmin }) });
     await fillFormAndNext('test', user);
@@ -175,7 +175,7 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
   async (option) => {
     jest
       .mocked(getNewCodePeriod)
-      .mockResolvedValue({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '96' });
+      .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
     const user = userEvent.setup();
     renderCreateProject();
     await fillFormAndNext('test', user);
@@ -199,7 +199,7 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
 it('number of days should show error message if value is not a number', async () => {
   jest
     .mocked(getNewCodePeriod)
-    .mockResolvedValue({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '60' });
+    .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '60' });
   const user = userEvent.setup();
   renderCreateProject();
   await fillFormAndNext('test', user);
@@ -214,7 +214,7 @@ it('number of days should show error message if value is not a number', async ()
   await user.click(ui.ncdOptionDaysRadio.get());
 
   expect(ui.ncdOptionDaysInput.get()).toBeInTheDocument();
-  expect(ui.ncdOptionDaysInput.get()).toHaveValue('30');
+  expect(ui.ncdOptionDaysInput.get()).toHaveValue('60');
   expect(ui.projectCreateButton.get()).toBeEnabled();
 
   await user.click(ui.ncdOptionDaysInput.get());
@@ -232,7 +232,7 @@ it('number of days should show error message if value is not a number', async ()
 });
 
 it('the project onboarding page should be displayed when the project is created', async () => {
-  newCodePeriodHandler.setNewCodePeriod({ type: NewCodePeriodSettingType.NUMBER_OF_DAYS });
+  newCodePeriodHandler.setNewCodePeriod({ type: NewCodeDefinitionType.NumberOfDays });
   const user = userEvent.setup();
   renderCreateProject();
   await fillFormAndNext('testing', user);

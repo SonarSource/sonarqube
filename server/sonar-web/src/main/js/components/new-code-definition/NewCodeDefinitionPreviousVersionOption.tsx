@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { NewCodePeriodSettingType } from '../../types/types';
+import { NewCodeDefinitionType } from '../../types/new-code-definition';
 import RadioCard from '../controls/RadioCard';
 
 interface Props {
   disabled?: boolean;
   isDefault?: boolean;
-  onSelect: (selection: NewCodePeriodSettingType) => void;
+  onSelect: (selection: NewCodeDefinitionType) => void;
   selected: boolean;
 }
 
@@ -39,7 +39,7 @@ export default function NewCodeDefinitionPreviousVersionOption({
     <RadioCard
       noRadio
       disabled={disabled}
-      onClick={() => onSelect(NewCodePeriodSettingType.PREVIOUS_VERSION)}
+      onClick={() => onSelect(NewCodeDefinitionType.PreviousVersion)}
       selected={selected}
       title={
         translate('new_code_definition.previous_version') +
