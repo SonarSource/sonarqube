@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.util.Paths2;
 import org.sonarqube.ws.MediaTypes;
 
@@ -53,7 +54,8 @@ public class CloudUsageDataProviderTest {
   private final System2 system2 = Mockito.mock(System2.class);
   private final Paths2 paths2 = Mockito.mock(Paths2.class);
   private final OkHttpClient httpClient = Mockito.mock(OkHttpClient.class);
-  private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(system2, paths2, httpClient);
+  private final ContainerSupport containerSupport = mock(ContainerSupport.class);
+  private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, httpClient);
 
   @Before
   public void setUp() throws Exception {
@@ -85,6 +87,18 @@ public class CloudUsageDataProviderTest {
       .body(body)
       .build());
     when(httpClient.newCall(any())).thenReturn(callMock);
+  }
+
+  @Test
+  public void containerRuntime_whenContainerSupportContextExists_shouldNotBeNull() {
+    when(containerSupport.getContainerContext()).thenReturn("docker");
+    assertThat(underTest.getCloudUsage().containerRuntime()).isEqualTo("docker");
+  }
+
+  @Test
+  public void containerRuntime_whenContainerSupportContextMissing_shouldBeNull() {
+    when(containerSupport.getContainerContext()).thenReturn(null);
+    assertThat(underTest.getCloudUsage().containerRuntime()).isNull();
   }
 
   @Test
@@ -171,7 +185,7 @@ public class CloudUsageDataProviderTest {
   public void initHttpClient_whenValidCertificate_shouldCreateClient() throws URISyntaxException {
     when(paths2.get(anyString())).thenReturn(Paths.get(requireNonNull(getClass().getResource("dummy.crt")).toURI()));
 
-    CloudUsageDataProvider provider = new CloudUsageDataProvider(system2, paths2);
+    CloudUsageDataProvider provider = new CloudUsageDataProvider(containerSupport, system2, paths2);
     assertThat(provider.getHttpClient()).isNotNull();
   }
 
@@ -180,7 +194,7 @@ public class CloudUsageDataProviderTest {
     when(paths2.get(anyString())).thenReturn(Paths.get(requireNonNull(getClass().getResource("dummy.crt")).toURI()));
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn(null);
 
-    CloudUsageDataProvider provider = new CloudUsageDataProvider(system2, paths2);
+    CloudUsageDataProvider provider = new CloudUsageDataProvider(containerSupport, system2, paths2);
     assertThat(provider.getHttpClient()).isNull();
   }
 
@@ -188,7 +202,7 @@ public class CloudUsageDataProviderTest {
   public void initHttpClient_whenCertificateNotFound_shouldFail() {
     when(paths2.get(any())).thenReturn(Paths.get("dummy.crt"));
 
-    CloudUsageDataProvider provider = new CloudUsageDataProvider(system2, paths2);
+    CloudUsageDataProvider provider = new CloudUsageDataProvider(containerSupport, system2, paths2);
     assertThat(provider.getHttpClient()).isNull();
   }
 }

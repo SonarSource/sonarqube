@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
+import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.util.Paths2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -64,13 +65,15 @@ public class CloudUsageDataProvider {
   static final String SONAR_HELM_CHART_VERSION = "SONAR_HELM_CHART_VERSION";
   static final String DOCKER_RUNNING = "DOCKER_RUNNING";
   private static final String[] KUBERNETES_PROVIDER_COMMAND = {"bash", "-c", "uname -r"};
+  private final ContainerSupport containerSupport;
   private final System2 system2;
   private final Paths2 paths2;
   private OkHttpClient httpClient;
   private TelemetryData.CloudUsage cloudUsageData;
 
   @Inject
-  public CloudUsageDataProvider(System2 system2, Paths2 paths2) {
+  public CloudUsageDataProvider(ContainerSupport containerSupport, System2 system2, Paths2 paths2) {
+    this.containerSupport = containerSupport;
     this.system2 = system2;
     this.paths2 = paths2;
     if (isOnKubernetes()) {
@@ -79,7 +82,8 @@ public class CloudUsageDataProvider {
   }
 
   @VisibleForTesting
-  CloudUsageDataProvider(System2 system2, Paths2 paths2, OkHttpClient httpClient) {
+  CloudUsageDataProvider(ContainerSupport containerSupport, System2 system2, Paths2 paths2, OkHttpClient httpClient) {
+    this.containerSupport = containerSupport;
     this.system2 = system2;
     this.paths2 = paths2;
     this.httpClient = httpClient;
@@ -107,6 +111,7 @@ public class CloudUsageDataProvider {
       kubernetesPlatform,
       getKubernetesProvider(),
       getOfficialHelmChartVersion(),
+      containerSupport.getContainerContext(),
       isOfficialImageUsed());
 
     return cloudUsageData;

@@ -352,8 +352,8 @@ public class TelemetryData {
   record ManagedInstanceInformation(boolean isManaged, @Nullable String provider) {
   }
 
-  record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform,
-                    @Nullable String kubernetesProvider, @Nullable String officialHelmChart, boolean officialImage) {
+  record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform, @Nullable String kubernetesProvider,
+                    @Nullable String officialHelmChart, @Nullable String containerRuntime, boolean officialImage) {
   }
 
   public static class ProjectStatistics {

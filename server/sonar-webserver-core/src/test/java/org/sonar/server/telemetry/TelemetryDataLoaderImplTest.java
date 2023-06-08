@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -557,7 +556,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void load_shouldContainCloudUsage() {
-    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false);
+    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", "docker", false);
     when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
 
     TelemetryData data = commercialUnderTest.load();

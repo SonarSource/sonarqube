@@ -19,27 +19,100 @@
  */
 package org.sonar.server.platform;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.stream.Stream;
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Objects;
+import java.util.Scanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.server.util.Paths2;
 
-public class ContainerSupportImpl implements ContainerSupport {
-  private final Paths2 paths2;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-  public ContainerSupportImpl(Paths2 paths2) {
+public class ContainerSupportImpl implements ContainerSupport {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ContainerSupportImpl.class);
+  private static final String CONTAINER_FILE_PATH = "/run/.containerenv";
+  private static final String DOCKER = "docker";
+  private static final String PODMAN = "podman";
+  private static final String BUILDAH = "buildah";
+  private static final String CONTAINER_D = "containerd";
+  private static final String GENERAL_CONTAINER = "general_container";
+
+  private static final String[] MOUNT_GREP_COMMAND = {"bash", "-c", "mount | grep 'overlay on /'"};
+  private static final String[] CAT_COMMAND = {"bash", "-c", "cat /run/.containerenv"};
+
+  private final System2 system2;
+  private final Paths2 paths2;
+  private String containerContextCache;
+
+  public ContainerSupportImpl(Paths2 paths2, System2 system2) {
     this.paths2 = paths2;
+    this.system2 = system2;
+
+    populateCache();
+  }
+
+  @VisibleForTesting
+  void populateCache() {
+    if (isDocker()) {
+      containerContextCache = DOCKER;
+    } else if (isPodman()) {
+      containerContextCache = PODMAN;
+    } else if (isBuildah()) {
+      containerContextCache = BUILDAH;
+    } else if (isContainerd()) {
+      containerContextCache = CONTAINER_D;
+    } else if (isGeneralContainer()) {
+      containerContextCache = GENERAL_CONTAINER;
+    } else {
+      containerContextCache = null;
+    }
   }
 
   @Override
   public boolean isRunningInContainer() {
-    if (paths2.exists("/run/.containerenv")) {
-      return true;
-    }
-    try (Stream<String> stream = Files.lines(paths2.get("/proc/1/cgroup"))) {
-      return stream.anyMatch(line -> line.contains("/docker") || line.contains("/kubepods") || line.contains("containerd.service") );
-    } catch (IOException e) {
-      return false;
+    return containerContextCache != null;
+  }
+
+  @Override
+  public String getContainerContext() {
+    return containerContextCache;
+  }
+
+  private boolean isDocker() {
+    return executeCommand(MOUNT_GREP_COMMAND).contains("/docker") && paths2.exists("/.dockerenv");
+  }
+
+  private boolean isPodman() {
+    return Objects.equals(system2.envVariable("container"), PODMAN) && paths2.exists(CONTAINER_FILE_PATH);
+  }
+
+  private boolean isBuildah() {
+    return paths2.exists(CONTAINER_FILE_PATH) && executeCommand(CAT_COMMAND).contains("engine=\"buildah-");
+  }
+
+  private boolean isContainerd() {
+    return executeCommand(MOUNT_GREP_COMMAND).contains("/containerd");
+  }
+
+  private boolean isGeneralContainer() {
+    return paths2.exists(CONTAINER_FILE_PATH);
+  }
+
+  @VisibleForTesting
+  String executeCommand(String[] command) {
+    try {
+      Process process = new ProcessBuilder().command(command).start();
+      try (Scanner scanner = new Scanner(process.getInputStream(), UTF_8)) {
+        scanner.useDelimiter("\n");
+        return scanner.next();
+      } finally {
+        process.destroy();
+      }
+    } catch (Exception e) {
+      LOG.debug("Failed to execute command", e);
+      return "";
     }
   }
 }

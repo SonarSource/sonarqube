@@ -19,10 +19,15 @@
  */
 package org.sonar.server.platform;
 
+import javax.annotation.CheckForNull;
+
 public interface ContainerSupport {
   /**
    * @return {@code true} if we can detect that SQ is running inside a docker container
    */
   boolean isRunningInContainer();
+
+  @CheckForNull
+  String getContainerContext();
 
 }
