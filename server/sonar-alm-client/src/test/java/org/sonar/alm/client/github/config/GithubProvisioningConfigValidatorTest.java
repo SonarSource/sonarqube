@@ -48,6 +48,7 @@ public class GithubProvisioningConfigValidatorTest {
 
   private static final String SUCCESS_STATUS = "SUCCESS";
   private static final String GITHUB_CALL_FAILED = "Error response from GitHub: GitHub call failed.";
+  private static final String APP_FETCHING_FAILED = "Exception while fetching the App.";
   private static final String INVALID_APP_ID_STATUS = "GitHub App ID must be a number.";
   private static final String INCOMPLETE_APP_CONFIG_STATUS = "The GitHub App configuration is not complete.";
   private static final String MISSING_EMAIL_PERMISSION = "Missing permissions: Account permissions -> Email addresses";
@@ -79,6 +80,7 @@ public class GithubProvisioningConfigValidatorTest {
     assertThat(checkResult.application().jit()).isEqualTo(ConfigStatus.failed(INVALID_APP_ID_STATUS));
     assertThat(checkResult.installations()).isEmpty();
   }
+
   @Test
   public void checkConfig_whenAppIdNotValid_shouldReturnFailedAppCheck() {
     when(gitHubSettings.appId()).thenReturn("not a number");
@@ -102,7 +104,7 @@ public class GithubProvisioningConfigValidatorTest {
   }
 
   @Test
-  public void checkConfig_whenErrorWhileFetchingTheApp_shouldReturnFailedAppCheck() {
+  public void checkConfig_whenHttpExceptionWhileFetchingTheApp_shouldReturnFailedAppCheck() {
     mockGithubConfiguration();
     ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
 
@@ -115,6 +117,23 @@ public class GithubProvisioningConfigValidatorTest {
 
     assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(GITHUB_CALL_FAILED));
     assertThat(checkResult.application().jit()).isEqualTo(ConfigStatus.failed(GITHUB_CALL_FAILED));
+    assertThat(checkResult.installations()).isEmpty();
+  }
+
+  @Test
+  public void checkConfig_whenIllegalArgumentExceptionWhileFetchingTheApp_shouldReturnFailedAppCheck() {
+    mockGithubConfiguration();
+    ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
+
+    IllegalArgumentException illegalArgumentException = mock(IllegalArgumentException.class);
+    when(illegalArgumentException.getMessage()).thenReturn("Exception while fetching the App.");
+
+    when(githubClient.getApp(appConfigurationCaptor.capture())).thenThrow(illegalArgumentException);
+
+    ConfigCheckResult checkResult = configValidator.checkConfig();
+
+    assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(APP_FETCHING_FAILED));
+    assertThat(checkResult.application().jit()).isEqualTo(ConfigStatus.failed(APP_FETCHING_FAILED));
     assertThat(checkResult.installations()).isEmpty();
   }
 

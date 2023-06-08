@@ -97,7 +97,7 @@ public class GithubAppSecurityImpl implements GithubAppSecurity {
         }
       });
     } catch (Exception e) {
-      throw new IllegalArgumentException("Invalid Github Application private key", e);
+      throw new IllegalArgumentException("The Github App private key is not valid", e);
     } finally {
       Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
     }

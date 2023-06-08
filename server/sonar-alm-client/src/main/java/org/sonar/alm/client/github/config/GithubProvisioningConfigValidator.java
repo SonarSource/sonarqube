@@ -39,11 +39,8 @@ import static org.sonar.alm.client.github.config.ConfigCheckResult.InstallationS
 @ComputeEngineSide
 public class GithubProvisioningConfigValidator {
 
-  private static final ConfigStatus APP_NOT_FOUND_STATUS = ConfigStatus.failed("Github App not found");
   private static final String MEMBERS_PERMISSION = "Organization permissions -> Members";
-
   private static final String EMAILS_PERMISSION = "Account permissions -> Email addresses";
-
   private static final ConfigStatus INVALID_APP_CONFIG_STATUS = ConfigStatus.failed("The GitHub App configuration is not complete.");
   private static final ConfigStatus INVALID_APP_ID_STATUS = ConfigStatus.failed("GitHub App ID must be a number.");
   private static final ConfigStatus SUSPENDED_INSTALLATION_STATUS = ConfigStatus.failed("Installation suspended");
@@ -91,6 +88,9 @@ public class GithubProvisioningConfigValidator {
     } catch (HttpException e) {
       return failedApplicationStatus(
         ConfigStatus.failed("Error response from GitHub: " + e.getMessage()));
+    } catch (IllegalArgumentException e) {
+      return failedApplicationStatus(
+        ConfigStatus.failed(e.getMessage()));
     }
   }
 
