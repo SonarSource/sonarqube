@@ -19,14 +19,13 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
@@ -87,14 +86,14 @@ public class AddUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      checkProjectAdmin(userSession, configuration, project.orElse(null));
+      EntityDto entity = wsSupport.findEntity(dbSession, request);
+      checkProjectAdmin(userSession, configuration, entity);
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
-        project.orElse(null),
+        entity,
         user, permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));
     }

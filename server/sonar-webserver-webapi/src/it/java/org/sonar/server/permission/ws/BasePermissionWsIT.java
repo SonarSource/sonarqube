@@ -50,7 +50,7 @@ import static org.sonar.db.permission.template.PermissionTemplateTesting.newPerm
 public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2(), true);
 
   @Rule
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());

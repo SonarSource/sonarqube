@@ -35,7 +35,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
-import org.sonar.db.permission.CountPerProjectPermission;
+import org.sonar.db.permission.CountPerEntityPermission;
 import org.sonar.db.permission.PermissionQuery;
 
 import static java.lang.String.format;
@@ -125,7 +125,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountPerProjectPermission}
+   * Each row returns a #{@link CountPerEntityPermission}
    */
   public void usersCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(1);
@@ -139,7 +139,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountPerProjectPermission}
+   * Each row returns a #{@link CountPerEntityPermission}
    */
   public void groupsCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);

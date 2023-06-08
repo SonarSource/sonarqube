@@ -20,18 +20,23 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Collections;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.ProjectWsRef;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
@@ -92,10 +97,20 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getTemplateName()));
 
-      ComponentDto project = wsSupport.getRootComponent(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
+      ProjectWsRef.validateUuidAndKeyPair(request.getProjectId(), request.getProjectKey());
+      EntityDto entityDto = getEntityByKeyOrUuid(request.getProjectId(), request.getProjectKey(), dbSession);
       checkGlobalAdmin(userSession);
 
-      permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(project));
+      permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(entityDto));
+    }
+  }
+
+  private EntityDto getEntityByKeyOrUuid(@Nullable String uuid, @Nullable String key, DbSession dbSession) {
+    Optional<EntityDto> entityDto = uuid != null ? dbClient.entityDao().selectByUuid(dbSession, uuid) : dbClient.entityDao().selectByKey(dbSession, key);
+    if (entityDto.isPresent() && !Qualifiers.SUBVIEW.equals(entityDto.get().getQualifier())) {
+      return entityDto.get();
+    } else {
+      throw new NotFoundException("Entity not found");
     }
   }
 

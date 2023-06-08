@@ -20,14 +20,13 @@
 package org.sonar.server.permission.ws;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
@@ -86,12 +85,12 @@ public class AddGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
-      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
+      EntityDto project = wsSupport.findEntity(dbSession, request);
+      wsSupport.checkPermissionManagementAccess(userSession, project);
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
-        project.orElse(null),
+        project,
         group, permissionService);
       permissionUpdater.apply(dbSession, List.of(change));
     }

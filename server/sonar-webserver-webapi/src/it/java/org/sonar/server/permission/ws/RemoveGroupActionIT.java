@@ -30,8 +30,8 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.project.ProjectDto;
@@ -44,7 +44,6 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -102,7 +101,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_shouldRemoveProjectPermission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
@@ -110,7 +109,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
       .execute();
 
@@ -120,25 +119,25 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenUsingViewUuid_shouldRemovePermission() {
-    ComponentDto view = db.components().insertPrivatePortfolio();
+    EntityDto portfolio = db.components().insertPrivatePortfolioDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, view);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, view);
+    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, portfolio);
+    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, portfolio);
     loginAsAdmin();
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
-      .setParam(PARAM_PROJECT_ID, view.uuid())
+      .setParam(PARAM_PROJECT_ID, portfolio.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
       .execute();
 
     assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(GlobalPermission.ADMINISTER.getKey());
-    assertThat(db.users().selectGroupPermissions(aGroup, view)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectGroupPermissions(aGroup, portfolio)).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
   public void wsAction_whenUsingProjectKey_shouldRemovePermission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
@@ -177,7 +176,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project id 'unknown-project-uuid' not found");
+      .hasMessage("Entity not found");
   }
 
   @Test
@@ -215,15 +214,13 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   private void failIfComponentIsNotAProjectOrView(ComponentDto file) {
     loginAsAdmin();
-
     TestRequest testRequest = newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PROJECT_ID, file.uuid())
       .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
-
     assertThatThrownBy(testRequest::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Entity not found");
   }
 
   @Test
@@ -299,14 +296,14 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenRemovingProjectPermissionAsProjectAdminButNotSystemAdmin_shouldRemovePermission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
@@ -315,32 +312,31 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenRemovingAnyPermissionFromGroupAnyoneOnPrivateProject_shouldHaveNoEffect() {
-    //TODO use projectDto
-    ProjectData project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     permissionService.getAllProjectPermissions()
-      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project.getProjectDto()));
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {
         newRequest()
           .setParam(PARAM_GROUP_NAME, "anyone")
-          .setParam(PARAM_PROJECT_ID, project.projectUuid())
+          .setParam(PARAM_PROJECT_ID, project.getUuid())
           .setParam(PARAM_PERMISSION, permission)
           .execute();
 
-        assertThat(db.users().selectAnyonePermissions(project.getMainBranchComponent())).contains(permission);
+        assertThat(db.users().selectAnyonePermissions(project.getUuid())).contains(permission);
       });
   }
 
   @Test
   public void wsAction_whenRemovingBrowsePermissionFromGroupAnyoneOnPublicProject_shouldFail() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestRequest testRequest = newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.USER);
 
     assertThatThrownBy(testRequest::execute)
@@ -350,12 +346,12 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenRemovingCodeviewerPermissionFromGroupAnyoneOnPublicProject_shouldFail() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestRequest testRequest = newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
 
     assertThatThrownBy(testRequest::execute)
@@ -366,12 +362,12 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void wsAction_whenRemovingBrowsePermissionFromGroupOnPublicProject_shouldFail() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestRequest testRequest = newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.USER);
 
     assertThatThrownBy(testRequest::execute)
@@ -382,12 +378,12 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void wsAction_whenRemovingCodeviewerPermissionFromGroupOnPublicProject() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestRequest testRequest = newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
 
     assertThatThrownBy(testRequest::execute)
@@ -409,7 +405,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project id '%s' not found", branch.uuid()));
+      .hasMessage("Entity not found");
   }
 
   @Test

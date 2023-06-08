@@ -33,34 +33,34 @@ public interface GroupPermissionMapper {
 
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
-  List<GroupPermissionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
+  List<GroupPermissionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids, @Nullable @Param("entityUuid") String entityUuid);
 
-  void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerProjectPermission> resultHandler);
+  void groupsCountByEntityUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerEntityPermission> resultHandler);
 
   List<String> selectProjectKeysWithAnyonePermissions(int max);
 
-  int countProjectsWithAnyonePermissions();
+  int countEntitiesWithAnyonePermissions();
 
   void insert(GroupPermissionDto dto);
 
-  int delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
+  int delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("entityUuid") String entityUuid);
 
   List<String> selectGlobalPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid);
 
-  List<String> selectProjectPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
+  List<String> selectEntityPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("entityUuid") String entityUuid);
 
   void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
 
   /**
-   * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified
+   * Lists uuid of groups with at least one permission on the specified entity but which do not have the specified
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Set} can't contain
    * {@code null}).
    */
-  Set<String> selectGroupUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
+  Set<String> selectGroupUuidsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
   Set<String> selectGroupUuidsWithPermissionOnProject(@Param("projectUuid") String projectUuid, @Param("role") String permission);
 
-  int deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
+  int deleteByEntityUuid(@Param("entityUuid") String entityUuid);
 
   int deleteByEntityUuidAndGroupUuid(@Param("entityUuid") String entityUuid, @Nullable @Param("groupUuid") String groupUuid);
 

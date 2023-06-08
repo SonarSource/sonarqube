@@ -26,7 +26,7 @@
     from projects p)
     UNION
     (select <include refid="org.sonar.db.entity.EntityMapper.entityPortfolioColumns"/>
-    from portfolios p)
+    from portfolios p where p.parent_uuid is null)
   </sql>
 
   <select id="selectByUuids"  resultType="Entity">

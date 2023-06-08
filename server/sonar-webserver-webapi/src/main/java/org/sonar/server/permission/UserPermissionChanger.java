@@ -24,7 +24,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.UserPermissionDto;
 
@@ -61,33 +61,33 @@ public class UserPermissionChanger {
   }
 
   private static boolean isImplicitlyAlreadyDone(UserPermissionChange change) {
-    ComponentDto project = change.getProject();
+    EntityDto project = change.getEntity();
     if (project != null) {
       return isImplicitlyAlreadyDone(project, change);
     }
     return false;
   }
 
-  private static boolean isImplicitlyAlreadyDone(ComponentDto project, UserPermissionChange change) {
+  private static boolean isImplicitlyAlreadyDone(EntityDto project, UserPermissionChange change) {
     return isAttemptToAddPublicPermissionToPublicComponent(change, project);
   }
 
-  private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, ComponentDto project) {
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, EntityDto project) {
     return !project.isPrivate()
       && change.getOperation() == ADD
       && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private static void ensureConsistencyWithVisibility(UserPermissionChange change) {
-    ComponentDto project = change.getProject();
+    EntityDto project = change.getEntity();
     if (project != null) {
       checkRequest(!isAttemptToRemovePublicPermissionFromPublicComponent(change, project),
         "Permission %s can't be removed from a public component", change.getPermission());
     }
   }
 
-  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, ComponentDto projectUuid) {
-    return !projectUuid.isPrivate()
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, EntityDto entity) {
+    return !entity.isPrivate()
       && change.getOperation() == REMOVE
       && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
@@ -98,7 +98,7 @@ public class UserPermissionChanger {
     }
     UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
       change.getProjectUuid());
-    dbClient.userPermissionDao().insert(dbSession, dto, change.getProject(), change.getUserId(), null);
+    dbClient.userPermissionDao().insert(dbSession, dto, change.getEntity(), change.getUserId(), null);
     return true;
   }
 
@@ -107,9 +107,9 @@ public class UserPermissionChanger {
       return false;
     }
     checkOtherAdminsExist(dbSession, change);
-    ComponentDto project = change.getProject();
-    if (project != null) {
-      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId(), change.getPermission(), project);
+    EntityDto entity = change.getEntity();
+    if (entity != null) {
+      dbClient.userPermissionDao().deleteEntityPermission(dbSession, change.getUserId(), change.getPermission(), entity);
     } else {
       dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId(), change.getPermission());
     }
@@ -119,7 +119,7 @@ public class UserPermissionChanger {
   private List<String> loadExistingPermissions(DbSession dbSession, UserPermissionChange change) {
     String projectUuid = change.getProjectUuid();
     if (projectUuid != null) {
-      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, change.getUserId().getUuid(), projectUuid);
+      return dbClient.userPermissionDao().selectEntityPermissionsOfUser(dbSession, change.getUserId().getUuid(), projectUuid);
     }
     return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, change.getUserId().getUuid());
   }

@@ -20,14 +20,17 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -67,18 +70,24 @@ public class PermissionWsSupport {
     this.groupWsSupport = groupWsSupport;
   }
 
-  public void checkPermissionManagementAccess(UserSession userSession, @Nullable ComponentDto project) {
-    checkProjectAdmin(userSession, configuration, project);
+  public void checkPermissionManagementAccess(UserSession userSession, @Nullable EntityDto entity) {
+    checkProjectAdmin(userSession, configuration, entity);
   }
 
-  public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {
+  @CheckForNull
+  public EntityDto findEntity(DbSession dbSession, Request request) {
     String uuid = request.param(PermissionsWsParameters.PARAM_PROJECT_ID);
     String key = request.param(PermissionsWsParameters.PARAM_PROJECT_KEY);
     if (uuid != null || key != null) {
-      ProjectWsRef ref = ProjectWsRef.newWsProjectRef(uuid, key);
-      return Optional.of(componentFinder.getRootComponentByUuidOrKey(dbSession, ref.uuid(), ref.key()));
+      ProjectWsRef.validateUuidAndKeyPair(uuid, key);
+      Optional<EntityDto> entityDto = uuid != null ? dbClient.entityDao().selectByUuid(dbSession, uuid) : dbClient.entityDao().selectByKey(dbSession, key);
+      if (entityDto.isPresent() && !Qualifiers.SUBVIEW.equals(entityDto.get().getQualifier())) {
+        return entityDto.get();
+      } else {
+        throw new NotFoundException("Entity not found");
+      }
     }
-    return Optional.empty();
+    return null;
   }
 
   public ComponentDto getRootComponent(DbSession dbSession, ProjectWsRef projectRef) {

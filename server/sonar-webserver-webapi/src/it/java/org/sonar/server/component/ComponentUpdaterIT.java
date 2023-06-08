@@ -43,6 +43,7 @@ import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
+import org.sonar.server.project.Project;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -222,7 +223,7 @@ public class ComponentUpdaterIT {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    ComponentDto dto = underTest.create(db.getSession(), project, userUuid, "user-login").mainBranchComponent();
+    ProjectDto dto = underTest.create(db.getSession(), project, userUuid, "user-login").projectDto();
 
     verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, userUuid);
   }
@@ -234,7 +235,7 @@ public class ComponentUpdaterIT {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ProjectDto.class)))
       .thenReturn(true);
 
     ProjectDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin()).projectDto();
@@ -250,7 +251,7 @@ public class ComponentUpdaterIT {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ComponentDto.class)))
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ProjectDto.class)))
       .thenReturn(true);
 
     ProjectDto dto = underTest.create(db.getSession(),

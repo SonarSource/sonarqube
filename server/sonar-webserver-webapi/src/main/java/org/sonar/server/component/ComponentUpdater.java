@@ -143,23 +143,22 @@ public class ComponentUpdater {
     if (isRootProject(componentDto)) {
       projectDto = toProjectDto(componentDto, now);
       dbClient.projectDao().insert(dbSession, projectDto);
-      addToFavourites(dbSession, projectDto, userUuid, userLogin, componentDto);
+      addToFavourites(dbSession, projectDto, userUuid, userLogin);
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
-    }
-
-    if (isRootView(componentDto)) {
+      permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
+    } else if (isRootView(componentDto)) {
       PortfolioDto portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
+      permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, userUuid);
+    } else {
+      throw new IllegalArgumentException("Component " + componentDto + " is not a top level entity");
     }
 
-    // TODO SONAR-19445: probably we want to apply it to the projectDto or portfolioDto
-    permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
     return new ComponentCreationData(componentDto, mainBranch, projectDto);
   }
 
-  // TODO SONAR-19445, when working on permissions, maybe we could remove the last argument from this method
-  private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin, ComponentDto componentDto) {
-    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
+  private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {
+    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, projectDto)) {
       favoriteUpdater.add(dbSession, projectDto, userUuid, userLogin, false);
     }
   }

@@ -55,19 +55,19 @@ public class GroupPermissionDaoIT {
   private static final String MISSING_UUID = "-1";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbSession dbSession = db.getSession();
   private final GroupPermissionDao underTest = new GroupPermissionDao(new NoOpAuditPersister());
 
   @Test
-  public void group_count_by_permission_and_component_id_on_private_projects() {
+  public void group_count_by_permission_and_entity_id_on_private_projects() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
 
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project2);
@@ -76,24 +76,24 @@ public class GroupPermissionDaoIT {
     db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project2);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project3);
 
-    final List<CountPerProjectPermission> result = new ArrayList<>();
-    underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.uuid(), project3.uuid(), "789"),
+    final List<CountPerEntityPermission> result = new ArrayList<>();
+    underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.getUuid(), project3.getUuid(), "789"),
       context -> result.add(context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(UserRole.ADMIN, UserRole.USER);
-    assertThat(result).extracting("componentUuid").containsOnly(project2.uuid(), project3.uuid());
+    assertThat(result).extracting("entityUuid").containsOnly(project2.getUuid(), project3.getUuid());
     assertThat(result).extracting("count").containsOnly(3, 1);
   }
 
   @Test
-  public void group_count_by_permission_and_component_id_on_public_projects() {
+  public void group_count_by_permission_and_entity_id_on_public_projects() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
 
     db.users().insertProjectPermissionOnGroup(group1, "p1", project1);
     db.users().insertProjectPermissionOnGroup(group1, "p2", project2);
@@ -104,13 +104,13 @@ public class GroupPermissionDaoIT {
     db.users().insertProjectPermissionOnGroup(group1, "p3", project2);
     db.users().insertProjectPermissionOnGroup(group1, "p3", project3);
 
-    final List<CountPerProjectPermission> result = new ArrayList<>();
-    underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.uuid(), project3.uuid(), "789"),
+    final List<CountPerEntityPermission> result = new ArrayList<>();
+    underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.getUuid(), project3.getUuid(), "789"),
       context -> result.add(context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly("p2", "p3");
-    assertThat(result).extracting("componentUuid").containsOnly(project2.uuid(), project3.uuid());
+    assertThat(result).extracting("entityUuid").containsOnly(project2.getUuid(), project3.getUuid());
     assertThat(result).extracting("count").containsOnly(4, 1);
   }
 
@@ -128,7 +128,7 @@ public class GroupPermissionDaoIT {
 
   @Test
   public void selectGroupNamesByQuery_is_ordered_by_permissions_then_by_group_when_many_groups_for_global_permissions() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
       // Add permission on project to be sure projects are excluded
@@ -143,18 +143,18 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void selectGroupNamesByQuery_is_ordered_by_global_permissions_then_by_group_when_many_groups_for_project_permissions() {
+  public void selectGroupNamesByQuery_is_ordered_by_global_permissions_then_by_group_when_many_groups_for_entity_permissions() {
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
       // Add global permission to be sure they are excluded
       db.users().insertPermissionOnGroup(group, GlobalPermission.SCAN.getKey());
     });
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
     db.users().insertProjectPermissionOnGroup(db.users().selectGroup(lastGroupName).orElseGet(() -> fail("group not found")), GlobalPermission.SCAN.getKey(), project);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery()
-      .setComponent(project)
+      .setEntity(project)
       .build()))
       .hasSize(DEFAULT_PAGE_SIZE)
       .startsWith(ANYONE, lastGroupName, "Group-1");
@@ -186,7 +186,7 @@ public class GroupPermissionDaoIT {
     GroupDto group2 = db.users().insertGroup("Group-2");
     GroupDto group3 = db.users().insertGroup("Group-3");
 
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
     db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
@@ -210,8 +210,8 @@ public class GroupPermissionDaoIT {
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    ProjectDto anotherProject = db.components().insertPublicProject().getProjectDto();
 
     db.users().insertProjectPermissionOnGroup(group1, "p1", project);
     db.users().insertProjectPermissionOnGroup(group1, "p2", project);
@@ -223,7 +223,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnGroup(group2, "p5");
 
     PermissionQuery.Builder builderOnComponent = newQuery()
-      .setComponent(project);
+      .setEntity(project);
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
@@ -238,8 +238,8 @@ public class GroupPermissionDaoIT {
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
 
     db.users().insertProjectPermissionOnGroup(group1, GlobalPermission.SCAN.getKey(), project);
     db.users().insertProjectPermissionOnGroup(group1, GlobalPermission.PROVISION_PROJECTS.getKey(), project);
@@ -249,7 +249,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnGroup(group2, GlobalPermission.SCAN);
 
     PermissionQuery.Builder builderOnComponent = newQuery()
-      .setComponent(project);
+      .setEntity(project);
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
@@ -413,7 +413,7 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void selectProjectPermissionsOfGroup_on_public_project() {
+  public void selectEntityPermissionsOfGroup_on_public_project() {
     GroupDto group1 = db.users().insertGroup("group1");
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
@@ -425,13 +425,13 @@ public class GroupPermissionDaoIT {
     db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
     db.users().insertProjectPermissionOnAnyone("perm6", project1);
 
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project1.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project1.uuid()))
       .containsOnly("perm3", "perm4");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project2.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project2.uuid()))
       .containsOnly("perm5");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project1.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project1.uuid()))
       .containsOnly("perm6");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project2.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project2.uuid()))
       .isEmpty();
   }
 
@@ -447,9 +447,9 @@ public class GroupPermissionDaoIT {
 
   @Test
   public void selectProjectKeysWithAnyonePermissions_on_public_project_ordered_by_kee() {
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
     db.users().insertProjectPermissionOnAnyone("perm1", project1);
     db.users().insertProjectPermissionOnAnyone("perm1", project2);
     db.users().insertProjectPermissionOnAnyone("perm1", project3);
@@ -460,7 +460,7 @@ public class GroupPermissionDaoIT {
   @Test
   public void selectProjectKeysWithAnyonePermissions_on_public_project_ordered_by_kee_max_5() {
     IntStream.rangeClosed(1, 9).forEach(i -> {
-      ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
+      ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
       db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
     });
 
@@ -474,7 +474,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("perm-anyone");
 
     IntStream.rangeClosed(1, 9).forEach(i -> {
-      ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
+      ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
       db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
     });
 
@@ -483,7 +483,7 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void countProjectsWithAnyonePermissions() {
+  public void countEntitiesWithAnyonePermissions() {
     GroupDto group = db.users().insertGroup();
     IntStream.rangeClosed(1, 5).forEach(i -> {
       ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
@@ -491,11 +491,11 @@ public class GroupPermissionDaoIT {
       db.users().insertProjectPermissionOnGroup(group, "perm-", project);
     });
 
-    assertThat(underTest.countProjectsWithAnyonePermissions(dbSession)).isEqualTo(5);
+    assertThat(underTest.countEntitiesWithAnyonePermissions(dbSession)).isEqualTo(5);
   }
 
   @Test
-  public void selectProjectPermissionsOfGroup_on_private_project() {
+  public void selectEntityPermissionsOfGroup_on_private_project() {
     GroupDto group1 = db.users().insertGroup("group1");
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -506,13 +506,13 @@ public class GroupPermissionDaoIT {
     db.users().insertProjectPermissionOnGroup(group1, "perm4", project1);
     db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
 
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project1.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project1.uuid()))
       .containsOnly("perm3", "perm4");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project2.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project2.uuid()))
       .containsOnly("perm5");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project1.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project1.uuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project2.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project2.uuid()))
       .isEmpty();
   }
 
@@ -554,33 +554,33 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void selectGroupUuidsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
+  public void selectGroupUuidsWithPermissionOnEntityBut_returns_empty_if_project_does_not_exist() {
     ProjectData project = randomPublicOrPrivateProject();
     GroupDto group = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group, "foo", project.getMainBranchComponent());
 
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, "1234", UserRole.USER))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, "1234", UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void selectGroupUuidsWithPermissionOnProjectBut_returns_only_groups_of_project_which_do_not_have_permission() {
-    ProjectData project = randomPublicOrPrivateProject();
+  public void selectGroupUuidsWithPermissionOnEntityBut_returns_only_groups_of_project_which_do_not_have_permission() {
+    ProjectDto project = randomPublicOrPrivateProject().getProjectDto();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group1, "p1", project.getMainBranchComponent());
-    db.users().insertProjectPermissionOnGroup(group2, "p2", project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p2", project);
 
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.projectUuid(), "p2"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.getUuid(), "p2"))
       .containsOnly(group1.getUuid());
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.projectUuid(), "p1"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.getUuid(), "p1"))
       .containsOnly(group2.getUuid());
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.projectUuid(), "p3"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.getUuid(), "p3"))
       .containsOnly(group1.getUuid(), group2.getUuid());
   }
 
   @Test
-  public void selectGroupUuidsWithPermissionOnProjectBut_does_not_returns_group_AnyOne_of_project_when_it_does_not_have_permission() {
+  public void selectGroupUuidsWithPermissionOnEntityBut_does_not_returns_group_AnyOne_of_project_when_it_does_not_have_permission() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
@@ -588,73 +588,73 @@ public class GroupPermissionDaoIT {
     db.users().insertProjectPermissionOnGroup(group2, "p2", project);
     db.users().insertProjectPermissionOnAnyone("p2", project);
 
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p2"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.uuid(), "p2"))
       .containsOnly(group1.getUuid());
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p1"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.uuid(), "p1"))
       .containsOnly(group2.getUuid());
   }
 
   @Test
-  public void selectGroupUuidsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
+  public void selectGroupUuidsWithPermissionOnEntityBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
     ProjectData project = randomPublicOrPrivateProject();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group1, "p1", project.getMainBranchComponent());
-    db.users().insertProjectPermissionOnGroup(group2, "p2", project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project.getProjectDto());
+    db.users().insertProjectPermissionOnGroup(group2, "p2", project.getProjectDto());
 
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.projectUuid(), "p2"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.projectUuid(), "p2"))
       .containsOnly(group1.getUuid());
-    assertThat(underTest.selectGroupUuidsWithPermissionOnProjectBut(dbSession, project.projectUuid(), "p1"))
+    assertThat(underTest.selectGroupUuidsWithPermissionOnEntityBut(dbSession, project.projectUuid(), "p1"))
       .containsOnly(group2.getUuid());
   }
 
   @Test
-  public void deleteByRootComponentUuid_on_private_project() {
+  public void deleteByRootEntityUuid_on_private_project() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertPermissionOnGroup(group1, "perm1");
     db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
     db.users().insertProjectPermissionOnGroup(group2, "perm3", project2);
 
-    underTest.deleteByRootComponentUuid(dbSession, project1);
+    underTest.deleteByEntityUuid(dbSession, project1);
     dbSession.commit();
 
-    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.uuid() + "'")).isZero();
+    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.getUuid() + "'")).isZero();
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(2);
   }
 
   @Test
-  public void deleteByRootComponentUuid_on_public_project() {
+  public void deleteByRootEntityUuid_on_public_project() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnGroup(group1, "perm1");
     db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
     db.users().insertProjectPermissionOnGroup(group2, "perm3", project2);
     db.users().insertProjectPermissionOnAnyone("perm4", project1);
     db.users().insertProjectPermissionOnAnyone("perm5", project2);
 
-    underTest.deleteByRootComponentUuid(dbSession, project1);
+    underTest.deleteByEntityUuid(dbSession, project1);
     dbSession.commit();
 
-    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.uuid() + "'")).isZero();
+    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.getUuid() + "'")).isZero();
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
   }
 
   @Test
   public void delete_global_permission_from_group_on_public_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
     db.users().insertProjectPermissionOnAnyone("perm4", project1);
 
-    underTest.delete(dbSession, "perm2", group1.getUuid(), group1.getName(), null, project1);
+    underTest.delete(dbSession, "perm2", group1.getUuid(), group1.getName(), null);
     dbSession.commit();
 
     assertThatNoPermission("perm2");
@@ -664,12 +664,12 @@ public class GroupPermissionDaoIT {
   @Test
   public void delete_global_permission_from_group_on_private_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
 
-    underTest.delete(dbSession, "perm2", group1.getUuid(), group1.getName(), null, project1);
+    underTest.delete(dbSession, "perm2", group1.getUuid(), group1.getName(), null);
     dbSession.commit();
 
     assertThatNoPermission("perm2");
@@ -679,13 +679,13 @@ public class GroupPermissionDaoIT {
   @Test
   public void delete_global_permission_from_anyone_on_public_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
     db.users().insertProjectPermissionOnAnyone("perm4", project1);
 
-    underTest.delete(dbSession, "perm1", null, null, null, project1);
+    underTest.delete(dbSession, "perm1", null, null, null);
     dbSession.commit();
 
     assertThatNoPermission("perm1");
@@ -695,12 +695,12 @@ public class GroupPermissionDaoIT {
   @Test
   public void delete_project_permission_from_group_on_private_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
 
-    underTest.delete(dbSession, "perm3", group1.getUuid(), group1.getName(), project1.uuid(), project1);
+    underTest.delete(dbSession, "perm3", group1.getUuid(), group1.getName(), project1);
     dbSession.commit();
 
     assertThatNoPermission("perm3");
@@ -710,13 +710,13 @@ public class GroupPermissionDaoIT {
   @Test
   public void delete_project_permission_from_group_on_public_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
     db.users().insertProjectPermissionOnAnyone("perm4", project1);
 
-    underTest.delete(dbSession, "perm3", group1.getUuid(), group1.getName(), project1.uuid(), project1);
+    underTest.delete(dbSession, "perm3", group1.getUuid(), group1.getName(), project1);
     dbSession.commit();
 
     assertThatNoPermission("perm3");
@@ -726,13 +726,13 @@ public class GroupPermissionDaoIT {
   @Test
   public void delete_project_permission_from_anybody_on_private_project() {
     GroupDto group1 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
     db.users().insertProjectPermissionOnAnyone("perm4", project1);
 
-    underTest.delete(dbSession, "perm4", null, null, project1.uuid(), project1);
+    underTest.delete(dbSession, "perm4", null, null, project1);
     dbSession.commit();
 
     assertThatNoPermission("perm4");
@@ -740,28 +740,28 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_deletes_all_permissions_of_group_AnyOne_of_specified_component_if_groupUuid_is_null() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+  public void deleteByRootEntityAndGroupUuid_deletes_all_permissions_of_group_AnyOne_of_specified_component_if_groupUuid_is_null() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group = db.users().insertGroup();
     db.users().insertProjectPermissionOnAnyone("p1", project);
     db.users().insertProjectPermissionOnGroup(group, "p2", project);
     db.users().insertPermissionOnAnyone("p3");
     db.users().insertPermissionOnGroup(group, "p4");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .containsOnly("p1");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group.getUuid(), project.getUuid()))
       .containsOnly("p2");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, null))
       .containsOnly("p3");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, group.getUuid()))
       .containsOnly("p4");
 
-    int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, null, project);
+    int deletedCount = underTest.deleteByEntityAndGroupUuid(dbSession, null, project);
 
     assertThat(deletedCount).isOne();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group.getUuid(), project.getUuid()))
       .containsOnly("p2");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, null))
       .containsOnly("p3");
@@ -770,8 +770,8 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_deletes_all_permissions_of_specified_group_of_specified_component_if_groupUuid_is_non_null() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+  public void deleteByRootEntityAndGroupUuid_deletes_all_permissions_of_specified_group_of_specified_component_if_groupUuid_is_non_null() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     db.users().insertProjectPermissionOnAnyone("p1", project);
@@ -781,11 +781,11 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("p5");
     db.users().insertPermissionOnGroup(group1, "p6");
     db.users().insertPermissionOnGroup(group2, "p7");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .containsOnly("p1");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .containsOnly("p2");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group2.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group2.getUuid(), project.getUuid()))
       .containsOnly("p3", "p4");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, null))
       .containsOnly("p5");
@@ -794,28 +794,28 @@ public class GroupPermissionDaoIT {
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, group2.getUuid()))
       .containsOnly("p7");
 
-    int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group1.getUuid(), project);
+    int deletedCount = underTest.deleteByEntityAndGroupUuid(dbSession, group1.getUuid(), project);
 
     assertThat(deletedCount).isOne();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .containsOnly("p1");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group2.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group2.getUuid(), project.getUuid()))
       .containsOnly("p3", "p4");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, group1.getUuid()))
       .containsOnly("p6");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, group2.getUuid()))
       .containsOnly("p7");
 
-    deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group2.getUuid(), project);
+    deletedCount = underTest.deleteByEntityAndGroupUuid(dbSession, group2.getUuid(), project);
 
     assertThat(deletedCount).isEqualTo(2);
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .containsOnly("p1");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group2.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group2.getUuid(), project.getUuid()))
       .isEmpty();
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, group1.getUuid()))
       .containsOnly("p6");
@@ -824,48 +824,48 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_has_no_effect_if_component_does_not_exist() {
+  public void deleteByRootEntityAndGroupUuid_has_no_effect_if_component_does_not_exist() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto component = new ComponentDto().setUuid("1234");
+    ProjectDto projectDto = new ProjectDto().setUuid("1234");
 
-    assertThat(underTest.deleteByRootComponentUuidAndGroupUuid(dbSession,  null, component)).isZero();
-    assertThat(underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group.getUuid(), component)).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession,  null, projectDto)).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, group.getUuid(), projectDto)).isZero();
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_has_no_effect_if_component_has_no_group_permission_at_all() {
+  public void deleteByRootEntityAndGroupUuid_has_no_effect_if_component_has_no_group_permission_at_all() {
     ProjectData project = randomPublicOrPrivateProject();
     GroupDto group = db.users().insertGroup();
 
-    assertThat(underTest.deleteByRootComponentUuidAndGroupUuid(dbSession,  null, project.getMainBranchComponent())).isZero();
-    assertThat(underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group.getUuid(), project.getMainBranchComponent())).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession,  null, project.getProjectDto())).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, group.getUuid(), project.getProjectDto())).isZero();
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_has_no_effect_if_group_does_not_exist() {
+  public void deleteByRootEntityAndGroupUuid_has_no_effect_if_group_does_not_exist() {
     ProjectData project = randomPublicOrPrivateProject();
 
-    assertThat(underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, "5678", project.getMainBranchComponent())).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, "5678", project.getProjectDto())).isZero();
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_has_no_effect_if_component_has_no_group_permission_for_group_AnyOne() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+  public void deleteByRootEntityAndGroupUuid_has_no_effect_if_component_has_no_group_permission_for_group_AnyOne() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group1 = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group1, "p1", project);
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .containsOnly("p1");
     db.users().insertPermissionOnAnyone("p2");
     db.users().insertPermissionOnGroup(group1, "p3");
 
-    int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, null, project);
+    int deletedCount = underTest.deleteByEntityAndGroupUuid(dbSession, null, project);
 
     assertThat(deletedCount).isZero();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project.getUuid()))
       .isEmpty();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .containsOnly("p1");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, null))
       .containsOnly("p2");
@@ -874,20 +874,20 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void deleteByRootComponentUuidAndGroupUuid_has_no_effect_if_component_has_no_group_permission_for_specified_group() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+  public void deleteByRootEntityAndGroupUuid_has_no_effect_if_component_has_no_group_permission_for_specified_group() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group1, "p1", project);
     db.users().insertPermissionOnAnyone("p2");
     db.users().insertPermissionOnGroup(group1, "p3");
 
-    int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group2.getUuid(), project);
+    int deletedCount = underTest.deleteByEntityAndGroupUuid(dbSession, group2.getUuid(), project);
 
     assertThat(deletedCount).isZero();
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group1.getUuid(), project.getUuid()))
       .containsOnly("p1");
-    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group2.getUuid(), project.uuid()))
+    assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, group2.getUuid(), project.getUuid()))
       .isEmpty();
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, null))
       .containsOnly("p2");
@@ -896,55 +896,55 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void deleteByRootComponentUuidAndPermission_deletes_all_rows_for_specified_role_of_specified_component() {
-    ProjectData project = db.components().insertPublicProject();
+  public void deleteByEntityAndPermission_deletes_all_rows_for_specified_role_of_specified_component() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group = db.users().insertGroup();
     Stream.of("p1", "p2").forEach(permission -> {
       db.users().insertPermissionOnAnyone(permission);
       db.users().insertPermissionOnGroup(group, permission);
-      db.users().insertProjectPermissionOnGroup(group, permission, project.getMainBranchComponent());
-      db.users().insertProjectPermissionOnAnyone(permission, project.getMainBranchComponent());
+      db.users().insertProjectPermissionOnGroup(group, permission, project);
+      db.users().insertProjectPermissionOnAnyone(permission, project);
     });
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
-    assertThat(getProjectPermissionsForAnyOne(project.getMainBranchComponent())).containsOnly("p1", "p2");
-    assertThat(getProjectPermissionsForGroup(project.getMainBranchComponent(), group)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForAnyOne(project.getUuid())).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).containsOnly("p1", "p2");
 
-    int deletedRows = underTest.deleteByEntityAndPermission(dbSession, "p1", project.getProjectDto());
-
-    assertThat(deletedRows).isEqualTo(2);
-    assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
-    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
-    assertThat(getProjectPermissionsForAnyOne(project.getMainBranchComponent())).containsOnly("p2");
-    assertThat(getProjectPermissionsForGroup(project.getMainBranchComponent(), group)).containsOnly("p2");
-
-    deletedRows = underTest.deleteByEntityAndPermission(dbSession,  "p2", project.getProjectDto());
+    int deletedRows = underTest.deleteByEntityAndPermission(dbSession, "p1", project);
 
     assertThat(deletedRows).isEqualTo(2);
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
-    assertThat(getProjectPermissionsForAnyOne(project.getMainBranchComponent())).isEmpty();
-    assertThat(getProjectPermissionsForGroup(project.getMainBranchComponent(), group)).isEmpty();
+    assertThat(getProjectPermissionsForAnyOne(project.getUuid())).containsOnly("p2");
+    assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).containsOnly("p2");
+
+    deletedRows = underTest.deleteByEntityAndPermission(dbSession,  "p2", project);
+
+    assertThat(deletedRows).isEqualTo(2);
+    assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForAnyOne(project.getUuid())).isEmpty();
+    assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).isEmpty();
   }
 
   @Test
-  public void deleteByRootComponentUuidAndPermission_has_no_effect_if_component_has_no_group_permission_at_all() {
+  public void deleteByEntityAndPermission_has_no_effect_if_component_has_no_group_permission_at_all() {
     GroupDto group = db.users().insertGroup();
-    ProjectData project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertPermissionOnAnyone("p1");
     db.users().insertPermissionOnGroup(group, "p1");
 
-    assertThat(underTest.deleteByEntityAndPermission(dbSession, "p1", project.getProjectDto())).isZero();
+    assertThat(underTest.deleteByEntityAndPermission(dbSession, "p1", project)).isZero();
 
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1");
-    assertThat(getProjectPermissionsForAnyOne(project.getMainBranchComponent())).isEmpty();
-    assertThat(getProjectPermissionsForGroup(project.getMainBranchComponent(), group)).isEmpty();
+    assertThat(getProjectPermissionsForAnyOne(project.getUuid())).isEmpty();
+    assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).isEmpty();
   }
 
   @Test
-  public void deleteByRootComponentUuidAndPermission_has_no_effect_if_component_does_not_exist() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+  public void deleteByEntityAndPermission_has_no_effect_if_component_does_not_exist() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group = db.users().insertGroup();
     db.users().insertPermissionOnAnyone("p1");
     db.users().insertPermissionOnGroup(group, "p1");
@@ -957,12 +957,12 @@ public class GroupPermissionDaoIT {
 
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1");
-    assertThat(getProjectPermissionsForAnyOne(project)).containsOnly("p1");
-    assertThat(getProjectPermissionsForGroup(project, group)).containsOnly("p1");
+    assertThat(getProjectPermissionsForAnyOne(project.getUuid())).containsOnly("p1");
+    assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).containsOnly("p1");
   }
 
   @Test
-  public void deleteByRootComponentUuidAndPermission_has_no_effect_if_component_does_not_have_specified_permission() {
+  public void deleteByEntityAndPermission_has_no_effect_if_component_does_not_have_specified_permission() {
     GroupDto group = db.users().insertGroup();
     ProjectData project = randomPublicOrPrivateProject();
     db.users().insertPermissionOnAnyone("p1");
@@ -996,12 +996,12 @@ public class GroupPermissionDaoIT {
     return getPermissions("group_uuid = '" + groupDto.getUuid() + "' and component_uuid is null");
   }
 
-  private Collection<String> getProjectPermissionsForAnyOne(ComponentDto project) {
-    return getPermissions("group_uuid is null and component_uuid = '" + project.uuid() + "'");
+  private Collection<String> getProjectPermissionsForAnyOne(String projectUuid) {
+    return getPermissions("group_uuid is null and component_uuid = '" + projectUuid + "'");
   }
 
-  private Collection<String> getProjectPermissionsForGroup(ComponentDto project, GroupDto group) {
-    return getPermissions("group_uuid = '" + group.getUuid() + "' and component_uuid = '" + project.uuid() + "'");
+  private Collection<String> getProjectPermissionsForGroup(String projectUuid, GroupDto group) {
+    return getPermissions("group_uuid = '" + group.getUuid() + "' and component_uuid = '" + projectUuid + "'");
   }
 
   private Collection<String> getPermissions(String whereClauses) {

@@ -31,6 +31,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -52,15 +53,15 @@ public class UserPermissionChangerIT {
   private final UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
   private UserDto user1;
   private UserDto user2;
-  private ComponentDto privateProject;
-  private ComponentDto publicProject;
+  private EntityDto privateProject;
+  private EntityDto publicProject;
 
   @Before
   public void setUp() {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    privateProject = db.components().insertPrivateProject().getMainBranchComponent();
-    publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    privateProject = db.components().insertPrivateProject().getProjectDto();
+    publicProject = db.components().insertPublicProject().getProjectDto();
   }
 
   @Test
@@ -100,7 +101,7 @@ public class UserPermissionChangerIT {
 
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, publicProject)).doesNotContain(UserRole.USER);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, publicProject.getUuid())).doesNotContain(UserRole.USER);
   }
 
   @Test
@@ -109,7 +110,7 @@ public class UserPermissionChangerIT {
 
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, publicProject)).doesNotContain(UserRole.CODEVIEWER);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, publicProject.getUuid())).doesNotContain(UserRole.CODEVIEWER);
   }
 
   @Test
@@ -132,7 +133,7 @@ public class UserPermissionChangerIT {
 
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, publicProject)).containsOnly(permission);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, publicProject.getUuid())).containsOnly(permission);
   }
 
   @Test
@@ -174,7 +175,7 @@ public class UserPermissionChangerIT {
 
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, publicProject)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user1, publicProject.getUuid())).isEmpty();
   }
 
   @Test
@@ -185,7 +186,7 @@ public class UserPermissionChangerIT {
 
         apply(change);
 
-        assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).contains(permission);
+        assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).contains(permission);
       });
   }
 
@@ -200,7 +201,7 @@ public class UserPermissionChangerIT {
 
         apply(change);
 
-        assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).doesNotContain(permission);
+        assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).doesNotContain(permission);
       });
   }
 
@@ -211,9 +212,9 @@ public class UserPermissionChangerIT {
     apply(change);
 
     assertThat(db.users().selectPermissionsOfUser(user1)).containsOnly(GlobalPermission.SCAN);
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).isEmpty();
     assertThat(db.users().selectPermissionsOfUser(user2)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user2, privateProject)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user2, privateProject.getUuid())).isEmpty();
   }
 
   @Test
@@ -222,9 +223,9 @@ public class UserPermissionChangerIT {
     apply(change);
 
     assertThat(db.users().selectPermissionsOfUser(user1)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).contains(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).contains(UserRole.ISSUE_ADMIN);
     assertThat(db.users().selectPermissionsOfUser(user2)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user2, privateProject)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user2, privateProject.getUuid())).isEmpty();
   }
 
   @Test
@@ -269,12 +270,12 @@ public class UserPermissionChangerIT {
 
     assertThat(db.users().selectPermissionsOfUser(user1)).containsOnly(GlobalPermission.SCAN);
     assertThat(db.users().selectPermissionsOfUser(user2)).containsOnly(GlobalPermission.ADMINISTER_QUALITY_GATES);
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
   public void remove_project_permission_from_user() {
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    EntityDto project2 = db.components().insertPrivateProject().getProjectDto();
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, privateProject);
     db.users().insertProjectPermissionOnUser(user1, UserRole.USER, privateProject);
@@ -284,9 +285,9 @@ public class UserPermissionChangerIT {
     UserPermissionChange change = new UserPermissionChange(REMOVE, UserRole.ISSUE_ADMIN, privateProject, UserIdDto.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).containsOnly(UserRole.USER);
-    assertThat(db.users().selectProjectPermissionsOfUser(user2, privateProject)).containsOnly(UserRole.ISSUE_ADMIN);
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, project2)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).containsOnly(UserRole.USER);
+    assertThat(db.users().selectEntityPermissionOfUser(user2, privateProject.getUuid())).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectEntityPermissionOfUser(user1, project2.getUuid())).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
@@ -302,7 +303,7 @@ public class UserPermissionChangerIT {
     UserPermissionChange change = new UserPermissionChange(REMOVE, UserRole.ISSUE_ADMIN, privateProject, UserIdDto.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user1, privateProject.getUuid())).isEmpty();
   }
 
   @Test

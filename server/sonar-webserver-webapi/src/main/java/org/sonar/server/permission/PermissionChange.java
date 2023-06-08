@@ -21,8 +21,8 @@ package org.sonar.server.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.component.ComponentDto;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -36,15 +36,15 @@ public abstract class PermissionChange {
 
   private final Operation operation;
   private final String permission;
-  private final ComponentDto project;
+  private final EntityDto entity;
   protected final PermissionService permissionService;
 
-  protected PermissionChange(Operation operation, String permission, @Nullable ComponentDto project, PermissionService permissionService) {
+  protected PermissionChange(Operation operation, String permission, @Nullable EntityDto entity, PermissionService permissionService) {
     this.operation = requireNonNull(operation);
     this.permission = requireNonNull(permission);
-    this.project = project;
+    this.entity = entity;
     this.permissionService = permissionService;
-    if (project == null) {
+    if (entity == null) {
       checkRequest(permissionService.getGlobalPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
         "Invalid global permission '%s'. Valid values are %s", permission,
         permissionService.getGlobalPermissions().stream().map(GlobalPermission::getKey).collect(toList()));
@@ -63,17 +63,17 @@ public abstract class PermissionChange {
   }
 
   @CheckForNull
-  public ComponentDto getProject() {
-    return project;
+  public EntityDto getEntity() {
+    return entity;
   }
 
   @CheckForNull
   public String getProjectName() {
-    return project == null ? null : project.name();
+    return entity == null ? null : entity.getName();
   }
 
   @CheckForNull
   public String getProjectUuid() {
-    return project == null ? null : project.uuid();
+    return entity == null ? null : entity.getUuid();
   }
 }

@@ -136,6 +136,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return new DbTester(system2, false, null, auditPersister);
   }
 
+  public static DbTester create(System2 system2, AuditPersister auditPersister, boolean useDifferentProjectUuids) {
+    return new DbTester(system2, useDifferentProjectUuids, null, auditPersister);
+  }
+
   public static DbTester create(System2 system2) {
     return new DbTester(system2, false, null, new NoOpAuditPersister());
   }

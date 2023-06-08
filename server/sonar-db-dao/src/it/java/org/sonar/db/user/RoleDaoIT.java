@@ -126,11 +126,11 @@ public class RoleDaoIT {
     db.getSession().commit();
 
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group1.getUuid())).isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group1.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group1.getUuid(), project.uuid()))
       .isEmpty();
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group2.getUuid()))
       .containsOnly("gateadmin");
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group2.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group2.getUuid(), project.uuid()))
       .containsOnly("admin");
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
       "provisioning");

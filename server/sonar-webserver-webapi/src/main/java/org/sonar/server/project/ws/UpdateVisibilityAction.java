@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,6 +28,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -130,7 +132,9 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, EntityDto entity, boolean newIsPrivate) {
-    dbClient.componentDao().setPrivateForBranchUuid(dbSession, entity.getUuid(), newIsPrivate, entity.getKey(), entity.getQualifier(), entity.getName());
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid());
+    String branchUuid = branchDto.isPresent() ? branchDto.get().getUuid() : entity.getUuid();
+    dbClient.componentDao().setPrivateForBranchUuid(dbSession, branchUuid, newIsPrivate, entity.getKey(), entity.getQualifier(), entity.getName());
 
     if (entity.isProjectOrApp()) {
       dbClient.projectDao().updateVisibility(dbSession, entity.getUuid(), newIsPrivate);
@@ -153,9 +157,9 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     dbClient.groupPermissionDao().deleteByEntityUuidForAnyOne(dbSession, entity);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
-      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, entity.getUuid(), permission)
+      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission)
         .forEach(group -> insertProjectPermissionOnGroup(dbSession, entity, permission, group));
-      dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, entity.getUuid(), permission)
+      dbClient.userPermissionDao().selectUserIdsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission)
         .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, entity, permission, userUuid));
     });
   }

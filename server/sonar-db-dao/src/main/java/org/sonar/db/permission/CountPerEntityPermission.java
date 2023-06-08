@@ -24,24 +24,24 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * Count the number of users or groups for a given project and permission
  */
-public class CountPerProjectPermission {
-  private String componentUuid;
+public class CountPerEntityPermission {
+  private String entityUuid;
   private String permission;
   private int count;
 
-  public CountPerProjectPermission() {
+  public CountPerEntityPermission() {
     // used by MyBatis
   }
 
   @VisibleForTesting
-  CountPerProjectPermission(String componentUuid, String permission, int count) {
-    this.componentUuid = componentUuid;
+  CountPerEntityPermission(String entityUuid, String permission, int count) {
+    this.entityUuid = entityUuid;
     this.permission = permission;
     this.count = count;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   public String getPermission() {

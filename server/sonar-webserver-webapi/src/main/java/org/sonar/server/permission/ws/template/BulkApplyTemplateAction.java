@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws.template;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -37,6 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
@@ -150,9 +152,13 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
 
       ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
 
-      permissionTemplateService.applyAndCommit(dbSession, template, projects);
+      List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, components.stream()
+        .map(ComponentDto::getKey)
+        .collect(Collectors.toSet()));
+
+      permissionTemplateService.applyAndCommit(dbSession, template, entities);
     }
   }
 

@@ -61,6 +61,12 @@ public class ComponentDbTester {
     return insertSnapshot(component);
   }
 
+  public ProjectData insertProjectDataAndSnapshot(ComponentDto component) {
+    ProjectData projectData = insertComponentAndBranchAndProject(component, null, defaults(), defaults(), defaults());
+    insertSnapshot(component);
+    return projectData;
+  }
+
   public SnapshotDto insertPortfolioAndSnapshot(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component, true);
     return insertSnapshot(component);
@@ -215,6 +221,12 @@ public class ComponentDbTester {
   public final PortfolioDto insertPrivatePortfolioDto() {
     ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, defaults(), defaults());
     return getPortfolioDto(component);
+  }
+
+  public final PortfolioData insertPrivatePortfolioData() {
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, defaults(), defaults());
+    PortfolioDto portfolioDto = getPortfolioDto(component);
+    return new PortfolioData(portfolioDto, component);
   }
 
   public final PortfolioDto insertPrivatePortfolioDto(Consumer<ComponentDto> dtoPopulator) {

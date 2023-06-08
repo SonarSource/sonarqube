@@ -207,7 +207,7 @@ public class CreateActionIT {
   @Test
   public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() {
     UserDto user = db.users().insertUser();
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ProjectDto.class))).thenReturn(true);
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()
@@ -222,9 +222,8 @@ public class CreateActionIT {
   @Test
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(),
-      user.getLogin()));
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ProjectDto.class))).thenReturn(true);
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()

@@ -33,12 +33,12 @@ public class PermissionQueryTest {
   public void create_query() {
     ComponentDto project = newPublicProjectDto();
     PermissionQuery query = PermissionQuery.builder()
-      .setComponent(project)
+      .setEntity(project)
       .setPermission("user")
       .setSearchQuery("sonar")
       .build();
 
-    assertThat(query.getComponentUuid()).isEqualTo(project.uuid());
+    assertThat(query.getEntityUuid()).isEqualTo(project.uuid());
     assertThat(query.getPermission()).isEqualTo("user");
     assertThat(query.getSearchQuery()).isEqualTo("sonar");
   }

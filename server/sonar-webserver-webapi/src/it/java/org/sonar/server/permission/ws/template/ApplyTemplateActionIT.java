@@ -29,8 +29,10 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.TestProjectIndexers;
@@ -63,13 +65,12 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   private UserDto user2;
   private GroupDto group1;
   private GroupDto group2;
-  private ComponentDto project;
+  private ProjectDto project;
   private PermissionTemplateDto template1;
-  private PermissionTemplateDto template2;
 
-  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
-  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
-  private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
+  private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
+  private final PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
     new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
 
   @Override
@@ -91,13 +92,13 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     addGroupToTemplate(group1, template1, UserRole.ADMIN);
     addGroupToTemplate(group2, template1, UserRole.USER);
     // template 2
-    template2 = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto template2 = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user1, template2, UserRole.USER);
     addUserToTemplate(user2, template2, UserRole.USER);
     addGroupToTemplate(group1, template2, UserRole.USER);
     addGroupToTemplate(group2, template2, UserRole.USER);
 
-    project = db.components().insertPrivateProject().getMainBranchComponent();
+    project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);
@@ -108,7 +109,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   public void apply_template_with_project_uuid() {
     loginAsAdmin();
 
-    newRequest(template1.getUuid(), project.uuid(), null);
+    newRequest(template1.getUuid(), project.getUuid(), null);
 
     assertTemplate1AppliedToProject();
   }
@@ -119,7 +120,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
 
     newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .execute();
 
     assertTemplate1AppliedToProject();
@@ -139,7 +140,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
-      newRequest("unknown-template-uuid", project.uuid(), null);
+      newRequest("unknown-template-uuid", project.getUuid(), null);
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Permission template with id 'unknown-template-uuid' is not found");
@@ -153,7 +154,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
       newRequest(template1.getUuid(), "unknown-project-uuid", null);
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project id 'unknown-project-uuid' not found");
+      .hasMessage("Entity not found");
   }
 
   @Test
@@ -164,16 +165,14 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
       newRequest(template1.getUuid(), null, "unknown-project-key");
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project key 'unknown-project-key' not found");
+      .hasMessage("Entity not found");
   }
 
   @Test
   public void fail_when_template_is_not_provided() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> {
-      newRequest(null, project.uuid(), null);
-    })
+    assertThatThrownBy(() -> newRequest(null, project.getUuid(), null))
       .isInstanceOf(BadRequestException.class);
   }
 
@@ -192,9 +191,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   public void fail_when_not_admin() {
     userSession.logIn().addPermission(SCAN);
 
-    assertThatThrownBy(() -> {
-      newRequest(template1.getUuid(), project.uuid(), null);
-    })
+    assertThatThrownBy(() -> newRequest(template1.getUuid(), project.getUuid(), null))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -232,13 +229,13 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     db.commit();
   }
 
-  private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponent(project).build();
+  private List<String> selectProjectPermissionGroups(EntityDto entity, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setEntity(entity).build();
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
-  private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponent(project).build();
+  private List<String> selectProjectPermissionUsers(EntityDto entity, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setEntity(entity).build();
     return db.getDbClient().userPermissionDao().selectUserUuidsByQuery(db.getSession(), query);
   }
 }

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -45,7 +46,7 @@ public class PermissionQuery {
   // filter: return only the users or groups who have this permission
   private final String permission;
   // filter on project, else filter org permissions
-  private final String componentUuid;
+  private final String entityUuid;
 
   // filter on login, email or name of users or groups
   private final String searchQuery;
@@ -62,7 +63,7 @@ public class PermissionQuery {
   private PermissionQuery(Builder builder) {
     this.permission = builder.permission;
     this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
-    this.componentUuid = builder.componentUuid;
+    this.entityUuid = builder.entityUuid;
     this.searchQuery = builder.searchQuery;
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
@@ -80,8 +81,8 @@ public class PermissionQuery {
   }
 
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   @CheckForNull
@@ -113,7 +114,7 @@ public class PermissionQuery {
 
   public static class Builder {
     private String permission;
-    private String componentUuid;
+    private String entityUuid;
     private String searchQuery;
     private boolean withAtLeastOnePermission;
 
@@ -130,12 +131,16 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder setComponent(ComponentDto component) {
-      return setComponent(component.uuid());
+    public Builder setEntity(ComponentDto component) {
+      return setEntityUuid(component.uuid());
     }
 
-    public Builder setComponent(String componentUuid) {
-      this.componentUuid = componentUuid;
+    public Builder setEntity(EntityDto entity) {
+      return setEntityUuid(entity.getUuid());
+    }
+
+    public Builder setEntityUuid(String entityUuid) {
+      this.entityUuid = entityUuid;
       return this;
     }
 

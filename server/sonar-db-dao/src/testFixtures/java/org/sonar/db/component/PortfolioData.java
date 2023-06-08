@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.db.component;
 
-import javax.annotation.Nullable;
-import org.sonar.db.entity.EntityDto;
-import org.sonar.db.user.UserId;
+import org.sonar.db.portfolio.PortfolioDto;
 
-import static java.util.Objects.requireNonNull;
+public class PortfolioData {
 
-public class UserPermissionChange extends PermissionChange {
+  private final ComponentDto rootComponent;
+  private final PortfolioDto portfolioDto;
 
-  private final UserId userId;
-
-  public UserPermissionChange(Operation operation, String permission, @Nullable EntityDto entity, UserId userId,
-    PermissionService permissionService) {
-    super(operation, permission, entity, permissionService);
-    this.userId = requireNonNull(userId);
+  public PortfolioData(PortfolioDto projectDto, ComponentDto rootComponent) {
+    this.rootComponent = rootComponent;
+    this.portfolioDto = projectDto;
   }
 
-  public UserId getUserId() {
-    return userId;
+  public ComponentDto getRootComponent() {
+    return rootComponent;
   }
+
+  public PortfolioDto getPortfolioDto() {
+    return portfolioDto;
+  }
+
 }

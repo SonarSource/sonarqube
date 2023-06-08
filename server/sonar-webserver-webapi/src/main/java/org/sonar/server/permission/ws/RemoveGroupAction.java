@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
@@ -86,17 +86,17 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
-      ComponentDto project = wsSupport.findProject(dbSession, request).orElse(null);
+      EntityDto entity = wsSupport.findEntity(dbSession, request);
 
-      wsSupport.checkPermissionManagementAccess(userSession, project);
+      wsSupport.checkPermissionManagementAccess(userSession, entity);
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, project, permission, group);
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entity, permission, group);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
-        project,
+        entity,
         group,
         permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));

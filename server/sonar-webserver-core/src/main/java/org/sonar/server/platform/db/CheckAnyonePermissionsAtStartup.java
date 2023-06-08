@@ -62,7 +62,7 @@ public class CheckAnyonePermissionsAtStartup implements Startable {
           "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
       }
 
-      int total = dbClient.groupPermissionDao().countProjectsWithAnyonePermissions(dbSession);
+      int total = dbClient.groupPermissionDao().countEntitiesWithAnyonePermissions(dbSession);
       if (total > 0) {
         List<String> list = dbClient.groupPermissionDao().selectProjectKeysWithAnyonePermissions(dbSession, 3);
         LOG.warn("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose {} " +

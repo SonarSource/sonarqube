@@ -19,6 +19,7 @@
  */
 package org.sonar.db.permission;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserPermissionNewValue;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserId;
@@ -84,12 +84,13 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Count the number of users per permission for a given list of projects
+   * Count the number of users per permission for a given list of entities
    *
-   * @param projectUuids a non-null list of project uuids to filter on. If empty then an empty list is returned.
+   * @param entityUuids a non-null list of entity uuids to filter on. If empty then an empty list is returned.
    */
-  public List<CountPerProjectPermission> countUsersByProjectPermission(DbSession dbSession, Collection<String> projectUuids) {
-    return executeLargeInputs(projectUuids, mapper(dbSession)::countUsersByProjectPermission);
+  @VisibleForTesting
+  List<CountPerEntityPermission> countUsersByEntityPermission(DbSession dbSession, Collection<String> entityUuids) {
+    return executeLargeInputs(entityUuids, mapper(dbSession)::countUsersByEntityPermission);
   }
 
   /**
@@ -102,38 +103,26 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Gets all the project permissions granted to user for the specified project.
+   * Gets all the entity permissions granted to user for the specified entity.
    *
-   * @return the project permissions. An empty list is returned if project or user do not exist.
+   * @return the entity permissions. An empty list is returned if entity or user do not exist.
    */
-  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, String userUuid, String projectUuid) {
-    return mapper(dbSession).selectProjectPermissionsOfUser(userUuid, projectUuid);
+  public List<String> selectEntityPermissionsOfUser(DbSession dbSession, String userUuid, String entityUuid) {
+    return mapper(dbSession).selectEntityPermissionsOfUser(userUuid, entityUuid);
   }
 
-  public Set<UserIdDto> selectUserIdsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
-    return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectUuid, permission);
-  }
-
-  //TODO, will be removed later
-  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable ComponentDto componentDto,
-    @Nullable UserId userId, @Nullable PermissionTemplateDto templateDto) {
-    mapper(dbSession).insert(dto);
-
-    String componentName = (componentDto != null) ? componentDto.name() : null;
-    String componentKey = (componentDto != null) ? componentDto.getKey() : null;
-    String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-    auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
-      templateDto));
+  public Set<UserIdDto> selectUserIdsWithPermissionOnEntityBut(DbSession session, String entityUuid, String permission) {
+    return mapper(session).selectUserIdsWithPermissionOnEntityBut(entityUuid, permission);
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable EntityDto entityDto,
     @Nullable UserId userId, @Nullable PermissionTemplateDto templateDto) {
     mapper(dbSession).insert(dto);
 
-    String componentName = (entityDto != null) ? entityDto.getName() : null;
-    String componentKey = (entityDto != null) ? entityDto.getKey() : null;
-    String qualifier = (entityDto != null) ? entityDto.getQualifier() : null;
-    auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
+    String entityName = (entityDto != null) ? entityDto.getName() : null;
+    String entityKey = (entityDto != null) ? entityDto.getKey() : null;
+    String entityQualifier = (entityDto != null) ? entityDto.getQualifier() : null;
+    auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, entityKey, entityName, userId, entityQualifier,
       templateDto));
   }
 
@@ -149,21 +138,10 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Removes a single project permission from user
+   * Removes a single entity permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, UserId user, String permission, ComponentDto component) {
-    int deletedRows = mapper(dbSession).deleteProjectPermission(user.getUuid(), permission, component.uuid());
-
-    if (deletedRows > 0) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.getKey(), component.name(), user, component.qualifier()));
-    }
-  }
-
-  /**
-   * Removes a single project permission from user
-   */
-  public void deleteProjectPermission(DbSession dbSession, UserId user, String permission, EntityDto entity) {
-    int deletedRows = mapper(dbSession).deleteProjectPermission(user.getUuid(), permission, entity.getUuid());
+  public void deleteEntityPermission(DbSession dbSession, UserId user, String permission, EntityDto entity) {
+    int deletedRows = mapper(dbSession).deleteEntityPermission(user.getUuid(), permission, entity.getUuid());
 
     if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, entity.getUuid(), entity.getKey(), entity.getName(), user, entity.getQualifier()));
@@ -171,26 +149,26 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Deletes all the permissions defined on a project
+   * Deletes all the permissions defined on an entity
    */
-  public void deleteProjectPermissions(DbSession dbSession, ComponentDto component) {
-    int deletedRows = mapper(dbSession).deleteProjectPermissions(component.uuid());
+  public void deleteEntityPermissions(DbSession dbSession, EntityDto entity) {
+    int deletedRows = mapper(dbSession).deleteEntityPermissions(entity.getUuid());
 
     if (deletedRows > 0) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(null, component.uuid(), component.getKey(),
-        component.name(), null, component.qualifier()));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(null, entity.getUuid(), entity.getKey(),
+        entity.getName(), null, entity.getQualifier()));
     }
   }
 
   /**
    * Deletes the specified permission on the specified entity for any user.
    */
-  public int deleteEntityPermissionOfAnyUser(DbSession dbSession, String permission, EntityDto entityDto) {
-    int deletedRows = mapper(dbSession).deleteEntityPermissionOfAnyUser(entityDto.getUuid(), permission);
+  public int deleteEntityPermissionOfAnyUser(DbSession dbSession, String permission, EntityDto entity) {
+    int deletedRows = mapper(dbSession).deleteEntityPermissionOfAnyUser(entity.getUuid(), permission);
 
     if (deletedRows > 0) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, entityDto.getUuid(), entityDto.getKey(),
-        entityDto.getName(), null, entityDto.getQualifier()));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, entity.getUuid(), entity.getKey(),
+        entity.getName(), null, entity.getQualifier()));
     }
 
     return deletedRows;
