@@ -80,7 +80,9 @@ public interface CeQueueMapper {
 
   void insert(CeQueueDto dto);
 
-  int resetToPendingForWorker(@Param("workerUuid") String workerUuid, @Param("updatedAt") long updatedAt);
+  List<CeQueueDto> selectNotPendingForWorker(@Param("workerUuid") String workerUuid);
+
+  void resetToPendingByUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
 
   int updateIf(@Param("uuid") String uuid,
     @Param("new") UpdateIf.NewProperties newProperties,

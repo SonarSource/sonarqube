@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -43,7 +44,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.ComponentDto;
@@ -82,12 +82,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      CeQueueDao ceQueueDao = dbClient.ceQueueDao();
-      int i = ceQueueDao.resetToPendingForWorker(dbSession, workerUuid);
-      if (i > 0) {
-        dbSession.commit();
-        LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
-      }
+      resetNotPendingTasks(workerUuid, dbSession);
       Optional<CeQueueDto> opt = nextPendingTaskPicker.findPendingTask(workerUuid, dbSession, excludeIndexationJob);
       if (opt.isEmpty()) {
         return Optional.empty();
@@ -102,6 +97,17 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
       queueStatus.addInProgress();
       return Optional.of(task);
+    }
+  }
+
+  private void resetNotPendingTasks(String workerUuid, DbSession dbSession) {
+    List<CeQueueDto> notPendingTasks = dbClient.ceQueueDao().selectNotPendingForWorker(dbSession, workerUuid);
+    if (!notPendingTasks.isEmpty()) {
+      for (CeQueueDto pendingTask : notPendingTasks) {
+        dbClient.ceQueueDao().resetToPendingByUuid(dbSession, pendingTask.getUuid());
+      }
+      dbSession.commit();
+      LOG.debug("{} in progress tasks reset for worker uuid {}", notPendingTasks.size(), workerUuid);
     }
   }
 

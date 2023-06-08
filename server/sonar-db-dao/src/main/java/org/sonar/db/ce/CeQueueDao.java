@@ -133,12 +133,12 @@ public class CeQueueDao implements Dao {
     return mapper(session).deleteByUuid(uuid, deleteIf);
   }
 
-  /**
-   * Updates all tasks for the specified worker uuid which are not PENDING to:
-   * STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}.
-   */
-  public int resetToPendingForWorker(DbSession session, String workerUuid) {
-    return mapper(session).resetToPendingForWorker(workerUuid, system2.now());
+  public void resetToPendingByUuid(DbSession session, String uuid) {
+    mapper(session).resetToPendingByUuid(uuid, system2.now());
+  }
+
+  public List<CeQueueDto> selectNotPendingForWorker(DbSession session, String uuid) {
+    return mapper(session).selectNotPendingForWorker(uuid);
   }
 
   public int countByStatus(DbSession dbSession, CeQueueDto.Status status) {
