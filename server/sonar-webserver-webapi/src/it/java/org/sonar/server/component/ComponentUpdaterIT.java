@@ -374,6 +374,24 @@ public class ComponentUpdaterIT {
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s, %s\"", newKey, existingKey, existingKeyLowerCase);
   }
 
+  @Test
+  public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingPortfolioKeysButDifferentCase() {
+    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKeyLowerCase = existingKey.toLowerCase();
+    db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKey));
+    db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKeyLowerCase));
+    String newKey = StringUtils.capitalize(existingKeyLowerCase);
+
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(newKey)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s, %s\"", newKey, existingKey, existingKeyLowerCase);
+  }
 
   @Test
   public void create_createsComponentWithMasterBranchName() {

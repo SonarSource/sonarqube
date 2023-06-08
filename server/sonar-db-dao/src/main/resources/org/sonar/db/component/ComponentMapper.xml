@@ -39,7 +39,7 @@
     SELECT
       <include refid="componentColumns"/>
     FROM components p
-    inner join project_branches pb on pb.uuid = p.branch_uuid
+    left outer join project_branches pb on pb.uuid = p.branch_uuid
     where
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
       and <include refid="mainBranchOrPortfolio"/>
