@@ -20,11 +20,15 @@
 package org.sonar.server.component;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -167,12 +171,17 @@ public class ComponentUpdater {
   }
 
   private void checkKeyAlreadyExists(DbSession dbSession, NewComponent newComponent) {
-    Optional<ComponentDto> componentDto = newComponent.isProject()
+    List<ComponentDto> componentDtos = newComponent.isProject()
       ? dbClient.componentDao().selectByKeyCaseInsensitive(dbSession, newComponent.key())
-      : dbClient.componentDao().selectByKey(dbSession, newComponent.key());
+      : dbClient.componentDao().selectByKey(dbSession, newComponent.key()).map(Collections::singletonList).orElse(new ArrayList<>());
 
-    componentDto.map(ComponentDto::getKey)
-      .ifPresent(existingKey -> throwBadRequestException(KEY_ALREADY_EXISTS_ERROR, getQualifierToDisplay(newComponent.qualifier()), newComponent.key(), existingKey));
+    if (!componentDtos.isEmpty()) {
+      String alreadyExistingKeys = componentDtos
+        .stream()
+        .map(ComponentDto::getKey)
+        .collect(Collectors.joining(", "));
+      throwBadRequestException(KEY_ALREADY_EXISTS_ERROR, getQualifierToDisplay(newComponent.qualifier()), newComponent.key(), alreadyExistingKeys);
+    }
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, Consumer<ComponentDto> componentModifier, long now) {

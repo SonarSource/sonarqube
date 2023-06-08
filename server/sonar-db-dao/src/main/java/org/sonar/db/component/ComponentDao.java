@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -180,8 +179,8 @@ public class ComponentDao implements Dao {
     return Optional.ofNullable(mapper(session).selectByKeyAndBranchOrPr(key, null, pullRequestId));
   }
 
-  public Optional<ComponentDto> selectByKeyCaseInsensitive(DbSession session, String key) {
-    return Optional.ofNullable(mapper(session).selectByKeyCaseInsensitive(key));
+  public List<ComponentDto> selectByKeyCaseInsensitive(DbSession session, String key) {
+    return mapper(session).selectByKeyCaseInsensitive(key);
   }
 
   /**

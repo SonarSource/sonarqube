@@ -1796,10 +1796,10 @@ public class ComponentDaoIT {
     String projectKey = randomAlphabetic(5).toLowerCase();
     db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
 
-    ComponentDto result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey.toUpperCase()).orElse(null);
+    List<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey.toUpperCase());
 
-    assertThat(result).isNotNull();
-    assertThat(result.getKey()).isEqualTo(projectKey);
+    assertThat(result).isNotEmpty();
+    assertThat(result.get(0).getKey()).isEqualTo(projectKey);
   }
 
   @Test
@@ -1809,9 +1809,9 @@ public class ComponentDaoIT {
     BranchDto projectBranch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertFile(projectBranch);
 
-    ComponentDto result = underTest.selectByKeyCaseInsensitive(db.getSession(), file.getKey()).orElse(null);
+    List<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), file.getKey());
 
-    assertThat(result).isNull();
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -1819,7 +1819,7 @@ public class ComponentDaoIT {
     String projectKey = randomAlphabetic(5).toLowerCase();
     db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
 
-    Optional<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey + randomAlphabetic(1));
+    List<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey + randomAlphabetic(1));
 
     assertThat(result).isEmpty();
   }

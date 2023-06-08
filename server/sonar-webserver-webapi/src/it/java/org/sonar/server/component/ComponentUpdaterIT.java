@@ -20,6 +20,7 @@
 package org.sonar.server.component;
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -337,6 +338,26 @@ public class ComponentUpdaterIT {
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
   }
+
+  @Test
+  public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingKeyButDifferentCase() {
+    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKeyLowerCase = existingKey.toLowerCase();
+    db.components().insertPrivateProject(component -> component.setKey(existingKey));
+    db.components().insertPrivateProject(component -> component.setKey(existingKeyLowerCase));
+    String newKey = StringUtils.capitalize(existingKeyLowerCase);
+
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(newKey)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s, %s\"", newKey, existingKey, existingKeyLowerCase);
+  }
+
 
   @Test
   public void create_createsComponentWithMasterBranchName() {

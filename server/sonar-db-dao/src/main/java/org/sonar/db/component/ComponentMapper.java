@@ -30,7 +30,7 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface ComponentMapper {
   @CheckForNull
-  ComponentDto selectByKeyCaseInsensitive(@Param("key") String key);
+  List<ComponentDto> selectByKeyCaseInsensitive(@Param("key") String key);
 
   @CheckForNull
   ComponentDto selectByKeyAndBranchOrPr(@Param("key") String key, @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
