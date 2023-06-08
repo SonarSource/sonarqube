@@ -412,7 +412,7 @@ exports[`should search 4`] = `
       value="blabla"
     />
     <div
-      className="note spacer-bottom"
+      className="sw-mb-2"
     >
       no_results
     </div>
@@ -451,7 +451,7 @@ exports[`should search 5`] = `
       value="blabla"
     />
     <div
-      className="note spacer-bottom"
+      className="sw-mb-2"
     >
       no_results
     </div>

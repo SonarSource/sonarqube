@@ -544,9 +544,8 @@ describe('issues item', () => {
     expect(
       await screen.findByRole('tab', {
         name: `coding_rules.description_section.title.root_cause`,
-        selected: true,
       })
-    ).toBeInTheDocument();
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   it('should interact with flows and locations', async () => {
@@ -823,17 +822,15 @@ describe('issues item', () => {
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-        selected: true,
       })
-    ).not.toBeInTheDocument();
+    ).toHaveAttribute('aria-current', 'false');
 
     await user.click(screen.getByRole('link', { name: 'location 1' }));
     expect(
-      screen.getByRole('tab', {
+      screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-        selected: true,
       })
-    ).toBeInTheDocument();
+    ).toHaveAttribute('aria-current', 'true');
 
     // Select the same selected hotspot location should also navigate back to code page
     await user.click(
@@ -842,17 +839,15 @@ describe('issues item', () => {
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-        selected: true,
       })
-    ).not.toBeInTheDocument();
+    ).toHaveAttribute('aria-current', 'false');
 
     await user.click(screen.getByRole('link', { name: 'location 1' }));
     expect(
-      screen.getByRole('tab', {
+      screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-        selected: true,
       })
-    ).toBeInTheDocument();
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   it('should show issue tags if applicable', async () => {

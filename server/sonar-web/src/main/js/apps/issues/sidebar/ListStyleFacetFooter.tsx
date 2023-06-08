@@ -19,7 +19,7 @@
  */
 
 import { useTheme } from '@emotion/react';
-import { BaseLink, Theme, themeColor } from 'design-system';
+import { DiscreetLink, Theme, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -49,13 +49,13 @@ export function ListStyleFacetFooter({
 
   return (
     <div
-      className="sw-body-xs sw-mb-2 sw-mt-2 sw-text-center"
+      className="sw-mb-2 sw-mt-2 sw-text-center"
       style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
     >
       {translateWithParameters('x_show', formatMeasure(nbShown, MetricType.Integer))}
 
       {hasMore && (
-        <BaseLink
+        <DiscreetLink
           aria-label={showMoreAriaLabel}
           className="sw-ml-2"
           onClick={(e) => {
@@ -65,11 +65,11 @@ export function ListStyleFacetFooter({
           to="#"
         >
           {translate('show_more')}
-        </BaseLink>
+        </DiscreetLink>
       )}
 
       {showLess && allShown && (
-        <BaseLink
+        <DiscreetLink
           aria-label={showLessAriaLabel}
           className="sw-ml-2"
           onClick={(e) => {
@@ -79,7 +79,7 @@ export function ListStyleFacetFooter({
           to="#"
         >
           {translate('show_less')}
-        </BaseLink>
+        </DiscreetLink>
       )}
     </div>
   );

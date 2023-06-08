@@ -19,13 +19,12 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { FlagMessage, LineFinding, themeColor } from 'design-system';
+import { FlagMessage, IssueMessageHighlighting, LineFinding, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../api/components';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';

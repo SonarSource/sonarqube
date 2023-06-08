@@ -162,8 +162,6 @@ const IssueItem = styled.li`
 
   &.selected {
     border: ${themeBorder('default', 'tableRowSelected')};
-    &:last-child {
-    }
   }
 
   &:hover {

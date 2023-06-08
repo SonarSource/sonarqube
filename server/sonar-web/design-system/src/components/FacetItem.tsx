@@ -113,6 +113,7 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
 
       & mark {
         background-color: ${themeColor('searchHighlight')};
+        font-weight: 400;
       }
     }
 

@@ -367,7 +367,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
     const { searching, searchMaxResults, searchResults, searchPaging } = this.state;
 
     if (!searching && !searchResults?.length) {
-      return <div className="note spacer-bottom">{translate('no_results')}</div>;
+      return <div className="sw-mb-2">{translate('no_results')}</div>;
     }
 
     if (!searchResults) {

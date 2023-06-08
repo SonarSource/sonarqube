@@ -71,7 +71,9 @@ export default function IssueLocation(props: Props) {
               text={locationType.toUpperCase()}
             />
           )}
-          <span>{normalizedMessage ?? translate('issue.unnamed_location')}</span>
+          <StyledLocationName>
+            {normalizedMessage ?? translate('issue.unnamed_location')}
+          </StyledLocationName>
         </span>
       </StyledLocation>
     </StyledLink>
@@ -92,6 +94,10 @@ const StyledLocation = styled.div`
 const StyledLink = styled(BaseLink)`
   color: ${themeColor('pageContent')};
   border: none;
+`;
+
+const StyledLocationName = styled.span`
+  word-break: break-word;
 `;
 
 function getLocationType(message?: string) {

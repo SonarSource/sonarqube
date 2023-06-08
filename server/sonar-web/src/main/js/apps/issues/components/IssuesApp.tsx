@@ -18,8 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import classNames from 'classnames';
-import { ButtonSecondary, Checkbox, FlagMessage, ToggleButton } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  ButtonSecondary,
+  Checkbox,
+  FlagMessage,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  ToggleButton,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -37,7 +46,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import RuleTabViewer from '../../../components/rules/RuleTabViewer';
+import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import {
@@ -963,11 +972,10 @@ export class App extends React.PureComponent<Props, State> {
       <div
         className={
           'it__layout-page-filters sw-bg-white sw-box-border sw-h-full sw-overflow-y-auto ' +
-          'sw-pt-6 sw-pl-3 sw-pr-4 sw-w-[300px] lg:sw-w-[390px]'
+          'sw-py-6 sw-pl-3 sw-pr-4 sw-w-[300px] lg:sw-w-[390px]'
         }
-        style={{ borderLeft: '1px solid #dddddd', borderTop: '1px solid #dddddd' }}
       >
-        {warning}
+        <div className="sw-pb-6">{warning}</div>
 
         {currentUser.isLoggedIn && (
           <div className="sw-flex sw-justify-start sw-mb-8">
@@ -1024,7 +1032,7 @@ export class App extends React.PureComponent<Props, State> {
     const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
       <FlagMessage
         ariaLabel={translate('issues.not_all_issue_show')}
-        className="it__portfolio_warning sw-flex sw-my-4"
+        className="it__portfolio_warning sw-flex"
         title={translate('issues.not_all_issue_show_why')}
         variant="warning"
       >
@@ -1033,14 +1041,14 @@ export class App extends React.PureComponent<Props, State> {
     );
 
     return (
-      <ScreenPositionHelper className="layout-page-side-outer">
+      <ScreenPositionHelper className="sw-z-filterbar">
         {({ top }) => (
           <nav
             aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-            className="layout-page-side"
-            style={{ top }}
+            className="it__issues-nav-bar sw-overflow-scroll"
+            style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
           >
-            <div className="sw-flex sw-h-full sw-justify-end">
+            <SideBarStyle className="sw-w-[300px] lg:sw-w-[390px]">
               <A11ySkipTarget
                 anchor="issues_sidebar"
                 label={
@@ -1051,9 +1059,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {openIssue ? (
                 <div>
-                  <div className={classNames('not-all-issue-warning', 'open-issue-list')}>
-                    {warning}
-                  </div>
+                  {warning && <div className="sw-py-4">{warning}</div>}
 
                   <SubnavigationIssuesList
                     fetchMoreIssues={this.fetchMoreIssues}
@@ -1072,7 +1078,7 @@ export class App extends React.PureComponent<Props, State> {
               ) : (
                 this.renderFacets(warning)
               )}
-            </div>
+            </SideBarStyle>
           </nav>
         )}
       </ScreenPositionHelper>
@@ -1150,11 +1156,10 @@ export class App extends React.PureComponent<Props, State> {
     return openIssue ? (
       <A11ySkipTarget anchor="issues_main" />
     ) : (
-      <div className="layout-page-header-panel layout-page-main-header issues-main-header">
-        <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-          <div className="layout-page-main-inner">
-            <A11ySkipTarget anchor="issues_main" />
-
+      <>
+        <A11ySkipTarget anchor="issues_main" />
+        <div className="sw-flex sw-mb-6 sw-gap-4">
+          <div className="sw-flex sw-w-full sw-items-center sw-justify-between">
             {this.renderBulkChange()}
 
             <PageActions
@@ -1165,7 +1170,7 @@ export class App extends React.PureComponent<Props, State> {
             />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -1181,121 +1186,131 @@ export class App extends React.PureComponent<Props, State> {
       loadingRule,
     } = this.state;
     return (
-      <div className="layout-page-main-inner">
-        <DeferredSpinner loading={loadingRule}>
-          {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
-          {openIssue && openRuleDetails ? (
-            <>
-              <IssueHeader
-                issue={openIssue}
-                ruleDetails={openRuleDetails}
-                branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                onIssueChange={this.handleIssueChange}
-              />
-
-              <RuleTabViewer
-                ruleDetails={openRuleDetails}
-                extendedDescription={openRuleDetails.htmlNote}
-                ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
-                issue={openIssue}
-                selectedFlowIndex={this.state.selectedFlowIndex}
-                selectedLocationIndex={this.state.selectedLocationIndex}
-                codeTabContent={
-                  <IssuesSourceViewer
+      <ScreenPositionHelper>
+        {({ top }) => (
+          <div
+            className="it__layout-page-main-inner sw-overflow-scroll"
+            style={{ height: `calc((100vh - ${top}px) - 120px)` }} // 120px = 60px (footer) + 60px (bulk change bar)
+          >
+            <DeferredSpinner loading={loadingRule}>
+              {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
+              {openIssue && openRuleDetails ? (
+                <>
+                  <IssueHeader
+                    issue={openIssue}
+                    ruleDetails={openRuleDetails}
                     branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                    issues={issues}
-                    locationsNavigator={this.state.locationsNavigator}
-                    onIssueSelect={this.openIssue}
-                    onLocationSelect={this.selectLocation}
-                    openIssue={openIssue}
+                    onIssueChange={this.handleIssueChange}
+                  />
+
+                  <IssueTabViewer
+                    ruleDetails={openRuleDetails}
+                    extendedDescription={openRuleDetails.htmlNote}
+                    ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                    issue={openIssue}
                     selectedFlowIndex={this.state.selectedFlowIndex}
                     selectedLocationIndex={this.state.selectedLocationIndex}
+                    codeTabContent={
+                      <IssuesSourceViewer
+                        branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                        issues={issues}
+                        locationsNavigator={this.state.locationsNavigator}
+                        onIssueSelect={this.openIssue}
+                        onLocationSelect={this.selectLocation}
+                        openIssue={openIssue}
+                        selectedFlowIndex={this.state.selectedFlowIndex}
+                        selectedLocationIndex={this.state.selectedLocationIndex}
+                      />
+                    }
+                    scrollInTab
+                    activityTabContent={
+                      <IssueReviewHistoryAndComments
+                        issue={openIssue}
+                        onChange={this.handleIssueChange}
+                      />
+                    }
                   />
-                }
-                scrollInTab
-                activityTabContent={
-                  <IssueReviewHistoryAndComments
-                    issue={openIssue}
-                    onChange={this.handleIssueChange}
-                  />
-                }
-              />
-            </>
-          ) : (
-            <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
-              {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                <FlagMessage
-                  ariaLabel={translate('issue_bulk_change.max_issues_reached')}
-                  className="sw-mb-4"
-                  variant="warning"
-                >
-                  <FormattedMessage
-                    defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                    id="issue_bulk_change.max_issues_reached"
-                    values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                  />
-                </FlagMessage>
-              )}
-
-              {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-                <FlagMessage
-                  ariaLabel={translateWithParameters(
-                    'issues.cannot_open_issue_max_initial_X_fetched',
-                    MAX_INITAL_FETCH
+                </>
+              ) : (
+                <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
+                  {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+                    <FlagMessage
+                      ariaLabel={translate('issue_bulk_change.max_issues_reached')}
+                      variant="warning"
+                    >
+                      <span>
+                        <FormattedMessage
+                          defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                          id="issue_bulk_change.max_issues_reached"
+                          values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                        />
+                      </span>
+                    </FlagMessage>
                   )}
-                  className="sw-mb-4"
-                  variant="warning"
-                >
-                  {translateWithParameters(
-                    'issues.cannot_open_issue_max_initial_X_fetched',
-                    MAX_INITAL_FETCH
-                  )}
-                </FlagMessage>
-              )}
 
-              {this.renderList()}
+                  {cannotShowOpenIssue && (!paging || paging.total > 0) && (
+                    <FlagMessage
+                      ariaLabel={translateWithParameters(
+                        'issues.cannot_open_issue_max_initial_X_fetched',
+                        MAX_INITAL_FETCH
+                      )}
+                      className="sw-mb-4"
+                      variant="warning"
+                    >
+                      {translateWithParameters(
+                        'issues.cannot_open_issue_max_initial_X_fetched',
+                        MAX_INITAL_FETCH
+                      )}
+                    </FlagMessage>
+                  )}
+
+                  {this.renderList()}
+                </DeferredSpinner>
+              )}
             </DeferredSpinner>
-          )}
-        </DeferredSpinner>
-      </div>
+          </div>
+        )}
+      </ScreenPositionHelper>
     );
   }
 
   render() {
-    const { component } = this.props;
     const { openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
 
     return (
-      <div
-        className={classNames('layout-page issues', { 'project-level': component !== undefined })}
-        id="issues-page"
-      >
-        <Suggestions suggestions="issues" />
+      <PageWrapperStyle id="issues-page">
+        <LargeCenteredLayout>
+          <PageContentFontWrapper className="sw-body-sm">
+            <div className="sw-w-full sw-flex" id="issues-page">
+              <Suggestions suggestions="issues" />
 
-        {openIssue ? (
-          <Helmet
-            defer={false}
-            title={openIssue.message}
-            titleTemplate={translateWithParameters(
-              'page_title.template.with_category',
-              translate('issues.page')
-            )}
-          />
-        ) : (
-          <Helmet defer={false} title={translate('issues.page')} />
-        )}
+              {openIssue ? (
+                <Helmet
+                  defer={false}
+                  title={openIssue.message}
+                  titleTemplate={translateWithParameters(
+                    'page_title.template.with_category',
+                    translate('issues.page')
+                  )}
+                />
+              ) : (
+                <Helmet defer={false} title={translate('issues.page')} />
+              )}
 
-        <h1 className="a11y-hidden">{translate('issues.page')}</h1>
+              <h1 className="a11y-hidden">{translate('issues.page')}</h1>
 
-        {this.renderSide(openIssue)}
+              {this.renderSide(openIssue)}
 
-        <div role="main" className={classNames('layout-page-main', { 'open-issue': !!openIssue })}>
-          {this.renderHeader({ openIssue, paging, selectedIndex })}
+              <MainContentStyle role="main" className="sw-relative sw-ml-2 sw-p-6 sw-flex-1">
+                {this.renderHeader({ openIssue, paging, selectedIndex })}
 
-          {this.renderPage()}
-        </div>
-      </div>
+                {this.renderPage()}
+              </MainContentStyle>
+            </div>
+          </PageContentFontWrapper>
+        </LargeCenteredLayout>
+      </PageWrapperStyle>
     );
   }
 }
@@ -1304,3 +1319,19 @@ export default withIndexationGuard(
   withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(App)))),
   PageContext.Issues
 );
+
+const PageWrapperStyle = styled.div`
+  background-color: ${themeColor('backgroundPrimary')};
+`;
+
+const MainContentStyle = styled.div`
+  background-color: ${themeColor('subnavigation')};
+  border-left: ${themeBorder('default', 'filterbarBorder')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+`;
+
+const SideBarStyle = styled.div`
+  border-left: ${themeBorder('default', 'filterbarBorder')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  background-color: ${themeColor('backgroundSecondary')};
+`;
