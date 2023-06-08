@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Collection;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
@@ -81,7 +82,7 @@ public class BatchIndex implements Startable {
   File getFile(String filename) {
     try {
       File input = new File(batchDir, filename);
-      if (!input.exists() || !FileUtils.directoryContains(batchDir, input)) {
+      if (!FilenameUtils.directoryContains(batchDir.getCanonicalPath(), input.getCanonicalPath()) || !input.exists()) {
         throw new NotFoundException("Bad filename: " + filename);
       }
       return input;
