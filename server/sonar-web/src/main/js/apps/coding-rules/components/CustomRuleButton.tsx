@@ -26,6 +26,7 @@ interface Props {
   customRule?: RuleDetails;
   onDone: (newRuleDetails: RuleDetails) => void;
   templateRule: RuleDetails;
+  organization: string;
 }
 
 interface State {
@@ -68,6 +69,7 @@ export default class CustomRuleButton extends React.PureComponent<Props, State> 
             customRule={this.props.customRule}
             onClose={this.handleModalClose}
             onDone={this.handleDone}
+            organization={this.props.organization}
             templateRule={this.props.templateRule}
           />
         )}

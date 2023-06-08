@@ -33,6 +33,7 @@ import CustomRuleButton from './CustomRuleButton';
 interface Props {
   canChange?: boolean;
   ruleDetails: RuleDetails;
+  organization: string;
 }
 
 interface State {
@@ -63,6 +64,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     this.setState({ loading: true });
     searchRules({
       f: 'name,severity,params',
+      organization: this.props.organization,
       template_key: this.props.ruleDetails.key,
     }).then(
       ({ rules }) => {
@@ -87,7 +89,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   handleRuleDelete = (ruleKey: string) => {
-    return deleteRule({ key: ruleKey }).then(() => {
+    return deleteRule({ key: ruleKey, organization: this.props.organization }).then(() => {
       if (this.mounted) {
         this.setState(({ rules = [] }) => ({
           rules: rules.filter((rule) => rule.key !== ruleKey),
@@ -99,7 +101,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   renderRule = (rule: Rule) => (
     <tr data-rule={rule.key} key={rule.key}>
       <td className="coding-rules-detail-list-name">
-        <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
+        <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>
       </td>
 
       <td className="coding-rules-detail-list-severity">
@@ -151,7 +153,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
           <h2 className="coding-rules-detail-title">{translate('coding_rules.custom_rules')}</h2>
 
           {this.props.canChange && (
-            <CustomRuleButton onDone={this.handleRuleCreate} templateRule={this.props.ruleDetails}>
+            <CustomRuleButton onDone={this.handleRuleCreate} organization={this.props.organization} templateRule={this.props.ruleDetails}>
               {({ onClick }) => (
                 <Button className="js-create-custom-rule spacer-left" onClick={onClick}>
                   {translate('coding_rules.create')}

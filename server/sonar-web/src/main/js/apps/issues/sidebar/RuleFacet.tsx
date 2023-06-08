@@ -37,6 +37,7 @@ interface Props {
   referencedRules: Dict<ReferencedRule>;
   rules: string[];
   stats: Dict<number> | undefined;
+  organization: string;
 }
 
 export default class RuleFacet extends React.PureComponent<Props> {
@@ -45,6 +46,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
+      organization,
       q: query,
       p: page,
       ps: 30,

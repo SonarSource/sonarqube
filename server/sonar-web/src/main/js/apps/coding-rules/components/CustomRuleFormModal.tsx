@@ -41,6 +41,7 @@ interface Props {
   onClose: () => void;
   onDone: (newRuleDetails: RuleDetails) => void;
   templateRule: RuleDetails;
+  organization: string;
 }
 
 interface State {
@@ -90,13 +91,14 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   }
 
   prepareRequest = () => {
-    const { customRule, templateRule } = this.props;
+    const { customRule, templateRule, organization } = this.props;
     const params = Object.keys(this.state.params)
       .map((key) => `${key}=${csvEscape(this.state.params[key])}`)
       .join(';');
     const ruleData = {
       markdown_description: this.state.description,
       name: this.state.name,
+      organization,
       params,
       severity: this.state.severity,
       status: this.state.status,

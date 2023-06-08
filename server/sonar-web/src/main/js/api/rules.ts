@@ -53,7 +53,7 @@ export function getRuleDetails(parameters: {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
-export function getRuleTags(parameters: { ps?: number; q: string }): Promise<string[]> {
+export function getRuleTags(parameters: { organization?: string; ps?: number; q: string }): Promise<string[]> {
   return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 
@@ -61,6 +61,7 @@ export function createRule(data: {
   custom_key: string;
   markdown_description: string;
   name: string;
+  organization: string;
   params?: string;
   prevent_reactivation?: boolean;
   severity?: string;
@@ -82,7 +83,7 @@ export function createRule(data: {
   );
 }
 
-export function deleteRule(parameters: { key: string }) {
+export function deleteRule(parameters: { key: string; organization?: string }) {
   return post('/api/rules/delete', parameters).catch(throwGlobalError);
 }
 

@@ -38,11 +38,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -183,6 +185,8 @@ public class RuleCreator {
 
   private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), requireNonNull(newRule.markdownDescription()));
+    OrganizationDto organizationDto = dbClient.organizationDao().selectByKey(dbSession, newRule.getOrganizationKey())
+            .orElseThrow(() -> new NotFoundException("No organization with key " + newRule.getOrganizationKey()));
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuidFactory.create())
       .setRuleKey(ruleKey)
@@ -193,6 +197,7 @@ public class RuleCreator {
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
       .setType(newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant())
+      .setOrganizationUuid(organizationDto.getUuid())
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())

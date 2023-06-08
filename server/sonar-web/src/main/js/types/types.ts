@@ -554,6 +554,7 @@ export interface RuleActivation {
   params: { key: string; value: string }[];
   qProfile: string;
   severity: string;
+  organization: string;
 }
 
 export interface RulesUpdateRequest {
@@ -568,6 +569,7 @@ export interface RulesUpdateRequest {
   severity?: string;
   status?: string;
   tags?: string;
+  organization: string;
 }
 
 export interface RuleDetails extends Rule {
@@ -595,6 +597,7 @@ export interface RuleDetails extends Rule {
   repo: string;
   scope?: RuleScope;
   templateKey?: string;
+  organization: string;
 }
 
 export type RuleInheritance = 'NONE' | 'INHERITED' | 'OVERRIDES';
