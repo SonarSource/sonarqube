@@ -66,6 +66,7 @@ public class UserGroupsService extends BaseService {
   public CreateWsResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
+        .setParam("organization", request.getOrganization())
         .setParam("description", request.getDescription())
         .setParam("name", request.getName()),
       CreateWsResponse.parser());
@@ -81,6 +82,7 @@ public class UserGroupsService extends BaseService {
   public void delete(DeleteRequest request) {
     call(
       new PostRequest(path("delete"))
+        .setParam("organization", request.getOrganization())
         .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();

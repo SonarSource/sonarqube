@@ -45,6 +45,7 @@ import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
+import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
@@ -145,6 +146,8 @@ public interface WsClient {
   NewCodePeriodsService newCodePeriods();
 
   NotificationsService notifications();
+
+  OrganizationsService organizations();
 
   PermissionsService permissions();
 

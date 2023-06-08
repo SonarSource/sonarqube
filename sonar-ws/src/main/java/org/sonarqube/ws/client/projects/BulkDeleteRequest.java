@@ -33,6 +33,7 @@ public class BulkDeleteRequest {
 
   private String analyzedBefore;
   private String onProvisionedOnly;
+  private String organization;
   private List<String> projects;
   private String q;
   private List<String> qualifiers;
@@ -66,6 +67,18 @@ public class BulkDeleteRequest {
 
   public String getOnProvisionedOnly() {
     return onProvisionedOnly;
+  }
+
+  /**
+   * This is part of the internal API.
+   */
+  public BulkDeleteRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

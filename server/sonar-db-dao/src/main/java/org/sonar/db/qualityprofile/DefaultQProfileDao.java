@@ -65,8 +65,8 @@ public class DefaultQProfileDao implements Dao {
     return selectExistingQProfileUuids(dbSession, organizationUuid, singletonList(qProfileUuid)).contains(qProfileUuid);
   }
 
-  public Optional<String> selectDefaultQProfileUuid(DbSession dbSession, String language) {
-    return mapper(dbSession).selectDefaultQProfileUuid(language);
+  public Set<String> selectUuidsOfOrganizationsWithoutDefaultProfile(DbSession dbSession, String language) {
+    return mapper(dbSession).selectUuidsOfOrganizationsWithoutDefaultProfile(language);
   }
 
   private static DefaultQProfileMapper mapper(DbSession dbSession) {

@@ -27,6 +27,7 @@ import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
@@ -139,6 +140,10 @@ public class CodeScanSchedulerImpl implements Scheduler, ManagedProcessEventList
     private void tryToStartEs() {
         ManagedProcessHandler process = processesById.get(ProcessId.ELASTICSEARCH);
         if (process != null) {
+            if (!settings.getProps().contains(CLUSTER_SEARCH_HOSTS.getKey())) {
+                LOG.warn("Property {} is missed. We won't start Elasticsearch service", CLUSTER_SEARCH_HOSTS.getKey());
+                return;
+            }
             EsStartupOnlyManagedProcess mon = new EsStartupOnlyManagedProcess(settings.getProps());
             process.start(() -> mon);
         }
@@ -177,7 +182,8 @@ public class CodeScanSchedulerImpl implements Scheduler, ManagedProcessEventList
     }
 
     private boolean isEsClientStartable() {
-        return appState.isOperational(ProcessId.ELASTICSEARCH, false);
+        boolean esDisabled = !settings.getProps().contains(CLUSTER_SEARCH_HOSTS.getKey());
+        return esDisabled || appState.isOperational(ProcessId.ELASTICSEARCH, false);
     }
 
     private void tryToStartProcess(ManagedProcessHandler processHandler, Supplier<AbstractCommand> commandSupplier)

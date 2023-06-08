@@ -207,6 +207,10 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
+  public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userUuid);
+  }
+
   public void deleteUserPermissionsByUserUuid(DbSession dbSession, String userUuid, String userLogin) {
     int deletedRows = mapper(dbSession).deleteUserPermissionsByUserUuid(userUuid);
 

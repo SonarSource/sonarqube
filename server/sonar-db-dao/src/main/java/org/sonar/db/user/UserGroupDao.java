@@ -58,6 +58,10 @@ public class UserGroupDao implements Dao {
     }
   }
 
+  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).deleteByOrganizationAndUser(organizationUuid, userUuid);
+  }
+
   public void deleteByUserUuid(DbSession dbSession, UserDto userDto) {
     int deletedRows = mapper(dbSession).deleteByUserUuid(userDto.getUuid());
 

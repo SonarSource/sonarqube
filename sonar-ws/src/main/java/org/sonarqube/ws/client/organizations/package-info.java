@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.builtin;
+@ParametersAreNonnullByDefault
+@Generated("sonar-ws-generator")
+package org.sonarqube.ws.client.organizations;
 
-import org.sonar.db.DbSession;
+import javax.annotation.Generated;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public interface BuiltInQProfileInsert {
-  /**
-   * Persist a new built-in profile
-   * Db sessions are committed and Elasticsearch indices are updated
-   */
-  void create(DbSession dbSession, DbSession batchSession, BuiltInQProfile builtInQProfile);
-}

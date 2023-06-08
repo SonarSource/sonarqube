@@ -32,6 +32,7 @@ public class CreateRequest {
 
   private String description;
   private String name;
+  private String organization;
 
   /**
    * Example value: "Default group for new users"
@@ -56,5 +57,18 @@ public class CreateRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public CreateRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }

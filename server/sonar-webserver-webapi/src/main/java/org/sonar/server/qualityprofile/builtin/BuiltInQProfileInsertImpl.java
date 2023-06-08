@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.builtin;
 
 import com.google.common.base.Splitter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,7 +77,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   }
 
   @Override
-  public void create(DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
+  public void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
     initRuleRepository(batchDbSession);
 
     Date now = new Date(system2.now());
@@ -88,27 +89,36 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
 
-    createDefaultAndOrgQProfiles(batchDbSession, builtInQProfile, ruleProfile);
+    associateToOrganizations(dbSession, batchDbSession, builtInQProfile, ruleProfile);
 
     activeRuleIndexer.commitAndIndex(batchDbSession, changes);
   }
 
 
-  private void createDefaultAndOrgQProfiles(DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
-    Optional<String> qProfileUuid = dbClient.defaultQProfileDao().selectDefaultQProfileUuid(batchDbSession, builtIn.getLanguage());
+  private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
+    List<String> orgUuids = dbClient.organizationDao().selectAllUuids(dbSession);
+    Set<String> orgUuidsWithoutDefault = dbClient.defaultQProfileDao().selectUuidsOfOrganizationsWithoutDefaultProfile(dbSession, builtIn.getLanguage());
 
-    OrgQProfileDto dto = new OrgQProfileDto()
-      .setRulesProfileUuid(rulesProfileDto.getUuid())
-      .setUuid(uuidFactory.create());
+    List<DefaultQProfileDto> defaults = new ArrayList<>();
+    orgUuids.forEach(orgUuid -> {
+      OrgQProfileDto dto = new OrgQProfileDto()
+              .setOrganizationUuid(orgUuid)
+              .setRulesProfileUuid(rulesProfileDto.getUuid())
+              .setUuid(uuidFactory.create());
 
-    if (builtIn.isDefault() && qProfileUuid.isEmpty()) {
-      DefaultQProfileDto defaultQProfileDto = new DefaultQProfileDto()
-        .setQProfileUuid(dto.getUuid())
-        .setLanguage(builtIn.getLanguage());
-      dbClient.defaultQProfileDao().insert(batchDbSession, defaultQProfileDto);
-    }
+      if (builtIn.isDefault() && orgUuidsWithoutDefault.contains(orgUuid)) {
+        // rows of table default_qprofiles must be inserted after
+        // in order to benefit from batch SQL inserts
+        defaults.add(new DefaultQProfileDto()
+                .setQProfileUuid(dto.getUuid())
+                .setOrganizationUuid(orgUuid)
+                .setLanguage(builtIn.getLanguage()));
+      }
 
-    dbClient.qualityProfileDao().insert(batchDbSession, dto);
+      dbClient.qualityProfileDao().insert(batchDbSession, dto);
+    });
+
+    defaults.forEach(defaultQProfileDto -> dbClient.defaultQProfileDao().insertOrUpdate(dbSession, defaultQProfileDto));
   }
 
   private void initRuleRepository(DbSession dbSession) {

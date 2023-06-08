@@ -27,7 +27,10 @@ public class OrganizationsWsModule extends Module {
     protected void configureModule() {
         add(
                 OrganizationsWs.class,
-                SearchMembersAction.class);
+                MemberUpdater.class,
+                AddMemberAction.class,
+                SearchMembersAction.class
+        );
     }
 
 }

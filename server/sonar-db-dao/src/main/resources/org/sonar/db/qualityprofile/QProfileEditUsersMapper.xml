@@ -116,5 +116,17 @@
     where user_uuid = #{userUuid, jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByOrganizationAndUser" parameterType="map">
+    delete from qprofile_edit_users
+    <where>
+      user_uuid=#{userUuid, jdbcType=VARCHAR}
+      and qprofile_uuid in (
+      select oq.uuid
+      from org_qprofiles oq
+      where oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+      )
+    </where>
+  </delete>
+
 </mapper>
 

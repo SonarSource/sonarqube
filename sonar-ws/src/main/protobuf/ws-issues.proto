@@ -101,8 +101,6 @@ message TagsResponse {
 }
 
 message Issue {
-  reserved 29; //drop organization
-
   optional string key = 1;
   optional string rule = 2;
   optional sonarqube.ws.commons.Severity severity = 3;
@@ -149,7 +147,7 @@ message Issue {
 
   optional sonarqube.ws.commons.RuleType type = 27;
 
-
+  optional string organization = 29;
   optional string branch = 30;
   optional string pullRequest = 32;
 
@@ -202,7 +200,8 @@ message Languages {
 }
 
 message Component {
-  reserved 3, 11; //drop organization
+  optional string organization = 11;
+  reserved 3; //drop uuid
   optional int64 deprecatedId = 1;
   optional string key = 2;
   optional bool enabled = 4;

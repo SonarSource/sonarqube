@@ -17,40 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.usergroups;
+package org.sonarqube.ws.client.organizations;
 
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/remove_user">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/add_member">Further information about this action online (including a response example)</a>
+ * @since 6.4
  */
 @Generated("sonar-ws-generator")
-public class RemoveUserRequest {
+public class AddMemberRequest {
 
-  private String id;
   private String login;
-  private String name;
   private String organization;
 
   /**
-   * Example value: "42"
+   * This is a mandatory parameter.
+   * Example value: "ray.bradbury"
    */
-  public RemoveUserRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * Example value: "g.hopper"
-   */
-  public RemoveUserRequest setLogin(String login) {
+  public AddMemberRequest setLogin(String login) {
     this.login = login;
     return this;
   }
@@ -60,22 +47,10 @@ public class RemoveUserRequest {
   }
 
   /**
-   * Example value: "sonar-administrators"
-   */
-  public RemoveUserRequest setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * This is part of the internal API.
+   * This is a mandatory parameter.
    * Example value: "my-org"
    */
-  public RemoveUserRequest setOrganization(String organization) {
+  public AddMemberRequest setOrganization(String organization) {
     this.organization = organization;
     return this;
   }

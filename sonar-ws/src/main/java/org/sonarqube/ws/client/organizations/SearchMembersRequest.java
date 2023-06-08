@@ -17,70 +17,87 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.usergroups;
+package org.sonarqube.ws.client.organizations;
 
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/remove_user">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/search_members">Further information about this action online (including a response example)</a>
+ * @since 6.4
  */
 @Generated("sonar-ws-generator")
-public class RemoveUserRequest {
+public class SearchMembersRequest {
 
-  private String id;
-  private String login;
-  private String name;
   private String organization;
-
-  /**
-   * Example value: "42"
-   */
-  public RemoveUserRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * Example value: "g.hopper"
-   */
-  public RemoveUserRequest setLogin(String login) {
-    this.login = login;
-    return this;
-  }
-
-  public String getLogin() {
-    return login;
-  }
-
-  /**
-   * Example value: "sonar-administrators"
-   */
-  public RemoveUserRequest setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
+  private String p;
+  private String ps;
+  private String q;
+  private String selected;
 
   /**
    * This is part of the internal API.
-   * Example value: "my-org"
    */
-  public RemoveUserRequest setOrganization(String organization) {
+  public SearchMembersRequest setOrganization(String organization) {
     this.organization = organization;
     return this;
   }
 
   public String getOrganization() {
     return organization;
+  }
+
+  /**
+   * Example value: "42"
+   */
+  public SearchMembersRequest setP(String p) {
+    this.p = p;
+    return this;
+  }
+
+  public String getP() {
+    return p;
+  }
+
+  /**
+   * Example value: "20"
+   */
+  public SearchMembersRequest setPs(String ps) {
+    this.ps = ps;
+    return this;
+  }
+
+  public String getPs() {
+    return ps;
+  }
+
+  /**
+   * Example value: "orwe"
+   */
+  public SearchMembersRequest setQ(String q) {
+    this.q = q;
+    return this;
+  }
+
+  public String getQ() {
+    return q;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Possible values:
+   * <ul>
+   *   <li>"selected"</li>
+   *   <li>"deselected"</li>
+   * </ul>
+   */
+  public SearchMembersRequest setSelected(String selected) {
+    this.selected = selected;
+    return this;
+  }
+
+  public String getSelected() {
+    return selected;
   }
 }

@@ -139,6 +139,7 @@ message CurrentWsResponse {
     optional HomepageType type = 1;
     optional string component = 2;
     optional string branch = 3;
+    optional string organization = 4;
   }
 
   message Setting {

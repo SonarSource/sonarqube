@@ -33,7 +33,7 @@ message SearchResponse {
 }
 
 message Favorite {
-  reserved 4; //drop organization
+  optional string organization = 4;
   optional string key = 1;
   optional string name = 2;
   optional string qualifier = 3;

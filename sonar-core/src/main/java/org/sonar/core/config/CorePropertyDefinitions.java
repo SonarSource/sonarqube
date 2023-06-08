@@ -19,6 +19,13 @@
  */
 package org.sonar.core.config;
 
+import static java.util.Arrays.asList;
+import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
+import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.api.PropertyType.TEXT;
+import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,10 +37,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.extension.PluginRiskConsent;
 
-import static java.util.Arrays.asList;
-import static org.sonar.api.PropertyType.*;
-import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
-
 public class CorePropertyDefinitions {
 
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
@@ -42,6 +45,11 @@ public class CorePropertyDefinitions {
   public static final String SONAR_ANALYSIS_DETECTEDCI = "sonar.analysis.detectedci";
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
+
+  private static final String CATEGORY_ORGANIZATIONS = "organizations";
+  public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
+  public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
+  public static final String ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY = "sonar.organizations.defaultPublicVisibility";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
@@ -201,6 +209,27 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
         .build()));
+
+    // ORGANIZATIONS
+    defs.addAll(asList(
+            PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
+                    .name("Allow any authenticated user to create organizations.")
+                    .defaultValue(Boolean.toString(false))
+                    .category(CATEGORY_ORGANIZATIONS)
+                    .type(BOOLEAN)
+                    .build(),
+            PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
+                    .name("Create an organization for each new user.")
+                    .defaultValue(Boolean.toString(false))
+                    .category(CATEGORY_ORGANIZATIONS)
+                    .type(BOOLEAN)
+                    .build(),
+            PropertyDefinition.builder(ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY)
+                    .name("Default visibility for new organizations")
+                    .defaultValue(Boolean.toString(true))
+                    .category(CATEGORY_ORGANIZATIONS)
+                    .type(BOOLEAN)
+                    .build()));
 
     return defs;
   }

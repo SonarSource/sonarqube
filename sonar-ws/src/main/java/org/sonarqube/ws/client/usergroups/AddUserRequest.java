@@ -33,6 +33,7 @@ public class AddUserRequest {
   private String id;
   private String login;
   private String name;
+  private String organization;
 
   /**
    * Example value: "42"
@@ -68,5 +69,18 @@ public class AddUserRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public AddUserRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }

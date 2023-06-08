@@ -45,6 +45,7 @@ import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
+import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
@@ -112,6 +113,7 @@ class DefaultWsClient implements WsClient {
   private final NavigationService navigationService;
   private final NewCodePeriodsService newCodePeriodsService;
   private final NotificationsService notificationsService;
+  private final OrganizationsService organizationsService;
   private final PermissionsService permissionsService;
   private final PluginsService pluginsService;
   private final ProjectAnalysesService projectAnalysesService;
@@ -172,6 +174,7 @@ class DefaultWsClient implements WsClient {
     this.navigationService = new NavigationService(wsConnector);
     this.newCodePeriodsService = new NewCodePeriodsService(wsConnector);
     this.notificationsService = new NotificationsService(wsConnector);
+    this.organizationsService = new OrganizationsService(wsConnector);
     this.permissionsService = new PermissionsService(wsConnector);
     this.pluginsService = new PluginsService(wsConnector);
     this.projectAnalysesService = new ProjectAnalysesService(wsConnector);
@@ -340,6 +343,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public NotificationsService notifications() {
     return notificationsService;
+  }
+
+  @Override
+  public OrganizationsService organizations() {
+    return organizationsService;
   }
 
   @Override

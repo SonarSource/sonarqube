@@ -64,7 +64,7 @@ message AnalysisStatusWsResponse {
   optional Component component = 1;
 
   message Component {
-    reserved 1; //drop organization
+    optional string organization = 1;
     optional string key = 2;
     optional string name = 3;
     repeated Warning warnings = 4;
@@ -108,7 +108,7 @@ message WorkerCountResponse {
 }
 
 message Task {
-  reserved 15,20; //drop organizations, drop 'logs'
+  reserved 15; //drop organizations, drop 'logs'
   optional string id = 1;
   optional string type = 2;
   optional string componentId = 3;
@@ -127,6 +127,7 @@ message Task {
   optional string errorStacktrace = 17;
   optional string scannerContext = 18;
   optional bool hasScannerContext = 19;
+  optional string organization = 20;
   optional string branch = 21;
   optional sonarqube.ws.commons.BranchType branchType = 22;
   optional string errorType = 23;

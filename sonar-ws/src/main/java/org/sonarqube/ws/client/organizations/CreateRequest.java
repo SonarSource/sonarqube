@@ -17,52 +17,66 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.usergroups;
+package org.sonarqube.ws.client.organizations;
 
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/remove_user">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/create">Further information about this action online (including a response example)</a>
+ * @since 6.2
  */
 @Generated("sonar-ws-generator")
-public class RemoveUserRequest {
+public class CreateRequest {
 
-  private String id;
-  private String login;
+  private String avatar;
+  private String description;
+  private String key;
   private String name;
-  private String organization;
+  private String url;
 
   /**
-   * Example value: "42"
+   * Example value: "https://www.foo.com/foo.png"
    */
-  public RemoveUserRequest setId(String id) {
-    this.id = id;
+  public CreateRequest setAvatar(String avatar) {
+    this.avatar = avatar;
     return this;
   }
 
-  public String getId() {
-    return id;
+  public String getAvatar() {
+    return avatar;
   }
 
   /**
-   * Example value: "g.hopper"
+   * Example value: "The Foo company produces quality software for Bar."
    */
-  public RemoveUserRequest setLogin(String login) {
-    this.login = login;
+  public CreateRequest setDescription(String description) {
+    this.description = description;
     return this;
   }
 
-  public String getLogin() {
-    return login;
+  public String getDescription() {
+    return description;
   }
 
   /**
-   * Example value: "sonar-administrators"
+   * Example value: "foo-company"
    */
-  public RemoveUserRequest setName(String name) {
+  public CreateRequest setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   * Example value: "Foo Company"
+   */
+  public CreateRequest setName(String name) {
     this.name = name;
     return this;
   }
@@ -72,15 +86,14 @@ public class RemoveUserRequest {
   }
 
   /**
-   * This is part of the internal API.
-   * Example value: "my-org"
+   * Example value: "https://www.foo.com"
    */
-  public RemoveUserRequest setOrganization(String organization) {
-    this.organization = organization;
+  public CreateRequest setUrl(String url) {
+    this.url = url;
     return this;
   }
 
-  public String getOrganization() {
-    return organization;
+  public String getUrl() {
+    return url;
   }
 }

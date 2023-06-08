@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.builtin;
+package org.sonar.server.organization;
 
-import org.sonar.db.DbSession;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
-public interface BuiltInQProfileInsert {
-  /**
-   * Persist a new built-in profile
-   * Db sessions are committed and Elasticsearch indices are updated
-   */
-  void create(DbSession dbSession, DbSession batchSession, BuiltInQProfile builtInQProfile);
+/**
+ * The goal of this class is to handle the 2 different use case :
+ * - The billing plugin exists, the proxy will redirect method calls to the plugin
+ * - No billing plugin, every methods won't do anything
+ */
+@ServerSide
+@ComputeEngineSide
+public interface BillingValidationsProxy extends BillingValidations {
+
 }

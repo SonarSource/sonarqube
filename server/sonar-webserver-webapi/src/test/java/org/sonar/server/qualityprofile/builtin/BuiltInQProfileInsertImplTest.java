@@ -158,7 +158,7 @@ public class BuiltInQProfileInsertImplTest {
     call(builtIn);
 
     QProfileDto profile = verifyProfileInDb(builtIn);
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, null, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(profile.getKee());
   }
 
@@ -174,7 +174,7 @@ public class BuiltInQProfileInsertImplTest {
 
     call(builtIn);
 
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, null, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(currentDefault.getKee());
     verifyTableSize("rules_profiles", 2);
   }
@@ -188,7 +188,7 @@ public class BuiltInQProfileInsertImplTest {
 
     call(builtIn);
 
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, null, "xoo");
     assertThat(defaultProfile).isNull();
   }
 
@@ -222,7 +222,7 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   private QProfileDto verifyProfileInDb(BuiltInQProfile builtIn) {
-    QProfileDto profileOnOrg1 = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, builtIn.getName(), builtIn.getLanguage());
+    QProfileDto profileOnOrg1 = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, null, builtIn.getName(), builtIn.getLanguage());
     assertThat(profileOnOrg1.getLanguage()).isEqualTo(builtIn.getLanguage());
     assertThat(profileOnOrg1.getName()).isEqualTo(builtIn.getName());
     assertThat(profileOnOrg1.getParentKee()).isNull();
@@ -239,7 +239,7 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   private void call(BuiltInQProfile builtIn) {
-    underTest.create(dbSession, builtIn);
+    underTest.create(dbSession, dbSession, builtIn);
     dbSession.commit();
     batchDbSession.commit();
   }

@@ -95,6 +95,10 @@ public class QProfileEditUsersDao implements Dao {
     }
   }
 
+  public void deleteByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    mapper(dbSession).deleteByOrganizationAndUser(organization.getUuid(), user.getUuid());
+  }
+
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QProfileEditUsersMapper.class);
   }

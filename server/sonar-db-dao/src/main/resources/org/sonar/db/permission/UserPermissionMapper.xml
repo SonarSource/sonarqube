@@ -182,6 +182,21 @@
       and role = #{permission,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByOrganization" parameterType="String">
+    delete from
+    user_roles
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteOrganizationMemberPermissions" parameterType="map">
+    delete from
+    user_roles
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    user_uuid = #{userUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteByUserUuid" parameterType="String">
     DELETE FROM user_roles WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>

@@ -116,6 +116,7 @@ import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -359,6 +360,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       RuleDescriptionFormatter.class,
       ResourceTypes.class,
       DefaultResourceTypes.get(),
+      BillingValidationsProxyImpl.class,
       WorkerCountProviderImpl.class,
       // quality profile
       ActiveRuleIndexer.class,

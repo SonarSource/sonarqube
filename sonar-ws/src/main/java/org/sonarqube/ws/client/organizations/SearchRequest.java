@@ -17,70 +17,76 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.usergroups;
+package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/remove_user">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/search">Further information about this action online (including a response example)</a>
+ * @since 6.2
  */
 @Generated("sonar-ws-generator")
-public class RemoveUserRequest {
+public class SearchRequest {
 
-  private String id;
-  private String login;
-  private String name;
-  private String organization;
+  private String member;
+  private List<String> organizations;
+  private String p;
+  private String ps;
+
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"true"</li>
+   *   <li>"false"</li>
+   *   <li>"yes"</li>
+   *   <li>"no"</li>
+   * </ul>
+   */
+  public SearchRequest setMember(String member) {
+    this.member = member;
+    return this;
+  }
+
+  public String getMember() {
+    return member;
+  }
+
+  /**
+   * Example value: "my-org-1,foocorp"
+   */
+  public SearchRequest setOrganizations(List<String> organizations) {
+    this.organizations = organizations;
+    return this;
+  }
+
+  public List<String> getOrganizations() {
+    return organizations;
+  }
 
   /**
    * Example value: "42"
    */
-  public RemoveUserRequest setId(String id) {
-    this.id = id;
+  public SearchRequest setP(String p) {
+    this.p = p;
     return this;
   }
 
-  public String getId() {
-    return id;
+  public String getP() {
+    return p;
   }
 
   /**
-   * Example value: "g.hopper"
+   * Example value: "20"
    */
-  public RemoveUserRequest setLogin(String login) {
-    this.login = login;
+  public SearchRequest setPs(String ps) {
+    this.ps = ps;
     return this;
   }
 
-  public String getLogin() {
-    return login;
-  }
-
-  /**
-   * Example value: "sonar-administrators"
-   */
-  public RemoveUserRequest setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RemoveUserRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
+  public String getPs() {
+    return ps;
   }
 }

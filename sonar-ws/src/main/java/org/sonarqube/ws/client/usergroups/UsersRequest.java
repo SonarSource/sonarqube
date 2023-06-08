@@ -30,12 +30,26 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class UsersRequest {
 
+  private String organization;
   private String id;
   private String name;
   private String p;
   private String ps;
   private String q;
   private String selected;
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public UsersRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
+  }
 
   /**
    * Example value: "42"

@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.builtin;
+package org.sonar.server.organization;
 
-import org.sonar.db.DbSession;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
-public interface BuiltInQProfileInsert {
-  /**
-   * Persist a new built-in profile
-   * Db sessions are committed and Elasticsearch indices are updated
-   */
-  void create(DbSession dbSession, DbSession batchSession, BuiltInQProfile builtInQProfile);
+/**
+ * The billing plugin must implement this interface
+ */
+@ServerSide
+@ComputeEngineSide
+@ExtensionPoint
+public interface BillingValidationsExtension extends BillingValidations {
 }

@@ -46,8 +46,10 @@
       </foreach>
   </select>
 
-  <select id="selectDefaultQProfileUuid" parameterType="String" resultType="String">
-    select qprofile_uuid from default_qprofiles where language = #{language, jdbcType=VARCHAR}
+  <select id="selectUuidsOfOrganizationsWithoutDefaultProfile" parameterType="String" resultType="String">
+    select uuid from organizations
+    where not exists
+    (select 1 from default_qprofiles dqp where dqp.organization_uuid = uuid and dqp.language = #{language, jdbcType=VARCHAR})
   </select>
 </mapper>
 
