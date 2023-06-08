@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { LineCoverage, LineMeta, LineNumber, LineWrapper } from 'design-system';
 import { times } from 'lodash';
@@ -75,7 +76,7 @@ export default function Line(props: LineProps) {
     displayAllIssues,
     displayCoverage,
     displayDuplications,
-    displayLineNumberOptions,
+    displayLineNumberOptions = true,
     displayLocationMarkers,
     highlightedLocationMessage,
     displayNewCodeUnderline,
@@ -125,9 +126,6 @@ export default function Line(props: LineProps) {
     [line.line, onLineMouseLeave]
   );
 
-  // default is true
-  const displayOptions = displayLineNumberOptions !== false;
-
   const { branchLike, file } = useSourceViewerContext();
   const permalink = getPathUrlAsString(
     getCodeUrl(file.project, branchLike, file.key, line.line),
@@ -171,7 +169,7 @@ export default function Line(props: LineProps) {
       className={classNames('it__source-line', { 'it__source-line-filtered': line.isNew })}
     >
       <LineNumber
-        displayOptions={displayOptions}
+        displayOptions={displayLineNumberOptions}
         firstLineNumber={firstLineNumber}
         lineNumber={line.line}
         ariaLabel={translateWithParameters('source_viewer.line_X', line.line)}
@@ -179,6 +177,7 @@ export default function Line(props: LineProps) {
       />
 
       {displaySCM && <LineSCM line={line} previousLine={previousLine} />}
+
       {displayIssues && !displayAllIssues ? (
         <LineIssuesIndicator
           issues={issues}
@@ -224,6 +223,7 @@ export default function Line(props: LineProps) {
           coverageStatus={line.coverageStatus}
         />
       )}
+
       <LineCode
         displayCoverageUnderline={displayCoverage && displayCoverageUnderline}
         displayLocationMarkers={displayLocationMarkers}

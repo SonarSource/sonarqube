@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { sortBy } from 'lodash';
+import { decorateWithUnderlineFlags } from '../../../helpers/code-viewer';
 import { isDefined } from '../../../helpers/types';
 import { ComponentQualifier } from '../../../types/component';
 import { ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
@@ -136,19 +138,6 @@ export function createSnippets(params: {
   // Sort snippets by line number in the case of secondary locations
   // Preserve location order for flows!
   return hasSecondaryLocations ? ranges.sort((a, b) => a.start - b.start) : ranges;
-}
-
-function decorateWithUnderlineFlags(line: SourceLine, sourcesMap: LineMap) {
-  const previousLine = sourcesMap[line.line - 1];
-  const decoratedLine = { ...line };
-  if (isDefined(line.coverageStatus)) {
-    decoratedLine.coverageBlock =
-      line.coverageStatus === previousLine?.coverageStatus ? previousLine.coverageBlock : line.line;
-  }
-  if (line.isNew) {
-    decoratedLine.newCodeBlock = previousLine?.isNew ? previousLine.newCodeBlock : line.line;
-  }
-  return decoratedLine;
 }
 
 export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {

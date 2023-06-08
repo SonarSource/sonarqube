@@ -172,7 +172,7 @@ it('should be able to interact with issue action', async () => {
   ).toBeInTheDocument();
 });
 
-it('should load line when looking arround unloaded line', async () => {
+it('should load line when looking around unloaded line', async () => {
   const rerender = renderSourceViewer({
     aroundLine: 50,
     component: componentsHandler.getHugeFileKey(),
