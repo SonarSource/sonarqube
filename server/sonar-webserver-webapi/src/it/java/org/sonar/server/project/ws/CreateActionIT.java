@@ -20,17 +20,21 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
@@ -59,12 +63,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.server.newcodeperiod.NewCodePeriodUtils.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodePeriodUtils.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_MAIN_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -87,12 +97,14 @@ public class CreateActionIT {
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
         projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true),
-      projectDefaultVisibility));
+      projectDefaultVisibility, editionProvider, defaultBranchNameResolver));
 
   @Before
   public void before() {
@@ -208,7 +220,8 @@ public class CreateActionIT {
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(),
+      user.getLogin()));
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()
@@ -243,14 +256,15 @@ public class CreateActionIT {
       .build();
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+      .hasMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least " +
+        "one non-digit.");
   }
 
   @Test
   public void fail_when_missing_project_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    assertThatThrownBy(() -> call(null, DEFAULT_PROJECT_NAME, null))
+    assertThatThrownBy(() -> call(null, DEFAULT_PROJECT_NAME, null, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'project' parameter is missing");
   }
@@ -259,7 +273,7 @@ public class CreateActionIT {
   public void fail_when_missing_name_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    assertThatThrownBy(() -> call(DEFAULT_PROJECT_KEY, null, null))
+    assertThatThrownBy(() -> call(DEFAULT_PROJECT_KEY, null, null, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'name' parameter is missing");
   }
@@ -296,7 +310,10 @@ public class CreateActionIT {
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       PARAM_VISIBILITY,
       PARAM_NAME,
-      PARAM_PROJECT, PARAM_MAIN_BRANCH);
+      PARAM_PROJECT,
+      PARAM_MAIN_BRANCH,
+      PARAM_NEW_CODE_DEFINITION_TYPE,
+      PARAM_NEW_CODE_DEFINITION_VALUE);
 
     WebService.Param visibilityParam = definition.param(PARAM_VISIBILITY);
     assertThat(visibilityParam.description()).isNotEmpty();
@@ -312,6 +329,15 @@ public class CreateActionIT {
     WebService.Param name = definition.param(PARAM_NAME);
     assertThat(name.isRequired()).isTrue();
     assertThat(name.description()).isEqualTo("Name of the project. If name is longer than 500, it is abbreviated.");
+
+    WebService.Param ncdType = definition.param(PARAM_NEW_CODE_DEFINITION_TYPE);
+    assertThat(ncdType.isRequired()).isFalse();
+    assertThat(ncdType.description()).isEqualTo(NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION);
+
+    WebService.Param ncdValue = definition.param(PARAM_NEW_CODE_DEFINITION_VALUE);
+    assertThat(ncdValue.isRequired()).isFalse();
+    assertThat(ncdValue.description()).isEqualTo(NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION);
+
   }
 
   @Test
@@ -349,16 +375,207 @@ public class CreateActionIT {
       .isInstanceOf(NullPointerException.class);
   }
 
-  private CreateWsResponse call(CreateRequest request) {
-    return call(request.getProjectKey(), request.getName(), request.getMainBranchKey());
+  @Test
+  public void set_default_branch_name_for_reference_branch_NCD_when_no_main_branch_provided() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    String otherBranchName = "otherBranchName";
+
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(otherBranchName);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setNewCodeDefinitionType(REFERENCE_BRANCH.name())
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, otherBranchName);
   }
 
-  private CreateWsResponse call(@Nullable String projectKey, @Nullable String projectName, @Nullable String mainBranch) {
+  @Test
+  public void set_main_branch_name_for_reference_branch_NCD() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType(REFERENCE_BRANCH.name())
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, MAIN_BRANCH);
+  }
+  @Test
+  public void set_new_code_definition_on_project_creation() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType(NUMBER_OF_DAYS.name())
+      .setNewCodeDefinitionValue("30")
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(NUMBER_OF_DAYS, "30");
+  }
+
+  @Test
+  public void set_new_code_definition_branch_for_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType(NUMBER_OF_DAYS.name())
+      .setNewCodeDefinitionValue("30")
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), component.uuid(), component.uuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", component.uuid());
+  }
+
+  @Test
+  public void throw_IAE_if_setting_is_not_cayc_compliant() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    CreateRequest request = CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType(NUMBER_OF_DAYS.name())
+      .setNewCodeDefinitionValue("99")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to set the New Code Definition. The given value is not compatible with the Clean as You Code methodology. "
+        + "Please refer to the documentation for compliant options.");
+    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY))
+      .isEmpty();
+  }
+
+  @Test
+  public void throw_IAE_if_setting_is_new_code_definition_value_provided_without_type() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    CreateRequest request = CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionValue("99")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("New code definition type is required when new code definition value is provided");
+    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY))
+      .isEmpty();
+    assertThat(db.getDbClient().newCodePeriodDao().selectAll(db.getSession())).isEmpty();
+  }
+
+  @Test
+  public void set_new_code_definition_for_project_for_developer_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType(NUMBER_OF_DAYS.name())
+      .setNewCodeDefinitionValue("30")
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+
+  @Test
+  public void do_not_create_project_when_ncdType_invalid() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    CreateRequest request = CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .setNewCodeDefinitionType("InvalidType")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class);
+
+    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY))
+      .isEmpty();
+
+  }
+
+  @Test
+  public void do_not_set_new_code_definition_when_ncdType_not_provided() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    call(CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
+      .build());
+
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+      .isEmpty();
+  }
+
+  private CreateWsResponse call(CreateRequest request) {
+    return call(request.getProjectKey(), request.getName(), request.getMainBranchKey(), request.getNewCodeDefinitionType(), request.getNewCodeDefinitionValue());
+  }
+
+  private CreateWsResponse call(@Nullable String projectKey, @Nullable String projectName, @Nullable String mainBranch,
+    @Nullable String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
     ofNullable(projectKey).ifPresent(key -> httpRequest.setParam("project", key));
     ofNullable(projectName).ifPresent(name -> httpRequest.setParam("name", name));
     ofNullable(mainBranch).ifPresent(name -> httpRequest.setParam("mainBranch", mainBranch));
+    ofNullable(newCodeDefinitionType).ifPresent(type -> httpRequest.setParam(PARAM_NEW_CODE_DEFINITION_TYPE, type));
+    ofNullable(newCodeDefinitionValue).ifPresent(value -> httpRequest.setParam(PARAM_NEW_CODE_DEFINITION_VALUE, value));
     return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 
