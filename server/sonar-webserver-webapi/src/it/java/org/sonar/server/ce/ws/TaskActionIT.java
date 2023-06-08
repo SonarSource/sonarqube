@@ -39,7 +39,9 @@ import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -74,13 +76,16 @@ public class TaskActionIT {
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private ComponentDto privateProject;
-  private ComponentDto publicProject;
+  private ComponentDto publicProjectMainBranch;
+  private ProjectDto publicProject;
 
   @Before
   public void setUp() {
     privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.logIn().addProjectPermission(ADMIN, privateProject);
-    publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData publicProjectData = db.components().insertPublicProject();
+    publicProject = publicProjectData.getProjectDto();
+    publicProjectMainBranch = publicProjectData.getMainBranchComponent();
   }
 
   @Test
@@ -307,8 +312,8 @@ public class TaskActionIT {
   @Test
   public void getting_project_queue_task_of_public_project_fails_with_ForbiddenException() {
     UserDto user = db.users().insertUser();
-    userSession.logIn().registerComponents(publicProject);
-    CeQueueDto task = createAndPersistQueueTask(publicProject, user);
+    userSession.logIn().registerProjects(publicProject);
+    CeQueueDto task = createAndPersistQueueTask(publicProjectMainBranch, user);
 
     String uuid = task.getUuid();
     assertThatThrownBy(() -> call(uuid))
@@ -393,8 +398,8 @@ public class TaskActionIT {
 
   @Test
   public void getting_archived_task_of_public_project_fails_with_ForbiddenException() {
-    userSession.logIn().registerComponents(publicProject);
-    CeActivityDto task = createAndPersistArchivedTask(publicProject);
+    userSession.logIn().registerProjects(publicProject);
+    CeActivityDto task = createAndPersistArchivedTask(publicProjectMainBranch);
 
     String uuid = task.getUuid();
     assertThatThrownBy(() -> call(uuid))
@@ -446,9 +451,9 @@ public class TaskActionIT {
 
   @Test
   public void get_warnings_on_public_project_archived_task_if_not_admin_fails_with_ForbiddenException() {
-    userSession.logIn().registerComponents(publicProject);
+    userSession.logIn().registerProjects(publicProject);
 
-    CeActivityDto persistArchivedTask = createAndPersistArchivedTask(publicProject);
+    CeActivityDto persistArchivedTask = createAndPersistArchivedTask(publicProjectMainBranch);
     assertThatThrownBy(() -> insertWarningsCallEndpointAndAssertWarnings(persistArchivedTask))
       .isInstanceOf(ForbiddenException.class);
   }

@@ -42,6 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -83,7 +84,7 @@ public class MeasureActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final MapSettings mapSettings = new MapSettings();
   private final Configuration config = mapSettings.asConfig();
@@ -101,8 +102,10 @@ public class MeasureActionIT {
 
   @Test
   public void int_measure() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 10_000);
 
     TestResponse response = ws.newRequest()
@@ -118,8 +121,10 @@ public class MeasureActionIT {
 
   @Test
   public void percent_measure() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY).setValueType(PERCENT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(12.345d));
 
@@ -136,8 +141,10 @@ public class MeasureActionIT {
 
   @Test
   public void duration_measure() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY).setValueType(WORK_DUR.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(10_000d));
 
@@ -166,8 +173,10 @@ public class MeasureActionIT {
   @Test
   @UseDataProvider("ratings")
   public void rating_measure(Rating rating, Color color) {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue((double) rating.getIndex()).setData(rating.name()));
 
@@ -193,8 +202,10 @@ public class MeasureActionIT {
   @Test
   @UseDataProvider("qualityGates")
   public void quality_gate(Level status, String expectedValue, Color expectedColor) {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(status.name()));
 
@@ -211,8 +222,10 @@ public class MeasureActionIT {
 
   @Test
   public void security_hotspots() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createIntMetricAndMeasure(project, SECURITY_HOTSPOTS_KEY, 42);
 
     TestResponse response = ws.newRequest()
@@ -229,8 +242,10 @@ public class MeasureActionIT {
 
   @Test
   public void display_deprecated_warning_quality_gate() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(WARN.name()));
 
@@ -244,8 +259,10 @@ public class MeasureActionIT {
 
   @Test
   public void measure_on_non_main_branch() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false)).getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject(p -> p.setPrivate(false));
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 5_000);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
@@ -273,8 +290,10 @@ public class MeasureActionIT {
 
   @Test
   public void measure_on_application() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerComponents(application);
+    ProjectData projectData = db.components().insertPublicApplication();
+    ComponentDto application = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createIntMetricAndMeasure(application, BUGS_KEY, 10_000);
 
     TestResponse response = ws.newRequest()
@@ -302,9 +321,10 @@ public class MeasureActionIT {
 
   @Test
   public void return_error_if_branch_does_not_exist() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 
     TestResponse response = ws.newRequest()
@@ -318,8 +338,10 @@ public class MeasureActionIT {
 
   @Test
   public void return_error_if_measure_not_found() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 
     TestResponse response = ws.newRequest()
@@ -332,9 +354,10 @@ public class MeasureActionIT {
 
   @Test
   public void return_error_on_directory() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
-    userSession.registerComponents(project);
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
 
     TestResponse response = ws.newRequest()
@@ -383,22 +406,19 @@ public class MeasureActionIT {
   @UseDataProvider("publicProject_forceAuth_accessGranted")
   public void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
     boolean validToken, boolean accessGranted) throws ParseException {
-    ComponentDto projectAsComponent = publicProject ? db.components().insertPublicProject().getMainBranchComponent() : db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.registerComponents(projectAsComponent);
-    MetricDto metric = createIntMetricAndMeasure(projectAsComponent, BUGS_KEY, 10_000);
-
-    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectAsComponent.getKey())
-      .orElseThrow(() -> new IllegalStateException("project not found"));
+    ProjectData project = publicProject ? db.components().insertPublicProject() : db.components().insertPrivateProject();
+    userSession.registerProjects(project.getProjectDto());
+    MetricDto metric = createIntMetricAndMeasure(project.getMainBranchComponent(), BUGS_KEY, 10_000);
 
     String token = db.getDbClient().projectBadgeTokenDao()
-      .insert(db.getSession(), UuidFactoryFast.getInstance().create(), project, "user-uuid", "user-login")
+      .insert(db.getSession(), UuidFactoryFast.getInstance().create(), project.getProjectDto(), "user-uuid", "user-login")
       .getToken();
     db.commit();
 
     mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, forceAuth);
 
     TestResponse response = ws.newRequest()
-      .setParam("project", projectAsComponent.getKey())
+      .setParam("project", project.getProjectDto().getKey())
       .setParam("metric", metric.getKey())
       .setParam("token", validToken ? token : "invalid-token")
       .execute();
@@ -412,8 +432,9 @@ public class MeasureActionIT {
 
   @Test
   public void return_error_on_provisioned_project() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+
+    userSession.registerProjects(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
 
     TestResponse response = ws.newRequest()
@@ -426,8 +447,10 @@ public class MeasureActionIT {
 
   @Test
   public void fail_on_invalid_quality_gate() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 
@@ -444,8 +467,10 @@ public class MeasureActionIT {
 
   @Test
   public void fail_when_measure_value_is_null() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null));
 
@@ -463,8 +488,10 @@ public class MeasureActionIT {
 
   @Test
   public void fail_when_metric_not_found() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
 
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())

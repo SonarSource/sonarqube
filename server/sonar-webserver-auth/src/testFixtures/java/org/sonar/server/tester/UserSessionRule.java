@@ -175,8 +175,8 @@ public class UserSessionRule implements TestRule, UserSession {
     setCurrentUserSession(userSession);
   }
 
-  public UserSessionRule registerComponents(ComponentDto... componentDtos) {
-    ensureAbstractMockUserSession().registerComponents(componentDtos);
+  public UserSessionRule registerPortfolios(ComponentDto... portfolios) {
+    ensureAbstractMockUserSession().registerComponents(portfolios);
     return this;
   }
 
@@ -195,11 +195,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule registerApplication(ComponentDto application, ComponentDto... appProjects) {
-    ensureAbstractMockUserSession().registerApplication(application, appProjects);
-    return this;
-  }
-
   public UserSessionRule addProjectPermission(String projectPermission, ComponentDto... components) {
     ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
     return this;
@@ -210,7 +205,7 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSession registerBranches(BranchDto... branchDtos) {
+  public UserSessionRule registerBranches(BranchDto... branchDtos) {
     ensureAbstractMockUserSession().registerBranches(branchDtos);
     return this;
   }

@@ -33,8 +33,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -300,7 +302,7 @@ public class IssueQueryFactoryTest {
     ComponentDto view = db.components().insertPublicPortfolio();
     SearchRequest request = new SearchRequest()
       .setComponentUuids(singletonList(view.uuid()));
-    userSession.registerComponents(view);
+    userSession.registerPortfolios(view);
 
     IssueQuery query = underTest.create(request);
 
@@ -310,12 +312,16 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void application_search_project_issues() {
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPublicProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+    ProjectData applicationData = db.components().insertPublicApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    userSession.registerApplication(application, project1, project2);
+    userSession.registerApplication(applicationData.getProjectDto())
+      .registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto());
 
     IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(application.uuid())));
 
@@ -339,22 +345,28 @@ public class IssueQueryFactoryTest {
   public void application_search_project_issues_in_new_code_with_and_without_analysis_after_sonarqube_94() {
     Date now = new Date();
     when(clock.millis()).thenReturn(now.getTime());
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPublicProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
-    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project4 = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData3 = db.components().insertPublicProject();
+    ComponentDto project3 = projectData3.getMainBranchComponent();
+    ProjectData projectData4 = db.components().insertPublicProject();
+    ComponentDto project4 = projectData4.getMainBranchComponent();
     SnapshotDto analysis2 = db.components().insertSnapshot(project4,
       s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
+    ProjectData applicationData = db.components().insertPublicApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
     db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
     db.components().insertComponents(newProjectCopy("PC4", project4, application));
-    userSession.registerApplication(application, project1, project2, project3, project4);
+    userSession.registerApplication(applicationData.getProjectDto());
+    userSession.registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto(), projectData3.getProjectDto(), projectData4.getProjectDto());
 
     IssueQuery result = underTest.create(new SearchRequest()
       .setComponentUuids(singletonList(application.uuid()))
@@ -523,15 +535,19 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData applicationData = db.components().insertPrivateApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
     db.components().insertComponents(newProjectCopy(project1, application));
     db.components().insertComponents(newProjectCopy(project2, application));
-    userSession.registerApplication(application, project1, project2)
-      .addProjectPermission(USER, application)
-      .addProjectPermission(USER, project1)
-      .addProjectPermission(USER, project2);
+    userSession.registerApplication(applicationData.getProjectDto())
+      .registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto())
+      .addProjectPermission(USER, applicationData.getProjectDto())
+      .addProjectPermission(USER, projectData1.getProjectDto())
+      .addProjectPermission(USER, projectData2.getProjectDto());
 
     assertThat(underTest.create(new SearchRequest()
         .setComponents(singletonList(application.getKey())))

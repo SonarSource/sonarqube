@@ -264,6 +264,14 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.PROJECT);
   }
 
+  public static ProjectDto newApplicationDto() {
+    return new ProjectDto()
+      .setKey("appKey")
+      .setUuid("uuid")
+      .setName("appName")
+      .setQualifier(Qualifiers.APP);
+  }
+
   public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {
     String uuid = branchDto.getUuid();
     return new ComponentDto()

@@ -49,6 +49,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -444,10 +445,11 @@ public class ComponentActionIT {
       .setScope(COMPONENT)
       .setComponentQualifiers(Qualifier.VIEW, Qualifier.APP)
       .build();
-    ComponentDto application = componentDbTester.insertPublicApplication().getMainBranchComponent();
+    ProjectData projectData = componentDbTester.insertPublicApplication();
+    ComponentDto application = projectData.getMainBranchComponent();
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSession.registerComponents(application);
+    userSession.registerProjects(projectData.getProjectDto());
     init(page);
 
     String result = ws.newRequest()

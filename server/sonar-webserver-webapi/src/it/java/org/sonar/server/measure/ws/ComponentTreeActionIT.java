@@ -38,6 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -711,7 +712,7 @@ public class ComponentTreeActionIT {
   public void portfolio_local_reference_in_portfolio() {
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID")
       .setKey("Apache-Projects").setName("Apache Projects"));
-    userSession.registerComponents(view);
+    userSession.registerPortfolios(view);
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(USER, view2);
     ComponentDto localView = db.components().insertComponent(
@@ -757,15 +758,17 @@ public class ComponentTreeActionIT {
   @Test
   public void project_branch_reference_from_application_branch() {
     MetricDto ncloc = insertNclocMetric();
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app-key")).getMainBranchComponent();
-    userSession.registerApplication(application);
+    ProjectData applicationData = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app-key"));
+    ComponentDto application = applicationData.getMainBranchComponent();
+    userSession.registerApplication(applicationData.getProjectDto());
     String branchName = "app-branch";
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(branchName), a -> a.setUuid("custom-uuid"));
-    userSession.addProjectBranchMapping(application.uuid(), applicationBranch);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key")).getMainBranchComponent();
+    userSession.addProjectBranchMapping(applicationData.projectUuid(), applicationBranch);
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("project-key"));
+    ComponentDto project = projectData.getMainBranchComponent();
 
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
-    userSession.addProjectBranchMapping(project.uuid(), projectBranch);
+    userSession.addProjectBranchMapping(projectData.projectUuid(), projectBranch);
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + branchName + projectBranch.getKey()));
 

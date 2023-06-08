@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserDto;
@@ -100,13 +101,13 @@ public class EditCommentActionIT {
   public void edit_comment_from_hotspot_public_project() {
     UserDto userEditingComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userEditingComment, "Some comment");
 
     userSessionRule.logIn(userEditingComment);
-    userSessionRule.registerComponents(project);
+    userSessionRule.registerProjects(projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 
@@ -164,13 +165,11 @@ public class EditCommentActionIT {
     UserDto userTryingToEdit = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
-
-    userSessionRule.logIn(userTryingToEdit)
-      .registerComponents(project);
+    userSessionRule.logIn(userTryingToEdit).registerProjects(projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 

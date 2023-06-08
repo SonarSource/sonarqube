@@ -479,11 +479,17 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertSnapshot(ProjectData project, Consumer<SnapshotDto> consumer) {
-    return insertSnapshot(project.getProjectDto(), consumer);
+    return insertSnapshot(project.getMainBranchDto(), consumer);
   }
 
+  /**
+   * Add a snapshot to the main branch of a project
+   * Should use insertSnapshot(org.sonar.db.component.BranchDto, java.util.function.Consumer<org.sonar.db.component.SnapshotDto>) instead
+   */
+  @Deprecated
   public SnapshotDto insertSnapshot(ProjectDto project, Consumer<SnapshotDto> consumer) {
-    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(project.getUuid());
+    BranchDto mainBranchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid()).orElseThrow();
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(mainBranchDto.getUuid());
     consumer.accept(snapshotDto);
     return insertSnapshot(snapshotDto);
   }

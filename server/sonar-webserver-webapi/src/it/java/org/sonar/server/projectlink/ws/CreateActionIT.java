@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -159,8 +160,11 @@ public class CreateActionIT {
   @Test
   public void fail_if_anonymous() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())

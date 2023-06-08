@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,8 +37,10 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -244,16 +247,24 @@ public class SetTagsActionIT {
 
   private void logIn(IssueDto issueDto) {
     UserDto user = db.users().insertUser("john");
+    ProjectDto projectDto = retrieveProjectDto(issueDto);
     userSession.logIn(user)
-      .registerComponents(
-        dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get(),
-        dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getComponentUuid()).get());
+      .registerProjects(projectDto);
+  }
+
+  @NotNull
+  private ProjectDto retrieveProjectDto(IssueDto issueDto) {
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid())
+      .orElseThrow();
+    return db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid())
+      .orElseThrow();
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
     UserDto user = db.users().insertUser("john");
+    ProjectDto projectDto = retrieveProjectDto(issueDto);
     userSession.logIn(user)
-      .addProjectPermission(permission, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
+      .addProjectPermission(permission, projectDto);
   }
 
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {

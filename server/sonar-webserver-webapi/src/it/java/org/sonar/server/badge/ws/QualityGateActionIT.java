@@ -41,6 +41,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
@@ -85,8 +86,10 @@ public class QualityGateActionIT {
 
   @Test
   public void quality_gate_passed() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
 
@@ -99,8 +102,10 @@ public class QualityGateActionIT {
 
   @Test
   public void quality_gate_failed() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(ERROR.name()));
 
@@ -135,12 +140,12 @@ public class QualityGateActionIT {
   @UseDataProvider("publicProject_forceAuth_validToken_accessGranted")
   public void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
                                                                boolean validToken, boolean accessGranted) throws ParseException {
-    ComponentDto projectAsComponent = publicProject ? db.components().insertPublicProject().getMainBranchComponent() : db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.registerComponents(projectAsComponent);
+    ProjectData projectData = publicProject ? db.components().insertPublicProject() : db.components().insertPrivateProject();
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
 
-    db.measures().insertLiveMeasure(projectAsComponent, metric, m -> m.setData(OK.name()));
-    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectAsComponent.getKey())
+    db.measures().insertLiveMeasure(projectData, metric, m -> m.setData(OK.name()));
+    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectData.getProjectDto().getKey())
       .orElseThrow(() -> new IllegalStateException("project not found"));
 
     String token = db.getDbClient().projectBadgeTokenDao()
@@ -151,7 +156,7 @@ public class QualityGateActionIT {
     mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, forceAuth);
 
     TestResponse response = ws.newRequest()
-      .setParam("project", projectAsComponent.getKey())
+      .setParam("project", projectData.getProjectDto().getKey())
       .setParam("token", validToken ? token : "invalid-token")
       .execute();
 
@@ -165,8 +170,10 @@ public class QualityGateActionIT {
 
   @Test
   public void etag_should_be_different_if_quality_gate_is_different() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     LiveMeasureDto liveMeasure = db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
 
@@ -192,8 +199,10 @@ public class QualityGateActionIT {
 
   @Test
   public void when_IfNoneMatch_match_etag_http_304_must_be_send() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
 
@@ -213,8 +222,10 @@ public class QualityGateActionIT {
 
   @Test
   public void quality_gate_on_branch() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false)).getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject(p -> p.setPrivate(false));
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
     String branchName = randomAlphanumeric(248);
@@ -231,8 +242,10 @@ public class QualityGateActionIT {
 
   @Test
   public void quality_gate_on_application() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerComponents(application);
+    ProjectData projectData = db.components().insertPublicApplication();
+    ComponentDto application = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(application, metric, m -> m.setData(ERROR.name()));
 
@@ -245,9 +258,10 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_on_directory() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
-    userSession.registerComponents(project);
+    userSession.registerProjects(projectData.getProjectDto());
 
     TestResponse response = ws.newRequest()
       .setParam("project", directory.getKey())
@@ -271,8 +285,10 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_on_provisioned_project() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -292,8 +308,10 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_on_not_existing_branch() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false)).getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject(p -> p.setPrivate(false));
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
 
     TestResponse response = ws.newRequest()
@@ -306,8 +324,10 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_if_measure_not_found() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -318,8 +338,10 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_if_measure_value_is_null() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData((String) null));
 
@@ -333,8 +355,10 @@ public class QualityGateActionIT {
 
   @Test
   public void fail_on_invalid_quality_gate() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 

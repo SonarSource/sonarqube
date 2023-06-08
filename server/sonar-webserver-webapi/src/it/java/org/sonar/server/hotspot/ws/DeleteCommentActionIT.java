@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserDto;
@@ -91,8 +92,8 @@ public class DeleteCommentActionIT {
   public void delete_comment_from_hotspot_public_project() {
     UserDto userAddingComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userAddingComment, "Some comment");
 
@@ -100,7 +101,7 @@ public class DeleteCommentActionIT {
       .isNotEmpty();
 
     userSessionRule.logIn(userAddingComment);
-    userSessionRule.registerComponents(project);
+    userSessionRule.registerProjects(projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 
@@ -157,13 +158,11 @@ public class DeleteCommentActionIT {
     UserDto userTryingToDelete = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
-
-    userSessionRule.logIn(userTryingToDelete)
-      .registerComponents(project);
+    userSessionRule.logIn(userTryingToDelete).registerProjects(projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 

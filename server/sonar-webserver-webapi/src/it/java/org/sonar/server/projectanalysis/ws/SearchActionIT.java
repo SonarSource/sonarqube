@@ -44,6 +44,7 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
@@ -420,7 +421,7 @@ public class SearchActionIT {
   @Test
   public void return_analyses_of_portfolio() {
     ComponentDto view = db.components().insertPublicPortfolio();
-    userSession.registerComponents(view);
+    userSession.registerPortfolios(view);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(2_000_000L));
     SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(3_000_000L));
@@ -667,10 +668,11 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_not_a_project_portfolio_or_application() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    db.components().insertSnapshot(newAnalysis(project));
-    userSession.registerComponents(project, file);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+    db.components().insertSnapshot(newAnalysis(mainBranch));
+    userSession.registerProjects(projectData.getProjectDto());
 
     var fileDbKey = file.getKey();
     assertThatThrownBy(() -> call(fileDbKey))
@@ -680,18 +682,19 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
 
     var searchRequest = SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setBranch("another_branch")
       .build();
 
     assertThatThrownBy(() -> call(searchRequest))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
+      .hasMessage(format("Component '%s' on branch '%s' not found", mainBranch.getKey(), "another_branch"));
   }
 
   @Test

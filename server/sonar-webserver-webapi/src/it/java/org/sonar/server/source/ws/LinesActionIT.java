@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.protobuf.DbFileSources;
@@ -145,10 +146,11 @@ public class LinesActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String pullRequestKey = randomAlphanumeric(100);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid(branch.uuid())
@@ -157,9 +159,9 @@ public class LinesActionIT {
     db.commit();
 
     userSession.logIn("login")
-      .addProjectPermission(UserRole.USER, project)
-      .addProjectPermission(UserRole.CODEVIEWER, project, file)
-      .registerComponents(branch);
+      .addProjectPermission(UserRole.USER, projectData.getProjectDto())
+      .addProjectPermission(UserRole.CODEVIEWER, projectData.getProjectDto())
+      .addProjectPermission(UserRole.CODEVIEWER, file);
 
     tester.newRequest()
       .setParam("key", file.getKey())
@@ -348,8 +350,10 @@ public class LinesActionIT {
 
   @Test
   public void hide_scmAuthors() {
-    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.registerComponents(publicProject);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto publicProject = projectData.getMainBranchComponent();
+
+    userSession.registerProjects(projectData.getProjectDto());
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
       .addLines(newLineBuilder().setScmAuthor("isaac@asimov.com"))
@@ -365,10 +369,10 @@ public class LinesActionIT {
 
   @Test
   public void show_scmAuthors() {
-    ComponentDto publicProject = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto publicProject = projectData.getMainBranchComponent();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user)
-      .registerComponents(publicProject);
+    userSession.logIn(user).registerProjects(projectData.getProjectDto());
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
       .addLines(newLineBuilder().setScmAuthor("isaac@asimov.com"))

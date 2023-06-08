@@ -124,15 +124,12 @@ public class ThreadLocalUserSessionTest {
       .setGroups(group);
 
     ProjectDto subProjectDto = new ProjectDto().setQualifier(Qualifiers.PROJECT).setUuid("subproject-uuid");
-    ComponentDto applicationAsComponentDto = new ComponentDto().setQualifier(Qualifiers.APP).setUuid("application-component-uuid").setBranchUuid("application-project-uuid");
     ProjectDto applicationAsProjectDto = new ProjectDto().setQualifier(Qualifiers.APP).setUuid("application-project-uuid");
 
     expected.registerProjects(subProjectDto);
     expected.registerApplication(applicationAsProjectDto, subProjectDto);
-    expected.registerComponents(applicationAsComponentDto);
     threadLocalUserSession.set(expected);
 
-    assertThat(threadLocalUserSession.checkChildProjectsPermission(USER, applicationAsComponentDto)).isEqualTo(threadLocalUserSession);
     assertThat(threadLocalUserSession.checkChildProjectsPermission(USER, applicationAsProjectDto)).isEqualTo(threadLocalUserSession);
   }
 }
