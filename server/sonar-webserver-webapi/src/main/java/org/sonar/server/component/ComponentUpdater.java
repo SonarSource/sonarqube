@@ -20,8 +20,6 @@
 package org.sonar.server.component;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -171,9 +169,7 @@ public class ComponentUpdater {
   }
 
   private void checkKeyAlreadyExists(DbSession dbSession, NewComponent newComponent) {
-    List<ComponentDto> componentDtos = newComponent.isProject()
-      ? dbClient.componentDao().selectByKeyCaseInsensitive(dbSession, newComponent.key())
-      : dbClient.componentDao().selectByKey(dbSession, newComponent.key()).map(Collections::singletonList).orElse(new ArrayList<>());
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByKeyCaseInsensitive(dbSession, newComponent.key());
 
     if (!componentDtos.isEmpty()) {
       String alreadyExistingKeys = componentDtos

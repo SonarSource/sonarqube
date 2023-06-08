@@ -54,6 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
@@ -324,6 +325,20 @@ public class ComponentUpdaterIT {
 
   @Test
   public void create_shouldFail_whenCreatingProjectWithExistingKeyButDifferentCase() {
+    createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(PROJECT);
+  }
+
+  @Test
+  public void create_shouldFail_whenCreatingPortfolioWithExistingKeyButDifferentCase() {
+    createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(VIEW);
+  }
+
+  @Test
+  public void create_shouldFail_whenCreatingApplicationWithExistingKeyButDifferentCase() {
+    createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(APP);
+  }
+
+  private void createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(String qualifier) {
     String existingKey = randomAlphabetic(5).toUpperCase();
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
@@ -331,10 +346,11 @@ public class ComponentUpdaterIT {
     NewComponent newComponent = NewComponent.newComponentBuilder()
       .setKey(newKey)
       .setName(DEFAULT_PROJECT_NAME)
+      .setQualifier(qualifier)
       .build();
 
     DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null).mainBranchComponent())
+    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
   }
