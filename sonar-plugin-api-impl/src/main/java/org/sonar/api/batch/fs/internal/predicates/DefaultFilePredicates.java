@@ -133,7 +133,10 @@ public class DefaultFilePredicates implements FilePredicates {
 
   @Override
   public FilePredicate is(File ioFile) {
-    return new IsPredicate(ioFile.toPath());
+    if (ioFile.isAbsolute()) {
+      return hasAbsolutePath(ioFile.getAbsolutePath());
+    }
+    return hasRelativePath(ioFile.getPath());
   }
 
   @Override

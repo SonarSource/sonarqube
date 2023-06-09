@@ -153,8 +153,7 @@ public class DefaultFilePredicatesTest {
     Files.touch(javaFile.file());
 
     // relative file
-    Path workingDir = Paths.get(System.getProperty("user.dir"));
-    Path relativePath = workingDir.relativize(javaFile.path());
+    Path relativePath = moduleBasePath.relativize(javaFile.path());
     assertThat(predicates.is(relativePath.toFile()).apply(javaFile)).isTrue();
 
     // absolute file

@@ -19,13 +19,17 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.ScannerSide;
@@ -86,8 +90,8 @@ public class LocationMapper {
 
   @CheckForNull
   private static InputFile findFile(SensorContext context, String filePath) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    return context.fileSystem().inputFile(predicates.is(getFileFromAbsoluteUriOrPath(filePath)));
+    // we use a custom predicate (which is not optimized) because fileSystem().predicates().is() doesn't handle symlinks correctly
+    return context.fileSystem().inputFile(new IsPredicate(getFileFromAbsoluteUriOrPath(filePath).toPath()));
   }
 
   private static File getFileFromAbsoluteUriOrPath(String filePath) {
@@ -96,6 +100,24 @@ public class LocationMapper {
       return new File(uri);
     } else {
       return new File(filePath);
+    }
+  }
+
+  @VisibleForTesting
+  static class IsPredicate extends AbstractFilePredicate {
+    private final Path path;
+
+    public IsPredicate(Path path) {
+      this.path = path;
+    }
+
+    @Override
+    public boolean apply(InputFile inputFile) {
+      try {
+        return Files.isSameFile(path, inputFile.path());
+      } catch (IOException e) {
+        return false;
+      }
     }
   }
 }

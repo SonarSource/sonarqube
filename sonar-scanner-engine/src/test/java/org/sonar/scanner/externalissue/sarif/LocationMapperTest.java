@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,23 +84,25 @@ public class LocationMapperTest {
     when(result.getMessage().getText()).thenReturn(TEST_MESSAGE);
 
     when(location.getPhysicalLocation().getArtifactLocation().getUri()).thenReturn(URI_TEST);
-
-    FilePredicate filePredicate = mock(FilePredicate.class);
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    when(predicates.is(any())).thenReturn(filePredicate);
-
-    when(sensorContext.fileSystem().inputFile(filePredicate)).thenReturn(inputFile);
-
+    when(sensorContext.fileSystem().inputFile(any(FilePredicate.class))).thenReturn(inputFile);
   }
 
   @Test
-  public void fillIssueInProjectLocation_shouldFillRelevantFields() {
-    NewIssueLocation actualIssueLocation = locationMapper.fillIssueInProjectLocation(result, newIssueLocation);
+  public void isPredicate_whenDifferentFile_returnsFalse() {
+    Path path = Paths.get("file");
+    InputFile inputFile = mock(InputFile.class);
+    when((inputFile.path())).thenReturn(Paths.get("file2"));
+    LocationMapper.IsPredicate isPredicate = new LocationMapper.IsPredicate(path);
+    assertThat(isPredicate.apply(inputFile)).isFalse();
+  }
 
-    assertThat(actualIssueLocation).isEqualTo(newIssueLocation);
-    verify(newIssueLocation).message(TEST_MESSAGE);
-    verify(newIssueLocation).on(sensorContext.project());
-    verifyNoMoreInteractions(newIssueLocation);
+  @Test
+  public void isPredicate_whenSameFile_returnsTrue() {
+    Path path = Paths.get("file");
+    InputFile inputFile = mock(InputFile.class);
+    when((inputFile.path())).thenReturn(path);
+    LocationMapper.IsPredicate isPredicate = new LocationMapper.IsPredicate(path);
+    assertThat(isPredicate.apply(inputFile)).isTrue();
   }
 
   @Test
