@@ -18,31 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioCard from '../../../components/controls/RadioCard';
-import { translate } from '../../../helpers/l10n';
-import { NewCodePeriodSettingType } from '../../../types/types';
+import { translate } from '../../helpers/l10n';
+import { NewCodePeriodSettingType } from '../../types/types';
+import RadioCard from '../controls/RadioCard';
 
-export interface Props {
+interface Props {
   disabled?: boolean;
   isDefault?: boolean;
   onSelect: (selection: NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 
-export default function BaselineSettingPreviousVersion(props: Props) {
-  const { disabled, isDefault, onSelect, selected } = props;
+export default function NewCodeDefinitionPreviousVersionOption({
+  disabled,
+  isDefault,
+  onSelect,
+  selected,
+}: Props) {
   return (
     <RadioCard
       disabled={disabled}
       onClick={() => onSelect(NewCodePeriodSettingType.PREVIOUS_VERSION)}
       selected={selected}
       title={
-        translate('baseline.previous_version') + (isDefault ? ` (${translate('default')})` : '')
+        translate('new_code_definition.previous_version') +
+        (isDefault ? ` (${translate('default')})` : '')
       }
     >
       <div>
-        <p>{translate('baseline.previous_version.description')}</p>
-        <p className="sw-mt-3">{translate('baseline.previous_version.usecase')}</p>
+        <p>{translate('new_code_definition.previous_version.description')}</p>
+        <p className="sw-mt-3">{translate('new_code_definition.previous_version.usecase')}</p>
       </div>
     </RadioCard>
   );

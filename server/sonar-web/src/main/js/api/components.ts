@@ -97,11 +97,27 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
   return post('/api/views/delete', { key: portfolio }).catch(throwGlobalError);
 }
 
+export function setupManualProjectCreation(data: {
+  name: string;
+  project: string;
+  mainBranch: string;
+  visibility?: Visibility;
+}) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    createProject({
+      ...data,
+      newCodeDefinitionType,
+      newCodeDefinitionValue,
+    });
+}
+
 export function createProject(data: {
   name: string;
   project: string;
   mainBranch: string;
   visibility?: Visibility;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }

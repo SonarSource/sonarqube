@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioCard from '../../../components/controls/RadioCard';
-import ValidationInput, {
-  ValidationInputErrorPlacement,
-} from '../../../components/controls/ValidationInput';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { MAX_NUMBER_OF_DAYS, MIN_NUMBER_OF_DAYS } from '../../../helpers/periods';
-import { NewCodePeriodSettingType } from '../../../types/types';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { MAX_NUMBER_OF_DAYS, MIN_NUMBER_OF_DAYS } from '../../helpers/periods';
+import { NewCodePeriodSettingType } from '../../types/types';
+import RadioCard from '../controls/RadioCard';
+import ValidationInput, { ValidationInputErrorPlacement } from '../controls/ValidationInput';
+import MandatoryFieldsExplanation from '../ui/MandatoryFieldsExplanation';
 
 export interface Props {
   className?: string;
@@ -38,7 +36,7 @@ export interface Props {
   selected: boolean;
 }
 
-export default function BaselineSettingDays(props: Props) {
+export default function NewCodeDefinitionDaysOption(props: Props) {
   const { className, days, disabled, isChanged, isValid, onChangeDays, onSelect, selected } = props;
 
   return (
@@ -47,12 +45,12 @@ export default function BaselineSettingDays(props: Props) {
       disabled={disabled}
       onClick={() => onSelect(NewCodePeriodSettingType.NUMBER_OF_DAYS)}
       selected={selected}
-      title={translate('baseline.number_days')}
+      title={translate('new_code_definition.number_days')}
     >
       <>
         <div>
-          <p className="sw-mb-3">{translate('baseline.number_days.description')}</p>
-          <p className="sw-mb-4">{translate('baseline.number_days.usecase')}</p>
+          <p className="sw-mb-3">{translate('new_code_definition.number_days.description')}</p>
+          <p className="sw-mb-4">{translate('new_code_definition.number_days.usecase')}</p>
         </div>
         {selected && (
           <>
@@ -64,11 +62,11 @@ export default function BaselineSettingDays(props: Props) {
               isValid={isChanged && isValid}
               errorPlacement={ValidationInputErrorPlacement.Bottom}
               error={translateWithParameters(
-                'baseline.number_days.invalid',
+                'new_code_definition.number_days.invalid',
                 MIN_NUMBER_OF_DAYS,
                 MAX_NUMBER_OF_DAYS
               )}
-              label={translate('baseline.specify_days')}
+              label={translate('new_code_definition.number_days.specify_days')}
               required
             >
               <input

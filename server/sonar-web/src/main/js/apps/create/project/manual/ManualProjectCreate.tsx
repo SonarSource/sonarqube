@@ -21,26 +21,25 @@ import classNames from 'classnames';
 import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createProject, doesComponentExists } from '../../../../api/components';
+import { doesComponentExists, setupManualProjectCreation } from '../../../../api/components';
 import { getValue } from '../../../../api/settings';
 import DocLink from '../../../../components/common/DocLink';
 import ProjectKeyInput from '../../../../components/common/ProjectKeyInput';
 import ValidationInput from '../../../../components/controls/ValidationInput';
 import { SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../../helpers/l10n';
 import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 import { PROJECT_NAME_MAX_LEN } from '../constants';
+import { CreateProjectApiCallback } from '../types';
 
 interface Props {
   branchesEnabled: boolean;
-  onProjectCreate: (projectKey: string) => void;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
 }
 
 interface State {
@@ -54,7 +53,6 @@ interface State {
   mainBranchName: string;
   mainBranchNameError?: string;
   mainBranchNameTouched: boolean;
-  submitting: boolean;
 }
 
 const DEBOUNCE_DELAY = 250;
@@ -69,7 +67,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.state = {
       projectKey: '',
       projectName: '',
-      submitting: false,
       projectKeyTouched: false,
       projectNameTouched: false,
       mainBranchName: 'main',
@@ -132,18 +129,12 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     event.preventDefault();
     const { projectKey, projectName, mainBranchName } = this.state;
     if (this.canSubmit(this.state)) {
-      this.setState({ submitting: true });
-      createProject({
-        project: projectKey,
-        name: (projectName || projectKey).trim(),
-        mainBranch: mainBranchName,
-      }).then(
-        ({ project }) => this.props.onProjectCreate(project.key),
-        () => {
-          if (this.mounted) {
-            this.setState({ submitting: false });
-          }
-        }
+      this.props.onProjectSetupDone(
+        setupManualProjectCreation({
+          project: projectKey,
+          name: (projectName || projectKey).trim(),
+          mainBranch: mainBranchName,
+        })
       );
     }
   };
@@ -221,7 +212,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       mainBranchName,
       mainBranchNameError,
       mainBranchNameTouched,
-      submitting,
     } = this.state;
     const { branchesEnabled } = this.props;
 
@@ -234,8 +224,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     return (
       <>
         <CreateProjectPageHeader title={translate('onboarding.create_project.setup_manually')} />
-
-        <InstanceNewCodeDefinitionComplianceWarning />
 
         <form id="create-project-manual" onSubmit={this.handleFormSubmit}>
           <MandatoryFieldsExplanation className="big-spacer-bottom" />
@@ -308,10 +296,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             />
           </ValidationInput>
 
-          <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-            {translate('set_up')}
-          </SubmitButton>
-          <DeferredSpinner className="spacer-left" loading={submitting} />
+          <SubmitButton disabled={!this.canSubmit(this.state)}>{translate('next')}</SubmitButton>
         </form>
 
         {branchesEnabled && (

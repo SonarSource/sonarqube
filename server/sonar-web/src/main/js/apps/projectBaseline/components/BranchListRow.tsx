@@ -24,9 +24,9 @@ import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
-import { isNewCodeDefinitionCompliant } from '../../../helpers/periods';
 
 export interface BranchListRowProps {
   branch: BranchWithNewCodePeriod;
@@ -50,9 +50,9 @@ function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
         </>
       );
     case NewCodePeriodSettingType.NUMBER_OF_DAYS:
-      return `${translate('baseline.number_days')}: ${newCodePeriod.value}`;
+      return `${translate('new_code_definition.number_days')}: ${newCodePeriod.value}`;
     case NewCodePeriodSettingType.PREVIOUS_VERSION:
-      return translate('baseline.previous_version');
+      return translate('new_code_definition.previous_version');
     case NewCodePeriodSettingType.REFERENCE_BRANCH:
       return `${translate('baseline.reference_branch')}: ${newCodePeriod.value}`;
     default:

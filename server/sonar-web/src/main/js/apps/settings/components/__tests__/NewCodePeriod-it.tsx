@@ -39,9 +39,9 @@ afterEach(() => {
 const ui = {
   newCodeTitle: byRole('heading', { name: 'settings.new_code_period.title' }),
   savedMsg: byText('settings.state.saved'),
-  prevVersionRadio: byRole('radio', { name: /baseline.previous_version/ }),
-  daysNumberRadio: byRole('radio', { name: /baseline.number_days/ }),
-  daysNumberErrorMessage: byText('baseline.number_days.invalid', { exact: false }),
+  prevVersionRadio: byRole('radio', { name: /new_code_definition.previous_version/ }),
+  daysNumberRadio: byRole('radio', { name: /new_code_definition.number_days/ }),
+  daysNumberErrorMessage: byText('new_code_definition.number_days.invalid', { exact: false }),
   daysInput: byRole('textbox'),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),

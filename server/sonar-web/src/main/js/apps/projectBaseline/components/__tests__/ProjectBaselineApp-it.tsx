@@ -29,8 +29,8 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-period';
 import { mockAppState } from '../../../../helpers/testMocks';
 import {
-  RenderContext,
   renderAppWithComponentContext,
+  RenderContext,
 } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
 import { NewCodePeriodSettingType } from '../../../../types/types';
@@ -213,7 +213,9 @@ it('can set a previous version setting for branch', async () => {
   await ui.appIsLoaded();
   await ui.setBranchPreviousVersionSetting('main');
 
-  expect(within(byRole('table').get()).getByText('baseline.previous_version')).toBeInTheDocument();
+  expect(
+    within(byRole('table').get()).getByText('new_code_definition.previous_version')
+  ).toBeInTheDocument();
 
   await user.click(await ui.branchActionsButton('main').find());
 
@@ -234,7 +236,9 @@ it('can set a number of days setting for branch', async () => {
 
   await ui.setBranchNumberOfDaysSetting('main', '15');
 
-  expect(within(byRole('table').get()).getByText('baseline.number_days: 15')).toBeInTheDocument();
+  expect(
+    within(byRole('table').get()).getByText('new_code_definition.number_days: 15')
+  ).toBeInTheDocument();
 });
 
 it('cannot set a specific analysis setting for branch', async () => {
@@ -295,8 +299,10 @@ function getPageObjects() {
     generalSettingsLink: byRole('link', { name: 'project_baseline.page.description2.link' }),
     generalSettingRadio: byRole('radio', { name: 'project_baseline.global_setting' }),
     specificSettingRadio: byRole('radio', { name: 'project_baseline.specific_setting' }),
-    previousVersionRadio: byRole('radio', { name: /baseline.previous_version.description/ }),
-    numberDaysRadio: byRole('radio', { name: /baseline.number_days.description/ }),
+    previousVersionRadio: byRole('radio', {
+      name: /new_code_definition.previous_version.description/,
+    }),
+    numberDaysRadio: byRole('radio', { name: /new_code_definition.number_days.description/ }),
     numberDaysInput: byRole('textbox'),
     referenceBranchRadio: byRole('radio', { name: /baseline.reference_branch.description/ }),
     chooseBranchSelect: byRole('combobox', { name: 'baseline.reference_branch.choose' }),
@@ -311,8 +317,8 @@ function getPageObjects() {
     editButton: byRole('button', { name: 'edit' }),
     resetToDefaultButton: byRole('button', { name: 'reset_to_default' }),
     saved: byText('settings.state.saved'),
-    complianceWarningAdmin: byText('project_baseline.compliance.warning.explanation.admin'),
-    complianceWarning: byText('project_baseline.compliance.warning.explanation'),
+    complianceWarningAdmin: byText('new_code_definition.compliance.warning.explanation.admin'),
+    complianceWarning: byText('new_code_definition.compliance.warning.explanation'),
   };
 
   async function appIsLoaded() {

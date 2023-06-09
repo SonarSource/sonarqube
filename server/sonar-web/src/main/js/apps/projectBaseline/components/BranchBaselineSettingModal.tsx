@@ -19,8 +19,10 @@
  */
 import * as React from 'react';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
+import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
@@ -30,8 +32,6 @@ import { ParsedAnalysis } from '../../../types/project-activity';
 import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingDays from './BaselineSettingDays';
-import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
 
@@ -170,12 +170,12 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               level="branch"
             />
             <div className="display-flex-row huge-spacer-bottom" role="radiogroup">
-              <BaselineSettingPreviousVersion
+              <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}
                 onSelect={this.handleSelectSetting}
                 selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
               />
-              <BaselineSettingDays
+              <NewCodeDefinitionDaysOption
                 days={days}
                 isChanged={isChanged}
                 isValid={isValid}
