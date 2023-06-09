@@ -44,7 +44,7 @@ export default function SamlLogin() {
                 maxLength={255}
                 name="login"
                 onChange={handleLoginChange}
-                placeholder="Your company email"
+                placeholder="Your Company Domain or Email"
                 required={true}
                 type="text"
             />
