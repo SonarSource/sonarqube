@@ -29,7 +29,6 @@ import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
 
 export interface BitbucketCloudProjectCreateRendererProps {
-  importingSlug?: string;
   isLastPage: boolean;
   canAdmin?: boolean;
   loading: boolean;
@@ -53,7 +52,6 @@ export default function BitbucketCloudProjectCreateRenderer(
 ) {
   const {
     almInstances,
-    importingSlug,
     isLastPage,
     selectedAlmInstance,
     canAdmin,
@@ -105,7 +103,6 @@ export default function BitbucketCloudProjectCreateRenderer(
           />
         ) : (
           <BitbucketCloudSearchForm
-            importingSlug={importingSlug}
             isLastPage={isLastPage}
             loadingMore={loadingMore}
             searchQuery={searchQuery}

@@ -173,14 +173,21 @@ export function getGithubClientId(almSetting: string): Promise<{ clientId?: stri
   return getJSON('/api/alm_integrations/get_github_client_id', { almSetting });
 }
 
-export function importBitbucketCloudRepository(
-  almSetting: string,
-  repositorySlug: string
-): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/alm_integrations/import_bitbucketcloud_repo', {
-    almSetting,
-    repositorySlug,
-  }).catch(throwGlobalError);
+export function setupBitbucketCloudProjectCreation(data: {
+  almSetting: string;
+  repositorySlug: string;
+}) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    importBitbucketCloudRepository({ ...data, newCodeDefinitionType, newCodeDefinitionValue });
+}
+
+export function importBitbucketCloudRepository(data: {
+  almSetting: string;
+  repositorySlug: string;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+}): Promise<{ project: ProjectBase }> {
+  return postJSON('/api/alm_integrations/import_bitbucketcloud_repo', data).catch(throwGlobalError);
 }
 
 export function importGithubRepository(

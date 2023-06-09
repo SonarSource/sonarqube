@@ -19,26 +19,26 @@
  */
 import * as React from 'react';
 import {
-  importBitbucketCloudRepository,
   searchForBitbucketCloudRepositories,
+  setupBitbucketCloudProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
+import { CreateProjectApiCallback } from '../types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
 interface Props {
   canAdmin: boolean;
   almInstances: AlmSettingsInstance[];
   loadingBindings: boolean;
-  onProjectCreate: (projectKey: string) => void;
   location: Location;
   router: Router;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
 }
 
 interface State {
-  importingSlug?: string;
   isLastPage?: boolean;
   loading: boolean;
   loadingMore: boolean;
@@ -189,26 +189,16 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     );
   };
 
-  handleImport = async (repositorySlug: string) => {
+  handleImport = (repositorySlug: string) => {
     const { selectedAlmInstance } = this.state;
 
-    if (!selectedAlmInstance) {
-      return;
-    }
-
-    this.setState({ importingSlug: repositorySlug });
-
-    const result = await importBitbucketCloudRepository(
-      selectedAlmInstance.key,
-      repositorySlug
-    ).catch(() => undefined);
-
-    if (this.mounted) {
-      this.setState({ importingSlug: undefined });
-
-      if (result) {
-        this.props.onProjectCreate(result.project.key);
-      }
+    if (selectedAlmInstance) {
+      this.props.onProjectSetupDone(
+        setupBitbucketCloudProjectCreation({
+          almSetting: selectedAlmInstance.key,
+          repositorySlug,
+        })
+      );
     }
   };
 
@@ -226,7 +216,6 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
   render() {
     const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
-      importingSlug,
       isLastPage = true,
       selectedAlmInstance,
       loading,
@@ -239,7 +228,6 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     } = this.state;
     return (
       <BitbucketCloudProjectCreateRenderer
-        importingSlug={importingSlug}
         isLastPage={isLastPage}
         selectedAlmInstance={selectedAlmInstance}
         almInstances={almInstances}

@@ -231,7 +231,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             canAdmin={!!canAdmin}
             loadingBindings={loading}
             location={location}
-            onProjectCreate={this.handleProjectCreate}
+            onProjectSetupDone={this.handleProjectSetupDone}
             router={router}
             almInstances={bitbucketCloudSettings}
           />

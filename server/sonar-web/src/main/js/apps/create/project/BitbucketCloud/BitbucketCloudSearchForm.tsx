@@ -33,11 +33,9 @@ import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricType } from '../../../../types/metrics';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 import { CreateProjectModes } from '../types';
 
 export interface BitbucketCloudSearchFormProps {
-  importingSlug?: string;
   isLastPage: boolean;
   loadingMore: boolean;
   onImport: (repositorySlug: string) => void;
@@ -53,14 +51,7 @@ function getRepositoryUrl(workspace: string, slug: string) {
 }
 
 export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchFormProps) {
-  const {
-    importingSlug,
-    isLastPage,
-    loadingMore,
-    repositories = [],
-    searching,
-    searchQuery,
-  } = props;
+  const { isLastPage, loadingMore, repositories = [], searching, searchQuery } = props;
 
   if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
     return (
@@ -86,109 +77,101 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
   }
 
   return (
-    <>
-      <InstanceNewCodeDefinitionComplianceWarning />
-      <div className="boxed-group big-padded create-project-import">
-        <SearchBox
-          className="spacer"
-          loading={searching}
-          minLength={3}
-          onChange={props.onSearch}
-          placeholder={translate('onboarding.create_project.search_prompt')}
-        />
+    <div className="boxed-group big-padded create-project-import">
+      <SearchBox
+        className="spacer"
+        loading={searching}
+        minLength={3}
+        onChange={props.onSearch}
+        placeholder={translate('onboarding.create_project.search_prompt')}
+      />
 
-        <hr />
+      <hr />
 
-        {repositories.length === 0 ? (
-          <div className="padded">{translate('no_results')}</div>
-        ) : (
-          <table className="data zebra zebra-hover">
-            <tbody>
-              {repositories.map((repository) => (
-                <tr key={repository.uuid}>
+      {repositories.length === 0 ? (
+        <div className="padded">{translate('no_results')}</div>
+      ) : (
+        <table className="data zebra zebra-hover">
+          <tbody>
+            {repositories.map((repository) => (
+              <tr key={repository.uuid}>
+                <td>
+                  <Tooltip overlay={repository.slug}>
+                    <strong className="project-name display-inline-block text-ellipsis">
+                      {repository.sqProjectKey ? (
+                        <Link to={getProjectUrl(repository.sqProjectKey)}>
+                          <QualifierIcon
+                            className="spacer-right"
+                            qualifier={ComponentQualifier.Project}
+                          />
+                          {repository.name}
+                        </Link>
+                      ) : (
+                        repository.name
+                      )}
+                    </strong>
+                  </Tooltip>
+                  <br />
+                  <Tooltip overlay={repository.projectKey}>
+                    <span className="text-muted project-path display-inline-block text-ellipsis">
+                      {repository.projectKey}
+                    </span>
+                  </Tooltip>
+                </td>
+                <td>
+                  <Link
+                    className="display-inline-flex-center big-spacer-right"
+                    to={getRepositoryUrl(repository.workspace, repository.slug)}
+                    target="_blank"
+                  >
+                    {translate('onboarding.create_project.bitbucketcloud.link')}
+                  </Link>
+                </td>
+                {repository.sqProjectKey ? (
                   <td>
-                    <Tooltip overlay={repository.slug}>
-                      <strong className="project-name display-inline-block text-ellipsis">
-                        {repository.sqProjectKey ? (
-                          <Link to={getProjectUrl(repository.sqProjectKey)}>
-                            <QualifierIcon
-                              className="spacer-right"
-                              qualifier={ComponentQualifier.Project}
-                            />
-                            {repository.name}
-                          </Link>
-                        ) : (
-                          repository.name
-                        )}
-                      </strong>
-                    </Tooltip>
-                    <br />
-                    <Tooltip overlay={repository.projectKey}>
-                      <span className="text-muted project-path display-inline-block text-ellipsis">
-                        {repository.projectKey}
-                      </span>
-                    </Tooltip>
+                    <span className="display-flex-center display-flex-justify-end already-set-up">
+                      <CheckIcon className="little-spacer-right" size={12} />
+                      {translate('onboarding.create_project.repository_imported')}
+                    </span>
                   </td>
-                  <td>
-                    <Link
-                      className="display-inline-flex-center big-spacer-right"
-                      to={getRepositoryUrl(repository.workspace, repository.slug)}
-                      target="_blank"
+                ) : (
+                  <td className="text-right">
+                    <Button
+                      onClick={() => {
+                        props.onImport(repository.slug);
+                      }}
                     >
-                      {translate('onboarding.create_project.bitbucketcloud.link')}
-                    </Link>
+                      {translate('onboarding.create_project.set_up')}
+                    </Button>
                   </td>
-                  {repository.sqProjectKey ? (
-                    <td>
-                      <span className="display-flex-center display-flex-justify-end already-set-up">
-                        <CheckIcon className="little-spacer-right" size={12} />
-                        {translate('onboarding.create_project.repository_imported')}
-                      </span>
-                    </td>
-                  ) : (
-                    <td className="text-right">
-                      <Button
-                        disabled={Boolean(importingSlug)}
-                        onClick={() => {
-                          props.onImport(repository.slug);
-                        }}
-                      >
-                        {translate('onboarding.create_project.set_up')}
-                        <DeferredSpinner
-                          className="spacer-left"
-                          loading={importingSlug === repository.slug}
-                        />
-                      </Button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <footer className="spacer-top note text-center">
-          {isLastPage &&
-            translateWithParameters(
-              'x_of_y_shown',
-              formatMeasure(repositories.length, MetricType.Integer, null),
-              formatMeasure(repositories.length, MetricType.Integer, null)
-            )}
-          {!isLastPage && (
-            <Button
-              className="spacer-left"
-              disabled={loadingMore}
-              data-test="show-more"
-              onClick={props.onLoadMore}
-            >
-              {translate('show_more')}
-            </Button>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <footer className="spacer-top note text-center">
+        {isLastPage &&
+          translateWithParameters(
+            'x_of_y_shown',
+            formatMeasure(repositories.length, MetricType.Integer, null),
+            formatMeasure(repositories.length, MetricType.Integer, null)
           )}
-          <DeferredSpinner
-            className="text-bottom spacer-left position-absolute"
-            loading={loadingMore}
-          />
-        </footer>
-      </div>
-    </>
+        {!isLastPage && (
+          <Button
+            className="spacer-left"
+            disabled={loadingMore}
+            data-test="show-more"
+            onClick={props.onLoadMore}
+          >
+            {translate('show_more')}
+          </Button>
+        )}
+        <DeferredSpinner
+          className="text-bottom spacer-left position-absolute"
+          loading={loadingMore}
+        />
+      </footer>
+    </div>
   );
 }
