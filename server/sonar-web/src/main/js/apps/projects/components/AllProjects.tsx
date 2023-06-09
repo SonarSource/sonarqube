@@ -245,6 +245,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <div className="layout-page-main-inner">
           <PageHeader
             currentUser={this.props.currentUser}
+            showHomepageIcon={!this.props.organization}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}

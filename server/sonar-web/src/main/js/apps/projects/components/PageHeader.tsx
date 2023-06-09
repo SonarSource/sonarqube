@@ -31,6 +31,7 @@ import ProjectsSortingSelect from './ProjectsSortingSelect';
 
 interface Props {
   currentUser: CurrentUser;
+  showHomepageIcon: boolean;
   loading: boolean;
   onPerspectiveChange: (x: { view: string }) => void;
   onQueryChange: (change: RawQuery) => void;
@@ -52,10 +53,12 @@ export default function PageHeader(props: Props) {
         <div className="display-flex-center">
           <ProjectCreationMenu className="little-spacer-right" />
           <ApplicationCreation className="little-spacer-right" />
-          <HomePageSelect
-            className="spacer-left little-spacer-right"
-            currentPage={{ type: 'PROJECTS' }}
-          />
+          {props.showHomepageIcon && (
+            <HomePageSelect
+              className="spacer-left little-spacer-right"
+              currentPage={{ type: 'PROJECTS' }}
+            />
+          )}
         </div>
       </div>
       <div className="big-spacer-top display-flex-space-between">

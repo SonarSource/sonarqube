@@ -35,14 +35,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserOrganizationGroup;
 import org.sonar.server.issue.AvatarResolver;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
@@ -58,6 +56,7 @@ import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
 import static org.sonar.server.user.ws.DismissNoticeAction.SONARLINT_AD;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.Users.CurrentWsResponse.OrganizationGroup;
@@ -169,9 +168,27 @@ public class CurrentAction implements UsersWsAction {
       return applicationAndPortfolioHomepage(dbSession, user);
     }
 
+    if (ORGANIZATION.toString().equals(user.getHomepageType())) {
+      return organizationHomepage(dbSession, user);
+    }
+
     return of(CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
       .build());
+  }
+
+  private Optional<CurrentWsResponse.Homepage> organizationHomepage(DbSession dbSession, UserDto user) {
+    Optional<OrganizationDto> organizationOptional = dbClient.organizationDao()
+            .selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
+    if (organizationOptional.isEmpty()) {
+      cleanUserHomepageInDb(dbSession, user);
+      return empty();
+    }
+
+    return of(CurrentWsResponse.Homepage.newBuilder()
+            .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+            .setOrganization(organizationOptional.get().getKey())
+            .build());
   }
 
   private Optional<CurrentWsResponse.Homepage> projectHomepage(DbSession dbSession, UserDto user) {
