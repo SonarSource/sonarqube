@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button, EditButton } from '../../components/controls/buttons';
+import { Button } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/types';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
@@ -54,6 +54,7 @@ export default class Header extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
+          {/* Should be disabled in Cloud version (Codescan)
           <span className="big-spacer-right">
             <span className="text-middle">
               {translate('settings.projects.default_visibility_of_new_projects')}{' '}
@@ -66,6 +67,7 @@ export default class Header extends React.PureComponent<Props, State> {
               onClick={this.handleChangeVisibilityClick}
             />
           </span>
+          */ }
 
           {hasProvisionPermission && (
             <Button id="create-project" onClick={this.props.onProjectCreate}>

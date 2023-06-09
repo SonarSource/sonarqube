@@ -29,8 +29,6 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { toShortNotSoISOString } from '../../helpers/dates';
 import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
-import { hasGlobalPermission } from '../../helpers/users';
-import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Organization, Visibility } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
@@ -204,8 +202,9 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { currentUser } = this.props;
+    const { organization } = this.props;
     const { defaultProjectVisibility } = this.state;
+    const { actions = {} } = organization;
     return (
       <div className="page page-limited" id="projects-management-page">
         <Suggestions suggestions="projects_management" />
@@ -213,7 +212,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
 
         <Header
           defaultProjectVisibility={defaultProjectVisibility}
-          hasProvisionPermission={hasGlobalPermission(currentUser, Permissions.ProjectCreation)}
+          hasProvisionPermission={actions.provision}
           onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
           onProjectCreate={this.openCreateProjectForm}
         />
@@ -236,7 +235,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
           selection={this.state.selection}
           total={this.state.total}
           visibility={this.state.visibility}
-          organization={this.props.organization.kee}
+          organization={organization.kee}
         />
 
         <Projects
