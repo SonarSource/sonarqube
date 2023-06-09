@@ -43,6 +43,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -66,8 +67,8 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.server.newcodeperiod.NewCodePeriodUtils.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
-import static org.sonar.server.newcodeperiod.NewCodePeriodUtils.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
@@ -99,12 +100,14 @@ public class CreateActionIT {
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
         projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true),
-      projectDefaultVisibility, editionProvider, defaultBranchNameResolver));
+      projectDefaultVisibility, defaultBranchNameResolver, newCodeDefinitionResolver));
 
   @Before
   public void before() {

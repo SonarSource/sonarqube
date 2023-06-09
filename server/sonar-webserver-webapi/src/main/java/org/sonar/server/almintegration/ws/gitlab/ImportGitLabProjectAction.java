@@ -21,6 +21,7 @@ package org.sonar.server.almintegration.ws.gitlab;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
@@ -38,6 +39,8 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
@@ -45,7 +48,12 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
@@ -58,10 +66,14 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
   private final ProjectKeyGenerator projectKeyGenerator;
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
+  private final DefaultBranchNameResolver defaultBranchNameResolver;
 
+  @Inject
   public ImportGitLabProjectAction(DbClient dbClient, UserSession userSession,
     ProjectDefaultVisibility projectDefaultVisibility, GitlabHttpClient gitlabHttpClient,
-    ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
+    ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
+    DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
@@ -69,6 +81,8 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
     this.projectKeyGenerator = projectKeyGenerator;
+    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
+    this.defaultBranchNameResolver = defaultBranchNameResolver;
   }
 
   @Override
@@ -86,6 +100,14 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_GITLAB_PROJECT_ID)
       .setRequired(true)
       .setDescription("GitLab project ID");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_TYPE)
+      .setDescription(NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_VALUE)
+      .setDescription(NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
   }
 
   @Override
@@ -96,12 +118,13 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
-    AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
-    String userUuid = importHelper.getUserUuid();
+
+    String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
+    String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
-      String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken)
-        .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
+      AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
+      String pat = getPat(dbSession, almSettingDto);
 
       long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);
 
@@ -109,13 +132,29 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       Project gitlabProject = gitlabHttpClient.getProject(gitlabUrl, pat, gitlabProjectId);
 
       Optional<String> almMainBranchName = getAlmDefaultBranch(pat, gitlabProjectId, gitlabUrl);
+
       ComponentCreationData componentCreationData = createProject(dbSession, gitlabProject, almMainBranchName.orElse(null));
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
       populateMRSetting(dbSession, gitlabProjectId, projectDto, almSettingDto);
+
+      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
+
+      if (newCodeDefinitionType != null) {
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), almMainBranchName.orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
+          newCodeDefinitionType, newCodeDefinitionValue);
+      }
+
       componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
       return ImportHelper.toCreateResponse(projectDto);
     }
+  }
+
+  private String getPat(DbSession dbSession, AlmSettingDto almSettingDto) {
+    String userUuid = importHelper.getUserUuid();
+    Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
+    return almPatDto.map(AlmPatDto::getPersonalAccessToken)
+      .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
   }
 
   private Optional<String> getAlmDefaultBranch(String pat, long gitlabProjectId, String gitlabUrl) {

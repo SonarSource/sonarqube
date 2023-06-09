@@ -146,6 +146,7 @@ import org.sonar.server.monitoring.devops.AzureMetricsTask;
 import org.sonar.server.monitoring.devops.BitbucketMetricsTask;
 import org.sonar.server.monitoring.devops.GithubMetricsTask;
 import org.sonar.server.monitoring.devops.GitlabMetricsTask;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
@@ -508,6 +509,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // New Code Periods
       new NewCodePeriodsWsModule(),
+      NewCodeDefinitionResolver.class,
 
       // Project Links
       new ProjectLinksModule(),

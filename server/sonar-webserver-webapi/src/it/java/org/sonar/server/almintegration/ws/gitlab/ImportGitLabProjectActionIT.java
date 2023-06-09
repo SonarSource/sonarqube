@@ -29,10 +29,13 @@ import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -40,6 +43,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -58,8 +62,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportGitLabProjectActionIT {
 
@@ -83,8 +90,11 @@ public class ImportGitLabProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(
-    db.getDbClient(), userSession, projectDefaultVisibility, gitlabHttpClient, componentUpdater, importHelper, projectKeyGenerator);
+    db.getDbClient(), userSession, projectDefaultVisibility, gitlabHttpClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
+    defaultBranchNameResolver);
   private final WsActionTester ws = new WsActionTester(importGitLabProjectAction);
 
   @Before
@@ -94,7 +104,9 @@ public class ImportGitLabProjectActionIT {
   }
 
   @Test
-  public void import_project() {
+  public void import_project_developer_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
@@ -111,6 +123,8 @@ public class ImportGitLabProjectActionIT {
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
       .setParam("gitlabProjectId", "12345")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
@@ -122,6 +136,48 @@ public class ImportGitLabProjectActionIT {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void import_project_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("PAT");
+    });
+    Project project = getGitlabProject();
+    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
   }
 
   @Test
@@ -194,6 +250,38 @@ public class ImportGitLabProjectActionIT {
     Assertions.assertThat(db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()))
       .extracting(BranchDto::getKey, BranchDto::isMain)
       .containsExactlyInAnyOrder(tuple(DEFAULT_MAIN_BRANCH_NAME, true));
+  }
+
+
+  @Test
+  public void import_project_without_NCD() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("PAT");
+    });
+    Project project = getGitlabProject();
+    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
+    assertThat(result.getName()).isEqualTo(project.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
   }
 
 
