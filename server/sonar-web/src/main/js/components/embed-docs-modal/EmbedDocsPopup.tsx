@@ -29,10 +29,12 @@ import { getApiKeyForZoho } from "../../api/codescan";
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
 import { CurrentUserContextInterface } from "../../app/components/current-user/CurrentUserContext";
 import { LoggedInUser } from "../../types/users";
+import { Button } from "../controls/buttons";
 
 interface Props {
   currentUser: LoggedInUser;
   onClose: () => void;
+  showAboutCodescanPopup: () => void;
 }
 
 type State = {
@@ -43,20 +45,12 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
   firstItem: HTMLAnchorElement | null = null;
 
   state: State = {
-    zohoUrl: ''
+    zohoUrl: '',
   };
 
   componentDidMount() {
     this.getZohoDeskUrl();
   }
-
-  handleResetPopup() {
-    this.setState({ reseting: true });
-  };
-
-  handleClosePopup = () => {
-    this.setState({ reseting: false });
-  };
 
   /*
    * Will be called by the first suggestion (if any), as well as the first link (documentation)
@@ -86,19 +80,6 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
      const zohoUrl = `https://support.autorabit.com/support/RemoteAuth?operation=${payLoad.operation}&email=${payLoad.email}&fullname=${payLoad.fullName}&loginname=${payLoad.loginName}&utype=${payLoad.utype}&ts=${response.ts}&apikey=${response.apiKey}`;
      this.setState({ zohoUrl });
     })
-   }
-
-  renderAboutCodescan(link: string, icon: string, text: string) {
-    return (
-      <Modal className="abs-width-auto" onRequestClose={this.handleClosePopup} contentLabel={''}>
-        <a href={link} rel="noopener noreferrer" target="_blank">
-          <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
-        </a>
-        <span className="cross-button">
-          <ClearButton onClick={this.handleClosePopup} />
-        </span>
-      </Modal>
-    );
   }
 
   renderTitle(text: string, labelId: string) {
@@ -158,7 +139,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
             <Link onClick={this.props.onClose} target="_blank" to="https://knowledgebase.autorabit.com/codescan">
               {translate('embed_docs.documentation')}
             </Link>
-         </li>
+          </li>
           <li>
             <Link onClick={this.props.onClose} to="/web_api">
               {translate('api_documentation.page')}
@@ -175,21 +156,26 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
               {translate('docs.get_help')}
             </Link>
           </li>
+          <li>
+            <Button onClick={() => this.props.showAboutCodescanPopup()}>
+              {translate('embed_docs.about_codescan')}
+            </Button>
+          </li>
         </ul>
         {this.renderTitle(translate('docs.stay_connected'), 'stay_connected')}
         <ul className="menu abs-width-240" aria-labelledby="stay_connected">
           <li>
             {this.renderIconLink(
-              'https://www.codescan.io/blog',
-              'embed-doc/codescan.svg',
-              translate('embed_docs.blog')
+              'https://twitter.com/CodeScanforSFDC',
+              'embed-doc/twitter-icon.svg',
+              'Twitter'
             )}
           </li>
           <li>
             {this.renderIconLink(
-              'https://twitter.com/CodeScanforSFDC',
-              'embed-doc/twitter-icon.svg',
-              'Twitter'
+                'https://www.codescan.io/blog',
+                'sonarcloud-square-logo.svg',
+                translate('embed_docs.blog')
             )}
           </li>
         </ul>

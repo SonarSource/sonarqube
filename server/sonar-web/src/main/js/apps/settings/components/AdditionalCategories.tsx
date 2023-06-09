@@ -22,19 +22,15 @@ import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import {
-  ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
-import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
 import Authentication from './authentication/Authentication';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
-import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
@@ -79,23 +75,6 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: false,
   },
   {
-    key: ALM_INTEGRATION_CATEGORY,
-    name: translate('property.category.almintegration'),
-    renderComponent: getAlmIntegrationComponent,
-    availableGlobally: true,
-    availableForProject: false,
-    displayTab: true,
-  },
-  {
-    key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
-    name: translate('settings.pr_decoration.binding.category'),
-    renderComponent: getPullRequestDecorationBindingComponent,
-    availableGlobally: false,
-    availableForProject: true,
-    displayTab: true,
-    requiresBranchSupport: true,
-  },
-  {
     key: AUTHENTICATION_CATEGORY,
     name: translate('property.category.authentication'),
     renderComponent: getAuthenticationComponent,
@@ -117,14 +96,6 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
 }
 
-function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
-  return <AlmIntegration {...props} />;
-}
-
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
   return <Authentication {...props} />;
-}
-
-function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
-  return props.component && <PullRequestDecorationBinding component={props.component} />;
 }

@@ -3,7 +3,7 @@
   "api_documentation": [],
   "background_tasks": [
     {
-      "link": "/analyzing-source-code/background-tasks/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/background-tasks",
       "text": "About Background Tasks"
     }
   ],
@@ -20,8 +20,15 @@
       "text": "Clean as You Code"
     },
     {
-      "link": "/user-guide/metric-definitions/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/how-are-metric-definitions-defined",
       "text": "Metric Definitions"
+    }
+  ],
+  "extension_billing": [
+    {
+      "link": "https://www.codescan.io/pricing/calculator/",
+      "text": "Pricing",
+      "scope": "sonarcloud"
     }
   ],
   "global_permissions": [
@@ -33,21 +40,39 @@
   ],
   "issues": [],
   "marketplace": [],
-  "overview": [
-    {
-      "link": "https://knowledgebase.autorabit.com/codescan/docs/codescan-getting-started",
-      "text": "Get Started with CodeScan Cloud",
-      "scope": "sonarcloud"
-    },
+  "organization_members": [
     {
       "link": "https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation",
       "text": "Manage a Team",
       "scope": "sonarcloud"
-    },
+    }
+  ],
+  "organization_projects": [
+    {
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation",
+      "text": "Manage a Team",
+      "scope": "sonarcloud"
+    }
+  ],
+  "organization_space": [
     {
       "link": "https://knowledgebase.autorabit.com/codescan/docs/codescan-cloud-organizations",
       "text": "Organizations",
       "scope": "sonarcloud"
+    }
+  ],
+  "overview": [
+    {
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
+    },
+    {
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud",
+      "text": "Branches Analysis"
+    },
+    {
+      "link": "/documentation/analysis/pull-request/",
+      "text": "Analyzing Pull Requests"
     }
   ],
   "permission_templates": [],
@@ -60,7 +85,7 @@
   "project_activity": [],
   "project_baseline": [
     {
-      "link": "/project-administration/defining-new-code/",
+      "link": "/documentation/project-administration/new-code-period/",
       "text": "Defining New Code"
     }
   ],
@@ -76,26 +101,28 @@
       "text": "Quality Profiles"
     }
   ],
-  "projects_management": [],
-  "projects": [],
-  "pull_requests": [
+  "projects_management": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
-      "text": "Clean as You Code"
-    },
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/codescan-getting-started",
+      "text": "Get Started with CodeScan Cloud",
+      "scope": "sonarcloud"
+    }
+  ],
+  "projects": [
     {
-      "link": "/analyzing-source-code/pull-request-analysis",
-      "text": "Analyzing Pull Requests"
-    },
-    {
-      "link": "/user-guide/sonarlint-connected-mode/",
-      "text": "SonarLint connected mode"
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/codescan-getting-started",
+      "text": "Get Started with CodeScan Cloud",
+      "scope": "sonarcloud"
     }
   ],
   "quality_gates": [
     {
       "link": "/documentation/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
+    },
+    {
+      "link": "/documentation/analysis/pull-request/",
+      "text": "Analyzing Pull Requests"
     }
   ],
   "quality_profiles": [
@@ -106,7 +133,7 @@
   ],
   "security_reports": [
     {
-      "link": "/user-guide/security-reports/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/security-reports",
       "text": "About Security Reports"
     }
   ],
@@ -121,30 +148,9 @@
   ],
   "users": [],
   "webhooks": [
-   {
+    {
       "link": "https://knowledgebase.autorabit.com/codescan/docs/webhooks",
       "text": "About Webhooks"
-    }
-  ],
-  "organization_space": [
-    {
-      "link": "https://knowledgebase.autorabit.com/codescan/docs/codescan-cloud-organizations",
-      "text": "Organizations",
-      "scope": "sonarcloud"
-    }
-  ],
-  "organization_projects": [
-    {
-      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
-    }
-  ],
-  "organization_members": [
-    {
-      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
     }
   ]
 }

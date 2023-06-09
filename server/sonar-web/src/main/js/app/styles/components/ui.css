@@ -81,3 +81,13 @@
   font-weight: bold;
   letter-spacing: 0;
 }
+
+.cross-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+}
+
+.abs-width-auto {
+  width: auto !important;
+}

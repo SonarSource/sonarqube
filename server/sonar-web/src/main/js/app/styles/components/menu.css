@@ -81,6 +81,7 @@
 .menu > li > a:hover,
 .menu > li > a.hover,
 .menu > li > button:hover {
+  color: var(--neutral800);
   background-color: var(--neutral50);
   border-left-color: var(--blacka60);
 }

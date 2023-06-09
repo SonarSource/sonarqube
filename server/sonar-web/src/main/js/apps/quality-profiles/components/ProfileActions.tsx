@@ -339,7 +339,6 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             onClose={this.handleCloseModal}
             onDelete={this.handleProfileDelete}
             profile={profile}
-            organization={this.props.organization}
           />
         )}
       </>

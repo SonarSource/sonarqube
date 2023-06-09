@@ -19,18 +19,21 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { ButtonLink } from '../controls/buttons';
+import { ButtonLink, ClearButton } from '../controls/buttons';
 import Toggler from '../controls/Toggler';
 import HelpIcon from '../icons/HelpIcon';
 import EmbedDocsPopup from './EmbedDocsPopup';
+import Modal from "../controls/Modal";
+import { getBaseUrl } from "../../helpers/system";
 
 interface State {
   helpOpen: boolean;
+  aboutCodescanOpen: boolean;
 }
 
 export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State> {
   mounted = false;
-  state: State = { helpOpen: false };
+  state: State = { helpOpen: false, aboutCodescanOpen: false };
 
   setHelpDisplay = (helpOpen: boolean) => {
     this.setState({ helpOpen });
@@ -50,13 +53,30 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
     this.setState({ helpOpen: false });
   };
 
+  renderAboutCodescan(link: string, icon: string, text: string) {
+    return (
+        <Modal
+            className="abs-width-auto"
+            onRequestClose={() => this.setState({ aboutCodescanOpen: false })}
+            contentLabel=''
+        >
+          <a href={link} rel="noopener noreferrer" target="_blank">
+            <img alt={text} src={`${getBaseUrl()}/images/${icon}`}/>
+          </a>
+          <span className="cross-button">
+            <ClearButton onClick={() => this.setState({ aboutCodescanOpen: false })}/>
+          </span>
+        </Modal>
+    );
+  }
+
   render() {
     return (
       <div className="dropdown">
         <Toggler
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
-          overlay={<EmbedDocsPopup onClose={this.closeHelp} />}
+          overlay={<EmbedDocsPopup onClose={this.closeHelp} showAboutCodescanPopup={() => this.setState({aboutCodescanOpen: true})} />}
         >
           <ButtonLink
             aria-expanded={this.state.helpOpen}
@@ -68,6 +88,12 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
             <HelpIcon />
           </ButtonLink>
         </Toggler>
+
+        {this.state.aboutCodescanOpen && this.renderAboutCodescan(
+            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+            'embed-doc/codescan-version-23_0_4.png',
+            translate('embed_docs.codescan_version')
+        )}
       </div>
     );
   }
