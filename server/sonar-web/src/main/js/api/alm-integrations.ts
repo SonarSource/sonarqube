@@ -80,16 +80,23 @@ export function searchAzureRepositories(
   );
 }
 
-export function importAzureRepository(
-  almSetting: string,
-  projectName: string,
-  repositoryName: string
-): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/alm_integrations/import_azure_project', {
-    almSetting,
-    projectName,
-    repositoryName,
-  }).catch(throwGlobalError);
+export function setupAzureProjectCreation(data: {
+  almSetting: string;
+  projectName: string;
+  repositoryName: string;
+}) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    importAzureRepository({ ...data, newCodeDefinitionType, newCodeDefinitionValue });
+}
+
+export function importAzureRepository(data: {
+  almSetting: string;
+  projectName: string;
+  repositoryName: string;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+}): Promise<{ project: ProjectBase }> {
+  return postJSON('/api/alm_integrations/import_azure_project', data).catch(throwGlobalError);
 }
 
 export function getBitbucketServerProjects(

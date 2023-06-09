@@ -22,28 +22,28 @@ import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
-  importAzureRepository,
   searchAzureRepositories,
   setAlmPersonalAccessToken,
+  setupAzureProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
+import { CreateProjectApiCallback } from '../types';
 import { tokenExistedBefore } from '../utils';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKey: string) => void;
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
 }
 
 interface State {
-  importing: boolean;
   loading: boolean;
   loadingRepositories: Dict<boolean>;
   patIsValid?: boolean;
@@ -65,10 +65,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   constructor(props: Props) {
     super(props);
     this.state = {
-      // For now, we only handle a single instance. So we always use the first
-      // one from the list.
       selectedAlmInstance: props.almInstances[0],
-      importing: false,
       loading: false,
       loadingRepositories: {},
       repositories: {},
@@ -214,28 +211,17 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
-  handleImportRepository = async () => {
+  handleImportRepository = () => {
     const { selectedRepository, selectedAlmInstance } = this.state;
 
-    if (!selectedAlmInstance || !selectedRepository) {
-      return;
-    }
-
-    this.setState({ importing: true });
-
-    const createdProject = await importAzureRepository(
-      selectedAlmInstance.key,
-      selectedRepository.projectName,
-      selectedRepository.name
-    )
-      .then(({ project }) => project)
-      .catch(() => undefined);
-
-    if (this.mounted) {
-      this.setState({ importing: false });
-      if (createdProject) {
-        this.props.onProjectCreate(createdProject.key);
-      }
+    if (selectedAlmInstance && selectedRepository) {
+      this.props.onProjectSetupDone(
+        setupAzureProjectCreation({
+          almSetting: selectedAlmInstance.key,
+          projectName: selectedRepository.projectName,
+          repositoryName: selectedRepository.name,
+        })
+      );
     }
   };
 
@@ -301,7 +287,6 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   render() {
     const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
-      importing,
       loading,
       loadingRepositories,
       patIsValid,
@@ -320,7 +305,6 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     return (
       <AzureCreateProjectRenderer
         canAdmin={canAdmin}
-        importing={importing}
         loading={loading || loadingBindings}
         loadingRepositories={loadingRepositories}
         onImportRepository={this.handleImportRepository}

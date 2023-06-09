@@ -33,14 +33,12 @@ import { Dict } from '../../../../types/types';
 import { ALM_INTEGRATION_CATEGORY } from '../../../settings/constants';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
 
 export interface AzureProjectCreateRendererProps {
   canAdmin?: boolean;
-  importing: boolean;
   loading: boolean;
   loadingRepositories: Dict<boolean>;
   onImportRepository: () => void;
@@ -66,7 +64,6 @@ export interface AzureProjectCreateRendererProps {
 export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
   const {
     canAdmin,
-    importing,
     loading,
     loadingRepositories,
     projects,
@@ -94,10 +91,9 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           !showPersonalAccessTokenForm &&
           settingIsValid && (
             <div className="display-flex-center pull-right">
-              <DeferredSpinner className="spacer-right" loading={importing} />
               <Button
                 className="button-large button-primary"
-                disabled={!selectedRepository || importing}
+                disabled={!selectedRepository}
                 onClick={props.onImportRepository}
               >
                 {translate('onboarding.create_project.import_selected_repo')}
@@ -165,8 +161,6 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           </div>
         ) : (
           <>
-            <InstanceNewCodeDefinitionComplianceWarning />
-
             <div className="huge-spacer-bottom">
               <SearchBox
                 onChange={props.onSearch}
@@ -175,7 +169,6 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             </div>
             <DeferredSpinner loading={Boolean(searching)}>
               <AzureProjectsList
-                importing={importing}
                 loadingRepositories={loadingRepositories}
                 onOpenProject={props.onOpenProject}
                 onSelectRepository={props.onSelectRepository}

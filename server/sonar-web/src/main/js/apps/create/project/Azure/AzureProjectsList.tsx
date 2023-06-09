@@ -31,7 +31,6 @@ import { CreateProjectModes } from '../types';
 import AzureProjectAccordion from './AzureProjectAccordion';
 
 export interface AzureProjectsListProps {
-  importing: boolean;
   loadingRepositories: Dict<boolean>;
   onOpenProject: (key: string) => void;
   onSelectRepository: (repository: AzureRepository) => void;
@@ -46,7 +45,6 @@ const PAGE_SIZE = 10;
 
 export default function AzureProjectsList(props: AzureProjectsListProps) {
   const {
-    importing,
     loadingRepositories,
     projects = [],
     repositories,
@@ -119,7 +117,6 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
       {displayedProjects.map((p, i) => (
         <AzureProjectAccordion
           key={`${p.name}${keySuffix}`}
-          importing={importing}
           loading={Boolean(loadingRepositories[p.name])}
           onOpen={props.onOpenProject}
           onSelectRepository={props.onSelectRepository}

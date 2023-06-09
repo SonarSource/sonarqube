@@ -34,7 +34,6 @@ import { AzureProject, AzureRepository } from '../../../../types/alm-integration
 import { CreateProjectModes } from '../types';
 
 export interface AzureProjectAccordionProps {
-  importing: boolean;
   loading: boolean;
   onOpen: (key: string) => void;
   onSelectRepository: (repository: AzureRepository) => void;
@@ -66,7 +65,6 @@ function highlight(text: string, term?: string, underline = false) {
 
 export default function AzureProjectAccordion(props: AzureProjectAccordionProps) {
   const {
-    importing,
     loading,
     startsOpen,
     project,
@@ -148,7 +146,6 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                         checked={isSelected(repo)}
                         className="overflow-hidden"
                         alignLabel
-                        disabled={importing}
                         onCheck={() => props.onSelectRepository(repo)}
                         value={repo.name}
                       >
