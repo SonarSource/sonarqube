@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
@@ -73,6 +74,7 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       .setExampleValue(UUID_EXAMPLE_01);
 
     addConditionParams(createCondition);
+    wsSupport.createOrganizationParam(createCondition);
   }
 
   @Override
@@ -83,8 +85,9 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     String error = request.mandatoryParam(PARAM_ERROR);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByUuid(dbSession, condition.getQualityGateUuid());
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, condition.getQualityGateUuid());
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateUuid());
       wsSupport.checkCanLimitedEdit(dbSession, qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
