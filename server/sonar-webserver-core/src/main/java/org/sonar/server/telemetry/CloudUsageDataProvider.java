@@ -61,10 +61,13 @@ public class CloudUsageDataProvider {
   private static final String SERVICEACCOUNT_CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt";
   static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
   static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
+  static final String SONAR_HELM_CHART_VERSION = "SONAR_HELM_CHART_VERSION";
+  static final String DOCKER_RUNNING = "DOCKER_RUNNING";
   private static final String[] KUBERNETES_PROVIDER_COMMAND = {"bash", "-c", "uname -r"};
   private final System2 system2;
   private final Paths2 paths2;
   private OkHttpClient httpClient;
+  private TelemetryData.CloudUsage cloudUsageData;
 
   @Inject
   public CloudUsageDataProvider(System2 system2, Paths2 paths2) {
@@ -83,6 +86,10 @@ public class CloudUsageDataProvider {
   }
 
   public TelemetryData.CloudUsage getCloudUsage() {
+    if (cloudUsageData != null) {
+      return cloudUsageData;
+    }
+
     String kubernetesVersion = null;
     String kubernetesPlatform = null;
 
@@ -94,15 +101,28 @@ public class CloudUsageDataProvider {
       }
     }
 
-    return new TelemetryData.CloudUsage(
+    cloudUsageData = new TelemetryData.CloudUsage(
       isOnKubernetes(),
       kubernetesVersion,
       kubernetesPlatform,
-      getKubernetesProvider());
+      getKubernetesProvider(),
+      getOfficialHelmChartVersion(),
+      isOfficialImageUsed());
+
+    return cloudUsageData;
   }
 
   private boolean isOnKubernetes() {
     return StringUtils.isNotBlank(system2.envVariable(KUBERNETES_SERVICE_HOST));
+  }
+
+  @CheckForNull
+  private String getOfficialHelmChartVersion() {
+    return system2.envVariable(SONAR_HELM_CHART_VERSION);
+  }
+
+  private boolean isOfficialImageUsed() {
+    return Boolean.parseBoolean(system2.envVariable(DOCKER_RUNNING));
   }
 
   /**

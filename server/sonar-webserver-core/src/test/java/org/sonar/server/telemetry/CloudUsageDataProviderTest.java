@@ -43,8 +43,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.telemetry.CloudUsageDataProvider.DOCKER_RUNNING;
 import static org.sonar.server.telemetry.CloudUsageDataProvider.KUBERNETES_SERVICE_HOST;
 import static org.sonar.server.telemetry.CloudUsageDataProvider.KUBERNETES_SERVICE_PORT;
+import static org.sonar.server.telemetry.CloudUsageDataProvider.SONAR_HELM_CHART_VERSION;
 
 public class CloudUsageDataProviderTest {
 
@@ -133,6 +135,36 @@ public class CloudUsageDataProviderTest {
   @Test
   public void kubernetesProvider_shouldReturnValue() {
     assertThat(underTest.getCloudUsage().kubernetesProvider()).isNotBlank();
+  }
+
+  @Test
+  public void officialHelmChart_whenEnvVarExists_shouldReturnValue() {
+    when(system2.envVariable(SONAR_HELM_CHART_VERSION)).thenReturn("10.1.0");
+    assertThat(underTest.getCloudUsage().officialHelmChart()).isEqualTo("10.1.0");
+  }
+
+  @Test
+  public void officialHelmChart_whenEnvVarDoesNotExist_shouldReturnNull() {
+    when(system2.envVariable(SONAR_HELM_CHART_VERSION)).thenReturn(null);
+    assertThat(underTest.getCloudUsage().officialHelmChart()).isNull();
+  }
+
+  @Test
+  public void officialImage_whenEnvVarTrue_shouldReturnTrue() {
+    when(system2.envVariable(DOCKER_RUNNING)).thenReturn("True");
+    assertThat(underTest.getCloudUsage().officialImage()).isTrue();
+  }
+
+  @Test
+  public void officialImage_whenEnvVarFalse_shouldReturnFalse() {
+    when(system2.envVariable(DOCKER_RUNNING)).thenReturn("False");
+    assertThat(underTest.getCloudUsage().officialImage()).isFalse();
+  }
+
+  @Test
+  public void officialImage_whenEnvVarDoesNotExist_shouldReturnFalse() {
+    when(system2.envVariable(DOCKER_RUNNING)).thenReturn(null);
+    assertThat(underTest.getCloudUsage().officialImage()).isFalse();
   }
 
   @Test

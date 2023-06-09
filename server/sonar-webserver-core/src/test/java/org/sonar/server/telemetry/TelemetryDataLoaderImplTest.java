@@ -63,6 +63,7 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.telemetry.TelemetryData.Branch;
+import org.sonar.server.telemetry.TelemetryData.CloudUsage;
 import org.sonar.server.telemetry.TelemetryData.NewCodeDefinition;
 import org.sonar.server.telemetry.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
@@ -556,7 +557,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void load_shouldContainCloudUsage() {
-    TelemetryData.CloudUsage cloudUsage = new TelemetryData.CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64");
+    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false);
     when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
 
     TelemetryData data = commercialUnderTest.load();

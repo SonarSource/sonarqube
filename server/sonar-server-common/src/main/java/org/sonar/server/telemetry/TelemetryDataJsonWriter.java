@@ -239,6 +239,8 @@ public class TelemetryDataJsonWriter {
     json.prop("kubernetesVersion", cloudUsage.kubernetesVersion());
     json.prop("kubernetesPlatform", cloudUsage.kubernetesPlatform());
     json.prop("kubernetesProvider", cloudUsage.kubernetesProvider());
+    json.prop("officialHelmChart", cloudUsage.officialHelmChart());
+    json.prop("officialImage", cloudUsage.officialImage());
     json.endObject();
   }
 
