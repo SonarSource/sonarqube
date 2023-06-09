@@ -119,7 +119,7 @@ function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningPro
       <Alert
         variant="loading"
         className="spacer-bottom"
-        aria-atomic={true}
+        aria-atomic
         role="alert"
         aria-live="assertive"
         aria-label={

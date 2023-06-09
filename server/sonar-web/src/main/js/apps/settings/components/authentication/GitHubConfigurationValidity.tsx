@@ -108,7 +108,7 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
         variant={alertVariant}
         aria-live="polite"
         role="status"
-        aria-atomic={true}
+        aria-atomic
         aria-busy={isFetching}
       >
         <div className="sw-flex sw-justify-between sw-items-center">
