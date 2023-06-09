@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import {
@@ -38,7 +37,6 @@ export interface BitbucketProjectCreateRendererProps {
   selectedAlmInstance?: AlmSettingsInstance;
   almInstances: AlmSettingsInstance[];
   canAdmin?: boolean;
-  importing: boolean;
   loading: boolean;
   onImportRepository: () => void;
   onSearch: (query: string) => void;
@@ -59,7 +57,6 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     almInstances,
     selectedAlmInstance,
     canAdmin,
-    importing,
     loading,
     projects,
     projectRepositories,
@@ -76,10 +73,9 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         additionalActions={
           !showPersonalAccessTokenForm && (
             <div className="display-flex-center pull-right">
-              <DeferredSpinner className="spacer-right" loading={importing} />
               <Button
                 className="button-large button-primary"
-                disabled={!selectedRepository || importing}
+                disabled={!selectedRepository}
                 onClick={props.onImportRepository}
               >
                 {translate('onboarding.create_project.import_selected_repo')}
@@ -123,7 +119,6 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
           />
         ) : (
           <BitbucketImportRepositoryForm
-            disableRepositories={importing}
             onSearch={props.onSearch}
             onSelectRepository={props.onSelectRepository}
             projectRepositories={projectRepositories}

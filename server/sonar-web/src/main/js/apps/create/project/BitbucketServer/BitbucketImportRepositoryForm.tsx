@@ -29,13 +29,11 @@ import {
   BitbucketProjectRepositories,
   BitbucketRepository,
 } from '../../../../types/alm-integration';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 import { CreateProjectModes } from '../types';
 import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
 
 export interface BitbucketImportRepositoryFormProps {
-  disableRepositories: boolean;
   onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   projects?: BitbucketProject[];
@@ -47,7 +45,6 @@ export interface BitbucketImportRepositoryFormProps {
 
 export default function BitbucketImportRepositoryForm(props: BitbucketImportRepositoryFormProps) {
   const {
-    disableRepositories,
     projects = [],
     projectRepositories = {},
     searchResults,
@@ -80,8 +77,6 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
 
   return (
     <div className="create-project-import-bbs">
-      <InstanceNewCodeDefinitionComplianceWarning />
-
       <SearchBox
         onChange={props.onSearch}
         placeholder={translate('onboarding.create_project.search_repositories_by_name')}
@@ -89,7 +84,6 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
 
       {searching || searchResults ? (
         <BitbucketSearchResults
-          disableRepositories={disableRepositories}
           onSelectRepository={props.onSelectRepository}
           projects={projects}
           searchResults={searchResults}
@@ -98,7 +92,6 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
         />
       ) : (
         <BitbucketRepositories
-          disableRepositories={disableRepositories}
           onSelectRepository={props.onSelectRepository}
           projectRepositories={projectRepositories}
           projects={projects}

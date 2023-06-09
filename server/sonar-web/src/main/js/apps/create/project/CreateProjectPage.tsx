@@ -220,8 +220,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             almInstances={bitbucketSettings}
             loadingBindings={loading}
             location={location}
-            onProjectCreate={this.handleProjectCreate}
             router={router}
+            onProjectSetupDone={this.handleProjectSetupDone}
           />
         );
       }

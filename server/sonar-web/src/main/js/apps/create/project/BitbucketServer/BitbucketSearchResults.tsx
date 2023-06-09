@@ -25,7 +25,6 @@ import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-int
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketSearchResultsProps {
-  disableRepositories: boolean;
   onSelectRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
   searching: boolean;
@@ -34,13 +33,7 @@ export interface BitbucketSearchResultsProps {
 }
 
 export default function BitbucketSearchResults(props: BitbucketSearchResultsProps) {
-  const {
-    disableRepositories,
-    projects,
-    searching,
-    searchResults = [],
-    selectedRepository,
-  } = props;
+  const { projects, searching, searchResults = [], selectedRepository } = props;
 
   if (searchResults.length === 0 && !searching) {
     return (
@@ -63,7 +56,6 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
       <DeferredSpinner loading={searching}>
         {filteredSearchResults.length > 0 && (
           <BitbucketProjectAccordion
-            disableRepositories={disableRepositories}
             onSelectRepository={props.onSelectRepository}
             open
             repositories={filteredSearchResults}
@@ -77,7 +69,6 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
 
           return (
             <BitbucketProjectAccordion
-              disableRepositories={disableRepositories}
               key={project.key}
               onSelectRepository={props.onSelectRepository}
               open

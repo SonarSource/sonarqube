@@ -118,16 +118,25 @@ export function getBitbucketServerRepositories(
   });
 }
 
-export function importBitbucketServerProject(
-  almSetting: string,
-  projectKey: string,
-  repositorySlug: string
-): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/alm_integrations/import_bitbucketserver_project', {
-    almSetting,
-    projectKey,
-    repositorySlug,
-  }).catch(throwGlobalError);
+export function setupBitbucketServerProjectCreation(data: {
+  almSetting: string;
+  projectKey: string;
+  repositorySlug: string;
+}) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    importBitbucketServerProject({ ...data, newCodeDefinitionType, newCodeDefinitionValue });
+}
+
+export function importBitbucketServerProject(data: {
+  almSetting: string;
+  projectKey: string;
+  repositorySlug: string;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+}): Promise<{ project: ProjectBase }> {
+  return postJSON('/api/alm_integrations/import_bitbucketserver_project', data).catch(
+    throwGlobalError
+  );
 }
 
 export function searchForBitbucketServerRepositories(

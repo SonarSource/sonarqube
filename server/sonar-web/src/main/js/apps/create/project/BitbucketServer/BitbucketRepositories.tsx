@@ -29,7 +29,6 @@ import {
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketRepositoriesProps {
-  disableRepositories: boolean;
   onSelectRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
   projectRepositories: BitbucketProjectRepositories;
@@ -37,7 +36,7 @@ export interface BitbucketRepositoriesProps {
 }
 
 export default function BitbucketRepositories(props: BitbucketRepositoriesProps) {
-  const { disableRepositories, projects, projectRepositories, selectedRepository } = props;
+  const { projects, projectRepositories, selectedRepository } = props;
 
   const [openProjectKeys, setOpenProjectKeys] = React.useState(
     projects.length > 0 ? [projects[0].key] : []
@@ -68,7 +67,6 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
 
         return (
           <BitbucketProjectAccordion
-            disableRepositories={disableRepositories}
             key={project.key}
             onClick={() => handleClick(isOpen, project.key)}
             onSelectRepository={props.onSelectRepository}

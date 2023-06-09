@@ -32,7 +32,6 @@ import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-int
 import { CreateProjectModes } from '../types';
 
 export interface BitbucketProjectAccordionProps {
-  disableRepositories: boolean;
   onClick?: () => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   open: boolean;
@@ -43,14 +42,7 @@ export interface BitbucketProjectAccordionProps {
 }
 
 export default function BitbucketProjectAccordion(props: BitbucketProjectAccordionProps) {
-  const {
-    disableRepositories,
-    open,
-    project,
-    repositories,
-    selectedRepository,
-    showingAllRepositories,
-  } = props;
+  const { open, project, repositories, selectedRepository, showingAllRepositories } = props;
 
   const repositoryCount = repositories.length;
 
@@ -119,12 +111,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
               ) : (
                 <Radio
                   checked={selectedRepository?.id === repo.id}
-                  className={classNames(
-                    'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
-                    {
-                      disabled: disableRepositories,
-                    }
-                  )}
+                  className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
                   key={repo.id}
                   onCheck={() => props.onSelectRepository(repo)}
                   value={String(repo.id)}

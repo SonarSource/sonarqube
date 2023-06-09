@@ -21,8 +21,8 @@ import * as React from 'react';
 import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
-  importBitbucketServerProject,
   searchForBitbucketServerRepositories,
+  setupBitbucketServerProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import {
@@ -32,20 +32,20 @@ import {
 } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { DEFAULT_BBS_PAGE_SIZE } from '../constants';
+import { CreateProjectApiCallback } from '../types';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;
   almInstances: AlmSettingsInstance[];
   loadingBindings: boolean;
-  onProjectCreate: (projectKey: string) => void;
   location: Location;
   router: Router;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
 }
 
 interface State {
   selectedAlmInstance?: AlmSettingsInstance;
-  importing: boolean;
   loading: boolean;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
@@ -61,10 +61,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   constructor(props: Props) {
     super(props);
     this.state = {
-      // For now, we only handle a single instance. So we always use the first
-      // one from the list.
       selectedAlmInstance: props.almInstances[0],
-      importing: false,
       loading: false,
       searching: false,
       showPersonalAccessTokenForm: true,
@@ -187,27 +184,15 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   handleImportRepository = () => {
     const { selectedAlmInstance, selectedRepository } = this.state;
 
-    if (!selectedAlmInstance || !selectedRepository) {
-      return;
+    if (selectedAlmInstance && selectedRepository) {
+      this.props.onProjectSetupDone(
+        setupBitbucketServerProjectCreation({
+          almSetting: selectedAlmInstance.key,
+          projectKey: selectedRepository.projectKey,
+          repositorySlug: selectedRepository.slug,
+        })
+      );
     }
-
-    this.setState({ importing: true });
-    importBitbucketServerProject(
-      selectedAlmInstance.key,
-      selectedRepository.projectKey,
-      selectedRepository.slug
-    )
-      .then(({ project: { key } }) => {
-        if (this.mounted) {
-          this.setState({ importing: false });
-          this.props.onProjectCreate(key);
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ importing: false });
-        }
-      });
   };
 
   handleSearch = (query: string) => {
@@ -253,7 +238,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
       selectedAlmInstance,
-      importing,
       loading,
       projectRepositories,
       projects,
@@ -268,7 +252,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         selectedAlmInstance={selectedAlmInstance}
         almInstances={almInstances}
         canAdmin={canAdmin}
-        importing={importing}
         loading={loading || loadingBindings}
         onImportRepository={this.handleImportRepository}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
