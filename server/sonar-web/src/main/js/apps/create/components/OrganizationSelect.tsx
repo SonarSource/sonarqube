@@ -58,6 +58,8 @@ export default function OrganizationSelect({ onChange, organization, organizatio
           id="select-organization"
           onChange={onChange}
           options={sortBy(organizations, o => o.name.toLowerCase())}
+          getOptionLabel={(org) => org.name}
+          getOptionValue={(org) => org.kee}
           isSearchable={true}
           components={{
             Option: optionRenderer,
