@@ -162,8 +162,6 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
     const {
       branchLike,
       displayAllIssues,
-      displayIssueLocationsCount,
-      displayIssueLocationsLink,
       displayLocationMarkers,
       duplications,
       highlightedLine,
@@ -250,8 +248,6 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
         <LineIssuesList
           branchLike={branchLike}
           displayAllIssues={displayAllIssues}
-          displayIssueLocationsCount={displayIssueLocationsCount}
-          displayIssueLocationsLink={displayIssueLocationsLink}
           displayWhyIsThisAnIssue
           issueLocationsByLine={issueLocationsByLine}
           issuePopup={issuePopup}
