@@ -24,6 +24,7 @@ import Notifications from './notifications/Notifications';
 import Profile from './profile/Profile';
 import ProjectsContainer from './projects/ProjectsContainer';
 import Security from './security/Security';
+import UserOrganizations from './organizations/UserOrganizations';
 
 const routes = () => (
   <Route path="account" element={<Account />}>
@@ -31,6 +32,7 @@ const routes = () => (
     <Route path="security" element={<Security />} />
     <Route path="projects" element={<ProjectsContainer />} />
     <Route path="notifications" element={<Notifications />} />
+    <Route path="organizations" element={<UserOrganizations />} />
   </Route>
 );
 

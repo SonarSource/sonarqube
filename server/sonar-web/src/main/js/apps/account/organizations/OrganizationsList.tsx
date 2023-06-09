@@ -17,33 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
-import NavBarTabs from '../../../components/ui/NavBarTabs';
-import { translate } from '../../../helpers/l10n';
+import OrganizationCard from './OrganizationCard';
+import { Organization } from "../../../types/types";
+import { translate } from "../../../helpers/l10n";
 
-export default function Nav() {
+interface Props {
+  organizations: Organization[];
+}
+
+export default function OrganizationsList({ organizations }: Props) {
+  if (organizations.length === 0) {
+    return <div>{translate('my_account.organizations.no_results')}</div>;
+  }
+
   return (
-    <nav className="account-nav">
-      <NavBarTabs>
-        <li>
-          <NavLink end={true} to="/account">
-            {translate('my_account.profile')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/security">{translate('my_account.security')}</NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/notifications">{translate('my_account.notifications')}</NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/projects">{translate('my_account.projects')}</NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/organizations">{translate('my_account.organizations')}</NavLink>
-        </li>
-      </NavBarTabs>
-    </nav>
+      <ul className="account-projects-list">
+        {sortBy(organizations, organization => organization.name.toLocaleLowerCase()).map(
+            organization => (
+                <li key={organization.kee}>
+                  <OrganizationCard organization={organization}/>
+                </li>
+            )
+        )}
+      </ul>
   );
 }

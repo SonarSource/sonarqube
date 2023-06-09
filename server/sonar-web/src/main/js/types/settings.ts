@@ -40,6 +40,7 @@ export enum GlobalSettingKeys {
   DisplayAnnouncementMessage = 'sonar.announcement.displayMessage',
   AnnouncementMessage = 'sonar.announcement.message',
   MainBranchName = 'sonar.projectCreation.mainBranchName',
+  OrganizationsAnyoneCanCreate = 'sonar.organizations.anyoneCanCreate',
 }
 
 export type SettingDefinitionAndValue = {

@@ -20,8 +20,20 @@
 import * as React from 'react';
 import Link from "../../../../components/common/Link";
 import {translate} from "../../../../helpers/l10n";
+import { AppState } from "../../../../types/appstate";
+import withAppStateContext from "../../app-state/withAppStateContext";
+import { GlobalSettingKeys } from "../../../../types/settings";
 
-export default function GlobalNavPlusMenu() {
+interface Props {
+  appState: AppState;
+}
+
+function GlobalNavPlusMenu(props: Props) {
+
+  const { appState: { settings, canAdmin, canCustomerAdmin } } = props;
+  const anyoneCanCreate = settings[GlobalSettingKeys.OrganizationsAnyoneCanCreate] === 'true';
+  const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
+
   return (
       <ul className="menu">
         <li>
@@ -29,11 +41,15 @@ export default function GlobalNavPlusMenu() {
             {translate('my_account.analyze_new_project')}
           </Link>
         </li>
-        <li>
-          <Link to="/organizations/create">
-            {translate('my_account.create_new_organization')}
-          </Link>
-        </li>
+        {canCreateOrganizations && (
+          <li>
+            <Link to="/organizations/create">
+              {translate('my_account.create_new_organization')}
+            </Link>
+          </li>
+        )}
       </ul>
   );
 }
+
+export default withAppStateContext(GlobalNavPlusMenu);
