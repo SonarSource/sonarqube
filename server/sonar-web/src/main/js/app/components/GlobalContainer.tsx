@@ -24,7 +24,7 @@ import A11ySkipLinks from '../../components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
 import Workspace from '../../components/workspace/Workspace';
 import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
-import GlobalFooter from './GlobalFooter';
+import GlobalFooterCodescan from './GlobalFooterCodescan';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
@@ -65,7 +65,7 @@ export default function GlobalContainer() {
               </div>
               <PromotionNotification />
             </div>
-            <GlobalFooter />
+            <GlobalFooterCodescan />
           </div>
         </StartupModal>
       </A11yProvider>
