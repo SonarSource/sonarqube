@@ -47,7 +47,7 @@ function UserOrganizations(props: Props) {
           {canCreateOrganizations && (
               <div className="clearfix">
                 <div className="boxed-group-actions">
-                  <Link className="button" to="/create-organization">
+                  <Link className="button" to="/organizations/create">
                     {translate('create')}
                   </Link>
                 </div>

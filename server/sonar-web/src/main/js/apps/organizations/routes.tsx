@@ -45,7 +45,7 @@ const routes = () => (
     <Route path="organizations">
       <Route path=":organizationKey" element={<OrganizationApp/>}>
         <Route index={true} element={<Navigate to={{ pathname: "projects" }} replace={true}/>}/>
-       <Route path="projects" element={<OrganizationProjects path=":organizationKey" />} />
+        <Route path="projects" element={<OrganizationProjects />} />
         <Route path="edit" element={<OrganizationEdit />}/>
         <Route path="delete" element={<OrganizationDelete />}/>
         <Route path="permission_templates" element={<PermissionTemplatesApp />}/>
