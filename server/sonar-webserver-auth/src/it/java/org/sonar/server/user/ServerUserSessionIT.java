@@ -408,7 +408,7 @@ public class ServerUserSessionIT {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_group_permissions() {
     ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertProjectPermissionOnGroup(db.users().insertGroup(), "p1", publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(db.users().insertGroup(), "p1", publicProject.getProjectDto());
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -442,7 +442,7 @@ public class ServerUserSessionIT {
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_group_permissions() {
     UserDto user = db.users().insertUser();
     ProjectData privateProject = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnGroup(db.users().insertGroup(), "p1", privateProject.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(db.users().insertGroup(), "p1", privateProject.getProjectDto());
 
     ServerUserSession underTest = newUserSession(user);
 
@@ -476,7 +476,7 @@ public class ServerUserSessionIT {
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_public_projects() {
     ProjectData publicProject = db.components().insertPublicProject();
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group, "p1", publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, "p1", publicProject.getProjectDto());
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -487,7 +487,7 @@ public class ServerUserSessionIT {
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_private_projects() {
     ProjectData privateProject = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group, "p1", privateProject.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, "p1", privateProject.getProjectDto());
 
     ServerUserSession underTest = newAnonymousSession();
 

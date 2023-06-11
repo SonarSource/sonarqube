@@ -470,9 +470,9 @@ public class UpdateVisibilityActionIT {
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
     GroupDto group3 = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group1, "p1", project);
-    dbTester.users().insertProjectPermissionOnGroup(group1, "p2", project);
-    dbTester.users().insertProjectPermissionOnGroup(group2, "p2", project);
+    dbTester.users().insertEntityPermissionOnGroup(group1, "p1", project);
+    dbTester.users().insertEntityPermissionOnGroup(group1, "p2", project);
+    dbTester.users().insertEntityPermissionOnGroup(group2, "p2", project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.getKey())
@@ -491,7 +491,7 @@ public class UpdateVisibilityActionIT {
   public void update_a_portfolio_to_private() {
     PortfolioDto portfolio = dbTester.components().insertPublicPortfolioDto();
     GroupDto group = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
     userSessionRule.addPortfolioPermission(UserRole.ADMIN, portfolio);
@@ -512,9 +512,9 @@ public class UpdateVisibilityActionIT {
     PortfolioDto portfolio = dbTester.components().insertPrivatePortfolioDto();
     userSessionRule.addPortfolioPermission(UserRole.ADMIN, portfolio);
     GroupDto group = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.USER, portfolio);
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, portfolio);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.USER, portfolio);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.CODEVIEWER, portfolio);
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, portfolio);
@@ -535,7 +535,7 @@ public class UpdateVisibilityActionIT {
   public void update_an_application_to_private() {
     ProjectDto application = dbTester.components().insertPublicApplication().getProjectDto();
     GroupDto group = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, application);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.ISSUE_ADMIN, application);
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, application);
     userSessionRule.addProjectPermission(UserRole.ADMIN, application);
@@ -556,9 +556,9 @@ public class UpdateVisibilityActionIT {
     ProjectDto application = dbTester.components().insertPrivateApplication().getProjectDto();
     userSessionRule.addProjectPermission(UserRole.ADMIN, application);
     GroupDto group = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, application);
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.USER, application);
-    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, application);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.ISSUE_ADMIN, application);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.USER, application);
+    dbTester.users().insertEntityPermissionOnGroup(group, UserRole.CODEVIEWER, application);
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, application);
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, application);

@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
@@ -101,8 +100,8 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group2, UserRole.ADMIN, project);
   }
 
   @Test

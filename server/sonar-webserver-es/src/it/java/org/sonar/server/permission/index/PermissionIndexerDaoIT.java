@@ -38,9 +38,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.project.Project;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -54,19 +57,19 @@ import static org.sonar.api.web.UserRole.USER;
 public class PermissionIndexerDaoIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE,true);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private final UserDbTester userDbTester = new UserDbTester(dbTester);
 
-  private ComponentDto publicProject;
-  private ComponentDto privateProject1;
-  private ComponentDto privateProject2;
-  private ComponentDto view1;
-  private ComponentDto view2;
-  private ComponentDto application;
+  private ProjectDto publicProject;
+  private ProjectDto privateProject1;
+  private ProjectDto privateProject2;
+  private PortfolioDto view1;
+  private PortfolioDto view2;
+  private ProjectDto application;
   private UserDto user1;
   private UserDto user2;
   private GroupDto group;
@@ -75,12 +78,12 @@ public class PermissionIndexerDaoIT {
 
   @Before
   public void setUp() {
-    publicProject = componentDbTester.insertPublicProject().getMainBranchComponent();
-    privateProject1 = componentDbTester.insertPrivateProject().getMainBranchComponent();
-    privateProject2 = componentDbTester.insertPrivateProject().getMainBranchComponent();
-    view1 = componentDbTester.insertPublicPortfolio();
-    view2 = componentDbTester.insertPublicPortfolio();
-    application = componentDbTester.insertPublicApplication().getMainBranchComponent();
+    publicProject = componentDbTester.insertPublicProject().getProjectDto();
+    privateProject1 = componentDbTester.insertPrivateProject().getProjectDto();
+    privateProject2 = componentDbTester.insertPrivateProject().getProjectDto();
+    view1 = componentDbTester.insertPublicPortfolioDto();
+    view2 = componentDbTester.insertPublicPortfolioDto();
+    application = componentDbTester.insertPublicApplication().getProjectDto();
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
     group = userDbTester.insertGroup();
@@ -93,28 +96,28 @@ public class PermissionIndexerDaoIT {
     Collection<IndexPermissions> dtos = underTest.selectAll(dbClient, dbSession);
     Assertions.assertThat(dtos).hasSize(6);
 
-    IndexPermissions publicProjectAuthorization = getByProjectUuid(publicProject.uuid(), dtos);
+    IndexPermissions publicProjectAuthorization = getByProjectUuid(publicProject.getUuid(), dtos);
     isPublic(publicProjectAuthorization, PROJECT);
 
-    IndexPermissions view1Authorization = getByProjectUuid(view1.uuid(), dtos);
+    IndexPermissions view1Authorization = getByProjectUuid(view1.getUuid(), dtos);
     isPublic(view1Authorization, VIEW);
 
-    IndexPermissions applicationAuthorization = getByProjectUuid(application.uuid(), dtos);
+    IndexPermissions applicationAuthorization = getByProjectUuid(application.getUuid(), dtos);
     isPublic(applicationAuthorization, APP);
 
-    IndexPermissions privateProject1Authorization = getByProjectUuid(privateProject1.uuid(), dtos);
+    IndexPermissions privateProject1Authorization = getByProjectUuid(privateProject1.getUuid(), dtos);
     assertThat(privateProject1Authorization.getGroupUuids()).containsOnly(group.getUuid());
     assertThat(privateProject1Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject1Authorization.getUserUuids()).containsOnly(user1.getUuid(), user2.getUuid());
     assertThat(privateProject1Authorization.getQualifier()).isEqualTo(PROJECT);
 
-    IndexPermissions privateProject2Authorization = getByProjectUuid(privateProject2.uuid(), dtos);
+    IndexPermissions privateProject2Authorization = getByProjectUuid(privateProject2.getUuid(), dtos);
     assertThat(privateProject2Authorization.getGroupUuids()).isEmpty();
     assertThat(privateProject2Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject2Authorization.getUserUuids()).containsOnly(user1.getUuid());
     assertThat(privateProject2Authorization.getQualifier()).isEqualTo(PROJECT);
 
-    IndexPermissions view2Authorization = getByProjectUuid(view2.uuid(), dtos);
+    IndexPermissions view2Authorization = getByProjectUuid(view2.getUuid(), dtos);
     isPublic(view2Authorization, VIEW);
   }
 
@@ -123,33 +126,34 @@ public class PermissionIndexerDaoIT {
     insertTestDataForProjectsAndViews();
 
     Map<String, IndexPermissions> dtos = underTest
-      .selectByUuids(dbClient, dbSession, asList(publicProject.uuid(), privateProject1.uuid(), privateProject2.uuid(), view1.uuid(), view2.uuid(), application.uuid()))
+      .selectByUuids(dbClient, dbSession,
+        asList(publicProject.getUuid(), privateProject1.getUuid(), privateProject2.getUuid(), view1.getUuid(), view2.getUuid(), application.getUuid()))
       .stream()
       .collect(MoreCollectors.uniqueIndex(IndexPermissions::getProjectUuid, Function.identity()));
     Assertions.assertThat(dtos).hasSize(6);
 
-    IndexPermissions publicProjectAuthorization = dtos.get(publicProject.uuid());
+    IndexPermissions publicProjectAuthorization = dtos.get(publicProject.getUuid());
     isPublic(publicProjectAuthorization, PROJECT);
 
-    IndexPermissions view1Authorization = dtos.get(view1.uuid());
+    IndexPermissions view1Authorization = dtos.get(view1.getUuid());
     isPublic(view1Authorization, VIEW);
 
-    IndexPermissions applicationAuthorization = dtos.get(application.uuid());
+    IndexPermissions applicationAuthorization = dtos.get(application.getUuid());
     isPublic(applicationAuthorization, APP);
 
-    IndexPermissions privateProject1Authorization = dtos.get(privateProject1.uuid());
+    IndexPermissions privateProject1Authorization = dtos.get(privateProject1.getUuid());
     assertThat(privateProject1Authorization.getGroupUuids()).containsOnly(group.getUuid());
     assertThat(privateProject1Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject1Authorization.getUserUuids()).containsOnly(user1.getUuid(), user2.getUuid());
     assertThat(privateProject1Authorization.getQualifier()).isEqualTo(PROJECT);
 
-    IndexPermissions privateProject2Authorization = dtos.get(privateProject2.uuid());
+    IndexPermissions privateProject2Authorization = dtos.get(privateProject2.getUuid());
     assertThat(privateProject2Authorization.getGroupUuids()).isEmpty();
     assertThat(privateProject2Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject2Authorization.getUserUuids()).containsOnly(user1.getUuid());
     assertThat(privateProject2Authorization.getQualifier()).isEqualTo(PROJECT);
 
-    IndexPermissions view2Authorization = dtos.get(view2.uuid());
+    IndexPermissions view2Authorization = dtos.get(view2.getUuid());
     isPublic(view2Authorization, VIEW);
   }
 
@@ -186,7 +190,7 @@ public class PermissionIndexerDaoIT {
 
   @Test
   public void return_private_project_without_any_permission_when_no_permission_in_DB() {
-    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.uuid()));
+    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.getUuid()));
 
     // no permissions
     Assertions.assertThat(dtos).hasSize(1);
@@ -194,50 +198,50 @@ public class PermissionIndexerDaoIT {
     assertThat(dto.getGroupUuids()).isEmpty();
     assertThat(dto.getUserUuids()).isEmpty();
     assertThat(dto.isAllowAnyone()).isFalse();
-    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.uuid());
-    assertThat(dto.getQualifier()).isEqualTo(privateProject1.qualifier());
+    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.getUuid());
+    assertThat(dto.getQualifier()).isEqualTo(privateProject1.getQualifier());
   }
 
   @Test
   public void return_public_project_with_only_AllowAnyone_true_when_no_permission_in_DB() {
-    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(publicProject.uuid()));
+    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(publicProject.getUuid()));
 
     Assertions.assertThat(dtos).hasSize(1);
     IndexPermissions dto = dtos.get(0);
     assertThat(dto.getGroupUuids()).isEmpty();
     assertThat(dto.getUserUuids()).isEmpty();
     assertThat(dto.isAllowAnyone()).isTrue();
-    assertThat(dto.getProjectUuid()).isEqualTo(publicProject.uuid());
-    assertThat(dto.getQualifier()).isEqualTo(publicProject.qualifier());
+    assertThat(dto.getProjectUuid()).isEqualTo(publicProject.getUuid());
+    assertThat(dto.getQualifier()).isEqualTo(publicProject.getQualifier());
   }
 
   @Test
   public void return_private_project_with_AllowAnyone_false_and_user_id_when_user_is_granted_USER_permission_directly() {
     dbTester.users().insertProjectPermissionOnUser(user1, USER, privateProject1);
-    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.uuid()));
+    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.getUuid()));
 
     Assertions.assertThat(dtos).hasSize(1);
     IndexPermissions dto = dtos.get(0);
     assertThat(dto.getGroupUuids()).isEmpty();
     assertThat(dto.getUserUuids()).containsOnly(user1.getUuid());
     assertThat(dto.isAllowAnyone()).isFalse();
-    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.uuid());
-    assertThat(dto.getQualifier()).isEqualTo(privateProject1.qualifier());
+    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.getUuid());
+    assertThat(dto.getQualifier()).isEqualTo(privateProject1.getQualifier());
   }
 
   @Test
   public void return_private_project_with_AllowAnyone_false_and_group_id_but_not_user_id_when_user_is_granted_USER_permission_through_group() {
     dbTester.users().insertMember(group, user1);
-    dbTester.users().insertProjectPermissionOnGroup(group, USER, privateProject1);
-    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.uuid()));
+    dbTester.users().insertEntityPermissionOnGroup(group, USER, privateProject1);
+    List<IndexPermissions> dtos = underTest.selectByUuids(dbClient, dbSession, singletonList(privateProject1.getUuid()));
 
     Assertions.assertThat(dtos).hasSize(1);
     IndexPermissions dto = dtos.get(0);
     assertThat(dto.getGroupUuids()).containsOnly(group.getUuid());
     assertThat(dto.getUserUuids()).isEmpty();
     assertThat(dto.isAllowAnyone()).isFalse();
-    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.uuid());
-    assertThat(dto.getQualifier()).isEqualTo(privateProject1.qualifier());
+    assertThat(dto.getProjectUuid()).isEqualTo(privateProject1.getUuid());
+    assertThat(dto.getQualifier()).isEqualTo(privateProject1.getQualifier());
   }
 
   private void isPublic(IndexPermissions view1Authorization, String qualifier) {
@@ -264,9 +268,9 @@ public class PermissionIndexerDaoIT {
     userDbTester.insertProjectPermissionOnUser(user2, ADMIN, privateProject2);
 
     // group1 has USER access on privateProject1 only
-    userDbTester.insertProjectPermissionOnGroup(group, USER, privateProject1);
-    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, privateProject1);
-    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, view1);
-    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, application);
+    userDbTester.insertEntityPermissionOnGroup(group, USER, privateProject1);
+    userDbTester.insertEntityPermissionOnGroup(group, ADMIN, privateProject1);
+    userDbTester.insertEntityPermissionOnGroup(group, ADMIN, view1);
+    userDbTester.insertEntityPermissionOnGroup(group, ADMIN, application);
   }
 }

@@ -270,7 +270,7 @@ public class UserDbTester {
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
 
-    //TODO, will be removed later
+    // TODO, will be removed later
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(project.qualifier());
     projectDto.setKey(project.getKey());
@@ -314,7 +314,7 @@ public class UserDbTester {
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
 
-    //TODO, will be removed later
+    // TODO, will be removed later
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(project.qualifier());
     projectDto.setKey(project.getKey());
@@ -323,17 +323,20 @@ public class UserDbTester {
     return dto;
   }
 
-  public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, EntityDto entity) {
-    checkArgument(entity.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
-      "%s can't be granted on a public project", permission);
+  public GroupPermissionDto insertEntityPermissionOnGroup(GroupDto group, String permission, EntityDto entityDto) {
+    checkArgument(entityDto.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
+      "%s can't be granted on a public entity (project or portfolio)", permission);
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), entityDto.getUuid());
+    // I don't know if this check is worth it
+    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
       .setGroupName(group.getName())
       .setRole(permission)
-      .setComponentUuid(entity.getUuid())
-      .setComponentName(entity.getName());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, entity, null);
+      .setComponentUuid(entityDto.getUuid())
+      .setComponentName(entityDto.getUuid());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, entityDto, null);
     db.commit();
     return dto;
   }

@@ -25,8 +25,10 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -50,7 +52,7 @@ public class PermissionIndexerTest {
   private static final IndexMainType INDEX_TYPE_FOO_AUTH = IndexType.main(FooIndexDefinition.DESCRIPTOR, TYPE_AUTHORIZATION);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
   @Rule
@@ -62,7 +64,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_any_user_and_to_group_Anyone_on_public_projects() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
 
@@ -75,7 +77,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexAll_grants_access_to_any_user_and_to_group_Anyone_on_public_projects() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
 
@@ -88,15 +90,15 @@ public class PermissionIndexerTest {
 
   @Test
   public void deletion_resilience_will_deindex_projects() {
-    ComponentDto project1 = createUnindexedPublicProject();
-    ComponentDto project2 = createUnindexedPublicProject();
+    ProjectDto project1 = createUnindexedPublicProject();
+    ProjectDto project2 = createUnindexedPublicProject();
     // UserDto user1 = db.users().insertUser();
     indexOnStartup();
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
     // Simulate a indexation issue
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.uuid(), PROJECT, project1.name(), project1.getKey());
-    underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.getUuid(), PROJECT, project1.getName(), project1.getKey());
+    underTest.prepareForRecovery(db.getSession(), asList(project1.getUuid()), ProjectIndexer.Cause.PROJECT_DELETION);
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isOne();
     Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
 
@@ -108,7 +110,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_user() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user1, USER, project);
@@ -128,14 +130,14 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_group_on_private_project() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group1, USER, project);
-    db.users().insertProjectPermissionOnGroup(group2, ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, USER, project);
+    db.users().insertEntityPermissionOnGroup(group2, ADMIN, project);
 
     indexOnStartup();
 
@@ -154,13 +156,13 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_user_and_group() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user2);
     db.users().insertProjectPermissionOnUser(user1, USER, project);
-    db.users().insertProjectPermissionOnGroup(group, USER, project);
+    db.users().insertEntityPermissionOnGroup(group, USER, project);
 
     indexOnStartup();
 
@@ -179,7 +181,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_does_not_grant_access_to_anybody_on_private_project() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
 
@@ -192,7 +194,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_anybody_on_public_project() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
 
@@ -205,7 +207,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnStartup_grants_access_to_anybody_on_view() {
-    ComponentDto view = createAndIndexView();
+    PortfolioDto view = createAndIndexPortfolio();
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
 
@@ -220,7 +222,7 @@ public class PermissionIndexerTest {
   public void indexOnStartup_grants_access_on_many_projects() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    ComponentDto project = null;
+    ProjectDto project = null;
     for (int i = 0; i < 10; i++) {
       project = createAndIndexPrivateProject();
       db.users().insertProjectPermissionOnUser(user1, USER, project);
@@ -235,7 +237,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void public_projects_are_visible_to_anybody() {
-    ComponentDto projectOnOrg1 = createAndIndexPublicProject();
+    ProjectDto projectOnOrg1 = createAndIndexPublicProject();
     UserDto user = db.users().insertUser();
 
     indexOnStartup();
@@ -246,9 +248,9 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexOnAnalysis_does_nothing_because_CE_does_not_touch_permissions() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
 
-    underTest.indexOnAnalysis(project.uuid());
+    underTest.indexOnAnalysis(project.getUuid());
 
     assertThatAuthIndexHasSize(0);
     verifyAnyoneNotAuthorized(project);
@@ -256,7 +258,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void permissions_are_not_updated_on_project_tags_update() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
 
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
 
@@ -266,7 +268,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void permissions_are_not_updated_on_project_key_update() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
 
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
 
@@ -276,7 +278,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void index_permissions_on_project_creation() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project);
 
@@ -288,7 +290,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void index_permissions_on_permission_change() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user1, USER, project);
@@ -305,13 +307,13 @@ public class PermissionIndexerTest {
 
   @Test
   public void delete_permissions_on_project_deletion() {
-    ComponentDto project = createAndIndexPrivateProject();
+    ProjectDto project = createAndIndexPrivateProject();
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project);
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
     verifyAuthorized(project, user);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT, project.name(), project.getKey());
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getUuid(), project.getKey());
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
 
     verifyNotAuthorized(project, user);
@@ -320,7 +322,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void errors_during_indexing_are_recovered() {
-    ComponentDto project = createAndIndexPublicProject();
+    ProjectDto project = createAndIndexPublicProject();
     es.lockWrites(INDEX_TYPE_FOO_AUTH);
 
     IndexingResult result = indexPermissions(project, PERMISSION_CHANGE);
@@ -351,38 +353,38 @@ public class PermissionIndexerTest {
     underTest.indexOnStartup(underTest.getIndexTypes());
   }
 
-  private void verifyAuthorized(ComponentDto project, UserDto user) {
+  private void verifyAuthorized(EntityDto entity, UserDto user) {
     logIn(user);
-    verifyAuthorized(project, true);
+    verifyAuthorized(entity, true);
   }
 
-  private void verifyAuthorized(ComponentDto project, UserDto user, GroupDto group) {
+  private void verifyAuthorized(EntityDto entity, UserDto user, GroupDto group) {
     logIn(user).setGroups(group);
-    verifyAuthorized(project, true);
+    verifyAuthorized(entity, true);
   }
 
-  private void verifyNotAuthorized(ComponentDto project, UserDto user) {
+  private void verifyNotAuthorized(EntityDto entity, UserDto user) {
     logIn(user);
-    verifyAuthorized(project, false);
+    verifyAuthorized(entity, false);
   }
 
-  private void verifyNotAuthorized(ComponentDto project, UserDto user, GroupDto group) {
+  private void verifyNotAuthorized(EntityDto entity, UserDto user, GroupDto group) {
     logIn(user).setGroups(group);
-    verifyAuthorized(project, false);
+    verifyAuthorized(entity, false);
   }
 
-  private void verifyAnyoneAuthorized(ComponentDto project) {
+  private void verifyAnyoneAuthorized(EntityDto entity) {
     userSession.anonymous();
-    verifyAuthorized(project, true);
+    verifyAuthorized(entity, true);
   }
 
-  private void verifyAnyoneNotAuthorized(ComponentDto project) {
+  private void verifyAnyoneNotAuthorized(EntityDto entity) {
     userSession.anonymous();
-    verifyAuthorized(project, false);
+    verifyAuthorized(entity, false);
   }
 
-  private void verifyAuthorized(ComponentDto project, boolean expectedAccess) {
-    assertThat(fooIndex.hasAccessToProject(project.uuid())).isEqualTo(expectedAccess);
+  private void verifyAuthorized(EntityDto entity, boolean expectedAccess) {
+    assertThat(fooIndex.hasAccessToProject(entity.getUuid())).isEqualTo(expectedAccess);
   }
 
   private UserSessionRule logIn(UserDto u) {
@@ -390,32 +392,32 @@ public class PermissionIndexerTest {
     return userSession;
   }
 
-  private IndexingResult indexPermissions(ComponentDto project, ProjectIndexer.Cause cause) {
+  private IndexingResult indexPermissions(EntityDto entity, ProjectIndexer.Cause cause) {
     DbSession dbSession = db.getSession();
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(project.uuid()), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(entity.getUuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
   }
 
-  private ComponentDto createUnindexedPublicProject() {
-    return db.components().insertPublicProject().getMainBranchComponent();
+  private ProjectDto createUnindexedPublicProject() {
+    return db.components().insertPublicProject().getProjectDto();
   }
 
-  private ComponentDto createAndIndexPrivateProject() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    fooIndexer.indexOnAnalysis(project.uuid());
+  private ProjectDto createAndIndexPrivateProject() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    fooIndexer.indexOnAnalysis(project.getUuid());
     return project;
   }
 
-  private ComponentDto createAndIndexPublicProject() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    fooIndexer.indexOnAnalysis(project.uuid());
+  private ProjectDto createAndIndexPublicProject() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    fooIndexer.indexOnAnalysis(project.getUuid());
     return project;
   }
 
-  private ComponentDto createAndIndexView() {
-    ComponentDto view = db.components().insertPublicPortfolio();
-    fooIndexer.indexOnAnalysis(view.uuid());
+  private PortfolioDto createAndIndexPortfolio() {
+    PortfolioDto view = db.components().insertPublicPortfolioDto();
+    fooIndexer.indexOnAnalysis(view.getUuid());
     return view;
   }
 

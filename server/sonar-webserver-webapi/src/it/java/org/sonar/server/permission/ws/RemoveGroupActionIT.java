@@ -103,8 +103,8 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   public void wsAction_shouldRemoveProjectPermission() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
     loginAsAdmin();
 
     newRequest()
@@ -121,8 +121,8 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   public void wsAction_whenUsingViewUuid_shouldRemovePermission() {
     EntityDto portfolio = db.components().insertPrivatePortfolioDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, portfolio);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, portfolio);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ADMIN, portfolio);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, portfolio);
     loginAsAdmin();
 
     newRequest()
@@ -139,8 +139,8 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   public void wsAction_whenUsingProjectKey_shouldRemovePermission() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.users().insertPermissionOnGroup(aGroup, GlobalPermission.ADMINISTER);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
     loginAsAdmin();
 
     newRequest()
@@ -297,8 +297,8 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void wsAction_whenRemovingProjectPermissionAsProjectAdminButNotSystemAdmin_shouldRemovePermission() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
-    db.users().insertProjectPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.ISSUE_ADMIN, project);
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     newRequest()

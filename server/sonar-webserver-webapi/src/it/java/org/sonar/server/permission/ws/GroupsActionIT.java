@@ -186,11 +186,11 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   public void search_groups_with_project_permissions() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
 
     ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     GroupDto anotherGroup = db.users().insertGroup("another-project-group-name");
-    db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
+    db.users().insertEntityPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
 
@@ -210,7 +210,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   public void return_also_groups_without_permission_when_search_query() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group = db.users().insertGroup("group-with-permission");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
     GroupDto anotherGroup = db.users().insertGroup("another-group");
@@ -232,7 +232,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   public void return_only_groups_with_permission_when_no_search_query() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
 
@@ -250,7 +250,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   public void return_anyone_group_when_search_query_and_no_param_permission() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupDto group = db.users().insertGroup("group-with-permission");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
 
     loginAsAdmin();
     String result = newRequest()
@@ -266,7 +266,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   public void search_groups_on_views() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("view-uuid");
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, portfolio);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, portfolio);
 
     loginAsAdmin();
     String result = newRequest()
@@ -286,8 +286,8 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("view-uuid");
     GroupDto managedGroup = db.users().insertGroup("managed-group");
     GroupDto localGroup = db.users().insertGroup("local-group");
-    db.users().insertProjectPermissionOnGroup(managedGroup, ISSUE_ADMIN, portfolio);
-    db.users().insertProjectPermissionOnGroup(localGroup, ISSUE_ADMIN, portfolio);
+    db.users().insertEntityPermissionOnGroup(managedGroup, ISSUE_ADMIN, portfolio);
+    db.users().insertEntityPermissionOnGroup(localGroup, ISSUE_ADMIN, portfolio);
     mockGroupsAsManaged(managedGroup.getUuid());
 
     loginAsAdmin();

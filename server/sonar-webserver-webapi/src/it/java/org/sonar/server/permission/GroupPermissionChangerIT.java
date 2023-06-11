@@ -30,8 +30,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -176,7 +174,7 @@ public class GroupPermissionChangerIT {
 
   private void applyRemovesPermissionFromGroupOnPrivateProject(String permission) {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
-    db.users().insertProjectPermissionOnGroup(group, permission, privateProject);
+    db.users().insertEntityPermissionOnGroup(group, permission, privateProject);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, privateProject, groupUuid, permissionService));
 
@@ -376,8 +374,8 @@ public class GroupPermissionChangerIT {
   public void remove_project_permission_from_group() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER_QUALITY_GATES);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, privateProject);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, privateProject);
+    db.users().insertEntityPermissionOnGroup(group, UserRole.ISSUE_ADMIN, privateProject);
+    db.users().insertEntityPermissionOnGroup(group, UserRole.CODEVIEWER, privateProject);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, privateProject, groupUuid, permissionService));
 

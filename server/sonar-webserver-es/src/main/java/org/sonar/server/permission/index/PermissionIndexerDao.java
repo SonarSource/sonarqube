@@ -44,157 +44,124 @@ public class PermissionIndexerDao {
     USER, GROUP, ANYONE, NONE
   }
 
-  private static final String SQL_TEMPLATE = "SELECT " +
-    "  project_authorization.kind as kind, " +
-    "  project_authorization.project as project, " +
-    "  project_authorization.user_uuid as user_uuid, " +
-    "  project_authorization.group_uuid as group_uuid, " +
-    "  project_authorization.qualifier as qualifier " +
-    "FROM ( " +
-
-    // users
-
-    "      SELECT '" + RowKind.USER + "' as kind," +
-    "      c.uuid AS project, " +
-    "      c.qualifier AS qualifier, " +
-    "      user_roles.user_uuid  AS user_uuid, " +
-    "      NULL  AS group_uuid " +
-    "      FROM components c " +
-    "      INNER JOIN user_roles ON user_roles.component_uuid = c.uuid AND user_roles.role = 'user' " +
-    "      WHERE " +
-    "        (c.qualifier = 'TRK' " +
-    "         or  c.qualifier = 'VW' " +
-    "         or  c.qualifier = 'APP') " +
-    "        AND c.copy_component_uuid is NULL " +
-    "        {projectsCondition} " +
-    "      UNION " +
-
-    // groups
-
-    "      SELECT '" + RowKind.GROUP + "' as kind," +
-    "      c.uuid AS project, " +
-    "      c.qualifier AS qualifier, " +
-    "      NULL  AS user_uuid, " +
-    "      groups.uuid  AS group_uuid " +
-    "      FROM components c " +
-    "      INNER JOIN group_roles ON group_roles.component_uuid = c.uuid AND group_roles.role = 'user' " +
-    "      INNER JOIN groups ON groups.uuid = group_roles.group_uuid " +
-    "      WHERE " +
-    "        (c.qualifier = 'TRK' " +
-    "         or  c.qualifier = 'VW' " +
-    "         or  c.qualifier = 'APP') " +
-    "        AND c.copy_component_uuid is NULL " +
-    "        {projectsCondition} " +
-    "        AND group_uuid IS NOT NULL " +
-    "      UNION " +
-
-    // public projects are accessible to any one
-
-    "      SELECT '" + RowKind.ANYONE + "' as kind," +
-    "      c.uuid AS project, " +
-    "      c.qualifier AS qualifier, " +
-    "      NULL         AS user_uuid, " +
-    "      NULL     AS group_uuid " +
-    "      FROM components c " +
-    "      WHERE " +
-    "        (c.qualifier = 'TRK' " +
-    "         or  c.qualifier = 'VW' " +
-    "         or  c.qualifier = 'APP') " +
-    "        AND c.copy_component_uuid is NULL " +
-    "        AND c.private = ? " +
-    "        {projectsCondition} " +
-    "      UNION " +
-
-    // private project is returned when no authorization
-    "      SELECT '" + RowKind.NONE + "' as kind," +
-    "      c.uuid AS project, " +
-    "      c.qualifier AS qualifier, " +
-    "      NULL AS user_uuid, " +
-    "      NULL  AS group_uuid " +
-    "      FROM components c " +
-    "      WHERE " +
-    "        (c.qualifier = 'TRK' " +
-    "         or  c.qualifier = 'VW' " +
-    "         or  c.qualifier = 'APP') " +
-    "        AND c.copy_component_uuid is NULL " +
-    "        AND c.private = ? " +
-    "        {projectsCondition} " +
-
-    "    ) project_authorization";
+  private static final String SQL_TEMPLATE = """
+    with entity as ((select prj.uuid      as uuid,
+                            prj.private   as isPrivate,
+                            prj.qualifier as qualifier
+                     from projects prj)
+                    union
+                    (select p.uuid    as uuid,
+                            p.private as isPrivate,
+                            'VW'      as qualifier
+                     from portfolios p
+                     where p.parent_uuid is null))
+    SELECT entity_authorization.kind       as kind,
+           entity_authorization.entity     as entity,
+           entity_authorization.user_uuid  as user_uuid,
+           entity_authorization.group_uuid as group_uuid,
+           entity_authorization.qualifier  as qualifier
+    FROM (SELECT '%s'                 as kind,
+                 e.uuid               AS entity,
+                 e.qualifier          AS qualifier,
+                 user_roles.user_uuid AS user_uuid,
+                 NULL                 AS group_uuid
+          FROM entity e
+                   INNER JOIN user_roles ON user_roles.component_uuid = e.uuid AND user_roles.role = 'user'
+          WHERE (1 = 1)
+                {entitiesCondition}
+          UNION
+          SELECT '%s' as kind, e.uuid AS entity, e.qualifier AS qualifier, NULL AS user_uuid, groups.uuid AS group_uuid
+          FROM entity e
+                   INNER JOIN group_roles
+                              ON group_roles.component_uuid = e.uuid AND group_roles.role = 'user'
+                   INNER JOIN groups ON groups.uuid = group_roles.group_uuid
+          WHERE group_uuid IS NOT NULL
+                {entitiesCondition}
+          UNION
+          SELECT '%s' as kind, e.uuid AS entity, e.qualifier AS qualifier, NULL AS user_uuid, NULL AS group_uuid
+          FROM entity e
+          WHERE e.isPrivate = ?
+                {entitiesCondition}
+          UNION
+          SELECT '%s' as kind, e.uuid AS entity, e.qualifier AS qualifier, NULL AS user_uuid, NULL AS group_uuid
+          FROM entity e
+          WHERE e.isPrivate = ?
+             {entitiesCondition}
+         ) entity_authorization""".formatted(RowKind.USER, RowKind.GROUP, RowKind.ANYONE, RowKind.NONE);
 
   List<IndexPermissions> selectAll(DbClient dbClient, DbSession session) {
-    return doSelectByProjects(dbClient, session, Collections.emptyList());
+    return doSelectByEntities(dbClient, session, Collections.emptyList());
   }
 
-  public List<IndexPermissions> selectByUuids(DbClient dbClient, DbSession session, Collection<String> projectOrViewUuids) {
-    // we use a smaller partitionSize because the SQL_TEMPLATE contain 4x the list of project uuid.
+  public List<IndexPermissions> selectByUuids(DbClient dbClient, DbSession session, Collection<String> entitiesUuid) {
+    // we use a smaller partitionSize because the SQL_TEMPLATE contain 4x the list of entity uuid.
     // the MsSQL jdbc driver accept a maximum of 2100 prepareStatement parameter. To stay under the limit,
-    // we go with batch of 1000/2=500 project uuids, to stay under the limit (4x500 < 2100)
-    return executeLargeInputs(projectOrViewUuids, subProjectOrViewUuids -> doSelectByProjects(dbClient, session, subProjectOrViewUuids), i -> i / 2);
+    // we go with batch of 1000/2=500 entities uuids, to stay under the limit (4x500 < 2100)
+    return executeLargeInputs(entitiesUuid, entity -> doSelectByEntities(dbClient, session, entity), i -> i / 2);
   }
 
-  private static List<IndexPermissions> doSelectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
+  private static List<IndexPermissions> doSelectByEntities(DbClient dbClient, DbSession session, List<String> entitiesUuids) {
     try {
-      Map<String, IndexPermissions> dtosByProjectUuid = new HashMap<>();
-      try (PreparedStatement stmt = createStatement(dbClient, session, projectUuids);
+      Map<String, IndexPermissions> dtosByEntityUuid = new HashMap<>();
+      try (PreparedStatement stmt = createStatement(dbClient, session, entitiesUuids);
         ResultSet rs = stmt.executeQuery()) {
         while (rs.next()) {
-          processRow(rs, dtosByProjectUuid);
+          processRow(rs, dtosByEntityUuid);
         }
-        return ImmutableList.copyOf(dtosByProjectUuid.values());
+        return ImmutableList.copyOf(dtosByEntityUuid.values());
       }
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to select authorizations", e);
     }
   }
 
-  private static PreparedStatement createStatement(DbClient dbClient, DbSession session, List<String> projectUuids) throws SQLException {
+  private static PreparedStatement createStatement(DbClient dbClient, DbSession session, List<String> entityUuids) throws SQLException {
     String sql;
-    if (projectUuids.isEmpty()) {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", "");
+    if (entityUuids.isEmpty()) {
+      sql = StringUtils.replace(SQL_TEMPLATE, "{entitiesCondition}", "");
     } else {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND c.uuid in (" + repeat("?", ", ", projectUuids.size()) + ")");
+      sql = StringUtils.replace(SQL_TEMPLATE, "{entitiesCondition}", " AND e.uuid in (" + repeat("?", ", ", entityUuids.size()) + ")");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     int index = 1;
     // query for RowKind.USER
-    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    index = populateEntityUuidPlaceholders(stmt, entityUuids, index);
     // query for RowKind.GROUP
-    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    index = populateEntityUuidPlaceholders(stmt, entityUuids, index);
     // query for RowKind.ANYONE
-    index = setPrivateProjectPlaceHolder(stmt, index, false);
-    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    index = setPrivateEntityPlaceHolder(stmt, index, false);
+    index = populateEntityUuidPlaceholders(stmt, entityUuids, index);
     // query for RowKind.NONE
-    index = setPrivateProjectPlaceHolder(stmt, index, true);
-    populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    index = setPrivateEntityPlaceHolder(stmt, index, true);
+    populateEntityUuidPlaceholders(stmt, entityUuids, index);
     return stmt;
   }
 
-  private static int populateProjectUuidPlaceholders(PreparedStatement stmt, List<String> projectUuids, int index) throws SQLException {
+  private static int populateEntityUuidPlaceholders(PreparedStatement stmt, List<String> entityUuids, int index) throws SQLException {
     int newIndex = index;
-    for (String projectUuid : projectUuids) {
-      stmt.setString(newIndex, projectUuid);
+    for (String entityUuid : entityUuids) {
+      stmt.setString(newIndex, entityUuid);
       newIndex++;
     }
     return newIndex;
   }
 
-  private static int setPrivateProjectPlaceHolder(PreparedStatement stmt, int index, boolean isPrivate) throws SQLException {
+  private static int setPrivateEntityPlaceHolder(PreparedStatement stmt, int index, boolean isPrivate) throws SQLException {
     int newIndex = index;
     stmt.setBoolean(newIndex, isPrivate);
     newIndex++;
     return newIndex;
   }
 
-  private static void processRow(ResultSet rs, Map<String, IndexPermissions> dtosByProjectUuid) throws SQLException {
+  private static void processRow(ResultSet rs, Map<String, IndexPermissions> dtosByEntityUuid) throws SQLException {
     RowKind rowKind = RowKind.valueOf(rs.getString(1));
-    String projectUuid = rs.getString(2);
+    String entityUuid = rs.getString(2);
 
-    IndexPermissions dto = dtosByProjectUuid.get(projectUuid);
+    IndexPermissions dto = dtosByEntityUuid.get(entityUuid);
     if (dto == null) {
       String qualifier = rs.getString(5);
-      dto = new IndexPermissions(projectUuid, qualifier);
-      dtosByProjectUuid.put(projectUuid, dto);
+      dto = new IndexPermissions(entityUuid, qualifier);
+      dtosByEntityUuid.put(entityUuid, dto);
     }
     switch (rowKind) {
       case NONE:
