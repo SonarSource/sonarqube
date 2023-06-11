@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -99,28 +100,28 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
     String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
-    return hasProjectUuidPermission(permission, projectUuid);
+    return isRoot() || hasProjectUuidPermission(permission, projectUuid);
   }
 
   @Override
   public final boolean hasProjectPermission(String permission, ProjectDto project) {
-    return hasProjectUuidPermission(permission, project.getUuid());
+    return isRoot() || hasProjectUuidPermission(permission, project.getUuid());
   }
 
   @Override
   public final boolean hasProjectPermission(String permission, String projectUuid) {
-    return hasProjectUuidPermission(permission, projectUuid);
+    return isRoot() || hasProjectUuidPermission(permission, projectUuid);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
     String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
-    return hasChildProjectsPermission(permission, applicationUuid);
+    return isRoot() || hasChildProjectsPermission(permission, applicationUuid);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ProjectDto project) {
-    return hasChildProjectsPermission(permission, project.getUuid());
+    return isRoot() || hasChildProjectsPermission(permission, project.getUuid());
   }
 
   @Override
@@ -131,7 +132,7 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     Optional<String> projectUuid = componentUuidToProjectUuid(componentUuid);
-    return projectUuid
+    return isRoot() || projectUuid
       .map(s -> hasProjectUuidPermission(permission, s))
       .orElse(false);
   }
@@ -146,11 +147,17 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    if (isRoot()) {
+      return new ArrayList<>(components);
+    }
     return doKeepAuthorizedComponents(permission, components);
   }
 
   @Override
   public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    if (isRoot()) {
+      return new ArrayList<>(projects);
+    }
     return doKeepAuthorizedProjects(permission, projects);
   }
 
