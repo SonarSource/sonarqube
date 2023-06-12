@@ -106,7 +106,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a function on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -116,7 +116,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a function on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -147,7 +147,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -157,7 +157,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    *
@@ -206,7 +206,7 @@ public class DatabaseUtils {
 
   /**
    * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
+   * <p>
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
@@ -403,6 +403,8 @@ public class DatabaseUtils {
     String schema = getSchema(connection);
     try (ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, tableName, null)) {
       while (rs.next()) {
+        // this is wrong and could lead to bugs, there is no point of going through each column - only one column contains column name
+        // see the contract (javadoc) of java.sql.DatabaseMetaData.getColumns
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
           String name = rs.getString(i);
           if (columnName.equalsIgnoreCase(name)) {
@@ -411,6 +413,31 @@ public class DatabaseUtils {
         }
       }
       return false;
+    }
+  }
+  @CheckForNull
+  public static ColumnMetadata getColumnMetadata(Connection connection, String tableName, String columnName) throws SQLException {
+    ColumnMetadata columnMetadataLowerCase = getColumnMetadataWithCaseSensitiveTableName(connection, tableName.toLowerCase(Locale.US), columnName);
+    if (columnMetadataLowerCase != null) {
+      return columnMetadataLowerCase;
+    }
+    return getColumnMetadataWithCaseSensitiveTableName(connection, tableName.toUpperCase(Locale.US), columnName);
+  }
+
+  @CheckForNull
+  public static ColumnMetadata getColumnMetadataWithCaseSensitiveTableName(Connection connection, String tableName, String columnName) throws SQLException {
+    String schema = getSchema(connection);
+    try (ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, tableName, null)) {
+      while (rs.next()) {
+        String name = rs.getString(4);
+        int type = rs.getInt(5);
+        int limit = rs.getInt(7);
+        boolean nullable = rs.getBoolean(11);
+        if (columnName.equalsIgnoreCase(name)) {
+          return new ColumnMetadata(name, nullable, type, limit);
+        }
+      }
+      return null;
     }
   }
 

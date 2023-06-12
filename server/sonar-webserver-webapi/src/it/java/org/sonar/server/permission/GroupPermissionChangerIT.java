@@ -425,8 +425,8 @@ public class GroupPermissionChangerIT {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(perm)
-      .setComponentUuid(privateProject.getUuid())
-      .setComponentName(privateProject.getName());
+      .setEntityUuid(privateProject.getUuid())
+      .setEntityName(privateProject.getName());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, privateProject, null);
     db.commit();
   }

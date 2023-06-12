@@ -122,8 +122,8 @@ public class GroupPermissionChanger {
       .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
       .setGroupUuid(groupUuid)
-      .setComponentName(change.getProjectName())
-      .setComponentUuid(change.getProjectUuid());
+      .setEntityName(change.getProjectName())
+      .setEntityUuid(change.getProjectUuid());
 
     Optional.ofNullable(groupUuid)
       .map(uuid -> dbClient.groupDao().selectByUuid(dbSession, groupUuid))

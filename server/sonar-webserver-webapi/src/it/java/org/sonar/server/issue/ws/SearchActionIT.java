@@ -1871,8 +1871,8 @@ public class SearchActionIT {
       new GroupPermissionDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(null)
-        .setComponentUuid(project.getUuid())
-        .setComponentName(project.getName())
+        .setEntityUuid(project.getUuid())
+        .setEntityName(project.getName())
         .setRole(permission),
       project, null);
     session.commit();

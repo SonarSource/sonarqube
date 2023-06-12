@@ -154,8 +154,8 @@ public class PermissionTemplateService {
           .setGroupUuid(groupUuid)
           .setGroupName(groupName)
           .setRole(gp.getPermission())
-          .setComponentUuid(entity.getUuid())
-          .setComponentName(entity.getName());
+          .setEntityUuid(entity.getUuid())
+          .setEntityName(entity.getName());
 
         dbClient.groupPermissionDao().insert(dbSession, dto, entity, template);
       });

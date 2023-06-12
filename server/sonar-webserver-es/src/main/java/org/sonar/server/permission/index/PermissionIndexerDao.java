@@ -66,14 +66,14 @@ public class PermissionIndexerDao {
                  user_roles.user_uuid AS user_uuid,
                  NULL                 AS group_uuid
           FROM entity e
-                   INNER JOIN user_roles ON user_roles.component_uuid = e.uuid AND user_roles.role = 'user'
+                   INNER JOIN user_roles ON user_roles.entity_uuid = e.uuid AND user_roles.role = 'user'
           WHERE (1 = 1)
                 {entitiesCondition}
           UNION
           SELECT '%s' as kind, e.uuid AS entity, e.qualifier AS qualifier, NULL AS user_uuid, groups.uuid AS group_uuid
           FROM entity e
                    INNER JOIN group_roles
-                              ON group_roles.component_uuid = e.uuid AND group_roles.role = 'user'
+                              ON group_roles.entity_uuid = e.uuid AND group_roles.role = 'user'
                    INNER JOIN groups ON groups.uuid = group_roles.group_uuid
           WHERE group_uuid IS NOT NULL
                 {entitiesCondition}

@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.platform.db.migration.version.v102;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface RoleMapper {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  List<String> selectEntityUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
+public class DbVersion102Test {
+  private final DbVersion102 underTest = new DbVersion102();
 
-  void deleteGroupRolesByGroupUuid(String groupUuid);
+  @Test
+  public void migrationNumber_starts_at_10_2_000() {
+    verifyMinimumMigrationNumber(underTest, 10_2_000);
+  }
+
+  @Test
+  public void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
+  }
 
 }

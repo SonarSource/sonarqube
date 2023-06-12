@@ -377,7 +377,7 @@ public class UserPermissionDaoIT {
     // global permission exists -> delete it, but not the project permission with the same name !
     underTest.deleteGlobalPermission(dbSession, user1, "perm1");
 
-    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isZero();
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and entity_uuid is null")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
 
@@ -512,7 +512,7 @@ public class UserPermissionDaoIT {
     underTest.deleteByUserUuid(dbSession, user1);
     dbSession.commit();
 
-    assertThat(db.select("select user_uuid as \"userUuid\", component_uuid as \"entityUuid\", role as \"permission\" from user_roles"))
+    assertThat(db.select("select user_uuid as \"userUuid\", entity_uuid as \"entityUuid\", role as \"permission\" from user_roles"))
       .extracting((row) -> row.get("userUuid"), (row) -> row.get("entityUuid"), (row) -> row.get("permission"))
       .containsOnly(tuple(user2.getUuid(), null, GlobalPermission.SCAN.getKey()), tuple(user2.getUuid(), project.getUuid(), GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
   }
@@ -620,10 +620,10 @@ public class UserPermissionDaoIT {
     List<UserPermissionDto> currentPermissions = underTest.selectUserPermissionsByQuery(dbSession, query, expectedUserUuids);
     assertThat(currentPermissions).hasSize(expectedPermissions.length);
     Tuple[] expectedPermissionsAsTuple = Arrays.stream(expectedPermissions)
-      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(), expectedPermission.getComponentUuid()))
+      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(), expectedPermission.getEntityUuid()))
       .toArray(Tuple[]::new);
     assertThat(currentPermissions)
-      .extracting(UserPermissionDto::getUserUuid, UserPermissionDto::getPermission, UserPermissionDto::getComponentUuid)
+      .extracting(UserPermissionDto::getUserUuid, UserPermissionDto::getPermission, UserPermissionDto::getEntityUuid)
       .containsOnly(expectedPermissionsAsTuple);
 
     long distinctUsers = stream(expectedPermissions).map(UserPermissionDto::getUserUuid).distinct().count();
@@ -646,11 +646,11 @@ public class UserPermissionDaoIT {
 
   private void assertThatProjectPermissionDoesNotExist(UserDto user, String permission, String projectUuid) {
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='" + permission + "' and user_uuid='" + user.getUuid()
-      + "' and component_uuid='" + projectUuid + "'"))
+      + "' and entity_uuid ='" + projectUuid + "'"))
       .isZero();
   }
 
   private void assertThatProjectHasNoPermissions(String projectUuid) {
-    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + projectUuid + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where entity_uuid='" + projectUuid + "'")).isZero();
   }
 }

@@ -246,16 +246,16 @@
         </foreach>
   </delete>
 
-  <delete id="deleteGroupRolesByComponentUuid" parameterType="map">
+  <delete id="deleteGroupRolesByEntityUuid" parameterType="map">
     delete from group_roles
     where
-      component_uuid = #{rootUuid,jdbcType=INTEGER}
+      entity_uuid = #{entityUuid,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteUserRolesByComponentUuid" parameterType="map">
+  <delete id="deleteUserRolesByEntityUuid" parameterType="map">
     delete from user_roles
     where
-      component_uuid = #{rootUuid,jdbcType=INTEGER}
+      entity_uuid = #{entityUuid,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteEventsByComponentUuid" parameterType="map">

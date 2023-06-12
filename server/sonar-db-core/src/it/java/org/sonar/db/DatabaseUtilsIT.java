@@ -62,6 +62,7 @@ import static org.sonar.db.DatabaseUtils.closeQuietly;
 import static org.sonar.db.DatabaseUtils.getDriver;
 import static org.sonar.db.DatabaseUtils.log;
 import static org.sonar.db.DatabaseUtils.tableColumnExists;
+import static org.sonar.db.DatabaseUtils.getColumnMetadata;
 import static org.sonar.db.DatabaseUtils.tableExists;
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 
@@ -140,6 +141,24 @@ public class DatabaseUtilsIT {
     String columnName = "columna";
     try (Connection connection = dbTester.openConnection()) {
       assertThat(tableColumnExists(connection, tableName, columnName)).isTrue();
+    }
+  }
+
+  @Test
+  public void getColumnMetadata_whenTableNameLowerCaseColumnUpperCase_shouldFindColumn() throws SQLException {
+    String tableName = "tablea";
+    String columnName = "COLUMNA";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(getColumnMetadata(connection, tableName, columnName)).isNotNull();
+    }
+  }
+
+  @Test
+  public void getColumnMetadata_whenArgumentInUpperCase_shouldFindColumn() throws SQLException {
+    String tableName = "TABLEA";
+    String columnName = "COLUMNA";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(getColumnMetadata(connection, tableName, columnName)).isNotNull();
     }
   }
 

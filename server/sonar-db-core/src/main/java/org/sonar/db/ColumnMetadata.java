@@ -17,15 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
-
-public interface RoleMapper {
-
-  List<String> selectEntityUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
-
-  void deleteGroupRolesByGroupUuid(String groupUuid);
+public record ColumnMetadata(String name, boolean nullable, int sqlType, int limit) {
 
 }

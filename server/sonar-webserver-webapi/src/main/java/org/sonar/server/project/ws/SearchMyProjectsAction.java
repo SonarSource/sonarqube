@@ -190,7 +190,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   private ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
     String userUuid = requireNonNull(userSession.getUuid(), "Current user must be authenticated");
 
-    List<String> componentUuids = dbClient.roleDao().selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, userUuid);
+    List<String> componentUuids = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, userUuid);
     ComponentQuery dbQuery = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentUuids(ImmutableSet.copyOf(componentUuids.subList(0, Math.min(componentUuids.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))

@@ -188,14 +188,14 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deletePermissions(String rootUuid) {
+  void deletePermissions(String entityUuid) {
     profiler.start("deletePermissions (group_roles)");
-    purgeMapper.deleteGroupRolesByComponentUuid(rootUuid);
+    purgeMapper.deleteGroupRolesByEntityUuid(entityUuid);
     session.commit();
     profiler.stop();
 
     profiler.start("deletePermissions (user_roles)");
-    purgeMapper.deleteUserRolesByComponentUuid(rootUuid);
+    purgeMapper.deleteUserRolesByEntityUuid(entityUuid);
     session.commit();
     profiler.stop();
   }

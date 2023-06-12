@@ -176,8 +176,8 @@ public class PermissionIndexerDaoIT {
         .setGroupUuid(group.getUuid())
         .setGroupName(group.getName())
         .setRole(USER)
-        .setComponentUuid(project.projectUuid())
-        .setComponentName(project.getProjectDto().getName());
+        .setEntityUuid(project.projectUuid())
+        .setEntityName(project.getProjectDto().getName());
       dbClient.groupPermissionDao().insert(dbSession, dto, project.getProjectDto(), null);
     }
     dbSession.commit();

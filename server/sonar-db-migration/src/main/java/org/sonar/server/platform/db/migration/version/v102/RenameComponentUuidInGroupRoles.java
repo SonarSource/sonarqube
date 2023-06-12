@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.platform.db.migration.version.v102;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 
-public interface RoleMapper {
+public class RenameComponentUuidInGroupRoles extends RenameVarcharColumnChange {
 
-  List<String> selectEntityUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
+  private static final String TABLE_NAME = "group_roles";
+  private static final String OLD_COLUMN_NAME = "component_uuid";
+  private static final String NEW_COLUMN_NAME = "entity_uuid";
 
-  void deleteGroupRolesByGroupUuid(String groupUuid);
+  public RenameComponentUuidInGroupRoles(Database db) {
+    super(db, TABLE_NAME, OLD_COLUMN_NAME, NEW_COLUMN_NAME);
+  }
 
 }

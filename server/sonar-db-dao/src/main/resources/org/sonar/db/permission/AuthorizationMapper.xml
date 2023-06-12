@@ -8,7 +8,7 @@
     from group_roles gr
     inner join groups_users gu on gr.group_uuid=gu.group_uuid
     where
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gu.user_uuid=#{userUuid, jdbcType=VARCHAR}
 
     union
@@ -17,7 +17,7 @@
     from group_roles gr
     where
     gr.group_uuid is null and
-    gr.component_uuid is null
+    gr.entity_uuid is null
 
     union
 
@@ -25,14 +25,14 @@
     from user_roles ur
     where
     ur.user_uuid=#{userUuid, jdbcType=VARCHAR}
-    and ur.component_uuid is null
+    and ur.entity_uuid is null
   </select>
 
     <select id="selectGlobalPermissionsOfAnonymous" parameterType="map" resultType="string">
     select gr.role
     from group_roles gr
     where
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gr.group_uuid is null
   </select>
 
@@ -44,7 +44,7 @@
       inner join group_roles gr on gr.group_uuid = gu.group_uuid
       where
       gr.role = #{permission, jdbcType=VARCHAR} and
-      gr.component_uuid is null and
+      gr.entity_uuid is null and
       gr.group_uuid is not null and
       gr.group_uuid != #{excludedGroupUuid, jdbcType=VARCHAR}
 
@@ -53,7 +53,7 @@
       select ur.user_uuid
       from user_roles ur
       where
-      ur.component_uuid is null and
+      ur.entity_uuid is null and
       ur.role = #{permission, jdbcType=VARCHAR}
     ) remaining
   </select>
@@ -66,7 +66,7 @@
     inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gr.group_uuid is not null and
     gu.user_uuid != #{excludedUserUuid, jdbcType=VARCHAR}
 
@@ -75,7 +75,7 @@
     select ur.user_uuid
     from user_roles ur
     where
-    ur.component_uuid is null and
+    ur.entity_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
     ur.user_uuid != #{excludedUserUuid, jdbcType=VARCHAR}
     ) remaining
@@ -87,7 +87,7 @@
     inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gr.group_uuid is not null
 
     union
@@ -95,7 +95,7 @@
     select ur.user_uuid
     from user_roles ur
     where
-    ur.component_uuid is null and
+    ur.entity_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR}
   </select>
 
@@ -107,7 +107,7 @@
     inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gr.group_uuid is not null and
     (gu.group_uuid != #{groupUuid, jdbcType=VARCHAR} or gu.user_uuid != #{userUuid, jdbcType=VARCHAR})
 
@@ -116,7 +116,7 @@
     select ur.user_uuid
     from user_roles ur
     where
-    ur.component_uuid is null and
+    ur.entity_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR}
     ) remaining
   </select>
@@ -129,7 +129,7 @@
     inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     gr.group_uuid is not null
 
     union
@@ -137,7 +137,7 @@
     select ur.user_uuid
     from user_roles ur
     where
-    ur.component_uuid is null and
+    ur.entity_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
     ur.user_uuid != #{userUuid, jdbcType=VARCHAR}
     ) remaining
@@ -145,7 +145,7 @@
 
   <select id="keepAuthorizedEntityUuidsForUser" parameterType="map" resultType="String">
     select
-      gr.component_uuid
+      gr.entity_uuid
     from
       group_roles gr
     where
@@ -163,7 +163,7 @@
         )
       )
       and <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.component_uuid=#{element, jdbcType=VARCHAR}
+            gr.entity_uuid=#{element, jdbcType=VARCHAR}
           </foreach>
 
     union
@@ -173,7 +173,7 @@
     from
       user_roles ur
     inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on
-      entity.uuid = ur.component_uuid
+      entity.uuid = ur.entity_uuid
     where
       ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_uuid=#{userUuid, jdbcType=INTEGER}
@@ -201,14 +201,14 @@
 
     <select id="keepAuthorizedEntityUuidsForAnonymous" parameterType="map" resultType="String">
     select
-      gr.component_uuid
+      gr.entity_uuid
     from
       group_roles gr
     where
       gr.role=#{role, jdbcType=VARCHAR}
       and gr.group_uuid is null
       and <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.component_uuid=#{element, jdbcType=VARCHAR}
+            gr.entity_uuid=#{element, jdbcType=VARCHAR}
           </foreach>
 
     union
@@ -224,7 +224,7 @@
     inner join group_roles gr on
       gr.group_uuid=gu.group_uuid
     where
-      gr.component_uuid=#{entityUuid, jdbcType=VARCHAR}
+      gr.entity_uuid=#{entityUuid, jdbcType=VARCHAR}
       and gr.role=#{role, jdbcType=VARCHAR}
       and gu.user_uuid in
         <foreach collection="userUuids" open="(" close=")" item="uuid" separator=",">
@@ -238,7 +238,7 @@
     from
       user_roles ur
     where
-      ur.component_uuid=#{entityUuid, jdbcType=VARCHAR}
+      ur.entity_uuid=#{entityUuid, jdbcType=VARCHAR}
       and ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_uuid IN
         <foreach collection="userUuids" open="(" close=")" item="uuid" separator=",">
@@ -271,7 +271,7 @@
   <select id="selectEntityPermissions" parameterType="map" resultType="String">
     select ur.role
     from user_roles ur
-    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.component_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
       ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
@@ -281,7 +281,7 @@
     select gr.role
     from group_roles gr
     inner join groups_users gu on gr.group_uuid = gu.group_uuid
-    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.component_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
       gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
@@ -301,7 +301,7 @@
     from
       group_roles gr
     inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on
-      entity.uuid = gr.component_uuid
+      entity.uuid = gr.entity_uuid
     where
       entity.uuid = #{entityUuid, jdbcType=VARCHAR}
       and gr.group_uuid is null
@@ -317,7 +317,7 @@
     inner join user_roles ur on
       ur.user_uuid = u.uuid
       and ur.role=#{permission, jdbcType=VARCHAR}
-      and ur.component_uuid is null
+      and ur.entity_uuid is null
     where
       u.email is not null
 
@@ -333,7 +333,7 @@
     inner join group_roles gr on
       gr.group_uuid = gu.group_uuid
       and gr.role = #{permission, jdbcType=VARCHAR}
-      and gr.component_uuid is null
+      and gr.entity_uuid is null
     where
       u.email is not null
 
@@ -348,7 +348,7 @@
         exists (
           select 1
           from user_roles ur
-          inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.component_uuid
+          inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid
           where
             entity.kee =  #{entityKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
@@ -356,7 +356,7 @@
         ) or exists (
           select 1
           from (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
-          inner join group_roles gr on gr.component_uuid = entity.uuid
+          inner join group_roles gr on gr.entity_uuid = entity.uuid
           inner join groups_users gu on gu.group_uuid = gr.group_uuid
           where
             entity.kee  =  #{entityKey, jdbcType=VARCHAR}

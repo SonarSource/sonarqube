@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface RoleMapper {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  List<String> selectEntityUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
+public class UserPermissionDtoTest {
 
-  void deleteGroupRolesByGroupUuid(String groupUuid);
+  @Test
+  public void toString_shouldReturnInformationAboutAllFieldsExceptUuid() {
+    UserPermissionDto userPermissionDto = new UserPermissionDto("someUuid", "somePermission", "someUserUuid", "someEntityUuid");
 
+    String toStringResult = userPermissionDto.toString();
+
+    assertThat(toStringResult).contains(List.of("somePermission", "someUserUuid", "someEntityUuid"));
+  }
 }

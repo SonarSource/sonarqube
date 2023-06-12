@@ -595,8 +595,8 @@ public class UpdateVisibilityActionIT {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(permission)
-      .setComponentUuid(projectDto.getUuid())
-      .setComponentName(projectDto.getName());
+      .setEntityUuid(projectDto.getUuid())
+      .setEntityName(projectDto.getName());
     dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, projectDto, null);
     dbTester.commit();
   }
@@ -607,8 +607,8 @@ public class UpdateVisibilityActionIT {
       .setGroupUuid(group.getUuid())
       .setGroupName(group.getName())
       .setRole(permission)
-      .setComponentUuid(projectDto.getUuid())
-      .setComponentName(projectDto.getName());
+      .setEntityUuid(projectDto.getUuid())
+      .setEntityName(projectDto.getName());
     dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, projectDto, null);
     dbTester.commit();
   }

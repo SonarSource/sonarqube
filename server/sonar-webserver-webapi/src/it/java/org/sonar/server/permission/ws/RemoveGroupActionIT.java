@@ -455,8 +455,8 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(perm)
-      .setComponentUuid(project.getUuid())
-      .setComponentName(project.getName());
+      .setEntityUuid(project.getUuid())
+      .setEntityName(project.getName());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
     db.commit();
   }

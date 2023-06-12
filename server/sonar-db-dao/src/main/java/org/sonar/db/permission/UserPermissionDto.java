@@ -26,17 +26,17 @@ public class UserPermissionDto {
   private String uuid;
   private String permission;
   private String userUuid;
-  private String componentUuid;
+  private String entityUuid;
 
   public UserPermissionDto() {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String uuid, String permission, String userUuid, @Nullable String componentUuid) {
+  public UserPermissionDto(String uuid, String permission, String userUuid, @Nullable String entityUuid) {
     this.uuid = uuid;
     this.permission = permission;
     this.userUuid = userUuid;
-    this.componentUuid = componentUuid;
+    this.entityUuid = entityUuid;
   }
 
   public String getUuid() {
@@ -52,11 +52,11 @@ public class UserPermissionDto {
   }
 
   /**
-   * @return {@code null} if it's a global permission, otherwise return the project uiid.
+   * @return {@code null} if it's a global permission, otherwise return the entity uiid.
    */
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getEntityUuid() {
+    return entityUuid;
   }
 
   @Override
@@ -64,7 +64,7 @@ public class UserPermissionDto {
     StringBuilder sb = new StringBuilder("UserPermissionDto{");
     sb.append("permission='").append(permission).append('\'');
     sb.append(", userUuid=").append(userUuid);
-    sb.append(", componentUuid=").append(componentUuid);
+    sb.append(", entityUuid=").append(entityUuid);
     sb.append('}');
     return sb.toString();
   }

@@ -58,22 +58,22 @@ public class RoleDaoIT {
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.USER, Uuids.createFast()));
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.USER, Uuids.createFast()));
   }
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.CODEVIEWER, Uuids.createFast()));
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.CODEVIEWER, Uuids.createFast()));
   }
 
   private void expectUnsupportedUserAndCodeViewerPermission(ThrowingCallable callback) {
     assertThatThrownBy(callback)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Permissions [user, codeviewer] are not supported by selectComponentUuidsByPermissionAndUserUuid");
+      .hasMessage("Permissions [user, codeviewer] are not supported by selectEntityUuidsByPermissionAndUserUuid");
   }
 
   @Test
-  public void selectComponentIdsByPermissionAndUserUuid() {
+  public void selectEntityIdsByPermissionAndUserUuid() {
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project1);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project2);
     // global permission - not returned
@@ -83,9 +83,9 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> projectUuids = underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
+    List<String> entityUuids = underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
 
-    assertThat(projectUuids).containsExactly(project1.uuid(), project2.uuid());
+    assertThat(entityUuids).containsExactly(project1.uuid(), project2.uuid());
   }
 
   @Test
@@ -104,7 +104,7 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> result = underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
+    List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
 
     assertThat(result).containsExactly(project1.uuid(), project2.uuid());
   }

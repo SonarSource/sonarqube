@@ -201,8 +201,8 @@ public class GroupPermissionDaoWithPersisterIT {
       .setGroupUuid(group != null ? group.getUuid() : null)
       .setGroupName(group != null ? group.getName() : null)
       .setRole(ADMIN)
-      .setComponentUuid(project != null ? project.getUuid() : null)
-      .setComponentName(project != null ? project.getName(): null);
+      .setEntityUuid(project != null ? project.getUuid() : null)
+      .setEntityName(project != null ? project.getName(): null);
   }
 
   private GroupPermissionDto getGroupPermission(GroupDto group) {

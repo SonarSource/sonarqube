@@ -173,11 +173,11 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     String groupName = ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid)).map(GroupDto::getName).orElse(null);
     dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
       .setUuid(uuidFactory.create())
-      .setComponentUuid(entity.getUuid())
+      .setEntityUuid(entity.getUuid())
       .setGroupUuid(groupUuid)
       .setGroupName(groupName)
       .setRole(permission)
-      .setComponentName(entity.getName()), entity, null);
+      .setEntityName(entity.getName()), entity, null);
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, EntityDto entity) {

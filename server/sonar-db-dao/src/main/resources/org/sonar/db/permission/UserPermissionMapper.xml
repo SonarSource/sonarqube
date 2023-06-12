@@ -6,7 +6,7 @@
   <select id="selectUserPermissionsByQueryAndUserUuids" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
       u.uuid as userUuid,
-      ur.component_uuid as componentUuid,
+      ur.entity_uuid as entityUuid,
       ur.role as permission
     <include refid="sqlQueryJoins"/>
     <where>
@@ -33,13 +33,13 @@
     left join user_roles ur on ur.user_uuid = u.uuid
     <choose>
       <when test="query.entityUuid == null">
-        and ur.component_uuid is null
+        and ur.entity_uuid is null
       </when>
       <otherwise>
-        and ur.component_uuid = #{query.entityUuid,jdbcType=VARCHAR}
+        and ur.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </otherwise>
     </choose>
-    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.component_uuid = entity.uuid
+    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
     <where>
       <include refid="sqlQueryFilters"/>
     </where>
@@ -58,7 +58,7 @@
   <sql id="sqlQueryJoins">
     from users u
     left join user_roles ur on ur.user_uuid = u.uuid
-    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.component_uuid = entity.uuid
+    left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
   </sql>
 
   <sql id="sqlQueryFilters">
@@ -73,7 +73,7 @@
     <if test="query.withAtLeastOnePermission()">
       and ur.role is not null
       <if test="query.entityUuid == null">
-        and ur.component_uuid is null
+        and ur.entity_uuid is null
       </if>
       <if test="query.entityUuid != null">
         and entity.uuid = #{query.entityUuid,jdbcType=VARCHAR}
@@ -89,7 +89,7 @@
     from user_roles ur
     where
     ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    ur.component_uuid is null
+    ur.entity_uuid is null
   </select>
 
   <select id="selectEntityPermissionsOfUser" parameterType="map" resultType="string">
@@ -97,17 +97,17 @@
     from user_roles ur
     where
     ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    ur.component_uuid = #{entityUuid,jdbcType=VARCHAR}
+    ur.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="countUsersByEntityPermission" resultType="org.sonar.db.permission.CountPerEntityPermission">
-    select ur.component_uuid as entityUuid, ur.role as permission, count(u.login) as count
+    select ur.entity_uuid as entityUuid, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_uuid = u.uuid
-    inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.component_uuid = entity.uuid
+    inner join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on ur.entity_uuid = entity.uuid
     where u.active = ${_true}
     and entity.uuid in <foreach collection="entityUuids" open="(" close=")" item="entityUuid" separator=",">#{entityUuid}</foreach>
-    group by ur.component_uuid, ur.role
+    group by ur.entity_uuid, ur.role
   </select>
 
   <select id="selectUserIdsWithPermissionOnEntityBut" resultType="org.sonar.db.user.UserIdDto">
@@ -116,7 +116,7 @@
     from
       user_roles ur1 inner join users u on ur1.user_uuid = u.uuid
     where
-      ur1.component_uuid = #{entityUuid,jdbcType=VARCHAR}
+      ur1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and role &lt;&gt; #{permission,jdbcType=VARCHAR}
       and not exists (
         select
@@ -124,7 +124,7 @@
         from
           user_roles ur2
         where
-          ur2.component_uuid = ur1.component_uuid
+          ur2.entity_uuid = ur1.entity_uuid
           and ur2.user_uuid = ur1.user_uuid
           and role = #{permission,jdbcType=VARCHAR}
       )
@@ -134,12 +134,12 @@
     insert into user_roles (
     uuid,
     user_uuid,
-    component_uuid,
+    entity_uuid,
     role
     ) values (
     #{dto.uuid,jdbcType=VARCHAR},
     #{dto.userUuid,jdbcType=VARCHAR},
-    #{dto.componentUuid,jdbcType=VARCHAR},
+    #{dto.entityUuid,jdbcType=VARCHAR},
     #{dto.permission,jdbcType=VARCHAR}
     )
   </insert>
@@ -149,7 +149,7 @@
     where
     role = #{permission,jdbcType=VARCHAR} and
     user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    component_uuid is null
+    entity_uuid is null
   </delete>
 
   <delete id="deleteEntityPermission" parameterType="map">
@@ -157,20 +157,20 @@
     where
     role = #{permission,jdbcType=VARCHAR} and
     user_uuid = #{userUuid,jdbcType=VARCHAR} and
-    component_uuid = #{entityUuid,jdbcType=VARCHAR}
+    entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteEntityPermissions" parameterType="map">
     delete from user_roles
     where
-    component_uuid = #{entityUuid,jdbcType=VARCHAR}
+    entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteEntityPermissionOfAnyUser" parameterType="map">
     delete from
       user_roles
     where
-      component_uuid = #{entityUuid,jdbcType=VARCHAR}
+      entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and role = #{permission,jdbcType=VARCHAR}
   </delete>
 
