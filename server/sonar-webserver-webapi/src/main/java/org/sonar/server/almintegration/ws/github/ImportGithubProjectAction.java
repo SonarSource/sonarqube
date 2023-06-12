@@ -20,6 +20,7 @@
 package org.sonar.server.almintegration.ws.github;
 
 import java.util.Optional;
+import javax.inject.Inject;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClient.Repository;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
@@ -40,6 +41,8 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects;
@@ -49,7 +52,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
@@ -64,8 +72,15 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private final ImportHelper importHelper;
   private final ProjectKeyGenerator projectKeyGenerator;
 
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
+
+  private final DefaultBranchNameResolver defaultBranchNameResolver;
+
+  @Inject
   public ImportGithubProjectAction(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
-    GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
+    GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper,
+    ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
+    DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
@@ -73,6 +88,8 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
     this.projectKeyGenerator = projectKeyGenerator;
+    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
+    this.defaultBranchNameResolver = defaultBranchNameResolver;
   }
 
   @Override
@@ -100,6 +117,14 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setRequired(true)
       .setMaximumLength(256)
       .setDescription("GitHub repository key");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_TYPE)
+      .setDescription(NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_VALUE)
+      .setDescription(NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
   }
 
   @Override
@@ -111,13 +136,13 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private Projects.CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
-    String userUuid = importHelper.getUserUuid();
+
+
+    String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
+    String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      AccessToken accessToken = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
-        .map(AlmPatDto::getPersonalAccessToken)
-        .map(UserAccessToken::new)
-        .orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
+      AccessToken accessToken = getAccessToken(dbSession, almSettingDto);
 
       String githubOrganization = request.mandatoryParam(PARAM_ORGANIZATION);
       String repositoryKey = request.mandatoryParam(PARAM_REPOSITORY_KEY);
@@ -130,10 +155,27 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
       populatePRSetting(dbSession, repository, projectDto, almSettingDto);
+
+      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
+
+      if (newCodeDefinitionType != null) {
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+          Optional.ofNullable(repository.getDefaultBranch()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
+          newCodeDefinitionType, newCodeDefinitionValue);
+      }
+
       componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
       return toCreateResponse(projectDto);
     }
+  }
+
+  private AccessToken getAccessToken(DbSession dbSession, AlmSettingDto almSettingDto) {
+    String userUuid = importHelper.getUserUuid();
+    return dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
+      .map(AlmPatDto::getPersonalAccessToken)
+      .map(UserAccessToken::new)
+      .orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
   }
 
   private ComponentCreationData createProject(DbSession dbSession, Repository repo, String mainBranchName) {

@@ -28,10 +28,13 @@ import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -42,6 +45,7 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -58,10 +62,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_ORGANIZATION;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_REPOSITORY_KEY;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportGithubProjectActionIT {
 
@@ -85,8 +93,11 @@ public class ImportGithubProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
-    projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator));
+    projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
+    defaultBranchNameResolver));
 
   @Before
   public void before() {
@@ -99,7 +110,8 @@ public class ImportGithubProjectActionIT {
     AlmSettingDto githubAlmSetting = setupAlm();
     db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false, "octocat/" + PROJECT_KEY_NAME,
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
       "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
     when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
@@ -117,9 +129,143 @@ public class ImportGithubProjectActionIT {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
-    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()).stream().filter(BranchDto::isMain).findAny();
+    Optional<BranchDto> mainBranch =
+      db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()).stream().filter(BranchDto::isMain).findAny();
     assertThat(mainBranch).isPresent();
     assertThat(mainBranch.get().getKey()).isEqualTo("default-branch");
+
+  }
+
+  @Test
+  public void importProject_withNCD_developer_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void importProject_withNCD_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
+  }
+
+  @Test
+  public void importProject_reference_branch_ncd_no_default_branch() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("default-branch");
+
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, null);
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "reference_branch")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "default-branch");
+  }
+
+  @Test
+  public void importProject_reference_branch_ncd() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "mainBranch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "reference_branch")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "mainBranch");
   }
 
   @Test
@@ -199,7 +345,9 @@ public class ImportGithubProjectActionIT {
       .containsExactlyInAnyOrder(
         tuple(PARAM_ALM_SETTING, true),
         tuple(PARAM_ORGANIZATION, true),
-        tuple(PARAM_REPOSITORY_KEY, true));
+        tuple(PARAM_REPOSITORY_KEY, true),
+        tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
+        tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
   private AlmSettingDto setupAlm() {
