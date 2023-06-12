@@ -20,6 +20,7 @@
 package org.sonar.server.almintegration.ws.azure;
 
 import java.util.Optional;
+import javax.inject.Inject;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.api.server.ws.Request;
@@ -36,6 +37,8 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
@@ -45,7 +48,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
@@ -59,10 +67,14 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
   private final ProjectKeyGenerator projectKeyGenerator;
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
+  private final DefaultBranchNameResolver defaultBranchNameResolver;
 
+  @Inject
   public ImportAzureProjectAction(DbClient dbClient, UserSession userSession, AzureDevOpsHttpClient azureDevOpsHttpClient,
     ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater,
-    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
+    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
+    DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
@@ -70,14 +82,16 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
     this.projectKeyGenerator = projectKeyGenerator;
+    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
+    this.defaultBranchNameResolver = defaultBranchNameResolver;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_azure_project")
       .setDescription("Create a SonarQube project with the information from the provided Azure DevOps project.<br/>" +
-                      "Autoconfigure pull request decoration mechanism.<br/>" +
-                      "Requires the 'Create Projects' permission")
+        "Autoconfigure pull request decoration mechanism.<br/>" +
+        "Requires the 'Create Projects' permission")
       .setPost(true)
       .setInternal(true)
       .setSince("8.6")
@@ -97,6 +111,14 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setRequired(true)
       .setMaximumLength(200)
       .setDescription("Azure repository name");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_TYPE)
+      .setDescription(NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_VALUE)
+      .setDescription(NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
   }
 
   @Override
@@ -108,12 +130,13 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
-    String userUuid = importHelper.getUserUuid();
+
+    String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
+    String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
-      String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken)
-        .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
+      String pat = getPat(dbSession, almSettingDto);
 
       String projectName = request.mandatoryParam(PARAM_PROJECT_NAME);
       String repositoryName = request.mandatoryParam(PARAM_REPOSITORY_NAME);
@@ -124,10 +147,26 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       ComponentCreationData componentCreationData = createProject(dbSession, repo);
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
       populatePRSetting(dbSession, repo, projectDto, almSettingDto);
+
+      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
+
+      if (newCodeDefinitionType != null) {
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+          Optional.ofNullable(repo.getDefaultBranchName()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
+          newCodeDefinitionType, newCodeDefinitionValue);
+      }
+
       componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
       return toCreateResponse(projectDto);
     }
+  }
+
+  private String getPat(DbSession dbSession, AlmSettingDto almSettingDto) {
+    String userUuid = importHelper.getUserUuid();
+    Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
+    return almPatDto.map(AlmPatDto::getPersonalAccessToken)
+      .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
   }
 
   private ComponentCreationData createProject(DbSession dbSession, GsonAzureRepo repo) {

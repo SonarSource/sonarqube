@@ -29,12 +29,15 @@ import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -47,6 +50,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -65,8 +69,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportAzureProjectActionIT {
 
@@ -91,8 +99,12 @@ public class ImportAzureProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
+
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final ImportAzureProjectAction importAzureProjectAction = new ImportAzureProjectAction(db.getDbClient(), userSession,
-    azureDevOpsHttpClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator);
+    azureDevOpsHttpClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
+    defaultBranchNameResolver);
   private final WsActionTester ws = new WsActionTester(importAzureProjectAction);
 
   @Before
@@ -130,7 +142,8 @@ public class ImportAzureProjectActionIT {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
 
-    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get());
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(),
+      projectDto.get());
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-name");
     assertThat(projectAlmSettingDto.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
     assertThat(projectAlmSettingDto.get().getAlmSlug()).isEqualTo("project-name");
@@ -148,7 +161,121 @@ public class ImportAzureProjectActionIT {
   }
 
   @Test
-  public void import_project_from_empty_repo() {
+  public void import_project_with_NCD_developer_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void import_project_with_NCD_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
+  }
+
+  @Test
+  public void import_project_throw_IAE_when_newCodeDefinitionValue_provided_and_no_newCodeDefinitionType() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void import_project_reference_branch_ncd_no_default_branch_name() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
@@ -166,19 +293,81 @@ public class ImportAzureProjectActionIT {
       .setParam("almSetting", almSetting.getKey())
       .setParam("projectName", "project-name")
       .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    Optional<BranchDto> mainBranch = db.getDbClient()
-      .branchDao()
-      .selectByProject(db.getSession(), projectDto.get())
-      .stream()
-      .filter(BranchDto::isMain)
-      .findFirst();
 
-    assertThat(mainBranch).isPresent();
-    assertThat(mainBranch.get().getKey()).hasToString(DEFAULT_MAIN_BRANCH_NAME);
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, DEFAULT_MAIN_BRANCH_NAME);
+  }
+
+  @Test
+  public void import_project_reference_branch_ncd() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "repo-default-branch");
+  }
+
+  @Test
+  public void import_project_from_empty_repo() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getEmptyGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30");
+
+    assertThatThrownBy(() -> request.executeProtobuf(Projects.CreateWsResponse.class))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("New code definition type is required when new code definition value is provided");
   }
 
   @Test
@@ -260,7 +449,8 @@ public class ImportAzureProjectActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", GENERATED_PROJECT_KEY, GENERATED_PROJECT_KEY);
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", GENERATED_PROJECT_KEY,
+        GENERATED_PROJECT_KEY);
   }
 
   @Test
@@ -274,7 +464,9 @@ public class ImportAzureProjectActionIT {
       .containsExactlyInAnyOrder(
         tuple("almSetting", true),
         tuple("projectName", true),
-        tuple("repositoryName", true));
+        tuple("repositoryName", true),
+        tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
+        tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
   private GsonAzureRepo getGsonAzureRepo() {
