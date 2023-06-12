@@ -51,7 +51,7 @@ git fetch --unshallow || true
 
 BUILD_START_DATETIME=$(date --utc +%FT%TZ)
 echo "$BUILD_START_DATETIME" > /tmp/build_start_time
-./gradlew build  --console plain
+./gradlew build --warn --console plain
 
 # exclude external pull requests
 if [[ -n "${NEXT_TOKEN-}" ]]; then
