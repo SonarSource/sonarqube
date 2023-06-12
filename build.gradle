@@ -229,7 +229,7 @@ subprojects {
       dependency 'com.sonarsource.security:sonar-security-plugin:10.1.0.21056'
       dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:10.1.0.21056'
       dependency 'com.sonarsource.security:sonar-security-js-frontend-plugin:10.1.0.21056'
-      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.12.0.4259'
+      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.13.0.4374'
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.8.0.5759'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.8.0.5601'
       dependency 'org.sonarsource.config:sonar-config-plugin:1.2.0.267'
@@ -242,10 +242,10 @@ subprojects {
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:10.1.0.21143'
       dependency 'org.sonarsource.php:sonar-php-plugin:3.28.0.9490'
       dependency 'org.sonarsource.python:sonar-python-plugin:4.1.0.11333'
-      dependency 'org.sonarsource.slang:sonar-go-plugin:1.12.0.4259'
+      dependency 'org.sonarsource.slang:sonar-go-plugin:1.13.0.4374'
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.13.0.2116'
-      dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.12.0.4259'
-      dependency 'org.sonarsource.slang:sonar-scala-plugin:1.12.0.4259'
+      dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.13.0.4374'
+      dependency 'org.sonarsource.slang:sonar-scala-plugin:1.13.0.4374'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.8.1.4006'
