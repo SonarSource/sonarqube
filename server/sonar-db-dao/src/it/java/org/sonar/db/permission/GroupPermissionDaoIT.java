@@ -972,18 +972,18 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void selectGroupUuidsWithPermissionOnProject_shouldReturnOnlyGroupsWithSpecifiedPermission() {
+  public void selectGroupUuidsWithPermissionOnEntity_shouldReturnOnlyGroupsWithSpecifiedPermission() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
     String anyPermission = "any_permission";
-    db.users().insertProjectPermissionOnGroup(group1, anyPermission, project);
-    db.users().insertProjectPermissionOnGroup(group2, "otherPermission", project);
-    db.users().insertProjectPermissionOnGroup(group3, anyPermission, otherProject);
+    db.users().insertEntityPermissionOnGroup(group1, anyPermission, project);
+    db.users().insertEntityPermissionOnGroup(group2, "otherPermission", project);
+    db.users().insertEntityPermissionOnGroup(group3, anyPermission, otherProject);
 
-    Set<String> results = underTest.selectGroupUuidsWithPermissionOnProject(dbSession, project.uuid(), anyPermission);
+    Set<String> results = underTest.selectGroupUuidsWithPermissionOnEntity(dbSession, project.getUuid(), anyPermission);
 
     assertThat(results).containsOnly(group1.getUuid());
   }

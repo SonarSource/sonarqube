@@ -219,13 +219,13 @@
       )
   </select>
 
-   <select id="selectGroupUuidsWithPermissionOnProject" resultType="string">
+   <select id="selectGroupUuidsWithPermissionOnEntity" resultType="string">
     select
       distinct gr1.group_uuid
     from
       group_roles gr1
     where
-      gr1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      gr1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and gr1.group_uuid is not null
       and gr1.role = #{role,jdbcType=VARCHAR}
   </select>

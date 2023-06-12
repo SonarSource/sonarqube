@@ -430,18 +430,18 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Test
   public void wsAction_whenRemovingOwnBrowsePermissionAndHavePermissionFromOtherGroup_shouldRemovePermission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     GroupDto projectAdminGroup = db.users().insertGroup();
     GroupDto otherProjectAdminGroup = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
-    db.users().insertProjectPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnGroup(otherProjectAdminGroup, UserRole.USER, project);
-    db.users().insertProjectPermissionOnGroup(otherProjectAdminGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
+    db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(otherProjectAdminGroup, UserRole.USER, project);
+    db.users().insertEntityPermissionOnGroup(otherProjectAdminGroup, UserRole.ADMIN, project);
     userSession.logIn(user).setGroups(projectAdminGroup, otherProjectAdminGroup).addProjectPermission(UserRole.USER, project).addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_GROUP_NAME, projectAdminGroup.getName())
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .execute();

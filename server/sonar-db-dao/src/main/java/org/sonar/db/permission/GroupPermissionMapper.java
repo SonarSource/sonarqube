@@ -58,7 +58,7 @@ public interface GroupPermissionMapper {
    */
   Set<String> selectGroupUuidsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
-  Set<String> selectGroupUuidsWithPermissionOnProject(@Param("projectUuid") String projectUuid, @Param("role") String permission);
+  Set<String> selectGroupUuidsWithPermissionOnEntity(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
   int deleteByEntityUuid(@Param("entityUuid") String entityUuid);
 

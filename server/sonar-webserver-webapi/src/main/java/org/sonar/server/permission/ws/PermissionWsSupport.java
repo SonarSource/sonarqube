@@ -130,14 +130,14 @@ public class PermissionWsSupport {
     return user.getLogin().equals(userSession.getLogin());
   }
 
-  public void checkRemovingOwnBrowsePermissionOnPrivateProject(DbSession dbSession, UserSession userSession, @Nullable ComponentDto project, String permission,
+  public void checkRemovingOwnBrowsePermissionOnPrivateProject(DbSession dbSession, UserSession userSession, @Nullable EntityDto entityDto, String permission,
     GroupUuidOrAnyone group) {
 
-    if (userSession.isSystemAdministrator() || group.isAnyone() || !isUpdatingBrowsePermissionOnPrivateProject(permission, project)) {
+    if (userSession.isSystemAdministrator() || group.isAnyone() || !isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto)) {
       return;
     }
 
-    Set<String> groupUuidsWithPermission = dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProject(dbSession, project.uuid(), UserRole.USER);
+    Set<String> groupUuidsWithPermission = dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntity(dbSession, entityDto.getUuid(), UserRole.USER);
     boolean isUserInAnotherGroupWithPermissionForThisProject = userSession.getGroups().stream()
       .map(GroupDto::getUuid)
       .anyMatch(groupDtoUuid -> groupUuidsWithPermission.contains(groupDtoUuid) && !groupDtoUuid.equals(group.getUuid()));
@@ -147,14 +147,14 @@ public class PermissionWsSupport {
     }
   }
 
-  public void checkRemovingOwnBrowsePermissionOnPrivateProject(UserSession userSession, @Nullable ComponentDto project, String permission, UserId user) {
-    if (isUpdatingBrowsePermissionOnPrivateProject(permission, project) && user.getLogin().equals(userSession.getLogin())) {
+  public void checkRemovingOwnBrowsePermissionOnPrivateProject(UserSession userSession, @Nullable EntityDto entityDto, String permission, UserId user) {
+    if (isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto) && user.getLogin().equals(userSession.getLogin())) {
       throw BadRequestException.create(ERROR_REMOVING_OWN_BROWSE_PERMISSION);
     }
   }
 
-  public static boolean isUpdatingBrowsePermissionOnPrivateProject(String permission, @Nullable ComponentDto project) {
-    return project != null && project.isPrivate() && permission.equals(UserRole.USER) ;
+  public static boolean isUpdatingBrowsePermissionOnPrivateProject(String permission, @Nullable EntityDto entityDto) {
+    return entityDto != null && entityDto.isPrivate() && permission.equals(UserRole.USER) ;
   }
 
 }

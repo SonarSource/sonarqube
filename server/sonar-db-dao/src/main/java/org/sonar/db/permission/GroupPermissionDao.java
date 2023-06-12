@@ -130,10 +130,10 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Lists group uuids that have the selected permission on the specified project.
+   * Lists group uuids that have the selected permission on the specified entity.
    */
-  public Set<String> selectGroupUuidsWithPermissionOnProject(DbSession session, String projectUuid, String permission) {
-    return mapper(session).selectGroupUuidsWithPermissionOnProject(projectUuid, permission);
+  public Set<String> selectGroupUuidsWithPermissionOnEntity(DbSession session, String entityUuid, String permission) {
+    return mapper(session).selectGroupUuidsWithPermissionOnEntity(entityUuid, permission);
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable EntityDto entityDto, @Nullable PermissionTemplateDto permissionTemplateDto) {
