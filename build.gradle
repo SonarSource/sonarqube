@@ -222,7 +222,7 @@ subprojects {
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.13.0.3651'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.9.0.5181'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.10.0.3598'
-      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.3.0.3147'
+      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.4.0.3394'
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:10.0.0.20234'
       dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:10.0.0.20234'
       dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:10.0.0.20234'
