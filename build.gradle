@@ -243,7 +243,7 @@ subprojects {
       dependency 'org.sonarsource.php:sonar-php-plugin:3.30.0.9766'
       dependency 'org.sonarsource.python:sonar-python-plugin:4.3.0.11660'
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.13.0.4374'
-      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.13.0.2116'
+      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.15.0.2579'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.13.0.4374'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.13.0.4374'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
