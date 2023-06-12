@@ -123,12 +123,15 @@ export default class DuplicationPopup extends PureComponent<Props> {
           <>
             <DuplicationHighlight>{duplicationHeader}</DuplicationHighlight>
             {duplications.map((duplication) => (
-              <div className="sw-my-2 sw-truncate" key={duplication.file.key}>
+              <div className="sw-my-2" key={duplication.file.key}>
                 <div className="sw-flex sw-flex-wrap sw-body-sm">
                   {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
                     <div className="sw-mr-4">
                       <QualifierIcon className="sw-mr-1" qualifier={ComponentQualifier.Project} />
-                      <Link to={getProjectUrl(duplication.file.project)}>
+                      <Link
+                        to={getProjectUrl(duplication.file.project)}
+                        title={duplication.file.projectName}
+                      >
                         {duplication.file.projectName}
                       </Link>
                     </div>
@@ -138,10 +141,15 @@ export default class DuplicationPopup extends PureComponent<Props> {
                     <div className="sw-mr-2">
                       {this.renderDuplication(
                         duplication.file,
-                        <>
+                        <span
+                          title={
+                            (collapsedDirFromPath(duplication.file.name) ?? '') +
+                            (fileFromPath(duplication.file.name) ?? '')
+                          }
+                        >
                           <span>{collapsedDirFromPath(duplication.file.name)}</span>
                           <span>{fileFromPath(duplication.file.name)}</span>
-                        </>
+                        </span>
                       )}
                     </div>
                   )}
