@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +35,14 @@ import org.sonar.alm.client.bitbucketserver.Project;
 import org.sonar.alm.client.bitbucketserver.Repository;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -51,6 +55,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -71,8 +76,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportBitbucketServerProjectActionIT {
   private static final String GENERATED_PROJECT_KEY = "TEST_PROJECT_KEY";
@@ -87,6 +96,8 @@ public class ImportBitbucketServerProjectActionIT {
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
@@ -95,7 +106,7 @@ public class ImportBitbucketServerProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final WsActionTester ws = new WsActionTester(new ImportBitbucketServerProjectAction(db.getDbClient(), userSession,
-    bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator));
+    bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver, defaultBranchNameResolver));
 
   private static BranchesList defaultBranchesList;
 
@@ -140,6 +151,159 @@ public class ImportBitbucketServerProjectActionIT {
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
     verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
+  }
+
+  @Test
+  public void import_project_with_NCD_developer_edition_sets_project_NCD() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void import_project_with_NCD_community_edition_sets_branch_NCD() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
+  }
+
+  @Test
+  public void import_project_reference_branch_ncd_no_default_branch() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("default-branch");
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(new BranchesList());
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "default-branch");
+  }
+
+  @Test
+  public void import_project_reference_branch_ncd() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "default");
   }
 
   @Test
@@ -321,7 +485,9 @@ public class ImportBitbucketServerProjectActionIT {
       .containsExactlyInAnyOrder(
         tuple("almSetting", true),
         tuple("repositorySlug", true),
-        tuple("projectKey", true));
+        tuple("projectKey", true),
+        tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
+        tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
   private Repository getGsonBBSRepo(Project project) {

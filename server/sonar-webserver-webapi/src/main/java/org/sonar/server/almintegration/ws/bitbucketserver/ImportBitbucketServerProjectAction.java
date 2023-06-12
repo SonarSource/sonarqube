@@ -21,6 +21,7 @@ package org.sonar.server.almintegration.ws.bitbucketserver;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Branch;
 import org.sonar.alm.client.bitbucketserver.BranchesList;
@@ -40,6 +41,8 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects;
@@ -49,7 +52,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
+import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsAction {
 
@@ -64,9 +72,15 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
   private final ImportHelper importHelper;
   private final ProjectKeyGenerator projectKeyGenerator;
 
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
+
+  private final DefaultBranchNameResolver defaultBranchNameResolver;
+
+  @Inject
   public ImportBitbucketServerProjectAction(DbClient dbClient, UserSession userSession, BitbucketServerRestClient bitbucketServerRestClient,
     ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater,
-    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
+    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
+    DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
@@ -74,6 +88,8 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
     this.projectKeyGenerator = projectKeyGenerator;
+    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
+    this.defaultBranchNameResolver = defaultBranchNameResolver;
   }
 
   @Override
@@ -101,6 +117,15 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setRequired(true)
       .setMaximumLength(200)
       .setDescription("BitbucketServer repository slug");
+
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_TYPE)
+      .setDescription(NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
+
+    action.createParam(PARAM_NEW_CODE_DEFINITION_VALUE)
+      .setDescription(NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION)
+      .setSince("10.1");
   }
 
   @Override
@@ -112,12 +137,12 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
   private Projects.CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
-    String userUuid = importHelper.getUserUuid();
+
+    String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
+    String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
-      String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken)
-        .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
+      String pat = getPat(dbSession, almSettingDto);
 
       String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
       String repoSlug = request.mandatoryParam(PARAM_REPO_SLUG);
@@ -132,10 +157,27 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
 
       populatePRSetting(dbSession, repo, projectDto, almSettingDto);
 
+      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
+
+      if (newCodeDefinitionType != null) {
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+          Optional.ofNullable(defaultBranchName).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
+          newCodeDefinitionType, newCodeDefinitionValue);
+      }
+
       componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
 
       return toCreateResponse(projectDto);
     }
+  }
+
+  private String getPat(DbSession dbSession, AlmSettingDto almSettingDto) {
+    String userUuid = importHelper.getUserUuid();
+
+    Optional<AlmPatDto> almPatDot = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
+    return almPatDot.map(AlmPatDto::getPersonalAccessToken)
+      .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing",
+        almSettingDto.getKey())));
   }
 
   private String getDefaultBranchName(String pat, String projectKey, String repoSlug, String url) {
