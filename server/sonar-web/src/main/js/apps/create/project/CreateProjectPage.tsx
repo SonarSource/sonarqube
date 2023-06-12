@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { noop } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -65,6 +64,7 @@ interface State {
   isProjectSetupDone: boolean;
   creatingAlmDefinition?: AlmKeys;
   selectedNcd: NewCodePeriodWithCompliance | null;
+  submitting: boolean;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -88,6 +88,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     loading: true,
     isProjectSetupDone: false,
     selectedNcd: null,
+    submitting: false,
   };
 
   componentDidMount() {
@@ -137,13 +138,15 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.props.router.push(getProjectUrl(projectKey));
   };
 
-  handleManualProjectCreate = () => {
+  handleProjectCreation = async () => {
     const { selectedNcd } = this.state;
     if (this.createProjectFnRef && selectedNcd) {
-      this.createProjectFnRef(selectedNcd.type, selectedNcd.value).then(
-        ({ project }) => this.handleProjectCreate(project.key),
-        noop
-      );
+      this.setState({ submitting: true });
+
+      const { project } = await this.createProjectFnRef(selectedNcd.type, selectedNcd.value);
+      this.props.router.push(getProjectUrl(project.key));
+
+      this.setState({ submitting: false });
     }
   };
 
@@ -328,10 +331,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
         <div className="sw-flex sw-flex-row sw-gap-2 sw-mt-4">
           <ButtonLink onClick={this.handleGoBack}>{translate('back')}</ButtonLink>
-          <SubmitButton
-            onClick={this.handleManualProjectCreate}
-            disabled={!selectedNcd?.isCompliant}
-          >
+          <SubmitButton onClick={this.handleProjectCreation} disabled={!selectedNcd?.isCompliant}>
             {translate('onboarding.create_project.new_code_definition.create_project')}
           </SubmitButton>
         </div>
