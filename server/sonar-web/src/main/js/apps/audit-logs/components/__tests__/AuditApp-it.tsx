@@ -30,8 +30,6 @@ import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';
 import { HousekeepingPolicy } from '../../utils';
 
-jest.mock('../../../../api/settings');
-
 const extensions = [
   { key: AdminPageExtension.GovernanceConsole, name: 'Portfolios' },
   { key: 'license/app', name: 'License Manager' },

@@ -28,7 +28,7 @@ import {
   isMainBranch,
   isPullRequest,
 } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchPurgeSetting from './BranchPurgeSetting';
@@ -42,7 +42,7 @@ export interface BranchLikeRowProps {
   onUpdatePurgeSetting: () => void;
 }
 
-export function BranchLikeRow(props: BranchLikeRowProps) {
+function BranchLikeRow(props: BranchLikeRowProps) {
   const { branchLike, component, displayPurgeSetting } = props;
   const branchLikeDisplayName = getBranchLikeDisplayName(branchLike);
 
@@ -71,7 +71,12 @@ export function BranchLikeRow(props: BranchLikeRowProps) {
         </td>
       )}
       <td className="nowrap">
-        <ActionsDropdown>
+        <ActionsDropdown
+          label={translateWithParameters(
+            'project_branch_pull_request.branch.actions_label',
+            getBranchLikeDisplayName(branchLike)
+          )}
+        >
           {isMainBranch(branchLike) ? (
             <ActionsDropdownItem className="js-rename" onClick={props.onRename}>
               {translate('project_branch_pull_request.branch.rename')}

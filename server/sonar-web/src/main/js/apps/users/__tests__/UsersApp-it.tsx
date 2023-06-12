@@ -36,7 +36,6 @@ import { ChangePasswordResults, CurrentUser } from '../../../types/users';
 import UsersApp from '../UsersApp';
 
 jest.mock('../../../api/user-tokens');
-jest.mock('../../../api/settings');
 
 const userHandler = new UsersServiceMock();
 const tokenHandler = new UserTokensMock();

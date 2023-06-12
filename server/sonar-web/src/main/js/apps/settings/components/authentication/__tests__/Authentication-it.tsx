@@ -34,7 +34,6 @@ import { GitHubProvisioningStatus } from '../../../../../types/provisioning';
 import { TaskStatuses } from '../../../../../types/tasks';
 import Authentication from '../Authentication';
 
-jest.mock('../../../../../api/settings');
 jest.mock('../../../../../api/system');
 
 let handler: AuthenticationServiceMock;

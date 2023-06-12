@@ -35,8 +35,6 @@ import { Feature } from '../../../../types/features';
 import { Component } from '../../../../types/types';
 import routes from '../../routes';
 
-jest.mock('../../../../api/settings');
-
 let settingsMock: SettingsServiceMock;
 
 beforeAll(() => {

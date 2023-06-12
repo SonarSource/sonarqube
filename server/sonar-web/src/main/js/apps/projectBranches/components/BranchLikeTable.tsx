@@ -35,7 +35,7 @@ export interface BranchLikeTableProps {
   title: string;
 }
 
-export function BranchLikeTable(props: BranchLikeTableProps) {
+function BranchLikeTable(props: BranchLikeTableProps) {
   const { branchLikes, component, displayPurgeSetting, title } = props;
 
   return (

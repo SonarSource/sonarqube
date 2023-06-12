@@ -41,7 +41,6 @@ import { withRouter } from '../../hoc/withRouter';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
-jest.mock('../../../api/settings');
 jest.mock('../../../api/user-tokens');
 
 jest.mock('../../../helpers/urls', () => ({

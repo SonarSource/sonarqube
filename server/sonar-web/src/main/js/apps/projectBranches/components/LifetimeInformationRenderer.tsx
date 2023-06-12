@@ -30,7 +30,7 @@ export interface LifetimeInformationRendererProps {
   loading: boolean;
 }
 
-export function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
+function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
   const { branchAndPullRequestLifeTimeInDays, canAdmin, loading } = props;
 
   return (

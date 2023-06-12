@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectBranchesApp from './components/ProjectBranchesApp';
+import ProjectBranchesApp from './ProjectBranchesApp';
 
 const routes = () => <Route path="branches" element={<ProjectBranchesApp />} />;
 

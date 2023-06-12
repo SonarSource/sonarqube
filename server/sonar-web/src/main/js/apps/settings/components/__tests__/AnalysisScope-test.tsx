@@ -20,15 +20,24 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { byRole, byText } from 'testing-library-selector';
-import { DEFAULT_DEFINITIONS_MOCK } from '../../../../api/mocks/SettingsServiceMock';
+import SettingsServiceMock, {
+  DEFAULT_DEFINITIONS_MOCK,
+} from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { AdditionalCategoryComponentProps, ADDITIONAL_CATEGORIES } from '../AdditionalCategories';
+import { AdditionalCategoryComponentProps } from '../AdditionalCategories';
+import { AnalysisScope } from '../AnalysisScope';
+
+const handler = new SettingsServiceMock();
 
 const ui = {
   introduction: byText('settings.analysis_scope.wildcards.introduction'),
   docLink: byRole('link', { name: /learn_more/ }),
 };
+
+beforeEach(() => {
+  handler.reset();
+});
 
 it('renders correctly', async () => {
   renderAnalysisScope();
@@ -45,5 +54,5 @@ function renderAnalysisScope(overrides: Partial<AdditionalCategoryComponentProps
     component: mockComponent(),
     ...overrides,
   };
-  return renderComponent(<>{ADDITIONAL_CATEGORIES[2].renderComponent(props)}</>);
+  return renderComponent(<AnalysisScope {...props} />);
 }

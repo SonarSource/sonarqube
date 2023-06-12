@@ -26,15 +26,13 @@ import { renderComponent } from '../../../../../../../helpers/testReactTestingUt
 import { BranchLike } from '../../../../../../../types/branch-like';
 import RegulatoryReport from '../RegulatoryReport';
 
-jest.mock('../../../../../../../api/branches');
-
 let handler: BranchesServiceMock;
 
 beforeAll(() => {
   handler = new BranchesServiceMock();
 });
 
-afterEach(() => handler.resetBranches());
+afterEach(() => handler.reset());
 
 describe('RegulatoryReport tests', () => {
   it('should open the regulatory report page', async () => {

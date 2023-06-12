@@ -26,7 +26,6 @@ import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import routes from '../../routes';
 
-jest.mock('../../../../api/settings');
 jest.mock('../../../../api/user-tokens');
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import withComponentContext from '../../../app/components/componentContext/withComponentContext';
-import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../types/branch-like';
-import { Component } from '../../../types/types';
-import BranchLikeTabs from './BranchLikeTabs';
-import LifetimeInformation from './LifetimeInformation';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
+import { translate } from '../../helpers/l10n';
+import { BranchLike } from '../../types/branch-like';
+import { Component } from '../../types/types';
+import BranchLikeTabs from './components/BranchLikeTabs';
+import LifetimeInformation from './components/LifetimeInformation';
 
 export interface ProjectBranchesAppProps {
   branchLikes: BranchLike[];
@@ -32,7 +32,7 @@ export interface ProjectBranchesAppProps {
   onBranchesChange: () => void;
 }
 
-export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
+function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   const { branchLikes, component } = props;
 
   return (

@@ -40,6 +40,8 @@ import {
   setSettingValue,
 } from '../settings';
 
+jest.mock('../settings');
+
 const isEmptyField = (o: any) => isObject(o) && Object.values(o).some(isEmptyString);
 const isEmptyString = (i: any) => isString(i) && i.trim() === '';
 

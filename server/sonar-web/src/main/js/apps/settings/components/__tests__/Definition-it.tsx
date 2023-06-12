@@ -33,8 +33,6 @@ import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../.
 import { Component } from '../../../../types/types';
 import Definition from '../Definition';
 
-jest.mock('../../../../api/settings');
-
 let settingsMock: SettingsServiceMock;
 
 beforeAll(() => {

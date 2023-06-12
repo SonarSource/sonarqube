@@ -30,8 +30,6 @@ import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AdditionalCategoryComponentProps } from '../AdditionalCategories';
 import Languages from '../Languages';
 
-jest.mock('../../../../api/settings');
-
 let settingsMock: SettingsServiceMock;
 
 beforeAll(() => {

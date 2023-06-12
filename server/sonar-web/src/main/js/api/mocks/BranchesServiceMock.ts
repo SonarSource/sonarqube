@@ -18,36 +18,111 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockBranch } from '../../helpers/mocks/branch-like';
-import { BranchLike } from '../../types/branch-like';
-import { getBranches } from '../branches';
+import { mockBranch, mockPullRequest } from '../../helpers/mocks/branch-like';
+import { Branch, PullRequest } from '../../types/branch-like';
+import {
+  deleteBranch,
+  deletePullRequest,
+  excludeBranchFromPurge,
+  getBranches,
+  getPullRequests,
+  renameBranch,
+} from '../branches';
+
+jest.mock('../branches');
+
+const defaultBranches: Branch[] = [
+  mockBranch({ isMain: true, name: 'master', status: { qualityGateStatus: 'OK' } }),
+  mockBranch({
+    excludedFromPurge: false,
+    name: 'delete-branch',
+    analysisDate: '2018-01-30',
+    status: { qualityGateStatus: 'ERROR' },
+  }),
+  mockBranch({ name: 'normal-branch', status: { qualityGateStatus: 'ERROR' } }),
+];
+
+const defaultPullRequests: PullRequest[] = [
+  mockPullRequest({
+    title: 'TEST-191 update master',
+    key: '01',
+    status: { qualityGateStatus: 'OK' },
+  }),
+  mockPullRequest({
+    title: 'TEST-192 update normal-branch',
+    key: '02',
+    analysisDate: '2018-01-30',
+    base: 'normal-branch',
+    target: 'normal-branch',
+    status: { qualityGateStatus: 'ERROR' },
+  }),
+  mockPullRequest({
+    title: 'TEST-193 dumb commit',
+    key: '03',
+    target: 'normal-branch',
+    status: { qualityGateStatus: 'ERROR' },
+  }),
+];
 
 export default class BranchesServiceMock {
-  branchLikes: BranchLike[];
-  defaultBranchLikes: BranchLike[] = [
-    mockBranch({ isMain: true, name: 'master' }),
-    mockBranch({ excludedFromPurge: false, name: 'delete-branch' }),
-    mockBranch({ name: 'normal-branch' }),
-  ];
+  branches: Branch[];
+  pullRequests: PullRequest[];
 
   constructor() {
-    this.branchLikes = cloneDeep(this.defaultBranchLikes);
-    (getBranches as jest.Mock).mockImplementation(this.getBranchesHandler);
+    this.branches = cloneDeep(defaultBranches);
+    this.pullRequests = cloneDeep(defaultPullRequests);
+    jest.mocked(getBranches).mockImplementation(this.getBranchesHandler);
+    jest.mocked(getPullRequests).mockImplementation(this.getPullRequestsHandler);
+    jest.mocked(deleteBranch).mockImplementation(this.deleteBranchHandler);
+    jest.mocked(deletePullRequest).mockImplementation(this.deletePullRequestHandler);
+    jest.mocked(renameBranch).mockImplementation(this.renameBranchHandler);
+    jest.mocked(excludeBranchFromPurge).mockImplementation(this.excludeBranchFromPurgeHandler);
   }
 
   getBranchesHandler = () => {
-    return Promise.resolve(this.branchLikes);
+    return this.reply(this.branches);
+  };
+
+  getPullRequestsHandler = () => {
+    return this.reply(this.pullRequests);
+  };
+
+  deleteBranchHandler: typeof deleteBranch = ({ branch }) => {
+    this.branches = this.branches.filter((b) => b.name !== branch);
+    return this.reply({});
+  };
+
+  deletePullRequestHandler: typeof deletePullRequest = ({ pullRequest }) => {
+    this.pullRequests = this.pullRequests.filter((b) => b.key !== pullRequest);
+    return this.reply({});
+  };
+
+  renameBranchHandler: typeof renameBranch = (_, name) => {
+    this.branches = this.branches.map((b) => (b.isMain ? { ...b, name } : b));
+    return this.reply({});
+  };
+
+  excludeBranchFromPurgeHandler: typeof excludeBranchFromPurge = (_, name, value) => {
+    this.branches = this.branches.map((b) =>
+      b.name === name ? { ...b, excludedFromPurge: value } : b
+    );
+    return this.reply({});
   };
 
   emptyBranches = () => {
-    this.branchLikes = [];
+    this.branches = [];
   };
 
-  addBranch = (branch: BranchLike) => {
-    this.branchLikes.push(branch);
+  addBranch = (branch: Branch) => {
+    this.branches.push(branch);
   };
 
-  resetBranches = () => {
-    this.branchLikes = cloneDeep(this.defaultBranchLikes);
+  reset = () => {
+    this.branches = cloneDeep(defaultBranches);
+    this.pullRequests = cloneDeep(defaultPullRequests);
   };
+
+  reply<T>(response: T): Promise<T> {
+    return Promise.resolve(cloneDeep(response));
+  }
 }

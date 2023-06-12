@@ -24,8 +24,6 @@ import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import EncryptionApp from '../EncryptionApp';
 
-jest.mock('../../../../api/settings');
-
 let settingsMock: SettingsServiceMock;
 
 beforeAll(() => {
