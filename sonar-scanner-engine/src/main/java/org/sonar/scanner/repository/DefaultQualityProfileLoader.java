@@ -58,7 +58,6 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   @Override
   public List<QualityProfile> load(String projectKey) {
     StringBuilder url = new StringBuilder(WS_URL + "?project=").append(encodeForUrl(projectKey));
-    properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     return handleErrors(url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey), true);
   }
 
@@ -82,6 +81,7 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   private List<QualityProfile> doLoad(StringBuilder url) throws IOException {
+    properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     Map<String, QualityProfile> result = call(url.toString());
 
     if (result.isEmpty()) {
