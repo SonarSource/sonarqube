@@ -22,8 +22,8 @@ import { TaskStatuses } from './tasks';
 export interface DumpStatus {
   canBeExported: boolean;
   canBeImported: boolean;
-  dumpToImport: string;
-  exportedDump: string;
+  dumpToImport?: string;
+  exportedDump?: string;
 }
 
 export interface DumpTask {
