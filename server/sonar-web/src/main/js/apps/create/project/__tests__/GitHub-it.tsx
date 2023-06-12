@@ -140,6 +140,17 @@ it('should show import project feature when the authentication is successfull', 
   expect(importButton).toBeEnabled();
   await user.click(importButton);
 
+  expect(
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
+  await user.click(
+    screen.getByRole('button', {
+      name: 'onboarding.create_project.new_code_definition.create_project',
+    })
+  );
+
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
 });
 

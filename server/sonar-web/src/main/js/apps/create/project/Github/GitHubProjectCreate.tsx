@@ -24,7 +24,7 @@ import {
   getGithubClientId,
   getGithubOrganizations,
   getGithubRepositories,
-  importGithubRepository,
+  setupGithubProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { getHostUrl } from '../../../../helpers/urls';
@@ -32,11 +32,12 @@ import { GithubOrganization, GithubRepository } from '../../../../types/alm-inte
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
+import { CreateProjectApiCallback } from '../types';
 
 interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKey: string) => void;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
@@ -44,7 +45,6 @@ interface Props {
 
 interface State {
   error: boolean;
-  importing: boolean;
   loadingOrganizations: boolean;
   loadingRepositories: boolean;
   organizations: GithubOrganization[];
@@ -66,7 +66,6 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     this.state = {
       error: false,
-      importing: false,
       loadingOrganizations: true,
       loadingRepositories: false,
       organizations: [],
@@ -269,25 +268,17 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   };
 
-  handleImportRepository = async () => {
+  handleImportRepository = () => {
     const { selectedOrganization, selectedRepository, selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance && selectedOrganization && selectedRepository) {
-      this.setState({ importing: true });
-
-      try {
-        const { project } = await importGithubRepository(
-          selectedAlmInstance.key,
-          selectedOrganization.key,
-          selectedRepository.key
-        );
-
-        this.props.onProjectCreate(project.key);
-      } finally {
-        if (this.mounted) {
-          this.setState({ importing: false });
-        }
-      }
+      this.props.onProjectSetupDone(
+        setupGithubProjectCreation({
+          almSetting: selectedAlmInstance.key,
+          organization: selectedOrganization.key,
+          repositoryKey: selectedRepository.key,
+        })
+      );
     }
   };
 
@@ -306,7 +297,6 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     const { canAdmin, loadingBindings, almInstances } = this.props;
     const {
       error,
-      importing,
       loadingOrganizations,
       loadingRepositories,
       organizations,
@@ -322,7 +312,6 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       <GitHubProjectCreateRenderer
         canAdmin={canAdmin}
         error={error}
-        importing={importing}
         loadingBindings={loadingBindings}
         loadingOrganizations={loadingOrganizations}
         loadingRepositories={loadingRepositories}

@@ -41,12 +41,10 @@ import { ComponentQualifier } from '../../../../types/component';
 import { Paging } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
-import InstanceNewCodeDefinitionComplianceWarning from '../components/InstanceNewCodeDefinitionComplianceWarning';
 
 export interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
   error: boolean;
-  importing: boolean;
   loadingBindings: boolean;
   loadingOrganizations: boolean;
   loadingRepositories: boolean;
@@ -72,7 +70,6 @@ function orgToOption({ key, name }: GithubOrganization) {
 
 function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
   const {
-    importing,
     loadingRepositories,
     repositories,
     repositoryPaging,
@@ -86,7 +83,7 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
     (!!selectedRepository && selectedRepository.key === repository.key);
 
   const isDisabled = (repository: GithubRepository) =>
-    !!repository.sqProjectKey || loadingRepositories || importing;
+    !!repository.sqProjectKey || loadingRepositories;
 
   return (
     selectedOrganization &&
@@ -175,7 +172,6 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
   const {
     canAdmin,
     error,
-    importing,
     loadingBindings,
     loadingOrganizations,
     organizations,
@@ -195,10 +191,9 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
         additionalActions={
           selectedOrganization && (
             <div className="display-flex-center pull-right">
-              <DeferredSpinner className="spacer-right" loading={importing} />
               <Button
                 className="button-large button-primary"
-                disabled={!selectedRepository || importing}
+                disabled={!selectedRepository}
                 onClick={props.onImportRepository}
               >
                 {translate('onboarding.create_project.import_selected_repo')}
@@ -256,49 +251,44 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       )}
 
       {!error && (
-        <>
-          <InstanceNewCodeDefinitionComplianceWarning />
-          <DeferredSpinner loading={loadingOrganizations}>
-            <div className="form-field">
-              <label htmlFor="github-choose-organization">
-                {translate('onboarding.create_project.github.choose_organization')}
-              </label>
-              {organizations.length > 0 ? (
-                <Select
-                  inputId="github-choose-organization"
-                  className="input-super-large"
-                  options={organizations.map(orgToOption)}
-                  onChange={({ value }: LabelValueSelectOption) =>
-                    props.onSelectOrganization(value)
-                  }
-                  value={selectedOrganization ? orgToOption(selectedOrganization) : null}
-                />
-              ) : (
-                !loadingOrganizations && (
-                  <Alert className="spacer-top" variant="error">
-                    {canAdmin ? (
-                      <FormattedMessage
-                        id="onboarding.create_project.github.no_orgs_admin"
-                        defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
-                        values={{
-                          link: (
-                            <Link to="/admin/settings?category=almintegration">
-                              {translate(
-                                'onboarding.create_project.github.warning.message_admin.link'
-                              )}
-                            </Link>
-                          ),
-                        }}
-                      />
-                    ) : (
-                      translate('onboarding.create_project.github.no_orgs')
-                    )}
-                  </Alert>
-                )
-              )}
-            </div>
-          </DeferredSpinner>
-        </>
+        <DeferredSpinner loading={loadingOrganizations}>
+          <div className="form-field">
+            <label htmlFor="github-choose-organization">
+              {translate('onboarding.create_project.github.choose_organization')}
+            </label>
+            {organizations.length > 0 ? (
+              <Select
+                inputId="github-choose-organization"
+                className="input-super-large"
+                options={organizations.map(orgToOption)}
+                onChange={({ value }: LabelValueSelectOption) => props.onSelectOrganization(value)}
+                value={selectedOrganization ? orgToOption(selectedOrganization) : null}
+              />
+            ) : (
+              !loadingOrganizations && (
+                <Alert className="spacer-top" variant="error">
+                  {canAdmin ? (
+                    <FormattedMessage
+                      id="onboarding.create_project.github.no_orgs_admin"
+                      defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
+                      values={{
+                        link: (
+                          <Link to="/admin/settings?category=almintegration">
+                            {translate(
+                              'onboarding.create_project.github.warning.message_admin.link'
+                            )}
+                          </Link>
+                        ),
+                      }}
+                    />
+                  ) : (
+                    translate('onboarding.create_project.github.no_orgs')
+                  )}
+                </Alert>
+              )
+            )}
+          </div>
+        </DeferredSpinner>
       )}
 
       {renderRepositoryList(props)}

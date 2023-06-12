@@ -190,16 +190,23 @@ export function importBitbucketCloudRepository(data: {
   return postJSON('/api/alm_integrations/import_bitbucketcloud_repo', data).catch(throwGlobalError);
 }
 
-export function importGithubRepository(
-  almSetting: string,
-  organization: string,
-  repositoryKey: string
-): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/alm_integrations/import_github_project', {
-    almSetting,
-    organization,
-    repositoryKey,
-  }).catch(throwGlobalError);
+export function setupGithubProjectCreation(data: {
+  almSetting: string;
+  organization: string;
+  repositoryKey: string;
+}) {
+  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
+    importGithubRepository({ ...data, newCodeDefinitionType, newCodeDefinitionValue });
+}
+
+export function importGithubRepository(data: {
+  almSetting: string;
+  organization: string;
+  repositoryKey: string;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+}): Promise<{ project: ProjectBase }> {
+  return postJSON('/api/alm_integrations/import_github_project', data).catch(throwGlobalError);
 }
 
 export function getGithubOrganizations(

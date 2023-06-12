@@ -61,6 +61,7 @@ import {
   setupBitbucketCloudProjectCreation,
   setupBitbucketServerProjectCreation,
   setupGitlabProjectCreation,
+  setupGithubProjectCreation,
 } from '../alm-integrations';
 
 export default class AlmIntegrationsServiceMock {
@@ -200,6 +201,7 @@ export default class AlmIntegrationsServiceMock {
     jest.mocked(searchAzureRepositories).mockImplementation(this.searchAzureRepositories);
     jest.mocked(setupAzureProjectCreation).mockReturnValue(() => this.importAzureRepository());
     jest.mocked(importAzureRepository).mockImplementation(this.importAzureRepository);
+    jest.mocked(setupGithubProjectCreation).mockReturnValue(() => this.importGithubRepository());
     jest.mocked(importGithubRepository).mockImplementation(this.importGithubRepository);
     jest
       .mocked(searchForBitbucketCloudRepositories)
