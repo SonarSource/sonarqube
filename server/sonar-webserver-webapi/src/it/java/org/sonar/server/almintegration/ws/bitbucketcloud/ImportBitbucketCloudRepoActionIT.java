@@ -29,12 +29,15 @@ import org.sonar.alm.client.bitbucket.bitbucketcloud.Project;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -47,6 +50,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -65,8 +69,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
 
 public class ImportBitbucketCloudRepoActionIT {
 
@@ -82,14 +90,17 @@ public class ImportBitbucketCloudRepoActionIT {
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
 
+  DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
-    mock(DefaultBranchNameResolver.class), true);
+    defaultBranchNameResolver, true);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final WsActionTester ws = new WsActionTester(new ImportBitbucketCloudRepoAction(db.getDbClient(), userSession,
-    bitbucketCloudRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator));
+    bitbucketCloudRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver, defaultBranchNameResolver));
 
   @Before
   public void before() {
@@ -128,6 +139,171 @@ public class ImportBitbucketCloudRepoActionIT {
     assertThat(branchDto).isPresent();
     assertThat(branchDto.get().isMain()).isTrue();
     verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(almSetting.getAppId()), repo.getSlug());
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectAll(db.getSession()))
+      .isEmpty();
+  }
+
+  @Test
+  public void import_project_with_NCD_developer_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Repository repo = getGsonBBCRepo();
+    when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("repositorySlug", "repo-slug-1")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", null);
+  }
+
+  @Test
+  public void import_project_with_NCD_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Repository repo = getGsonBBCRepo();
+    when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("repositorySlug", "repo-slug-1")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    String projectUuid = projectDto.get().getUuid();
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
+      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
+  }
+
+  @Test
+  public void import_project_reference_branch_ncd_no_default_branch_name() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("default-branch");
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Repository repo = getGsonBBCRepoWithNoMainBranchName();
+    when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("repositorySlug", "repo-slug-1")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "default-branch");
+  }
+
+  @Test
+  public void import_project_reference_branch_NCD() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Repository repo = getGsonBBCRepo();
+    when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("repositorySlug", "repo-slug-1")
+      .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "REFERENCE_BRANCH")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+      .isPresent()
+      .get()
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
+      .containsExactly(REFERENCE_BRANCH, "develop");
+  }
+
+  @Test
+  public void import_project_throw_IAE_when_newCodeDefinitionValue_provided_and_no_newCodeDefinitionType() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Repository repo = getGsonBBCRepo();
+    when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("repositorySlug", "repo-slug-1")
+      .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30");
+
+    assertThatThrownBy(() -> request.executeProtobuf(Projects.CreateWsResponse.class))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("New code definition type is required when new code definition value is provided");
   }
 
   @Test
@@ -233,12 +409,20 @@ public class ImportBitbucketCloudRepoActionIT {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("almSetting", true),
-        tuple("repositorySlug", true));
+        tuple("repositorySlug", true),
+        tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
+        tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
   private Repository getGsonBBCRepo() {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
     MainBranch mainBranch = new MainBranch("branch", "develop");
+    return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
+  }
+
+  private Repository getGsonBBCRepoWithNoMainBranchName() {
+    Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
+    MainBranch mainBranch = new MainBranch("branch", null);
     return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
   }
 
