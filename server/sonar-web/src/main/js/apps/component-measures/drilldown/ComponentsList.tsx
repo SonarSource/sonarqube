@@ -80,7 +80,12 @@ export default function ComponentsList({ components, metric, metrics, ...props }
           <MeasureCell component={component} metric={metric} />
 
           {otherMetrics.map((metric) => (
-            <MeasureCell key={metric.key} component={component} metric={metric} />
+            <MeasureCell
+              key={metric.key}
+              component={component}
+              measure={component.measures.find((measure) => measure.metric.key === metric.key)}
+              metric={metric}
+            />
           ))}
         </TableRowInteractive>
       ))}
