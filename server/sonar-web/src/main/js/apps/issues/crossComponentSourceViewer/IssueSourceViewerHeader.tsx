@@ -39,7 +39,7 @@ import { ClipboardBase } from '../../../components/controls/clipboard';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
-import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../../../helpers/urls';
+import { getBranchLikeUrl, getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
@@ -93,10 +93,7 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
         {displayProjectName && (
           <>
             {linkToProject ? (
-              <HoverLink
-                to={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}
-                className="sw-mr-2"
-              >
+              <HoverLink to={getBranchLikeUrl(project, branchLike)} className="sw-mr-2">
                 <LightLabel>{projectName}</LightLabel>
               </HoverLink>
             ) : (

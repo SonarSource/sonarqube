@@ -51,7 +51,6 @@ import {
   getCodeUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
-  getPathUrlAsString,
 } from '../../helpers/urls';
 
 import { ComponentQualifier } from '../../types/component';
@@ -143,10 +142,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
       >
         <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-1 sw-mr-5 sw-my-1">
           <div className="sw-flex sw-gap-1 sw-items-center">
-            <Link
-              icon={<ProjectIcon />}
-              to={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}
-            >
+            <Link icon={<ProjectIcon />} to={getBranchLikeUrl(project, this.props.branchLike)}>
               {projectName}
             </Link>
           </div>

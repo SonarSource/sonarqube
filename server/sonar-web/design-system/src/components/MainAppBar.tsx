@@ -28,6 +28,7 @@ import {
   LAYOUT_VIEWPORT_MIN_WIDTH,
 } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
+import { BaseLink } from './Link';
 
 const MainAppBarDiv = styled.div`
   ${tw`sw-sticky sw-top-0`}
@@ -57,7 +58,7 @@ const MainAppBarNavLogoDiv = styled.div`
   }
 `;
 
-const MainAppBarNavLogoLink = styled.a`
+const MainAppBarNavLogoLink = styled(BaseLink)`
   border: none;
 `;
 
@@ -73,7 +74,7 @@ export function MainAppBar({
   return (
     <MainAppBarDiv>
       <MainAppBarNavLogoDiv>
-        <MainAppBarNavLogoLink href="/">
+        <MainAppBarNavLogoLink to="/">
           <Logo />
         </MainAppBarNavLogoLink>
       </MainAppBarNavLogoDiv>

@@ -21,6 +21,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import { screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LAYOUT_LOGO_MAX_HEIGHT, LAYOUT_LOGO_MAX_WIDTH } from '../../helpers/constants';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
@@ -50,5 +51,11 @@ function setupWithProps(
     Logo: () => <img alt="logo" src="http://example.com/logo.png" />,
   }
 ) {
-  return render(<MainAppBar {...props} />);
+  return render(
+    <MemoryRouter initialEntries={['/']}>
+      <Routes>
+        <Route element={<MainAppBar {...props} />} path="/" />
+      </Routes>
+    </MemoryRouter>
+  );
 }
