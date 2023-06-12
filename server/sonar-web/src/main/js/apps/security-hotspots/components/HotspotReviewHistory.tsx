@@ -111,7 +111,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                   </div>
                 )}
 
-                {editCommentKey && (
+                {editCommentKey === key && (
                   <HotspotCommentModal
                     value={markdown}
                     onCancel={() => setEditCommentKey('')}
@@ -122,7 +122,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                   />
                 )}
 
-                {deleteCommentKey && (
+                {deleteCommentKey === key && (
                   <Modal
                     headerTitle={translate('issue.comment.delete')}
                     onClose={() => setDeleteCommentKey('')}
