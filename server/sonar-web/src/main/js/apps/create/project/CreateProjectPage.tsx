@@ -30,6 +30,7 @@ import DocLink from '../../../components/common/DocLink';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import NewCodeDefinitionSelector from '../../../components/new-code-definition/NewCodeDefinitionSelector';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
@@ -132,10 +133,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   handleModeConfig = (alm: AlmKeys) => {
     this.setState({ creatingAlmDefinition: alm });
-  };
-
-  handleProjectCreate = (projectKey: string) => {
-    this.props.router.push(getProjectUrl(projectKey));
   };
 
   handleProjectCreation = async () => {
@@ -294,7 +291,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   renderNcdSelection() {
     const { appState } = this.props;
-    const { selectedNcd } = this.state;
+    const { selectedNcd, submitting } = this.state;
 
     return (
       <div id="project-ncd-selection">
@@ -331,8 +328,12 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
         <div className="sw-flex sw-flex-row sw-gap-2 sw-mt-4">
           <ButtonLink onClick={this.handleGoBack}>{translate('back')}</ButtonLink>
-          <SubmitButton onClick={this.handleProjectCreation} disabled={!selectedNcd?.isCompliant}>
+          <SubmitButton
+            onClick={this.handleProjectCreation}
+            disabled={!selectedNcd?.isCompliant || submitting}
+          >
             {translate('onboarding.create_project.new_code_definition.create_project')}
+            <DeferredSpinner className="spacer-left" loading={submitting} />
           </SubmitButton>
         </div>
       </div>
