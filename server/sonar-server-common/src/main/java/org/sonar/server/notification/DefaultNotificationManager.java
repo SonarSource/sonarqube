@@ -20,15 +20,10 @@
 package org.sonar.server.notification;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.notification.NotificationQueueDto;
-import org.sonar.db.property.Subscriber;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 
 import static java.util.Collections.emptySet;

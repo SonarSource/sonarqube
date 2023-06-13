@@ -21,7 +21,6 @@ package org.sonar.server.usertoken;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;

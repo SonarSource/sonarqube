@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;

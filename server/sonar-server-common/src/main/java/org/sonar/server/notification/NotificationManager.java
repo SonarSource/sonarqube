@@ -19,11 +19,9 @@
  */
 package org.sonar.server.notification;
 
-import com.google.common.collect.Multimap;
 import java.util.Objects;
 import java.util.Set;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.web.UserRole;
 
 import static java.util.Objects.requireNonNull;

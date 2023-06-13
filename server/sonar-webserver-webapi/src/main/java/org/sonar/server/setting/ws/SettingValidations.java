@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -49,7 +48,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 

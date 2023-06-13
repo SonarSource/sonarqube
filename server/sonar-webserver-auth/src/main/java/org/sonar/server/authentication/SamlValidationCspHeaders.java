@@ -22,7 +22,6 @@ package org.sonar.server.authentication;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.http.HttpResponse;
 
 public class SamlValidationCspHeaders {

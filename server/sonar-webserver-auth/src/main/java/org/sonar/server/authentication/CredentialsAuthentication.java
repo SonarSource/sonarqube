@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
