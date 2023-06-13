@@ -559,19 +559,22 @@ subprojects {
     }
   }
 
+
+  tasks.withType(Test) {
+
+    configurations {
+      utMonitoring
+    }
+
+    dependencies {
+      testImplementation project(":ut-monitoring")
+
+      utMonitoring 'org.aspectj:aspectjweaver:1.9.19'
+    }
+  }
+
   if (isNightlyBuild) {
     tasks.withType(Test) {
-
-      configurations {
-        utMonitoring
-      }
-
-      dependencies {
-        testImplementation project(":ut-monitoring")
-
-        utMonitoring 'org.aspectj:aspectjweaver:1.9.19'
-      }
-
       doFirst {
         ext {
           aspectJWeaver = configurations.utMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
