@@ -38,13 +38,7 @@ export default function ApplicationNonCaycProjectWarning({ projects, caycStatus 
   return (
     <Card className="sw-mt-4 sw-body-sm">
       {caycStatus === CaycStatus.NonCompliant ? (
-        <FlagMessage
-          ariaLabel={translateWithParameters(
-            'overview.quality_gate.application.non_cayc.projects_x',
-            projects.length
-          )}
-          variant="warning"
-        >
+        <FlagMessage variant="warning">
           {translateWithParameters(
             'overview.quality_gate.application.non_cayc.projects_x',
             projects.length

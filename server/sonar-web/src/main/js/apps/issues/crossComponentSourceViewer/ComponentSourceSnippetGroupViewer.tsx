@@ -281,11 +281,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     return (
       <>
         {issueIsClosed && (
-          <FlagMessage
-            className="sw-mb-2 sw-flex"
-            variant="success"
-            ariaLabel={translate(closedIssueMessageKey)}
-          >
+          <FlagMessage className="sw-mb-2 sw-flex" variant="success">
             <div className="sw-block">
               <FormattedMessage
                 id={closedIssueMessageKey}

@@ -112,10 +112,7 @@ export default class DuplicationPopup extends PureComponent<Props> {
     return (
       <div className="sw-w-abs-400">
         {inRemovedComponent && (
-          <FlagMessage
-            ariaLabel={translate('duplications.dups_found_on_deleted_resource')}
-            variant="warning"
-          >
+          <FlagMessage variant="warning">
             {translate('duplications.dups_found_on_deleted_resource')}
           </FlagMessage>
         )}

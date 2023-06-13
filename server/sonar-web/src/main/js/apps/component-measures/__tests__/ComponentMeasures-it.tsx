@@ -475,7 +475,7 @@ function getPageObject() {
     viewSelect: byLabelText('component_measures.view_as'),
     emptyText: byText('component_measures.empty'),
     detailsUnavailableText: byText('component_measures.details_are_not_available'),
-    noAccessWarning: byRole('alert'),
+    noAccessWarning: byText('component_measures.not_all_measures_are_shown'),
     showingOutOfTxt: (x: string, y: string) => byText(`x_of_y_shown.${x}.${y}`),
     showAllBtn: byRole('button', {
       name: 'component_measures.hidden_best_score_metrics_show_label',

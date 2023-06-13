@@ -34,10 +34,7 @@ export default function CleanAsYouCodeWarning({ component }: Props) {
 
   return (
     <>
-      <FlagMessage
-        ariaLabel={translate('overview.quality_gate.conditions.cayc.warning')}
-        variant="warning"
-      >
+      <FlagMessage variant="warning">
         {translate('overview.quality_gate.conditions.cayc.warning')}
       </FlagMessage>
       {component.qualityGate ? (

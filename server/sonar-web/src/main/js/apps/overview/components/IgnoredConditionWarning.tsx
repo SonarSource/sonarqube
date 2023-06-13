@@ -25,11 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default function IgnoredConditionWarning() {
   return (
-    <FlagMessage
-      ariaLabel={translate('overview.quality_gate.ignored_conditions')}
-      className="sw-mb-4"
-      variant="info"
-    >
+    <FlagMessage className="sw-mb-4" variant="info">
       <span>{translate('overview.quality_gate.ignored_conditions')}</span>
       <HelpTooltip
         className="sw-ml-2"

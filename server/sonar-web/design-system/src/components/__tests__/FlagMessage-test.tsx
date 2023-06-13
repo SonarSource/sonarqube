@@ -23,21 +23,21 @@ import { FCProps } from '../../types/misc';
 import { FlagMessage, Variant } from '../FlagMessage';
 
 it.each([
-  ['error', 'alert', '1px solid rgb(249,112,102)'],
-  ['warning', 'alert', '1px solid rgb(248,205,92)'],
-  ['success', 'status', '1px solid rgb(50,213,131)'],
-  ['info', 'status', '1px solid rgb(110,185,228)'],
-])('should render properly for "%s" variant', (variant: Variant, expectedRole, color) => {
+  ['error', '1px solid rgb(249,112,102)'],
+  ['warning', '1px solid rgb(248,205,92)'],
+  ['success', '1px solid rgb(50,213,131)'],
+  ['info', '1px solid rgb(110,185,228)'],
+])('should render properly for "%s" variant', (variant: Variant, color) => {
   renderFlagMessage({ variant });
 
-  const item = screen.getByRole(expectedRole);
+  const item = screen.getByRole('status');
   expect(item).toBeInTheDocument();
   expect(item).toHaveStyle({ border: color });
 });
 
 function renderFlagMessage(props: Partial<FCProps<typeof FlagMessage>> = {}) {
   return render(
-    <FlagMessage ariaLabel="label" variant="error" {...props}>
+    <FlagMessage role="status" variant="error" {...props}>
       This is an error!
     </FlagMessage>
   );

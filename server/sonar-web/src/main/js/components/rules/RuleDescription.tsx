@@ -128,14 +128,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             {translate('coding_rules.description_context.title')}
           </h2>
           {defaultContext && (
-            <FlagMessage
-              variant="info"
-              className="sw-mb-4"
-              ariaLabel={translateWithParameters(
-                'coding_rules.description_context.default_information',
-                defaultContext.displayName
-              )}
-            >
+            <FlagMessage variant="info" className="sw-mb-4">
               {translateWithParameters(
                 'coding_rules.description_context.default_information',
                 defaultContext.displayName

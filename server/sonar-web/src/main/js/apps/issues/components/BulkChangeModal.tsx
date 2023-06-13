@@ -437,11 +437,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <DeferredSpinner loading={loading}>
         <form id="bulk-change-form" onSubmit={this.handleSubmit}>
           {limitReached && (
-            <FlagMessage
-              ariaLabel={translate('alert.tooltip.warning')}
-              className="sw-mb-4"
-              variant="warning"
-            >
+            <FlagMessage className="sw-mb-4" variant="warning">
               <span>
                 <FormattedMessage
                   defaultMessage={translate('issue_bulk_change.max_issues_reached')}
@@ -461,9 +457,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
           {issues.length === 0 && (
-            <FlagMessage ariaLabel={translate('alert.tooltip.warning')} variant="warning">
-              {translate('issue_bulk_change.no_match')}
-            </FlagMessage>
+            <FlagMessage variant="warning">{translate('issue_bulk_change.no_match')}</FlagMessage>
           )}
         </form>
       </DeferredSpinner>

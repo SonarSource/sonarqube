@@ -90,11 +90,7 @@ export default function Sidebar(props: Props) {
       }}
     >
       {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-        <FlagMessage
-          ariaLabel={translate('component_measures.not_all_measures_are_shown')}
-          className="sw-mt-4 it__portfolio_warning"
-          variant="warning"
-        >
+        <FlagMessage className="sw-mt-4 it__portfolio_warning" variant="warning">
           {translate('component_measures.not_all_measures_are_shown')}
           <HelpTooltip
             className="spacer-left"

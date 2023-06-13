@@ -28,64 +28,51 @@ import { FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from '.
 export type Variant = 'error' | 'warning' | 'success' | 'info';
 
 interface Props {
-  ariaLabel: string;
   variant: Variant;
 }
 
-interface VariantInformation {
-  backGroundColor: ThemeColors;
-  borderColor: ThemeColors;
-  icon: JSX.Element;
-  role: string;
-}
-
-function getVariantInfo(variant: Variant): VariantInformation {
-  const variantList: Record<Variant, VariantInformation> = {
+function getVariantInfo(variant: Variant) {
+  const variantList = {
     error: {
       icon: <FlagErrorIcon />,
       borderColor: 'errorBorder',
       backGroundColor: 'errorBackground',
-      role: 'alert',
     },
     warning: {
       icon: <FlagWarningIcon />,
       borderColor: 'warningBorder',
       backGroundColor: 'warningBackground',
-      role: 'alert',
     },
     success: {
       icon: <FlagSuccessIcon />,
       borderColor: 'successBorder',
       backGroundColor: 'successBackground',
-      role: 'status',
     },
     info: {
       icon: <FlagInfoIcon />,
       borderColor: 'infoBorder',
       backGroundColor: 'infoBackground',
-      role: 'status',
     },
-  };
+  } as const;
 
   return variantList[variant];
 }
 
 export function FlagMessage(props: Props & React.HTMLAttributes<HTMLDivElement>) {
-  const { ariaLabel, className, variant, ...domProps } = props;
+  const { className, variant, ...domProps } = props;
   const variantInfo = getVariantInfo(variant);
 
   return (
     <StyledFlag
-      aria-label={ariaLabel}
+      backGroundColor={variantInfo.backGroundColor}
+      borderColor={variantInfo.borderColor}
       className={classNames('alert', className)}
-      role={variantInfo.role}
-      variantInfo={variantInfo}
       {...domProps}
     >
-      <StyledFlagInner>
-        <StyledFlagIcon variantInfo={variantInfo}>{variantInfo.icon}</StyledFlagIcon>
-        <StyledFlagContent>{props.children}</StyledFlagContent>
-      </StyledFlagInner>
+      <div className="flag-inner">
+        <div className="flag-icon">{variantInfo.icon}</div>
+        <div className="flag-content">{props.children}</div>
+      </div>
     </StyledFlag>
   );
 }
@@ -93,32 +80,33 @@ export function FlagMessage(props: Props & React.HTMLAttributes<HTMLDivElement>)
 FlagMessage.displayName = 'FlagMessage'; // so that tests don't see the obfuscated production name
 
 export const StyledFlag = styled.div<{
-  variantInfo: VariantInformation;
+  backGroundColor: ThemeColors;
+  borderColor: ThemeColors;
 }>`
   ${tw`sw-inline-flex`}
   ${tw`sw-min-h-10`}
   ${tw`sw-rounded-1`}
-  border: ${({ variantInfo }) => themeBorder('default', variantInfo.borderColor)};
+  border: ${({ borderColor }) => themeBorder('default', borderColor)};
   background-color: ${themeColor('flagMessageBackground')};
-`;
 
-const StyledFlagInner = styled.div`
-  ${tw`sw-flex sw-items-stretch`}
-  ${tw`sw-box-border`}
-`;
+  & > .flag-inner {
+    ${tw`sw-flex sw-items-stretch`}
+    ${tw`sw-box-border`}
+  }
 
-const StyledFlagIcon = styled.div<{ variantInfo: VariantInformation }>`
-  ${tw`sw-flex sw-justify-center sw-items-center`}
-  ${tw`sw-rounded-l-1`}
-  ${tw`sw-px-3`}
-  background-color: ${({ variantInfo }) => themeColor(variantInfo.backGroundColor)};
-`;
+  & .flag-icon {
+    ${tw`sw-flex sw-justify-center sw-items-center`}
+    ${tw`sw-rounded-l-1`}
+    ${tw`sw-px-3`}
+    background-color: ${({ backGroundColor }) => themeColor(backGroundColor)};
+  }
 
-const StyledFlagContent = styled.div`
-  ${tw`sw-flex sw-flex-auto sw-items-center`}
-  ${tw`sw-overflow-auto`}
-  ${tw`sw-text-left`}
-  ${tw`sw-mx-3 sw-my-2`}
-  ${tw`sw-body-sm`}
-  color: ${themeContrast('flagMessageBackground')};
+  & .flag-content {
+    ${tw`sw-flex sw-flex-auto sw-items-center`}
+    ${tw`sw-overflow-auto`}
+    ${tw`sw-text-left`}
+    ${tw`sw-mx-3 sw-my-2`}
+    ${tw`sw-body-sm`}
+    color: ${themeContrast('flagMessageBackground')};
+  }
 `;

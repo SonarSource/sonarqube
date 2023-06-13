@@ -1031,7 +1031,6 @@ export class App extends React.PureComponent<Props, State> {
 
     const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
       <FlagMessage
-        ariaLabel={translate('issues.not_all_issue_show')}
         className="it__portfolio_warning sw-flex"
         title={translate('issues.not_all_issue_show_why')}
         variant="warning"
@@ -1236,10 +1235,7 @@ export class App extends React.PureComponent<Props, State> {
               ) : (
                 <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
                   {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                    <FlagMessage
-                      ariaLabel={translate('issue_bulk_change.max_issues_reached')}
-                      variant="warning"
-                    >
+                    <FlagMessage variant="warning">
                       <span>
                         <FormattedMessage
                           defaultMessage={translate('issue_bulk_change.max_issues_reached')}
@@ -1251,14 +1247,7 @@ export class App extends React.PureComponent<Props, State> {
                   )}
 
                   {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-                    <FlagMessage
-                      ariaLabel={translateWithParameters(
-                        'issues.cannot_open_issue_max_initial_X_fetched',
-                        MAX_INITAL_FETCH
-                      )}
-                      className="sw-mb-4"
-                      variant="warning"
-                    >
+                    <FlagMessage className="sw-mb-4" variant="warning">
                       {translateWithParameters(
                         'issues.cannot_open_issue_max_initial_X_fetched',
                         MAX_INITAL_FETCH

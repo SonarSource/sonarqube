@@ -83,11 +83,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
   }
   /* eslint-enable no-lonely-if */
 
-  return (
-    <FlagMessage ariaLabel={title} variant="warning">
-      {title}
-    </FlagMessage>
-  );
+  return <FlagMessage variant="warning">{title}</FlagMessage>;
 }
 
 export default React.memo(NoCodeWarning);

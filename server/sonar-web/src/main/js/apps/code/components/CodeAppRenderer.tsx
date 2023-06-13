@@ -120,11 +120,7 @@ export default function CodeAppRenderer(props: Props) {
       <A11ySkipTarget anchor="code_main" />
 
       {!canBrowseAllChildProjects && isPortfolio && (
-        <FlagMessage
-          ariaLabel={translate('code_viewer.not_all_measures_are_shown')}
-          variant="warning"
-          className="it__portfolio_warning sw-mb-4"
-        >
+        <FlagMessage variant="warning" className="it__portfolio_warning sw-mb-4">
           {translate('code_viewer.not_all_measures_are_shown')}
           <HelpTooltip
             className="sw-ml-2"

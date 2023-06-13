@@ -335,11 +335,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         />
 
         {mightHaveMoreResults && this.state.showFullList && (
-          <FlagMessage
-            ariaLabel={translate('facet_might_have_more_results')}
-            className="sw-flex sw-my-4"
-            variant="warning"
-          >
+          <FlagMessage className="sw-flex sw-my-4" variant="warning">
             {translate('facet_might_have_more_results')}
           </FlagMessage>
         )}
@@ -382,11 +378,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         </FacetItemsList>
 
         {searchMaxResults && (
-          <FlagMessage
-            ariaLabel={translate('facet_might_have_more_results')}
-            className="sw-flex sw-my-4"
-            variant="warning"
-          >
+          <FlagMessage className="sw-flex sw-my-4" variant="warning">
             {translate('facet_might_have_more_results')}
           </FlagMessage>
         )}

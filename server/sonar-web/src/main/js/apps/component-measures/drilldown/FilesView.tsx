@@ -181,18 +181,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
           view={this.props.view}
         />
         {hidingBestMeasures && this.props.paging && (
-          <FlagMessage
-            ariaLabel={translateWithParameters(
-              'component_measures.hidden_best_score_metrics',
-              formatMeasure(
-                this.props.paging.total - filteredComponents.length,
-                MetricType.Integer
-              ),
-              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
-            )}
-            variant="info"
-            className="sw-mt-4"
-          >
+          <FlagMessage variant="info" className="sw-mt-4">
             {translateWithParameters(
               'component_measures.hidden_best_score_metrics',
               formatMeasure(
