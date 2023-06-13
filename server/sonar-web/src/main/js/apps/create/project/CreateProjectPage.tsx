@@ -48,6 +48,7 @@ import CreateProjectPageHeader from './components/CreateProjectPageHeader';
 import ManualProjectCreate from './manual/ManualProjectCreate';
 import './style.css';
 import { CreateProjectApiCallback, CreateProjectModes } from './types';
+import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
@@ -143,6 +144,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       const { project } = await this.createProjectFnRef(selectedNcd.type, selectedNcd.value);
       this.props.router.push(getProjectUrl(project.key));
 
+      addGlobalSuccessMessage(translate('onboarding.create_project.success'));
       this.setState({ submitting: false });
     }
   };
