@@ -29,24 +29,47 @@ interface Props {
 }
 
 export class ProjectAdminContainer extends React.PureComponent<Props> {
+  mounted = false;
+
   componentDidMount() {
-    this.checkPermissions();
+    // We need to check permissions *after* the parent ComponentContainer is updated.
+    // This is why we wrap checkPermission() in a setTimeout().
+    //
+    // We want to prevent an edge-case where if you navigate from an admin component page
+    // to another component page where you have "read" access but no admin access, and
+    // then hit the browser's Back button, you will get redirected to the login page.
+    //
+    // The reason is that this component will get mounted *before* the parent
+    // ComponentContainer is *updated*. The parent component still has the last component
+    // stored in state, the one where the user might not have admin access. It will detect
+    // the change in URL and trigger a refresh of its state, but this comes too late; the
+    // checkPermission() here will already have triggered (because mounts happen before updates)
+    // and redirected the user. Wrapping it in a setTimeout() allows the parent component
+    // to refresh, unmounting this component, and only triggering the redirect if it makes sense.
+    //
+    // See https://sonarsource.atlassian.net/browse/SONAR-19437
+    setTimeout(this.checkPermissions, 0);
+    this.mounted = true;
   }
 
   componentDidUpdate() {
     this.checkPermissions();
   }
 
-  checkPermissions() {
-    if (!this.isProjectAdmin()) {
-      handleRequiredAuthorization();
-    }
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
-  isProjectAdmin() {
+  checkPermissions = () => {
+    if (this.mounted && !this.isProjectAdmin()) {
+      handleRequiredAuthorization();
+    }
+  };
+
+  isProjectAdmin = () => {
     const { configuration } = this.props.component;
     return configuration != null && configuration.showSettings;
-  }
+  };
 
   render() {
     if (!this.isProjectAdmin()) {

@@ -32,8 +32,11 @@ it('should render correctly', () => {
 });
 
 it('should redirect for authorization if needed', () => {
+  jest.useFakeTimers();
   mountRender({ component: mockComponent({ configuration: { showSettings: false } }) });
+  jest.runAllTimers();
   expect(handleRequiredAuthorization).toHaveBeenCalled();
+  jest.useRealTimers();
 });
 
 function mountRender(props: Partial<ProjectAdminContainer['props']> = {}) {
