@@ -36,7 +36,8 @@ jest.mock('lodash', () => {
 });
 
 it('should display system announcement', async () => {
-  (getValues as jest.Mock)
+  jest
+    .mocked(getValues)
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',

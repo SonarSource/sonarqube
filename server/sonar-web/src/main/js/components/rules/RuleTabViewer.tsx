@@ -98,7 +98,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
     const query = new URLSearchParams(this.props.location.search);
     if (query.has('why')) {
       this.setState({
-        selectedTab: tabs.find((tab) => tab.key === TabKeys.WhyIsThisAnIssue) || tabs[0],
+        selectedTab: tabs.find((tab) => tab.key === TabKeys.WhyIsThisAnIssue) ?? tabs[0],
       });
     }
   }

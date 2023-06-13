@@ -243,7 +243,7 @@ export function getPossibleOperators(metric: Metric) {
 }
 
 function metricKeyExists(key: string, metrics: Dict<Metric>) {
-  return metrics && metrics[key] !== undefined;
+  return metrics[key] !== undefined;
 }
 
 function getNoDiffMetric(metric: Metric, metrics: Dict<Metric>) {

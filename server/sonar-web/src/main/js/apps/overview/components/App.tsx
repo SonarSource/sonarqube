@@ -69,7 +69,7 @@ export function App(props: AppProps) {
               branchLike={branchLike}
               branchLikes={branchLikes}
               component={component}
-              hasAnalyses={isPending || isInProgress}
+              hasAnalyses={isPending ?? isInProgress}
               projectBinding={projectBinding}
             />
           )}

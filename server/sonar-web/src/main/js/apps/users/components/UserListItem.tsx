@@ -80,7 +80,7 @@ export default function UserListItem(props: UserListItemProps) {
       </td>
       <td className="thin nowrap text-middle">
         <UserGroups
-          groups={user.groups || []}
+          groups={user.groups ?? []}
           manageProvider={manageProvider}
           onUpdateUsers={onUpdateUsers}
           user={user}

@@ -30,7 +30,7 @@ jest.mock('../../../../api/metrics', () => ({
 
 it('should call metric', async () => {
   const metrics = { coverage: mockMetric() };
-  (getAllMetrics as jest.Mock).mockResolvedValueOnce(Object.values(metrics));
+  jest.mocked(getAllMetrics).mockResolvedValueOnce(Object.values(metrics));
   const wrapper = shallowRender();
 
   expect(getAllMetrics).toHaveBeenCalled();

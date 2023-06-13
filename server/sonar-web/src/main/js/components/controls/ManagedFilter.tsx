@@ -38,7 +38,7 @@ export function ManagedFilter(props: ManagedFilterProps) {
   return (
     <div className="big-spacer-right">
       <ButtonToggle
-        value={managed === undefined ? 'all' : managed}
+        value={managed ?? 'all'}
         disabled={loading}
         options={[
           { label: translate('all'), value: 'all' },

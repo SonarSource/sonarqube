@@ -389,7 +389,7 @@ describe('security page', () => {
   });
 
   it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [],
     });
     renderAccountApp(
@@ -402,7 +402,7 @@ describe('security page', () => {
   });
 
   it('should preselect the user token type if the user has no scan rights', async () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [],
     });
     renderAccountApp(mockLoggedInUser(), securityPagePath);
@@ -412,7 +412,7 @@ describe('security page', () => {
   });
 
   it('should preselect the only project the user has access to if they select project token', async () => {
-    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+    jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [
         {
           key: 'project-key-1',
