@@ -26,15 +26,15 @@ import { translate } from '../../../helpers/l10n';
 export function QualityGateStatusTitle() {
   return (
     <div className="sw-flex sw-items-center sw-mb-4">
-      <h2 className="sw-flex sw-items-center">
-        <PageTitle text={translate('overview.quality_gate.status')} />
+      <div className="sw-flex sw-items-center">
+        <PageTitle as="h2" text={translate('overview.quality_gate.status')} />
         <HelpTooltip
           className="sw-ml-2"
           overlay={<div className="sw-my-4">{translate('overview.quality_gate.help')}</div>}
         >
           <HelperHintIcon aria-label="help-tooltip" />
         </HelpTooltip>
-      </h2>
+      </div>
     </div>
   );
 }

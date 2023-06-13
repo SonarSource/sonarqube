@@ -92,7 +92,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
 
   return (
     <div className="sw-mt-8">
-      <PageTitle text={translate('overview.activity')} />
+      <PageTitle as="h2" text={translate('overview.activity')} />
       <Card className="overview-panel sw-mt-4" data-test="overview__activity-panel">
         <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
         <GraphsHistory

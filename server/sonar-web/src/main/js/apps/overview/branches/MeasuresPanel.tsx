@@ -119,9 +119,9 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
       <div className="sw-float-right -sw-mt-6">
         <ComponentReportActions component={component} branch={branch} />
       </div>
-      <h2 className="sw-flex sw-mb-4">
-        <PageTitle text={translate('overview.measures')} />
-      </h2>
+      <div className="sw-flex sw-mb-4">
+        <PageTitle as="h2" text={translate('overview.measures')} />
+      </div>
 
       {loading ? (
         <div>
