@@ -108,7 +108,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
         loading: true,
         lastSearchParams: { ...prevState.lastSearchParams, ...searchParams },
       }),
-      () =>
+      () => {
         this.props
           .onSearch({
             filter: this.getFilter(),
@@ -117,7 +117,8 @@ export default class SelectList extends React.PureComponent<Props, State> {
             query: this.state.lastSearchParams.query,
           })
           .then(this.stopLoading)
-          .catch(this.stopLoading)
+          .catch(this.stopLoading);
+      }
     );
 
   changeFilter = (filter: SelectListFilter) => this.search({ filter, page: 1 });

@@ -89,7 +89,11 @@ export default class BranchStatusContextProvider extends React.PureComponent<{},
       <BranchStatusContext.Provider
         value={{
           branchStatusByComponent: this.state.branchStatusByComponent,
-          fetchBranchStatus: this.fetchBranchStatus,
+          fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => {
+            this.fetchBranchStatus(branchLike, projectKey).catch(() => {
+              /* noop */
+            });
+          },
           updateBranchStatus: this.updateBranchStatus,
         }}
       >

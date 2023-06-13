@@ -132,7 +132,11 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
   };
 
   handleRangeChange = ({ value }: { value: number }) => {
-    this.setState({ range: value }, () => this.fetchAnalyses());
+    this.setState({ range: value }, () => {
+      this.fetchAnalyses().catch(() => {
+        /* noop */
+      });
+    });
   };
 
   render() {

@@ -78,7 +78,11 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => this.fetchData());
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => {
+        this.fetchData().catch(() => {
+          /* noop */
+        });
+      });
     }
   }
 
@@ -146,11 +150,17 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
         projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
         searchQuery,
       },
-      async () => {
-        await this.fetchData();
-        if (this.mounted) {
-          this.setState({ searching: false });
-        }
+      () => {
+        this.fetchData().then(
+          () => {
+            if (this.mounted) {
+              this.setState({ searching: false });
+            }
+          },
+          () => {
+            /* noop */
+          }
+        );
       }
     );
   };
@@ -164,11 +174,17 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
           pageSize: state.projectsPaging.pageSize,
         },
       }),
-      async () => {
-        await this.fetchData(true);
-        if (this.mounted) {
-          this.setState({ loadingMore: false });
-        }
+      () => {
+        this.fetchData(true).then(
+          () => {
+            if (this.mounted) {
+              this.setState({ loadingMore: false });
+            }
+          },
+          () => {
+            /* noop */
+          }
+        );
       }
     );
   };

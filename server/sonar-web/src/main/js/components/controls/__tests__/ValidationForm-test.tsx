@@ -23,7 +23,7 @@ import ValidationForm from '../ValidationForm';
 
 it('should render and submit', async () => {
   const render = jest.fn();
-  const onSubmit = jest.fn();
+  const onSubmit = jest.fn().mockResolvedValue(null);
   const setSubmitting = jest.fn();
   const wrapper = shallow(
     <ValidationForm initialValues={{ foo: 'bar' }} onSubmit={onSubmit} validate={jest.fn()}>
@@ -35,9 +35,6 @@ it('should render and submit', async () => {
   expect(render).toHaveBeenCalledWith(
     expect.objectContaining({ dirty: false, errors: {}, values: { foo: 'bar' } })
   );
-
-  wrapper.prop<Function>('onSubmit')({ foo: 'bar' }, { setSubmitting });
-  expect(setSubmitting).toHaveBeenCalledWith(false);
 
   onSubmit.mockResolvedValue(undefined).mockClear();
   setSubmitting.mockClear();

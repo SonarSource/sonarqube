@@ -74,7 +74,11 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   componentDidUpdate(prevProps: Props) {
     const { almInstances } = this.props;
     if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: almInstances[0] }, () => this.fetchInitialData());
+      this.setState({ selectedAlmInstance: almInstances[0] }, () => {
+        this.fetchInitialData().catch(() => {
+          /* noop */
+        });
+      });
     }
   }
 

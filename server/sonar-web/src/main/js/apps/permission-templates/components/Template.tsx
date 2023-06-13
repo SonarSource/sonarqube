@@ -243,18 +243,34 @@ export default class Template extends React.PureComponent<Props, State> {
   };
 
   handleSearch = (query: string) => {
-    this.setState({ query }, this.requestHolders);
+    this.setState({ query }, () => {
+      this.requestHolders().catch(() => {
+        /* noop */
+      });
+    });
   };
 
   handleFilter = (filter: FilterOption) => {
-    this.setState({ filter }, this.requestHolders);
+    this.setState({ filter }, () => {
+      this.requestHolders().catch(() => {
+        /* noop */
+      });
+    });
   };
 
   handleSelectPermission = (selectedPermission: string) => {
     if (selectedPermission === this.state.selectedPermission) {
-      this.setState({ selectedPermission: undefined }, this.requestHolders);
+      this.setState({ selectedPermission: undefined }, () => {
+        this.requestHolders().catch(() => {
+          /* noop */
+        });
+      });
     } else {
-      this.setState({ selectedPermission }, this.requestHolders);
+      this.setState({ selectedPermission }, () => {
+        this.requestHolders().catch(() => {
+          /* noop */
+        });
+      });
     }
   };
 

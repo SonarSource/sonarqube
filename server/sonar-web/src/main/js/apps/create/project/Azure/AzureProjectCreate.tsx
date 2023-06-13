@@ -84,7 +84,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => this.fetchData());
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => {
+        this.fetchData().catch(() => {
+          /* noop */
+        });
+      });
     }
   }
 
@@ -286,7 +290,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
     this.setState(
       { selectedAlmInstance: instance, searchResults: undefined, searchQuery: '' },
-      () => this.fetchData()
+      () => {
+        this.fetchData().catch(() => {
+          /* noop */
+        });
+      }
     );
   };
 

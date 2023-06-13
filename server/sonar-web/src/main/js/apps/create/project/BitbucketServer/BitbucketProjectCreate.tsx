@@ -77,9 +77,11 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () =>
-        this.fetchInitialData()
-      );
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => {
+        this.fetchInitialData().catch(() => {
+          /* noop */
+        });
+      });
     }
   }
 

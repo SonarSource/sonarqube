@@ -86,9 +86,11 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.getInitialSelectedAlmInstance() }, () =>
-        this.initialize()
-      );
+      this.setState({ selectedAlmInstance: this.getInitialSelectedAlmInstance() }, () => {
+        this.initialize().catch(() => {
+          /* noop */
+        });
+      });
     }
   }
 
@@ -292,7 +294,11 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
     this.setState(
       { selectedAlmInstance: instance, searchQuery: '', organizations: [], repositories: [] },
-      () => this.initialize()
+      () => {
+        this.initialize().catch(() => {
+          /* noop */
+        });
+      }
     );
   };
 

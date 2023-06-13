@@ -41,18 +41,13 @@ export default class ValidationForm<V extends FormikValues> extends React.Compon
   }
 
   handleSubmit = (data: V, { setSubmitting }: FormikHelpers<V>) => {
-    const result = this.props.onSubmit(data);
     const stopSubmitting = () => {
       if (this.mounted) {
         setSubmitting(false);
       }
     };
 
-    if (result) {
-      result.then(stopSubmitting, stopSubmitting);
-    } else {
-      stopSubmitting();
-    }
+    this.props.onSubmit(data).then(stopSubmitting, stopSubmitting);
   };
 
   render() {
