@@ -65,7 +65,7 @@ public class ProjectDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
@@ -291,40 +291,45 @@ public class ProjectDaoIT {
   @Test
   public void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
     String language = "xoo";
-    Set<ComponentDto> projects = insertProjects(nextInt(10));
+    Set<ProjectData> projects = insertProjects(nextInt(10));
     insertDefaultQualityProfile(language);
     insertProjectsLiveMeasures(language, projects);
 
     Set<String> projectUuids = projectDao.selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(db.getSession(), language);
 
-    assertThat(projectUuids)
-      .containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
+    assertThat(projectUuids).containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
   }
 
   @Test
   public void update_ncloc_should_update_project() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    String projectUuid = db.components().insertPublicProject().projectUuid();
 
-    projectDao.updateNcloc(db.getSession(), project.uuid(), 10L);
+    projectDao.updateNcloc(db.getSession(), projectUuid, 10L);
 
     Assertions.assertThat(projectDao.getNclocSum(db.getSession())).isEqualTo(10L);
   }
 
   @Test
   public void getNcloc_sum_compute_correctly_sum_of_projects() {
-    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().getMainBranchComponent().uuid(), 1L);
-    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().getMainBranchComponent().uuid(), 20L);
-    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().getMainBranchComponent().uuid(), 100L);
-    Assertions.assertThat(projectDao.getNclocSum(db.getSession())).isEqualTo(121L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 1L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 20L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 100L);
+
+    long nclocSum = projectDao.getNclocSum(db.getSession());
+
+    Assertions.assertThat(nclocSum).isEqualTo(121L);
   }
 
   @Test
   public void getNcloc_sum_compute_correctly_sum_of_projects_while_excluding_project() {
-    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().getMainBranchComponent().uuid(), 1L);
-    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().getMainBranchComponent().uuid(), 20L);
-    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
-    projectDao.updateNcloc(db.getSession(), project3.uuid(), 100L);
-    Assertions.assertThat(projectDao.getNclocSum(db.getSession(), project3.uuid())).isEqualTo(21L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 1L);
+    projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 20L);
+    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
+    projectDao.updateNcloc(db.getSession(), project3.getUuid(), 100L);
+
+    long nclocSum = projectDao.getNclocSum(db.getSession(), project3.getUuid());
+
+    Assertions.assertThat(nclocSum).isEqualTo(21L);
   }
 
   @Test
@@ -344,41 +349,41 @@ public class ProjectDaoIT {
     db.qualityProfiles().setAsDefault(profile);
   }
 
-  private static Set<String> extractComponentUuids(Collection<ComponentDto> components) {
+  private static Set<String> extractComponentUuids(Collection<ProjectData> components) {
     return components
       .stream()
-      .map(ComponentDto::uuid)
+      .map(ProjectData::projectUuid)
       .collect(Collectors.toSet());
   }
 
-  private Set<ComponentDto> insertProjects(int number) {
+  private Set<ProjectData> insertProjects(int number) {
     return IntStream
       .rangeClosed(0, number)
-      .mapToObj(x -> db.components().insertPrivateProject().getMainBranchComponent())
+      .mapToObj(x -> db.components().insertPrivateProject())
       .collect(Collectors.toSet());
   }
 
-  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ComponentDto project) {
+  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ProjectDto project, ComponentDto componentDto) {
     return liveMeasure -> liveMeasure
       .setMetricUuid(metric.getUuid())
-      .setComponentUuid(project.uuid())
-      .setProjectUuid(project.uuid())
+      .setComponentUuid(componentDto.uuid())
+      .setProjectUuid(project.getUuid())
       .setData(language + "=" + nextInt(10));
   }
 
-  private Consumer<ComponentDto> insertLiveMeasure(String language, MetricDto metric) {
-    return project -> db.measures().insertLiveMeasure(project, metric, configureLiveMeasure(language, metric, project));
+  private Consumer<ProjectData> insertLiveMeasure(String language, MetricDto metric) {
+    return (projectData) -> db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), metric,
+      configureLiveMeasure(language, metric, projectData.getProjectDto(), projectData.getMainBranchComponent()));
   }
 
-  private void insertProjectsLiveMeasures(String language, Set<ComponentDto> projects) {
+  private void insertProjectsLiveMeasures(String language, Set<ProjectData> projects) {
     Consumer<MetricDto> configureMetric = metric -> metric
       .setValueType(STRING.name())
       .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
 
     MetricDto metric = db.measures().insertMetric(configureMetric);
 
-    projects
-      .forEach(insertLiveMeasure(language, metric));
+    projects.forEach(insertLiveMeasure(language, metric));
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

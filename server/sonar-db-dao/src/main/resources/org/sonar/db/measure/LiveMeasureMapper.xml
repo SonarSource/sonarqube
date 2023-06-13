@@ -124,7 +124,7 @@
     select count(1)
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid AND m.name = #{metric, jdbcType=VARCHAR}
-      inner join projects p on p.uuid = lm.component_uuid and p.qualifier = 'TRK'
+      inner join projects p on p.uuid = lm.project_uuid and p.qualifier = 'TRK'
   </select>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
