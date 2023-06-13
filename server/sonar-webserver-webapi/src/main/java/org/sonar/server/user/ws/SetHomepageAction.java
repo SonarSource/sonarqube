@@ -116,11 +116,7 @@ public class SetHomepageAction implements UsersWsAction {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
         ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, componentParameter);
-        if (branchParameter != null) {
-          return componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchParameter, null).getUuid();
-        } else {
-          return projectDto.getUuid();
-        }
+        return componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchParameter, null).getUuid();
       case PORTFOLIO, APPLICATION:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
         return componentFinder.getByKey(dbSession, componentParameter).uuid();

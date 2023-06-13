@@ -70,7 +70,7 @@ public class IssueUpdaterIT {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   @Rule
   public EsTester es = EsTester.create();

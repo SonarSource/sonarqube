@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,14 +33,13 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonarqube.ws.Issues;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_TYPE_NAMES;
@@ -65,8 +63,8 @@ public class TagsAction implements IssuesWsAction {
   private final ComponentFinder componentFinder;
 
   public TagsAction(IssueIndex issueIndex,
-                    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
-                    ComponentFinder componentFinder) {
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
+    ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.dbClient = dbClient;
@@ -110,9 +108,9 @@ public class TagsAction implements IssuesWsAction {
       boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
 
-      Optional<ComponentDto> project = getProject(dbSession, projectKey);
-      Optional<BranchDto> branch = project.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.uuid(), branchKey));
-      List<String> tags = searchTags(project.orElse(null), branch.orElse(null), request, all);
+      Optional<EntityDto> entity = getProject(dbSession, projectKey);
+      Optional<BranchDto> branch = entity.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.getUuid(), branchKey));
+      List<String> tags = searchTags(entity.orElse(null), branch.orElse(null), request, all, dbSession);
 
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
       tags.forEach(tagsResponseBuilder::addTags);
@@ -120,13 +118,12 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private Optional<ComponentDto> getProject(DbSession dbSession, @Nullable String projectKey) {
-    if (projectKey == null) {
+  private Optional<EntityDto> getProject(DbSession dbSession, @Nullable String entityKey) {
+    if (entityKey == null) {
       return Optional.empty();
     }
-    ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-    checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
-    return Optional.of(project);
+    EntityDto entity = componentFinder.getEntityByKey(dbSession, entityKey);
+    return Optional.of(entity);
   }
 
   private void checkIfAnyComponentsNeedIssueSync(DbSession session, @Nullable String projectKey) {
@@ -137,24 +134,23 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private List<String> searchTags(@Nullable ComponentDto project, @Nullable BranchDto branch, Request request, boolean all) {
+  private List<String> searchTags(@Nullable EntityDto entity, @Nullable BranchDto branch, Request request, boolean all, DbSession dbSession) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
       .types(ISSUE_TYPE_NAMES);
-    if (project != null) {
-      switch (project.qualifier()) {
-        case Qualifiers.PROJECT:
-          issueQueryBuilder.projectUuids(Set.of(project.uuid()));
-          break;
-        case Qualifiers.APP, Qualifiers.VIEW:
-          issueQueryBuilder.viewUuids(Set.of(project.uuid()));
-          break;
-        default:
-          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", project.qualifier()));
+    if (entity != null) {
+      switch (entity.getQualifier()) {
+        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(entity.getUuid()));
+        case Qualifiers.VIEW, Qualifiers.APP -> issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
+        default ->
+          throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", entity.getQualifier()));
       }
 
-      if (branch != null && !project.uuid().equals(branch.getUuid())) {
+      if (branch != null && !branch.isMain()) {
         issueQueryBuilder.branchUuid(branch.getUuid());
         issueQueryBuilder.mainBranch(false);
+      } else if (Qualifiers.APP.equals(entity.getQualifier())) {
+        dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid())
+          .ifPresent(b -> issueQueryBuilder.branchUuid(b.getUuid()));
       }
     }
     if (all) {

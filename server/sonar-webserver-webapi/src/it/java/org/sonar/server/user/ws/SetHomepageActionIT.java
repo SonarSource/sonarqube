@@ -45,7 +45,7 @@ public class SetHomepageActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final WsActionTester ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
@@ -78,7 +78,7 @@ public class SetHomepageActionIT {
 
   @Test
   public void set_project_homepage() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -86,20 +86,20 @@ public class SetHomepageActionIT {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, "PROJECT")
-      .setParam("component", project.getKey())
+      .setParam("component", mainBranch.getKey())
       .execute();
 
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo("PROJECT");
-    assertThat(actual.getHomepageParameter()).isEqualTo(project.uuid());
+    assertThat(actual.getHomepageParameter()).isEqualTo(mainBranch.uuid());
   }
 
   @Test
   public void set_branch_homepage() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto mainBranch = db.components().insertPublicProject().getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 

@@ -52,6 +52,7 @@ import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventPurgeData;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -100,7 +101,7 @@ public class SearchActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -110,7 +111,7 @@ public class SearchActionIT {
 
   @DataProvider
   public static Object[][] changedBranches() {
-    return new Object[][] {
+    return new Object[][]{
       {null, "newbranch"},
       {"newbranch", "anotherbranch"},
       {"newbranch", null},
@@ -119,22 +120,23 @@ public class SearchActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey(KEY_PROJECT_EXAMPLE_001));
+    ProjectData projectData = db.components().insertPrivateProject(c -> c.setKey(KEY_PROJECT_EXAMPLE_001));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
 
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch)
       .setUuid("A1")
       .setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.322")
       .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf"));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project)
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch)
       .setUuid("A2")
       .setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
       .setProjectVersion("1.2.1")
       .setBuildString("1.2.1.423")
       .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d"));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch)
       .setUuid("P1")
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
       .setProjectVersion("1.2")
@@ -145,11 +147,10 @@ public class SearchActionIT {
       .setKey(CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI)
       .setValue("Jenkins")
       .setCreatedAt(1L));
-    BranchDto branchDto = newMainBranchDto(project, project.uuid());
-    db.getDbClient().branchDao().insert(db.getSession(), branchDto);
+
     db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setProjectUuid(project.uuid())
-      .setBranchUuid(branchDto.getUuid())
+      .setProjectUuid(projectData.getProjectDto().getUuid())
+      .setBranchUuid(mainBranch.uuid())
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(a1.getUuid()));
     db.commit();
@@ -172,9 +173,9 @@ public class SearchActionIT {
       .setData("{stillFailing: true, status: \"ERROR\"}")
       .setCategory(CATEGORY_ALERT)
       .setDescription(""));
-    EventComponentChangeDto changeDto1 = generateEventComponentChange(eventDto, FAILED_QUALITY_GATE, "My project", "app1", "master", project.uuid());
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(eventDto, FAILED_QUALITY_GATE, "My project", "app1", "master", mainBranch.uuid());
     EventComponentChangeDto changeDto2 = generateEventComponentChange(eventDto, FAILED_QUALITY_GATE, "Another project", "app2", "master", uuidFactoryFast.create());
-    insertEventComponentChanges(project, a3, changeDto1, changeDto2);
+    insertEventComponentChanges(mainBranch, a3, changeDto1, changeDto2);
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT, KEY_PROJECT_EXAMPLE_001)
@@ -183,15 +184,21 @@ public class SearchActionIT {
     assertJson(result).isSimilarTo(getClass().getResource("search-example.json"));
   }
 
+  private void addProjectPermission(ProjectData projectData) {
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto())
+      .addProjectBranchMapping(projectData.getProjectDto().getUuid(), projectData.getMainBranchComponent());
+  }
+
   @Test
   public void return_analyses_ordered_by_analysis_date() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A3").setCreatedAt(3_000_000L));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1").setCreatedAt(1_000_000L));
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A2").setCreatedAt(2_000_000L));
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A3").setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call(project.getKey()).getAnalysesList();
+    List<Analysis> result = call(mainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting(Analysis::getKey, a -> parseDateTime(a.getDate()).getTime()).containsExactly(
@@ -202,10 +209,11 @@ public class SearchActionIT {
 
   @Test
   public void return_only_processed_analyses() {
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1")).getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
+    ProjectData projectData = db.components().insertPrivateProject(c -> c.setKey("P1"));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1"));
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
 
     List<Analysis> result = call("P1").getAnalysesList();
 
@@ -215,9 +223,10 @@ public class SearchActionIT {
 
   @Test
   public void return_events() {
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1")).getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
+    ProjectData projectData = db.components().insertPrivateProject(c -> c.setKey("P1"));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1"));
     SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto()).setUuid("A42"));
     EventDto e1 = db.events().insertEvent(newEvent(a1).setUuid("E1").setName("N1").setCategory(QUALITY_GATE.getLabel()).setDescription("D1"));
     EventDto e2 = db.events().insertEvent(newEvent(a1).setUuid("E2").setName("N2").setCategory(VERSION.getLabel()).setDescription("D2"));
@@ -235,13 +244,14 @@ public class SearchActionIT {
 
   @Test
   public void return_analyses_of_application() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
-    SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
-    SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(3_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
+    SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(2_000_000L));
+    SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result)
       .hasSize(3)
@@ -254,15 +264,16 @@ public class SearchActionIT {
 
   @Test
   public void return_definition_change_events_on_application_analyses() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto mainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(mainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, REMOVED, "Another project", "app2", "master", uuidFactoryFast.create());
-    insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
+    insertEventComponentChanges(mainBranch, firstAnalysis, changeDto1, changeDto2);
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(mainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -279,15 +290,16 @@ public class SearchActionIT {
   @Test
   @UseDataProvider("changedBranches")
   public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable String newBranch) {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, REMOVED, "My project", "app1", oldBranch, uuidFactoryFast.create());
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, ADDED, "My project", "app1", newBranch, changeDto1.getComponentUuid());
-    insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
+    insertEventComponentChanges(appMainBranch, firstAnalysis, changeDto1, changeDto2);
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -301,18 +313,19 @@ public class SearchActionIT {
 
   @Test
   public void incorrect_eventcomponentchange_two_identical_changes_added_on_same_project() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
-    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(appMainBranch.uuid(), firstAnalysis.getUuid());
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -330,16 +343,17 @@ public class SearchActionIT {
 
   @Test
   public void incorrect_eventcomponentchange_incorrect_category() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, FAILED_QUALITY_GATE, "My project", "app1", "master", uuidFactoryFast.create());
-    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(appMainBranch.uuid(), firstAnalysis.getUuid());
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -356,20 +370,21 @@ public class SearchActionIT {
 
   @Test
   public void incorrect_eventcomponentchange_three_component_changes_on_same_project() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, REMOVED, "Another project", "app1", "", uuidFactoryFast.create());
     EventComponentChangeDto changeDto3 = generateEventComponentChange(event, REMOVED, "Another project", "app1", "", uuidFactoryFast.create());
-    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(appMainBranch.uuid(), firstAnalysis.getUuid());
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto3, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -385,11 +400,17 @@ public class SearchActionIT {
         format("Too many changes on same project (3) for eventComponentChange uuids : %s,%s,%s", changeDto1.getUuid(), changeDto2.getUuid(), changeDto3.getUuid()));
   }
 
+  private void registerApplication(ProjectData appData) {
+    userSession.registerApplication(appData.getProjectDto())
+      .addProjectBranchMapping(appData.projectUuid(), appData.getMainBranchComponent());
+  }
+
   @Test
   public void incorrect_quality_gate_information() {
-    ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
-    userSession.registerApplication(toProjectDto(application, 1L));
-    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    ProjectData appData = db.components().insertPublicApplication();
+    ComponentDto appMainBranch = appData.getMainBranchComponent();
+    registerApplication(appData);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(appMainBranch).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(
       newEvent(firstAnalysis)
         .setName("")
@@ -397,11 +418,11 @@ public class SearchActionIT {
         .setCategory(CATEGORY_ALERT)
         .setData("UNPARSEABLE JSON")); // Error in Data
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, FAILED_QUALITY_GATE, "My project", "app1", "master", uuidFactoryFast.create());
-    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(appMainBranch.uuid(), firstAnalysis.getUuid());
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getKey()).getAnalysesList();
+    List<Analysis> result = call(appMainBranch.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -435,12 +456,13 @@ public class SearchActionIT {
 
   @Test
   public void paginate_analyses() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    IntStream.rangeClosed(1, 9).forEach(i -> db.components().insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000L * i).setUuid("A" + i)));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    IntStream.rangeClosed(1, 9).forEach(i -> db.components().insertSnapshot(newAnalysis(mainBranch).setCreatedAt(1_000_000L * i).setUuid("A" + i)));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setPage(2)
       .setPageSize(3)
       .build());
@@ -451,11 +473,12 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_category() {
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1")).getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
-    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(project).setUuid("A42"));
+    ProjectData projectData = db.components().insertPrivateProject(c -> c.setKey("P1"));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1"));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A2"));
+    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A42"));
     db.events().insertEvent(newEvent(a1).setUuid("E11").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a1).setUuid("E12").setCategory(QUALITY_GATE.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21").setCategory(QUALITY_GATE.getLabel()));
@@ -472,12 +495,13 @@ public class SearchActionIT {
 
   @Test
   public void paginate_with_filter_on_category() {
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey("P1")).getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("A3").setCreatedAt(3_000_000L));
-    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(project).setUuid("A42"));
+    ProjectData projectData = db.components().insertPrivateProject(c -> c.setKey("P1"));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1").setCreatedAt(1_000_000L));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A2").setCreatedAt(2_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A3").setCreatedAt(3_000_000L));
+    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A42"));
     db.events().insertEvent(newEvent(a1).setUuid("E11").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a1).setUuid("E12").setCategory(QUALITY_GATE.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21").setCategory(QUALITY_GATE.getLabel()));
@@ -499,15 +523,16 @@ public class SearchActionIT {
 
   @Test
   public void filter_from_date() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("a1").setCreatedAt(1_000_000_000L));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("a2").setCreatedAt(2_000_000_000L));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("a3").setCreatedAt(3_000_000_000L));
-    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a1").setCreatedAt(1_000_000_000L));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a2").setCreatedAt(2_000_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a3").setCreatedAt(3_000_000_000L));
+    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .build());
 
@@ -519,15 +544,16 @@ public class SearchActionIT {
 
   @Test
   public void filter_to_date() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("a1").setCreatedAt(1_000_000_000L));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("a2").setCreatedAt(2_000_000_000L));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("a3").setCreatedAt(3_000_000_000L));
-    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a1").setCreatedAt(1_000_000_000L));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a2").setCreatedAt(2_000_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a3").setCreatedAt(3_000_000_000L));
+    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setTo(formatDateTime(2_000_000_000L))
       .build());
 
@@ -539,15 +565,16 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_dates_using_datetime_format() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("a1").setCreatedAt(1_000_000_000L));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("a2").setCreatedAt(2_000_000_000L));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("a3").setCreatedAt(3_000_000_000L));
-    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a1").setCreatedAt(1_000_000_000L));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a2").setCreatedAt(2_000_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a3").setCreatedAt(3_000_000_000L));
+    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .setTo(formatDateTime(3_000_000_000L))
       .build());
@@ -560,15 +587,16 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_dates_using_date_format() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("a1").setCreatedAt(1_000_000_000L));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("a2").setCreatedAt(2_000_000_000L));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("a3").setCreatedAt(3_000_000_000L));
-    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a1").setCreatedAt(1_000_000_000L));
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a2").setCreatedAt(2_000_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a3").setCreatedAt(3_000_000_000L));
+    SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setFrom(formatDate(new Date(2_000_000_000L)))
       .setTo(formatDate(new Date(3_000_000_000L)))
       .build());
@@ -581,18 +609,19 @@ public class SearchActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
     EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(QUALITY_GATE.getLabel()));
 
     List<Analysis> result = call(SearchRequest.builder()
-      .setProject(project.getKey())
+      .setProject(mainBranch.getKey())
       .setBranch("my_branch")
       .build())
-        .getAnalysesList();
+      .getAnalysesList();
 
     assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
     assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
@@ -600,10 +629,11 @@ public class SearchActionIT {
 
   @Test
   public void empty_response() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
 
-    SearchResponse result = call(project.getKey());
+    SearchResponse result = call(mainBranch.getKey());
 
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
@@ -612,16 +642,17 @@ public class SearchActionIT {
 
   @Test
   public void populates_projectVersion_and_buildString() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto[] analyses = new SnapshotDto[] {
-      db.components().insertSnapshot(newAnalysis(project).setProjectVersion(null).setBuildString(null)),
-      db.components().insertSnapshot(newAnalysis(project).setProjectVersion("a").setBuildString(null)),
-      db.components().insertSnapshot(newAnalysis(project).setProjectVersion(null).setBuildString("b")),
-      db.components().insertSnapshot(newAnalysis(project).setProjectVersion("c").setBuildString("d"))
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    SnapshotDto[] analyses = new SnapshotDto[]{
+      db.components().insertSnapshot(newAnalysis(mainBranch).setProjectVersion(null).setBuildString(null)),
+      db.components().insertSnapshot(newAnalysis(mainBranch).setProjectVersion("a").setBuildString(null)),
+      db.components().insertSnapshot(newAnalysis(mainBranch).setProjectVersion(null).setBuildString("b")),
+      db.components().insertSnapshot(newAnalysis(mainBranch).setProjectVersion("c").setBuildString("d"))
     };
 
-    SearchResponse result = call(project.getKey());
+    SearchResponse result = call(mainBranch.getKey());
 
     assertThat(result.getAnalysesList())
       .extracting(Analysis::getKey, Analysis::getProjectVersion, Analysis::getBuildString)
@@ -635,24 +666,23 @@ public class SearchActionIT {
   @Test
   public void fail_if_not_enough_permissions() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
 
-    var projectDbKey = project.getKey();
+    var projectDbKey = mainBranch.getKey();
     assertThatThrownBy(() -> call(projectDbKey))
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_not_enough_permissions_on_applications_projects() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     userSession.logIn()
-      .registerApplication(
-        toProjectDto(application, 1L),
-        toProjectDto(project1, 1L),
-        toProjectDto(project2, 1L))
+      .registerApplication(application)
+      .registerProjects(project1, project2)
       .addProjectPermission(UserRole.USER, application, project1);
 
     var projectDbKey = application.getKey();
@@ -684,7 +714,7 @@ public class SearchActionIT {
   public void fail_if_branch_does_not_exist() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    addProjectPermission(projectData);
     db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
 
     var searchRequest = SearchRequest.builder()

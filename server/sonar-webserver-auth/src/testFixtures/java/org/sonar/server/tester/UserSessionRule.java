@@ -215,6 +215,7 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
+
   public UserSessionRule addPortfolioPermission(String portfolioPermission, PortfolioDto... portfolioDto) {
     ensureAbstractMockUserSession().addPortfolioPermission(portfolioPermission, portfolioDto);
     return this;

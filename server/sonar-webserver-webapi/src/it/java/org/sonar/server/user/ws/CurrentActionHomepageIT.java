@@ -37,6 +37,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.permission.PermissionService;
@@ -57,7 +58,7 @@ public class CurrentActionHomepageIT {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = db.getDbClient();
 
@@ -144,15 +145,16 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("allEditions")
   public void return_homepage_when_set_to_a_project(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
-    userSessionRule.logIn(user).addProjectPermission(USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(mainBranch.uuid()));
+    userSessionRule.logIn(user).addProjectPermission(USER, projectData.getProjectDto());
 
     CurrentWsResponse response = call();
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent)
-      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, project.getKey());
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, mainBranch.getKey());
   }
 
   @Test
@@ -172,11 +174,12 @@ public class CurrentActionHomepageIT {
 
   @Test
   public void return_homepage_when_set_to_a_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
-    userSessionRule.logIn(user).addProjectPermission(USER, project);
+    userSessionRule.logIn(user).addProjectPermission(USER, projectData.getProjectDto());
 
     CurrentWsResponse response = call();
 

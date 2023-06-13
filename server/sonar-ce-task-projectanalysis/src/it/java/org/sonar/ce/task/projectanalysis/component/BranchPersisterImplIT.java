@@ -40,6 +40,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
 
@@ -58,7 +59,7 @@ public class BranchPersisterImplIT {
   private final static Component MAIN = builder(Component.Type.PROJECT, 1, "PROJECT_KEY").setUuid("PROJECT_UUID").setName("p1").build();
   private final static Component BRANCH1 = builder(Component.Type.PROJECT, 2, "BRANCH_KEY").setUuid("BRANCH_UUID").build();
   private final static Component PR1 = builder(Component.Type.PROJECT, 3, "develop").setUuid("PR_UUID").build();
-  private static final Project PROJECT = new Project(MAIN.getUuid(), MAIN.getKey(), MAIN.getName(), null, Collections.emptyList());
+  private static final Project PROJECT = new Project("PROJECT_UUID", MAIN.getKey(), MAIN.getName(), null, Collections.emptyList());
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
@@ -262,14 +263,15 @@ public class BranchPersisterImplIT {
     String pullRequestId = "pr-123";
 
     // add project and branch in table PROJECTS
-    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(MAIN.getUuid()).setKey(MAIN.getKey());
+    ProjectData projectData = dbTester.components().insertPrivateProject(p -> p.setKey(MAIN.getKey()).setUuid(MAIN.getUuid()));
+    ComponentDto mainComponent = projectData.getMainBranchComponent();
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(PULL_REQUEST));
-    dbTester.components().insertComponents(mainComponent, component);
+    dbTester.components().insertComponents(component);
     // set project in metadata
     treeRootHolder.setRoot(BRANCH1);
     analysisMetadataHolder.setBranch(createBranch(PULL_REQUEST, false, pullRequestId, "mergeBanchUuid"));
-    analysisMetadataHolder.setProject(Project.from(mainComponent));
+    analysisMetadataHolder.setProject(Project.from(projectData.getProjectDto()));
     analysisMetadataHolder.setPullRequestKey(pullRequestId);
 
     underTest.persist(dbTester.getSession());
@@ -282,7 +284,7 @@ public class BranchPersisterImplIT {
     assertThat(branchDto.get().getBranchType()).isEqualTo(PULL_REQUEST);
     assertThat(branchDto.get().getKey()).isEqualTo(pullRequestId);
     assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo("mergeBanchUuid");
-    assertThat(branchDto.get().getProjectUuid()).isEqualTo(MAIN.getUuid());
+    assertThat(branchDto.get().getProjectUuid()).isEqualTo(projectData.projectUuid());
     assertThat(branchDto.get().getPullRequestData()).isEqualTo(DbProjectBranches.PullRequestData.newBuilder()
       .setBranch(pullRequestId)
       .setTarget("mergeBanchUuid")

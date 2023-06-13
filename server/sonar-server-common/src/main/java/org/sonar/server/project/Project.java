@@ -46,6 +46,10 @@ public class Project {
     this.tags = tags;
   }
 
+  /**
+   * Should use {@link org.sonar.server.project.Project#fromProjectDtoWithTags(org.sonar.db.project.ProjectDto)} instead
+   */
+  @Deprecated
   public static Project from(ComponentDto project) {
     return new Project(project.uuid(), project.getKey(), project.name(), project.description(), emptyList());
   }

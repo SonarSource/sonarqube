@@ -141,8 +141,8 @@ public class SearchEventsAction implements DevelopersWsAction {
         return Stream.empty();
       }
 
-      List<String> projectUuids = analyses.stream().map(SnapshotDto::getComponentUuid).collect(toList());
-      Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, projectUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
+      List<String> branchUuids = analyses.stream().map(SnapshotDto::getComponentUuid).collect(toList());
+      Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
 
       return Stream.concat(
         computeQualityGateChangeEvents(dbSession, projectsByUuid, branchesByUuids, analyses),

@@ -139,7 +139,7 @@ public class PortfolioDao implements Dao {
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
     PortfolioDto portfolio = mapper(dbSession).selectByUuid(referenceUuid);
     if (portfolio == null) {
-      mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, referenceUuid, system2.now());
+      throw new IllegalArgumentException("Reference must be a portfolio");
     } else {
       mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, null, system2.now());
     }

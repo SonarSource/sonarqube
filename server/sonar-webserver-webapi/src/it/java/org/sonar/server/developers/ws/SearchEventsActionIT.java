@@ -34,6 +34,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.es.EsTester;
@@ -75,7 +76,7 @@ public class SearchEventsActionIT {
     .toArray(RuleType[]::new);
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -107,16 +108,17 @@ public class SearchEventsActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
-    SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData.getProjectDto());
+    SnapshotDto analysis = insertAnalysis(mainBranch, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
-    IntStream.range(0, 15).forEach(x -> insertIssue(project, analysis));
+    IntStream.range(0, 15).forEach(x -> insertIssue(mainBranch, analysis));
     issueIndexer.indexAllIssues();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
 
     String result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(PARAM_PROJECTS, mainBranch.getKey())
       .setParam(PARAM_FROM, formatDateTime(analysis.getCreatedAt() - 1_000L))
       .execute().getInput();
 
@@ -126,48 +128,50 @@ public class SearchEventsActionIT {
   @Test
   public void events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData.getProjectDto());
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    SnapshotDto projectAnalysis = insertAnalysis(project, 1_500_000_000_000L);
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
+    SnapshotDto projectAnalysis = insertAnalysis(mainBranch, 1_500_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Passed"));
-    insertIssue(project, projectAnalysis);
-    insertIssue(project, projectAnalysis);
-    SnapshotDto branchAnalysis = insertAnalysis(branch, project.uuid(), 1_501_000_000_000L);
+    insertIssue(mainBranch, projectAnalysis);
+    insertIssue(mainBranch, projectAnalysis);
+    SnapshotDto branchAnalysis = insertAnalysis(branch, mainBranch.uuid(), 1_501_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(branchAnalysis).setDate(branchAnalysis.getCreatedAt()).setName("Failed"));
     insertIssue(branch, branchAnalysis);
     issueIndexer.indexAllIssues();
 
     SearchEventsWsResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(PARAM_PROJECTS, mainBranch.getKey())
       .setParam(PARAM_FROM, formatDateTime(1_499_000_000_000L))
       .executeProtobuf(SearchEventsWsResponse.class);
 
     assertThat(result.getEventsList())
       .extracting(Event::getCategory, Event::getProject, Event::getMessage)
       .containsOnly(
-        tuple("QUALITY_GATE", project.getKey(), format("Quality Gate status of project '%s' changed to 'Passed'", project.name())),
-        tuple("QUALITY_GATE", project.getKey(), format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", project.name(), branchName)),
-        tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s'", project.name())),
-        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", project.name(), branchName)));
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())));
+        tuple("QUALITY_GATE", mainBranch.getKey(), format("Quality Gate status of project '%s' changed to 'Passed'", mainBranch.name())),
+        tuple("QUALITY_GATE", mainBranch.getKey(), format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", mainBranch.name(), branchName)),
+        tuple("NEW_ISSUES", mainBranch.getKey(), format("You have 2 new issues on project '%s'", mainBranch.name())),
+        tuple("NEW_ISSUES", mainBranch.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", mainBranch.name(), branchName)));
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(mainBranch.getKey())));
   }
 
   @Test
   public void does_not_return_old_events() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
-    SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
-    insertIssue(project, analysis);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData.getProjectDto());
+    SnapshotDto analysis = insertAnalysis(mainBranch, 1_500_000_000_000L);
+    insertIssue(mainBranch, analysis);
     db.events().insertEvent(newQualityGateEvent(analysis).setDate(analysis.getCreatedAt()).setName("Passed"));
-    SnapshotDto oldAnalysis = insertAnalysis(project, 1_400_000_000_000L);
-    insertIssue(project, oldAnalysis);
+    SnapshotDto oldAnalysis = insertAnalysis(mainBranch, 1_400_000_000_000L);
+    insertIssue(mainBranch, oldAnalysis);
     db.events().insertEvent(newQualityGateEvent(oldAnalysis).setDate(oldAnalysis.getCreatedAt()).setName("Failed"));
     issueIndexer.indexAllIssues();
 
     SearchEventsWsResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(PARAM_PROJECTS, mainBranch.getKey())
       .setParam(PARAM_FROM, formatDateTime(analysis.getCreatedAt() - 1450_000_000_000L))
       .executeProtobuf(SearchEventsWsResponse.class);
 
@@ -190,32 +194,34 @@ public class SearchEventsActionIT {
 
   @Test
   public void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.CODEVIEWER, project1);
-    userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project1);
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.CODEVIEWER, projectData1.getProjectDto());
+    userSession.addProjectPermission(UserRole.ISSUE_ADMIN, projectData1.getProjectDto());
 
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project2);
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData2.getProjectDto());
 
-    SnapshotDto a1 = insertAnalysis(project1, 1_500_000_000_000L);
+    SnapshotDto a1 = insertAnalysis(mainBranch1, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(a1).setDate(a1.getCreatedAt()));
-    insertIssue(project1, a1);
-    SnapshotDto a2 = insertAnalysis(project2, 1_500_000_000_000L);
+    insertIssue(mainBranch1, a1);
+    SnapshotDto a2 = insertAnalysis(mainBranch2, 1_500_000_000_000L);
     EventDto e2 = db.events().insertEvent(newQualityGateEvent(a2).setDate(a2.getCreatedAt()));
-    insertIssue(project2, a2);
+    insertIssue(mainBranch2, a2);
     issueIndexer.indexAllIssues();
 
     String stringFrom = formatDateTime(a1.getCreatedAt() - 1_000L);
     SearchEventsWsResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, String.join(",", project1.getKey(), project2.getKey()))
+      .setParam(PARAM_PROJECTS, String.join(",", mainBranch1.getKey(), mainBranch2.getKey()))
       .setParam(PARAM_FROM, String.join(",", stringFrom, stringFrom))
       .executeProtobuf(SearchEventsWsResponse.class);
 
     assertThat(result.getEventsList())
       .extracting(Event::getCategory, Event::getProject)
       .containsOnly(
-        tuple("NEW_ISSUES", project2.getKey()),
-        tuple(EventCategory.QUALITY_GATE.name(), project2.getKey()));
+        tuple("NEW_ISSUES", mainBranch2.getKey()),
+        tuple(EventCategory.QUALITY_GATE.name(), mainBranch2.getKey()));
   }
 
   @Test

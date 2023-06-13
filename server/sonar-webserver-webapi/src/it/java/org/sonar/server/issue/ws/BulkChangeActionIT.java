@@ -38,8 +38,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -109,7 +111,7 @@ public class BulkChangeActionIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -142,9 +144,10 @@ public class BulkChangeActionIT {
   public void set_type() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -167,9 +170,10 @@ public class BulkChangeActionIT {
   public void set_severity() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -192,9 +196,10 @@ public class BulkChangeActionIT {
   public void add_tags() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setTags(asList("tag1", "tag2"))
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -218,9 +223,10 @@ public class BulkChangeActionIT {
   public void add_tags_when_issue_is_resolved_is_accepted() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setTags(asList("tag1", "tag2"))
       .setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
@@ -241,9 +247,10 @@ public class BulkChangeActionIT {
   public void remove_assignee() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     UserDto assignee = db.users().insertUser();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(assignee.getUuid())
@@ -268,9 +275,10 @@ public class BulkChangeActionIT {
   public void bulk_change_with_comment() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -294,9 +302,10 @@ public class BulkChangeActionIT {
   public void bulk_change_many_issues() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     UserDto oldAssignee = db.users().insertUser();
     UserDto userToAssign = db.users().insertUser();
@@ -330,9 +339,10 @@ public class BulkChangeActionIT {
   public void send_notification() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -367,9 +377,10 @@ public class BulkChangeActionIT {
   public void should_ignore_hotspots() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, SECURITYHOTSPOT_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, SECURITYHOTSPOT_ADMIN);
     IssueDto issue = db.issues().insertHotspot(project, file);
 
     BulkChangeWsResponse response = call(builder()
@@ -386,11 +397,12 @@ public class BulkChangeActionIT {
   public void send_notification_on_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.BRANCH));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
+    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch, project.uuid()));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -424,11 +436,12 @@ public class BulkChangeActionIT {
   private void verifySendNoNotification(BranchType branchType) {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(branchType));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
+    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch, project.uuid()));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -448,9 +461,10 @@ public class BulkChangeActionIT {
   public void send_notification_only_on_changed_issues() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -484,10 +498,11 @@ public class BulkChangeActionIT {
   public void ignore_the_issues_that_do_not_match_conditions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -518,10 +533,11 @@ public class BulkChangeActionIT {
   public void ignore_issues_when_there_is_nothing_to_do() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -552,10 +568,11 @@ public class BulkChangeActionIT {
   public void add_comment_only_on_changed_issues() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -583,8 +600,9 @@ public class BulkChangeActionIT {
   public void ignore_external_issue() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     RuleDto externalRule = db.rules().insertIssueRule(r -> r.setIsExternal(true));
@@ -602,8 +620,9 @@ public class BulkChangeActionIT {
   public void issues_on_which_user_has_not_browse_permission_are_ignored() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData1, USER, ISSUE_ADMIN);
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto authorizedIssue = db.issues().insertIssue(rule, project1, project1, i -> i.setType(BUG)
@@ -634,10 +653,12 @@ public class BulkChangeActionIT {
   public void does_not_update_type_when_no_issue_admin_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project2, USER);
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData1, USER, ISSUE_ADMIN);
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData2, USER);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto authorizedIssue1 = db.issues().insertIssue(rule, project1, project1, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -666,10 +687,12 @@ public class BulkChangeActionIT {
   public void does_not_update_severity_when_no_issue_admin_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project2, USER);
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData1, USER, ISSUE_ADMIN);
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData2, USER);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto authorizedIssue1 = db.issues().insertIssue(rule, project1, project1, i -> i.setSeverity(MAJOR)
       .setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
@@ -698,8 +721,9 @@ public class BulkChangeActionIT {
   public void fail_when_only_comment_action() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    addUserProjectPermissions(user, project, USER);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    addUserProjectPermissions(user, projectData, USER);
     RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue = db.issues().insertIssue(rule, project, project, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
@@ -764,10 +788,11 @@ public class BulkChangeActionIT {
     return request.executeProtobuf(BulkChangeWsResponse.class);
   }
 
-  private void addUserProjectPermissions(UserDto user, ComponentDto project, String... permissions) {
+  private void addUserProjectPermissions(UserDto user, ProjectData project, String... permissions) {
     for (String permission : permissions) {
-      db.users().insertProjectPermissionOnUser(user, permission, project);
-      userSession.addProjectPermission(permission, project);
+      db.users().insertProjectPermissionOnUser(user, permission, project.getProjectDto());
+      userSession.addProjectPermission(permission, project.getProjectDto());
+      userSession.addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
     }
   }
 

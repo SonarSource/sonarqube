@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.project.ProjectDto;
@@ -63,7 +64,7 @@ public class CreateEventActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
@@ -210,7 +211,8 @@ public class CreateEventActionIT {
 
   @Test
   public void create_2_version_events_on_same_project() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
     SnapshotDto firstAnalysis = db.components().insertSnapshot(project);
     SnapshotDto secondAnalysis = db.components().insertSnapshot(project);
     db.commit();
@@ -219,7 +221,7 @@ public class CreateEventActionIT {
     call(VERSION.name(), "5.6.3", firstAnalysis.getUuid());
     call(VERSION.name(), "6.3", secondAnalysis.getUuid());
 
-    List<EventDto> events = dbClient.eventDao().selectByComponentUuid(dbSession, project.getUuid());
+    List<EventDto> events = dbClient.eventDao().selectByComponentUuid(dbSession, projectData.getMainBranchComponent().uuid());
     assertThat(events).hasSize(2);
   }
 

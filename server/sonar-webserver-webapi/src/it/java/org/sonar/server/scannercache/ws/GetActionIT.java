@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -55,7 +56,7 @@ public class GetActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final ScannerAnalysisCacheDao dao = new ScannerAnalysisCacheDao();
   private final ProjectDao projectDao = new ProjectDao(System2.INSTANCE, new NoOpAuditPersister());
@@ -67,17 +68,17 @@ public class GetActionIT {
 
   @Test
   public void get_data_for_project() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
-    BranchDto branch = dbTester.components().insertProjectBranch(project1);
-    ProjectDto project2 = dbTester.components().insertPrivateProject().getProjectDto();
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    BranchDto branch = dbTester.components().insertProjectBranch(projectData.getProjectDto());
+    ProjectData projectData2 = dbTester.components().insertPrivateProject();
 
-    dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
+    dao.insert(dbTester.getSession(), projectData.getMainBranchDto().getUuid(), stringToCompressedInputStream("test data1"));
     dao.insert(dbTester.getSession(), branch.getUuid(), stringToCompressedInputStream("test data2"));
-    dao.insert(dbTester.getSession(), project2.getUuid(), stringToCompressedInputStream("test data3"));
+    dao.insert(dbTester.getSession(), projectData2.getMainBranchComponent().uuid(), stringToCompressedInputStream("test data3"));
 
-    userSession.logIn().addProjectPermission(SCAN, project1);
+    userSession.logIn().addProjectPermission(SCAN, projectData.getProjectDto());
     TestResponse response = wsTester.newRequest()
-      .setParam("project", project1.getKey())
+      .setParam("project", projectData.projectKey())
       .setHeader("Accept-Encoding", "gzip")
       .execute();
 
@@ -87,9 +88,10 @@ public class GetActionIT {
 
   @Test
   public void get_uncompressed_data_for_project() throws IOException {
-    ProjectDto project1 = dbTester.components().insertPrivateProject().getProjectDto();
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    ProjectDto project1 = projectData.getProjectDto();
 
-    dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
+    dao.insert(dbTester.getSession(), projectData.getMainBranchDto().getUuid(), stringToCompressedInputStream("test data1"));
 
     userSession.logIn().addProjectPermission(SCAN, project1);
 

@@ -62,13 +62,13 @@ public class SourceBranchComponentUuidsIT {
     analysisMetadataHolder.setBranch(branch);
 
     ProjectData projectData = db.components().insertPublicProject();
-    ComponentDto projectDto = projectData.getMainBranchComponent();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     when(project.getUuid()).thenReturn(projectData.projectUuid());
-    branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey(BRANCH_KEY));
-    ComponentDto pr1branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(PR_KEY)
+    branch1 = db.components().insertProjectBranch(mainBranch, b -> b.setKey(BRANCH_KEY));
+    ComponentDto pr1branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(PR_KEY)
       .setBranchType(BranchType.PULL_REQUEST)
       .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch(BRANCH_KEY).build())
-      .setMergeBranchUuid(projectDto.uuid()));
+      .setMergeBranchUuid(mainBranch.uuid()));
     branch1File = ComponentTesting.newFileDto(branch1, null, "file").setUuid("branch1File");
     pr1File = ComponentTesting.newFileDto(pr1branch, null, "file").setUuid("file1");
     db.components().insertComponents(branch1File, pr1File);

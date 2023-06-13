@@ -83,7 +83,7 @@ public class TreeActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   private final DbClient dbClient = db.getDbClient();
   private final ResourceTypes defaultResourceTypes = new ResourceTypes(new ResourceTypeTree[]{DefaultResourceTypes.get()});
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule()
@@ -121,11 +121,11 @@ public class TreeActionIT {
 
   @Test
   public void json_example() throws IOException {
-    ProjectDto project = initJsonExampleComponents();
+    ProjectData project = initJsonExampleComponents();
     logInWithBrowsePermission(project);
 
     String response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .execute()
       .getInput();
 
@@ -149,7 +149,7 @@ public class TreeActionIT {
     db.components().insertComponent(directory);
     db.components().insertComponent(newFileDto(projectMainBranch, directory, 10));
     db.commit();
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -181,7 +181,7 @@ public class TreeActionIT {
     db.components().insertComponent(directory);
     db.components().insertComponent(newFileDto(module, directory, 1));
     db.commit();
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -206,7 +206,7 @@ public class TreeActionIT {
     db.components().insertComponent(newFileDto(projectMainBranch, 1));
     db.components().insertComponent(newFileDto(projectMainBranch, 2));
     db.commit();
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -228,7 +228,7 @@ public class TreeActionIT {
     db.components().insertComponent(directory);
     db.components().insertComponent(newFileDto(mainBranch, directory, 3));
     db.commit();
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
@@ -250,7 +250,7 @@ public class TreeActionIT {
     db.components().insertComponent(newFileDto(mainBranch, 2));
     db.components().insertComponent(newDirectory(mainBranch, "path/directory/", "directory-uuid-1"));
     db.commit();
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -321,7 +321,7 @@ public class TreeActionIT {
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + project.getKey()).setMainBranchProjectUuid(application.getUuid()));
 
-    logInWithBrowsePermission(application);
+    logInWithBrowsePermission(applicationData);
     userSession.addProjectBranchMapping(application.getUuid(), applicationBranch);
 
     TreeWsResponse result = ws.newRequest()
@@ -339,8 +339,9 @@ public class TreeActionIT {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    ProjectDto project = db.components().insertPrivateProject("project-uuid").getProjectDto();
-    logInWithBrowsePermission(project);
+    ProjectData projectData = db.components().insertPrivateProject("project-uuid");
+    ProjectDto project = projectData.getProjectDto();
+    logInWithBrowsePermission(projectData);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey()).executeProtobuf(TreeWsResponse.class);
@@ -511,7 +512,7 @@ public class TreeActionIT {
 
     ProjectData projectData = db.components().insertPrivateProject(p->p.setKey("file-key").setEnabled(false));
     db.components().insertSnapshot(projectData.getMainBranchComponent());
-    logInWithBrowsePermission(projectData.getProjectDto());
+    logInWithBrowsePermission(projectData);
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, "file-key");
@@ -553,7 +554,7 @@ public class TreeActionIT {
     return newFileDto(moduleOrProject, null, i);
   }
 
-  private ProjectDto initJsonExampleComponents() throws IOException {
+  private ProjectData initJsonExampleComponents() throws IOException {
     ProjectData projectData = db.components().insertPrivateProject(c -> c.setUuid("MY_PROJECT_ID")
         .setDescription("MY_PROJECT_DESCRIPTION")
         .setKey("MY_PROJECT_KEY")
@@ -581,7 +582,7 @@ public class TreeActionIT {
         .setCreatedAt(now));
     }
     db.commit();
-    return projectData.getProjectDto();
+    return projectData;
   }
 
   @CheckForNull
@@ -590,8 +591,9 @@ public class TreeActionIT {
     return jsonElement == null ? null : jsonElement.getAsString();
   }
 
-  private void logInWithBrowsePermission(ProjectDto project) {
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+  private void logInWithBrowsePermission(ProjectData project) {
+    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto())
+      .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
   }
 
   @Test
@@ -599,7 +601,7 @@ public class TreeActionIT {
     ProjectData project = db.components().insertPrivateProject(p->p.setUuid("project-uuid").setBranchUuid("project-uuid"));
     db.components().insertSnapshot(project.getMainBranchComponent());
     db.commit();
-    logInWithBrowsePermission(project.getProjectDto());
+    logInWithBrowsePermission(project);
 
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_QUALIFIERS, "BRC")

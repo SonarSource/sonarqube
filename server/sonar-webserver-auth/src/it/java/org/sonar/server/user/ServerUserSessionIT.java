@@ -645,7 +645,7 @@ public class ServerUserSessionIT {
     // Add private project6 to private app2
     db.components().addApplicationProject(app2, project6);
     var copyProject6 = db.components().insertComponent(newProjectCopy(project6, app2));
-    db.components().addPortfolioReference(portfolio, app2.getMainBranchComponent().uuid());
+    db.components().addPortfolioReference(portfolio, app2.getProjectDto().getUuid());
 
     assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, List.of(portfolio))).isEmpty();
     assertThat(underTest.keepAuthorizedComponents(UserRole.USER, List.of(portfolio))).containsExactly(portfolio);

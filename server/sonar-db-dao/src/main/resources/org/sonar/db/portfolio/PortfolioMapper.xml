@@ -207,12 +207,13 @@
     FROM portfolios c
     INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
     INNER JOIN portfolios p on p.uuid = c.root_uuid
+    LEFT JOIN project_branches pb ON pr.branch_uuid = pb.uuid
     where
     pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
     AND
     (pr.branch_uuid is null
     OR
-    pr.branch_uuid=#{referenceUuid,jdbcType=VARCHAR}
+    pb.is_main = ${_true}
     )
   </select>
 

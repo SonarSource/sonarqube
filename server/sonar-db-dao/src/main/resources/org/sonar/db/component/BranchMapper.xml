@@ -274,7 +274,8 @@
     select
     case when exists
     (
-    select pb.project_uuid, pb.need_issue_sync from project_branches pb join components c on pb.project_uuid = c.branch_uuid
+    select pb.project_uuid, pb.need_issue_sync from project_branches pb
+      join components c on pb.uuid = c.branch_uuid
     where c.kee in
     <foreach collection="componentKeys" open="(" close=")" item="componentKey" separator=",">
       #{componentKey,jdbcType=VARCHAR}

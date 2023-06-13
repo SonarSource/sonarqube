@@ -28,11 +28,13 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -65,7 +67,7 @@ public class TagsActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
 
@@ -81,11 +83,12 @@ public class TagsActionIT {
   @Test
   public void search_tags() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
@@ -95,14 +98,15 @@ public class TagsActionIT {
 
   @Test
   public void search_tags_ignores_hotspots() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     Consumer<IssueDto> setTags = issue -> issue.setTags(asList("tag1", "tag2"));
-    db.issues().insertIssue(issueRule, project, project, setTags);
-    db.issues().insertHotspot(hotspotRule, project, project, setTags);
+    db.issues().insertIssue(issueRule, mainBranch, mainBranch, setTags);
+    db.issues().insertHotspot(hotspotRule, mainBranch, mainBranch, setTags);
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
     TestRequest testRequest = ws.newRequest();
 
     assertThat(tagListOf(testRequest)).containsExactly("tag1", "tag2");
@@ -111,11 +115,12 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest().setParam("q", "ag1"))).containsExactly("tag1", "tag12");
   }
@@ -124,11 +129,12 @@ public class TagsActionIT {
   public void search_tags_by_query_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(asList("tag1", "tag12", "tag4", "tag5")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.issues().insertIssue(issueRule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertHotspot(hotspotRule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
     TestRequest testRequest = ws.newRequest();
 
     assertThat(tagListOf(testRequest)).containsExactly("tag1", "tag2");
@@ -142,72 +148,78 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_project() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch1, mainBranch1, issue -> issue.setTags(singletonList("tag1")));
+    db.issues().insertIssue(rule, mainBranch2, mainBranch2, issue -> issue.setTags(singletonList("tag2")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project1, project2);
+    permissionIndexer.allowOnlyAnyone(projectData1.getProjectDto(), projectData1.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("project", project1.getKey()))).containsExactly("tag1");
-    verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
+      .setParam("project", mainBranch1.getKey()))).containsExactly("tag1");
+    verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq(mainBranch1.getKey()));
   }
 
   @Test
   public void search_tags_by_branch_equals_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, branch);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("branch", project.uuid()))).containsExactly("tag1", "tag2");
+      .setParam("project", mainBranch.getKey())
+      .setParam("branch", mainBranch.uuid()))).containsExactly("tag1", "tag2");
   }
 
   @Test
   public void search_tags_by_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, branch);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("project", project.getKey())
+      .setParam("project", mainBranch.getKey())
       .setParam("branch", "my_branch"))).containsExactly("tag12", "tag4", "tag5");
   }
 
   @Test
   public void search_tags_by_branch_not_exist_fall_back_to_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, branch);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("project", project.getKey())
+      .setParam("project", mainBranch.getKey())
       .setParam("branch", "not_exist"))).containsExactly("tag1", "tag2");
   }
 
   @Test
   public void search_all_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, branch);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
       .setParam("q", "tag1")
@@ -218,14 +230,16 @@ public class TagsActionIT {
   public void search_tags_by_project_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
     db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(singletonList("tag2")));
     db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
     db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag4")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project1, project2);
+    permissionIndexer.allowOnlyAnyone(projectData1.getProjectDto(), projectData2.getProjectDto());
 
     assertThat(tagListOf(ws.newRequest()
       .setParam("project", project1.getKey()))).containsExactly("tag2");
@@ -234,11 +248,12 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_portfolio() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertComponent(newProjectCopy(project, portfolio));
-    permissionIndexer.allowOnlyAnyone(project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.components().insertComponent(newProjectCopy(mainBranch, portfolio));
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
     viewIndexer.indexAll();
 
@@ -248,13 +263,14 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_portfolio_ignores_hotspots() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertComponent(newProjectCopy(project, portfolio));
-    permissionIndexer.allowOnlyAnyone(project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.components().insertComponent(newProjectCopy(mainBranch, portfolio));
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
-    db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("cwe")));
-    db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("foo")));
+    db.issues().insertHotspot(hotspotRule, mainBranch, mainBranch, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertIssue(issueRule, mainBranch, mainBranch, issue -> issue.setTags(singletonList("foo")));
     indexIssues();
     viewIndexer.indexAll();
 
@@ -263,14 +279,17 @@ public class TagsActionIT {
 
   @Test
   public void search_tags_by_application() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertComponent(newProjectCopy(project, application));
-    permissionIndexer.allowOnlyAnyone(project);
+    ProjectData applicationData = db.components().insertPrivateApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.components().insertComponent(newProjectCopy(mainBranch, application));
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto(), applicationData.getProjectDto());
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
     viewIndexer.indexAll();
+
 
     assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }
@@ -278,9 +297,10 @@ public class TagsActionIT {
   @Test
   public void search_tags_by_application_ignores_hotspots() {
     ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     db.components().insertComponent(newProjectCopy(project, application));
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("cwe")));
@@ -294,11 +314,12 @@ public class TagsActionIT {
   @Test
   public void return_limited_size() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     TagsResponse result = ws.newRequest()
       .setParam("ps", "2")
@@ -310,13 +331,14 @@ public class TagsActionIT {
   @Test
   public void do_not_return_issues_without_permission() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch1 = projectData.getMainBranchComponent();
+    ComponentDto mainBranch2 = db.components().insertPrivateProject().getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch1, mainBranch1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, mainBranch2, mainBranch2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     indexIssues();
     // Project 2 is not visible to current user
-    permissionIndexer.allowOnlyAnyone(project1);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
@@ -336,28 +358,30 @@ public class TagsActionIT {
 
   @Test
   public void fail_when_project_parameter_does_not_match_a_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam("project", file.getKey())
         .execute();
     })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(format("Component '%s' must be a project", file.getKey()));
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' not found", file.getKey()));
   }
 
   @Test
   public void json_example() {
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(asList("convention", "security")));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
-    permissionIndexer.allowOnlyAnyone(project);
+    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
 
     String result = ws.newRequest().execute().getInput();
 

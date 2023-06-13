@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -29,6 +30,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
@@ -36,6 +38,9 @@ import org.sonar.db.project.ProjectDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 
@@ -157,6 +162,7 @@ public class ComponentDbTester {
   public ProjectData insertPrivateProject(Consumer<BranchDto> branchPopulator, Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     return insertPrivateProjectWithCustomBranch(branchPopulator, componentDtoPopulator, projectDtoPopulator);
   }
+
   public final ComponentDto insertFile(BranchDto branch) {
     ComponentDto projectComponent = getComponentDto(branch);
     return insertComponent(ComponentTesting.newFileDto(projectComponent));
@@ -297,7 +303,17 @@ public class ComponentDbTester {
 
   public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
     for (String uuid : referencerUuids) {
-      dbClient.portfolioDao().addReference(dbSession, portfolioUuid, uuid);
+      EntityDto entityDto = dbClient.entityDao().selectByUuid(dbSession, uuid)
+          .orElseThrow();
+      switch (entityDto.getQualifier()) {
+        case APP -> {
+          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entityDto.getUuid())
+            .orElseThrow();
+          dbClient.portfolioDao().addReferenceBranch(dbSession, portfolioUuid, uuid, appMainBranch.getUuid());
+        }
+        case VIEW, SUBVIEW -> dbClient.portfolioDao().addReference(dbSession, portfolioUuid, uuid);
+        default -> throw new IllegalStateException("Unexpected value: " + entityDto.getQualifier());
+      }
     }
     db.commit();
   }

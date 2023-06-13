@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -77,7 +78,7 @@ public class ProjectStatusActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -105,16 +106,17 @@ public class ProjectStatusActionIT {
 
   @Test
   public void test_json_example() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
     MetricDto gateDetailsMetric = insertGateDetailMetric();
 
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, project, snapshot)
+      newMeasureDto(gateDetailsMetric, mainBranch, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), StandardCharsets.UTF_8)));
     dbSession.commit();
 
@@ -127,26 +129,27 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_past_status_when_project_is_referenced_by_past_analysis_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch)
       .setLast(false)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
-    SnapshotDto lastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
+    SnapshotDto lastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch)
       .setLast(true)
       .setPeriodMode("last_version")
       .setPeriodParam("2016-12-07")
       .setPeriodDate(1_500L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, project, pastAnalysis)
+      newMeasureDto(gateDetailsMetric, mainBranch, pastAnalysis)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, project, lastAnalysis)
+      newMeasureDto(gateDetailsMetric, mainBranch, lastAnalysis)
         .setData("not_used"));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, pastAnalysis.getUuid())
@@ -157,20 +160,21 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.liveMeasureDao().insert(dbSession,
-      newLiveMeasure(project, gateDetailsMetric)
+      newLiveMeasure(mainBranch, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, projectData.projectUuid())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -178,8 +182,9 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_past_status_when_branch_is_referenced_by_past_analysis_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch);
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
       .setLast(false)
       .setPeriodMode("last_version")
@@ -198,7 +203,7 @@ public class ProjectStatusActionIT {
       newMeasureDto(gateDetailsMetric, branch, lastAnalysis)
         .setData("not_used"));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, pastAnalysis.getUuid())
@@ -209,7 +214,8 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -219,7 +225,7 @@ public class ProjectStatusActionIT {
       newLiveMeasure(project, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -230,9 +236,10 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
       .setPeriodMode("last_version")
@@ -243,10 +250,10 @@ public class ProjectStatusActionIT {
       newLiveMeasure(branch, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, mainBranch.getKey())
       .setParam(PARAM_BRANCH, branchName)
       .execute().getInput();
 
@@ -255,9 +262,10 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
-    ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
+    ComponentDto pr = db.components().insertProjectBranch(mainBranch, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(pr)
@@ -269,10 +277,10 @@ public class ProjectStatusActionIT {
       newLiveMeasure(pr, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     String response = ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, mainBranch.getKey())
       .setParam(PARAM_PULL_REQUEST, pullRequestKey)
       .execute().getInput();
 
@@ -281,10 +289,11 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_undefined_status_if_specified_analysis_is_not_found() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
@@ -296,11 +305,12 @@ public class ProjectStatusActionIT {
 
   @Test
   public void return_undefined_status_if_project_is_not_analyzed() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     ProjectStatusResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, projectData.projectUuid())
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
@@ -309,10 +319,11 @@ public class ProjectStatusActionIT {
 
   @Test
   public void project_administrator_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
@@ -321,10 +332,11 @@ public class ProjectStatusActionIT {
 
   @Test
   public void project_user_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
@@ -333,13 +345,14 @@ public class ProjectStatusActionIT {
 
   @Test
   public void check_cayc_compliant_flag() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     var qg = db.qualityGates().insertBuiltInQualityGate();
     db.qualityGates().setDefaultQualityGate(qg);
-    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), eq(project.uuid()))).thenReturn(COMPLIANT);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), eq(projectData.projectUuid()))).thenReturn(COMPLIANT);
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
@@ -350,10 +363,11 @@ public class ProjectStatusActionIT {
 
   @Test
   public void user_with_project_scan_permission_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
-    userSession.addProjectPermission(UserRole.SCAN, project);
+    userSession.addProjectPermission(UserRole.SCAN, projectData.getProjectDto());
 
     var response = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid()).execute();
@@ -363,8 +377,9 @@ public class ProjectStatusActionIT {
 
   @Test
   public void user_with_global_scan_permission_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
     userSession.addPermission(GlobalPermission.SCAN);
 
@@ -387,8 +402,9 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     dbSession.commit();
     userSession.logIn();
 
@@ -437,9 +453,10 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
 
     assertThatThrownBy(() -> ws.newRequest()
