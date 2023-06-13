@@ -42,14 +42,14 @@ const ui = {
   exportBtn: byRole('button', { name: 'project_dump.do_export' }),
   importBtn: byRole('button', { name: 'project_dump.do_import' }),
 
-  successExport: byText('project_dump.latest_export_available.June 8, 2023 at', { exact: false }),
-  pendingExport: byText('project_dump.pending_export.June 8, 2023 at', { exact: false }),
+  successExport: byText('project_dump.latest_export_available.June 8, 2023', { exact: false }),
+  pendingExport: byText('project_dump.pending_export.June 8, 2023', { exact: false }),
   inProgressExport: byText('project_dump.in_progress_export.1 hour ago'),
   failedExport: byText('project_dump.failed_export'),
   cantExportMsg: byText('project_dump.can_not_export'),
 
-  successImport: byText('project_dump.import_success.June 8, 2023 at', { exact: false }),
-  pendingImport: byText('project_dump.pending_import.June 8, 2023 at', { exact: false }),
+  successImport: byText('project_dump.import_success.June 8, 2023', { exact: false }),
+  pendingImport: byText('project_dump.pending_import.June 8, 2023', { exact: false }),
   inProgressImport: byText('project_dump.in_progress_import.1 hour ago'),
   failedImport: byText('project_dump.failed_import'),
   cantImportMsg: byText('project_dump.can_not_import'),

@@ -47,7 +47,9 @@ export function FacetItem({
   tooltip,
   value,
 }: FacetItemProps) {
-  const disabled = disabledProp || (stat !== undefined && stat === 0);
+  // alow an active facet to be disabled even if it now has a "0" stat
+  // (it was activated when a different value of My issues/All/New code was selected)
+  const disabled = disabledProp || (!active && stat !== undefined && stat === 0);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
