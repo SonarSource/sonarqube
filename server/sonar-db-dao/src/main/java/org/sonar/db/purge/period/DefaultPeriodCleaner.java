@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
@@ -35,7 +35,7 @@ import org.sonar.db.purge.PurgeableAnalysisDto;
 
 public class DefaultPeriodCleaner {
 
-  private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private final PurgeDao purgeDao;
   private final PurgeProfiler profiler;
 

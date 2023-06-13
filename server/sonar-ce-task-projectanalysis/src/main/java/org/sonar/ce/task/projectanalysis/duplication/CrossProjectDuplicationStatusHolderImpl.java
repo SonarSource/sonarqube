@@ -21,15 +21,15 @@ package org.sonar.ce.task.projectanalysis.duplication;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class CrossProjectDuplicationStatusHolderImpl implements CrossProjectDuplicationStatusHolder, Startable {
 
-  private static final Logger LOGGER = Loggers.get(CrossProjectDuplicationStatusHolderImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CrossProjectDuplicationStatusHolderImpl.class);
 
   @CheckForNull
   private Boolean enabled;

@@ -21,8 +21,8 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Set;
 import java.util.function.Consumer;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
@@ -32,7 +32,7 @@ import org.sonar.server.es.ProjectIndexer;
 
 public class IndexAnalysisStep implements ComputationStep {
 
-  private static final Logger LOGGER = Loggers.get(IndexAnalysisStep.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexAnalysisStep.class);
 
   private final TreeRootHolder treeRootHolder;
   private final FileStatuses fileStatuses;

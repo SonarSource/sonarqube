@@ -30,8 +30,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.http.JavaxHttpRequest;
@@ -41,7 +41,7 @@ import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 public class UserSessionFilter implements Filter {
-  private static final Logger LOG = Loggers.get(UserSessionFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UserSessionFilter.class);
   private final Platform platform;
 
   public UserSessionFilter() {

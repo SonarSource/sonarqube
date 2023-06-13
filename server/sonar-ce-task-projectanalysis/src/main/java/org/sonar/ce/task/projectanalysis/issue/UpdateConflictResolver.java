@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
@@ -32,7 +32,7 @@ import org.sonar.db.issue.IssueMapper;
  */
 public class UpdateConflictResolver {
 
-  private static final Logger LOG = Loggers.get(UpdateConflictResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateConflictResolver.class);
 
   public void resolve(DefaultIssue issue, IssueDto dbIssue, IssueMapper mapper) {
     LOG.debug("Resolve conflict on issue {}", issue.key());

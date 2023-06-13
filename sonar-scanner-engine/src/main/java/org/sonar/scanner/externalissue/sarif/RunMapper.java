@@ -25,8 +25,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.sarif.Driver;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
@@ -38,7 +38,7 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 
 @ScannerSide
 public class RunMapper {
-  private static final Logger LOG = Loggers.get(RunMapper.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RunMapper.class);
 
   private final ResultMapper resultMapper;
 

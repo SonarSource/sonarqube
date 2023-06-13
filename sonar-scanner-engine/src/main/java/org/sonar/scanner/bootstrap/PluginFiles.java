@@ -31,8 +31,8 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -42,7 +42,7 @@ import static java.lang.String.format;
 
 public class PluginFiles {
 
-  private static final Logger LOGGER = Loggers.get(PluginFiles.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PluginFiles.class);
   private static final String MD5_HEADER = "Sonar-MD5";
 
   private final DefaultScannerWsClient wsClient;

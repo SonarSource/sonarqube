@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -40,7 +40,7 @@ public class DefaultProfilerTest {
   @Rule
   public LogTester tester = new LogTester();
 
-  Profiler underTest = Profiler.create(Loggers.get("DefaultProfilerTest"));
+  Profiler underTest = Profiler.create(LoggerFactory.getLogger("DefaultProfilerTest"));
 
   @DataProvider
   public static Object[][] logTimeLastValues() {

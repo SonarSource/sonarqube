@@ -35,8 +35,8 @@ import org.sonar.alm.client.azure.GsonAzureRepoList;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -59,7 +59,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAzureReposAction implements AlmIntegrationsWsAction {
 
-  private static final Logger LOG = Loggers.get(SearchAzureReposAction.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SearchAzureReposAction.class);
 
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_PROJECT_NAME = "projectName";

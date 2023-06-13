@@ -40,8 +40,8 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.http.JavaxHttpResponse;
 
@@ -53,7 +53,7 @@ import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlAuthenticator {
 
-  private static final Logger LOGGER = Loggers.get(SamlAuthenticator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SamlAuthenticator.class);
 
   private static final String ANY_URL = "http://anyurl";
   private static final String STATE_REQUEST_PARAMETER = "RelayState";

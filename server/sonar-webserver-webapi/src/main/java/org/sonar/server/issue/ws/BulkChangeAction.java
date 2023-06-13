@@ -42,8 +42,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -118,7 +118,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_TYPE;
 
 public class BulkChangeAction implements IssuesWsAction {
 
-  private static final Logger LOG = Loggers.get(BulkChangeAction.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BulkChangeAction.class);
   private static final List<String> ACTIONS_TO_DISTRIBUTE = List.of(SET_SEVERITY_KEY, SET_TYPE_KEY, DO_TRANSITION_KEY);
 
   private final System2 system2;

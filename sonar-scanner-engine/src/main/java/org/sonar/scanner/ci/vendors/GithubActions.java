@@ -21,7 +21,7 @@ package org.sonar.scanner.ci.vendors;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
@@ -57,7 +57,7 @@ public class GithubActions implements CiVendor {
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable(PROPERTY_COMMIT);
     if (isEmpty(revision)) {
-      Loggers.get(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
+      LoggerFactory.getLogger(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
     }
     return new CiConfigurationImpl(revision, getName());
   }

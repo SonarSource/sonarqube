@@ -40,8 +40,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
@@ -66,7 +66,7 @@ import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 
 public class ReportPublisher implements Startable {
-  private static final Logger LOG = Loggers.get(ReportPublisher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ReportPublisher.class);
   private static final String CHARACTERISTIC = "characteristic";
   private static final String DASHBOARD = "dashboard";
   private static final String BRANCH = "branch";

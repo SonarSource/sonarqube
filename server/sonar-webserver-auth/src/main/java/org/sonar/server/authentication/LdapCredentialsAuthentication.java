@@ -28,8 +28,8 @@ import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.auth.ldap.LdapAuthenticationResult;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
@@ -46,7 +46,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class LdapCredentialsAuthentication {
 
-  private static final Logger LOG = Loggers.get(LdapCredentialsAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapCredentialsAuthentication.class);
 
   private final Configuration configuration;
   private final UserRegistrar userRegistrar;

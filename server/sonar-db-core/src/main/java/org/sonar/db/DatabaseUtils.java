@@ -50,8 +50,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -76,7 +76,7 @@ public class DatabaseUtils {
       try {
         connection.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close connection", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close connection", e);
         // ignore
       }
     }
@@ -87,7 +87,7 @@ public class DatabaseUtils {
       try {
         stmt.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close statement", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close statement", e);
         // ignore
       }
     }
@@ -98,7 +98,7 @@ public class DatabaseUtils {
       try {
         rs.close();
       } catch (SQLException e) {
-        Loggers.get(DatabaseUtils.class).warn("Fail to close result set", e);
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close result set", e);
         // ignore
       }
     }
@@ -419,7 +419,7 @@ public class DatabaseUtils {
     try {
       return connection.getMetaData().getDriverName();
     } catch (SQLException e) {
-      Loggers.get(DatabaseUtils.class).warn("Fail to determine database driver.", e);
+      LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to determine database driver.", e);
       return null;
     }
   }
@@ -435,7 +435,7 @@ public class DatabaseUtils {
         schema = connection.getSchema();
       }
     } catch (SQLException e) {
-      Loggers.get(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
+      LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
     }
     return schema;
   }

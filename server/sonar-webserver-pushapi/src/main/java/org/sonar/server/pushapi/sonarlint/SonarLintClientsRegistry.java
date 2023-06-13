@@ -27,14 +27,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.ForbiddenException;
 
 @ServerSide
 public class SonarLintClientsRegistry {
 
-  private static final Logger LOG = Loggers.get(SonarLintClientsRegistry.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonarLintClientsRegistry.class);
 
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();

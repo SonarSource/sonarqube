@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
@@ -83,7 +83,7 @@ public class ExportAnalysesStep implements ComputationStep {
         output.write(analysis);
         count++;
       }
-      Loggers.get(getClass()).debug("{} analyses exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} analyses exported", count);
 
     } catch (Exception e) {
       throw new IllegalStateException(format("Analysis Export failed after processing %d analyses successfully", count), e);

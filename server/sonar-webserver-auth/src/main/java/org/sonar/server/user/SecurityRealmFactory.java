@@ -21,6 +21,8 @@ package org.sonar.server.user;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
@@ -28,8 +30,6 @@ import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
@@ -41,6 +41,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 @ServerSide
 public class SecurityRealmFactory implements Startable {
 
+  private static final Logger LOG = LoggerFactory.getLogger("org.sonar.INFO");
   private static final String LDAP_SECURITY_REALM = "LDAP";
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
@@ -94,14 +95,13 @@ public class SecurityRealmFactory implements Startable {
   @Override
   public void start() {
     if (realm != null) {
-      Logger logger = Loggers.get("org.sonar.INFO");
       try {
-        logger.info("Security realm: " + realm.getName());
+        LOG.info("Security realm: {}", realm.getName());
         realm.init();
-        logger.info("Security realm started");
+        LOG.info("Security realm started");
       } catch (RuntimeException e) {
         if (ignoreStartupFailure) {
-          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
+          LOG.error("IGNORED - Security realm fails to start: {}", e.getMessage());
         } else {
           throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }

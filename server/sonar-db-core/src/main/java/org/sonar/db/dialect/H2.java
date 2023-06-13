@@ -21,7 +21,7 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 public class H2 extends AbstractDialect {
 
@@ -43,6 +43,6 @@ public class H2 extends AbstractDialect {
 
   @Override
   public void init(DatabaseMetaData metaData) {
-    Loggers.get(getClass()).warn("H2 database should be used for evaluation purpose only.");
+    LoggerFactory.getLogger(getClass()).warn("H2 database should be used for evaluation purpose only.");
   }
 }

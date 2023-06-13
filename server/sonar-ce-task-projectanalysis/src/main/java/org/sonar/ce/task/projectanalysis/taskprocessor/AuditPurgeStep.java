@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.DbClient;
@@ -30,7 +30,7 @@ import org.sonar.db.property.PropertyDto;
 import static java.lang.String.format;
 
 public final class AuditPurgeStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(AuditPurgeStep.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuditPurgeStep.class);
 
   private final AuditHousekeepingFrequencyHelper auditHousekeepingFrequencyHelper;
   private final DbClient dbClient;

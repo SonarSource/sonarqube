@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static org.sonar.auth.OAuthRestClient.executePaginatedRequest;
@@ -37,7 +37,7 @@ import static org.sonar.auth.OAuthRestClient.executeRequest;
 
 public class GitHubRestClient {
 
-  private static final Logger LOGGER = Loggers.get(GitHubRestClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GitHubRestClient.class);
 
   private final GitHubSettings settings;
 

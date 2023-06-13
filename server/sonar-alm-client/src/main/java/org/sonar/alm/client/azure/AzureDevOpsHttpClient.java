@@ -38,8 +38,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.util.stream.Collectors.joining;
@@ -49,7 +49,7 @@ import static org.sonar.api.internal.apachecommons.lang.StringUtils.substringBef
 @ServerSide
 public class AzureDevOpsHttpClient {
 
-  private static final Logger LOG = Loggers.get(AzureDevOpsHttpClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AzureDevOpsHttpClient.class);
 
   public static final String API_VERSION_3 = "api-version=3.0";
 

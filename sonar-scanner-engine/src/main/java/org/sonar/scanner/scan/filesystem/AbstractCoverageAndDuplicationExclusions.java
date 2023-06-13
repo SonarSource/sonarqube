@@ -26,15 +26,15 @@ import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static java.util.stream.Collectors.toList;
 
 @Immutable
 public abstract class AbstractCoverageAndDuplicationExclusions {
-  private static final Logger LOG = Loggers.get(AbstractCoverageAndDuplicationExclusions.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageAndDuplicationExclusions.class);
   private final Function<DefaultInputFile, String> pathExtractor;
   private final String[] coverageExclusionConfig;
   private final String[] duplicationExclusionConfig;

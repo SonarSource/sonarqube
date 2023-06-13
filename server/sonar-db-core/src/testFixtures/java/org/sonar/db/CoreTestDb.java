@@ -32,8 +32,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.version.SqTables;
 
 import static java.util.Objects.requireNonNull;
@@ -120,7 +120,7 @@ class CoreTestDb implements TestDb {
       db.start();
 
       databaseInitializer.accept(db);
-      Loggers.get(getClass()).debug("Test Database: " + db);
+      LoggerFactory.getLogger(getClass()).debug("Test Database: " + db);
 
       String login = settings.getString(JDBC_USERNAME.getKey());
 
@@ -190,7 +190,7 @@ class CoreTestDb implements TestDb {
   }
 
   private void logJdbcSettings(Settings settings) {
-    Logger logger = Loggers.get(getClass());
+    Logger logger = LoggerFactory.getLogger(getClass());
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       logger.info(key + ": " + settings.getString(key));
     }

@@ -25,8 +25,8 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -45,7 +45,7 @@ import org.sonar.scanner.scm.ScmRevision;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
-  private static final Logger LOG = Loggers.get(MetadataPublisher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataPublisher.class);
 
   private final QualityProfiles qProfiles;
   private final ProjectInfo projectInfo;

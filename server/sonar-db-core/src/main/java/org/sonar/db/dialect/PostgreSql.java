@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -70,7 +70,7 @@ public class PostgreSql extends AbstractDialect {
 
     supportsUpsert = version.compareTo(MIN_UPSERT_VERSION) >= 0;
     if (!supportsUpsert) {
-      Loggers.get(getClass()).warn("Upgrading PostgreSQL to {} or greater is recommended for better performances", MIN_UPSERT_VERSION);
+      LoggerFactory.getLogger(getClass()).warn("Upgrading PostgreSQL to {} or greater is recommended for better performances", MIN_UPSERT_VERSION);
     }
 
     initialized = true;

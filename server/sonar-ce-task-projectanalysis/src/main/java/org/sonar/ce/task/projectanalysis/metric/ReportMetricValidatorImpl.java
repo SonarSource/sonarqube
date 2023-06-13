@@ -23,13 +23,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.stream.MoreCollectors;
 
 public class ReportMetricValidatorImpl implements ReportMetricValidator {
-  private static final Logger LOG = Loggers.get(ReportMetricValidatorImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ReportMetricValidatorImpl.class);
 
   private final Map<String, Metric> metricByKey;
   private final Set<String> alreadyLoggedMetricKeys = new HashSet<>();

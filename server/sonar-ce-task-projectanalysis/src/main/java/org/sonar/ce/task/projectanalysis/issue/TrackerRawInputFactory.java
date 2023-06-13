@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -109,7 +109,7 @@ public class TrackerRawInputFactory {
             continue;
           }
           if (!isIssueOnUnsupportedCommonRule(reportIssue)) {
-            Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+            LoggerFactory.getLogger(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
             continue;
           }
           DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);

@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DatabaseUtils;
@@ -72,7 +72,7 @@ public class ExportEventsStep implements ComputationStep {
         output.write(event);
         count++;
       }
-      Loggers.get(getClass()).debug("{} events exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} events exported", count);
 
     } catch (Exception e) {
       throw new IllegalStateException(format("Event Export failed after processing %d events successfully", count), e);

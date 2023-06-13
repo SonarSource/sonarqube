@@ -30,12 +30,12 @@ import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runners.model.FrameworkMethod;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect("percflow(execution(void org.junit.internal.runners.statements.RunAfters.evaluate()))")
 public class RunAftersAspect {
-  private static final Logger logger = Loggers.get(RunAftersAspect.class);
+  private static final Logger logger = LoggerFactory.getLogger(RunAftersAspect.class);
   private String testClass = "";
   private String testMethod = "";
 

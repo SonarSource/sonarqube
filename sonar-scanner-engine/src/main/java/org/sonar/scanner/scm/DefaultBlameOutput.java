@@ -34,8 +34,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
@@ -47,7 +47,7 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 
 class DefaultBlameOutput implements BlameOutput {
 
-  private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultBlameOutput.class);
   @VisibleForTesting
   static final String SCM_INTEGRATION_DOCUMENTATION_SUFFIX = "/analyzing-source-code/scm-integration/";
 

@@ -33,8 +33,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
@@ -42,7 +42,7 @@ public class NetworkUtilsImpl implements NetworkUtils {
 
   private static final Set<Integer> PORTS_ALREADY_ALLOCATED = new HashSet<>();
   private static final int PORT_MAX_TRIES = 50;
-  private static final Logger LOG = Loggers.get(NetworkUtilsImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NetworkUtilsImpl.class);
 
   public static final NetworkUtils INSTANCE = new NetworkUtilsImpl();
 

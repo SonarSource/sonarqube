@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Load {@link CoreExtension} and register them into the {@link CoreExtensionRepository}.
  */
 public class CoreExtensionsLoader {
-  private static final Logger LOG = Loggers.get(CoreExtensionsLoader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CoreExtensionsLoader.class);
 
   private final CoreExtensionRepository coreExtensionRepository;
   private final ServiceLoaderWrapper serviceLoaderWrapper;

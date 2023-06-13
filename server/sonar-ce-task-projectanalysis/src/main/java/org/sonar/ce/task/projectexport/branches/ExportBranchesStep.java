@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.branches;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -67,7 +67,7 @@ public class ExportBranchesStep implements ComputationStep {
           output.write(builder.build());
           ++count;
         }
-        Loggers.get(getClass()).debug("{} branches exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} branches exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Branch export failed after processing %d branch(es) successfully", count), e);

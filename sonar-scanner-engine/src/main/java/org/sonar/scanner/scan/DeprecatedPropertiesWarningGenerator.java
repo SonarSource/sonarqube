@@ -25,13 +25,13 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.scanner.bootstrap.ScannerWsClientProvider;
 
 public class DeprecatedPropertiesWarningGenerator {
-  private static final Logger LOG = Loggers.get(DeprecatedPropertiesWarningGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedPropertiesWarningGenerator.class);
 
   @VisibleForTesting
   static final String PASSWORD_WARN_MESSAGE = String.format("The properties '%s' and '%s' are deprecated and will be removed in the " +

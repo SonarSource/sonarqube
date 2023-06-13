@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -47,7 +47,7 @@ public class ExportPluginsStep implements ComputationStep {
         ProjectDump.Plugin.Builder builder = ProjectDump.Plugin.newBuilder();
         writer.write(convert(plugin, builder));
       }
-      Loggers.get(getClass()).debug("{} plugins exported", plugins.size());
+      LoggerFactory.getLogger(getClass()).debug("{} plugins exported", plugins.size());
     }
   }
 

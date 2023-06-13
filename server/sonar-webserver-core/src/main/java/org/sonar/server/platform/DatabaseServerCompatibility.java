@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
@@ -53,8 +53,8 @@ public class DatabaseServerCompatibility implements Startable {
 
       String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
-      Loggers.get(DatabaseServerCompatibility.class).warn(msg);
-      Logger logger = Loggers.get(STARTUP_LOGGER_NAME);
+      LoggerFactory.getLogger(DatabaseServerCompatibility.class).warn(msg);
+      Logger logger = LoggerFactory.getLogger(STARTUP_LOGGER_NAME);
       logger.warn(HIGHLIGHTER);
       logger.warn(msg);
       logger.warn(HIGHLIGHTER);

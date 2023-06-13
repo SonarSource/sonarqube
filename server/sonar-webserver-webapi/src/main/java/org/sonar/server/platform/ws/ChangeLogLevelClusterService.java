@@ -20,9 +20,9 @@
 package org.sonar.server.platform.ws;
 
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -32,7 +32,7 @@ import org.sonar.server.log.ServerLogging;
 public class ChangeLogLevelClusterService implements ChangeLogLevelService {
 
   private static final long CLUSTER_TIMEOUT_MILLIS = 5000;
-  private static final Logger LOGGER = Loggers.get(ChangeLogLevelClusterService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLogLevelClusterService.class);
 
   private final HazelcastMember member;
 

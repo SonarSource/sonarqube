@@ -27,8 +27,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
@@ -48,7 +48,7 @@ public class ProjectsInWarningDaemon implements Startable {
 
   static final String PROJECTS_IN_WARNING_INTERNAL_PROPERTY = "projectsInWarning";
 
-  private static final Logger LOG = Loggers.get(ProjectsInWarningDaemon.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectsInWarningDaemon.class);
 
   private static final String FREQUENCY_IN_MILLISECONDS_PROPERTY = "sonar.projectsInWarning.frequencyInMilliseconds";
   private static final int DEFAULT_FREQUENCY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;

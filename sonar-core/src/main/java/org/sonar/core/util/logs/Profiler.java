@@ -20,7 +20,7 @@
 package org.sonar.core.util.logs;
 
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 /**
  *

@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration;
 
 import java.util.Date;
 import java.util.concurrent.Semaphore;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
@@ -34,7 +34,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStepExecutionExcepti
  */
 public class DatabaseMigrationImpl implements DatabaseMigration {
 
-  private static final Logger LOGGER = Loggers.get(DatabaseMigrationImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMigrationImpl.class);
 
   /**
    * ExecutorService implements threads management.

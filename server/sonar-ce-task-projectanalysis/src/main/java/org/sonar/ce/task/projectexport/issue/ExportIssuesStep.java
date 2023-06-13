@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.rule.Rule;
 import org.sonar.ce.task.projectexport.rule.RuleRepository;
@@ -104,7 +104,7 @@ public class ExportIssuesStep implements ComputationStep {
         output.write(issue);
         count++;
       }
-      Loggers.get(getClass()).debug("{} issues exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} issues exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Issue export failed after processing %d issues successfully", count), e);
     }

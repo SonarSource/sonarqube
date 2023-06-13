@@ -46,8 +46,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -90,7 +90,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE
 @ServerSide
 public class IssueQueryFactory {
 
-  private static final Logger LOGGER = Loggers.get(IssueQueryFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueQueryFactory.class);
 
   public static final String UNKNOWN = "<UNKNOWN>";
   public static final List<String> ISSUE_STATUSES = STATUSES.stream()

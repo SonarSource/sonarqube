@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
@@ -68,7 +68,7 @@ public class CePluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    Loggers.get(getClass()).info("Load plugins");
+    LoggerFactory.getLogger(getClass()).info("Load plugins");
     registerPluginsFromDir(fs.getInstalledBundledPluginsDir());
     registerPluginsFromDir(fs.getInstalledExternalPluginsDir());
 

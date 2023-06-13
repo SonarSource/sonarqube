@@ -68,8 +68,8 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 import static java.lang.String.format;
@@ -83,7 +83,7 @@ import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
 
 public class GitScmProvider extends ScmProvider {
 
-  private static final Logger LOG = Loggers.get(GitScmProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GitScmProvider.class);
   private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
   private static final String NO_MERGE_BASE_FOUND_MESSAGE = "No merge base found between HEAD and %s";
   @VisibleForTesting

@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.Container;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
@@ -29,7 +29,7 @@ import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import static com.google.common.base.Preconditions.checkState;
 
 public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
-  private static final Logger LOGGER = Loggers.get("DbMigrations");
+  private static final Logger LOGGER = LoggerFactory.getLogger("DbMigrations");
   private static final String GLOBAL_START_MESSAGE = "Executing DB migrations...";
   private static final String GLOBAL_END_MESSAGE = "Executed DB migrations: {}";
   private static final String STEP_START_PATTERN = "{}...";

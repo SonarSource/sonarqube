@@ -50,7 +50,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -516,7 +516,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
         try {
           this.connection.close();
         } catch (SQLException e) {
-          Loggers.get(CoreDbTester.class).warn("Fail to close connection", e);
+          LoggerFactory.getLogger(CoreDbTester.class).warn("Fail to close connection", e);
           // do not re-throw the exception
         }
       }

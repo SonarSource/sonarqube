@@ -31,8 +31,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.cluster.NodeType;
 import org.springframework.context.annotation.Bean;
 
@@ -48,7 +48,7 @@ import static org.sonar.process.cluster.NodeType.SEARCH;
 @ComputeEngineSide
 @ServerSide
 public class EsClientProvider {
-  private static final Logger LOGGER = Loggers.get(EsClientProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EsClientProvider.class);
 
   @Bean("EsClient")
   public EsClient provide(Configuration config) {

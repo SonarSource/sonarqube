@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -69,7 +69,7 @@ public class ExportNewCodePeriodsStep implements ComputationStep {
         ++count;
       }
 
-      Loggers.get(getClass()).debug("{} new code periods exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} new code periods exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("New Code Periods Export failed after processing %d new code periods successfully", count), e);
     }

@@ -86,8 +86,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType.IndexRelationType;
@@ -114,7 +114,7 @@ public class EsTester extends ExternalResource {
   private static final int MIN_PORT = 1;
   private static final int MAX_PORT = 49151;
   private static final int MIN_NON_ROOT_PORT = 1025;
-  private static final Logger LOG = Loggers.get(EsTester.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EsTester.class);
 
   static {
     System.setProperty("log4j.shutdownHookEnabled", "false");

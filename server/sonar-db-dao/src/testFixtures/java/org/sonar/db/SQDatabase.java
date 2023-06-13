@@ -31,7 +31,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.platform.SpringComponentContainer;
@@ -120,7 +120,7 @@ public class SQDatabase extends DefaultDatabase {
     }
 
     private void execute(RegisteredMigrationStep step, MigrationStep migrationStep) {
-      Profiler stepProfiler = Profiler.create(Loggers.get(SQDatabase.class));
+      Profiler stepProfiler = Profiler.create(LoggerFactory.getLogger(SQDatabase.class));
       stepProfiler.startInfo(STEP_START_PATTERN, step);
       boolean done = false;
       try {

@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -78,7 +78,7 @@ public class ExportSettingsStep implements ComputationStep {
         ++count;
       }
 
-      Loggers.get(getClass()).debug("{} settings exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} settings exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Settings Export failed after processing %d settings successfully", count), e);
     }

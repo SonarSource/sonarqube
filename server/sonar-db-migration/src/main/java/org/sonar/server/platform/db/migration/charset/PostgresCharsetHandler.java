@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.version.SqTables;
 
 import static java.lang.String.format;
@@ -58,7 +58,7 @@ class PostgresCharsetHandler extends CharsetHandler {
   }
 
   private void expectUtf8AsDefault(Connection connection) throws SQLException {
-    Loggers.get(getClass()).info("Verify that database charset supports UTF8");
+    LoggerFactory.getLogger(getClass()).info("Verify that database charset supports UTF8");
     String collation = metadata.getDefaultCharset(connection);
     if (!containsIgnoreCase(collation, UTF8)) {
       throw MessageException.of(format("Database charset is %s. It must support UTF8.", collation));

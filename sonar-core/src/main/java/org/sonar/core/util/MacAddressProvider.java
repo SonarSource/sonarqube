@@ -26,15 +26,15 @@ import java.security.SecureRandom;
 import java.util.Enumeration;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used by {@link UuidFactoryImpl}. Heavily inspired by https://github.com/elastic/elasticsearch/blob/master/core/src/main/java/org/elasticsearch/common/MacAddressProvider.java
  */
 class MacAddressProvider {
 
-  private static final Logger LOGGER = Loggers.get(MacAddressProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MacAddressProvider.class);
   public static final int BYTE_SIZE = 6;
 
   private MacAddressProvider() {

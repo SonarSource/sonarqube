@@ -21,8 +21,8 @@ package org.sonar.ce.configuration;
 
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Displays a warning in the logs if property "sonar.ce.workerCount" is defined as it has been replaced
@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Loggers;
  */
 public class CeWorkerCountSettingWarning implements Startable {
   private static final String PROPERTY_SONAR_CE_WORKER_COUNT = "sonar.ce.workerCount";
-  private static final Logger LOG = Loggers.get(CeWorkerCountSettingWarning.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CeWorkerCountSettingWarning.class);
 
   private final Configuration configuration;
 

@@ -20,7 +20,7 @@
 package org.sonar.server.platform.db.migration;
 
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 
@@ -36,10 +36,10 @@ public class AutoDbMigration implements Startable {
   @Override
   public void start() {
     if (serverUpgradeStatus.isFreshInstall()) {
-      Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
+      LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration on fresh install");
       migrationEngine.execute();
     } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isAutoDbUpgrade()) {
-      Loggers.get(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
+      LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
       migrationEngine.execute();
     }
   }

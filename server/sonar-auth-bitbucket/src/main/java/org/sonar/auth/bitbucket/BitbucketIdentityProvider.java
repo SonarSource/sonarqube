@@ -39,8 +39,8 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -50,7 +50,7 @@ import static java.util.stream.Collectors.toSet;
 @ServerSide
 public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
 
-  private static final Logger LOGGER = Loggers.get(BitbucketIdentityProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BitbucketIdentityProvider.class);
 
   public static final String REQUIRED_SCOPE = "account";
   public static final String KEY = "bitbucket";

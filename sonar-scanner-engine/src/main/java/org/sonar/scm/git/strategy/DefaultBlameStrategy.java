@@ -20,8 +20,8 @@
 package org.sonar.scm.git.strategy;
 
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum.*;
 
@@ -36,7 +36,7 @@ import static org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum
  */
 public class DefaultBlameStrategy implements BlameStrategy {
 
-  private static final Logger LOG = Loggers.get(DefaultBlameStrategy.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultBlameStrategy.class);
   private static final int FILES_GIT_BLAME_TRIGGER = 10;
   public static final String PROP_SONAR_SCM_USE_BLAME_ALGORITHM = "sonar.scm.use.blame.algorithm";
   private final Configuration configuration;

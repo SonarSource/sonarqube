@@ -20,7 +20,7 @@
 package org.sonar.core.platform;
 
 import org.junit.Test;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.startsWith;

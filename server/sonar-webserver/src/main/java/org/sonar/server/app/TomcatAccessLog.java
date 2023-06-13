@@ -24,8 +24,8 @@ import ch.qos.logback.core.FileAppender;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
 
@@ -37,7 +37,7 @@ class TomcatAccessLog {
 
   void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(true);
-    tomcat.getService().addLifecycleListener(new LifecycleLogger(Loggers.get(TomcatAccessLog.class)));
+    tomcat.getService().addLifecycleListener(new LifecycleLogger(LoggerFactory.getLogger(TomcatAccessLog.class)));
     configureLogbackAccess(tomcat, props);
   }
 

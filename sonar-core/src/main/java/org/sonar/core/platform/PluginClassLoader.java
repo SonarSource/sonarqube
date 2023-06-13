@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Collections.singleton;
@@ -95,13 +95,13 @@ public class PluginClassLoader {
       // They can't change metadata like ordering strategy or compatibility mode.
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
         if (info.isUseChildFirstClassLoader()) {
-          Loggers.get(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(), info.getKey());
+          LoggerFactory.getLogger(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(), info.getKey());
         }
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
         Version minSonarPluginApiVersion = info.getMinimalSonarPluginApiVersion();
         boolean compatibilityMode = minSonarPluginApiVersion != null && minSonarPluginApiVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         if (compatibilityMode) {
-          Loggers.get(getClass()).warn("API compatibility mode is no longer supported. In case of error, plugin {} [{}] should package its dependencies.",
+          LoggerFactory.getLogger(getClass()).warn("API compatibility mode is no longer supported. In case of error, plugin {} [{}] should package its dependencies.",
             info.getName(), info.getKey());
         }
       }
@@ -146,7 +146,7 @@ public class PluginClassLoader {
         try {
           ((Closeable) classLoader).close();
         } catch (Exception e) {
-          Loggers.get(getClass()).error("Fail to close classloader " + classLoader.toString(), e);
+          LoggerFactory.getLogger(getClass()).error("Fail to close classloader " + classLoader.toString(), e);
         }
       }
     }

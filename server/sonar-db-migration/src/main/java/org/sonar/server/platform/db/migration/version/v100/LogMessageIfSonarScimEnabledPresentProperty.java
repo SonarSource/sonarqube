@@ -20,14 +20,14 @@
 package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class LogMessageIfSonarScimEnabledPresentProperty extends DataChange {
 
-  private static final Logger LOG = Loggers.get(LogMessageIfSonarScimEnabledPresentProperty.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LogMessageIfSonarScimEnabledPresentProperty.class);
   public static final String SONAR_SCIM_ENABLED = "sonar.scim.enabled";
   private static final String SCIM_DOC_URL = "https://docs.sonarqube.org/10.1/instance-administration/authentication/saml/scim/overview/";
 

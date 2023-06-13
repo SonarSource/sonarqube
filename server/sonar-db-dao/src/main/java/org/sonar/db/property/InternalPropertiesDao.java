@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -188,7 +188,7 @@ public class InternalPropertiesDao implements Dao {
     }
     res = enforceSingleElement(key, mapper.selectAsClob(singletonList(key)));
     if (res == null) {
-      Loggers.get(InternalPropertiesDao.class)
+      LoggerFactory.getLogger(InternalPropertiesDao.class)
         .debug("Internal property {} has been found in db but has neither text value nor is empty. " +
           "Still it couldn't be retrieved with clob value. Ignoring the property.", key);
       return Optional.empty();

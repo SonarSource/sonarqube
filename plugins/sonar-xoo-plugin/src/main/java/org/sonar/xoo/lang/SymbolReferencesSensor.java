@@ -32,8 +32,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 import static java.lang.Integer.parseInt;
@@ -43,7 +43,7 @@ import static java.lang.Integer.parseInt;
  */
 public class SymbolReferencesSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(SymbolReferencesSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SymbolReferencesSensor.class);
   private static final String SYMBOL_EXTENSION = ".symbol";
 
   private void processFileSymbol(InputFile inputFile, SensorContext context) {

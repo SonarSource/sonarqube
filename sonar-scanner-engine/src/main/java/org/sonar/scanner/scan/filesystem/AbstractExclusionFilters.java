@@ -30,8 +30,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;
@@ -41,7 +41,7 @@ import static org.sonar.api.CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY;
 
 public abstract class AbstractExclusionFilters {
 
-  private static final Logger LOG = Loggers.get(AbstractExclusionFilters.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractExclusionFilters.class);
   private static final String WARNING_ALIAS_PROPERTY_USAGE = "Use of %s detected. While being taken into account, the only supported property is %s." +
     " Consider updating your configuration.";
 

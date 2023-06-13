@@ -45,8 +45,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.fs.InputModuleHierarchy;
@@ -65,7 +65,7 @@ import static java.util.Collections.singletonList;
  */
 public class ProjectFileIndexer {
 
-  private static final Logger LOG = Loggers.get(ProjectFileIndexer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectFileIndexer.class);
   private final ProjectExclusionFilters projectExclusionFilters;
   private final SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
   private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;

@@ -21,8 +21,8 @@ package org.sonar.server.platform.db;
 
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS;
 
@@ -32,7 +32,7 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS;
  */
 public class CheckLanguageSpecificParamsAtStartup implements Startable {
 
-  private static final Logger LOG = Loggers.get(CheckLanguageSpecificParamsAtStartup.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CheckLanguageSpecificParamsAtStartup.class);
 
   private final Configuration config;
 

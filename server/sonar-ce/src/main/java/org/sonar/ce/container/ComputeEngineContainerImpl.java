@@ -38,7 +38,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.CeHttpModule;
@@ -225,7 +225,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level4.startComponents();
 
     PlatformEditionProvider editionProvider = level4.getComponentByType(PlatformEditionProvider.class);
-    Loggers.get(ComputeEngineContainerImpl.class)
+    LoggerFactory.getLogger(ComputeEngineContainerImpl.class)
       .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
   }
 

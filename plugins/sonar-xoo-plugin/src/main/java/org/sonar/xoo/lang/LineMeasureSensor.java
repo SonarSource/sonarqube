@@ -32,8 +32,8 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 /**
@@ -41,7 +41,7 @@ import org.sonar.xoo.Xoo;
  */
 public class LineMeasureSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(LineMeasureSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LineMeasureSensor.class);
 
   private static final String MEASURES_EXTENSION = ".linemeasures";
 

@@ -33,8 +33,8 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 
@@ -43,7 +43,7 @@ import org.sonar.xoo.Xoo2;
  */
 public class MeasureSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(MeasureSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MeasureSensor.class);
 
   private static final String MEASURES_EXTENSION = ".measures";
 

@@ -23,8 +23,8 @@ import org.sonar.api.Startable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskMessageType;
@@ -35,7 +35,7 @@ import org.sonar.db.ce.CeTaskMessageType;
 @ServerSide
 public class UpgradeSuggestionsCleaner implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(UpgradeSuggestionsCleaner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpgradeSuggestionsCleaner.class);
 
   private final DbClient dbClient;
   private final SonarRuntime sonarRuntime;

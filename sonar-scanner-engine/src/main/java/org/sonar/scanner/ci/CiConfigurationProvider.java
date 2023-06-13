@@ -25,13 +25,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 
 public class CiConfigurationProvider {
 
-  private static final Logger LOG = Loggers.get(CiConfigurationProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CiConfigurationProvider.class);
   private static final String PROP_DISABLED = "sonar.ci.autoconfig.disabled";
 
   @Bean("CiConfiguration")

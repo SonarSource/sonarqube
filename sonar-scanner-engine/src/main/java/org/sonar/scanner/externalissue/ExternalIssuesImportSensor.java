@@ -32,12 +32,12 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.externalissue.ReportParser.Report;
 
 public class ExternalIssuesImportSensor implements Sensor {
-  private static final Logger LOG = Loggers.get(ExternalIssuesImportSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExternalIssuesImportSensor.class);
   static final String REPORT_PATHS_PROPERTY_KEY = "sonar.externalIssuesReportPaths";
 
   private final Configuration config;

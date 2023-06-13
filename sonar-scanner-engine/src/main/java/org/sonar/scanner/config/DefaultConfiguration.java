@@ -29,8 +29,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
@@ -39,7 +39,7 @@ import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 @Immutable
 public abstract class DefaultConfiguration implements Configuration {
 
-  private static final Logger LOG = Loggers.get(DefaultConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultConfiguration.class);
 
   private final PropertyDefinitions definitions;
   private final Encryption encryption;

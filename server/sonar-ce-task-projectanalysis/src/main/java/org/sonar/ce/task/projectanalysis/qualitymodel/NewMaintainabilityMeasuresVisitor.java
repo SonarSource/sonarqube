@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -54,7 +54,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
  * {@link CoreMetrics#NEW_MAINTAINABILITY_RATING_KEY}
  */
 public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<NewMaintainabilityMeasuresVisitor.Counter> {
-  private static final Logger LOG = Loggers.get(NewMaintainabilityMeasuresVisitor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NewMaintainabilityMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
   private final NewLinesRepository newLinesRepository;

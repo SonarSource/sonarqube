@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -44,7 +44,7 @@ import static java.lang.String.format;
 @ComputeEngineSide
 public class WebHooksImpl implements WebHooks {
 
-  private static final Logger LOGGER = Loggers.get(WebHooksImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebHooksImpl.class);
 
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;

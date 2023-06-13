@@ -30,8 +30,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 import static java.lang.Integer.parseInt;
@@ -41,7 +41,7 @@ import static java.lang.Integer.parseInt;
  */
 public class SyntaxHighlightingSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(SyntaxHighlightingSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SyntaxHighlightingSensor.class);
   private static final String HIGHLIGHTING_EXTENSION = ".highlighting";
 
   private void processFileHighlighting(InputFile inputFile, SensorContext context) {

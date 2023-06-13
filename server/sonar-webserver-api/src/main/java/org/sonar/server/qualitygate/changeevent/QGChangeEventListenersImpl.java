@@ -24,8 +24,8 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
@@ -41,7 +41,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
  * prevent from calling the others.
  */
 public class QGChangeEventListenersImpl implements QGChangeEventListeners {
-  private static final Logger LOG = Loggers.get(QGChangeEventListenersImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(QGChangeEventListenersImpl.class);
 
   private final Set<QGChangeEventListener> listeners;
 

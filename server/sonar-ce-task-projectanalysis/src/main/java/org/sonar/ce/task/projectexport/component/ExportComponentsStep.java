@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -97,7 +97,7 @@ public class ExportComponentsStep implements ComputationStep {
         ref++;
         count++;
       }
-      Loggers.get(getClass()).debug("{} components exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} components exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Component Export failed after processing %d components successfully", count), e);
     }

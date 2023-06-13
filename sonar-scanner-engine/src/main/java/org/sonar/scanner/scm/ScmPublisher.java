@@ -29,8 +29,8 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
@@ -43,7 +43,7 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public final class ScmPublisher {
 
-  private static final Logger LOG = Loggers.get(ScmPublisher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScmPublisher.class);
 
   private final ScmConfiguration configuration;
   private final ProjectRepositories projectRepositories;

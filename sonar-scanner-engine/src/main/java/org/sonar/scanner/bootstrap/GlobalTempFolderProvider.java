@@ -24,8 +24,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import org.springframework.context.annotation.Bean;
 
@@ -38,7 +38,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
 
 public class GlobalTempFolderProvider {
-  private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalTempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 

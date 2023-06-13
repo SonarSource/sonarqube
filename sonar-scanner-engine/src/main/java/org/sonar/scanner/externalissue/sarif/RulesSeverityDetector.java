@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.sarif.DefaultConfiguration;
 import org.sonar.core.sarif.Extension;
 import org.sonar.core.sarif.Result;
@@ -43,7 +43,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 
 public class RulesSeverityDetector {
-  private static final Logger LOG = Loggers.get(RulesSeverityDetector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RulesSeverityDetector.class);
   public static final String UNSUPPORTED_RULE_SEVERITIES_WARNING = "Unable to detect rules severity for issue detected by tool %s, falling back to default rule severity: %s";
 
   private RulesSeverityDetector() {}

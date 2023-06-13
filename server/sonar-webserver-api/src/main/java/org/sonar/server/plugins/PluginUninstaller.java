@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
@@ -39,7 +39,7 @@ import static org.apache.commons.io.FileUtils.moveFileToDirectory;
 import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginUninstaller implements Startable {
-  private static final Logger LOG = Loggers.get(PluginUninstaller.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PluginUninstaller.class);
   private static final String PLUGIN_EXTENSION = "jar";
 
   private final ServerFileSystem fs;

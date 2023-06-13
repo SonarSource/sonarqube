@@ -29,7 +29,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -134,7 +134,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     try {
       return Metric.Level.valueOf(measure.get().getTextValue());
     } catch (IllegalArgumentException e) {
-      Loggers.get(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
+      LoggerFactory.getLogger(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
       return null;
     }
   }

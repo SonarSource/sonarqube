@@ -26,15 +26,15 @@ import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ProcessWrapperFactory {
-  private static final Logger LOG = Loggers.get(ProcessWrapperFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProcessWrapperFactory.class);
 
   public ProcessWrapperFactory() {
     // nothing to do

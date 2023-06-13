@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 
 class DefaultProfiler extends Profiler {

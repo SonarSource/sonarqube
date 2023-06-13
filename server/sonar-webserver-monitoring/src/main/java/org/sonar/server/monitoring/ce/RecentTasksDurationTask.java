@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -37,7 +37,7 @@ import static java.util.Objects.requireNonNull;
 
 public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
 
-  private static final Logger LOGGER = Loggers.get(RecentTasksDurationTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RecentTasksDurationTask.class);
   private final System2 system;
 
   private long lastUpdatedTimestamp;

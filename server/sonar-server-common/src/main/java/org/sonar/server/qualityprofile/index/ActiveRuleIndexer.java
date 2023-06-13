@@ -30,8 +30,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
@@ -59,7 +59,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexer implements ResilientIndexer {
 
-  private static final Logger LOGGER = Loggers.get(ActiveRuleIndexer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActiveRuleIndexer.class);
   private static final String ID_TYPE_ACTIVE_RULE_UUID = "activeRuleUuid";
   private static final String ID_TYPE_RULE_PROFILE_UUID = "ruleProfileUuid";
 

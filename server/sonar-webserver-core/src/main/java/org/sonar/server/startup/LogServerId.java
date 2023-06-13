@@ -19,12 +19,14 @@
  */
 package org.sonar.server.startup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
-import org.sonar.api.utils.log.Loggers;
 
 public final class LogServerId implements Startable {
 
+  private static final Logger LOG = LoggerFactory.getLogger(LogServerId.class);
   private final Server server;
 
   public LogServerId(Server server) {
@@ -33,7 +35,7 @@ public final class LogServerId implements Startable {
 
   @Override
   public void start() {
-    Loggers.get(getClass()).info("Server ID: " + server.getId());
+    LOG.info("Server ID: {}", server.getId());
   }
 
   @Override

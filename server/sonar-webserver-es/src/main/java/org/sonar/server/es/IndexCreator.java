@@ -37,8 +37,8 @@ import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -54,7 +54,7 @@ import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA
 @ServerSide
 public class IndexCreator implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(IndexCreator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;

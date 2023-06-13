@@ -38,7 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Oracle;
 
@@ -392,7 +392,7 @@ public class DatabaseUtilsIT {
     SQLException next = new SQLException("this is next", "456");
     root.setNextException(next);
 
-    log(Loggers.get(getClass()), root);
+    log(LoggerFactory.getLogger(getClass()), root);
 
     assertThat(logTester.logs(Level.ERROR)).contains("SQL error: 456. Message: this is next");
   }

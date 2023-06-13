@@ -39,8 +39,8 @@ import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.scan.ScanProperties;
@@ -54,7 +54,7 @@ import static java.lang.String.format;
  */
 public class FileIndexer {
 
-  private static final Logger LOG = Loggers.get(FileIndexer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
 
   private final AnalysisWarnings analysisWarnings;
   private final ScanProperties properties;

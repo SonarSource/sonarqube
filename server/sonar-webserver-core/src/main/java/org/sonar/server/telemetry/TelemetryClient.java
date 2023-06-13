@@ -32,8 +32,8 @@ import okio.Okio;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
@@ -41,7 +41,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 @ServerSide
 public class TelemetryClient implements Startable {
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-  private static final Logger LOG = Loggers.get(TelemetryClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TelemetryClient.class);
 
   private final OkHttpClient okHttpClient;
   private final Configuration config;

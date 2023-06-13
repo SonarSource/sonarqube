@@ -23,8 +23,8 @@ import com.google.common.base.Strings;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Version;
 
@@ -33,7 +33,7 @@ import org.sonar.updatecenter.common.Version;
  * @param <T>
  */
 public class PluginRequirementsValidator<T extends PluginInfo> {
-  private static final Logger LOG = Loggers.get(PluginRequirementsValidator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PluginRequirementsValidator.class);
 
   private final Map<String, T> allPluginsByKeys;
 

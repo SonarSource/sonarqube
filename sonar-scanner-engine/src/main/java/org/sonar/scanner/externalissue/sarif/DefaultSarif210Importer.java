@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Sarif210;
 
@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
 
 @ScannerSide
 public class DefaultSarif210Importer implements Sarif210Importer {
-  private static final Logger LOG = Loggers.get(DefaultSarif210Importer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSarif210Importer.class);
 
   private final RunMapper runMapper;
 

@@ -43,8 +43,8 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -52,7 +52,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DefaultI18n implements I18n, Startable {
 
-  private static final Logger LOG = Loggers.get(DefaultI18n.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultI18n.class);
   private static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
 
   private final PluginRepository pluginRepository;

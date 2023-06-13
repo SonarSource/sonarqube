@@ -32,8 +32,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Collections.emptyList;
@@ -45,7 +45,7 @@ public class NativeGitBlameCommand {
   protected static final String GIT_DIR_ARGUMENT = "%s/.git";
   protected static final String GIT_DIR_FORCE_FLAG = "-C";
 
-  private static final Logger LOG = Loggers.get(NativeGitBlameCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NativeGitBlameCommand.class);
   private static final Pattern EMAIL_PATTERN = Pattern.compile("<(.*?)>");
   private static final String COMMITTER_TIME = "committer-time ";
   private static final String AUTHOR_MAIL = "author-mail ";

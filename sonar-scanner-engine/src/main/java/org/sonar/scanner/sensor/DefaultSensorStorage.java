@@ -57,8 +57,8 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
@@ -83,7 +83,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
 
 public class DefaultSensorStorage implements SensorStorage {
 
-  private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
   private static final int DEFAULT_CPD_MIN_LINES = 10;
 
   /**

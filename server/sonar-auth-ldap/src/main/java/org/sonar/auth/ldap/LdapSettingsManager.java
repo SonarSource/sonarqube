@@ -24,8 +24,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The LdapSettingsManager will parse the settings.
@@ -35,7 +35,7 @@ import org.sonar.api.utils.log.Loggers;
 public class LdapSettingsManager {
 
   public static final String DEFAULT_LDAP_SERVER_KEY = "default";
-  private static final Logger LOG = Loggers.get(LdapSettingsManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapSettingsManager.class);
 
   private static final String LDAP_SERVERS_PROPERTY = "ldap.servers";
   private static final String LDAP_PROPERTY_PREFIX = "ldap";

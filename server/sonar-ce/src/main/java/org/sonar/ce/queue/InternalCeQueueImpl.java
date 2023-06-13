@@ -32,8 +32,8 @@ import javax.annotation.Nullable;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.task.CeTask;
@@ -58,7 +58,7 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
-  private static final Logger LOG = Loggers.get(InternalCeQueueImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InternalCeQueueImpl.class);
 
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;

@@ -29,8 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.db.DbClient;
@@ -50,7 +50,7 @@ import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 @ServerSide
 public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
-  private static final Logger LOG = Loggers.get(AsyncIssueIndexingImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AsyncIssueIndexingImpl.class);
 
   private final CeQueue ceQueue;
   private final DbClient dbClient;

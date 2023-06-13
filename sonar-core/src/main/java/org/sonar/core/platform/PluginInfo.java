@@ -37,15 +37,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Objects.requireNonNull;
 
 public class PluginInfo implements Comparable<PluginInfo> {
-  private static final Logger LOGGER = Loggers.get(PluginInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PluginInfo.class);
 
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 

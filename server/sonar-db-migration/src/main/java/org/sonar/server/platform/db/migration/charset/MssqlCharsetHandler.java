@@ -25,15 +25,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 
 class MssqlCharsetHandler extends CharsetHandler {
 
-  private static final Logger LOGGER = Loggers.get(MssqlCharsetHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MssqlCharsetHandler.class);
   private static final String CASE_SENSITIVE_ACCENT_SENSITIVE = "_CS_AS";
   private static final String CASE_INSENSITIVE_ACCENT_INSENSITIVE = "_CI_AI";
   private static final String CASE_INSENSITIVE_ACCENT_SENSITIVE = "_CI_AS";

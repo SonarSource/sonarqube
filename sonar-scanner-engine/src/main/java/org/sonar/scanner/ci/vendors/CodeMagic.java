@@ -20,8 +20,8 @@
 package org.sonar.scanner.ci.vendors;
 
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
@@ -30,7 +30,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class CodeMagic implements CiVendor {
 
-  private static final Logger LOG = Loggers.get(CodeMagic.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CodeMagic.class);
 
   private final System2 system;
 

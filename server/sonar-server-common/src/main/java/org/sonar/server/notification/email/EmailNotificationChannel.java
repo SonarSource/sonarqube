@@ -34,8 +34,8 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -56,7 +56,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class EmailNotificationChannel extends NotificationChannel {
 
-  private static final Logger LOG = Loggers.get(EmailNotificationChannel.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
 
   /**
    * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)

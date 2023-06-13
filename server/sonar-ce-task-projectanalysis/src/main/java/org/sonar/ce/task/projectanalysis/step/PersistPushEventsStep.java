@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
@@ -34,7 +34,7 @@ import org.sonar.db.pushevent.PushEventDto;
 
 public class PersistPushEventsStep implements ComputationStep {
   private static final int MAX_BATCH_SIZE = 250;
-  private static final Logger LOGGER = Loggers.get(PersistPushEventsStep.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PersistPushEventsStep.class);
 
   private final DbClient dbClient;
   private final ProtoIssueCache protoIssueCache;

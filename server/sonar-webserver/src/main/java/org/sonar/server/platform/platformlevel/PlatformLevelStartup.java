@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.app.ProcessCommandWrapper;
@@ -131,7 +131,7 @@ public class PlatformLevelStartup extends PlatformLevel {
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
         get(WebServerRuleFinder.class).stopCaching();
-        Loggers.get(PlatformLevelStartup.class)
+        LoggerFactory.getLogger(PlatformLevelStartup.class)
           .info("Running {} Edition", get(PlatformEditionProvider.class).get().map(EditionProvider.Edition::getLabel).orElse(""));
         get(DefaultAdminCredentialsVerifierImpl.class).runAtStart();
       }

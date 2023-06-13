@@ -21,8 +21,8 @@ package org.sonar.server.authentication;
 
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
@@ -33,7 +33,7 @@ public final class AuthenticationError {
 
   private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
 
-  private static final Logger LOGGER = Loggers.get(AuthenticationError.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationError.class);
   private static final String AUTHENTICATION_ERROR_COOKIE = "AUTHENTICATION-ERROR";
   private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
 

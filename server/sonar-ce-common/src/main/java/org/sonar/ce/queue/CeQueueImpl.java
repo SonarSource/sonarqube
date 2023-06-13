@@ -37,7 +37,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -305,7 +305,7 @@ public class CeQueueImpl implements CeQueue {
     if (deletedTasks == 1) {
       dbSession.commit();
     } else {
-      Loggers.get(CeQueueImpl.class).debug(
+      LoggerFactory.getLogger(CeQueueImpl.class).debug(
         "Remove rolled back because task in queue with uuid {} and status {} could not be deleted",
         taskUuid, expectedQueueDtoStatus);
       dbSession.rollback();

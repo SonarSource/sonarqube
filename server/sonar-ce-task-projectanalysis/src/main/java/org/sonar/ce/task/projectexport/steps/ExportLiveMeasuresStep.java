@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -78,7 +78,7 @@ public class ExportLiveMeasuresStep implements ComputationStep {
           output.write(measure);
           count++;
         }
-        Loggers.get(getClass()).debug("{} live measures exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} live measures exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Live Measure Export failed after processing %d measures successfully", count), e);

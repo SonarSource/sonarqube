@@ -34,8 +34,8 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
@@ -63,7 +63,7 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor.Listener {
   private static final PostProjectAnalysisTask[] NO_POST_PROJECT_ANALYSIS_TASKS = new PostProjectAnalysisTask[0];
 
-  private static final Logger LOG = Loggers.get(PostProjectAnalysisTasksExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PostProjectAnalysisTasksExecutor.class);
 
   private final org.sonar.ce.task.CeTask ceTask;
   private final AnalysisMetadataHolder analysisMetadataHolder;

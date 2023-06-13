@@ -27,8 +27,8 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -42,7 +42,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.user.GithubWebhookUserSession.GITHUB_WEBHOOK_USER_NAME;
 
 public class GithubWebhookAuthentication {
-  private static final Logger LOG = Loggers.get(GithubWebhookAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GithubWebhookAuthentication.class);
 
   @VisibleForTesting
   static final String GITHUB_SIGNATURE_HEADER = "x-hub-signature-256";

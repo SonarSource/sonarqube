@@ -33,7 +33,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -146,7 +146,7 @@ public class ComponentIssuesLoader {
     try {
       return Integer.parseInt(str);
     } catch (NumberFormatException e) {
-      Loggers.get(ComponentIssuesLoader.class)
+      LoggerFactory.getLogger(ComponentIssuesLoader.class)
         .warn("Value of property {} should be an integer >= 0: {}", PROPERTY_CLOSED_ISSUE_MAX_AGE, str);
       return null;
     }

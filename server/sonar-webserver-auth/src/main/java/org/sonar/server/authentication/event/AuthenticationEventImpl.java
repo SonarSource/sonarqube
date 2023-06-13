@@ -23,14 +23,14 @@ import com.google.common.base.Joiner;
 import java.util.Collections;
 import javax.annotation.Nullable;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Objects.requireNonNull;
 
 public class AuthenticationEventImpl implements AuthenticationEvent {
-  private static final Logger LOGGER = Loggers.get("auth.event");
+  private static final Logger LOGGER = LoggerFactory.getLogger("auth.event");
   private static final int FLOOD_THRESHOLD = 128;
 
   @Override

@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
@@ -40,7 +40,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
 public class SonarCpdBlockIndex extends AbstractCloneIndex {
-  private static final Logger LOG = Loggers.get(SonarCpdBlockIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonarCpdBlockIndex.class);
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
   // Files already tokenized

@@ -21,7 +21,7 @@ package org.sonar.db.purge;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;

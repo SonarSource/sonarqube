@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
@@ -45,7 +45,7 @@ class KeepWithVersionFilter implements Filter {
 
   @Override
   public void log() {
-    Loggers.get(getClass()).debug("-> Keep analyses with a version prior to {}", DateUtils.formatDate(before));
+    LoggerFactory.getLogger(getClass()).debug("-> Keep analyses with a version prior to {}", DateUtils.formatDate(before));
   }
 
   private static boolean isDeletable(PurgeableAnalysisDto snapshot) {

@@ -42,12 +42,13 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Loggers;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
@@ -59,6 +60,7 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
  */
 public class DefaultHttpDownloader extends HttpDownloader {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultHttpDownloader.class);
   private final BaseHttpDownloader downloader;
   private final Integer readTimeout;
   private final Integer connectTimeout;
@@ -253,7 +255,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
        * @throws HttpException if HTTP response code > 400
        */
       public InputStream getInput() throws IOException {
-        Loggers.get(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
+        LOG.debug("Download: {}} ( {} )", uri, getProxySynthesis(uri, ProxySelector.getDefault()));
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
         connection.setRequestMethod(requestMethod);
         HttpsTrust.INSTANCE.trust(connection);

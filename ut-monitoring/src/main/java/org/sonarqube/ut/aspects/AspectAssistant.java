@@ -31,14 +31,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AspectAssistant {
   public static final String COMMIT_HASH = System.getenv("GIT_SHA1");
   public static final String BUILD_NUMBER = System.getenv("BUILD_NUMBER");
 
-  private static final Logger LOGGER = Loggers.get(AspectAssistant.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AspectAssistant.class);
   private static final Path PATH = Paths.get("/tmp/ut-backend-monitoring.log");
   private static final Gson GSON = new Gson();
 

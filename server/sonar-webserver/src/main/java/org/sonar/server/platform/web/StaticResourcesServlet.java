@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.platform.PlatformImpl;
@@ -43,7 +43,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 public class StaticResourcesServlet extends HttpServlet {
 
-  private static final Logger LOG = Loggers.get(StaticResourcesServlet.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
   private static final long serialVersionUID = -2577454614650178426L;
 
   private final System system;

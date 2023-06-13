@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
  */
 public class QualityGateEventsStep implements ComputationStep {
-  private static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(QualityGateEventsStep.class);
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

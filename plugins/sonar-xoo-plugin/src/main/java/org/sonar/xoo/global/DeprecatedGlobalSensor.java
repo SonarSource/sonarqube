@@ -22,12 +22,12 @@ package org.sonar.xoo.global;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeprecatedGlobalSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(DeprecatedGlobalSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedGlobalSensor.class);
   public static final String ENABLE_PROP = "sonar.scanner.mediumtest.deprecatedGlobalSensor";
 
   @Override

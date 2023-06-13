@@ -29,8 +29,8 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.web.FilterChain;
 import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
@@ -62,7 +62,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASS
 
 public class ChangePasswordAction extends HttpFilter implements BaseUsersWsAction {
 
-  private static final Logger LOG = Loggers.get(ChangePasswordAction.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ChangePasswordAction.class);
 
   private static final String CHANGE_PASSWORD = "change_password";
   private static final String CHANGE_PASSWORD_URL = "/" + UsersWs.API_USERS + "/" + CHANGE_PASSWORD;

@@ -29,8 +29,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,7 +49,7 @@ import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 
 public class NewCodePeriodResolver {
-  private static final Logger LOG = Loggers.get(NewCodePeriodResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NewCodePeriodResolver.class);
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;

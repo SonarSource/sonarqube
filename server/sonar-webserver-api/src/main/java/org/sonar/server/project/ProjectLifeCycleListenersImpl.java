@@ -22,14 +22,14 @@ package org.sonar.server.project;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners {
-  private static final Logger LOG = Loggers.get(ProjectLifeCycleListenersImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectLifeCycleListenersImpl.class);
 
   private final ProjectLifeCycleListener[] listeners;
 

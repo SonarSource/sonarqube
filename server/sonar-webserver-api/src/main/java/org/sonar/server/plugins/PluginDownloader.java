@@ -30,8 +30,8 @@ import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
@@ -53,7 +53,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
  */
 public class PluginDownloader implements Startable {
 
-  private static final Logger LOG = Loggers.get(PluginDownloader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";
   private static final String PLUGIN_EXTENSION = "jar";
 

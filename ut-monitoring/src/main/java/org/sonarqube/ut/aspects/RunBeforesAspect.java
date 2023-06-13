@@ -29,12 +29,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runners.model.FrameworkMethod;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect("percflow(execution(void org.junit.internal.runners.statements.RunBefores.evaluate()))")
 public class RunBeforesAspect {
-  private static final Logger logger = Loggers.get(RunBeforesAspect.class);
+  private static final Logger logger = LoggerFactory.getLogger(RunBeforesAspect.class);
   private String testClass = "";
   private String testMethod = "";
 

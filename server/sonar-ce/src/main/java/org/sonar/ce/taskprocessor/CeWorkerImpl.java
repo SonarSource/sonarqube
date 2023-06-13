@@ -32,8 +32,8 @@ import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskInterruptedException;
@@ -52,7 +52,7 @@ import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 
 public class CeWorkerImpl implements CeWorker {
 
-  private static final Logger LOG = Loggers.get(CeWorkerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CeWorkerImpl.class);
 
   private final int ordinal;
   private final String uuid;

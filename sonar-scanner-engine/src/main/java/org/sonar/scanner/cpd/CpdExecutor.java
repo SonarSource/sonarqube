@@ -36,8 +36,8 @@ import javax.inject.Inject;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
@@ -57,7 +57,7 @@ import org.sonar.scanner.util.ProgressReport;
  * The sensors are responsible for handling exclusions and block sizes.
  */
 public class CpdExecutor {
-  private static final Logger LOG = Loggers.get(CpdExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CpdExecutor.class);
   // timeout for the computation of duplicates in a file (seconds)
   private static final int TIMEOUT = 5 * 60 * 1000;
   static final int MAX_CLONE_GROUP_PER_FILE = 100;

@@ -28,15 +28,15 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.configuration.CeConfiguration;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
-  private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CeProcessingSchedulerImpl.class);
   // 30 seconds
   private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L;
 

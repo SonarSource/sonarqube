@@ -27,7 +27,7 @@ import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.WEB_SYSTEM_PASS_CODE;
 
@@ -74,7 +74,7 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
   }
 
   private void logState(String state) {
-    Loggers.get(getClass()).info("System authentication by passcode is {}", state);
+    LoggerFactory.getLogger(getClass()).info("System authentication by passcode is {}", state);
   }
 
   @Override

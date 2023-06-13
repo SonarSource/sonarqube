@@ -36,9 +36,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.http.JavaxHttpRequest;
@@ -51,6 +52,7 @@ import org.sonar.server.platform.PlatformImpl;
 public class MasterServletFilter implements Filter {
 
   private static final String SCIM_FILTER_PATH = "/api/scim/v2/";
+  private static final Logger LOG = LoggerFactory.getLogger(MasterServletFilter.class);
   private static volatile MasterServletFilter instance;
 
   @Deprecated(forRemoval = true)
@@ -94,7 +96,7 @@ public class MasterServletFilter implements Filter {
     LinkedList<HttpFilter> filterList = new LinkedList<>();
     for (HttpFilter extension : filterExtensions) {
       try {
-        Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
+        LOG.info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
         extension.init();
         // As for scim we need to intercept traffic to URLs with path parameters
         // and that use is not properly handled when dealing with inclusions/exclusions of the WebServiceFilter,
@@ -121,7 +123,7 @@ public class MasterServletFilter implements Filter {
     LinkedList<ServletFilter> filterList = new LinkedList<>();
     for (ServletFilter extension : filterExtensions) {
       try {
-        Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
+        LOG.info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
         extension.init(config);
         // adding deprecated extensions as last
         filterList.addLast(extension);

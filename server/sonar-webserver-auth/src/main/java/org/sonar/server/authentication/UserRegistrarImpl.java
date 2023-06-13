@@ -33,8 +33,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -58,7 +58,7 @@ public class UserRegistrarImpl implements UserRegistrar {
 
   public static final String SQ_AUTHORITY = "sonarqube";
   public static final String LDAP_PROVIDER_PREFIX = "LDAP_";
-  private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserRegistrarImpl.class);
   public static final String GITHUB_PROVIDER = "github";
   public static final String GITLAB_PROVIDER = "gitlab";
 

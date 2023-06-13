@@ -34,12 +34,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Immutable
 public abstract class AbstractProjectOrModule extends DefaultInputComponent {
-  private static final Logger LOGGER = Loggers.get(AbstractProjectOrModule.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractProjectOrModule.class);
   private final Path baseDir;
   private final Path workDir;
   private final String name;

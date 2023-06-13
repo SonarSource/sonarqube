@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -62,7 +62,7 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 
 public class FileMoveDetectionStep implements ComputationStep {
   static final int MIN_REQUIRED_SCORE = 85;
-  private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileMoveDetectionStep.class);
   private static final Comparator<ScoreMatrix.ScoreFile> SCORE_FILE_COMPARATOR = (o1, o2) -> -1 * Integer.compare(o1.getLineCount(), o2.getLineCount());
   private static final double LOWER_BOUND_RATIO = 0.84;
   private static final double UPPER_BOUND_RATIO = 1.18;

@@ -33,8 +33,8 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
@@ -53,7 +53,7 @@ import static org.sonar.api.CoreProperties.SCM_PROVIDER_KEY;
     type = PropertyType.BOOLEAN)
 })
 public class ScmConfiguration implements Startable {
-  private static final Logger LOG = Loggers.get(ScmConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 

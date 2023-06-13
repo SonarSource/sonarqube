@@ -31,12 +31,12 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 public abstract class AbstractCoverageSensor implements Sensor {
-  private static final Logger LOG = Loggers.get(AbstractCoverageSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageSensor.class);
 
   private void processCoverage(InputFile inputFile, SensorContext context) {
     File coverageFile = new File(inputFile.file().getParentFile(), inputFile.file().getName() + getCoverageExtension());

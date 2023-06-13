@@ -26,13 +26,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 public abstract class PathPattern {
 
-  private static final Logger LOG = Loggers.get(PathPattern.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PathPattern.class);
 
   /**
    * @deprecated since 6.6

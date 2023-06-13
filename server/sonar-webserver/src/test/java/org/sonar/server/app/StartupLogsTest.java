@@ -23,7 +23,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;

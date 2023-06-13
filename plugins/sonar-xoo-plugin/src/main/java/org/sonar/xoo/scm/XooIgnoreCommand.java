@@ -23,8 +23,8 @@ import java.io.File;
 import java.nio.file.Path;
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.scm.IgnoreCommand;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * To ignore a file simply add an empty file with the same name as the file to ignore with a .ignore suffix.
@@ -33,7 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 public class XooIgnoreCommand implements IgnoreCommand {
 
   static final String IGNORE_FILE_EXTENSION = ".ignore";
-  private static final Logger LOG = Loggers.get(XooIgnoreCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XooIgnoreCommand.class);
   private boolean isInit;
 
   @Override

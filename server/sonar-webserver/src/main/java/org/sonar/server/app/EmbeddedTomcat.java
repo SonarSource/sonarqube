@@ -28,7 +28,6 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.Props;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
@@ -71,9 +70,9 @@ class EmbeddedTomcat {
       logger.setLevel(Level.ERROR);
       tomcat.start();
       logger.setLevel(Level.OFF);
-      new TomcatStartupLogs(Loggers.get(getClass())).log(tomcat);
+      new TomcatStartupLogs(LoggerFactory.getLogger(getClass())).log(tomcat);
     } catch (LifecycleException e) {
-      Loggers.get(EmbeddedTomcat.class).error("Fail to start web server", e);
+      LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to start web server", e);
       Throwables.propagate(e);
     }
   }
@@ -106,7 +105,7 @@ class EmbeddedTomcat {
           tomcat.stop();
           tomcat.destroy();
         } catch (Exception e) {
-          Loggers.get(EmbeddedTomcat.class).warn("Failed to stop web server", e);
+          LoggerFactory.getLogger(EmbeddedTomcat.class).warn("Failed to stop web server", e);
         }
       }
       deleteQuietly(tomcatBasedir());

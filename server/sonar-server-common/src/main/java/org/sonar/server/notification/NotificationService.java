@@ -35,8 +35,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @ComputeEngineSide
 public class NotificationService {
 
-  private static final Logger LOG = Loggers.get(NotificationService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
 
   private final List<NotificationDispatcher> dispatchers;
   private final List<NotificationHandler<? extends Notification>> handlers;

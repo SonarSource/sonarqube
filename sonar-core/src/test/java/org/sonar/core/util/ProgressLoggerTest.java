@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ public class ProgressLoggerTest {
   @Test(timeout = 5_000L)
   public void log_at_fixed_intervals() {
     AtomicLong counter = new AtomicLong(42L);
-    ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()));
+    ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, LoggerFactory.getLogger(getClass()));
     progress.setPeriodMs(1L);
     progress.start();
     while (logTester.logs(Level.INFO).size()<2) {

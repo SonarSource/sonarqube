@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.Plugin;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
@@ -42,7 +42,7 @@ import static org.sonar.api.utils.Preconditions.checkState;
  * Orchestrates the installation and loading of plugins
  */
 public class ScannerPluginRepository implements PluginRepository, Startable {
-  private static final Logger LOG = Loggers.get(ScannerPluginRepository.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScannerPluginRepository.class);
 
   private final PluginInstaller installer;
   private final PluginJarExploder pluginJarExploder;

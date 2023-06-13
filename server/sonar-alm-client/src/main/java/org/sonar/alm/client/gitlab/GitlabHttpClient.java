@@ -37,8 +37,8 @@ import okhttp3.Response;
 import org.apache.logging.log4j.util.Strings;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
@@ -49,7 +49,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @ServerSide
 public class GitlabHttpClient {
 
-  private static final Logger LOG = Loggers.get(GitlabHttpClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GitlabHttpClient.class);
   protected static final String PRIVATE_TOKEN = "Private-Token";
   protected final OkHttpClient client;
 

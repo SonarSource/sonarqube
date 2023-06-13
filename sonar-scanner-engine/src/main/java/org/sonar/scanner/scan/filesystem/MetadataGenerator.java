@@ -25,12 +25,12 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGenerator {
-  private static final Logger LOG = Loggers.get(MetadataGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
   static final Charset UTF_32BE = Charset.forName("UTF-32BE");
 
   static final Charset UTF_32LE = Charset.forName("UTF-32LE");

@@ -25,8 +25,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
@@ -39,7 +39,7 @@ import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration
 @ServerSide
 @ComputeEngineSide
 public class ProjectCleaner {
-  private static final Logger LOG = Loggers.get(ProjectCleaner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectCleaner.class);
 
   private final PurgeProfiler profiler;
   private final PurgeListener purgeListener;

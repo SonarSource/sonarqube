@@ -31,8 +31,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -46,7 +46,7 @@ import static java.util.Objects.requireNonNull;
 
 public class DefaultNotificationManager implements NotificationManager {
 
-  private static final Logger LOG = Loggers.get(DefaultNotificationManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultNotificationManager.class);
 
   private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
 

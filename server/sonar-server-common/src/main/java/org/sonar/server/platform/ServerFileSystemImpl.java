@@ -24,8 +24,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -33,7 +33,7 @@ import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.platform.ServerFileSystem, Startable {
 
-  private static final Logger LOGGER = Loggers.get(ServerFileSystemImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServerFileSystemImpl.class);
 
   private final File homeDir;
   private final File tempDir;

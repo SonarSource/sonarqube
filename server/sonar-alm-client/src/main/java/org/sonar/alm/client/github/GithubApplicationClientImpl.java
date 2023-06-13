@@ -44,8 +44,8 @@ import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.alm.client.gitlab.GsonApp;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.client.HttpException;
@@ -58,7 +58,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 public class GithubApplicationClientImpl implements GithubApplicationClient {
-  private static final Logger LOG = Loggers.get(GithubApplicationClientImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GithubApplicationClientImpl.class);
   protected static final Gson GSON = new Gson();
 
   protected static final String WRITE_PERMISSION_NAME = "write";

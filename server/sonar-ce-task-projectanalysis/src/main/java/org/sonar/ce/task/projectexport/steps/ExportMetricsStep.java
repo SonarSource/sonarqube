@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -62,7 +62,7 @@ public class ExportMetricsStep implements ComputationStep {
         output.write(builder.build());
         count++;
       }
-      Loggers.get(getClass()).debug("{} metrics exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} metrics exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Metric Export failed after processing %d metrics successfully", count), e);
     }

@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
@@ -120,7 +120,7 @@ public class ServletRequest extends ValidatingRequest {
       }
       return new PartImpl(part.getInputStream(), part.getSubmittedFileName());
     } catch (Exception e) {
-      Loggers.get(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
+      LoggerFactory.getLogger(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
       return null;
     }
   }

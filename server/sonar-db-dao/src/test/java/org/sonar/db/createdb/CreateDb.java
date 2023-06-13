@@ -26,8 +26,8 @@ import com.sonar.orchestrator.db.DefaultDatabase;
 import java.util.function.Consumer;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.SQDatabase;
 
 public class CreateDb {
@@ -60,7 +60,7 @@ public class CreateDb {
   }
 
   private static void logJdbcSettings(Settings settings) {
-    Logger logger = Loggers.get(CreateDb.class);
+    Logger logger = LoggerFactory.getLogger(CreateDb.class);
     for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
       logger.info(key + ": " + settings.getString(key));
     }

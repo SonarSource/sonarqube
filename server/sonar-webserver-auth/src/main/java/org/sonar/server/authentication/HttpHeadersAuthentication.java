@@ -37,8 +37,8 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.user.UserDto;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -61,7 +61,7 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
  */
 public class HttpHeadersAuthentication implements Startable {
 
-  private static final Logger LOG = Loggers.get(HttpHeadersAuthentication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HttpHeadersAuthentication.class);
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 

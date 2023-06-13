@@ -34,8 +34,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
@@ -58,7 +58,7 @@ import org.sonar.scanner.scan.SpringProjectScanContainer;
 
 @Priority(3)
 public class SpringGlobalContainer extends SpringComponentContainer {
-  private static final Logger LOG = Loggers.get(SpringGlobalContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SpringGlobalContainer.class);
   private final Map<String, String> scannerProperties;
 
   private SpringGlobalContainer(Map<String, String> scannerProperties, List<?> addedExternally) {

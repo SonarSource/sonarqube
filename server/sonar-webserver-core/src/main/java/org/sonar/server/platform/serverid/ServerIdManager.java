@@ -23,8 +23,8 @@ import java.util.Optional;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.Startable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ServerId;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,7 +39,7 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.server.property.InternalProperties.SERVER_ID_CHECKSUM;
 
 public class ServerIdManager implements Startable {
-  private static final Logger LOGGER = Loggers.get(ServerIdManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServerIdManager.class);
 
   private final ServerIdChecksum serverIdChecksum;
   private final ServerIdFactory serverIdFactory;

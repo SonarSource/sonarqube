@@ -19,7 +19,7 @@
  */
 package org.sonar.application;
 
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 import org.sonar.application.config.AppSettings;
@@ -71,7 +71,7 @@ public class App {
         hardStopRequestWatcher.stopWatching();
       }
     } catch (Exception e) {
-      Loggers.get(App.class).error("Startup failure", e);
+      LoggerFactory.getLogger(App.class).error("Startup failure", e);
     }
 
     systemExit.exit(0);

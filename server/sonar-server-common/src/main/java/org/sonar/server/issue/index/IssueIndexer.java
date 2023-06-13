@@ -30,8 +30,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -66,7 +66,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
    * Indicates that es_queue.doc_id references a project. All the issues of the project must be indexed.
    */
   private static final String ID_TYPE_PROJECT_UUID = "projectUuid";
-  private static final Logger LOGGER = Loggers.get(IssueIndexer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_ISSUE);
 

@@ -23,8 +23,8 @@ import java.util.List;
 import org.sonar.api.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 @ServerSide
 public class CeQueueCleaner implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(CeQueueCleaner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CeQueueCleaner.class);
 
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;

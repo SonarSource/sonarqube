@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.config.ComputeEngineProperties;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,7 +43,7 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 
 @ComputeEngineSide
 public class NextPendingTaskPicker {
-  private static final Logger LOG = Loggers.get(NextPendingTaskPicker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NextPendingTaskPicker.class);
 
   private final Configuration config;
   private final CeQueueDao ceQueueDao;

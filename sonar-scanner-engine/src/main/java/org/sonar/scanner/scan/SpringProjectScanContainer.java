@@ -29,8 +29,8 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
@@ -145,7 +145,7 @@ import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
 @Priority(2)
 public class SpringProjectScanContainer extends SpringComponentContainer {
-  private static final Logger LOG = Loggers.get(SpringProjectScanContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SpringProjectScanContainer.class);
 
   public SpringProjectScanContainer(SpringComponentContainer globalContainer) {
     super(globalContainer);

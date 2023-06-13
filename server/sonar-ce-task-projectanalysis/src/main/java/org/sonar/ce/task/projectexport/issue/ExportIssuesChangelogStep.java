@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -79,7 +79,7 @@ public class ExportIssuesChangelogStep implements ComputationStep {
         output.write(issue);
         count++;
       }
-      Loggers.get(getClass()).debug("{} issue changes exported", count);
+      LoggerFactory.getLogger(getClass()).debug("{} issue changes exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Issues changelog export failed after processing %d issue changes successfully", count), e);
     }

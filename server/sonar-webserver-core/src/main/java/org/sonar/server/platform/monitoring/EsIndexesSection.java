@@ -21,7 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import org.elasticsearch.ElasticsearchException;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -48,7 +48,7 @@ public class EsIndexesSection implements SystemInfoSection, Global {
     try {
       completeIndexAttributes(protobuf);
     } catch (Exception es) {
-      Loggers.get(EsIndexesSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"Error\" attribute.", es);
+      LoggerFactory.getLogger(EsIndexesSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"Error\" attribute.", es);
       setAttribute(protobuf, "Error", es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage());
     }
     return protobuf.build();

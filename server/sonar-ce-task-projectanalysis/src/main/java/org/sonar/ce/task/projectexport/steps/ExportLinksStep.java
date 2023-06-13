@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -67,7 +67,7 @@ public class ExportLinksStep implements ComputationStep {
           ++count;
         }
 
-        Loggers.get(getClass()).debug("{} links exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} links exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Link export failed after processing %d link(s) successfully", count), e);

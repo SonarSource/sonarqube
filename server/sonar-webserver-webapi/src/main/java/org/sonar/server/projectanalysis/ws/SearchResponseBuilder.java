@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
@@ -46,7 +46,7 @@ import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
 
 class SearchResponseBuilder {
-  private static final Logger LOGGER = Loggers.get(SearchResponseBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchResponseBuilder.class);
 
   private final Analysis.Builder wsAnalysis;
   private final Event.Builder wsEvent;

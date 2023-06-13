@@ -28,8 +28,8 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.duplications.block.Block;
@@ -44,7 +44,7 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex;
  */
 public class IntegrateCrossProjectDuplications {
 
-  private static final Logger LOGGER = Loggers.get(IntegrateCrossProjectDuplications.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IntegrateCrossProjectDuplications.class);
   private static final String JAVA_KEY = "java";
   private static final String DEPRECATED_WARNING = "This analysis uses the deprecated cross-project duplication feature.";
   private static final String DEPRECATED_WARNING_DASHBOARD = "This project uses the deprecated cross-project duplication feature.";

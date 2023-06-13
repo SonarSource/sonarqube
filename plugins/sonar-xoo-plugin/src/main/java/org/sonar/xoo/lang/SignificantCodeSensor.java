@@ -29,12 +29,12 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 public class SignificantCodeSensor implements Sensor {
-  private static final Logger LOG = Loggers.get(SignificantCodeSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SignificantCodeSensor.class);
   private static final String FILE_EXTENSION = ".significantCode";
 
   @Override

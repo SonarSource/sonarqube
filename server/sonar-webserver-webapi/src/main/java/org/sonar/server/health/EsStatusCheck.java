@@ -22,12 +22,12 @@ package org.sonar.server.health;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
 
 abstract class EsStatusCheck {
-  private static final Logger LOG = Loggers.get(EsStatusCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EsStatusCheck.class);
 
   private static final Health YELLOW_HEALTH = Health.builder()
     .setStatus(Health.Status.YELLOW)

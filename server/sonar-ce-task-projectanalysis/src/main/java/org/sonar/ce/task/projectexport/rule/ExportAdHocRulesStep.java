@@ -23,7 +23,7 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -81,7 +81,7 @@ public class ExportAdHocRulesStep implements ComputationStep {
           output.write(rule);
           count++;
         }
-        Loggers.get(getClass()).debug("{} ad-hoc rules exported", count);
+        LoggerFactory.getLogger(getClass()).debug("{} ad-hoc rules exported", count);
       }
     } catch (Exception e) {
       throw new IllegalStateException(format("Ad-hoc rules export failed after processing %d rules successfully", count), e);

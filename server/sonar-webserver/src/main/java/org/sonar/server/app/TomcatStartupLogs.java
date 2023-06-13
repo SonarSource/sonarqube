@@ -22,7 +22,7 @@ package org.sonar.server.app;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 class TomcatStartupLogs {
 

@@ -28,8 +28,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
@@ -37,7 +37,7 @@ import org.sonar.scanner.ci.CiVendor;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class Jenkins implements CiVendor {
-  private static final Logger LOG = Loggers.get(Jenkins.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Jenkins.class);
   private final System2 system;
   private final DefaultInputProject inputProject;
 

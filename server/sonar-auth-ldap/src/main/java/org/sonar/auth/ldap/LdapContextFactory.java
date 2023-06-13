@@ -35,15 +35,15 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class LdapContextFactory {
 
-  private static final Logger LOG = Loggers.get(LdapContextFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapContextFactory.class);
 
   // visible for testing
   static final String AUTH_METHOD_SIMPLE = "simple";

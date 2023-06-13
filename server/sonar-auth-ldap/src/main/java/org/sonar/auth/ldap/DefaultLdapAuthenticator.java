@@ -28,8 +28,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Evgeny Mandrikov
@@ -37,7 +37,7 @@ import org.sonar.api.utils.log.Loggers;
 @ServerSide
 public class DefaultLdapAuthenticator implements LdapAuthenticator {
 
-  private static final Logger LOG = Loggers.get(DefaultLdapAuthenticator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultLdapAuthenticator.class);
   private final Map<String, LdapContextFactory> contextFactories;
   private final Map<String, LdapUserMapping> userMappings;
 

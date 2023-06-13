@@ -22,13 +22,13 @@ package org.sonar.scanner.bootstrap;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 import org.springframework.context.annotation.Bean;
 
 public class GlobalServerSettingsProvider {
-  private static final Logger LOG = Loggers.get(GlobalServerSettingsProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalServerSettingsProvider.class);
 
   @Bean("GlobalServerSettings")
   public GlobalServerSettings provide(GlobalSettingsLoader loader) {

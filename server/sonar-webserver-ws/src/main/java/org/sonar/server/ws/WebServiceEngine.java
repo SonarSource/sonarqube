@@ -34,8 +34,8 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.BadRequestException;
@@ -59,7 +59,7 @@ import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SU
 @ServerSide
 public class WebServiceEngine implements LocalConnector, Startable {
 
-  private static final Logger LOGGER = Loggers.get(WebServiceEngine.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebServiceEngine.class);
 
   private final WebService[] webServices;
 

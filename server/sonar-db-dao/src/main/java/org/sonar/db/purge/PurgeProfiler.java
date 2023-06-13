@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.api.utils.log.Logger;
+import org.slf4j.Logger;
 
 public class PurgeProfiler {
 
