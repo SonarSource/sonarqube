@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SonarCodeColorizer } from 'design-system';
+import { ButtonSecondary, DeferredSpinner, LightLabel, SonarCodeColorizer } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
 import { decorateWithUnderlineFlags } from '../../helpers/code-viewer';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
@@ -285,21 +284,18 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
       <SonarCodeColorizer>
         <div className="it__source-viewer-code">
           {hasSourcesBefore && (
-            <div className="source-viewer-more-code">
+            <div className="sw-flex sw-justify-center sw-p-6">
               {loadingSourcesBefore ? (
-                <div className="js-component-viewer-loading-before">
-                  <i className="spinner" />
-                  <span className="note spacer-left">
+                <div className="sw-flex sw-items-center">
+                  <DeferredSpinner loading />
+                  <LightLabel className="sw-ml-2">
                     {translate('source_viewer.loading_more_code')}
-                  </span>
+                  </LightLabel>
                 </div>
               ) : (
-                <Button
-                  className="js-component-viewer-source-before"
-                  onClick={this.props.loadSourcesBefore}
-                >
+                <ButtonSecondary onClick={this.props.loadSourcesBefore}>
                   {translate('source_viewer.load_more_code')}
-                </Button>
+                </ButtonSecondary>
               )}
             </div>
           )}
@@ -327,21 +323,18 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
           </table>
 
           {hasSourcesAfter && (
-            <div className="source-viewer-more-code">
+            <div className="sw-flex sw-justify-center sw-p-6">
               {loadingSourcesAfter ? (
-                <div className="js-component-viewer-loading-after">
-                  <i className="spinner" />
-                  <span className="note spacer-left">
+                <div className="sw-flex sw-items-center">
+                  <DeferredSpinner loading />
+                  <LightLabel className="sw-ml-2">
                     {translate('source_viewer.loading_more_code')}
-                  </span>
+                  </LightLabel>
                 </div>
               ) : (
-                <Button
-                  className="js-component-viewer-source-after"
-                  onClick={this.props.loadSourcesAfter}
-                >
+                <ButtonSecondary onClick={this.props.loadSourcesAfter}>
                   {translate('source_viewer.load_more_code')}
-                </Button>
+                </ButtonSecondary>
               )}
             </div>
           )}

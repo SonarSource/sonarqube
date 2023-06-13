@@ -126,7 +126,7 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
                       Icon={CopyIcon}
                       aria-label={translate('source_viewer.click_to_copy_filepath')}
                       data-clipboard-text={path}
-                      className="sw-h-6 sw-mr-2"
+                      className="sw-h-6 sw-mx-2"
                       innerRef={setCopyButton}
                     />
                   </Tooltip>
