@@ -119,12 +119,12 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
   public void wsAction_whenPrivateProjectAdminRemovesOwnBrowsePermission_shouldFail() {
     loginAsAdmin();
     UserDto admin = db.users().insertUser(requireNonNull(userSession.getLogin()));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(admin, GlobalPermission.ADMINISTER.getKey(), project);
 
     TestRequest request = newRequest()
       .setParam(PARAM_USER_LOGIN, userSession.getLogin())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_PERMISSION, UserRole.USER);
 
     assertThatThrownBy(request::execute)
