@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import ProjectKeyInput from '../../components/common/ProjectKeyInput';
-import { Button, SubmitButton } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
+import { Button, SubmitButton } from '../../components/controls/buttons';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { validateProjectKey } from '../../helpers/projects';
@@ -34,11 +34,10 @@ export interface UpdateFormProps {
 
 export default function UpdateForm(props: UpdateFormProps) {
   const { component } = props;
-  const [newKey, setNewKey] = React.useState<string | undefined>(undefined);
-  const value = newKey !== undefined ? newKey : component.key;
-  const hasChanged = value !== component.key;
+  const [newKey, setNewKey] = React.useState(component.key);
+  const hasChanged = newKey !== component.key;
 
-  const validationResult = validateProjectKey(value);
+  const validationResult = validateProjectKey(newKey);
   const error =
     validationResult === ProjectKeyValidationResult.Valid
       ? undefined
@@ -78,7 +77,7 @@ export default function UpdateForm(props: UpdateFormProps) {
             }}
             touched={hasChanged}
             placeholder={translate('update_key.new_key')}
-            projectKey={value}
+            projectKey={newKey}
             autofocus
           />
 
@@ -92,7 +91,7 @@ export default function UpdateForm(props: UpdateFormProps) {
               disabled={!hasChanged}
               id="update-key-reset"
               onClick={() => {
-                setNewKey(undefined);
+                setNewKey(component.key);
               }}
               type="reset"
             >

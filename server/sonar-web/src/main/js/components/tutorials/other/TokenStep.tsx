@@ -22,17 +22,17 @@ import { FormattedMessage } from 'react-intl';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 import {
-  computeTokenExpirationDate,
   EXPIRATION_OPTIONS,
+  computeTokenExpirationDate,
   getAvailableExpirationOptions,
 } from '../../../helpers/tokens';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
 import Link from '../../common/Link';
-import { Button, DeleteButton, SubmitButton } from '../../controls/buttons';
 import Radio from '../../controls/Radio';
 import Select from '../../controls/Select';
+import { Button, DeleteButton, SubmitButton } from '../../controls/buttons';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../icons/AlertSuccessIcon';
 import ProjectTokenScopeInfo from '../components/ProjectTokenScopeInfo';
@@ -109,7 +109,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   canContinue = () => {
     const { existingToken, selection, token } = this.state;
-    const validExistingToken = existingToken.match(TOKEN_FORMAT_REGEX) != null;
+    const validExistingToken = TOKEN_FORMAT_REGEX.exec(existingToken) != null;
     return (
       (selection === 'generate' && token != null) ||
       (selection === 'use-existing' && existingToken && validExistingToken)
@@ -222,7 +222,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                   onChange={this.handleTokenNameChange}
                   required
                   type="text"
-                  value={tokenName || ''}
+                  value={tokenName ?? ''}
                 />
               </div>
               <div className="display-flex-column spacer-left big-spacer-right">
@@ -260,7 +260,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   renderUseExistingOption = () => {
     const { existingToken } = this.state;
-    const validInput = !existingToken || existingToken.match(TOKEN_FORMAT_REGEX) != null;
+    const validInput = !existingToken || TOKEN_FORMAT_REGEX.exec(existingToken) != null;
 
     return (
       <div className="big-spacer-top">

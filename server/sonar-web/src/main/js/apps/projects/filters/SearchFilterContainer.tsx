@@ -38,7 +38,7 @@ export default class SearchFilterContainer extends React.PureComponent<Props> {
           minLength={2}
           onChange={this.handleSearch}
           placeholder={translate('projects.search')}
-          value={this.props.query.search || ''}
+          value={this.props.query.search ?? ''}
         />
       </div>
     );

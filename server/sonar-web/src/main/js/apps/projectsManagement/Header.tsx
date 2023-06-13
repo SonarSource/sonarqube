@@ -79,7 +79,7 @@ export default class Header extends React.PureComponent<Props, State> {
 
         {visibilityForm && (
           <ChangeDefaultVisibilityForm
-            defaultVisibility={defaultProjectVisibility || Visibility.Public}
+            defaultVisibility={defaultProjectVisibility ?? Visibility.Public}
             onClose={this.closeVisiblityForm}
             onConfirm={this.props.onChangeDefaultProjectVisibility}
           />

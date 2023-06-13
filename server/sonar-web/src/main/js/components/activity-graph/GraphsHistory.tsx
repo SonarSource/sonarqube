@@ -122,7 +122,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
               selectedDate={this.state.selectedDate}
               series={graphSeries}
               graphDescription={
-                ariaLabel ||
+                ariaLabel ??
                 translateWithParameters(
                   'project_activity.graphs.explanation_x',
                   uniqBy(graphSeries, 'name')

@@ -23,8 +23,8 @@ import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { ParsedAnalysis, Serie } from '../../types/project-activity';
-import { Button } from '../controls/buttons';
 import Modal from '../controls/Modal';
+import { Button } from '../controls/buttons';
 import DateFormatter from '../intl/DateFormatter';
 import TimeFormatter from '../intl/TimeFormatter';
 import { Alert } from '../ui/Alert';
@@ -101,7 +101,7 @@ export default function DataTableModal(props: DataTableModalProps) {
       </td>
       {metrics.map((metric) => (
         <td key={metric} className="thin nowrap">
-          {values[metric] || '-'}
+          {values[metric] ?? '-'}
         </td>
       ))}
       <td>
