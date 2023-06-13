@@ -156,7 +156,7 @@ export function Breadcrumbs(props: Props) {
           <InteractiveIcon
             Icon={ChevronDownIcon}
             aria-label={expandButtonLabel ?? translate('expand_breadcrumb')}
-            className="sw-m-1"
+            className="sw-m-1 sw-mr-2"
             size="small"
           />
         </Dropdown>
