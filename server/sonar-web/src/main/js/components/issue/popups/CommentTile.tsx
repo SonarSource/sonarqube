@@ -59,7 +59,7 @@ export default class CommentTile extends React.PureComponent<CommentTileProps, C
   render() {
     const { comment } = this.props;
     const { showEditArea } = this.state;
-    const author = comment.authorName || comment.author;
+    const author = comment.authorName ?? comment.author;
     const displayName =
       comment.authorActive === false && author
         ? translateWithParameters('user.x_deleted', author)

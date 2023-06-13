@@ -27,9 +27,9 @@ import {
   addComponent,
   addComponentBreadcrumbs,
   addComponentChildren,
-  getComponent as getComponentFromBucket,
   getComponentBreadcrumbs,
   getComponentChildren,
+  getComponent as getComponentFromBucket,
 } from './bucket';
 
 const METRICS = [
@@ -287,7 +287,7 @@ export function loadMoreChildren(
 }
 
 export function mostCommonPrefix(strings: string[]) {
-  const sortedStrings = strings.slice(0).sort();
+  const sortedStrings = strings.slice(0).sort((a, b) => a.localeCompare(b));
   const firstString = sortedStrings[0];
   const firstStringLength = firstString.length;
   const lastString = sortedStrings[sortedStrings.length - 1];
