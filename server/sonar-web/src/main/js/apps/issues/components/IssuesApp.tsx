@@ -971,11 +971,11 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div
         className={
-          'it__layout-page-filters sw-bg-white sw-box-border sw-h-full sw-overflow-y-auto ' +
+          'it__layout-page-filters sw-bg-white sw-box-border sw-h-full ' +
           'sw-py-6 sw-pl-3 sw-pr-4 sw-w-[300px] lg:sw-w-[390px]'
         }
       >
-        <div className="sw-pb-6">{warning}</div>
+        {warning && <div className="sw-pb-6">{warning}</div>}
 
         {currentUser.isLoggedIn && (
           <div className="sw-flex sw-justify-start sw-mb-8">
@@ -1045,7 +1045,7 @@ export class App extends React.PureComponent<Props, State> {
         {({ top }) => (
           <nav
             aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-            className="it__issues-nav-bar sw-overflow-scroll"
+            className="it__issues-nav-bar sw-overflow-y-auto"
             style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
           >
             <SideBarStyle className="sw-w-[300px] lg:sw-w-[390px]">
@@ -1185,12 +1185,14 @@ export class App extends React.PureComponent<Props, State> {
       paging,
       loadingRule,
     } = this.state;
+    const topMargin = openIssue ? '120px' : '150px'; // 60px(footer) + 90px(bulk change)/60px(navbar)
+
     return (
       <ScreenPositionHelper>
         {({ top }) => (
           <div
-            className="it__layout-page-main-inner sw-overflow-scroll"
-            style={{ height: `calc((100vh - ${top}px) - 120px)` }} // 120px = 60px (footer) + 60px (bulk change bar)
+            className="it__layout-page-main-inner sw-overflow-y-auto"
+            style={{ height: `calc((100vh - ${top}px) - ${topMargin})` }}
           >
             <DeferredSpinner loading={loadingRule}>
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
