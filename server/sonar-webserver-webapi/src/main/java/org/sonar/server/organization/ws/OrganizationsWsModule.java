@@ -29,7 +29,8 @@ public class OrganizationsWsModule extends Module {
                 OrganizationsWs.class,
                 MemberUpdater.class,
                 AddMemberAction.class,
-                SearchMembersAction.class
+                SearchMembersAction.class,
+                RemoveMemberAction.class
         );
     }
 
