@@ -23,9 +23,9 @@ import { last } from 'lodash';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { Route } from 'react-router-dom';
-import { byRole } from 'testing-library-selector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../helpers/testSelector';
 import ProjectKeyApp from '../ProjectKeyApp';
 
 const componentsMock = new ComponentsServiceMock();

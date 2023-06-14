@@ -22,12 +22,12 @@ import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
-import { byLabelText, byRole, byText } from 'testing-library-selector';
 import { searchForBitbucketServerRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');

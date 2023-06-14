@@ -20,10 +20,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole, byText } from 'testing-library-selector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
 import AlmIntegration from '../AlmIntegration';

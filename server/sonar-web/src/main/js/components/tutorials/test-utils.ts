@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { byRole, byText } from 'testing-library-selector';
+import { byRole, byText } from '../../helpers/testSelector';
 import { BuildTools, GradleBuildDSL, OSs, TutorialModes } from './types';
 
 const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {

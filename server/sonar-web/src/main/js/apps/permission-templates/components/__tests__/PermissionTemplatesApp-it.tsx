@@ -21,7 +21,6 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
-import { byLabelText, byRole } from 'testing-library-selector';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
@@ -30,6 +29,7 @@ import {
   findTooltipWithContent,
   renderAppWithAdminContext,
 } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { PermissionGroup, PermissionUser } from '../../../../types/types';

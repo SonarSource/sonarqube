@@ -4620,7 +4620,6 @@ __metadata:
     react-virtualized: 9.22.3
     regenerator-runtime: 0.13.11
     tailwindcss: 3.3.1
-    testing-library-selector: 0.2.1
     turbo: 1.8.8
     typescript: 5.0.3
     valid-url: 1.0.9
@@ -12135,15 +12134,6 @@ __metadata:
     glob: ^7.1.4
     minimatch: ^3.0.4
   checksum: 3b34a3d77165a2cb82b34014b3aba93b1c4637a5011807557dc2f3da826c59975a5ccad765721c4648b39817e3472789f9b0fa98fc854c5c1c7a1e632aacdc28
-  languageName: node
-  linkType: hard
-
-"testing-library-selector@npm:0.2.1":
-  version: 0.2.1
-  resolution: "testing-library-selector@npm:0.2.1"
-  peerDependencies:
-    "@testing-library/dom": ^8.2.0
-  checksum: 4bb6d071f20b89f7954b03addd6c97479817e348c5a63f2c40693a5a93010b40418d90e30c0dfd7dc2a05e2f66a880ff4b1fa9004e7def5fbf489130b70b050b
   languageName: node
   linkType: hard
 

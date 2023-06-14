@@ -22,11 +22,11 @@ import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { omit, pick } from 'lodash';
 import * as React from 'react';
-import { byLabelText, byRole, byText } from 'testing-library-selector';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { findTooltipWithContent, renderApp } from '../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import {
   IssueActions,
   IssueSeverity,

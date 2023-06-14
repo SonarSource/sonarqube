@@ -19,10 +19,10 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole, byText } from 'testing-library-selector';
 import { getSuggestions } from '../../../../api/components';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import GlobalSearch, { GlobalSearch as GlobalSearchWithoutRouter } from '../GlobalSearch';
 
 jest.mock('../../../../api/components', () => ({
@@ -117,7 +117,8 @@ it('load more results', async () => {
   await user.keyboard('foo');
   expect(getSuggestions).toHaveBeenLastCalledWith('foo', []);
 
-  (getSuggestions as jest.Mock).mockResolvedValueOnce({
+  jest.mocked(getSuggestions).mockResolvedValueOnce({
+    projects: [],
     results: [
       {
         items: [
@@ -127,7 +128,6 @@ it('load more results', async () => {
             key: 'bar',
             match: '<mark>Bar</mark>',
             name: 'Bar',
-            organization: 'org',
             project: 'bar',
           },
         ],

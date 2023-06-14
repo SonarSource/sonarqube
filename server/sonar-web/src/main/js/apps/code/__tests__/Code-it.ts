@@ -22,13 +22,13 @@ import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { keyBy, times } from 'lodash';
 import { act } from 'react-dom/test-utils';
-import { byRole, byText } from 'testing-library-selector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { ReactTestingQuery, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
@@ -235,7 +235,7 @@ it('should correctly show measures for a project', async () => {
   await ui.appLoaded(component.name);
 
   // Folder A
-  const folderRow = ui.measureRow(/folderA/).get();
+  const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
     [MetricKey.bugs, '2'],
@@ -249,7 +249,7 @@ it('should correctly show measures for a project', async () => {
   });
 
   // index.tsx
-  const fileRow = ui.measureRow(/index\.tsx/).get();
+  const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
     [MetricKey.bugs, '—'],
@@ -312,7 +312,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   expect(ui.newCodeBtn.get()).toHaveAttribute('aria-current', 'true');
 
   // Child 1
-  let child1Row = ui.measureRow(/^Child 1/).get();
+  let child1Row = ui.measureRow(/^Child 1/);
   [
     ['Releasability', 'OK'],
     ['Reliability', 'C'],
@@ -326,7 +326,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   });
 
   // Child 2
-  let child2Row = ui.measureRow(/^Child 2/).get();
+  let child2Row = ui.measureRow(/^Child 2/);
   [
     ['Releasability', 'ERROR'],
     ['Reliability', '—'],
@@ -343,7 +343,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   await ui.showOverallCode();
 
   // Child 1
-  child1Row = ui.measureRow(/^Child 1/).get();
+  child1Row = ui.measureRow(/^Child 1/);
   [
     ['Releasability', 'OK'],
     ['Reliability', 'B'],
@@ -356,7 +356,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   });
 
   // Child 2
-  child2Row = ui.measureRow(/^Child 2/).get();
+  child2Row = ui.measureRow(/^Child 2/);
   [
     ['Releasability', 'ERROR'],
     ['Reliability', '—'],
@@ -384,7 +384,7 @@ function getPageObject(user: UserEvent) {
     newCodeBtn: byRole('radio', { name: 'projects.view.new_code' }),
     overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byRole('row', { name, exact: false }),
-    measureValueCell: (row: HTMLElement, name: string, value: string) => {
+    measureValueCell: (row: ReactTestingQuery, name: string, value: string) => {
       const i = Array.from(screen.getAllByRole('columnheader')).findIndex((c) =>
         c.textContent?.includes(name)
       );
@@ -394,8 +394,7 @@ function getPageObject(user: UserEvent) {
         throw new Error(`Couldn't locate column with header ${name}`);
       }
 
-      const { getAllByRole } = within(row);
-      const cell = getAllByRole('cell').at(i);
+      const cell = row.byRole('cell').getAll().at(i);
 
       if (cell === undefined) {
         throw new Error(`Couldn't locate cell with value ${value} for header ${name}`);

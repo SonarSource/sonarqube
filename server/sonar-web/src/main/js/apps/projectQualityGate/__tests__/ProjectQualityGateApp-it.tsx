@@ -19,7 +19,6 @@
  */
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import { byRole, byText } from 'testing-library-selector';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -27,6 +26,7 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 

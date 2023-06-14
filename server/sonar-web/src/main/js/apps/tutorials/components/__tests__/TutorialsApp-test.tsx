@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { byLabelText, byRole } from 'testing-library-selector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { Permissions } from '../../../../types/permissions';
 import routes from '../../routes';
 

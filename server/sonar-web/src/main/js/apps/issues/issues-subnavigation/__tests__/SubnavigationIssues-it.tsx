@@ -20,9 +20,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byRole, byText } from 'testing-library-selector';
 import { mockFlowLocation, mockIssue, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { FCProps } from '../../../../helpers/testUtils';
 import { FlowType, Issue } from '../../../../types/types';
 import { VISIBLE_LOCATIONS_COLLAPSE } from '../IssueLocationsCrossFile';

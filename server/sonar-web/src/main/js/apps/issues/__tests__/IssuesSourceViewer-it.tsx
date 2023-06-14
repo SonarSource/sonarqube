@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byRole } from 'testing-library-selector';
+import { byRole } from '../../../helpers/testSelector';
 import {
   componentsHandler,
   issuesHandler,

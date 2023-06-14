@@ -19,7 +19,6 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byLabelText, byPlaceholderText, byRole, byText } from 'testing-library-selector';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import { parseDate } from '../../../helpers/dates';
 import { mockAppState } from '../../../helpers/testMocks';
@@ -28,6 +27,7 @@ import {
   dateInputEvent,
   renderAppWithAdminContext,
 } from '../../../helpers/testReactTestingUtils';
+import { byLabelText, byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
 import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
@@ -47,7 +47,7 @@ describe('The Global background task page', () => {
     renderGlobalBackgroundTasksApp();
     await ui.appLoaded();
 
-    expect(within(ui.numberOfWorkers.get()).getByText('2')).toBeInTheDocument();
+    expect(ui.numberOfWorkers(2).get()).toBeInTheDocument();
 
     const editWorkersButton = screen.getByRole('button', {
       name: 'background_tasks.change_number_of_workers',
@@ -72,7 +72,7 @@ describe('The Global background task page', () => {
 
     await user.click(within(modal).getByRole('button', { name: 'save' }));
 
-    expect(within(ui.numberOfWorkers.get()).getByText('4')).toBeInTheDocument();
+    expect(ui.numberOfWorkers(4).get()).toBeInTheDocument();
   });
 
   it('should display the list of tasks', async () => {
@@ -311,7 +311,8 @@ function getPageObject() {
   const selectors = {
     loading: byLabelText('loading'),
     pageHeading: byRole('heading', { name: 'background_tasks.page' }),
-    numberOfWorkers: byText('background_tasks.number_of_workers'),
+    numberOfWorkers: (count: number) =>
+      byText('background_tasks.number_of_workers').byText(`${count}`),
     onlyLatestAnalysis: byRole('checkbox', { name: 'yes' }),
     search: byPlaceholderText('background_tasks.search_by_task_or_component'),
     fromDateInput: byRole('textbox', { name: 'start_date' }),

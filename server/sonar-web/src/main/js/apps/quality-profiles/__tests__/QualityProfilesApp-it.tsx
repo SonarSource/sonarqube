@@ -20,10 +20,10 @@
 import { act, getByText } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import { byRole } from 'testing-library-selector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import { mockPaging, mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../helpers/testSelector';
 import routes from '../routes';
 
 jest.mock('../../../api/quality-profiles');

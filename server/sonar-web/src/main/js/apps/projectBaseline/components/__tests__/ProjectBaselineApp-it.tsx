@@ -21,7 +21,6 @@ import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first, last } from 'lodash';
 import selectEvent from 'react-select-event';
-import { byRole, byText } from 'testing-library-selector';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
@@ -29,9 +28,10 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-period';
 import { mockAppState } from '../../../../helpers/testMocks';
 import {
-  renderAppWithComponentContext,
   RenderContext,
+  renderAppWithComponentContext,
 } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { NewCodePeriodSettingType } from '../../../../types/types';
 import routes from '../../routes';

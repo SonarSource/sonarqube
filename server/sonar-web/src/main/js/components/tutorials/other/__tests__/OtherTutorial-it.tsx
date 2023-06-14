@@ -21,11 +21,11 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
-import { byRole, byText } from 'testing-library-selector';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import {
   getCopyToClipboardValue,
   getTutorialActionButtons,

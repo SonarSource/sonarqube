@@ -20,11 +20,11 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
-import { byPlaceholderText, byRole, byText } from 'testing-library-selector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { now } from '../../../../helpers/dates';
 import { getMonthName } from '../../../../helpers/l10n';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
+import { byPlaceholderText, byRole, byText } from '../../../../helpers/testSelector';
 import { AdminPageExtension } from '../../../../types/extension';
 import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';

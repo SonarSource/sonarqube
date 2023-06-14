@@ -21,7 +21,6 @@
 import { act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useEffect, useState } from 'react';
-import { byRole } from 'testing-library-selector';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import BranchStatusContextProvider from '../../../app/components/branch-status/BranchStatusContextProvider';
@@ -30,6 +29,7 @@ import { ComponentContext } from '../../../app/components/componentContext/Compo
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
 import { SettingsKey } from '../../../types/settings';

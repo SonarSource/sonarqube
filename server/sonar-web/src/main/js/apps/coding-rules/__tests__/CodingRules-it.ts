@@ -19,10 +19,10 @@
  */
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byPlaceholderText, byRole } from 'testing-library-selector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { byPlaceholderText, byRole } from '../../../helpers/testSelector';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 

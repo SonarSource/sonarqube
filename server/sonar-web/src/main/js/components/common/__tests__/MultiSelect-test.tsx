@@ -20,7 +20,7 @@
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byRole, byText } from 'testing-library-selector';
+import { byRole, byText } from '../../../helpers/testSelector';
 import MultiSelect from '../MultiSelect';
 
 const ui = {

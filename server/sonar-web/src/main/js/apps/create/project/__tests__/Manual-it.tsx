@@ -20,15 +20,15 @@
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
-import { byRole, byText } from 'testing-library-selector';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { getNewCodePeriod } from '../../../../api/newCodePeriod';
 import { mockProject } from '../../../../helpers/mocks/projects';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodePeriodSettingType } from '../../../../types/types';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 
 jest.mock('../../../../api/alm-settings');
 jest.mock('../../../../api/newCodePeriod');

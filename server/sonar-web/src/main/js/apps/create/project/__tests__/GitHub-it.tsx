@@ -22,12 +22,12 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
-import { byLabelText, byText } from 'testing-library-selector';
 import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');

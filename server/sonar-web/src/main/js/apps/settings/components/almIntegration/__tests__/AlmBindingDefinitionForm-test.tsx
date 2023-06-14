@@ -19,9 +19,9 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole, byText } from 'testing-library-selector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionForm, {
   AlmBindingDefinitionFormProps,

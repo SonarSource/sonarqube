@@ -19,12 +19,12 @@
  */
 import { waitFor } from '@testing-library/react';
 import React from 'react';
-import { byLabelText, byPlaceholderText, byRole, byTestId } from 'testing-library-selector';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
 import { mockCurrentUser } from '../../helpers/testMocks';
 import { renderApp, renderAppWithComponentContext } from '../../helpers/testReactTestingUtils';
+import { byLabelText, byPlaceholderText, byRole, byTestId } from '../../helpers/testSelector';
 import { Component } from '../../types/types';
 import { CurrentUser } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
