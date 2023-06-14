@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { themeBorder } from 'design-system';
 import * as React from 'react';
 import EllipsisIcon from '../../components/icons/EllipsisIcon';
 import { translate } from '../../helpers/l10n';
@@ -56,7 +58,7 @@ function renderButton(
   icon: React.ReactNode
 ) {
   return (
-    <button
+    <StyledTutorialButtons
       className={`button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-${mode}`}
       // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
       // tutorial in the future.
@@ -67,7 +69,7 @@ function renderButton(
       <div className="medium big-spacer-top">
         {translate('onboarding.tutorial.choose_method', mode)}
       </div>
-    </button>
+    </StyledTutorialButtons>
   );
 }
 
@@ -270,3 +272,14 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     </>
   );
 }
+
+const StyledTutorialButtons = styled.button`
+  border: ${themeBorder('default', 'projectCardBorder')};
+  &:hover,
+  &:focus,
+  &:focus-visible,
+  &:active {
+    border: ${themeBorder('default', 'tabBorder')};
+    outline: none;
+  }
+`;
