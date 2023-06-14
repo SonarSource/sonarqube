@@ -31,7 +31,10 @@ export function MultipleSelectionHint({
 }) {
   return nbSelectedItems > 0 && nbSelectedItems < nbSelectableItems ? (
     <div className="sw-pt-4">
-      <KeyboardHint command={translate('shortcuts.section.global.facets.multiselection')} />
+      <KeyboardHint
+        command="Control + Click"
+        title={translate('shortcuts.section.global.facets.multiselection.title')}
+      />
     </div>
   ) : null;
 }

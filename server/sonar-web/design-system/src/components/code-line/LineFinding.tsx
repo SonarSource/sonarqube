@@ -71,6 +71,7 @@ const LineFindingStyled = styled(BareButton)<{ selected: boolean }>`
       ? themeBorder('default', 'issueBoxSelectedBorder')
       : themeBorder('default', 'issueBoxBorder')};
   color: ${themeContrast('pageBlock')};
+  font-weight: ${(props) => (props.selected ? 600 : 400)};
   word-break: break-word;
   background-color: ${themeColor('pageBlock')};
 

@@ -171,6 +171,26 @@ exports[`renders with title 1`] = `
   color: rgb(106,117,144);
 }
 
+.emotion-2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+  border-radius: 0.125rem;
+  background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
+}
+
 <div>
   <div
     class="emotion-0 emotion-1"
@@ -183,7 +203,9 @@ exports[`renders with title 1`] = `
     <div
       class="sw-flex sw-gap-1"
     >
-      <span>
+      <span
+        class="emotion-2 emotion-3"
+      >
         click
       </span>
     </div>
@@ -209,6 +231,26 @@ exports[`renders without title 1`] = `
   color: rgb(106,117,144);
 }
 
+.emotion-2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+  border-radius: 0.125rem;
+  background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
+}
+
 <div>
   <div
     class="emotion-0 emotion-1"
@@ -216,7 +258,9 @@ exports[`renders without title 1`] = `
     <div
       class="sw-flex sw-gap-1"
     >
-      <span>
+      <span
+        class="emotion-2 emotion-3"
+      >
         click
       </span>
     </div>

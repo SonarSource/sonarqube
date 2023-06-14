@@ -226,6 +226,40 @@ exports[`should render ArrowUp 1`] = `
 </div>
 `;
 
+exports[`should render Click 1`] = `
+.emotion-0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+  border-radius: 0.125rem;
+  background-color: rgb(225,230,243);
+  color: rgb(62,67,87);
+}
+
+<div>
+  <div
+    class="sw-flex sw-gap-1"
+  >
+    <span
+      class="emotion-0 emotion-1"
+    >
+      click
+    </span>
+  </div>
+</div>
+`;
+
 exports[`should render Command 1`] = `
 .emotion-0 {
   display: -webkit-box;
@@ -361,7 +395,9 @@ exports[`should render a default text if no keys match 1`] = `
     <span>
       +
     </span>
-    <span>
+    <span
+      class="emotion-0 emotion-1"
+    >
       click
     </span>
   </div>

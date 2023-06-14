@@ -40,6 +40,7 @@ export enum Key {
   Shift = 'Shift',
   Space = ' ',
   Tab = 'Tab',
+  Click = 'Click',
 }
 
 export function isShortcut(event: KeyboardEvent): boolean {

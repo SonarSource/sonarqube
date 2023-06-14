@@ -1040,47 +1040,51 @@ export class App extends React.PureComponent<Props, State> {
     );
 
     return (
-      <ScreenPositionHelper className="sw-z-filterbar">
-        {({ top }) => (
-          <nav
-            aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-            className="it__issues-nav-bar sw-overflow-y-auto"
-            style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
-          >
-            <SideBarStyle className="sw-w-[300px] lg:sw-w-[390px]">
-              <A11ySkipTarget
-                anchor="issues_sidebar"
-                label={
-                  openIssue ? translate('issues.skip_to_list') : translate('issues.skip_to_filters')
-                }
-                weight={10}
-              />
+      <SideBarStyle>
+        <ScreenPositionHelper className="sw-z-filterbar">
+          {({ top }) => (
+            <nav
+              aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
+              className="it__issues-nav-bar sw-overflow-y-auto"
+              style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
+            >
+              <div className="sw-w-[300px] lg:sw-w-[390px]">
+                <A11ySkipTarget
+                  anchor="issues_sidebar"
+                  label={
+                    openIssue
+                      ? translate('issues.skip_to_list')
+                      : translate('issues.skip_to_filters')
+                  }
+                  weight={10}
+                />
 
-              {openIssue ? (
-                <div>
-                  {warning && <div className="sw-py-4">{warning}</div>}
+                {openIssue ? (
+                  <div>
+                    {warning && <div className="sw-py-4">{warning}</div>}
 
-                  <SubnavigationIssuesList
-                    fetchMoreIssues={this.fetchMoreIssues}
-                    issues={issues}
-                    loading={loading}
-                    loadingMore={loadingMore}
-                    onFlowSelect={this.selectFlow}
-                    onIssueSelect={this.openIssue}
-                    onLocationSelect={this.selectLocation}
-                    paging={paging}
-                    selected={selected}
-                    selectedFlowIndex={selectedFlowIndex}
-                    selectedLocationIndex={selectedLocationIndex}
-                  />
-                </div>
-              ) : (
-                this.renderFacets(warning)
-              )}
-            </SideBarStyle>
-          </nav>
-        )}
-      </ScreenPositionHelper>
+                    <SubnavigationIssuesList
+                      fetchMoreIssues={this.fetchMoreIssues}
+                      issues={issues}
+                      loading={loading}
+                      loadingMore={loadingMore}
+                      onFlowSelect={this.selectFlow}
+                      onIssueSelect={this.openIssue}
+                      onLocationSelect={this.selectLocation}
+                      paging={paging}
+                      selected={selected}
+                      selectedFlowIndex={selectedFlowIndex}
+                      selectedLocationIndex={selectedLocationIndex}
+                    />
+                  </div>
+                ) : (
+                  this.renderFacets(warning)
+                )}
+              </div>
+            </nav>
+          )}
+        </ScreenPositionHelper>
+      </SideBarStyle>
     );
   }
 
@@ -1293,7 +1297,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {this.renderSide(openIssue)}
 
-              <MainContentStyle role="main" className="sw-relative sw-ml-2 sw-p-6 sw-flex-1">
+              <MainContentStyle role="main" className="sw-relative sw-ml-12 sw-p-6 sw-flex-1">
                 {this.renderHeader({ openIssue, paging, selectedIndex })}
 
                 {this.renderPage()}

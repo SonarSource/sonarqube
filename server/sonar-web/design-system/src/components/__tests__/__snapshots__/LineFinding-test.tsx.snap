@@ -27,6 +27,7 @@ exports[`should render correctly 1`] = `
   box-sizing: border-box;
   border: 1px solid rgb(253,162,155);
   color: rgb(62,67,87);
+  font-weight: 600;
   word-break: break-word;
   background-color: rgb(255,255,255);
 }
@@ -76,6 +77,7 @@ exports[`should render correctly when issueType is provided 1`] = `
   box-sizing: border-box;
   border: 1px solid rgb(253,162,155);
   color: rgb(62,67,87);
+  font-weight: 600;
   word-break: break-word;
   background-color: rgb(255,255,255);
 }

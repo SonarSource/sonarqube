@@ -33,6 +33,7 @@ export const mappedKeys = {
   [Key.Command]: '⌘',
   [Key.Control]: 'Ctrl',
   [Key.Option]: '⌥',
+  [Key.Click]: 'click',
 };
 
 export function KeyboardHintKeys({ command }: { command: string }) {
