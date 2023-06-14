@@ -135,9 +135,9 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   renderProject = (project: Project) => {
     const {
       ruleDetails: { key },
+      organization
     } = this.props;
-
-    const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key }, organization);
+    const path = getOrgIssuesUrl({ resolved: 'false', rules: key, projects: project.key }, organization);
     return (
       <tr key={project.key}>
         <td className="coding-rules-detail-list-name">{project.name}</td>

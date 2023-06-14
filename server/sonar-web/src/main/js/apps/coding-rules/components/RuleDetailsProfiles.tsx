@@ -70,7 +70,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (!profile.parentName) {
       return null;
     }
-    console.log("organization ->"+organization);
     const profilePath = getQualityProfileUrl(profile.parentName, profile.language, organization);
     return (
       <div className="coding-rules-detail-quality-profile-inheritance">
