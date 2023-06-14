@@ -111,7 +111,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     try {
       waitForInProgressWorkersToFinish(350);
     } catch (InterruptedException e) {
-      LOG.debug("Grace period of hard stop has been interrupted: {}", e);
+      LOG.debug("Grace period of hard stop has been interrupted: {}", e.getMessage());
       Thread.currentThread().interrupt();
     }
 
