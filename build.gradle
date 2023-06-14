@@ -311,6 +311,7 @@ subprojects {
       dependencySet(group: 'com.squareup.okhttp3', version: '4.10.0') {
         entry 'okhttp'
         entry 'mockwebserver'
+        entry 'okhttp-tls'
       }
       dependency 'org.json:json:20230227'
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'

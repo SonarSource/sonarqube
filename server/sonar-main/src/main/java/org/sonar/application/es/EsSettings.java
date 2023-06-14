@@ -38,6 +38,7 @@ import static java.lang.String.valueOf;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_DISCOVERY_SEED_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
@@ -98,7 +99,7 @@ public class EsSettings {
     configureFileSystem(builder);
     configureNetwork(builder);
     configureCluster(builder);
-    configureAuthentication(builder);
+    configureSecurity(builder);
     configureOthers(builder);
     LOGGER.info("Elasticsearch listening on [HTTP: {}:{}, TCP: {}:{}]",
       builder.get(ES_HTTP_HOST_KEY), builder.get(ES_HTTP_PORT_KEY),
@@ -111,7 +112,7 @@ public class EsSettings {
     builder.put("path.logs", fileSystem.getLogDirectory().getAbsolutePath());
   }
 
-  private void configureAuthentication(Map<String, String> builder) {
+  private void configureSecurity(Map<String, String> builder) {
     if (clusterEnabled && props.value((CLUSTER_SEARCH_PASSWORD.getKey())) != null) {
 
       String clusterESKeystoreFileName = getFileNameFromPathProperty(CLUSTER_ES_KEYSTORE);
@@ -123,6 +124,13 @@ public class EsSettings {
       builder.put("xpack.security.transport.ssl.verification_mode", "certificate");
       builder.put("xpack.security.transport.ssl.keystore.path", clusterESKeystoreFileName);
       builder.put("xpack.security.transport.ssl.truststore.path", clusterESTruststoreFileName);
+
+      if (props.value(CLUSTER_ES_HTTP_KEYSTORE.getKey()) != null) {
+        String clusterESHttpKeystoreFileName = getFileNameFromPathProperty(CLUSTER_ES_HTTP_KEYSTORE);
+
+        builder.put("xpack.security.http.ssl.enabled", Boolean.TRUE.toString());
+        builder.put("xpack.security.http.ssl.keystore.path", clusterESHttpKeystoreFileName);
+      }
     } else {
       builder.put("xpack.security.autoconfiguration.enabled", Boolean.FALSE.toString());
       builder.put("xpack.security.enabled", Boolean.FALSE.toString());

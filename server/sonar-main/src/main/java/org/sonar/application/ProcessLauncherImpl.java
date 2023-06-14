@@ -54,6 +54,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static org.sonar.application.es.EsKeyStoreCli.BOOTSTRAP_PASSWORD_PROPERTY_KEY;
+import static org.sonar.application.es.EsKeyStoreCli.HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.KEYSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.TRUSTSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_GRACEFUL_STOP_TIMEOUT_MS;
@@ -102,7 +103,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
         EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(),
-          esInstallation.getHttpPort())), esInstallation.getBootstrapPassword());
+          esInstallation.getHttpPort())), esInstallation.getBootstrapPassword(), esInstallation.getHttpKeyStoreLocation(),
+          esInstallation.getHttpKeyStorePassword().orElse(null));
         return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
@@ -140,7 +142,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
     pruneElasticsearchConfDirectory(confDir);
     createElasticsearchConfDirectory(confDir);
-    setupElasticsearchAuthentication(esInstallation);
+    setupElasticsearchSecurity(esInstallation);
 
     esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
     esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
@@ -163,26 +165,41 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private void setupElasticsearchAuthentication(EsInstallation esInstallation) {
+  private void setupElasticsearchSecurity(EsInstallation esInstallation) {
     if (esInstallation.isSecurityEnabled()) {
-      EsKeyStoreCli keyStoreCli = EsKeyStoreCli.getInstance(esInstallation)
-        .store(BOOTSTRAP_PASSWORD_PROPERTY_KEY, esInstallation.getBootstrapPassword());
+      EsKeyStoreCli keyStoreCli = EsKeyStoreCli.getInstance(esInstallation);
 
-      String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
-
-      Path trustStoreLocation = esInstallation.getTrustStoreLocation();
-      Path keyStoreLocation = esInstallation.getKeyStoreLocation();
-      if (trustStoreLocation.equals(keyStoreLocation)) {
-        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
-      } else {
-        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
-        copyFile(keyStoreLocation, Paths.get(esConfPath, keyStoreLocation.toFile().getName()));
-      }
-
-      esInstallation.getTrustStorePassword().ifPresent(s -> keyStoreCli.store(TRUSTSTORE_PASSWORD_PROPERTY_KEY, s));
-      esInstallation.getKeyStorePassword().ifPresent(s -> keyStoreCli.store(KEYSTORE_PASSWORD_PROPERTY_KEY, s));
+      setupElasticsearchAuthentication(esInstallation, keyStoreCli);
+      setupElasticsearchHttpEncryption(esInstallation, keyStoreCli);
 
       keyStoreCli.executeWith(this::launchJava);
+    }
+  }
+
+  private static void setupElasticsearchAuthentication(EsInstallation esInstallation, EsKeyStoreCli keyStoreCli) {
+    keyStoreCli.store(BOOTSTRAP_PASSWORD_PROPERTY_KEY, esInstallation.getBootstrapPassword());
+
+    String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
+
+    Path trustStoreLocation = esInstallation.getTrustStoreLocation();
+    Path keyStoreLocation = esInstallation.getKeyStoreLocation();
+    if (trustStoreLocation.equals(keyStoreLocation)) {
+      copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+    } else {
+      copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+      copyFile(keyStoreLocation, Paths.get(esConfPath, keyStoreLocation.toFile().getName()));
+    }
+
+    esInstallation.getTrustStorePassword().ifPresent(s -> keyStoreCli.store(TRUSTSTORE_PASSWORD_PROPERTY_KEY, s));
+    esInstallation.getKeyStorePassword().ifPresent(s -> keyStoreCli.store(KEYSTORE_PASSWORD_PROPERTY_KEY, s));
+  }
+
+  private static void setupElasticsearchHttpEncryption(EsInstallation esInstallation, EsKeyStoreCli keyStoreCli) {
+    if (esInstallation.isHttpEncryptionEnabled()) {
+      String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
+      Path httpKeyStoreLocation = esInstallation.getHttpKeyStoreLocation();
+      copyFile(httpKeyStoreLocation, Paths.get(esConfPath, httpKeyStoreLocation.toFile().getName()));
+      esInstallation.getHttpKeyStorePassword().ifPresent(s -> keyStoreCli.store(HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY, s));
     }
   }
 

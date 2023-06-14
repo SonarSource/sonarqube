@@ -183,6 +183,39 @@ public class ProcessLauncherImplTest {
   }
 
   @Test
+  public void launch_whenEnablingEsWithHttpEncryption_shouldCopyKeystoreToEsConf() throws Exception {
+    File tempDir = temp.newFolder();
+    File certificateFile = temp.newFile("certificate.pk12");
+    File httpCertificateFile = temp.newFile("httpCertificate.pk12");
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+
+    EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
+      .set("sonar.cluster.enabled", "true")
+      .set("sonar.cluster.search.password", "bootstrap-password")
+      .set("sonar.cluster.es.ssl.keystore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.truststore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.http.ssl.keystore", httpCertificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.http.ssl.keystorePassword", "keystore-password"));
+
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    command.addClasspath("lib/*.class");
+    command.addClasspath("lib/*.jar");
+    command.setArgument("foo", "bar");
+    command.setClassName("org.sonarqube.Main");
+    command.setEnvVariable("VAR1", "valueOfVar1");
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
+    command.setEsInstallation(esInstallation);
+
+    ManagedProcess monitor = underTest.launch(command);
+    assertThat(monitor).isNotNull();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "certificate.pk12")).exists();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "httpCertificate.pk12")).exists();
+  }
+
+  @Test
   public void properties_are_passed_to_command_via_a_temporary_properties_file() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();

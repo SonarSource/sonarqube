@@ -41,6 +41,7 @@ public class EsKeyStoreCli {
   public static final String BOOTSTRAP_PASSWORD_PROPERTY_KEY = "bootstrap.password";
   public static final String KEYSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.transport.ssl.keystore.secure_password";
   public static final String TRUSTSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.transport.ssl.truststore.secure_password";
+  public static final String HTTP_KEYSTORE_PASSWORD_PROPERTY_KEY = "xpack.security.http.ssl.keystore.secure_password";
 
   private static final String MAIN_CLASS_NAME = "org.elasticsearch.launcher.CliToolLauncher";
 

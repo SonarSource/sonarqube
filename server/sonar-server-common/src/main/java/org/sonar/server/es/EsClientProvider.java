@@ -37,6 +37,8 @@ import org.sonar.process.cluster.NodeType;
 import org.springframework.context.annotation.Bean;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
@@ -69,23 +71,27 @@ public class EsClientProvider {
       // * in org.sonar.process.ProcessProperties.Property.SEARCH_HOST
       // * in org.sonar.process.ProcessProperties.Property.SEARCH_PORT
       HostAndPort host = HostAndPort.fromParts(config.get(SEARCH_HOST.getKey()).get(), config.getInt(SEARCH_PORT.getKey()).get());
-      httpHosts = Collections.singletonList(toHttpHost(host));
+      httpHosts = Collections.singletonList(toHttpHost(host, config));
       LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(httpHosts));
     }
 
-    return new EsClient(config.get(CLUSTER_SEARCH_PASSWORD.getKey()).orElse(null), httpHosts.toArray(new HttpHost[0]));
+    return new EsClient(config.get(CLUSTER_SEARCH_PASSWORD.getKey()).orElse(null),
+      config.get(CLUSTER_ES_HTTP_KEYSTORE.getKey()).orElse(null),
+      config.get(CLUSTER_ES_HTTP_KEYSTORE_PASSWORD.getKey()).orElse(null),
+      httpHosts.toArray(new HttpHost[0]));
   }
 
   private static List<HttpHost> getHttpHosts(Configuration config) {
     return Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
       .map(HostAndPort::fromString)
-      .map(EsClientProvider::toHttpHost)
+      .map(host -> toHttpHost(host, config))
       .toList();
   }
 
-  private static HttpHost toHttpHost(HostAndPort host) {
+  private static HttpHost toHttpHost(HostAndPort host, Configuration config) {
     try {
-      return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001));
+      String scheme = config.get(CLUSTER_ES_HTTP_KEYSTORE.getKey()).isPresent() ? "https" : HttpHost.DEFAULT_SCHEME_NAME;
+      return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001), scheme);
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);
     }

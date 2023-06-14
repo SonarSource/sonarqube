@@ -34,6 +34,8 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Props;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HTTP_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
@@ -73,6 +75,10 @@ public class EsInstallation {
   private final String keyStorePassword;
   @Nullable
   private final String trustStorePassword;
+  private final Path httpKeyStoreLocation;
+  @Nullable
+  private final String httpKeyStorePassword;
+  private final boolean httpEncryptionEnabled;
 
   public EsInstallation(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
@@ -89,6 +95,9 @@ public class EsInstallation {
     this.keyStorePassword = props.value(CLUSTER_ES_KEYSTORE_PASSWORD.getKey());
     this.trustStoreLocation = getPath(props.value(CLUSTER_ES_TRUSTSTORE.getKey()));
     this.trustStorePassword = props.value(CLUSTER_ES_TRUSTSTORE_PASSWORD.getKey());
+    this.httpKeyStoreLocation = getPath(props.value(CLUSTER_ES_HTTP_KEYSTORE.getKey()));
+    this.httpKeyStorePassword = props.value(CLUSTER_ES_HTTP_KEYSTORE_PASSWORD.getKey());
+    this.httpEncryptionEnabled = securityEnabled && httpKeyStoreLocation != null;
   }
 
   private static Path getPath(@Nullable String path) {
@@ -223,5 +232,17 @@ public class EsInstallation {
 
   public Optional<String> getTrustStorePassword() {
     return Optional.ofNullable(trustStorePassword);
+  }
+
+  public Path getHttpKeyStoreLocation() {
+    return httpKeyStoreLocation;
+  }
+
+  public Optional<String> getHttpKeyStorePassword() {
+    return Optional.ofNullable(httpKeyStorePassword);
+  }
+
+  public boolean isHttpEncryptionEnabled() {
+    return httpEncryptionEnabled;
   }
 }

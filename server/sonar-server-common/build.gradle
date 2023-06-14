@@ -31,6 +31,7 @@ dependencies {
   testImplementation 'com.google.code.findbugs:jsr305'
   testImplementation 'org.subethamail:subethasmtp'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.squareup.okhttp3:okhttp-tls'
   testImplementation 'com.squareup.okio:okio'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
