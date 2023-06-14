@@ -97,7 +97,8 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
 
   loadHolders = () => {
     this.setState({ loading: true });
-    return this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
+
+    this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
       if (this.mounted) {
         this.setState({
           groups: groupsResponse.groups,
@@ -113,7 +114,8 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
   handleLoadMore = () => {
     const { usersPaging, groupsPaging } = this.state;
     this.setState({ loading: true });
-    return this.loadUsersAndGroups(
+
+    this.loadUsersAndGroups(
       usersPaging ? usersPaging.pageIndex + 1 : 1,
       groupsPaging ? groupsPaging.pageIndex + 1 : 1
     ).then(([usersResponse, groupsResponse]) => {

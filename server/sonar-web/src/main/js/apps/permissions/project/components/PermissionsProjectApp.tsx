@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { without } from 'lodash';
+import { noop, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
@@ -27,8 +27,8 @@ import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
 import { translate } from '../../../../helpers/l10n';
 import {
-  convertToPermissionDefinitions,
   PERMISSIONS_ORDER_BY_QUALIFIER,
+  convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
 import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
@@ -106,7 +106,8 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
   loadHolders = () => {
     this.setState({ loading: true });
-    return this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
+
+    this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
       if (this.mounted) {
         this.setState({
           groups: groupsResponse.groups,
@@ -122,7 +123,8 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
   handleLoadMore = () => {
     const { usersPaging, groupsPaging } = this.state;
     this.setState({ loading: true });
-    return this.loadUsersAndGroups(
+
+    this.loadUsersAndGroups(
       usersPaging ? usersPaging.pageIndex + 1 : 1,
       groupsPaging ? groupsPaging.pageIndex + 1 : 1
     ).then(([usersResponse, groupsResponse]) => {
@@ -276,18 +278,26 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
   handleTurnProjectToPublic = () => {
     this.setState({ loading: true });
-    return api.changeProjectVisibility(this.props.component.key, Visibility.Public).then(() => {
-      this.props.onComponentChange({ visibility: Visibility.Public });
-      this.loadHolders();
-    });
+
+    api
+      .changeProjectVisibility(this.props.component.key, Visibility.Public)
+      .then(() => {
+        this.props.onComponentChange({ visibility: Visibility.Public });
+        this.loadHolders();
+      })
+      .catch(noop);
   };
 
   turnProjectToPrivate = () => {
     this.setState({ loading: true });
-    return api.changeProjectVisibility(this.props.component.key, Visibility.Private).then(() => {
-      this.props.onComponentChange({ visibility: Visibility.Private });
-      this.loadHolders();
-    });
+
+    api
+      .changeProjectVisibility(this.props.component.key, Visibility.Private)
+      .then(() => {
+        this.props.onComponentChange({ visibility: Visibility.Private });
+        this.loadHolders();
+      })
+      .catch(noop);
   };
 
   openDisclaimer = () => {

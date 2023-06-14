@@ -54,7 +54,7 @@ export default function AddGraphMetricPopup({
           'project_activity.graphs.custom.type_x_message',
           metricsTypeFilter
             .map((type: string) => translate('metric.type', type))
-            .sort()
+            .sort((a, b) => a.localeCompare(b))
             .join(', ')
         )}
       </Alert>

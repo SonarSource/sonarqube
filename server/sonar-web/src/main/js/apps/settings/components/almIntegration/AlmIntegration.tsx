@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import {
   countBoundProjects,
@@ -176,7 +177,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       });
   };
 
-  handleCheck = async (definitionKey: string, alertSuccess = true) => {
+  handleCheck = (definitionKey: string, alertSuccess = true) => {
     this.setState(({ definitionStatus }) => {
       definitionStatus[definitionKey] = {
         ...definitionStatus[definitionKey],
@@ -186,29 +187,31 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       return { definitionStatus: { ...definitionStatus } };
     });
 
-    let type: AlmSettingsBindingStatusType;
-    let failureMessage = '';
+    validateAlmSettings(definitionKey)
+      .then(
+        (failureMessage) => {
+          const type = failureMessage
+            ? AlmSettingsBindingStatusType.Failure
+            : AlmSettingsBindingStatusType.Success;
 
-    try {
-      failureMessage = await validateAlmSettings(definitionKey);
-      type = failureMessage
-        ? AlmSettingsBindingStatusType.Failure
-        : AlmSettingsBindingStatusType.Success;
-    } catch (_) {
-      type = AlmSettingsBindingStatusType.Warning;
-    }
+          return { type, failureMessage };
+        },
+        () => ({ type: AlmSettingsBindingStatusType.Warning, failureMessage: '' })
+      )
+      .then(({ type, failureMessage }) => {
+        if (this.mounted) {
+          this.setState(({ definitionStatus }) => {
+            definitionStatus[definitionKey] = {
+              alertSuccess,
+              failureMessage,
+              type,
+            };
 
-    if (this.mounted) {
-      this.setState(({ definitionStatus }) => {
-        definitionStatus[definitionKey] = {
-          alertSuccess,
-          failureMessage,
-          type,
-        };
-
-        return { definitionStatus: { ...definitionStatus } };
-      });
-    }
+            return { definitionStatus: { ...definitionStatus } };
+          });
+        }
+      })
+      .catch(noop);
   };
 
   render() {
