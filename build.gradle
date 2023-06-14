@@ -99,16 +99,20 @@ allprojects {
                   username artifactoryUsername
                   password artifactoryPassword
               }
-          } else {
-              // Workaround for artifactory
-              // https://www.jfrog.com/jira/browse/RTFACT-13797
-              repository = 'public'
-          }
-          url "https://repox.jfrog.io/repox/sonarsource-bucket"
+              url "https://repox.jfrog.io/repox/sonarsource-bucket"
 
-          patternLayout {
-              artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+              patternLayout {
+                artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+              }
+          } else {
+              // For public build
+              url "https://artifacts.elastic.co/downloads/"
+
+              patternLayout {
+                artifact '/[organisation]/[module]-[revision].[ext]'
+              }
           }
+
           metadataSources { artifact() }
     }
   }

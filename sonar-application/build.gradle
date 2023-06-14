@@ -79,7 +79,7 @@ dependencies {
     if (artifactoryUsername && artifactoryPassword) {
       zipDist "sonarqube:elasticsearch:${elasticsearchVersion}-no-jdk-linux-x86_64@tar.gz"
     } else {
-      zipDist "sonarqube:elasticsearch:${elasticsearchVersion}-linux-x86_64@tar.gz"
+      zipDist "elasticsearch:elasticsearch:${elasticsearchVersion}-linux-x86_64@tar.gz"
     }
 
 }
