@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import Link from '../../../../components/common/Link';
 import BoxedTabs from '../../../../components/controls/BoxedTabs';
+import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import {
@@ -26,7 +29,9 @@ import {
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus,
 } from '../../../../types/alm-settings';
+import { SettingsKey } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
+import { useGetValuesQuery } from '../../queries/settings';
 import { AlmTabs } from './AlmIntegration';
 import AlmTab from './AlmTab';
 import DeleteModal from './DeleteModal';
@@ -128,13 +133,32 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     [AlmKeys.BitbucketServer]: [...definitions.bitbucket, ...definitions.bitbucketcloud],
   };
 
+  const { data, isLoading } = useGetValuesQuery([SettingsKey.ServerBaseUrl]);
+  const hasServerBaseUrl = data?.length === 1 && data[0].value !== undefined;
+
   return (
     <>
       <header className="page-header">
         <h1 className="page-title">{translate('settings.almintegration.title')}</h1>
       </header>
 
-      <div className="markdown small spacer-top big-spacer-bottom">
+      {!hasServerBaseUrl && !isLoading && branchesEnabled && (
+        <Alert variant="warning">
+          <FormattedMessage
+            id="settings.almintegration.empty.server_base_url"
+            defaultMessage={translate('settings.almintegration.empty.server_base_url')}
+            values={{
+              serverBaseUrl: (
+                <Link to="../settings?category=general#sonar.core.serverBaseURL">
+                  {translate('settings.almintegration.empty.server_base_url.setting_link')}
+                </Link>
+              ),
+            }}
+          />
+        </Alert>
+      )}
+
+      <div className="markdown small big-spacer-top big-spacer-bottom">
         {translate('settings.almintegration.description')}
       </div>
 

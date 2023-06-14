@@ -21,23 +21,51 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
+import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
+import { SettingsKey } from '../../../../../types/settings';
 import AlmIntegration from '../AlmIntegration';
 
 jest.mock('../../../../../api/alm-settings');
+jest.mock('../../../../../api/settings');
 
 let almSettings: AlmSettingsServiceMock;
+let settings: SettingsServiceMock;
 
 beforeAll(() => {
   almSettings = new AlmSettingsServiceMock();
+  settings = new SettingsServiceMock();
 });
 
 afterEach(() => {
   almSettings.reset();
+  settings.reset();
+});
+
+it('should not display the serverBaseURL message when it is defined', async () => {
+  const { ui } = getPageObjects();
+  settings.set(SettingsKey.ServerBaseUrl, 'http://localhost:9000');
+  renderAlmIntegration([Feature.BranchSupport]);
+  expect(await ui.almHeading.find()).toBeInTheDocument();
+  expect(ui.serverBaseUrlMissingInformation.query()).not.toBeInTheDocument();
+});
+
+it('should not display the serverBaseURL message for Community edition', async () => {
+  const { ui } = getPageObjects();
+  renderAlmIntegration();
+  expect(await ui.almHeading.find()).toBeInTheDocument();
+  expect(ui.serverBaseUrlMissingInformation.query()).not.toBeInTheDocument();
+});
+
+it('should display the serverBaseURL message when it is not defined', async () => {
+  const { ui } = getPageObjects();
+  renderAlmIntegration([Feature.BranchSupport]);
+
+  expect(await ui.serverBaseUrlMissingInformation.find()).toBeInTheDocument();
 });
 
 describe('github tab', () => {
@@ -155,6 +183,7 @@ function getPageObjects() {
 
   const ui = {
     almHeading: byRole('heading', { name: 'settings.almintegration.title' }),
+    serverBaseUrlMissingInformation: byText('settings.almintegration.empty.server_base_url'),
     emptyIntro: (almKey: AlmKeys) => byText(`settings.almintegration.empty.${almKey}`),
     createConfigurationButton: byRole('button', { name: 'settings.almintegration.create' }),
     tab: (almKey: AlmKeys) =>
