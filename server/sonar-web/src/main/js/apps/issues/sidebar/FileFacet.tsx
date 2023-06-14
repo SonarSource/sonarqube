@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FileIcon } from 'design-system';
+import { QualifierIcon } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { getFiles } from '../../../api/components';
@@ -89,7 +89,7 @@ export class FileFacet extends React.PureComponent<Props> {
 
   renderFile = (file: React.ReactNode) => (
     <>
-      <FileIcon className="sw-mr-1" />
+      <QualifierIcon qualifier="fil" className="sw-mr-1" />
 
       {file}
     </>

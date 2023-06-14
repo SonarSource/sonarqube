@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DirectoryIcon } from 'design-system';
+import { QualifierIcon } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { getDirectories } from '../../../api/components';
@@ -82,7 +82,7 @@ export class DirectoryFacet extends React.PureComponent<Props> {
 
   renderDirectory = (directory: React.ReactNode) => (
     <>
-      <DirectoryIcon className="sw-mr-1" />
+      <QualifierIcon qualifier="dir" className="sw-mr-1" />
 
       {directory}
     </>
