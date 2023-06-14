@@ -69,15 +69,19 @@ public class TaskAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br/>" +
-        "Requires 'Administer System' or 'Execute Analysis' permission.<br/>" +
+        "Requires one of the following permissions: " +
+        "<ul>" +
+        "<li>'Administer' at global or project level</li>" +
+        "<li>'Execute Analysis' at global or project level</li>" +
+        "</ul>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setChangelog(
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
         new Change("10.1", "Warnings field will be now always be filled (it is not necessary to mention it explicitly in 'additionalFields'). "
-          + "'additionalFields' value `warning' is deprecated.")
-      )
+          + "'additionalFields' value `warning' is deprecated."),
+        new Change("10.1", "'Project Administrator' is added to the list of allowed permissions to access this endpoint"))
       .setHandler(this);
 
     action
@@ -126,15 +130,20 @@ public class TaskAction implements CeWsAction {
 
   private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
-      if (!userSession.hasPermission(GlobalPermission.ADMINISTER) &&
-        !userSession.hasPermission(GlobalPermission.SCAN) &&
-        !userSession.hasComponentPermission(UserRole.SCAN, component.get())) {
-        throw insufficientPrivilegesException();
-      }
-
+      checkComponentPermission(component.get());
     } else {
       userSession.checkIsSystemAdministrator();
     }
+  }
+
+  private void checkComponentPermission(ComponentDto component) {
+    if (userSession.hasPermission(GlobalPermission.ADMINISTER) ||
+      userSession.hasPermission(GlobalPermission.SCAN) ||
+      userSession.hasComponentPermission(UserRole.ADMIN, component) ||
+      userSession.hasComponentPermission(UserRole.SCAN, component)) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 
   private static void maskErrorStacktrace(CeActivityDto ceActivityDto, Set<AdditionalField> additionalFields) {

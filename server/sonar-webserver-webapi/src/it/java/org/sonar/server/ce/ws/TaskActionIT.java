@@ -345,6 +345,14 @@ public class TaskActionIT {
   }
 
   @Test
+  public void get_project_queue_task_with_project_admin_permission() {
+    userSession.logIn().addProjectPermission(ADMIN, privateProject);
+    CeActivityDto task = createAndPersistArchivedTask(privateProject);
+
+    call(task.getUuid());
+  }
+
+  @Test
   public void getting_project_queue_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
