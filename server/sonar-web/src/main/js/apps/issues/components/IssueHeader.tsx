@@ -168,7 +168,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           />
         </div>
         <IssueActionsBar
-          className="issue-header-actions"
           currentPopup={issuePopupName}
           issue={issue}
           onAssign={this.handleAssignement}

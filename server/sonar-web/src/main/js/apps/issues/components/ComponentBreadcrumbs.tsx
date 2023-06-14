@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Badge, themeBorder, themeColor, themeContrast } from 'design-system';
 import * as React from 'react';
@@ -63,6 +64,7 @@ export default function ComponentBreadcrumbs({
       {displayProject && (
         <span title={projectName}>
           {limitComponentName(issue.projectName)}
+
           {displayBranchInformation && (
             <>
               {' - '}
@@ -76,18 +78,20 @@ export default function ComponentBreadcrumbs({
               )}
             </>
           )}
+
           <SlashSeparator className="sw-mx-1" />
         </span>
       )}
 
-      <span title={componentName}>{collapsePath(componentName || '')}</span>
+      <span title={componentName}>{collapsePath(componentName ?? '')}</span>
     </DivStyled>
   );
 }
 
 const DivStyled = styled.div`
-  color: ${themeContrast('subnavigation')};
   background-color: ${themeColor('subnavigation')};
+  color: ${themeContrast('breadcrumb')};
+
   &:not(:last-child) {
     border-bottom: ${themeBorder('default')};
   }

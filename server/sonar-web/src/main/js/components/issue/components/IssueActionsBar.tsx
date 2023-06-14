@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-system';
@@ -71,6 +72,7 @@ export default function IssueActionsBar(props: Props) {
     showCommentsInPopup,
     showLine,
   } = props;
+
   const [commentState, setCommentState] = React.useState<State>({
     commentAutoTriggered: false,
     commentPlaceholder: '',
@@ -86,19 +88,22 @@ export default function IssueActionsBar(props: Props) {
       const newIssue = { ...issue, [property]: value };
       updateIssue(onChange, apiCall({ issue: issue.key, [property]: value }), issue, newIssue);
     }
+
     togglePopup(popup, false);
   };
 
-  const toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
+  const toggleComment = (open: boolean, placeholder = '', autoTriggered = false) => {
     setCommentState({
       commentPlaceholder: placeholder,
       commentAutoTriggered: autoTriggered,
     });
+
     togglePopup('comment', open);
   };
 
   const handleTransition = (issue: Issue) => {
     onChange(issue);
+
     if (
       issue.resolution === IssueResolution.FalsePositive ||
       (issue.resolution === IssueResolution.WontFix && issue.type !== IssueTypeEnum.SecurityHotspot)
@@ -108,15 +113,18 @@ export default function IssueActionsBar(props: Props) {
   };
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
+
   const ruleEngine =
     (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
     issue.externalRuleEngine;
+
   const canAssign = issue.actions.includes(IssueActions.Assign);
   const canComment = issue.actions.includes(IssueActions.Comment);
   const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
   const canSetType = issue.actions.includes(IssueActions.SetType);
   const hasTransitions = issue.transitions.length > 0;
   const hasComments = !!issue.comments?.length;
+
   const issueMetaListItemClassNames = classNames(
     className,
     'sw-body-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150'
@@ -130,6 +138,7 @@ export default function IssueActionsBar(props: Props) {
         <li>
           <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
         </li>
+
         <li>
           <IssueSeverity
             isOpen={currentPopup === 'set-severity'}
@@ -139,6 +148,7 @@ export default function IssueActionsBar(props: Props) {
             setIssueProperty={setIssueProperty}
           />
         </li>
+
         <li>
           <IssueTransition
             isOpen={currentPopup === 'transition'}
@@ -148,6 +158,7 @@ export default function IssueActionsBar(props: Props) {
             onChange={handleTransition}
           />
         </li>
+
         <li>
           <IssueAssign
             isOpen={currentPopup === 'assign'}
@@ -158,6 +169,7 @@ export default function IssueActionsBar(props: Props) {
           />
         </li>
       </ul>
+
       {(canComment || showCommentsInPopup) && (
         <IssueCommentAction
           commentAutoTriggered={commentState.commentAutoTriggered}
@@ -211,9 +223,11 @@ export default function IssueActionsBar(props: Props) {
               <CommentIcon aria-label={translate('issue.comment.formlink')} />
               {issue.comments?.length}
             </IssueMetaListItem>
+
             <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
+
         {showLine && isDefined(issue.textRange) && (
           <>
             <Tooltip overlay={translate('line_number')}>
@@ -221,17 +235,21 @@ export default function IssueActionsBar(props: Props) {
                 {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
               </IssueMetaListItem>
             </Tooltip>
+
             <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
+
         {issue.effort && (
           <>
             <IssueMetaListItem className={issueMetaListItemClassNames}>
               {translateWithParameters('issue.x_effort', issue.effort)}
             </IssueMetaListItem>
+
             <SeparatorCircleIcon aria-hidden as="li" />
           </>
         )}
+
         <IssueMetaListItem className={issueMetaListItemClassNames}>
           <DateFromNow date={issue.creationDate} />
         </IssueMetaListItem>

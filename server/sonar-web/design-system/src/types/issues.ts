@@ -17,32 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { memo } from 'react';
-import tw from 'twin.macro';
-import { IssueType } from '../../types';
-import { IssueTypeIcon } from '../icons/IssueTypeIcon';
 
-interface Props {
-  issuesCount: number;
-  mostImportantIssueType: IssueType;
-}
-
-function LineIssueIndicatorIconFunc({ issuesCount, mostImportantIssueType }: Props) {
-  return (
-    <>
-      <IssueTypeIcon type={mostImportantIssueType} />
-      {issuesCount > 1 && <IssueIndicatorCounter>{issuesCount}</IssueIndicatorCounter>}
-    </>
-  );
-}
-
-export const LineIssuesIndicatorIcon = memo(LineIssueIndicatorIconFunc);
-
-const IssueIndicatorCounter = styled.span`
-  font-size: 0.5rem;
-  line-height: 0.5rem;
-
-  ${tw`sw-ml-1/2`}
-  ${tw`sw-align-top`}
-`;
+export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';

@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { DiscreetSelect } from 'design-system';
 import * as React from 'react';
 import { setIssueSeverity } from '../../../api/issues';
+import { SEVERITIES } from '../../../helpers/constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResponse } from '../../../types/issues';
+import { IssueResponse, IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
-import SeverityIcon from '../../icons/SeverityIcon';
+import IssueSeverityIcon from '../../icon-mappers/IssueSeverityIcon';
 
 interface Props {
   canSetSeverity: boolean;
@@ -44,7 +46,7 @@ export default class IssueSeverity extends React.PureComponent<Props> {
     this.toggleSetSeverity(false);
   };
 
-  toggleSetSeverity = (open?: boolean) => {
+  toggleSetSeverity = (open: boolean) => {
     this.props.togglePopup('set-severity', open);
   };
 
@@ -54,11 +56,11 @@ export default class IssueSeverity extends React.PureComponent<Props> {
 
   render() {
     const { issue } = this.props;
-    const SEVERITY = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-    const typesOptions = SEVERITY.map((severity) => ({
+
+    const typesOptions = SEVERITIES.map((severity) => ({
       label: translate('severity', severity),
       value: severity,
-      Icon: <SeverityIcon severity={severity} aria-hidden />,
+      Icon: <IssueSeverityIcon severity={severity} aria-hidden />,
     }));
 
     if (this.props.canSetSeverity) {
@@ -81,7 +83,8 @@ export default class IssueSeverity extends React.PureComponent<Props> {
 
     return (
       <span className="sw-flex sw-items-center sw-gap-1">
-        <SeverityIcon className="little-spacer-right" severity={issue.severity} aria-hidden />
+        <IssueSeverityIcon severity={issue.severity as IssueSeverityType} aria-hidden />
+
         {translate('severity', issue.severity)}
       </span>
     );

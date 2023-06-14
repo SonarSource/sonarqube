@@ -93,10 +93,6 @@
   margin-left: var(--gridSize);
 }
 
-.issue-header-actions .issue-meta + .issue-meta {
-  margin-left: calc(var(--gridSize) * 2);
-}
-
 .issue-meta-label {
   display: inline-block;
   vertical-align: top;

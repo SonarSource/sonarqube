@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../../helpers/theme';
+import { IssueType } from '../../types';
 import { BugIcon } from './BugIcon';
 import { CodeSmellIcon } from './CodeSmellIcon';
 import { IconProps } from './Icon';
 import { SecurityFindingIcon } from './SecurityFindingIcon';
 import { VulnerabilityIcon } from './VulnerabilityIcon';
 
-export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';
 export interface Props extends IconProps {
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type: string | IssueType;

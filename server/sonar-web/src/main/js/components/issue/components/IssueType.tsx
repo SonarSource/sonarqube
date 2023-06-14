@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { DiscreetSelect } from 'design-system';
 import * as React from 'react';
 import { setIssueType } from '../../../api/issues';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
+import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
 
 interface Props {
   canSetType: boolean;
@@ -44,11 +45,13 @@ export default class IssueType extends React.PureComponent<Props> {
   render() {
     const { issue } = this.props;
     const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+
     const typesOptions = TYPES.map((type) => ({
       label: translate('issue.type', type),
       value: type,
-      Icon: <IssueTypeIcon query={type} />,
+      Icon: <IssueTypeIcon type={type} />,
     }));
+
     if (this.props.canSetType) {
       return (
         <DiscreetSelect
@@ -66,7 +69,7 @@ export default class IssueType extends React.PureComponent<Props> {
 
     return (
       <span className="sw-flex sw-items-center sw-gap-1">
-        <IssueTypeIcon query={issue.type} />
+        <IssueTypeIcon type={issue.type} />
         {translate('issue.type', issue.type)}
       </span>
     );

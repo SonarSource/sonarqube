@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
@@ -25,7 +26,7 @@ import { InputSelect, LabelValueSelectOption } from './InputSelect';
 
 interface Props<V> {
   className?: string;
-  components?: any;
+  components?: Parameters<typeof InputSelect>[0]['components'];
   customValue?: JSX.Element;
   isDisabled?: boolean;
   menuIsOpen?: boolean;

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme as themeInfo } from '@emotion/react';
 import classNames from 'classnames';
 import { omit } from 'lodash';
@@ -120,11 +121,11 @@ export function InputSelect<
       classNames={{
         container: () => 'sw-relative sw-inline-block sw-align-middle',
         placeholder: () => 'sw-truncate sw-leading-4',
-        menu: () => 'sw-z-dropdown-menu',
+        menu: () => 'sw-z-dropdown-menu sw-ml-1/2 sw-mt-2',
         menuList: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
         control: ({ isDisabled }) =>
           classNames(
-            'sw-absolut sw-box-border sw-rounded-2 sw-overflow-hidden',
+            'sw-box-border sw-rounded-2 sw-overflow-hidden',
             isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
           ),
         option: ({ isDisabled }) =>

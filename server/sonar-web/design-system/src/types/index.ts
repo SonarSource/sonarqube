@@ -19,5 +19,6 @@
  */
 
 export * from './charts';
+export * from './issues';
 export * from './measures';
 export * from './theme';

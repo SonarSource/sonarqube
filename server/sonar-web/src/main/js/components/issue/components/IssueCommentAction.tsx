@@ -32,7 +32,7 @@ interface Props {
   currentPopup?: boolean;
   issueKey: string;
   onChange: (issue: Issue) => void;
-  toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
+  toggleComment: (open: boolean, placeholder?: string, autoTriggered?: boolean) => void;
   comments?: IssueComment[];
   showCommentsInPopup?: boolean;
 }
@@ -52,10 +52,6 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
 
   handleDeleteComment = (comment: string) => {
     updateIssue(this.props.onChange, deleteIssueComment({ comment }));
-  };
-
-  handleCommentClick = () => {
-    this.props.toggleComment();
   };
 
   handleClose = () => {

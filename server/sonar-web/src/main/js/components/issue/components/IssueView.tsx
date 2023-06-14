@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { Checkbox, themeBorder, themeColor } from 'design-system';
@@ -98,13 +99,16 @@ export default class IssueView extends React.PureComponent<Props> {
       >
         <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
           {hasCheckbox && (
-            <Checkbox
-              checked={checked ?? false}
-              onCheck={this.handleCheck}
-              label={translateWithParameters('issues.action_select.label', issue.message)}
-              title={translate('issues.action_select')}
-            />
+            <span className="sw-mt-1/2 sw-self-start">
+              <Checkbox
+                checked={checked ?? false}
+                onCheck={this.handleCheck}
+                label={translateWithParameters('issues.action_select.label', issue.message)}
+                title={translate('issues.action_select')}
+              />
+            </span>
           )}
+
           <div className="sw-flex sw-flex-col sw-grow sw-gap-2">
             <IssueTitleBar
               currentPopup={currentPopup}
@@ -114,6 +118,7 @@ export default class IssueView extends React.PureComponent<Props> {
               onChange={this.props.onChange}
               togglePopup={this.props.togglePopup}
             />
+
             <IssueActionsBar
               currentPopup={currentPopup}
               issue={issue}
