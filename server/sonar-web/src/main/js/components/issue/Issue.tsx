@@ -35,6 +35,7 @@ interface Props {
   onChange: (issue: TypeIssue) => void;
   onCheck?: (issue: string) => void;
   onClick?: (issueKey: string) => void;
+  onSelect: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup?: string;
   selected: boolean;
@@ -119,6 +120,7 @@ export default class Issue extends React.PureComponent<Props> {
         onChange={this.props.onChange}
         onCheck={this.props.onCheck}
         onClick={this.props.onClick}
+        onSelect={this.props.onSelect}
         selected={this.props.selected}
         togglePopup={this.togglePopup}
       />

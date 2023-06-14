@@ -52,7 +52,7 @@ describe('rendering', () => {
     const { ui } = getPageObject();
     const issue = mockIssue(true, { effort: '2 days', message: 'This is an issue' });
     const onClick = jest.fn();
-    renderIssue({ issue, onClick });
+    renderIssue({ issue, onSelect: onClick });
 
     expect(ui.effort('2 days').get()).toBeInTheDocument();
     await ui.clickIssueMessage();
@@ -432,7 +432,11 @@ function renderIssue(props: Partial<Omit<Issue['props'], 'onChange' | 'onPopupTo
     );
   }
 
-  return renderApp('/', <Wrapper issue={mockIssue()} selected={false} {...props} />, {
-    currentUser: mockLoggedInUser({ login: 'leia', name: 'Organa' }),
-  });
+  return renderApp(
+    '/',
+    <Wrapper onSelect={jest.fn()} issue={mockIssue()} selected={false} {...props} />,
+    {
+      currentUser: mockLoggedInUser({ login: 'leia', name: 'Organa' }),
+    }
+  );
 }

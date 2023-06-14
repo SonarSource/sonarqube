@@ -58,6 +58,7 @@ export interface SearchSelectDropdownProps<
   controlLabel?: React.ReactNode | string;
   controlSize?: InputSizeKeys;
   isDiscreet?: boolean;
+  zLevel?: PopupZLevel;
 }
 
 export function SearchSelectDropdown<
@@ -77,6 +78,7 @@ export function SearchSelectDropdown<
     minLength,
     controlAriaLabel,
     menuIsOpen,
+    zLevel = PopupZLevel.Global,
     ...rest
   } = props;
   const [open, setOpen] = React.useState(false);
@@ -161,7 +163,7 @@ export function SearchSelectDropdown<
         </SearchHighlighterContext.Provider>
       }
       placement={PopupPlacement.BottomLeft}
-      zLevel={PopupZLevel.Global}
+      zLevel={zLevel}
     >
       <SearchSelectDropdownControl
         ariaLabel={controlAriaLabel}

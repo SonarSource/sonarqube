@@ -28,7 +28,6 @@ import IssueTags from './IssueTags';
 export interface IssueTitleBarProps {
   currentPopup?: string;
   branchLike?: BranchLike;
-  onClick?: () => void;
   displayWhyIsThisAnIssue?: boolean;
   issue: Issue;
   onChange: (issue: Issue) => void;
@@ -46,7 +45,6 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
           issue={issue}
           branchLike={props.branchLike}
           displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-          onClick={props.onClick}
         />
       </div>
       <div className="js-issue-tags sw-body-sm sw-grow-0 sw-whitespace-nowrap">

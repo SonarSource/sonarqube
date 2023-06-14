@@ -430,6 +430,14 @@ export class App extends React.PureComponent<Props, State> {
     }
   };
 
+  selectIssue = (issueKey: string) => {
+    this.setState({
+      selected: issueKey,
+      selectedFlowIndex: undefined,
+      selectedLocationIndex: undefined,
+    });
+  };
+
   closeIssue = () => {
     if (this.state.query) {
       this.props.router.push({
@@ -1124,6 +1132,7 @@ export class App extends React.PureComponent<Props, State> {
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
             onIssueClick={this.openIssue}
+            onIssueSelect={this.selectIssue}
             onPopupToggle={this.handlePopupToggle}
             openPopup={this.state.openPopup}
             selectedIssue={selectedIssue}

@@ -23,11 +23,11 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { IssueType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 
 export interface IssueMessageProps {
-  onClick?: () => void;
   issue: Issue;
   branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
@@ -46,10 +46,15 @@ export default function IssueMessage(props: IssueMessageProps) {
     why: '1',
   });
 
+  const issueUrl = getComponentIssuesUrl(issue.project, {
+    ...getBranchLikeQuery(branchLike),
+    open: issue.key,
+    types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
+  });
   return (
     <>
-      {props.onClick ? (
-        <StandoutLink onClick={props.onClick} className="it__issue-message" preventDefault to={{}}>
+      {issueUrl?.pathname ? (
+        <StandoutLink className="it__issue-message" to={issueUrl}>
           <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
         </StandoutLink>
       ) : (

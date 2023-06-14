@@ -49,8 +49,8 @@ exports[`should render issues 1`] = `
     }
     key="issue"
     onChange={[MockFunction]}
-    onClick={[MockFunction]}
     onPopupToggle={[MockFunction]}
+    onSelect={[MockFunction]}
     selected={true}
   />
 </div>

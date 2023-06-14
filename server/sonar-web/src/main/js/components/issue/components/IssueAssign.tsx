@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
+import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
 import { searchUsers } from '../../../api/users';
@@ -132,26 +132,29 @@ export default function IssueAssignee(props: Props) {
   }
 
   return (
-    <SearchSelectDropdown
-      size="medium"
-      className="it__issue-assign"
-      controlAriaLabel={
-        assinedUser
-          ? translateWithParameters('issue.assign.assigned_to_x_click_to_change', assinedUser)
-          : translate('issue.assign.unassigned_click_to_assign')
-      }
-      defaultOptions={defaultOptions}
-      onChange={handleAssign}
-      loadOptions={handleSearchAssignees}
-      menuIsOpen={props.isOpen}
-      minLength={minSearchLength}
-      onMenuOpen={() => toggleAssign(true)}
-      onMenuClose={handleClose}
-      isDiscreet
-      controlLabel={controlLabel}
-      tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
-      placeholder={translate('search.search_for_users')}
-      aria-label={translate('search.search_for_users')}
-    />
+    <div className="sw-relative">
+      <SearchSelectDropdown
+        size="medium"
+        className="it__issue-assign"
+        controlAriaLabel={
+          assinedUser
+            ? translateWithParameters('issue.assign.assigned_to_x_click_to_change', assinedUser)
+            : translate('issue.assign.unassigned_click_to_assign')
+        }
+        defaultOptions={defaultOptions}
+        onChange={handleAssign}
+        loadOptions={handleSearchAssignees}
+        menuIsOpen={props.isOpen}
+        minLength={minSearchLength}
+        onMenuOpen={() => toggleAssign(true)}
+        onMenuClose={handleClose}
+        isDiscreet
+        controlLabel={controlLabel}
+        tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
+        placeholder={translate('search.search_for_users')}
+        aria-label={translate('search.search_for_users')}
+        zLevel={PopupZLevel.Absolute}
+      />
+    </div>
   );
 }

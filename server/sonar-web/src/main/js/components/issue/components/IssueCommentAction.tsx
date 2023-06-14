@@ -29,7 +29,7 @@ interface Props {
   canComment: boolean;
   commentAutoTriggered?: boolean;
   commentPlaceholder: string;
-  currentPopup?: string;
+  currentPopup?: boolean;
   issueKey: string;
   onChange: (issue: Issue) => void;
   toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
@@ -69,7 +69,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
         <Toggler
           closeOnClickOutside={false}
           onRequestClose={this.handleClose}
-          open={this.props.currentPopup === 'comment'}
+          open={!!this.props.currentPopup}
           overlay={
             showCommentsInPopup ? (
               <CommentListPopup

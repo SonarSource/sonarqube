@@ -38,6 +38,7 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   onCheck?: (issue: string) => void;
+  onSelect: (issueKey: string) => void;
   onClick?: (issueKey: string) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
@@ -49,33 +50,20 @@ export default class IssueView extends React.PureComponent<Props> {
   componentDidMount() {
     const { selected } = this.props;
     if (this.nodeRef && selected) {
-      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+      this.nodeRef.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
   }
 
   componentDidUpdate(prevProps: Props) {
     const { selected } = this.props;
     if (!prevProps.selected && selected && this.nodeRef) {
-      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+      this.nodeRef.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
   }
 
   handleCheck = () => {
     if (this.props.onCheck) {
       this.props.onCheck(this.props.issue.key);
-    }
-  };
-
-  handleBoxClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isClickable(event.target as HTMLElement) && this.props.onClick) {
-      event.preventDefault();
-      this.handleDetailClick();
-    }
-  };
-
-  handleDetailClick = () => {
-    if (this.props.onClick) {
-      this.props.onClick(this.props.issue.key);
     }
   };
 
@@ -102,6 +90,7 @@ export default class IssueView extends React.PureComponent<Props> {
 
     return (
       <IssueItem
+        onClick={() => this.props.onSelect(issue.key)}
         className={issueClass}
         role="region"
         aria-label={issue.message}
@@ -120,7 +109,6 @@ export default class IssueView extends React.PureComponent<Props> {
             <IssueTitleBar
               currentPopup={currentPopup}
               branchLike={branchLike}
-              onClick={this.handleDetailClick}
               displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
               issue={issue}
               onChange={this.props.onChange}
@@ -139,15 +127,6 @@ export default class IssueView extends React.PureComponent<Props> {
       </IssueItem>
     );
   }
-}
-
-function isClickable(node: HTMLElement | undefined | null): boolean {
-  if (!node) {
-    return false;
-  }
-  const clickableTags = ['A', 'BUTTON', 'INPUT', 'TEXTAREA'];
-  const tagName = (node.tagName || '').toUpperCase();
-  return clickableTags.includes(tagName) || isClickable(node.parentElement);
 }
 
 const IssueItem = styled.li`

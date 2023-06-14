@@ -34,6 +34,7 @@ interface Props {
   onIssueChange: (issue: Issue) => void;
   onIssueCheck: ((issueKey: string) => void) | undefined;
   onIssueClick: (issueKey: string) => void;
+  onIssueSelect: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: { issue: string; name: string } | undefined;
   selectedIssue: Issue | undefined;
@@ -77,6 +78,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
               onChange={this.props.onIssueChange}
               onCheck={this.props.onIssueCheck}
               onClick={this.props.onIssueClick}
+              onSelect={this.props.onIssueSelect}
               onFilterChange={this.props.onFilterChange}
               onPopupToggle={this.props.onPopupToggle}
               openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}

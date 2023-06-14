@@ -52,6 +52,7 @@ export enum PopupZLevel {
   Content = 'content',
   Default = 'popup',
   Global = 'global',
+  Absolute = 'absolute',
 }
 
 export type BasePlacement = Extract<

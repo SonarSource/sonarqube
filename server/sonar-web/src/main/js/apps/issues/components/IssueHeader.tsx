@@ -69,19 +69,14 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
   }
 
   handleIssuePopupToggle = (popupName: string, open?: boolean) => {
-    const openPopupState = { issuePopupName: popupName };
-
-    const closePopupState = { issuePopupName: undefined };
-
     this.setState(({ issuePopupName }) => {
-      if (open) {
-        return openPopupState;
-      } else if (open === false) {
-        return closePopupState;
+      const samePopup = popupName && issuePopupName === popupName;
+      if (open !== false && !samePopup) {
+        return { issuePopupName: popupName };
+      } else if (open !== true && samePopup) {
+        return { issuePopupName: undefined };
       }
-
-      // toggle popup
-      return issuePopupName === popupName ? closePopupState : openPopupState;
+      return { issuePopupName };
     });
   };
 

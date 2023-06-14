@@ -162,7 +162,7 @@ export default function IssueActionsBar(props: Props) {
         <IssueCommentAction
           commentAutoTriggered={commentState.commentAutoTriggered}
           commentPlaceholder={commentState.commentPlaceholder}
-          currentPopup={currentPopup}
+          currentPopup={currentPopup === 'comment'}
           issueKey={issue.key}
           onChange={onChange}
           toggleComment={toggleComment}

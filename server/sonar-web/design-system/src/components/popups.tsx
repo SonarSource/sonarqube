@@ -24,7 +24,7 @@ import React, { AriaRole } from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import tw from 'twin.macro';
 import { THROTTLE_SCROLL_DELAY } from '../helpers/constants';
-import { PopupPlacement, popupPositioning, PopupZLevel } from '../helpers/positioning';
+import { PopupPlacement, PopupZLevel, popupPositioning } from '../helpers/positioning';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
 import ClickEventBoundary from './ClickEventBoundary';
 
@@ -129,7 +129,7 @@ export class Popup extends React.PureComponent<PopupProps, State> {
   };
 
   positionPopup = () => {
-    if (this.mounted) {
+    if (this.mounted && this.props.zLevel !== PopupZLevel.Absolute) {
       // `findDOMNode(this)` will search for the DOM node for the current component
       // first it will find a React.Fragment (see `render`),
       // so it will get the DOM node of the first child, i.e. DOM node of `this.props.children`
@@ -216,6 +216,7 @@ const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
       [PopupZLevel.Default]: tw`sw-z-popup`,
       [PopupZLevel.Global]: tw`sw-z-global-popup`,
       [PopupZLevel.Content]: tw`sw-z-content-popup`,
+      [PopupZLevel.Absolute]: tw`sw-z-global-popup`,
     }[zLevel])};
 
   &.is-bottom,
