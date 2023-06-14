@@ -19,7 +19,7 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
-import { FacetBox, FacetItem } from 'design-system';
+import { FacetBox, FacetItem, TextMuted } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -267,11 +267,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     if (!categories.length) {
-      return (
-        <div className="search-navigator-facet-empty little-spacer-top">
-          {translate('no_results')}
-        </div>
-      );
+      return <TextMuted className="sw-ml-2 sw-mt-1" text={translate('no_results')} />;
     }
 
     const getStat = (category: string) => {
@@ -346,6 +342,10 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       : sortedItems.slice(INITIAL_FACET_COUNT).filter((item) => values.includes(item));
 
     const allItemShown = limitedList.length + selectedBelowLimit.length === sortedItems.length;
+
+    if (!(limitedList.length || selectedBelowLimit.length)) {
+      return <TextMuted className="sw-ml-2 sw-mt-1" text={translate('no_results')} />;
+    }
 
     return (
       <>
