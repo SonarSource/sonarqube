@@ -312,6 +312,7 @@ public class SearchActionIT {
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
     Rules.Rule result = response.getRules(0);
     assertThat(result.getCreatedAt()).isNotEmpty();
+    assertThat(result.getUpdatedAt()).isNotEmpty();
     assertThat(result.getGapDescription()).isNotEmpty();
     assertThat(result.getHtmlDesc()).isNotEmpty();
     assertThat(result.hasIsTemplate()).isTrue();
@@ -350,6 +351,7 @@ public class SearchActionIT {
     assertThat(result.hasName()).isFalse();
     assertThat(result.hasSeverity()).isFalse();
     assertThat(result.hasRepo()).isFalse();
+    assertThat(result.hasUpdatedAt()).isFalse();
   }
 
   @Test
