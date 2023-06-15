@@ -11,6 +11,7 @@ dependencies {
   api 'ch.qos.logback:logback-core'
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
+  api 'com.squareup.okhttp3:okhttp'
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
   api 'commons-lang:commons-lang'
@@ -22,6 +23,7 @@ dependencies {
   api 'org.sonarsource.update-center:sonar-update-center-common'
   api 'org.springframework:spring-context'
   api project(':sonar-plugin-api-impl')
+  api project(':sonar-ws')
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'
   compileOnlyApi 'com.google.code.gson:gson'

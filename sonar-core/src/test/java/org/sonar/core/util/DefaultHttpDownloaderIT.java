@@ -22,16 +22,13 @@ package org.sonar.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 import org.hamcrest.BaseMatcher;
@@ -56,17 +53,13 @@ import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DefaultHttpDownloaderTest {
+public class DefaultHttpDownloaderIT {
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
@@ -81,27 +74,28 @@ public class DefaultHttpDownloaderTest {
         try {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
-            resp.setValue("Location", "/");
+            resp.setValue("Location", "/redirected");
+          } else if (req.getPath().getPath().contains("/timeout/")) {
+            try {
+              Thread.sleep(500);
+              writeDefaultResponse(req, resp);
+            } catch (InterruptedException e) {
+              throw new IllegalStateException(e);
+            }
+          } else if (req.getPath().getPath().contains("/gzip/")) {
+            if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
+              throw new IllegalStateException("Should accept gzip");
+            }
+            resp.setValue("Content-Encoding", "gzip");
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
+            gzipOutputStream.write("GZIP response".getBytes());
+            gzipOutputStream.close();
+          } else if (req.getPath().getPath().contains("/redirected")) {
+            resp.getPrintStream().append("redirected");
           } else {
-            if (req.getPath().getPath().contains("/timeout/")) {
-              try {
-                Thread.sleep(500);
-              } catch (InterruptedException e) {
-                throw new IllegalStateException(e);
-              }
-            }
-            if (req.getPath().getPath().contains("/gzip/")) {
-              if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
-                throw new IllegalStateException("Should accept gzip");
-              }
-              resp.setValue("Content-Encoding", "gzip");
-              GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
-              gzipOutputStream.write("GZIP response".getBytes());
-              gzipOutputStream.close();
-            } else {
-              resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
-            }
+            writeDefaultResponse(req, resp);
           }
+
         } catch (IOException e) {
           throw new IllegalStateException(e);
         } finally {
@@ -117,6 +111,10 @@ public class DefaultHttpDownloaderTest {
     baseUrl = String.format("http://%s:%d", ((InetSocketAddress) address).getAddress().getHostAddress(), ((InetSocketAddress) address).getPort());
   }
 
+  private static PrintStream writeDefaultResponse(Request req, Response resp) throws IOException {
+    return resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
+  }
+
   @AfterClass
   public static void stopServer() throws IOException {
     if (null != socketConnection) {
@@ -130,7 +128,7 @@ public class DefaultHttpDownloaderTest {
     String url = "http://10.255.255.1";
 
     assertThatThrownBy(() -> {
-      DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings().asConfig(), 10, 50000);
+      DefaultHttpDownloader downloader = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig(), 10, 10);
       downloader.openStream(new URI(url));
     })
       .isInstanceOf(SonarException.class)
@@ -148,31 +146,32 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void downloadBytes() throws URISyntaxException {
-    byte[] bytes = new DefaultHttpDownloader(new MapSettings().asConfig()).readBytes(new URI(baseUrl));
+    byte[] bytes = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readBytes(new URI(baseUrl));
     assertThat(bytes.length).isGreaterThan(10);
   }
 
   @Test
   public void readString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new MapSettings().asConfig()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
   public void readGzipString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new MapSettings().asConfig()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
     assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new MapSettings().asConfig()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
   public void readStringWithTimeout() throws URISyntaxException {
-    assertThatThrownBy(() -> new DefaultHttpDownloader(new MapSettings().asConfig(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8))
+    assertThatThrownBy(
+      () -> new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig(), null, 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8))
       .isEqualToComparingFieldByField(new BaseMatcher<Exception>() {
         @Override
         public boolean matches(Object ex) {
@@ -190,7 +189,7 @@ public class DefaultHttpDownloaderTest {
     File toDir = temporaryFolder.newFolder();
     File toFile = new File(toDir, "downloadToFile.txt");
 
-    new DefaultHttpDownloader(new MapSettings().asConfig()).download(new URI(baseUrl), toFile);
+    new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).download(new URI(baseUrl), toFile);
     assertThat(toFile).exists();
     assertThat(toFile.length()).isGreaterThan(10L);
   }
@@ -201,8 +200,7 @@ public class DefaultHttpDownloaderTest {
     File toFile = new File(toDir, "downloadToFile.txt");
 
     try {
-      int port = new InetSocketAddress("localhost", 0).getPort();
-      new DefaultHttpDownloader(new MapSettings().asConfig()).download(new URI("http://localhost:" + port), toFile);
+      new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).download(new URI("http://localhost:1"), toFile);
     } catch (SonarException e) {
       assertThat(toFile).doesNotExist();
     }
@@ -237,67 +235,20 @@ public class DefaultHttpDownloaderTest {
   }
 
   @Test
-  public void userAgent_is_static_value_when_server_is_not_provided() throws URISyntaxException, IOException {
-    InputStream stream = new DefaultHttpDownloader(new MapSettings().asConfig()).openStream(new URI(baseUrl));
-    Properties props = new Properties();
-    props.load(stream);
-    stream.close();
-
-    assertThat(props.getProperty("agent")).isEqualTo("SonarQube");
-  }
-
-  @Test
   public void followRedirect() throws URISyntaxException {
-    String content = new DefaultHttpDownloader(new MapSettings().asConfig()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
-    assertThat(content).contains("agent");
-  }
-
-  @Test
-  public void shouldGetDirectProxySynthesis() throws URISyntaxException {
-    ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.asList(Proxy.NO_PROXY));
-    assertThat(DefaultHttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
-  }
-
-  @Test
-  public void shouldGetProxySynthesis() throws URISyntaxException {
-    ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.asList(new FakeProxy()));
-    assertThat(DefaultHttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("HTTP proxy: /123.45.67.89:4040");
+    String content = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
+    assertThat(content).isEqualTo("redirected");
   }
 
   @Test
   public void supported_schemes() {
-    assertThat(new DefaultHttpDownloader(new MapSettings().asConfig()).getSupportedSchemes()).contains("http");
+    assertThat(new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).getSupportedSchemes()).contains("http");
   }
 
   @Test
   public void uri_description() throws URISyntaxException {
-    String description = new DefaultHttpDownloader(new MapSettings().asConfig()).description(new URI("http://sonarsource.org"));
-    assertThat(description).matches("http://sonarsource.org \\(.*\\)");
+    String description = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).description(new URI("http://sonarsource.org"));
+    assertThat(description).isEqualTo("http://sonarsource.org");
   }
 
-  @Test
-  public void configure_http_proxy_credentials() {
-    DefaultHttpDownloader.AuthenticatorFacade system = mock(DefaultHttpDownloader.AuthenticatorFacade.class);
-    MapSettings settings = new MapSettings();
-    settings.setProperty("https.proxyHost", "1.2.3.4");
-    settings.setProperty("http.proxyUser", "the_login");
-    settings.setProperty("http.proxyPassword", "the_passwd");
-
-    new DefaultHttpDownloader.BaseHttpDownloader(system, settings.asConfig(), null);
-
-    verify(system).setDefaultAuthenticator(argThat(authenticator -> {
-      DefaultHttpDownloader.ProxyAuthenticator a = (DefaultHttpDownloader.ProxyAuthenticator) authenticator;
-      PasswordAuthentication authentication = a.getPasswordAuthentication();
-      return authentication.getUserName().equals("the_login") &&
-        new String(authentication.getPassword()).equals("the_passwd");
-    }));
-  }
-
-  private static class FakeProxy extends Proxy {
-    FakeProxy() {
-      super(Type.HTTP, new InetSocketAddress("123.45.67.89", 4040));
-    }
-  }
 }
