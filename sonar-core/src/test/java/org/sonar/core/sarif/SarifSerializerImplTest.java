@@ -21,6 +21,7 @@ package org.sonar.core.sarif;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.core.sarif.SarifVersionValidator.UNSUPPORTED_VERSION_MESSAGE_TEMPLATE;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SarifSerializerTest {
+public class SarifSerializerImplTest {
 
   private static final String SARIF_JSON = "{\"version\":\"2.1.0\",\"$schema\":\"http://json.schemastore.org/sarif-2.1.0-rtm.4\",\"runs\":[{\"results\":[]}]}";
 
@@ -53,7 +54,7 @@ public class SarifSerializerTest {
   }
 
   @Test
-  public void deserialize() throws URISyntaxException {
+  public void deserialize() throws URISyntaxException, NoSuchFileException {
     URL sarifResource = requireNonNull(getClass().getResource("eslint-sarif210.json"));
     Path sarif = Paths.get(sarifResource.toURI());
 
@@ -68,8 +69,7 @@ public class SarifSerializerTest {
     Path sarif = Paths.get(file);
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format("Failed to read SARIF report at '%s'", file));
+      .isInstanceOf(NoSuchFileException.class);
   }
 
   @Test

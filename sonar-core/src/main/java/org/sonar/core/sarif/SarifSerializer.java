@@ -19,11 +19,12 @@
  */
 package org.sonar.core.sarif;
 
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 public interface SarifSerializer {
 
   String serialize(Sarif210 sarif210);
 
-  Sarif210 deserialize(Path sarifPath);
+  Sarif210 deserialize(Path sarifPath) throws NoSuchFileException;
 }

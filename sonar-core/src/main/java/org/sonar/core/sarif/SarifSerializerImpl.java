@@ -25,6 +25,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -58,17 +59,17 @@ public class SarifSerializerImpl implements SarifSerializer {
   }
 
   @Override
-  public Sarif210 deserialize(Path reportPath) {
+  public Sarif210 deserialize(Path reportPath) throws NoSuchFileException {
     try (Reader reader = newBufferedReader(reportPath, UTF_8)) {
       Sarif210 sarif = gson.fromJson(reader, Sarif210.class);
       SarifVersionValidator.validateSarifVersion(sarif.getVersion());
       return sarif;
+    } catch (NoSuchFileException e) {
+      throw e;
     } catch (JsonIOException | IOException e) {
       throw new IllegalStateException(format(SARIF_REPORT_ERROR, reportPath), e);
     } catch (JsonSyntaxException e) {
       throw new IllegalStateException(format(SARIF_JSON_SYNTAX_ERROR, reportPath), e);
-    } catch (IllegalStateException e) {
-      throw new IllegalStateException(e.getMessage(), e);
     }
   }
 }

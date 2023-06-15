@@ -20,6 +20,7 @@
 package org.sonar.scanner.externalissue.sarif;
 
 import com.google.common.collect.MoreCollectors;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.Before;
@@ -33,11 +34,13 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -68,7 +71,7 @@ public class SarifIssuesImportSensorTest {
   private final SensorContextTester sensorContext = SensorContextTester.create(Path.of("."));
 
   @Test
-  public void execute_whenSingleFileIsSpecified_shouldImportResults() {
+  public void execute_whenSingleFileIsSpecified_shouldImportResults() throws NoSuchFileException {
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
 
     ReportAndResults reportAndResults = mockSuccessfulReportAndResults(FILE_1);
@@ -83,7 +86,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenMultipleFilesAreSpecified_shouldImportResults() {
+  public void execute_whenMultipleFilesAreSpecified_shouldImportResults() throws NoSuchFileException {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
     ReportAndResults reportAndResults1 = mockSuccessfulReportAndResults(FILE_1);
     ReportAndResults reportAndResults2 = mockSuccessfulReportAndResults(FILE_2);
@@ -99,7 +102,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenFileContainsOnlySuccessfulRuns_shouldLogCorrectMessage() {
+  public void execute_whenFileContainsOnlySuccessfulRuns_shouldLogCorrectMessage() throws NoSuchFileException {
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
     ReportAndResults reportAndResults = mockSuccessfulReportAndResults(FILE_1);
 
@@ -110,7 +113,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenFileContainsOnlyFailedRuns_shouldLogCorrectMessage() {
+  public void execute_whenFileContainsOnlyFailedRuns_shouldLogCorrectMessage() throws NoSuchFileException {
 
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
     ReportAndResults reportAndResults = mockFailedReportAndResults(FILE_1);
@@ -122,7 +125,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenFileContainsFailedAndSuccessfulRuns_shouldLogCorrectMessage() {
+  public void execute_whenFileContainsFailedAndSuccessfulRuns_shouldLogCorrectMessage() throws NoSuchFileException {
 
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
 
@@ -137,7 +140,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenImportFails_shouldSkipReport() {
+  public void execute_whenImportFails_shouldSkipReport() throws NoSuchFileException {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
 
     ReportAndResults reportAndResults1 = mockFailedReportAndResults(FILE_1);
@@ -154,7 +157,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenDeserializationFails_shouldSkipReport() {
+  public void execute_whenDeserializationFails_shouldSkipReport() throws NoSuchFileException {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
 
     failDeserializingReport(FILE_1);
@@ -168,12 +171,31 @@ public class SarifIssuesImportSensorTest {
     assertSummaryIsCorrectlyDisplayedForSuccessfulFile(FILE_2, reportAndResults2.getSarifImportResults());
   }
 
-  private void failDeserializingReport(String path) {
+  @Test
+  public void execute_whenDeserializationThrowsMessageException_shouldRethrow() throws NoSuchFileException {
+    sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
+
+    NoSuchFileException e = new NoSuchFileException("non-existent");
+    failDeserializingReportWithException(FILE_1, e);
+
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    assertThatThrownBy(() -> sensor.execute(sensorContext))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("SARIF report file not found: non-existent");
+
+  }
+
+  private void failDeserializingReport(String path) throws NoSuchFileException {
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenThrow(new NullPointerException("deserialization failed"));
   }
 
-  private ReportAndResults mockSuccessfulReportAndResults(String path) {
+  private void failDeserializingReportWithException(String path, Exception exception) throws NoSuchFileException {
+    Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
+    when(sarifSerializer.deserialize(reportFilePath)).thenThrow(exception);
+  }
+
+  private ReportAndResults mockSuccessfulReportAndResults(String path) throws NoSuchFileException {
     Sarif210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
@@ -185,14 +207,14 @@ public class SarifIssuesImportSensorTest {
     return new ReportAndResults(report, sarifImportResults);
   }
 
-  private Sarif210 mockSarifReport(String path) {
+  private Sarif210 mockSarifReport(String path) throws NoSuchFileException {
     Sarif210 report = mock(Sarif210.class);
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenReturn(report);
     return report;
   }
 
-  private ReportAndResults mockFailedReportAndResults(String path) {
+  private ReportAndResults mockFailedReportAndResults(String path) throws NoSuchFileException {
     Sarif210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
@@ -203,7 +225,7 @@ public class SarifIssuesImportSensorTest {
     return new ReportAndResults(report, sarifImportResults);
   }
 
-  private ReportAndResults mockMixedReportAndResults(String path) {
+  private ReportAndResults mockMixedReportAndResults(String path) throws NoSuchFileException {
     Sarif210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
