@@ -611,7 +611,7 @@ public class ComponentTreeActionIT {
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()).setMainBranchProjectUuid(mainBranch.uuid()));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 

@@ -209,7 +209,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid())).setMainBranchProjectUuid(project.uuid());
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     indexIssues(
       newDocForProject("I1", project),
@@ -308,7 +308,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1")).getMainBranchComponent();
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
-    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1)).setMainBranchProjectUuid(project1.uuid());
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2")).getMainBranchComponent();
     indexView(applicationBranch1.uuid(), asList(project1Branch1.uuid(), project2.uuid()));

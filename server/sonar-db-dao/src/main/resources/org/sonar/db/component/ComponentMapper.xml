@@ -6,7 +6,6 @@
     p.uuid as uuid,
     p.uuid_path as uuidPath,
     p.branch_uuid as branchUuid,
-    p.main_branch_project_uuid as mainBranchProjectUuid,
     p.kee as kee,
     p.name as name,
     p.long_name as longName,
@@ -61,7 +60,6 @@
           p.uuid as uuid,
           p.uuid_path as uuidPath,
           p.branch_uuid as branchUuid,
-          p.main_branch_project_uuid as mainBranchProjectUuid,
           p.kee as kee,
           case
             when pr.name is not null and p.scope = 'PRJ'
@@ -504,7 +502,6 @@
       uuid,
       uuid_path,
       branch_uuid,
-      main_branch_project_uuid,
       name,
       long_name,
       qualifier,
@@ -532,7 +529,6 @@
     #{uuid,jdbcType=VARCHAR},
     #{uuidPath,jdbcType=VARCHAR},
     #{branchUuid,jdbcType=VARCHAR},
-    #{mainBranchProjectUuid, jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{longName,jdbcType=VARCHAR},
     #{qualifier,jdbcType=VARCHAR},

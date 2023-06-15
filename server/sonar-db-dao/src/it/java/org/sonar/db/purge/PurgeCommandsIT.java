@@ -165,13 +165,11 @@ public class PurgeCommandsIT {
     dbTester.components().insertComponent(newFileDto(directory1));
     dbTester.components().insertComponent(newFileDto(directory2));
 
-    directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "a")
-      .setMainBranchProjectUuid(project.uuid()));
-    directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "b")
-      .setMainBranchProjectUuid(project.uuid()));
-    dbTester.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
-    dbTester.components().insertComponent(newFileDto(directory1).setMainBranchProjectUuid(project.uuid()));
-    dbTester.components().insertComponent(newFileDto(directory2).setMainBranchProjectUuid(project.uuid()));
+    directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "a"));
+    directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "b"));
+    dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
+    dbTester.components().insertComponent(newFileDto(directory1));
+    dbTester.components().insertComponent(newFileDto(directory2));
 
     underTest.deleteNonMainBranchComponentsByProjectUuid(project.uuid());
 

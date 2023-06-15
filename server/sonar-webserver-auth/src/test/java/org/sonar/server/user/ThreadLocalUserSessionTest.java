@@ -106,7 +106,7 @@ public class ThreadLocalUserSessionTest {
       .setGroups(group);
     threadLocalUserSession.set(expected);
 
-    ComponentDto componentDto = new ComponentDto().setQualifier(Qualifiers.APP).setMainBranchProjectUuid("component-uuid");
+    ComponentDto componentDto = new ComponentDto().setQualifier(Qualifiers.APP);
     ProjectDto projectDto = new ProjectDto().setQualifier(Qualifiers.APP).setUuid("project-uuid");
     assertThatThrownBy(() -> threadLocalUserSession.checkChildProjectsPermission(USER, componentDto))
       .isInstanceOf(ForbiddenException.class);

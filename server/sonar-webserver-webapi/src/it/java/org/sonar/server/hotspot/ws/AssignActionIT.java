@@ -356,10 +356,12 @@ public class AssignActionIT {
 
     UserDto assignee = insertUser(randomAlphanumeric(15));
     when(branchDto.getBranchType()).thenReturn(BranchType.BRANCH);
+    String projectUuid = "projectUuid";
+    when(branchDto.getProjectUuid()).thenReturn(projectUuid);
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
     executeRequest(hotspot, assignee.getLogin(), null);
-    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.getMainBranchProjectUuid()), any(HotspotChangedEvent.class));
+    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(projectUuid), any(HotspotChangedEvent.class));
   }
 
   @Test

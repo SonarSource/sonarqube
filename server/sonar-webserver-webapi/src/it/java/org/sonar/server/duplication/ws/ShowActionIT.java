@@ -110,7 +110,7 @@ public class ShowActionIT {
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()).setMainBranchProjectUuid(project.uuid()));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +

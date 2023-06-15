@@ -319,7 +319,7 @@ public class TreeActionIT {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key")).getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setKey(applicationBranch.getKey() + project.getKey()).setMainBranchProjectUuid(application.getUuid()));
+      .setKey(applicationBranch.getKey() + project.getKey()));
 
     logInWithBrowsePermission(applicationData);
     userSession.addProjectBranchMapping(application.getUuid(), applicationBranch);

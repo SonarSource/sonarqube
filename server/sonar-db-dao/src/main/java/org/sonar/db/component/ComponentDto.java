@@ -87,24 +87,6 @@ public class ComponentDto {
    * - on sub-view: UUID="6" PROJECT_UUID="5"
    */
   private String branchUuid;
-
-  /**
-   * On non-main branches only, {@link #uuid} of the main branch that represents
-   * the project ({@link #qualifier}="TRK").
-   * It is propagated to all the components of the branch.
-   * Value is null on the main-branch components and on other kinds of components
-   * (applications, portfolios).
-   * Value must be used for loading settings, checking permissions, running webhooks,
-   * selecting Quality profiles/gates and any other project-related operations.
-   * Example:
-   * - project P : kee=P, uuid=U1, qualifier=TRK, project_uuid=U1, main_branch_project_uuid=NULL
-   * - file F of project P : kee=P:F, uuid=U2, qualifier=FIL, project_uuid=U1, main_branch_project_uuid=NULL
-   * - branch B of project P : kee=P, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
-   * - file F in branch B of project P : kee=P:F, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
-   */
-  @Nullable
-  private String mainBranchProjectUuid;
-
   private String copyComponentUuid;
   private String scope;
   private String qualifier;
@@ -244,16 +226,6 @@ public class ComponentDto {
     return this;
   }
 
-  @Nullable
-  public String getMainBranchProjectUuid() {
-    return mainBranchProjectUuid;
-  }
-
-  public ComponentDto setMainBranchProjectUuid(@Nullable String s) {
-    this.mainBranchProjectUuid = s;
-    return this;
-  }
-
   public boolean isEnabled() {
     return enabled;
   }
@@ -322,7 +294,6 @@ public class ComponentDto {
       .append("scope", scope)
       .append("qualifier", qualifier)
       .append("branchUuid", branchUuid)
-      .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
       .append("path", path)
       .append("name", name)
@@ -339,7 +310,6 @@ public class ComponentDto {
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;
     copy.branchUuid = branchUuid;
-    copy.mainBranchProjectUuid = mainBranchProjectUuid;
     copy.copyComponentUuid = copyComponentUuid;
     copy.scope = scope;
     copy.qualifier = qualifier;

@@ -463,12 +463,14 @@ public class ChangeStatusActionIT {
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     when(branchDto.getBranchType()).thenReturn(BranchType.BRANCH);
+    String projectUuid = "projectUuid";
+    when(branchDto.getProjectUuid()).thenReturn(projectUuid);
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
     when(transitionService.doTransition(any(), any(), any())).thenReturn(true);
 
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
-    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(project.getMainBranchProjectUuid()), any(HotspotChangedEvent.class));
+    verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(projectUuid), any(HotspotChangedEvent.class));
   }
 
   @Test
