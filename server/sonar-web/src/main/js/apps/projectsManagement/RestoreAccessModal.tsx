@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Project } from '../../api/components';
 import { grantPermissionToUser } from '../../api/permissions';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
+import { Project } from '../../api/project-management';
 import Modal from '../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { LoggedInUser } from '../../types/users';
 

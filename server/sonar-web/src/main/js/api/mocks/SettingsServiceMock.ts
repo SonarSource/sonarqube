@@ -134,7 +134,7 @@ export default class SettingsServiceMock {
 
   handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
     const setting = this.#settingValues.find((s) => s.key === data.key) as SettingValue;
-    return this.reply(setting);
+    return this.reply(setting ?? {});
   };
 
   handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {

@@ -29,8 +29,11 @@ const ui = {
   nextButton: byRole('button', { name: 'next' }),
 };
 
-jest.mock('../../../../api/components', () => ({
+jest.mock('../../../../api/project-management', () => ({
   setupManualProjectCreation: jest.fn(),
+}));
+
+jest.mock('../../../../api/components', () => ({
   doesComponentExists: jest
     .fn()
     .mockImplementation(({ component }) => Promise.resolve(component === 'exists')),

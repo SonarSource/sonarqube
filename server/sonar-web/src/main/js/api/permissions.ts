@@ -227,11 +227,3 @@ export function changeProjectVisibility(
 ): Promise<void | Response> {
   return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
 }
-
-export function changeProjectDefaultVisibility(
-  projectVisibility: Visibility
-): Promise<void | Response> {
-  return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
-    throwGlobalError
-  );
-}

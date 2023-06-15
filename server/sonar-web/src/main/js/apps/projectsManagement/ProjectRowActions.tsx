@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Project } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
+import { Project } from '../../api/project-management';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';

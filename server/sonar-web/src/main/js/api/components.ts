@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
   ComponentQualifier,
@@ -54,16 +54,6 @@ export interface ProjectBase {
   visibility: Visibility;
 }
 
-export interface Project extends ProjectBase {
-  id: string;
-  lastAnalysisDate?: string;
-}
-
-export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
-  p?: number;
-  ps?: number;
-}
-
 export interface ComponentRaw {
   key: string;
   name: string;
@@ -74,52 +64,6 @@ export interface ComponentRaw {
   visibility: Visibility;
   leakPeriodDate?: string;
   needIssueSync?: boolean;
-}
-
-export function getComponents(parameters: SearchProjectsParameters): Promise<{
-  components: Project[];
-  paging: Paging;
-}> {
-  return getJSON('/api/projects/search', parameters);
-}
-
-export function bulkDeleteProjects(
-  parameters: BaseSearchProjectsParameters
-): Promise<void | Response> {
-  return post('/api/projects/bulk_delete', parameters).catch(throwGlobalError);
-}
-
-export function deleteProject(project: string): Promise<void | Response> {
-  return post('/api/projects/delete', { project }).catch(throwGlobalError);
-}
-
-export function deletePortfolio(portfolio: string): Promise<void | Response> {
-  return post('/api/views/delete', { key: portfolio }).catch(throwGlobalError);
-}
-
-export function setupManualProjectCreation(data: {
-  name: string;
-  project: string;
-  mainBranch: string;
-  visibility?: Visibility;
-}) {
-  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
-    createProject({
-      ...data,
-      newCodeDefinitionType,
-      newCodeDefinitionValue,
-    });
-}
-
-export function createProject(data: {
-  name: string;
-  project: string;
-  mainBranch: string;
-  visibility?: Visibility;
-  newCodeDefinitionType?: string;
-  newCodeDefinitionValue?: string;
-}): Promise<{ project: ProjectBase }> {
-  return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }
 
 export function searchProjectTags(data?: { ps?: number; q?: string }): Promise<any> {

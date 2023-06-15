@@ -20,7 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { components, OptionProps, SingleValueProps } from 'react-select';
-import { Project } from '../../api/components';
+import { Project } from '../../api/project-management';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { Button } from '../../components/controls/buttons';
 import Checkbox from '../../components/controls/Checkbox';
@@ -63,7 +63,7 @@ interface State {
 
 const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
-export class Search extends React.PureComponent<Props, State> {
+class Search extends React.PureComponent<Props, State> {
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
 
   getQualifierOptions = () => {

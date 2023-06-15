@@ -39,11 +39,11 @@ import {
   deletePermissionTemplate,
   getGlobalPermissionsGroups,
   getGlobalPermissionsUsers,
+  getPermissionTemplateGroups,
+  getPermissionTemplateUsers,
+  getPermissionTemplates,
   getPermissionsGroupsForComponent,
   getPermissionsUsersForComponent,
-  getPermissionTemplateGroups,
-  getPermissionTemplates,
-  getPermissionTemplateUsers,
   grantPermissionToGroup,
   grantPermissionToUser,
   grantTemplatePermissionToGroup,
@@ -64,7 +64,12 @@ const defaultUsers = [
   mockPermissionUser({
     login: 'gooduser1',
     name: 'John',
-    permissions: [Permissions.IssueAdmin, Permissions.SecurityHotspotAdmin, Permissions.Browse],
+    permissions: [
+      Permissions.IssueAdmin,
+      Permissions.SecurityHotspotAdmin,
+      Permissions.Browse,
+      Permissions.Admin,
+    ],
   }),
   mockPermissionUser({
     login: 'gooduser2',
@@ -251,7 +256,11 @@ export default class PermissionsServiceMock {
 
     const users =
       q && q.length >= MIN_QUERY_LENGTH
-        ? this.#users.filter((user) => user.name.toLowerCase().includes(q.toLowerCase()))
+        ? this.#users.filter(
+            (user) =>
+              user.name.toLowerCase().includes(q.toLowerCase()) ||
+              user.login.toLowerCase().includes(q.toLowerCase())
+          )
         : this.#users;
 
     const usersChunked = chunk(

@@ -29,10 +29,10 @@ it('should work with extensions', () => {
     qualifiers: ['TRK'],
   });
 
-  const currentUser = {
+  const currentUser = mockCurrentUser({
     isLoggedIn: false,
     dismissedNotices: {},
-  };
+  });
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('more')).toBeInTheDocument();
 });
@@ -43,10 +43,10 @@ it('should show administration menu if the user has the rights', () => {
     globalPages: [],
     qualifiers: ['TRK'],
   });
-  const currentUser = {
+  const currentUser = mockCurrentUser({
     isLoggedIn: false,
     dismissedNotices: {},
-  };
+  });
 
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('layout.settings')).toBeInTheDocument();

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Project } from '../../api/components';
+import { Project } from '../../api/project-management';
 import Link from '../../components/common/Link';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import Checkbox from '../../components/controls/Checkbox';

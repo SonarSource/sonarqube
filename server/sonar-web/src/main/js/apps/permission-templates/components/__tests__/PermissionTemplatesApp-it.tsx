@@ -286,7 +286,7 @@ describe('filtering', () => {
 
     expect(screen.getAllByRole('row').length).toBe(12);
     await ui.toggleFilterByPermission(Permissions.Admin);
-    expect(screen.getAllByRole('row').length).toBe(2);
+    expect(screen.getAllByRole('row').length).toBe(3);
     await ui.toggleFilterByPermission(Permissions.Admin);
     expect(screen.getAllByRole('row').length).toBe(12);
   });

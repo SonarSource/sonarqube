@@ -20,11 +20,11 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { deleteApplication } from '../../../api/application';
-import { deletePortfolio, deleteProject } from '../../../api/components';
+import { deletePortfolio, deleteProject } from '../../../api/project-management';
 import { mockRouter } from '../../../helpers/testMocks';
 import { Form } from '../Form';
 
-jest.mock('../../../api/components', () => ({
+jest.mock('../../../api/project-management', () => ({
   deleteProject: jest.fn().mockResolvedValue(undefined),
   deletePortfolio: jest.fn().mockResolvedValue(undefined),
 }));

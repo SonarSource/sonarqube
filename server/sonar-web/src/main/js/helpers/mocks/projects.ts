@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Project } from '../../apps/projects/types';
+import { Project } from '../../api/project-management';
 import { ComponentQualifier, Visibility } from '../../types/component';
 
 export function mockProject(overrides: Partial<Project> = {}): Project {
   return {
     key: 'foo',
     name: 'Foo',
-    measures: {},
     qualifier: ComponentQualifier.Project,
-    tags: [],
     visibility: Visibility.Public,
+    lastAnalysisDate: '2019-01-04T09:51:48Z',
     ...overrides,
   };
 }

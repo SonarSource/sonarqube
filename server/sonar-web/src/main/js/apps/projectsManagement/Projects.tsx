@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Project } from '../../api/components';
+import { Project } from '../../api/project-management';
 import { translate } from '../../helpers/l10n';
 import { LoggedInUser } from '../../types/users';
 import ProjectRow from './ProjectRow';

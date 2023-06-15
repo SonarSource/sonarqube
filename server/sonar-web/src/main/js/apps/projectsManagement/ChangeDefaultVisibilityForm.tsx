@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button, ResetButtonLink } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import Radio from '../../components/controls/Radio';
+import { Button, ResetButtonLink } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -51,10 +51,12 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
   };
 
   render() {
+    const header = translate('settings.projects.change_visibility_form.header');
+
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>{translate('settings.projects.change_visibility_form.header')}</h2>
+          <h2>{header}</h2>
         </header>
 
         <div className="modal-body">

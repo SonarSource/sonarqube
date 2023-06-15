@@ -20,8 +20,11 @@
 import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Project, getComponents } from '../../api/components';
-import { changeProjectDefaultVisibility } from '../../api/permissions';
+import {
+  Project,
+  changeProjectDefaultVisibility,
+  getComponents,
+} from '../../api/project-management';
 import { getValue } from '../../api/settings';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import ListFooter from '../../components/controls/ListFooter';
@@ -61,7 +64,7 @@ interface State {
 const DEBOUNCE_DELAY = 250;
 const PAGE_SIZE = 50;
 
-export class ProjectManagementApp extends React.PureComponent<Props, State> {
+class ProjectManagementApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {

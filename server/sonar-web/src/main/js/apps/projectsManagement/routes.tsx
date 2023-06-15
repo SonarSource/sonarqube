@@ -21,6 +21,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import ProjectManagementApp from './ProjectManagementApp';
 
-export const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
+const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
 
 export default routes;

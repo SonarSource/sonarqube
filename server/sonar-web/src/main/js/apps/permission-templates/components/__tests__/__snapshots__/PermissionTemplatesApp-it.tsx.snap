@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`rendering should render the list of templates: Permission Template 1: admin 1`] = `"0  user(s)1 group(s)"`;
+exports[`rendering should render the list of templates: Permission Template 1: admin 1`] = `"1  user(s)1 group(s)"`;
 
 exports[`rendering should render the list of templates: Permission Template 1: codeviewer 1`] = `"0  user(s)0 group(s)"`;
 
