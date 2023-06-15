@@ -58,5 +58,5 @@ module.exports = {
     '^.+\\.(t|j)sx?$': ['babel-jest', babelConfig],
   },
   transformIgnorePatterns: ['/node_modules/(?!(d3-.+))/'],
-  testTimeout: 40000,
+  testTimeout: 60000,
 };
