@@ -19,8 +19,8 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byLabelText, byRole } from 'testing-library-selector';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import CreateWebhookForm from '../CreateWebhookForm';
 
 const ui = {
