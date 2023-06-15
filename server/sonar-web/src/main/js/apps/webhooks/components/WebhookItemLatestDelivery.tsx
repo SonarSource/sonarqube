@@ -24,11 +24,11 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse } from '../../../types/webhook';
 import LatestDeliveryForm from './LatestDeliveryForm';
 
 interface Props {
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
 
 interface State {

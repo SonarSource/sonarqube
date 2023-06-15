@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { searchDeliveries } from '../../../api/webhooks';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';
-import { Webhook, WebhookDelivery } from '../../../types/webhook';
+import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
 import DeliveryAccordion from './DeliveryAccordion';
 
 interface Props {
   onClose: () => void;
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
 
 interface State {

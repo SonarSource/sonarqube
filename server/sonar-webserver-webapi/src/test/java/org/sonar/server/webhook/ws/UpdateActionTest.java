@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -104,7 +105,29 @@ public class UpdateActionTest {
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
-    assertThat(reloaded.get().getSecret()).isNull();
+    assertThat(reloaded.get().getSecret()).isEqualTo(dto.getSecret());
+  }
+
+  @Test
+  public void update_with_empty_secrets_removes_the_secret() {
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    TestResponse response = wsActionTester.newRequest()
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "")
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+    Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
+    assertThat(reloaded).isPresent();
+    assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
+    assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
+    assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
+    assertThat(reloaded.get().getSecret()).isEqualTo(null);
   }
 
   @Test

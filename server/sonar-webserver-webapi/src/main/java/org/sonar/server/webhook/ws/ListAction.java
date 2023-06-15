@@ -74,6 +74,7 @@ public class ListAction implements WebhooksWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.setChangelog(new Change("7.8", "Field 'secret' added to response"));
+    action.setChangelog(new Change("10.1", "Field 'secret' replaced by flag 'hasSecret' in response"));
   }
 
   @Override
@@ -113,10 +114,8 @@ public class ListAction implements WebhooksWsAction {
         responseElementBuilder
           .setKey(webhook.getUuid())
           .setName(webhook.getName())
-          .setUrl(obfuscateCredentials(webhook.getUrl()));
-        if (webhook.getSecret() != null) {
-          responseElementBuilder.setSecret(webhook.getSecret());
-        }
+          .setUrl(obfuscateCredentials(webhook.getUrl()))
+          .setHasSecret(webhook.getSecret() != null);
         addLastDelivery(responseElementBuilder, webhook, lastDeliveries);
       });
     writeProtobuf(responseBuilder.build(), request, response);

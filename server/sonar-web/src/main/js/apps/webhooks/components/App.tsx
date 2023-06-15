@@ -24,7 +24,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse } from '../../../types/webhook';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
@@ -36,7 +36,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  webhooks: Webhook[];
+  webhooks: WebhookResponse[];
 }
 
 export class App extends React.PureComponent<Props, State> {
@@ -99,19 +99,24 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleUpdate = (data: { webhook: string; name: string; secret?: string; url: string }) => {
-    const udpateData = {
+    const updateData = {
       webhook: data.webhook,
       name: data.name,
       url: data.url,
-      ...(data.secret && { secret: data.secret }),
+      secret: data.secret,
     };
 
-    return updateWebhook(udpateData).then(() => {
+    return updateWebhook(updateData).then(() => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
           webhooks: webhooks.map((webhook) =>
             webhook.key === data.webhook
-              ? { ...webhook, name: data.name, secret: data.secret, url: data.url }
+              ? {
+                  ...webhook,
+                  name: data.name,
+                  hasSecret: data.secret === undefined ? webhook.hasSecret : Boolean(data.secret),
+                  url: data.url,
+                }
               : webhook
           ),
         }));

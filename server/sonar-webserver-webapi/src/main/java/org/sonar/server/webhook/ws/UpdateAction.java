@@ -31,6 +31,7 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
@@ -89,9 +90,9 @@ public class UpdateAction implements WebhooksWsAction {
 
     action.createParam(SECRET_PARAM)
       .setRequired(false)
-      .setMinimumLength(1)
       .setMaximumLength(SECRET_PARAM_MAXIMUM_LENGTH)
-      .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header")
+      .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header. " +
+        "If blank, any secret previously configured will be removed. If not set, the secret will remain unchanged.")
       .setExampleValue("your_secret")
       .setSince("7.8");
   }
@@ -100,7 +101,7 @@ public class UpdateAction implements WebhooksWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String webhookKey = request.param(KEY_PARAM);
+    String webhookKey = request.mandatoryParam(KEY_PARAM);
     String name = request.mandatoryParam(NAME_PARAM);
     String url = request.mandatoryParam(URL_PARAM);
     String secret = request.param(SECRET_PARAM);
@@ -132,9 +133,30 @@ public class UpdateAction implements WebhooksWsAction {
     @Nullable String projectKey, @Nullable String projectName) {
     dto
       .setName(name)
-      .setUrl(url)
-      .setSecret(secret);
+      .setUrl(url);
+    setSecret(dto, secret);
     dbClient.webhookDao().update(dbSession, dto, projectKey, projectName);
+  }
+
+  /**
+   * <p>Sets the secret of the webhook. The secret is set according to the following rules:
+   * <ul>
+   *   <li>If the secret is null, it will remain unchanged.</li>
+   *   <li>If the secret is blank (""), it will be removed.</li>
+   *   <li>If the secret is not null or blank, it will be set to the provided value.</li>
+   * </ul>
+   * </p>
+   * @param dto The webhook to update. It holds the old secret value.
+   * @param secret The new secret value. It can be null or blank.
+   */
+  private static void setSecret(WebhookDto dto, @Nullable String secret) {
+    if (secret != null) {
+      if (isBlank(secret)) {
+        dto.setSecret(null);
+      } else {
+        dto.setSecret(secret);
+      }
+    }
   }
 
 }

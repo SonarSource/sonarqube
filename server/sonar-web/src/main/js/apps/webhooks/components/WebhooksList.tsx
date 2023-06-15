@@ -20,13 +20,13 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import WebhookItem from './WebhookItem';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
-  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhooks: Webhook[];
+  onUpdate: (data: WebhookUpdatePayload) => Promise<void>;
+  webhooks: WebhookResponse[];
 }
 
 export default class WebhooksList extends React.PureComponent<Props> {
@@ -37,7 +37,7 @@ export default class WebhooksList extends React.PureComponent<Props> {
         <th>{translate('webhooks.url')}</th>
         <th>{translate('webhooks.secret_header')}</th>
         <th>{translate('webhooks.last_execution')}</th>
-        <th />
+        <th className="sw-text-right">{translate('actions')}</th>
       </tr>
     </thead>
   );

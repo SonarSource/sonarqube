@@ -21,10 +21,18 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import WebhookItem from '../WebhookItem';
 
-const webhook = {
+const webhookWithoutSecret = {
   key: '1',
   name: 'my webhook',
   url: 'http://webhook.target',
+  hasSecret: false,
+};
+
+const webhookWithSecret = {
+  key: '1',
+  name: 'my webhook',
+  url: 'http://webhook.target',
+  hasSecret: true,
 };
 
 it('should render correctly', () => {
@@ -33,7 +41,16 @@ it('should render correctly', () => {
       <WebhookItem
         onDelete={jest.fn(() => Promise.resolve())}
         onUpdate={jest.fn(() => Promise.resolve())}
-        webhook={webhook}
+        webhook={webhookWithoutSecret}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <WebhookItem
+        onDelete={jest.fn(() => Promise.resolve())}
+        onUpdate={jest.fn(() => Promise.resolve())}
+        webhook={webhookWithSecret}
       />
     )
   ).toMatchSnapshot();

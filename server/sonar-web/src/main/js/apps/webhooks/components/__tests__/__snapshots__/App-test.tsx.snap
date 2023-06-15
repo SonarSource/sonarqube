@@ -59,11 +59,13 @@ exports[`should fetch webhooks and display them 1`] = `
         webhooks={
           [
             {
+              "hasSecret": false,
               "key": "1",
               "name": "foo",
               "url": "http://foo",
             },
             {
+              "hasSecret": false,
               "key": "2",
               "name": "bar",
               "url": "http://bar",

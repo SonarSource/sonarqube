@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Webhook {
+
+export interface WebhookResponse {
+  hasSecret: boolean;
   key: string;
   latestDelivery?: WebhookDelivery;
   name: string;
+  url: string;
+}
+
+export interface WebhookBasePayload {
+  name: string;
   secret?: string;
   url: string;
+}
+
+export interface WebhookCreatePayload extends WebhookBasePayload {
+  project?: string;
+}
+
+export interface WebhookUpdatePayload extends WebhookBasePayload {
+  webhook: string;
 }
 
 export interface WebhookDelivery {

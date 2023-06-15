@@ -156,10 +156,8 @@ public class CreateAction implements WebhooksWsAction {
     webhookBuilder
       .setKey(dto.getUuid())
       .setName(dto.getName())
-      .setUrl(dto.getUrl());
-    if (dto.getSecret() != null) {
-      webhookBuilder.setSecret(dto.getSecret());
-    }
+      .setUrl(dto.getUrl())
+      .setHasSecret(dto.getSecret() != null);
     writeProtobuf(newBuilder().setWebhook(webhookBuilder).build(), request, response);
   }
 
@@ -174,8 +172,8 @@ public class CreateAction implements WebhooksWsAction {
   }
 
   private void checkNumberOfGlobalWebhooks(DbSession dbSession) {
-    int globalWehbooksCount = dbClient.webhookDao().selectGlobalWebhooks(dbSession).size();
-    if (globalWehbooksCount >= MAX_NUMBER_OF_WEBHOOKS) {
+    int globalWebhooksCount = dbClient.webhookDao().selectGlobalWebhooks(dbSession).size();
+    if (globalWebhooksCount >= MAX_NUMBER_OF_WEBHOOKS) {
       throw new IllegalArgumentException("Maximum number of global webhooks reached");
     }
   }
