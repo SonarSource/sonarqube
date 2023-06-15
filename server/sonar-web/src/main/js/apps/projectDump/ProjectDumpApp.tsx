@@ -71,7 +71,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
     const data: ActivityRequestParameters = {
       type,
       component,
-      onlyCurrents: true,
+      ps: 1,
       status: [
         TaskStatuses.Pending,
         TaskStatuses.InProgress,

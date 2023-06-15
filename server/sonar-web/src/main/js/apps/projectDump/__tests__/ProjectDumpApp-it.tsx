@@ -120,6 +120,7 @@ it('should show pending->in progress->failed export', async () => {
     componentKey: COMPONENT_KEY,
     type: TaskTypes.ProjectExport,
     status: TaskStatuses.Failed,
+    executedAt: '2023-06-08T12:05:00Z',
   });
   jest.runOnlyPendingTimers();
   expect(await ui.failedExport.find()).toBeInTheDocument();
@@ -165,6 +166,7 @@ it('should show pending->in progress->failed import', async () => {
     componentKey: COMPONENT_KEY,
     type: TaskTypes.ProjectImport,
     status: TaskStatuses.Failed,
+    executedAt: '2023-06-08T12:05:00Z',
   });
   jest.runOnlyPendingTimers();
   expect(await ui.failedImport.find()).toBeInTheDocument();
