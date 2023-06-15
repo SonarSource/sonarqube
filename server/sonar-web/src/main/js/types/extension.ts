@@ -42,6 +42,7 @@ export interface ExtensionStartMethodParameter {
   el: HTMLElement | undefined | null;
   component?: Component;
   onBranchesChange?: (updateBranches?: boolean, updatePRs?: boolean) => void;
+  onComponentChange?: (changes: Partial<Component>) => void;
   currentUser: CurrentUser;
   intl: IntlShape;
   location: Location;

@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { ComponentContext } from '../componentContext/ComponentContext';
 import NotFound from '../NotFound';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
 
 export default function ProjectAdminPageExtension() {
   const { extensionKey, pluginKey } = useParams();
-  const { component, onBranchesChange } = React.useContext(ComponentContext);
+  const { component, onBranchesChange, onComponentChange } = React.useContext(ComponentContext);
 
   const extension =
     component &&
@@ -35,7 +35,7 @@ export default function ProjectAdminPageExtension() {
     );
 
   return extension ? (
-    <Extension extension={extension} options={{ component, onBranchesChange }} />
+    <Extension extension={extension} options={{ component, onBranchesChange, onComponentChange }} />
   ) : (
     <NotFound withContainer={false} />
   );
