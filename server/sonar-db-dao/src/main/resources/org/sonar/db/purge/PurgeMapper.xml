@@ -573,10 +573,6 @@
     delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteProjectMappingsByProjectUuid">
-    delete from project_mappings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
-  </delete>
-
   <delete id="deleteProjectAlmSettingsByProjectUuid">
     delete from project_alm_settings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>

@@ -241,7 +241,6 @@ public class PurgeDao implements Dao {
     commands.deleteWebhooks(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
     commands.deleteLiveMeasures(rootUuid);
-    commands.deleteProjectMappings(rootUuid);
     commands.deleteProjectAlmSettings(rootUuid);
     commands.deletePermissions(rootUuid);
     commands.deleteNewCodePeriods(rootUuid);

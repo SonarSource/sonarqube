@@ -79,7 +79,6 @@ public final class SqTables {
     "project_badge_token",
     "project_branches",
     "project_links",
-    "project_mappings",
     "project_measures",
     "project_qprofiles",
     "project_qgates",

@@ -17,7 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.db.mapping;
+package org.sonar.server.platform.db.migration.version.v102;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+
+public class DropTableProjectMappings extends DdlChange {
+
+  private static final String TABLE_NAME = "project_mappings";
+
+  public DropTableProjectMappings(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    try (Connection c = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableExists(TABLE_NAME, c)) {
+        context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+      }
+    }
+  }
+}

@@ -1455,18 +1455,6 @@ public class PurgeDaoIT {
   }
 
   @Test
-  public void deleteProject_deletes_project_mappings() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    dbClient.projectMappingsDao().put(dbSession, "a.key.type", "a.key", project.uuid());
-    dbClient.projectMappingsDao().put(dbSession, "a.key.type", "another.key", "D2");
-
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
-
-    assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "a.key")).isEmpty();
-    assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "another.key")).isNotEmpty();
-  }
-
-  @Test
   public void deleteProject_deletes_project_alm_settings() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     ProjectDto otherProject = db.components().insertPublicProject().getProjectDto();

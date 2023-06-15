@@ -36,7 +36,7 @@ import static org.sonar.db.ce.CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRAD
 public class UserDismissedMessagesDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final UserDismissedMessagesDao underTest = db.getDbClient().userDismissedMessagesDao();
 

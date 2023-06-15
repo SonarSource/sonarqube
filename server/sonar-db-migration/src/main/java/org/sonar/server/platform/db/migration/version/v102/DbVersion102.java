@@ -55,6 +55,9 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_009, "Drop index 'ce_queue_main_component' in 'ce_queue' table", DropIndexMainComponentUuidInCeQueue.class)
       .add(10_2_010, "Rename 'main_component_uuid' in 'ce_queue' table to 'entity_uuid'", RenameMainComponentUuidInCeQueue.class)
       .add(10_2_011, "Create index 'ce_queue_entity_uuid' in 'ce_queue' table", CreateIndexEntityUuidInCeQueue.class)
+      .add(10_2_012, "Rename 'component_uuid' in 'user_roles' table to 'entity_uuid'", RenameComponentUuidInUserRoles.class)
+      .add(10_2_013, "Rename 'component_uuid' in 'group_roles' table to 'entity_uuid'", RenameComponentUuidInGroupRoles.class)
+      .add(10_2_014, "Drop 'project_mappings' table", DropTableProjectMappings.class)
     ;
   }
 

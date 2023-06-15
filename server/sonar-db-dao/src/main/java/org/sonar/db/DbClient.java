@@ -45,7 +45,6 @@ import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -169,7 +168,6 @@ public class DbClient {
   private final LiveMeasureDao liveMeasureDao;
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
-  private final ProjectMappingsDao projectMappingsDao;
   private final NewCodePeriodDao newCodePeriodDao;
   private final ProjectDao projectDao;
   private final PortfolioDao portfolioDao;
@@ -257,7 +255,6 @@ public class DbClient {
     liveMeasureDao = getDao(map, LiveMeasureDao.class);
     webhookDao = getDao(map, WebhookDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
-    projectMappingsDao = getDao(map, ProjectMappingsDao.class);
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
     projectDao = getDao(map, ProjectDao.class);
@@ -551,10 +548,6 @@ public class DbClient {
 
   public WebhookDeliveryDao webhookDeliveryDao() {
     return webhookDeliveryDao;
-  }
-
-  public ProjectMappingsDao projectMappingsDao() {
-    return projectMappingsDao;
   }
 
   public InternalComponentPropertiesDao internalComponentPropertiesDao() {
