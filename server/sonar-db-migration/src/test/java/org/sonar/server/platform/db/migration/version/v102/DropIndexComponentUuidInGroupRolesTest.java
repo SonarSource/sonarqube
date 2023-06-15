@@ -19,17 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v102;
 
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class RenameMainComponentUuidInCeActivity extends RenameVarcharColumnChange {
+public class DropIndexComponentUuidInGroupRolesTest {
 
-  private static final String TABLE_NAME = "ce_activity";
-  private static final String OLD_COLUMN_NAME = "main_component_uuid";
-  private static final String NEW_COLUMN_NAME = "entity_uuid";
-  private static final String OLD_INDEX_NAME = "ce_activity_main_component";
+  private static final String TABLE_NAME = "group_roles";
+  private static final String COLUMN_NAME = "component_uuid";
+  private static final String INDEX_NAME = "group_roles_component_uuid";
 
-  public RenameMainComponentUuidInCeActivity(Database db) {
-    super(db, TABLE_NAME, OLD_COLUMN_NAME, NEW_COLUMN_NAME);
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(RenameComponentUuidInGroupRolesTest.class, "schema.sql");
+
+  private final RenameComponentUuidInGroupRoles underTest = new RenameComponentUuidInGroupRoles(db.database());
+
+  @Test
+  public void index_is_dropped() throws SQLException {
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
+
+    underTest.execute();
+
+    db.assertIndexDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 }

@@ -20,16 +20,14 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class RenameMainComponentUuidInCeActivity extends RenameVarcharColumnChange {
+public class DropIndexComponentUuidInGroupRoles extends DropIndexChange {
 
-  private static final String TABLE_NAME = "ce_activity";
-  private static final String OLD_COLUMN_NAME = "main_component_uuid";
-  private static final String NEW_COLUMN_NAME = "entity_uuid";
-  private static final String OLD_INDEX_NAME = "ce_activity_main_component";
+  private static final String TABLE_NAME = "group_roles";
+  private static final String INDEX_NAME = "group_roles_component_uuid";
 
-  public RenameMainComponentUuidInCeActivity(Database db) {
-    super(db, TABLE_NAME, OLD_COLUMN_NAME, NEW_COLUMN_NAME);
+  public DropIndexComponentUuidInGroupRoles(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

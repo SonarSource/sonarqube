@@ -20,16 +20,14 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
+import org.sonar.server.platform.db.migration.step.CreateIndexOnColumn;
 
-public class RenameMainComponentUuidInCeActivity extends RenameVarcharColumnChange {
+public class CreateIndexEntityUuidInCeActivity extends CreateIndexOnColumn {
 
   private static final String TABLE_NAME = "ce_activity";
-  private static final String OLD_COLUMN_NAME = "main_component_uuid";
-  private static final String NEW_COLUMN_NAME = "entity_uuid";
-  private static final String OLD_INDEX_NAME = "ce_activity_main_component";
+  private static final String COLUMN_NAME = "entity_uuid";
 
-  public RenameMainComponentUuidInCeActivity(Database db) {
-    super(db, TABLE_NAME, OLD_COLUMN_NAME, NEW_COLUMN_NAME);
+  public CreateIndexEntityUuidInCeActivity(Database db) {
+    super(db, TABLE_NAME, COLUMN_NAME, false);
   }
 }

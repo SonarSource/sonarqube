@@ -30,9 +30,9 @@ import org.sonar.server.platform.db.migration.sql.RenameColumnsBuilder;
 
 public abstract class RenameVarcharColumnChange extends DdlChange {
 
-  private final String table;
-  private final String oldColumn;
-  private final String newColumn;
+  protected final String table;
+  protected final String oldColumn;
+  protected final String newColumn;
 
   protected RenameVarcharColumnChange(Database db, String table, String oldColumn, String newColumn) {
     super(db);
