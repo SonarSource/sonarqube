@@ -78,6 +78,8 @@ export function SearchSelectDropdown<
     minLength,
     controlAriaLabel,
     menuIsOpen,
+    onChange,
+    onInputChange,
     zLevel = PopupZLevel.Global,
     ...rest
   } = props;
@@ -102,9 +104,9 @@ export function SearchSelectDropdown<
   const handleChange = React.useCallback(
     (newValue: OnChangeValue<Option, IsMulti>, actionMeta: ActionMeta<Option>) => {
       toggleDropdown(false);
-      props.onChange?.(newValue, actionMeta);
+      onChange?.(newValue, actionMeta);
     },
-    [toggleDropdown, props.onChange]
+    [toggleDropdown, onChange]
   );
 
   const handleLoadOptions = React.useCallback(
@@ -117,11 +119,16 @@ export function SearchSelectDropdown<
 
   const handleInputChange = React.useCallback(
     (newValue: string, actionMeta: InputActionMeta) => {
-      const value = actionMeta.action === 'menu-close' ? actionMeta.prevInputValue : newValue;
-      setInputValue(value);
-      props.onInputChange?.(value, actionMeta);
+      if (actionMeta.action === 'menu-close') {
+        setInputValue(actionMeta.prevInputValue);
+        return actionMeta.prevInputValue;
+      }
+
+      setInputValue(newValue);
+      onInputChange?.(newValue, actionMeta);
+      return newValue;
     },
-    [props.onInputChange]
+    [onInputChange]
   );
 
   React.useEffect(() => {
