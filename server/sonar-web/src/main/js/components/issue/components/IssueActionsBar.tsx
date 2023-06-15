@@ -51,7 +51,6 @@ interface Props {
   togglePopup: (popup: string, show?: boolean) => void;
   className?: string;
   showComments?: boolean;
-  showCommentsInPopup?: boolean;
   showLine?: boolean;
 }
 
@@ -69,7 +68,6 @@ export default function IssueActionsBar(props: Props) {
     togglePopup,
     className,
     showComments,
-    showCommentsInPopup,
     showLine,
   } = props;
 
@@ -140,22 +138,22 @@ export default function IssueActionsBar(props: Props) {
         </li>
 
         <li>
-          <IssueSeverity
-            isOpen={currentPopup === 'set-severity'}
-            togglePopup={togglePopup}
-            canSetSeverity={canSetSeverity}
-            issue={issue}
-            setIssueProperty={setIssueProperty}
-          />
-        </li>
-
-        <li>
           <IssueTransition
             isOpen={currentPopup === 'transition'}
             togglePopup={togglePopup}
             hasTransitions={hasTransitions}
             issue={issue}
             onChange={handleTransition}
+          />
+        </li>
+
+        <li>
+          <IssueSeverity
+            isOpen={currentPopup === 'set-severity'}
+            togglePopup={togglePopup}
+            canSetSeverity={canSetSeverity}
+            issue={issue}
+            setIssueProperty={setIssueProperty}
           />
         </li>
 
@@ -169,8 +167,7 @@ export default function IssueActionsBar(props: Props) {
           />
         </li>
       </ul>
-
-      {(canComment || showCommentsInPopup) && (
+      {canComment && (
         <IssueCommentAction
           commentAutoTriggered={commentState.commentAutoTriggered}
           commentPlaceholder={commentState.commentPlaceholder}
@@ -178,9 +175,6 @@ export default function IssueActionsBar(props: Props) {
           issueKey={issue.key}
           onChange={onChange}
           toggleComment={toggleComment}
-          comments={issue.comments}
-          canComment={canComment}
-          showCommentsInPopup={showCommentsInPopup}
         />
       )}
 

@@ -41,6 +41,7 @@ export default function CommentForm(props: CommentFormProps) {
       <div className="issue-comment-form-text">
         <textarea
           autoFocus
+          className="sw-w-full"
           style={{ resize: 'vertical' }}
           placeholder={placeholder}
           aria-label={translate('issue.comment.enter_comment')}
@@ -57,34 +58,36 @@ export default function CommentForm(props: CommentFormProps) {
           value={editComment}
         />
       </div>
-      <div className="issue-comment-form-footer">
+      <div className="sw-flex sw-justify-between issue-comment-form-footer">
         {showFormatHelp && (
           <div className="issue-comment-form-tips">
             <FormattingTips />
           </div>
         )}
-        <div className="issue-comment-form-actions">
-          <Button
-            className="js-issue-comment-submit"
-            disabled={editComment.trim().length < 1}
-            onClick={() => {
-              props.onSaveComment(editComment);
-              setEditComment('');
-            }}
-          >
-            {comment ? translate('save') : translate('issue.comment.formlink')}
-          </Button>
-          <ResetButtonLink
-            className="js-issue-comment-cancel little-spacer-left"
-            aria-label={
-              comment
-                ? translate('issue.comment.edit.cancel')
-                : translate('issue.comment.add_comment.cancel')
-            }
-            onClick={props.onCancel}
-          >
-            {autoTriggered ? translate('skip') : translate('cancel')}
-          </ResetButtonLink>
+        <div>
+          <div className="issue-comment-form-actions">
+            <Button
+              className="js-issue-comment-submit"
+              disabled={editComment.trim().length < 1}
+              onClick={() => {
+                props.onSaveComment(editComment);
+                setEditComment('');
+              }}
+            >
+              {comment ? translate('save') : translate('issue.comment.formlink')}
+            </Button>
+            <ResetButtonLink
+              className="js-issue-comment-cancel little-spacer-left"
+              aria-label={
+                comment
+                  ? translate('issue.comment.edit.cancel')
+                  : translate('issue.comment.add_comment.cancel')
+              }
+              onClick={props.onCancel}
+            >
+              {autoTriggered ? translate('skip') : translate('cancel')}
+            </ResetButtonLink>
+          </div>
         </div>
       </div>
     </>

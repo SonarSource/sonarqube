@@ -20,30 +20,23 @@
 import * as React from 'react';
 import { addIssueComment, deleteIssueComment, editIssueComment } from '../../../api/issues';
 import Toggler from '../../../components/controls/Toggler';
-import { Issue, IssueComment } from '../../../types/types';
+import { Issue } from '../../../types/types';
 import { updateIssue } from '../actions';
-import CommentListPopup from '../popups/CommentListPopup';
 import CommentPopup from '../popups/CommentPopup';
 
 interface Props {
-  canComment: boolean;
   commentAutoTriggered?: boolean;
   commentPlaceholder: string;
   currentPopup?: boolean;
   issueKey: string;
   onChange: (issue: Issue) => void;
   toggleComment: (open: boolean, placeholder?: string, autoTriggered?: boolean) => void;
-  comments?: IssueComment[];
-  showCommentsInPopup?: boolean;
 }
 
 export default class IssueCommentAction extends React.PureComponent<Props> {
   addComment = (text: string) => {
-    const { showCommentsInPopup } = this.props;
     updateIssue(this.props.onChange, addIssueComment({ issue: this.props.issueKey, text }));
-    if (!showCommentsInPopup) {
-      this.props.toggleComment(false);
-    }
+    this.handleClose();
   };
 
   handleEditComment = (comment: string, text: string) => {
@@ -59,7 +52,6 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
   };
 
   render() {
-    const { comments, showCommentsInPopup, canComment } = this.props;
     return (
       <div className="issue-meta dropdown">
         <Toggler
@@ -67,25 +59,12 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
           onRequestClose={this.handleClose}
           open={!!this.props.currentPopup}
           overlay={
-            showCommentsInPopup ? (
-              <CommentListPopup
-                comments={comments}
-                deleteComment={this.handleDeleteComment}
-                onAddComment={this.addComment}
-                onEdit={this.handleEditComment}
-                placeholder={this.props.commentPlaceholder}
-                toggleComment={this.props.toggleComment}
-                autoTriggered={this.props.commentAutoTriggered}
-                canComment={canComment}
-              />
-            ) : (
-              <CommentPopup
-                autoTriggered={this.props.commentAutoTriggered}
-                onComment={this.addComment}
-                placeholder={this.props.commentPlaceholder}
-                toggleComment={this.props.toggleComment}
-              />
-            )
+            <CommentPopup
+              autoTriggered={this.props.commentAutoTriggered}
+              onComment={this.addComment}
+              placeholder={this.props.commentPlaceholder}
+              toggleComment={this.props.toggleComment}
+            />
           }
         />
       </div>

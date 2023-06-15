@@ -40,6 +40,8 @@ const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
   in_review: StatusConfirmedIcon,
   open: StatusOpenIcon,
   reopened: StatusReopenedIcon,
+  reopen: StatusReopenedIcon,
+  unconfirm: StatusReopenedIcon,
   resolve: StatusResolvedIcon,
   resolved: StatusResolvedIcon,
   reviewed: StatusResolvedIcon,
