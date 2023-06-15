@@ -19,15 +19,38 @@
  */
 package org.sonar.server.platform.db.migration.version.v102;
 
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DropIndexChange;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DropIndexMainComponentUuidInCeActivity extends DropIndexChange {
+public class DropIndexMainComponentUuidInCeActivityTest {
 
   private static final String TABLE_NAME = "ce_activity";
+  private static final String COLUMN_NAME = "main_component_uuid";
   private static final String INDEX_NAME = "ce_activity_main_component";
 
-  public DropIndexMainComponentUuidInCeActivity(Database db) {
-    super(db, INDEX_NAME, TABLE_NAME);
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexMainComponentUuidInCeActivityTest.class, "schema.sql");
+
+  private final DropIndexMainComponentUuidInCeActivity underTest = new DropIndexMainComponentUuidInCeActivity(db.database());
+
+  @Test
+  public void index_is_dropped() throws SQLException {
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
+
+    underTest.execute();
+
+    db.assertIndexDoesNotExist(TABLE_NAME, COLUMN_NAME);
+  }
+
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
+
+    underTest.execute();
+    underTest.execute();
+
+    db.assertIndexDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 }

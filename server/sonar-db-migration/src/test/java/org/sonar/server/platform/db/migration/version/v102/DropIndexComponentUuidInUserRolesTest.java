@@ -24,16 +24,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class DropIndexComponentUuidInGroupRolesTest {
+public class DropIndexComponentUuidInUserRolesTest {
 
-  private static final String TABLE_NAME = "group_roles";
+  private static final String TABLE_NAME = "user_roles";
   private static final String COLUMN_NAME = "component_uuid";
-  private static final String INDEX_NAME = "group_roles_component_uuid";
+  private static final String INDEX_NAME = "user_roles_component_uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(RenameComponentUuidInGroupRolesTest.class, "schema.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexComponentUuidInUserRolesTest.class, "schema.sql");
 
-  private final RenameComponentUuidInGroupRoles underTest = new RenameComponentUuidInGroupRoles(db.database());
+  private final RenameComponentUuidInUserRoles underTest = new RenameComponentUuidInUserRoles(db.database());
 
   @Test
   public void index_is_dropped() throws SQLException {
