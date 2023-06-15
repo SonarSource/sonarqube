@@ -23,19 +23,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -63,6 +64,8 @@ public class EmailNotificationChannel extends NotificationChannel {
    * @see org.apache.commons.mail.Email#setSocketTimeout(int)
    */
   private static final int SOCKET_TIMEOUT = 30_000;
+
+  private static final Pattern PATTERN_LINE_BREAK = Pattern.compile("[\n\r]");
 
   /**
    * Email Header Field: "List-ID".
@@ -211,7 +214,9 @@ public class EmailNotificationChannel extends NotificationChannel {
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
     try {
-      LOG.trace("Sending email: {}", emailMessage);
+      LOG.atTrace().setMessage("Sending email: {}")
+        .addArgument(() -> sanitizeLog(emailMessage.getMessage()))
+        .log();
       String host = resolveHost();
 
       Email email = createEmailWithMessage(emailMessage);
@@ -224,6 +229,10 @@ public class EmailNotificationChannel extends NotificationChannel {
     } finally {
       Thread.currentThread().setContextClassLoader(classloader);
     }
+  }
+
+  private static String sanitizeLog(String message) {
+    return PATTERN_LINE_BREAK.matcher(message).replaceAll("_");
   }
 
   private static Email createEmailWithMessage(EmailMessage emailMessage) throws EmailException {

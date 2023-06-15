@@ -29,6 +29,7 @@ dependencies {
   testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'org.subethamail:subethasmtp'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okio:okio'
   testImplementation 'com.tngtech.java:junit-dataprovider'

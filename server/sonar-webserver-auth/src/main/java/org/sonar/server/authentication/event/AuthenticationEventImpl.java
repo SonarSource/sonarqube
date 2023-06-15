@@ -21,10 +21,11 @@ package org.sonar.server.authentication.event;
 
 import com.google.common.base.Joiner;
 import java.util.Collections;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.api.server.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.server.http.HttpRequest;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Objects.requireNonNull;
@@ -32,18 +33,20 @@ import static java.util.Objects.requireNonNull;
 public class AuthenticationEventImpl implements AuthenticationEvent {
   private static final Logger LOGGER = LoggerFactory.getLogger("auth.event");
   private static final int FLOOD_THRESHOLD = 128;
+  private static final Pattern PATTERN_LINE_BREAK = Pattern.compile("[\n\r]");
 
   @Override
   public void loginSuccess(HttpRequest request, @Nullable String login, Source source) {
     checkRequest(request);
     requireNonNull(source, "source can't be null");
-    if (!LOGGER.isDebugEnabled()) {
-      return;
-    }
-    LOGGER.debug("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
-      source.getMethod(), source.getProvider(), source.getProviderName(),
-      request.getRemoteAddr(), getAllIps(request),
-      preventLogFlood(emptyIfNull(login)));
+    LOGGER.atDebug().setMessage("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]")
+      .addArgument(source::getMethod)
+      .addArgument(source::getProvider)
+      .addArgument(source::getProviderName)
+      .addArgument(request::getRemoteAddr)
+      .addArgument(() -> getAllIps(request))
+      .addArgument(() -> preventLogFlood(sanitizeLog(emptyIfNull(login))))
+      .log();
   }
 
   private static String getAllIps(HttpRequest request) {
@@ -101,6 +104,10 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       return str.substring(0, FLOOD_THRESHOLD) + "...(" + str.length() + ")";
     }
     return str;
+  }
+
+  private static String sanitizeLog(String message) {
+    return PATTERN_LINE_BREAK.matcher(message).replaceAll("_");
   }
 
 }

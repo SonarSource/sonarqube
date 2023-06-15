@@ -82,7 +82,17 @@ public class AuthenticationEventImplTest {
 
     underTest.loginSuccess(request, "login", Source.sso());
 
-    verifyNoInteractions(request);
+    assertThat(logTester.logs()).isEmpty();
+  }
+
+  @Test
+  public void login_success_message_is_sanitized() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    underTest.loginSuccess(mockRequest("1.2.3.4"), "login with \n malicious line \r return", Source.sso());
+
+    assertThat(logTester.logs()).isNotEmpty()
+      .contains("login success [method|SSO][provider|SSO|sso][IP|1.2.3.4|][login|login with _ malicious line _ return]");
   }
 
   @Test

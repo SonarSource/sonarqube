@@ -35,10 +35,14 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
@@ -61,6 +65,8 @@ public class EmailNotificationChannelTest {
 
   private static final String SUBJECT_PREFIX = "[SONARQUBE]";
 
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private Wiser smtpServer;
   private EmailSettings configuration;
@@ -68,6 +74,7 @@ public class EmailNotificationChannelTest {
 
   @Before
   public void setUp() {
+    logTester.setLevel(LoggerLevel.DEBUG);
     smtpServer = new Wiser(0);
     smtpServer.start();
 
@@ -115,6 +122,17 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Test Message from SonarQube");
     assertThat((String) email.getContent()).startsWith("This is a test message from SonarQube.\r\n\r\nMail sent from: http://nemo.sonarsource.org");
+  }
+
+  @Test
+  public void sendTestEmailShouldSanitizeLog() throws Exception {
+    logTester.setLevel(LoggerLevel.TRACE);
+    configure();
+    underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a message \n containing line breaks \r that should be sanitized when logged.");
+
+    assertThat(logTester.logs(Level.TRACE)).isNotEmpty()
+      .contains("Sending email: This is a message _ containing line breaks _ that should be sanitized when logged.__Mail sent from: http://nemo.sonarsource.org");
+
   }
 
   @Test
