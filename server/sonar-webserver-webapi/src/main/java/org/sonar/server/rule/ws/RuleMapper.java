@@ -53,6 +53,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_UPDATED_AT;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
@@ -125,6 +126,7 @@ public class RuleMapper {
     setSysTags(ruleResponse, ruleDto, fieldsToReturn);
     setParams(ruleResponse, ruleDto, result, fieldsToReturn);
     setCreatedAt(ruleResponse, ruleDto, fieldsToReturn);
+    setUpdatedAt(ruleResponse, ruleDto, fieldsToReturn);
     setDescriptionFields(ruleResponse, ruleDto, fieldsToReturn);
     setSeverity(ruleResponse, ruleDto, fieldsToReturn);
     setInternalKey(ruleResponse, ruleDto, fieldsToReturn);
@@ -324,6 +326,12 @@ public class RuleMapper {
   private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_CREATED_AT)) {
       ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAt()));
+    }
+  }
+
+  private static void setUpdatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_UPDATED_AT)) {
+        ruleResponse.setUpdatedAt(formatDateTime(ruleDto.getUpdatedAt()));
     }
   }
 
