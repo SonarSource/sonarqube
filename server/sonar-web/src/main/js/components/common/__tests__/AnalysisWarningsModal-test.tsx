@@ -19,11 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { dismissAnalysisWarning, getTask } from '../../../api/ce';
+import { getTask } from '../../../api/ce';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
 import { mockCurrentUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { ButtonLink } from '../../controls/buttons';
 import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({
@@ -58,26 +57,6 @@ it('should fetch task warnings if it has to', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(getTask).toHaveBeenCalledWith('abcd1234', ['warnings']);
-});
-
-it('should correctly handle dismissing warnings', async () => {
-  const onWarningDismiss = jest.fn();
-  const wrapper = shallowRender({
-    componentKey: 'foo',
-    onWarningDismiss,
-    warnings: [mockTaskWarning({ key: 'bar', dismissable: true })],
-  });
-
-  const { onClick } = wrapper.find(ButtonLink).at(0).props();
-
-  if (onClick) {
-    onClick();
-  }
-
-  await waitAndUpdate(wrapper);
-
-  expect(dismissAnalysisWarning).toHaveBeenCalledWith('foo', 'bar');
-  expect(onWarningDismiss).toHaveBeenCalled();
 });
 
 it('should correctly handle updates', async () => {

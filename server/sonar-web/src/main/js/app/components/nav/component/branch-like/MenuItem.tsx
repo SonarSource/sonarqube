@@ -32,16 +32,17 @@ export interface MenuItemProps {
   component: Component;
   onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
+  indent: boolean;
   setSelectedNode?: (node: HTMLLIElement) => void;
 }
 
 export function MenuItem(props: MenuItemProps) {
-  const { branchLike, component, setSelectedNode, onSelect, selected } = props;
+  const { branchLike, component, setSelectedNode, onSelect, selected, indent } = props;
   const displayName = getBranchLikeDisplayName(branchLike);
 
   return (
     <ItemButton
-      className={classNames({ active: selected })}
+      className={classNames({ active: selected, 'sw-pl-6': indent })}
       innerRef={selected ? setSelectedNode : undefined}
       onClick={() => {
         onSelect(branchLike);

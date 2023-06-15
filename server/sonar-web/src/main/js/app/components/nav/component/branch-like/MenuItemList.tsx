@@ -47,7 +47,7 @@ export function MenuItemList(props: MenuItemListProps) {
 
   const { branchLikeTree, component, hasResults, onSelect, selectedBranchLike } = props;
 
-  const renderItem = (branchLike: BranchLike) => (
+  const renderItem = (branchLike: BranchLike, indent = false) => (
     <MenuItem
       branchLike={branchLike}
       component={component}
@@ -55,6 +55,7 @@ export function MenuItemList(props: MenuItemListProps) {
       onSelect={onSelect}
       selected={isSameBranchLike(branchLike, selectedBranchLike)}
       setSelectedNode={(node) => (selectedNode = node)}
+      indent={indent}
     />
   );
 
@@ -77,7 +78,8 @@ export function MenuItemList(props: MenuItemListProps) {
                 <ItemDivider />
                 <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
                 <ItemDivider />
-                {tree.pullRequests.map((pr) => renderItem(pr))}
+                {tree.pullRequests.map((pr) => renderItem(pr, true))}
+                {tree.pullRequests.length > 0 && <ItemDivider />}
               </>
             )}
           </React.Fragment>

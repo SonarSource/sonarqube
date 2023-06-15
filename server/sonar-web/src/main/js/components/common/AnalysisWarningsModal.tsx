@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  DangerButtonSecondary,
+  DeferredSpinner,
+  FlagMessage,
+  HtmlFormatter,
+  Modal,
+} from 'design-system';
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import Modal from '../../components/controls/Modal';
-import { ButtonLink, ResetButtonLink } from '../../components/controls/buttons';
-import WarningIcon from '../../components/icons/WarningIcon';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
 import { TaskWarning } from '../../types/tasks';
@@ -123,48 +126,51 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
 
     const header = translate('warnings');
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-
-        <div className="modal-body modal-container js-analysis-warnings">
-          <DeferredSpinner loading={loading}>
-            {warnings.map(({ dismissable, key, message }) => (
-              <div className="panel panel-vertical" key={key}>
-                <WarningIcon className="pull-left spacer-right" />
-                <div className="overflow-hidden markdown">
+    const body = (
+      <DeferredSpinner loading={loading}>
+        {warnings.map(({ dismissable, key, message }) => (
+          <React.Fragment key={key}>
+            <div className="sw-flex sw-items-center sw-mt-2">
+              <FlagMessage variant="warning">
+                <HtmlFormatter>
                   <span
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
                       __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
                     }}
                   />
+                </HtmlFormatter>
+              </FlagMessage>
+            </div>
+            <div>
+              {dismissable && currentUser.isLoggedIn && (
+                <div className="sw-mt-4">
+                  <DangerButtonSecondary
+                    disabled={Boolean(dismissedWarning)}
+                    onClick={() => {
+                      this.handleDismissMessage(key);
+                    }}
+                  >
+                    {translate('dismiss_permanently')}
+                  </DangerButtonSecondary>
 
-                  {dismissable && currentUser.isLoggedIn && (
-                    <div className="spacer-top display-flex-inline">
-                      <ButtonLink
-                        disabled={Boolean(dismissedWarning)}
-                        onClick={() => {
-                          this.handleDismissMessage(key);
-                        }}
-                      >
-                        {translate('dismiss_permanently')}
-                      </ButtonLink>
-                      {dismissedWarning === key && <i className="spinner spacer-left" />}
-                    </div>
-                  )}
+                  <DeferredSpinner className="sw-ml-2" loading={dismissedWarning === key} />
                 </div>
-              </div>
-            ))}
-          </DeferredSpinner>
-        </div>
+              )}
+            </div>
+          </React.Fragment>
+        ))}
+      </DeferredSpinner>
+    );
 
-        <footer className="modal-foot">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
-        </footer>
-      </Modal>
+    return (
+      <Modal
+        headerTitle={header}
+        onClose={this.props.onClose}
+        body={body}
+        primaryButton={null}
+        secondaryButtonLabel={translate('close')}
+      />
     );
   }
 }

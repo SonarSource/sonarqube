@@ -1,274 +1,216 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should fetch task warnings if it has to 1`] = `
-<Modal
-  contentLabel="warnings"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      warnings
-    </h2>
-  </header>
-  <div
-    className="modal-body modal-container js-analysis-warnings"
-  >
+<Gl
+  body={
     <DeferredSpinner
       loading={false}
     >
-      <div
-        className="panel panel-vertical"
-        key="message foo"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "message foo",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "message foo",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
-      <div
-        className="panel panel-vertical"
-        key="message-bar"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+        <div />
+      </React.Fragment>
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "message-bar",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "message-bar",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
-      <div
-        className="panel panel-vertical"
-        key="multiline message
-secondline
-  third line"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+        <div />
+      </React.Fragment>
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "multiline message<br>secondline<br>  third line",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "multiline message<br>secondline<br>  third line",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
+        <div />
+      </React.Fragment>
     </DeferredSpinner>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <ResetButtonLink
-      onClick={[MockFunction]}
-    >
-      close
-    </ResetButtonLink>
-  </footer>
-</Modal>
+  }
+  headerTitle="warnings"
+  onClose={[MockFunction]}
+  primaryButton={null}
+  secondaryButtonLabel="close"
+/>
 `;
 
 exports[`should render correctly: default 1`] = `
-<Modal
-  contentLabel="warnings"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      warnings
-    </h2>
-  </header>
-  <div
-    className="modal-body modal-container js-analysis-warnings"
-  >
+<Gl
+  body={
     <DeferredSpinner
       loading={false}
     >
-      <div
-        className="panel panel-vertical"
-        key="foo"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "warning 1",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "warning 1",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
-      <div
-        className="panel panel-vertical"
-        key="foo"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+        <div />
+      </React.Fragment>
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "warning 2",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "warning 2",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
+        <div />
+      </React.Fragment>
     </DeferredSpinner>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <ResetButtonLink
-      onClick={[MockFunction]}
-    >
-      close
-    </ResetButtonLink>
-  </footer>
-</Modal>
+  }
+  headerTitle="warnings"
+  onClose={[MockFunction]}
+  primaryButton={null}
+  secondaryButtonLabel="close"
+/>
 `;
 
 exports[`should render correctly: do not show dismissable links for anonymous 1`] = `
-<Modal
-  contentLabel="warnings"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      warnings
-    </h2>
-  </header>
-  <div
-    className="modal-body modal-container js-analysis-warnings"
-  >
+<Gl
+  body={
     <DeferredSpinner
       loading={false}
     >
-      <div
-        className="panel panel-vertical"
-        key="foo"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Lorem ipsum",
-              }
-            }
-          />
+          <FlagMessage
+            variant="warning"
+          >
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "Lorem ipsum",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
         </div>
-      </div>
+        <div />
+      </React.Fragment>
     </DeferredSpinner>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <ResetButtonLink
-      onClick={[MockFunction]}
-    >
-      close
-    </ResetButtonLink>
-  </footer>
-</Modal>
+  }
+  headerTitle="warnings"
+  onClose={[MockFunction]}
+  primaryButton={null}
+  secondaryButtonLabel="close"
+/>
 `;
 
 exports[`should render correctly: with dismissable warnings 1`] = `
-<Modal
-  contentLabel="warnings"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      warnings
-    </h2>
-  </header>
-  <div
-    className="modal-body modal-container js-analysis-warnings"
-  >
+<Gl
+  body={
     <DeferredSpinner
       loading={false}
     >
-      <div
-        className="panel panel-vertical"
-        key="foo"
-      >
-        <WarningIcon
-          className="pull-left spacer-right"
-        />
+      <React.Fragment>
         <div
-          className="overflow-hidden markdown"
+          className="sw-flex sw-items-center sw-mt-2"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Lorem ipsum",
-              }
-            }
-          />
-          <div
-            className="spacer-top display-flex-inline"
+          <FlagMessage
+            variant="warning"
           >
-            <ButtonLink
+            <HtmlFormatter>
+              <span
+                dangerouslySetInnerHTML={
+                  {
+                    "__html": "Lorem ipsum",
+                  }
+                }
+              />
+            </HtmlFormatter>
+          </FlagMessage>
+        </div>
+        <div>
+          <div
+            className="sw-mt-4"
+          >
+            <DangerButtonSecondary
               disabled={false}
               onClick={[Function]}
             >
               dismiss_permanently
-            </ButtonLink>
+            </DangerButtonSecondary>
+            <DeferredSpinner
+              className="sw-ml-2"
+              loading={false}
+            />
           </div>
         </div>
-      </div>
+      </React.Fragment>
     </DeferredSpinner>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <ResetButtonLink
-      onClick={[MockFunction]}
-    >
-      close
-    </ResetButtonLink>
-  </footer>
-</Modal>
+  }
+  headerTitle="warnings"
+  onClose={[MockFunction]}
+  primaryButton={null}
+  secondaryButtonLabel="close"
+/>
 `;
