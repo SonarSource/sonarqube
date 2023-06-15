@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeTaskMessageDaoIT {
@@ -56,40 +55,6 @@ public class CeTaskMessageDaoIT {
           .extracting(t -> t.get("UUID"), t -> t.get("TASK_UUID"), t -> t.get("MESSAGE"), t -> CeTaskMessageType.valueOf((String) t.get("TYPE")),
             t -> t.get("CREATED_AT"))
           .containsOnly(Tuple.tuple("uuid_1", "task_uuid_1", "message_1", CeTaskMessageType.GENERIC, 1_222_333L));
-  }
-
-  @Test
-  public void selectByTask_returns_empty_on_empty_table() {
-    String taskUuid = randomAlphabetic(10);
-
-    List<CeTaskMessageDto> dto = underTest.selectByTask(dbTester.getSession(), taskUuid);
-
-    assertThat(dto).isEmpty();
-  }
-
-  @Test
-  public void selectByTask_returns_message_of_task_ordered_by_CREATED_AT_asc() {
-    String task1 = "task1";
-    String task2 = "task2";
-    CeTaskMessageDto[] messages = {
-      insertMessage(task1, 0, 1_222_333L),
-      insertMessage(task2, 1, 2_222_333L),
-      insertMessage(task2, 2, 1_111_333L),
-      insertMessage(task1, 3, 1_222_111L),
-      insertMessage(task1, 4, 222_111L),
-      insertMessage(task1, 5, 3_222_111L)
-    };
-
-    assertThat(underTest.selectByTask(dbTester.getSession(), task1))
-      .extracting(CeTaskMessageDto::getUuid)
-      .containsExactly(messages[4].getUuid(), messages[3].getUuid(), messages[0].getUuid(), messages[5].getUuid());
-
-    assertThat(underTest.selectByTask(dbTester.getSession(), task2))
-      .extracting(CeTaskMessageDto::getUuid)
-      .containsExactly(messages[2].getUuid(), messages[1].getUuid());
-
-    assertThat(underTest.selectByTask(dbTester.getSession(), randomAlphabetic(5)))
-      .isEmpty();
   }
 
   @Test
@@ -121,9 +86,10 @@ public class CeTaskMessageDaoIT {
 
     underTest.deleteByType(dbTester.getSession(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
-    assertThat(underTest.selectByTask(dbTester.getSession(), task1))
-      .extracting(CeTaskMessageDto::getUuid)
-      .containsExactlyInAnyOrder(messages[0].getUuid(), messages[2].getUuid());
+    assertThat(underTest.selectByUuid(dbTester.getSession(), messages[0].getUuid())).isPresent();
+    assertThat(underTest.selectByUuid(dbTester.getSession(), messages[1].getUuid())).isEmpty();
+    assertThat(underTest.selectByUuid(dbTester.getSession(), messages[2].getUuid())).isPresent();
+    assertThat(underTest.selectByUuid(dbTester.getSession(), messages[3].getUuid())).isEmpty();
   }
 
   @Test

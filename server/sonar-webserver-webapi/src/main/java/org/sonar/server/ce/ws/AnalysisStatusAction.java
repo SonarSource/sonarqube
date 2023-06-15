@@ -126,9 +126,9 @@ public class AnalysisStatusAction implements CeWsAction {
     List<CeTaskMessageDto> warnings;
     String userUuid = userSession.getUuid();
     if (userUuid != null) {
-      warnings = dbClient.ceTaskMessageDao().selectNonDismissedByUserAndTask(dbSession, lastActivity.getUuid(), userUuid);
+      warnings =  dbClient.ceTaskMessageDao().selectNonDismissedByUserAndTask(dbSession, lastActivity.getUuid(), userUuid);
     } else {
-      warnings = dbClient.ceTaskMessageDao().selectByTask(dbSession, lastActivity.getUuid());
+      warnings = lastActivity.getCeTaskMessageDtos();
     }
 
     List<AnalysisStatusWsResponse.Warning> result = warnings.stream().map(dto -> AnalysisStatusWsResponse.Warning.newBuilder()

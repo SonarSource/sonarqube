@@ -33,12 +33,6 @@ public class CeTaskMessageDao implements Dao {
     return getMapper(dbSession).selectByUuid(uuid);
   }
 
-  /**
-   * @return the messages for the specific task, if any, in ascending order of column {@code CREATED_AT}.
-   */
-  public List<CeTaskMessageDto> selectByTask(DbSession dbSession, String taskUuid) {
-    return getMapper(dbSession).selectByTask(taskUuid);
-  }
 
   /**
    * @return the non dismissed messages for the specific task and specific user, if any, in ascending order of column {@code CREATED_AT}.

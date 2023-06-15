@@ -22,6 +22,7 @@ package org.sonar.server.startup;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,8 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.user.UserDismissedMessageDto;
@@ -79,6 +82,7 @@ public class UpgradeSuggestionsCleanerIT {
   @UseDataProvider("editionsWithCleanup")
   public void start_cleans_up_obsolete_upgrade_suggestions(SonarEdition edition) {
     when(sonarRuntime.getEdition()).thenReturn(edition);
+    insertTask(TASK_UUID);
     insertCeTaskMessage("ctm1", CeTaskMessageType.GENERIC, "msg1");
     insertCeTaskMessage("ctm2", CeTaskMessageType.GENERIC, "msg2");
     insertCeTaskMessage("ctm3", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
@@ -88,7 +92,7 @@ public class UpgradeSuggestionsCleanerIT {
     underTest.start();
     underTest.stop();
 
-    assertThat(dbTester.getDbClient().ceTaskMessageDao().selectByTask(dbTester.getSession(), TASK_UUID))
+    assertThat(getTaskMessages(TASK_UUID))
       .extracting(CeTaskMessageDto::getUuid)
       .containsExactly("ctm1", "ctm2");
     assertThat(dbTester.getDbClient().userDismissedMessagesDao().selectByUser(dbTester.getSession(), user))
@@ -99,6 +103,7 @@ public class UpgradeSuggestionsCleanerIT {
   @Test
   public void start_does_nothing_in_community_edition() {
     when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
+    insertTask(TASK_UUID);
     insertCeTaskMessage("ctm1", CeTaskMessageType.GENERIC, "msg1");
     insertCeTaskMessage("ctm2", CeTaskMessageType.GENERIC, "msg2");
     insertCeTaskMessage("ctm3", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
@@ -107,7 +112,7 @@ public class UpgradeSuggestionsCleanerIT {
 
     underTest.start();
 
-    assertThat(dbTester.getDbClient().ceTaskMessageDao().selectByTask(dbTester.getSession(), TASK_UUID))
+    assertThat(getTaskMessages(TASK_UUID))
       .extracting(CeTaskMessageDto::getUuid)
       .containsExactly("ctm1", "ctm2", "ctm3");
     assertThat(dbTester.getDbClient().userDismissedMessagesDao().selectByUser(dbTester.getSession(), user))
@@ -122,8 +127,17 @@ public class UpgradeSuggestionsCleanerIT {
 
     underTest.start();
 
-    assertThat(dbTester.getDbClient().ceTaskMessageDao().selectByTask(dbTester.getSession(), TASK_UUID)).isEmpty();
+    assertThat(getTaskMessages(TASK_UUID)).isEmpty();
     assertThat(dbTester.getDbClient().userDismissedMessagesDao().selectByUser(dbTester.getSession(), user)).isEmpty();
+  }
+
+  private List<CeTaskMessageDto> getTaskMessages(String taskUuid) {
+    return dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), taskUuid).map(CeActivityDto::getCeTaskMessageDtos).orElse(List.of());
+  }
+
+  private void insertTask(String taskUuid) {
+    dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(),
+      new CeActivityDto(new CeQueueDto().setUuid(taskUuid).setTaskType("ISSUE_SYNC")).setStatus(CeActivityDto.Status.FAILED));
   }
 
   private void insertCeTaskMessage(String uuid, CeTaskMessageType messageType, String msg) {

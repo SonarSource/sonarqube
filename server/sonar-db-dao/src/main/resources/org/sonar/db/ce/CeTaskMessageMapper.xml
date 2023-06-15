@@ -20,33 +20,6 @@
       ctm.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByTask" resultType="org.sonar.db.ce.CeTaskMessageDto">
-    select
-      <include refid="columns"/>
-    from
-      ce_task_message ctm
-    where
-      ctm.task_uuid=#{taskUuid,jdbcType=VARCHAR}
-    order by
-      ctm.created_at asc
-  </select>
-
-  <select id="selectNonDismissedByUserAndTask" resultType="org.sonar.db.ce.CeTaskMessageDto">
-    select
-      <include refid="columns"/>
-    from
-      ce_task_message ctm
-    where
-      ctm.task_uuid=#{taskUuid,jdbcType=VARCHAR}
-      and not exists (
-        select 1
-        from user_dismissed_messages udm
-        where ctm.message_type = udm.message_type and udm.user_uuid=#{userUuid,jdbcType=VARCHAR}
-      )
-    order by
-      ctm.created_at asc
-  </select>
-
   <insert id="insert" parameterType="org.sonar.db.ce.CeTaskMessageDto" useGeneratedKeys="false">
     insert into ce_task_message
     (
@@ -64,6 +37,22 @@
       #{dto.createdAt,jdbcType=BIGINT}
     )
   </insert>
+
+  <select id="selectNonDismissedByUserAndTask" resultType="org.sonar.db.ce.CeTaskMessageDto">
+    select
+      <include refid="columns"/>
+    from
+      ce_task_message ctm
+    where
+      ctm.task_uuid=#{taskUuid,jdbcType=VARCHAR}
+      and not exists (
+        select 1
+        from user_dismissed_messages udm
+        where ctm.message_type = udm.message_type and udm.user_uuid=#{userUuid,jdbcType=VARCHAR}
+      )
+    order by
+      ctm.created_at asc
+  </select>
 
   <delete id="deleteByType" parameterType="String">
     delete from ce_task_message where message_type = #{ceMessageType, jdbcType=VARCHAR}
