@@ -20,6 +20,7 @@
 package org.sonar.db.entity;
 
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Qualifiers;
 
 /**
@@ -27,10 +28,12 @@ import org.sonar.api.resources.Qualifiers;
  * Entities are stored either in the projects or portfolios tables.
  */
 public class EntityDto {
+
   protected String kee;
   protected String uuid;
   protected String name;
   protected String qualifier;
+  protected String description;
   protected boolean isPrivate;
 
   // This field should be null for anything that is not subportfolio
@@ -64,6 +67,11 @@ public class EntityDto {
 
   public String getName() {
     return name;
+  }
+
+  @CheckForNull
+  public String getDescription() {
+    return description;
   }
 
   public boolean isPrivate() {

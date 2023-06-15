@@ -37,7 +37,7 @@ public class EntityDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final EntityDao entityDao = new EntityDao();
 
@@ -82,6 +82,15 @@ public class EntityDaoIT {
     assertThat(entityDao.selectByUuid(db.getSession(), application.projectUuid()).get().getKey()).isEqualTo(application.projectKey());
     assertThat(entityDao.selectByUuid(db.getSession(), project.projectUuid()).get().getKey()).isEqualTo(project.projectKey());
     assertThat(entityDao.selectByUuid(db.getSession(), portfolio.getUuid()).get().getKey()).isEqualTo(portfolio.getKey());
+  }
+
+  @Test
+  public void getDescription_shouldNotReturnNull() {
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
+
+    assertThat(entityDao.selectByUuid(db.getSession(), project.projectUuid()).get().getDescription()).isNotNull();
+    assertThat(entityDao.selectByUuid(db.getSession(), portfolio.getUuid()).get().getDescription()).isNotNull();
   }
 
   @Test

@@ -30,6 +30,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
@@ -89,7 +90,7 @@ public class DeleteAction implements BranchWsAction {
         throw new IllegalArgumentException("Only non-main branches can be deleted");
       }
       componentCleanerService.deleteBranch(dbSession, branch);
-      projectLifeCycleListeners.onProjectBranchesDeleted(singleton(from(project)));
+      projectLifeCycleListeners.onProjectBranchesDeleted(singleton(Project.fromProjectDtoWithTags(project)));
       response.noContent();
     }
   }

@@ -29,6 +29,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
@@ -82,7 +83,7 @@ public class DeleteAction implements ProjectsWsAction {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
       checkPermission(project);
       componentCleanerService.delete(dbSession, project);
-      projectLifeCycleListeners.onProjectsDeleted(singleton(from(project)));
+      projectLifeCycleListeners.onProjectsDeleted(singleton(Project.fromProjectDtoWithTags(project)));
     }
 
     response.noContent();

@@ -100,7 +100,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     }
 
     ProjectDto dto = toProject(reportMetadata.getProjectKey());
-    analysisMetadata.setProject(Project.from(dto));
+    analysisMetadata.setProject(Project.fromProjectDtoWithTags(dto));
     return () -> {
       if (!mainComponentKey.equals(reportMetadata.getProjectKey())) {
         throw MessageException.of(format(

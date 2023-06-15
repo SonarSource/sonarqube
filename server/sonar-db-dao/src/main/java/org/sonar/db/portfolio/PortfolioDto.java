@@ -29,7 +29,6 @@ public class PortfolioDto extends EntityDto {
     NONE, MANUAL, REGEXP, REST, TAGS
   }
 
-  private String description;
   private String branchKey;
 
   private String rootUuid;
@@ -147,11 +146,6 @@ public class PortfolioDto extends EntityDto {
   public PortfolioDto setName(String name) {
     this.name = name;
     return this;
-  }
-
-  @CheckForNull
-  public String getDescription() {
-    return description;
   }
 
   public PortfolioDto setDescription(@Nullable String description) {

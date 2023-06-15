@@ -39,6 +39,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Project;
@@ -49,6 +50,7 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.min;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -146,11 +148,12 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
       ComponentQuery query = buildDbQuery(searchRequest);
       Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
+      List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
 
       try {
         componentDtos.forEach(p -> componentCleanerService.deleteComponent(dbSession, p));
       } finally {
-        projectLifeCycleListeners.onProjectsDeleted(componentDtos.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
+        projectLifeCycleListeners.onProjectsDeleted(entities.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
       }
     }
     response.noContent();

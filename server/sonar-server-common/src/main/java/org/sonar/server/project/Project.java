@@ -24,7 +24,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
@@ -50,12 +50,12 @@ public class Project {
     return new Project(project.uuid(), project.getKey(), project.name(), project.description(), emptyList());
   }
 
-  public static Project from(ProjectDto project) {
+  public static Project fromProjectDtoWithTags(ProjectDto project) {
     return new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), project.getTags());
   }
 
-  public static Project from(PortfolioDto portfolio) {
-    return new Project(portfolio.getUuid(), portfolio.getKey(), portfolio.getName(), portfolio.getDescription(), emptyList());
+  public static Project from(EntityDto entityDto) {
+    return new Project(entityDto.getUuid(), entityDto.getKey(), entityDto.getName(), entityDto.getDescription(), emptyList());
   }
 
   /**

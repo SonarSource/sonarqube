@@ -30,7 +30,6 @@ import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectDto extends EntityDto {
   private static final String TAGS_SEPARATOR = ",";
-  private String description;
   private String tags;
   private long createdAt;
   private long updatedAt;
@@ -102,11 +101,6 @@ public class ProjectDto extends EntityDto {
   public ProjectDto setName(String name) {
     this.name = name;
     return this;
-  }
-
-  @CheckForNull
-  public String getDescription() {
-    return description;
   }
 
   public ProjectDto setDescription(@Nullable String description) {
