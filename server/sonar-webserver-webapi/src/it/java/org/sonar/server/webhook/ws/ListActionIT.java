@@ -43,7 +43,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.ListResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +54,8 @@ import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
+import static org.sonarqube.ws.Webhooks.LatestDelivery;
+import static org.sonarqube.ws.Webhooks.ListResponseElement;
 
 public class ListActionIT {
 
@@ -92,7 +93,7 @@ public class ListActionIT {
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("project", false));
-    assertThat(action.changelog()).hasSize(1);
+    assertThat(action.changelog()).hasSize(2);
   }
 
   @Test
@@ -109,18 +110,18 @@ public class ListActionIT {
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
-    List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
+    List<ListResponseElement> elements = response.getWebhooksList();
     assertThat(elements).hasSize(2);
 
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("aaa");
+    assertThat(elements.get(0)).extracting(ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
+    assertThat(elements.get(0)).extracting(ListResponseElement::getName).isEqualTo("aaa");
     assertThat(elements.get(0).getLatestDelivery()).isNotNull();
-    assertThat(elements.get(0).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).isEqualTo("WH1-DELIVERY-2-UUID");
+    assertThat(elements.get(0).getLatestDelivery()).extracting(LatestDelivery::getId).isEqualTo("WH1-DELIVERY-2-UUID");
 
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("bbb");
+    assertThat(elements.get(1)).extracting(ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
+    assertThat(elements.get(1)).extracting(ListResponseElement::getName).isEqualTo("bbb");
     assertThat(elements.get(1).getLatestDelivery()).isNotNull();
-    assertThat(elements.get(1).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).isEqualTo("WH2-DELIVERY-2-UUID");
+    assertThat(elements.get(1).getLatestDelivery()).extracting(LatestDelivery::getId).isEqualTo("WH2-DELIVERY-2-UUID");
   }
 
   @Test
@@ -132,15 +133,15 @@ public class ListActionIT {
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
-    List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
+    List<ListResponseElement> elements = response.getWebhooksList();
     assertThat(elements).hasSize(2);
 
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("aaa");
+    assertThat(elements.get(0)).extracting(ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
+    assertThat(elements.get(0)).extracting(ListResponseElement::getName).isEqualTo("aaa");
     assertThat(elements.get(0).hasLatestDelivery()).isFalse();
 
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("bbb");
+    assertThat(elements.get(1)).extracting(ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
+    assertThat(elements.get(1)).extracting(ListResponseElement::getName).isEqualTo("bbb");
     assertThat(elements.get(1).hasLatestDelivery()).isFalse();
   }
 
@@ -157,17 +158,17 @@ public class ListActionIT {
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
-    List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
+    List<ListResponseElement> elements = response.getWebhooksList();
     assertThat(elements)
       .hasSize(2)
-      .extracting(Webhooks.ListResponseElement::getUrl)
+      .extracting(ListResponseElement::getUrl)
       .containsOnly(expectedUrl);
   }
 
   @Test
   public void list_global_webhooks() {
     WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
-    WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
+    WebhookDto dto2 = webhookDbTester.insertGlobalWebhook().setSecret(null);
     // insert a project-specific webhook, that should not be returned when listing global webhooks
     webhookDbTester.insertWebhook(componentDbTester.insertPrivateProject().getProjectDto());
 
@@ -177,10 +178,26 @@ public class ListActionIT {
       .executeProtobuf(ListResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Webhooks.ListResponseElement::getName, Webhooks.ListResponseElement::getUrl)
+      .extracting(ListResponseElement::getName, ListResponseElement::getUrl)
       .containsExactlyInAnyOrder(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
+  }
 
+  @Test
+  public void list_webhooks_with_secret() {
+    WebhookDto withSecret = webhookDbTester.insertGlobalWebhook();
+    WebhookDto withoutSecret = newGlobalWebhook().setSecret(null);
+    webhookDbTester.insert(withoutSecret, null, null);
+
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
+
+    ListResponse response = wsActionTester.newRequest()
+      .executeProtobuf(ListResponse.class);
+
+    assertThat(response.getWebhooksList())
+      .extracting(ListResponseElement::getName, ListResponseElement::getUrl, ListResponseElement::getHasSecret)
+      .containsExactlyInAnyOrder(tuple(withSecret.getName(), withSecret.getUrl(), true),
+        tuple(withoutSecret.getName(), withoutSecret.getUrl(), false));
   }
 
   @Test
@@ -196,7 +213,7 @@ public class ListActionIT {
       .executeProtobuf(ListResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Webhooks.ListResponseElement::getName, Webhooks.ListResponseElement::getUrl)
+      .extracting(ListResponseElement::getName, ListResponseElement::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
@@ -212,7 +229,7 @@ public class ListActionIT {
       .executeProtobuf(ListResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Webhooks.ListResponseElement::getName, Webhooks.ListResponseElement::getUrl)
+      .extracting(ListResponseElement::getName, ListResponseElement::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 

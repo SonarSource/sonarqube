@@ -24,7 +24,11 @@ exports[`should correctly render the webhooks 1`] = `
       <th>
         webhooks.last_execution
       </th>
-      <th />
+      <th
+        className="sw-text-right"
+      >
+        actions
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -34,6 +38,7 @@ exports[`should correctly render the webhooks 1`] = `
       onUpdate={[MockFunction]}
       webhook={
         {
+          "hasSecret": false,
           "key": "2",
           "name": "jenkins webhook",
           "url": "http://jenkins.target",
@@ -46,6 +51,7 @@ exports[`should correctly render the webhooks 1`] = `
       onUpdate={[MockFunction]}
       webhook={
         {
+          "hasSecret": false,
           "key": "1",
           "name": "my webhook",
           "url": "http://webhook.target",

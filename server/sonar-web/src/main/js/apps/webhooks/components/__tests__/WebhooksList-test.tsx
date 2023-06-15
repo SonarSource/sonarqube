@@ -22,8 +22,8 @@ import * as React from 'react';
 import WebhooksList from '../WebhooksList';
 
 const webhooks = [
-  { key: '1', name: 'my webhook', url: 'http://webhook.target' },
-  { key: '2', name: 'jenkins webhook', url: 'http://jenkins.target' },
+  { key: '1', name: 'my webhook', url: 'http://webhook.target', hasSecret: false },
+  { key: '2', name: 'jenkins webhook', url: 'http://jenkins.target', hasSecret: false },
 ];
 
 it('should correctly render empty webhook list', () => {

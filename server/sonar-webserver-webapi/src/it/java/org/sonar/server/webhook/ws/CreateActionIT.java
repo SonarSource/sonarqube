@@ -111,7 +111,7 @@ public class CreateActionIT {
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(response.getWebhook().getSecret()).isEqualTo("a_secret");
+    assertThat(response.getWebhook().getHasSecret()).isTrue();
   }
 
   @Test
@@ -128,7 +128,16 @@ public class CreateActionIT {
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(response.getWebhook().getSecret()).isEqualTo("a_secret");
+    assertThat(response.getWebhook().getHasSecret()).isTrue();
+
+    assertThat(webhookDbTester.selectWebhook(response.getWebhook().getKey()))
+      .isPresent()
+      .hasValueSatisfying(reloaded -> {
+        assertThat(reloaded.getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
+        assertThat(reloaded.getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
+        assertThat(reloaded.getProjectUuid()).isNull();
+        assertThat(reloaded.getSecret()).isEqualTo("a_secret");
+      });
   }
 
   @Test
@@ -144,7 +153,7 @@ public class CreateActionIT {
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(response.getWebhook().hasSecret()).isFalse();
+    assertThat(response.getWebhook().getHasSecret()).isFalse();
   }
 
   @Test
@@ -163,20 +172,20 @@ public class CreateActionIT {
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(response.getWebhook().hasSecret()).isFalse();
+    assertThat(response.getWebhook().getHasSecret()).isFalse();
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     userSession.logIn();
     TestRequest request = wsActionTester.newRequest()
-      .setParam(PROJECT_KEY_PARAM, "inexistent-project-uuid")
+      .setParam(PROJECT_KEY_PARAM, "nonexistent-project-uuid")
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project 'inexistent-project-uuid' not found");
+      .hasMessage("Project 'nonexistent-project-uuid' not found");
   }
 
   @Test
@@ -285,11 +294,7 @@ public class CreateActionIT {
   }
 
   private static String generateStringWithLength(int length) {
-    StringBuilder sb = new StringBuilder(length);
-    for (int i = 0; i < length; i++) {
-      sb.append("x");
-    }
-    return sb.toString();
+    return "x".repeat(Math.max(0, length));
   }
 
 }

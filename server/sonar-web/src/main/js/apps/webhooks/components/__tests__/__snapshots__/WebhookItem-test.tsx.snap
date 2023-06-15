@@ -15,6 +15,7 @@ exports[`should render correctly 1`] = `
     <WebhookItemLatestDelivery
       webhook={
         {
+          "hasSecret": false,
           "key": "1",
           "name": "my webhook",
           "url": "http://webhook.target",
@@ -23,13 +24,56 @@ exports[`should render correctly 1`] = `
     />
   </td>
   <td
-    className="thin nowrap text-right"
+    className="sw-text-right"
   >
     <WebhookActions
       onDelete={[MockFunction]}
       onUpdate={[MockFunction]}
       webhook={
         {
+          "hasSecret": false,
+          "key": "1",
+          "name": "my webhook",
+          "url": "http://webhook.target",
+        }
+      }
+    />
+  </td>
+</tr>
+`;
+
+exports[`should render correctly 2`] = `
+<tr>
+  <td>
+    my webhook
+  </td>
+  <td>
+    http://webhook.target
+  </td>
+  <td>
+    yes
+  </td>
+  <td>
+    <WebhookItemLatestDelivery
+      webhook={
+        {
+          "hasSecret": true,
+          "key": "1",
+          "name": "my webhook",
+          "url": "http://webhook.target",
+        }
+      }
+    />
+  </td>
+  <td
+    className="sw-text-right"
+  >
+    <WebhookActions
+      onDelete={[MockFunction]}
+      onUpdate={[MockFunction]}
+      webhook={
+        {
+          "hasSecret": true,
           "key": "1",
           "name": "my webhook",
           "url": "http://webhook.target",

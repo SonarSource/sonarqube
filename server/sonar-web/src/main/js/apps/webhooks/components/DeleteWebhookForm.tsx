@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse } from '../../../types/webhook';
 
 interface Props {
   onClose: () => void;
   onSubmit: () => Promise<void>;
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
 
 export default function DeleteWebhookForm({ onClose, onSubmit, webhook }: Props) {

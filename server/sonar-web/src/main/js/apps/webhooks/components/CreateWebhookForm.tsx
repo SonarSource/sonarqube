@@ -24,18 +24,13 @@ import ValidationModal from '../../../components/controls/ValidationModal';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookBasePayload, WebhookResponse } from '../../../types/webhook';
+import UpdateWebhookSecretField from './UpdateWebhookSecretField';
 
 interface Props {
   onClose: () => void;
-  onDone: (data: Values) => Promise<void>;
-  webhook?: Webhook;
-}
-
-interface Values {
-  name: string;
-  secret: string;
-  url: string;
+  onDone: (data: WebhookBasePayload) => Promise<void>;
+  webhook?: WebhookResponse;
 }
 
 export default class CreateWebhookForm extends React.PureComponent<Props> {
@@ -45,7 +40,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
     this.props.onClose();
   };
 
-  handleValidate = (data: Values) => {
+  handleValidate = (data: WebhookBasePayload) => {
     const { name, secret, url } = data;
     const errors: { name?: string; secret?: string; url?: string } = {};
     if (!name.trim()) {
@@ -74,9 +69,9 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
         confirmButtonText={confirmButtonText}
         header={modalHeader}
         initialValues={{
-          name: (webhook && webhook.name) || '',
-          secret: (webhook && webhook.secret) || '',
-          url: (webhook && webhook.url) || '',
+          name: webhook?.name ?? '',
+          url: webhook?.url ?? '',
+          secret: isUpdate ? undefined : '',
         }}
         onClose={this.props.onClose}
         onSubmit={this.props.onDone}
@@ -125,12 +120,15 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               type="text"
               value={values.url}
             />
-            <InputValidationField
-              description={translate('webhooks.secret.description')}
+            <UpdateWebhookSecretField
+              description={`${translate('webhooks.secret.description')}${
+                isUpdate ? ` ${translate('webhooks.secret.description.update')}` : ''
+              }`}
               dirty={dirty}
               disabled={isSubmitting}
               error={errors.secret}
               id="webhook-secret"
+              isUpdateForm={isUpdate}
               label={<label htmlFor="webhook-secret">{translate('webhooks.secret')}</label>}
               name="secret"
               onBlur={handleBlur}

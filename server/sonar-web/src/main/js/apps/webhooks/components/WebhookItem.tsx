@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import WebhookActions from './WebhookActions';
 import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
-  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: Webhook;
+  onUpdate: (data: WebhookUpdatePayload) => Promise<void>;
+  webhook: WebhookResponse;
 }
 
 export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
@@ -34,11 +34,11 @@ export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
     <tr>
       <td>{webhook.name}</td>
       <td>{webhook.url}</td>
-      <td>{webhook.secret ? translate('yes') : translate('no')}</td>
+      <td>{webhook.hasSecret ? translate('yes') : translate('no')}</td>
       <td>
         <WebhookItemLatestDelivery webhook={webhook} />
       </td>
-      <td className="thin nowrap text-right">
+      <td className="sw-text-right">
         <WebhookActions onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
       </td>
     </tr>

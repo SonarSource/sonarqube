@@ -38,7 +38,7 @@ const delivery = {
   success: true,
 };
 
-const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
+const webhook = { key: '1', name: 'foo', url: 'http://foo.bar', hasSecret: false };
 
 beforeEach(() => {
   (getDelivery as jest.Mock<any>).mockClear();

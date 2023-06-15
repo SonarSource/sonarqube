@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { getDelivery } from '../../../api/webhooks';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Webhook, WebhookDelivery } from '../../../types/webhook';
+import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {
   delivery: WebhookDelivery;
   onClose: () => void;
-  webhook: Webhook;
+  webhook: WebhookResponse;
 }
 
 interface State {

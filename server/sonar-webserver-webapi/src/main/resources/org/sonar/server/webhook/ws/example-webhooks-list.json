@@ -3,13 +3,14 @@
     {
       "key": "UUID-1",
       "name": "my first webhook",
-      "url": "http://www.my-webhook-listener.com/sonarqube"
+      "url": "http://www.my-webhook-listener.com/sonarqube",
+      "hasSecret": "false"
     },
     {
       "key": "UUID-2",
       "name": "my 2nd webhook",
       "url": "https://www.my-other-webhook-listener.com/fancy-listner",
-      "secret": "your_secret"
+      "hasSecret": "true"
     }
   ]
 }

@@ -30,14 +30,14 @@ import { App } from '../App';
 
 jest.mock('../../../../api/webhooks', () => ({
   createWebhook: jest.fn(() =>
-    Promise.resolve({ webhook: { key: '3', name: 'baz', url: 'http://baz' } })
+    Promise.resolve({ webhook: { key: '3', name: 'baz', url: 'http://baz', hasSecret: false } })
   ),
   deleteWebhook: jest.fn(() => Promise.resolve()),
   searchWebhooks: jest.fn(() =>
     Promise.resolve({
       webhooks: [
-        { key: '1', name: 'foo', url: 'http://foo' },
-        { key: '2', name: 'bar', url: 'http://bar' },
+        { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+        { key: '2', name: 'bar', url: 'http://bar', hasSecret: false },
       ],
     })
   ),
@@ -98,9 +98,9 @@ it('should correctly handle webhook creation', async () => {
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper.state('webhooks')).toEqual([
-    { key: '1', name: 'foo', url: 'http://foo' },
-    { key: '2', name: 'bar', url: 'http://bar' },
-    { key: '3', name: 'baz', url: 'http://baz' },
+    { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+    { key: '2', name: 'bar', url: 'http://bar', hasSecret: false },
+    { key: '3', name: 'baz', url: 'http://baz', hasSecret: false },
   ]);
 });
 
@@ -111,11 +111,13 @@ it('should correctly handle webhook deletion', async () => {
 
   await new Promise(setImmediate);
   wrapper.update();
-  expect(wrapper.state('webhooks')).toEqual([{ key: '1', name: 'foo', url: 'http://foo' }]);
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+  ]);
 });
 
 it('should correctly handle webhook update', async () => {
-  const newValues = { webhook: '1', name: 'Cfoo', url: 'http://cfoo' };
+  const newValues = { webhook: '1', name: 'Cfoo', url: 'http://cfoo', secret: undefined };
   const wrapper = shallow(<App />);
   (wrapper.instance() as App).handleUpdate(newValues);
   expect(updateWebhook).toHaveBeenLastCalledWith(newValues);
@@ -123,7 +125,52 @@ it('should correctly handle webhook update', async () => {
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper.state('webhooks')).toEqual([
-    { key: '1', name: 'Cfoo', url: 'http://cfoo' },
-    { key: '2', name: 'bar', url: 'http://bar' },
+    { key: '1', name: 'Cfoo', url: 'http://cfoo', hasSecret: false },
+    { key: '2', name: 'bar', url: 'http://bar', hasSecret: false },
+  ]);
+});
+
+it('should correctly handle webhook secret update', async () => {
+  const newValuesWithSecret = { webhook: '2', name: 'bar', url: 'http://bar', secret: 'secret' };
+  const newValuesWithoutSecret = {
+    webhook: '2',
+    name: 'bar',
+    url: 'http://bar',
+    secret: undefined,
+  };
+  const newValuesWithEmptySecret = { webhook: '2', name: 'bar', url: 'http://bar', secret: '' };
+  const wrapper = shallow(<App />);
+
+  // With secret
+  (wrapper.instance() as App).handleUpdate(newValuesWithSecret);
+  expect(updateWebhook).toHaveBeenLastCalledWith(newValuesWithSecret);
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+    { key: '2', name: 'bar', url: 'http://bar', hasSecret: true },
+  ]);
+
+  // Without secret
+  (wrapper.instance() as App).handleUpdate(newValuesWithoutSecret);
+  expect(updateWebhook).toHaveBeenLastCalledWith(newValuesWithoutSecret);
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+    { key: '2', name: 'bar', url: 'http://bar', hasSecret: true },
+  ]);
+
+  // With empty secret
+  (wrapper.instance() as App).handleUpdate(newValuesWithEmptySecret);
+  expect(updateWebhook).toHaveBeenLastCalledWith(newValuesWithEmptySecret);
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'foo', url: 'http://foo', hasSecret: false },
+    { key: '2', name: 'bar', url: 'http://bar', hasSecret: false },
   ]);
 });

@@ -23,15 +23,15 @@ import ActionsDropdown, {
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/webhook';
+import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
 import DeliveriesForm from './DeliveriesForm';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
-  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: Webhook;
+  onUpdate: (data: WebhookUpdatePayload) => Promise<void>;
+  webhook: WebhookResponse;
 }
 
 interface State {
@@ -74,7 +74,7 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
     this.setState({ deliveries: false });
   };
 
-  handleUpdate = (data: { name: string; url: string }) => {
+  handleUpdate = (data: { name: string; secret?: string; url: string }) => {
     return this.props.onUpdate({ ...data, webhook: this.props.webhook.key });
   };
 

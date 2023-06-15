@@ -34,6 +34,7 @@ const webhook = {
   key: '1',
   name: 'my webhook',
   url: 'http://webhook.target',
+  hasSecret: false,
   latestDelivery,
 };
 

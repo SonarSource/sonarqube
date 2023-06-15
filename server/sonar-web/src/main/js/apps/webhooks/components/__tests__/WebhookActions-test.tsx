@@ -26,6 +26,7 @@ const webhook = {
   key: '1',
   name: 'foo',
   url: 'http://foo.bar',
+  hasSecret: false,
 };
 
 const delivery = {
