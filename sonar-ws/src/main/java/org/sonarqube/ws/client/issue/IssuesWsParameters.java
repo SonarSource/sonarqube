@@ -100,6 +100,7 @@ public class IssuesWsParameters {
   public static final String PARAM_CREATED_IN_LAST = "createdInLast";
   @Deprecated
   public static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
+  public static final String PARAM_SEARCH_AFTER = "searchAfter";
   public static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";

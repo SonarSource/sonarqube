@@ -101,6 +101,7 @@ public class IssueQuery {
   private final String facetMode;
   private final String branchUuid;
   private final Boolean mainBranch;
+  private final String searchAfter;
   private final ZoneId timeZone;
   private final Boolean newCodeOnReference;
   private final Collection<String> newCodeOnReferenceByProjectUuids;
@@ -145,6 +146,7 @@ public class IssueQuery {
     this.facetMode = builder.facetMode;
     this.branchUuid = builder.branchUuid;
     this.mainBranch = builder.mainBranch;
+    this.searchAfter = builder.searchAfter;
     this.timeZone = builder.timeZone;
     this.newCodeOnReference = builder.newCodeOnReference;
     this.newCodeOnReferenceByProjectUuids = defaultCollection(builder.newCodeOnReferenceByProjectUuids);
@@ -311,6 +313,10 @@ public class IssueQuery {
     return mainBranch;
   }
 
+  public String searchAfter() {
+    return searchAfter;
+  }
+
   public String facetMode() {
     return facetMode;
   }
@@ -379,6 +385,7 @@ public class IssueQuery {
     private String facetMode;
     private String branchUuid;
     private Boolean mainBranch = true;
+    private String searchAfter;
     private ZoneId timeZone;
     private Boolean newCodeOnReference = null;
     private Collection<String> newCodeOnReferenceByProjectUuids;
@@ -606,6 +613,11 @@ public class IssueQuery {
 
     public Builder mainBranch(@Nullable Boolean mainBranch) {
       this.mainBranch = mainBranch;
+      return this;
+    }
+
+    public Builder searchAfter(String searchAfter) {
+      this.searchAfter = searchAfter;
       return this;
     }
 

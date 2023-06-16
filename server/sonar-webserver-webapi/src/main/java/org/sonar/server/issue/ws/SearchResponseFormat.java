@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -59,6 +60,7 @@ import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.Operation;
 import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarqube.ws.Issues.Sort;
 import org.sonarqube.ws.Issues.Transitions;
 import org.sonarqube.ws.Issues.Users;
 
@@ -97,12 +99,12 @@ public class SearchResponseFormat {
     this.userFormatter = userFormatter;
   }
 
-  SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
+  SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets, Map<String, Object[]> issueMap) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
     ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
-    response.addAllIssues(createIssues(fields, data));
+    response.addAllIssues(createIssues(fields, data, issueMap));
     response.addAllComponents(formatComponents(data));
     formatFacets(data, facets, response);
     if (fields.contains(SearchAdditionalField.RULES)) {
@@ -122,7 +124,7 @@ public class SearchResponseFormat {
 
     if (data.getIssues().size() == 1) {
       IssueDto dto = data.getIssues().get(0);
-      response.setIssue(createIssue(ALL_ADDITIONAL_FIELDS, data, dto));
+      response.setIssue(createIssue(ALL_ADDITIONAL_FIELDS, data, dto, null));
     }
     response.addAllComponents(formatComponents(data));
     response.addAllRules(formatRules(data).getRulesList());
@@ -144,20 +146,20 @@ public class SearchResponseFormat {
       .setTotal(paging.total());
   }
 
-  private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data) {
+  private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data, Map<String, Object[]> issueMap) {
     return data.getIssues().stream()
-      .map(dto -> createIssue(fields, data, dto))
+      .map(dto -> createIssue(fields, data, dto, issueMap))
       .toList();
   }
 
-  private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto) {
+  private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, @Nullable Map<String, Object[]> issueMap) {
     Issue.Builder issueBuilder = Issue.newBuilder();
-    addMandatoryFieldsToIssueBuilder(issueBuilder, dto, data);
+    addMandatoryFieldsToIssueBuilder(issueBuilder, dto, data, issueMap);
     addAdditionalFieldsToIssueBuilder(fields, data, dto, issueBuilder);
     return issueBuilder.build();
   }
 
-  private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
+  private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data, Map<String, Object[]> issueMap) {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
@@ -200,6 +202,14 @@ public class SearchResponseFormat {
       .ifPresentOrElse(issueBuilder::setQuickFixAvailable, () -> issueBuilder.setQuickFixAvailable(false));
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
+    if (issueMap != null && !issueMap.isEmpty()) {
+      Sort.Builder wsSort = Sort.newBuilder();
+      Object[] sortValue = issueMap.get(issueBuilder.getKey());
+      for (Object sort : sortValue) {
+        wsSort.addSort(sort.toString());
+      }
+      issueBuilder.setSort(wsSort);
+    }
   }
 
   private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, Issue.Builder issueBuilder) {

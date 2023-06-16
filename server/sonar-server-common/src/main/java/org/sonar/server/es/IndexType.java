@@ -31,6 +31,8 @@ public abstract class IndexType {
 
   public static final String FIELD_INDEX_TYPE = "indexType";
 
+  public static final String FIELD_SEARCH_AFTER = "searchAfter";
+
   private static final String SEPARATOR = "/";
   private static final Splitter SEPARATOR_SPLITTER = Splitter.on(SEPARATOR);
 
