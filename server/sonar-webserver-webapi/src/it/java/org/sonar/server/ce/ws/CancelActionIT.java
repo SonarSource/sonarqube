@@ -35,6 +35,8 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
@@ -98,9 +100,12 @@ public class CancelActionIT {
 
   @Test
   public void cancel_pending_task_when_project_administer() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
-    CeQueueDto queue = createTaskSubmit(project);
+    ProjectData project = db.components().insertPrivateProject();
+    ProjectDto projectDto = project.getProjectDto();
+    ComponentDto mainBranchComponent = project.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.ADMIN, projectDto);
+    userSession.addProjectBranchMapping(projectDto.getUuid(), mainBranchComponent);
+    CeQueueDto queue = createTaskSubmit(mainBranchComponent);
 
     tester.newRequest()
       .setParam("id", queue.getUuid())

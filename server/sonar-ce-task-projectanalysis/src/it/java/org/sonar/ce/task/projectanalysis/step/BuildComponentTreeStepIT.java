@@ -233,10 +233,10 @@ public class BuildComponentTreeStepIT {
   @Test
   public void return_existing_uuids() {
     setAnalysisMetadataHolder();
-    ComponentDto project = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY)).getMainBranchComponent();
-    ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
+    ComponentDto mainBranch = dbTester.components().insertPrivateProject("ABCD", p -> p.setKey(REPORT_PROJECT_KEY)).getMainBranchComponent();
+    ComponentDto directory = newDirectory(mainBranch, "CDEF", REPORT_DIR_PATH_1);
     insertComponent(directory.setKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
-    insertComponent(newFileDto(project, directory, "DEFG")
+    insertComponent(newFileDto(mainBranch, directory, "DEFG")
       .setKey(REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1)
       .setPath(REPORT_FILE_PATH_1));
 
@@ -246,7 +246,7 @@ public class BuildComponentTreeStepIT {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), "ABCD");
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), mainBranch.uuid());
     verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1, "CDEF");
     verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, "DEFG");
   }

@@ -23,6 +23,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,8 +42,8 @@ public class ProjectDescriptor {
   /**
    * Build a {@link ProjectDescriptor} without checking qualifier of ComponentDto.
    */
-  public static ProjectDescriptor of(ComponentDto project) {
-    return new ProjectDescriptor(project.uuid(), project.getKey(), project.name());
+  public static ProjectDescriptor of(ProjectDto project) {
+    return new ProjectDescriptor(project.getUuid(), project.getKey(), project.getName());
   }
 
   public final String getUuid() {

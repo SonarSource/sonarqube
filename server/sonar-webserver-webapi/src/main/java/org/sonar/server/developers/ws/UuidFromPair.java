@@ -20,16 +20,16 @@
 package org.sonar.server.developers.ws;
 
 class UuidFromPair {
-  private final String componentUuid;
+  private final String projectUuid;
   private final long from;
 
-  public UuidFromPair(String componentUuid, long from) {
-    this.componentUuid = componentUuid;
+  public UuidFromPair(String projectUuid, long from) {
+    this.projectUuid = projectUuid;
     this.from = from;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   public long getFrom() {

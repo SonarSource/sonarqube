@@ -153,7 +153,7 @@
       inner join project_branches pb on pb.uuid=p.uuid
     where
       <foreach collection="projectUuidFromDatePairs" open="(" close=")" item="projectUuidFromDatePair" separator=" or ">
-        (pb.project_uuid=#{projectUuidFromDatePair.componentUuid, jdbcType=VARCHAR} and s.created_at >= #{projectUuidFromDatePair.from, jdbcType=BIGINT})
+        (pb.project_uuid=#{projectUuidFromDatePair.projectUuid, jdbcType=VARCHAR} and s.created_at >= #{projectUuidFromDatePair.from, jdbcType=BIGINT})
       </foreach>
       and s.status = 'P'
     order by

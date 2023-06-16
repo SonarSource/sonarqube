@@ -169,7 +169,11 @@ public class ComponentDbTester {
   }
 
   public final ProjectData insertPrivateProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true, defaults(), dtoPopulator);
+    if (useDifferentUuids) {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), dtoPopulator, p -> p.setUuid(uuid));
+    } else {
+      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true, defaults(), dtoPopulator);
+    }
   }
 
   public final ProjectData insertPrivateProjectWithCustomBranch(String branchKey) {

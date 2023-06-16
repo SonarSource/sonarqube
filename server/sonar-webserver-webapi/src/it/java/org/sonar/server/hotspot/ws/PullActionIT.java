@@ -33,11 +33,14 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -89,16 +92,21 @@ public class PullActionIT {
     pullActionProtobufObjectGenerator);
   private final WsActionTester tester = new WsActionTester(underTest);
 
+  private ProjectDto project;
   private ComponentDto correctProject, incorrectProject;
   private ComponentDto correctFile, incorrectFile;
 
   @Before
   public void before() {
     when(system2.now()).thenReturn(NOW);
-    correctProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    correctProject = projectData.getMainBranchComponent();
+    project = projectData.getProjectDto();
+
     correctFile = db.components().insertComponent(newFileDto(correctProject));
 
-    incorrectProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData incorrectProjectData = db.components().insertPrivateProject();
+    incorrectProject = incorrectProjectData.getMainBranchComponent();
     incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
   }
 
@@ -220,10 +228,12 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenHotspotOnAnotherBranchThanMain_shouldReturnOneIssue() throws IOException {
-    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
+    ProjectData projectData = componentDbTester.insertPrivateProjectWithCustomBranch("develop");
+    ProjectDto project = projectData.getProjectDto();
+    ComponentDto developBranch = projectData.getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     List<String> hotspotKeys = generateHotspots(developBranch, developFile, 1);
-    loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());
+    loginWithBrowsePermission(project, developFile.uuid());
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", developBranch.getKey())
@@ -268,7 +278,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenDifferentHotspotsInTheTable_shouldReturnOnlyThatBelongToSelectedProject() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project, correctFile.uuid());
     List<String> correctIssueKeys = generateHotspots(correctProject, correctFile, 10);
     List<String> incorrectIssueKeys = generateHotspots(incorrectProject, incorrectFile, 5);
 
@@ -288,7 +298,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenNoIssuesBelongToTheProject_shouldReturnZeroIssues() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project, correctFile.uuid());
     generateHotspots(incorrectProject, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
@@ -303,7 +313,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenLanguagesParam_shouldReturnOneIssue() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project, correctFile.uuid());
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
 
     IssueDto javaIssue = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -331,7 +341,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenChangedSinceParam_shouldReturnMatchingIssue() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project, correctFile.uuid());
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
 
     IssueDto issueBefore = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -371,7 +381,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenWrongLanguageSet_shouldReturnZeroIssues() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project, correctFile.uuid());
     RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript"));
 
     issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -418,12 +428,16 @@ public class PullActionIT {
   }
 
   private void loginWithBrowsePermission(IssueDto issueDto) {
-    loginWithBrowsePermission(issueDto.getProjectUuid(), issueDto.getComponentUuid());
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid()).get();
+    loginWithBrowsePermission(projectDto, issueDto.getComponentUuid());
   }
 
-  private void loginWithBrowsePermission(String projectUuid, String componentUuid) {
+  private void loginWithBrowsePermission(ProjectDto project, String componentUuid) {
     UserDto user = db.users().insertUser("john");
-    userSession.logIn(user).addProjectPermission(USER, getComponentOrFail(projectUuid, "project not found"), getComponentOrFail(componentUuid, "component not found"));
+    userSession.logIn(user)
+      .addProjectPermission(USER, project)
+      .addProjectPermission(USER, getComponentOrFail(componentUuid, "component not found"));
   }
 
   private ComponentDto getComponentOrFail(String componentUuid, String failMessage) {

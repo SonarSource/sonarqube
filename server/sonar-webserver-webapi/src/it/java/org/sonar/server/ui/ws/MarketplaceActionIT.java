@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -116,8 +117,8 @@ public class MarketplaceActionIT {
   }
 
   private void setNcloc(double ncloc) {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    db.getDbClient().projectDao().updateNcloc(db.getSession(), project.uuid(), (long) ncloc);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.getDbClient().projectDao().updateNcloc(db.getSession(), project.getUuid(), (long) ncloc);
     db.commit();
   }
 }

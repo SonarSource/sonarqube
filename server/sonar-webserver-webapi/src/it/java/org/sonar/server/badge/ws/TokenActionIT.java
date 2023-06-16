@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
@@ -72,7 +73,7 @@ public class TokenActionIT {
 
   @Test
   public void should_generate_token() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -83,7 +84,7 @@ public class TokenActionIT {
 
   @Test
   public void handle_whenApplicationKeyPassed_shouldReturnToken() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.USER, application);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
@@ -92,10 +93,9 @@ public class TokenActionIT {
     response.assertJson("{\"token\":\"generated_token\"}");
   }
 
-
   @Test
   public void should_reuse_generated_token() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 

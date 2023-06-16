@@ -90,11 +90,11 @@ public class IssueDbTester {
    * @throws AssertionError if rule is a Security Hotspot
    */
   @SafeVarargs
-  public final IssueDto insertIssue(RuleDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insertIssue(RuleDto rule, ComponentDto branch, ComponentDto file, Consumer<IssueDto>... populators) {
     assertThat(rule.getType())
       .describedAs("rule must not be a Security Hotspot type")
       .isNotEqualTo(SECURITY_HOTSPOT.getDbConstant());
-    IssueDto issue = newIssue(rule, project, file)
+    IssueDto issue = newIssue(rule, branch, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
     stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);

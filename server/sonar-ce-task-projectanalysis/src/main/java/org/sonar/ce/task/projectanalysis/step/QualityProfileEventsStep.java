@@ -72,18 +72,18 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    executeForProject(treeRootHolder.getRoot());
+    executeForBranch(treeRootHolder.getRoot());
   }
 
-  private void executeForProject(Component projectComponent) {
-    Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
+  private void executeForBranch(Component branchComponent) {
+    Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(branchComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
     if (!baseMeasure.isPresent()) {
       // first analysis -> do not generate events
       return;
     }
 
     // Load profiles used in current analysis for which at least one file of the corresponding language exists
-    Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
+    Optional<Measure> rawMeasure = measureRepository.getRawMeasure(branchComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
     if (!rawMeasure.isPresent()) {
       // No qualify profile computed on the project
       return;

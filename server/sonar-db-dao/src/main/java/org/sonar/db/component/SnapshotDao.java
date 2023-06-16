@@ -97,18 +97,17 @@ public class SnapshotDao implements Dao {
   /**
    * Returned finished analysis from a list of projects and dates.
    * "Finished" analysis means that the status in the CE_ACTIVITY table is SUCCESS => the goal is to be sure that the CE task is completely finished.
-   *
    * Note that branches analysis of projects are also returned.
    */
   public List<SnapshotDto> selectFinishedByProjectUuidsAndFromDates(DbSession dbSession, List<String> projectUuids, List<Long> fromDates) {
     checkArgument(projectUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
       String.valueOf(projectUuids.size()),
       String.valueOf(fromDates.size()));
-    List<ComponentUuidFromDatePair> componentUuidFromDatePairs = IntStream.range(0, projectUuids.size())
-      .mapToObj(i -> new ComponentUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
+    List<ProjectUuidFromDatePair> projectUuidFromDatePairs = IntStream.range(0, projectUuids.size())
+      .mapToObj(i -> new ProjectUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
       .collect(MoreCollectors.toList(projectUuids.size()));
 
-    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
+    return executeLargeInputs(projectUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
   }
 
   public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {
@@ -148,22 +147,22 @@ public class SnapshotDao implements Dao {
     return session.getMapper(SnapshotMapper.class);
   }
 
-  static class ComponentUuidFromDatePair implements Comparable<ComponentUuidFromDatePair> {
-    private final String componentUuid;
+  static class ProjectUuidFromDatePair implements Comparable<ProjectUuidFromDatePair> {
+    private final String projectUuid;
     private final long from;
 
-    ComponentUuidFromDatePair(String componentUuid, long from) {
-      this.componentUuid = requireNonNull(componentUuid);
+    ProjectUuidFromDatePair(String projectUuid, long from) {
+      this.projectUuid = requireNonNull(projectUuid);
       this.from = from;
     }
 
     @Override
-    public int compareTo(ComponentUuidFromDatePair other) {
+    public int compareTo(ProjectUuidFromDatePair other) {
       if (this == other) {
         return 0;
       }
 
-      int c = componentUuid.compareTo(other.componentUuid);
+      int c = projectUuid.compareTo(other.projectUuid);
       if (c == 0) {
         c = Long.compare(from, other.from);
       }
@@ -180,14 +179,13 @@ public class SnapshotDao implements Dao {
         return false;
       }
 
-      ComponentUuidFromDatePair other = (ComponentUuidFromDatePair) o;
-      return componentUuid.equals(other.componentUuid)
-        && from == other.from;
+      ProjectUuidFromDatePair other = (ProjectUuidFromDatePair) o;
+      return projectUuid.equals(other.projectUuid) && from == other.from;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(componentUuid, from);
+      return Objects.hash(projectUuid, from);
     }
   }
 }

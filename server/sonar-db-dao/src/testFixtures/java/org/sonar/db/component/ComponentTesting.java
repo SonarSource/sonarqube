@@ -37,12 +37,12 @@ import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 
 public class ComponentTesting {
 
-  public static ComponentDto newFileDto(ComponentDto project) {
-    return newFileDto(project, (ComponentDto) null);
+  public static ComponentDto newFileDto(ComponentDto branch) {
+    return newFileDto(branch, (ComponentDto) null);
   }
 
-  public static ComponentDto newFileDto(ComponentDto project, @Nullable ComponentDto directory) {
-    return newFileDto(project, directory, Uuids.createFast());
+  public static ComponentDto newFileDto(ComponentDto branch, @Nullable ComponentDto directory) {
+    return newFileDto(branch, directory, Uuids.createFast());
   }
 
   public static ComponentDto newFileDto(ComponentDto branch, String mainBranchUuid) {
@@ -72,28 +72,28 @@ public class ComponentTesting {
       .setLanguage("xoo");
   }
 
-  public static ComponentDto newDirectory(ComponentDto project, String path) {
-    return newDirectory(project, Uuids.createFast(), path);
+  public static ComponentDto newDirectory(ComponentDto branch, String path) {
+    return newDirectory(branch, Uuids.createFast(), path);
   }
 
-  public static ComponentDto newDirectoryOnBranch(ComponentDto project, String path, String mainBranchUuid) {
-    return newDirectory(project, Uuids.createFast(), path, mainBranchUuid);
+  public static ComponentDto newDirectoryOnBranch(ComponentDto branch, String path, String mainBranchUuid) {
+    return newDirectory(branch, Uuids.createFast(), path, mainBranchUuid);
   }
 
-  private static ComponentDto newDirectory(ComponentDto project, String uuid, String path, String mainBranchUuid) {
-    String key = !path.equals("/") ? project.getKey() + ":" + path : project.getKey() + ":/";
-    return newChildComponent(uuid, project, project)
+  private static ComponentDto newDirectory(ComponentDto branch, String uuid, String path, String mainBranchUuid) {
+    String key = !path.equals("/") ? branch.getKey() + ":" + path : branch.getKey() + ":/";
+    return newChildComponent(uuid, branch, branch)
       .setKey(key)
       .setName(path)
       .setLongName(path)
-      .setBranchUuid(project.branchUuid())
+      .setBranchUuid(branch.branchUuid())
       .setPath(path)
       .setScope(Scopes.DIRECTORY)
       .setQualifier(Qualifiers.DIRECTORY);
   }
 
-  public static ComponentDto newDirectory(ComponentDto project, String uuid, String path) {
-    return newDirectory(project, uuid, path, null);
+  public static ComponentDto newDirectory(ComponentDto branch, String uuid, String path) {
+    return newDirectory(branch, uuid, path, null);
   }
 
   public static ComponentDto newSubPortfolio(ComponentDto portfolioOrSubPortfolio, String uuid, String key) {

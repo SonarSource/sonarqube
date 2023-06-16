@@ -27,8 +27,8 @@ public class UuidFromPairs {
     // prevent instantiation
   }
 
-  public static List<String> componentUuids(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getComponentUuid).collect(MoreCollectors.toList(pairs.size()));
+  public static List<String> projectUuids(List<UuidFromPair> pairs) {
+    return pairs.stream().map(UuidFromPair::getProjectUuid).collect(MoreCollectors.toList(pairs.size()));
   }
 
   public static List<Long> fromDates(List<UuidFromPair> pairs) {
