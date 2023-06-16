@@ -19,12 +19,13 @@
  */
 import { StandoutLink } from 'design-system';
 import * as React from 'react';
+import { parseQuery, serializeQuery } from '../../../apps/issues/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { IssueType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
+import { useLocation } from '../../hoc/withRouter';
 import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 
 export interface IssueMessageProps {
@@ -35,6 +36,8 @@ export interface IssueMessageProps {
 
 export default function IssueMessage(props: IssueMessageProps) {
   const { issue, branchLike, displayWhyIsThisAnIssue } = props;
+  const location = useLocation();
+  const query = parseQuery(location.query);
 
   const { message, messageFormattings } = issue;
 
@@ -48,8 +51,8 @@ export default function IssueMessage(props: IssueMessageProps) {
 
   const issueUrl = getComponentIssuesUrl(issue.project, {
     ...getBranchLikeQuery(branchLike),
+    ...serializeQuery(query),
     open: issue.key,
-    types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
   });
   return (
     <>
