@@ -48,7 +48,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 public class DeleteConditionActionIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

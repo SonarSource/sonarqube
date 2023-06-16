@@ -40,7 +40,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class ShowResponseBuilderIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private ShowResponseBuilder underTest = new ShowResponseBuilder(db.getDbClient().componentDao());
 

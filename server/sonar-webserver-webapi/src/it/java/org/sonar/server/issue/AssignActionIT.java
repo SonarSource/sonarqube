@@ -52,7 +52,7 @@ public class AssignActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
   private final DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);

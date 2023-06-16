@@ -47,7 +47,7 @@ public class ReindexActionIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

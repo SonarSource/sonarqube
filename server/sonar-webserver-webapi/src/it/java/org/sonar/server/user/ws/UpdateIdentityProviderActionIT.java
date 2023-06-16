@@ -59,7 +59,7 @@ public class UpdateIdentityProviderActionIT {
     .addIdentityProvider(new TestIdentityProvider().setName("Github").setKey("github").setEnabled(true));
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 

@@ -82,7 +82,7 @@ public class ShowActionIT {
   @org.junit.Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @org.junit.Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);

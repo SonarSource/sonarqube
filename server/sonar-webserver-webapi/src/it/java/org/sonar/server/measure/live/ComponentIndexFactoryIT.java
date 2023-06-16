@@ -27,7 +27,7 @@ import org.sonar.db.component.ComponentDto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexFactoryIT {
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final ComponentIndexFactory factory = new ComponentIndexFactory(db.getDbClient());
 
   @Test

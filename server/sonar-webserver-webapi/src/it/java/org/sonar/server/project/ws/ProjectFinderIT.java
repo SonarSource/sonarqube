@@ -35,7 +35,7 @@ import static org.sonar.server.project.ws.ProjectFinder.SearchResult;
 
 public class ProjectFinderIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

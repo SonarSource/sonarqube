@@ -53,7 +53,7 @@ public class GroupsActionIT {
   private static final String USER_LOGIN = "john";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().addPermission(GlobalPermission.ADMINISTER);

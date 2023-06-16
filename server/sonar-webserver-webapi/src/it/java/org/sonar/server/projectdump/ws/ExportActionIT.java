@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.ce.projectdump.ExportSubmitter;
 import org.sonar.server.component.ComponentFinder;
@@ -54,18 +55,18 @@ public class ExportActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final ExportSubmitter exportSubmitter = mock(ExportSubmitter.class);
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
   private final ProjectDumpWsSupport projectDumpWsSupport = new ProjectDumpWsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes));
   private final ExportAction underTest = new ExportAction(projectDumpWsSupport, userSession, exportSubmitter);
   private final WsActionTester actionTester = new WsActionTester(underTest);
-  private ComponentDto project;
+  private ProjectDto project;
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject(PROJECT_ID, p -> p.setKey(PROJECT_KEY).setName(PROJECT_NAME)).getMainBranchComponent();
+    project = db.components().insertPrivateProject(PROJECT_ID, p -> p.setKey(PROJECT_KEY).setName(PROJECT_NAME)).getProjectDto();
   }
 
   @Test
@@ -132,7 +133,7 @@ public class ExportActionIT {
   }
 
   private CeTask createResponseExampleTask() {
-    CeTask.Component component = new CeTask.Component(project.uuid(), project.getKey(), project.name());
+    CeTask.Component component = new CeTask.Component(project.getUuid(), project.getKey(), project.getName());
     return new CeTask.Builder()
       .setType(CeTaskTypes.PROJECT_EXPORT)
       .setUuid(TASK_ID)

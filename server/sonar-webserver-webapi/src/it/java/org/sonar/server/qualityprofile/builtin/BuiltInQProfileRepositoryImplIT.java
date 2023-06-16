@@ -50,7 +50,7 @@ public class BuiltInQProfileRepositoryImplIT {
   private static final String SONAR_WAY_QP_NAME = "Sonar way";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));

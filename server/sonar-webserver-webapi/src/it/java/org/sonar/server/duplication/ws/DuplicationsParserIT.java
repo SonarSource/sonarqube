@@ -38,7 +38,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class DuplicationsParserIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final DuplicationsParser parser = new DuplicationsParser(new ComponentFinder(db.getDbClient(), null));
 

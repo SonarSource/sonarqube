@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexImplIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final ComponentIndexImpl componentIndex = new ComponentIndexImpl(db.getDbClient());
 
   private ComponentDto project;

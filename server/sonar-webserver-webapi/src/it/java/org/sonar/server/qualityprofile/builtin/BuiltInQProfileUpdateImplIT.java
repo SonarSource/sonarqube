@@ -80,7 +80,7 @@ public class BuiltInQProfileUpdateImplIT {
   @Rule
   public BuiltInQProfileRepositoryRule builtInProfileRepository = new BuiltInQProfileRepositoryRule();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private System2 system2 = new TestSystem2().setNow(NOW);

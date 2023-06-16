@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActiveRuleCompleterIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester dbTester = DbTester.create(true);
 
   @Test
   public void test_completeShow() {

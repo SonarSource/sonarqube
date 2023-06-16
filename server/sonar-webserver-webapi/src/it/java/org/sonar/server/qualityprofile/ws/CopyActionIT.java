@@ -57,7 +57,7 @@ public class CopyActionIT {
   private static final String A_LANGUAGE = "lang1";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

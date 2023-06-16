@@ -69,7 +69,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class InheritanceActionIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

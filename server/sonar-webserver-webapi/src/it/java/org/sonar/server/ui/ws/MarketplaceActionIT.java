@@ -47,7 +47,7 @@ public class MarketplaceActionIT {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final Server server = mock(Server.class);
   private final DbClient dbClient = db.getDbClient();

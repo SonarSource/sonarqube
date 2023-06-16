@@ -59,7 +59,7 @@ public class BuiltInQProfileInsertImplIT {
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepository = new BuiltInQProfileRepositoryRule();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();

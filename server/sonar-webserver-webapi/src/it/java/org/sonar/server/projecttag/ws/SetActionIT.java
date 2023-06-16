@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.TestProjectIndexers;
@@ -53,21 +54,21 @@ public class SetActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final TagsWsSupport tagsWsSupport = new TagsWsSupport(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE);
+  private final WsActionTester ws = new WsActionTester(new SetAction(dbClient, tagsWsSupport));
   private ProjectDto project;
-
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-
-  private TagsWsSupport tagsWsSupport = new TagsWsSupport(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE);
-
-  private WsActionTester ws = new WsActionTester(new SetAction(dbClient, tagsWsSupport));
+  private ComponentDto projectComponent;
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject().getProjectDto();
+    ProjectData projectData = db.components().insertPrivateProject();
+    project = projectData.getProjectDto();
+    projectComponent = projectData.getMainBranchComponent();
     userSession.addProjectPermission(ADMIN, project);
   }
 
@@ -161,7 +162,6 @@ public class SetActionIT {
 
   @Test
   public void fail_if_component_is_a_file() {
-    ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
     ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setKey("FILE_KEY"));
 
     String fileKey = file.getKey();

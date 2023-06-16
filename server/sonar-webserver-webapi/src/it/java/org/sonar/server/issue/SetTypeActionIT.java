@@ -55,7 +55,7 @@ public class SetTypeActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
 

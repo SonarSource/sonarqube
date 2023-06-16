@@ -52,7 +52,7 @@ public class RestoreActionIT {
   private static final String A_LANGUAGE = "xoo";
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

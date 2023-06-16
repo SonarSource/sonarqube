@@ -49,7 +49,7 @@ public class DeleteActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 

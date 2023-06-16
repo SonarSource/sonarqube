@@ -58,7 +58,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateAction> {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester dbTester = DbTester.create(true);
 
   private UserDto user1;
   private UserDto user2;

@@ -54,7 +54,7 @@ import static org.sonar.api.web.UserRole.USER;
 public class DeleteCommentActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester dbTester = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

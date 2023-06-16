@@ -50,7 +50,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ActivateRulesActionIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

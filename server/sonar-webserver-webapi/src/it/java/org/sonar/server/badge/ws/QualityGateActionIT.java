@@ -68,7 +68,7 @@ public class QualityGateActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final MapSettings mapSettings = new MapSettings().setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
   private final Configuration config = mapSettings.asConfig();

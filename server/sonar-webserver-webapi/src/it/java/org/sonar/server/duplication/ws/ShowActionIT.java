@@ -56,7 +56,7 @@ public class ShowActionIT {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final TestComponentFinder componentFinder = TestComponentFinder.from(db);
   private final DuplicationsParser parser = new DuplicationsParser(componentFinder);
   private final ShowResponseBuilder showResponseBuilder = new ShowResponseBuilder(db.getDbClient());

@@ -58,7 +58,7 @@ public class QProfileComparisonIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().anonymous();
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester dbTester = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
 

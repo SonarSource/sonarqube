@@ -76,7 +76,7 @@ public class QProfilesWsMediumIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester dbTester = DbTester.create(true);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
