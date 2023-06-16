@@ -6,11 +6,13 @@
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into default_qprofiles
     (
+      organization_uuid,
       language,
       qprofile_uuid,
       created_at,
       updated_at
     ) values (
+      #{dto.organizationUuid, jdbcType=VARCHAR},
       #{dto.language, jdbcType=VARCHAR},
       #{dto.qProfileUuid, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
@@ -24,7 +26,8 @@
       qprofile_uuid = #{dto.qProfileUuid, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      language = #{dto.language, jdbcType=VARCHAR}
+    organization_uuid = #{dto.organizationUuid, jdbcType=VARCHAR}
+    and language = #{dto.language, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByQProfileUuids" parameterType="String">

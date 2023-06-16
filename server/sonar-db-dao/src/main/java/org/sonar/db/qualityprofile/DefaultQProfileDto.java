@@ -54,6 +54,7 @@ public class DefaultQProfileDto {
 
   public static DefaultQProfileDto from(QProfileDto profile) {
     return new DefaultQProfileDto()
+      .setOrganizationUuid(profile.getOrganizationUuid())
       .setLanguage(profile.getLanguage())
       .setQProfileUuid(profile.getKee());
   }
@@ -61,6 +62,7 @@ public class DefaultQProfileDto {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("DefaultQProfileDto{");
+    sb.append("organizationUuid='").append(organizationUuid).append('\'');
     sb.append(", language='").append(language).append('\'');
     sb.append(", qProfileUuid='").append(qProfileUuid).append('\'');
     sb.append('}');
