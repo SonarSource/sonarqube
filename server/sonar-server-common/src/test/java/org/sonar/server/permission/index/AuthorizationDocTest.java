@@ -54,23 +54,23 @@ public class AuthorizationDocTest {
 
   @Test
   public void projectUuidOf_fails_with_NPE_if_argument_is_null() {
-    assertThatThrownBy(() ->  AuthorizationDoc.projectUuidOf(null))
+    assertThatThrownBy(() ->  AuthorizationDoc.entityUuidOf(null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void projectUuidOf_returns_substring_if_starts_with_id_prefix() {
-    assertThat(AuthorizationDoc.projectUuidOf("auth_")).isEmpty();
+    assertThat(AuthorizationDoc.entityUuidOf("auth_")).isEmpty();
 
     String id = randomAlphabetic(1 + new Random().nextInt(10));
-    assertThat(AuthorizationDoc.projectUuidOf("auth_" + id)).isEqualTo(id);
+    assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
   }
 
   @Test
   public void projectUuidOf_returns_argument_if_does_not_starts_with_id_prefix() {
     String id = randomAlphabetic(1 + new Random().nextInt(10));
-    assertThat(AuthorizationDoc.projectUuidOf(id)).isEqualTo(id);
-    assertThat(AuthorizationDoc.projectUuidOf("")).isEmpty();
+    assertThat(AuthorizationDoc.entityUuidOf(id)).isEqualTo(id);
+    assertThat(AuthorizationDoc.entityUuidOf("")).isEmpty();
   }
 
   @Test
@@ -89,7 +89,7 @@ public class AuthorizationDocTest {
   public void getId_returns_projectUuid_with_a_prefix(IndexPermissions dto) {
     AuthorizationDoc underTest = AuthorizationDoc.fromDto(IndexType.main(Index.simple("foo"), "bar"), dto);
 
-    assertThat(underTest.getId()).isEqualTo("auth_" + dto.getProjectUuid());
+    assertThat(underTest.getId()).isEqualTo("auth_" + dto.getEntityUuid());
   }
 
   @Test
@@ -97,7 +97,7 @@ public class AuthorizationDocTest {
   public void getRouting_returns_projectUuid(IndexPermissions dto) {
     AuthorizationDoc underTest = AuthorizationDoc.fromDto(IndexType.main(Index.simple("foo"), "bar"), dto);
 
-    assertThat(underTest.getRouting()).contains(dto.getProjectUuid());
+    assertThat(underTest.getRouting()).contains(dto.getEntityUuid());
   }
 
   @Test

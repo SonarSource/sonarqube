@@ -48,6 +48,8 @@ public interface BranchMapper {
 
   List<BranchDto> selectByBranchKeys(@Param("branchKeyByProjectUuid") Map<String, String> branchKeyByProjectUuid);
 
+  List<BranchDto> selectByPullRequestKeys(@Param("prKeyByProjectUuid") Map<String, String> prKeyByProjectUuid);
+
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
   List<String> selectProjectUuidsWithIssuesNeedSync(@Param("projectUuids") Collection<String> uuids);

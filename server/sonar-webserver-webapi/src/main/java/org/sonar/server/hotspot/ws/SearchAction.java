@@ -377,16 +377,17 @@ public class SearchAction implements HotspotsWsAction {
 
     if (projectOrAppAndBranch != null) {
       ProjectDto projectOrApp = projectOrAppAndBranch.getProject();
+      BranchDto projectOrAppBranch = projectOrAppAndBranch.getBranch();
 
       if (Qualifiers.APP.equals(projectOrApp.getQualifier())) {
-        builder.viewUuids(singletonList(projectOrApp.getUuid()));
+        builder.viewUuids(singletonList(projectOrAppBranch.getUuid()));
         if (wsRequest.isInNewCodePeriod() && wsRequest.getPullRequest().isEmpty()) {
-          addInNewCodePeriodFilterByProjects(builder, dbSession, projectOrAppAndBranch.getBranch());
+          addInNewCodePeriodFilterByProjects(builder, dbSession, projectOrAppBranch);
         }
       } else {
         builder.projectUuids(singletonList(projectOrApp.getUuid()));
         if (wsRequest.isInNewCodePeriod() && wsRequest.getPullRequest().isEmpty()) {
-          addInNewCodePeriodFilter(dbSession, projectOrApp, builder);
+          addInNewCodePeriodFilter(dbSession, projectOrAppBranch, builder);
         }
       }
 
@@ -465,8 +466,8 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private void addInNewCodePeriodFilter(DbSession dbSession, @NotNull ProjectDto project, IssueQuery.Builder builder) {
-    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.getUuid());
+  private void addInNewCodePeriodFilter(DbSession dbSession, @NotNull BranchDto projectBranch, IssueQuery.Builder builder) {
+    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, projectBranch.getUuid());
 
     boolean isLastAnalysisUsingReferenceBranch = snapshot.map(SnapshotDto::getPeriodMode)
       .orElse("").equals(REFERENCE_BRANCH.name());

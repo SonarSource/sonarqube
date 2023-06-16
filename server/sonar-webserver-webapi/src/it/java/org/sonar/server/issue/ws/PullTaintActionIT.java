@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,9 +33,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -75,7 +78,7 @@ public class PullTaintActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = mock(System2.class);
   private final TaintChecker taintChecker = mock(TaintChecker.class);
@@ -90,6 +93,7 @@ public class PullTaintActionIT {
 
   private RuleDto correctRule, incorrectRule;
   private ComponentDto correctProject, incorrectProject;
+  private ProjectDto project;
   private ComponentDto correctFile, incorrectFile;
 
   @Before
@@ -99,7 +103,9 @@ public class PullTaintActionIT {
     db.getDbClient().ruleRepositoryDao().insert(db.getSession(), List.of(repository));
     correctRule = db.rules().insertIssueRule(r -> r.setRepositoryKey("javasecurity").setRuleKey("S1000").setSeverity(3));
 
-    correctProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    correctProject = projectData.getMainBranchComponent();
+    project = projectData.getProjectDto();
     correctFile = db.components().insertComponent(newFileDto(correctProject));
 
     incorrectRule = db.rules().insertIssueRule();
@@ -207,7 +213,7 @@ public class PullTaintActionIT {
 
   @Test
   public void givenValidProjectKeyAndOneTaintOnBranch_returnOneTaint_WithMetadataSeverity() throws IOException {
-    loginWithBrowsePermission(correctProject.branchUuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
       .setStartLine(1)
       .setEndLine(2)
@@ -266,7 +272,7 @@ public class PullTaintActionIT {
     ComponentDto developBranch = db.components().insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateTaints(correctRule, developBranch, developFile, 1);
-    loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());
+    loginWithBrowsePermission(developBranch.uuid());
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", developBranch.getKey())
@@ -280,7 +286,7 @@ public class PullTaintActionIT {
 
   @Test
   public void given15TaintsInTheTable_returnOnly10ThatBelongToProject() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     generateTaints(correctRule, correctProject, correctFile, 10);
     generateTaints(incorrectRule, incorrectProject, incorrectFile, 5);
 
@@ -296,7 +302,7 @@ public class PullTaintActionIT {
 
   @Test
   public void givenNoTaintsBelongToTheProject_return0Taints() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     generateTaints(incorrectRule, incorrectProject, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
@@ -311,7 +317,7 @@ public class PullTaintActionIT {
 
   @Test
   public void testLanguagesParam_return1Taint() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java").setRepositoryKey("javasecurity"));
     RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript").setRepositoryKey("javasecurity"));
 
@@ -353,7 +359,7 @@ public class PullTaintActionIT {
 
   @Test
   public void testLanguagesParam_givenWrongLanguage_return0Taints() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("jssecurity"));
 
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
@@ -380,7 +386,7 @@ public class PullTaintActionIT {
 
   @Test
   public void given1TaintAnd1NormalIssue_return1Taint() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("javasecurity"));
     RuleDto javaScriptRule = db.rules().insert(r -> r.setRepositoryKey("javascript"));
 
@@ -488,15 +494,18 @@ public class PullTaintActionIT {
   }
 
   private void loginWithBrowsePermission(IssueDto issueDto) {
-    loginWithBrowsePermission(issueDto.getProjectUuid(), issueDto.getComponentUuid());
+    loginWithBrowsePermission(issueDto.getProjectUuid());
   }
 
-  private void loginWithBrowsePermission(String projectUuid, String componentUuid) {
+  private void loginWithBrowsePermission(String branchUuid) {
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectByBranchUuid(db.getSession(), branchUuid);
+    loginWithBrowsePermission(projectDto.get());
+  }
+
+  private void loginWithBrowsePermission(ProjectDto project) {
     UserDto user = db.users().insertUser("john");
     userSession.logIn(user)
-      .addProjectPermission(USER,
-        db.getDbClient().componentDao().selectByUuid(db.getSession(), projectUuid).get(),
-        db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
+      .addProjectPermission(USER, project);
   }
 
 }

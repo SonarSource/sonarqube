@@ -166,17 +166,6 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_language_distribution_measure_from_project_with_no_branches() {
-    ComponentDto project = insertComponentAndProject(ComponentTesting.newPublicProjectDto(), false,
-      defaults(), defaults());
-
-    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
-
-    assertThat(docsById.get(project.uuid()).getMeasures().getNclocByLanguages())
-      .isEmpty();
-  }
-
-  @Test
   public void does_not_return_none_numeric_metrics() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     MetricDto dataMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("data"));
@@ -308,19 +297,5 @@ public class ProjectMeasuresIndexerIteratorIT {
     Map<String, ProjectMeasures> docsById = Maps.uniqueIndex(it, pm -> pm.getProject().getUuid());
     it.close();
     return docsById;
-  }
-
-  private ComponentDto insertComponentAndProject(ComponentDto component, @Nullable Boolean isPrivate,
-    Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
-    componentDtoPopulator.accept(component);
-    checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
-    dbClient.componentDao().insert(dbSession, component, true);
-
-    ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
-    projectDtoPopulator.accept(projectDto);
-    dbClient.projectDao().insert(dbSession, projectDto);
-
-    dbTester.commit();
-    return component;
   }
 }

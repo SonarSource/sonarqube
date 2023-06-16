@@ -43,8 +43,8 @@ public class PermissionIndexerTester {
     return allow(stream(projects).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).toList());
   }
 
-  public PermissionIndexerTester allowOnlyAnyone(ProjectDto... projects) {
-    return allow(stream(projects).map(project -> new IndexPermissions(project.getUuid(), project.getQualifier()).allowAnyone()).toList());
+  public PermissionIndexerTester allowOnlyAnyone(EntityDto... entities) {
+    return allow(stream(entities).map(entity -> new IndexPermissions(entity.getUuid(), entity.getQualifier()).allowAnyone()).toList());
   }
 
   public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {

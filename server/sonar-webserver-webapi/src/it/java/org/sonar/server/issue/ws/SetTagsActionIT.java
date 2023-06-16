@@ -78,7 +78,7 @@ import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 public class SetTagsActionIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -192,7 +192,7 @@ public class SetTagsActionIT {
     IssueDto issueDto = db.issues().insertIssue();
     logInAndAddProjectPermission(issueDto, ISSUE_ADMIN);
 
-    assertThatThrownBy(() ->  call(issueDto.getKey(), "bug"))
+    assertThatThrownBy(() -> call(issueDto.getKey(), "bug"))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -247,9 +247,13 @@ public class SetTagsActionIT {
 
   private void logIn(IssueDto issueDto) {
     UserDto user = db.users().insertUser("john");
-    ProjectDto projectDto = retrieveProjectDto(issueDto);
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid())
+      .orElseThrow();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid())
+      .orElseThrow();
     userSession.logIn(user)
-      .registerProjects(projectDto);
+      .registerProjects(projectDto)
+      .registerBranches(branchDto);
   }
 
   @NotNull

@@ -8,7 +8,7 @@
       "longName": "null/NAME_file1",
       "q": "FIL",
       "project": "KEY_projectUuid",
-      "projectName": "LONG_NAME_projectUuid",
+      "projectName": "NAME_projectUuid",
       "measures": {}
     },
     "sources": [

@@ -113,7 +113,7 @@ public class ListActionIT {
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     RuleDto rule = db.rules().insert();
-    db.issues().insert(rule, project, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, branch, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
 
     indexIssues();
 
@@ -143,7 +143,7 @@ public class ListActionIT {
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     RuleDto rule = db.rules().insert();
-    db.issues().insert(rule, project, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, branch, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
     indexIssues();
 
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);

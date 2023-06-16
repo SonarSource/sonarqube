@@ -54,7 +54,7 @@
       and coalesce(pb.project_uuid, p.branch_uuid) = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectLastAnalysisDateByProjects" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
+    <select id="selectLastAnalysisDateByProjectUuids" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
     select
       result_with_duplicates.project_uuid as project_uuid ,
       max(result_with_duplicates.last_analysis_date) as last_analysis_date
@@ -70,14 +70,14 @@
       where
         s.islast = ${_true}
         and (
-          <!-- case of an analysis of a project or app, with entries in project_branches -->
-          (pb.uuid is not null and pb.project_uuid in
+      <!-- case of an analysis of a project or app, with entries in project_branches -->
+      (pb.uuid is not null and pb.project_uuid in
             <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
               #{projectUuid,jdbcType=VARCHAR}
             </foreach>)
           or
-          <!-- case of an analysis of a portfolio, where there are no branches -->
-          (pb.uuid is null and c.branch_uuid in
+      <!-- case of an analysis of a portfolio, where there are no branches -->
+      (pb.uuid is null and c.branch_uuid in
             <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
               #{projectUuid,jdbcType=VARCHAR}
             </foreach>)
@@ -86,7 +86,6 @@
     group by
       result_with_duplicates.project_uuid
   </select>
-
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
@@ -102,7 +101,7 @@
       <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
         #{componentUuid,jdbcType=VARCHAR}
       </foreach>
-      </select>
+  </select>
 
   <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
     SELECT

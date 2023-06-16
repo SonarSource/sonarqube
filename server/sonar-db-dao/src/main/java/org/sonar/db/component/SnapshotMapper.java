@@ -38,7 +38,7 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") Collection<String> componentIds);
+  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") Collection<String> componentUuids);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
@@ -57,5 +57,5 @@ public interface SnapshotMapper {
   @CheckForNull
   Long selectLastAnalysisDateByProject(String projectUuid);
 
-  List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(@Param("projectUuids") Collection<String> projectUuids);
+  List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 }

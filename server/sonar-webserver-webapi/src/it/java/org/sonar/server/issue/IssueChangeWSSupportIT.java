@@ -70,7 +70,7 @@ public class IssueChangeWSSupportIT {
   private static final Random RANDOM = new Random();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -654,11 +654,11 @@ public class IssueChangeWSSupportIT {
   }
 
   private static IssueChangeDto newComment(IssueDto issue) {
-    return IssueTesting.newIssuechangeDto(issue).setChangeType(TYPE_COMMENT);
+    return IssueTesting.newIssueChangeDto(issue).setChangeType(TYPE_COMMENT);
   }
 
   private static IssueChangeDto newFieldChange(IssueDto issue) {
-    return IssueTesting.newIssuechangeDto(issue).setChangeType(TYPE_FIELD_CHANGE);
+    return IssueTesting.newIssueChangeDto(issue).setChangeType(TYPE_FIELD_CHANGE);
   }
 
   @SafeVarargs

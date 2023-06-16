@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import javax.annotation.Nullable;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonarqube.ws.Hotspots;
 
 import static java.util.Optional.ofNullable;
@@ -30,6 +31,18 @@ public class HotspotWsResponseFormatter {
 
   public HotspotWsResponseFormatter() {
     // nothing to do here
+  }
+
+  Hotspots.Component formatProject(Hotspots.Component.Builder builder, ProjectDto project, @Nullable String branch, @Nullable String pullRequest) {
+    builder
+      .clear()
+      .setKey(project.getKey())
+      .setQualifier(project.getQualifier())
+      .setName(project.getName())
+      .setLongName(project.getName());
+    ofNullable(branch).ifPresent(builder::setBranch);
+    ofNullable(pullRequest).ifPresent(builder::setPullRequest);
+    return builder.build();
   }
 
   Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {

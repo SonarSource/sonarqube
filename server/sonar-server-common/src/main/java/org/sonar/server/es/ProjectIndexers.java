@@ -37,7 +37,7 @@ public interface ProjectIndexers {
    */
   void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 
-  default void commitAndIndexEntities(DbSession dbSession, Collection<EntityDto> entities, ProjectIndexer.Cause cause) {
+  default void commitAndIndexEntities(DbSession dbSession, Collection<? extends EntityDto> entities, ProjectIndexer.Cause cause) {
     Collection<String> entityUuids = entities.stream()
       .map(EntityDto::getUuid)
       .collect(MoreCollectors.toSet(entities.size()));
@@ -45,10 +45,7 @@ public interface ProjectIndexers {
   }
 
   default void commitAndIndexProjects(DbSession dbSession, Collection<ProjectDto> projects, ProjectIndexer.Cause cause) {
-    Collection<String> projectUuids = projects.stream()
-      .map(ProjectDto::getUuid)
-      .collect(MoreCollectors.toSet(projects.size()));
-    commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
+    commitAndIndexEntities(dbSession, projects, cause);
   }
 
   default void commitAndIndexComponents(DbSession dbSession, Collection<ComponentDto> projects, ProjectIndexer.Cause cause) {

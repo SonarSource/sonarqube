@@ -83,7 +83,7 @@ public class DoTransitionActionIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   @Rule
   public EsTester es = EsTester.create();

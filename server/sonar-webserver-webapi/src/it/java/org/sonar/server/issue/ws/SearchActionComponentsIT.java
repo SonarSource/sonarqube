@@ -87,26 +87,26 @@ public class SearchActionComponentsIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
-  private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
-  private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
-  private Languages languages = new Languages();
-  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
-  private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private final DbClient dbClient = db.getDbClient();
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
+  private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
+  private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
+  private final Languages languages = new Languages();
+  private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
+  private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
 
-  private WsActionTester ws = new WsActionTester(
+  private final WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat,
       System2.INSTANCE, dbClient));
 
@@ -325,7 +325,8 @@ public class SearchActionComponentsIT {
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
     allowAnyoneOnApplication(applicationData.getProjectDto(), projectData1.getProjectDto(), projectData2.getProjectDto());
-    userSession.addProjectPermission(USER, application);
+    userSession.addProjectPermission(USER, applicationData.getProjectDto());
+    userSession.addProjectBranchMapping(applicationData.projectUuid(), application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -451,6 +452,7 @@ public class SearchActionComponentsIT {
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     allowAnyoneOnApplication(applicationData.getProjectDto(), projectData1.getProjectDto(), projectData2.getProjectDto());
+    userSession.addProjectBranchMapping(applicationData.projectUuid(), application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -477,6 +479,7 @@ public class SearchActionComponentsIT {
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
     allowAnyoneOnApplication(applicationData.getProjectDto(), projectData1.getProjectDto(), projectData2.getProjectDto());
+    userSession.addProjectBranchMapping(applicationData.getProjectDto().getUuid(), application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -511,6 +514,7 @@ public class SearchActionComponentsIT {
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     allowAnyoneOnApplication(applicationData.getProjectDto(), projectData1.getProjectDto(), projectData2.getProjectDto());
+    userSession.addProjectBranchMapping(applicationData.projectUuid(), application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -546,6 +550,7 @@ public class SearchActionComponentsIT {
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     allowAnyoneOnApplication(applicationData.getProjectDto(), projectData1.getProjectDto(), projectData2.getProjectDto());
+    userSession.addProjectBranchMapping(applicationData.projectUuid(), application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()

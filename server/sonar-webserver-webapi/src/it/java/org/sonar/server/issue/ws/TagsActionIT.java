@@ -71,14 +71,14 @@ public class TagsActionIT {
   @Rule
   public EsTester es = EsTester.create();
 
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
-  private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
+  private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
+  private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
 
-  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, issueIndexSyncProgressChecker, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
+  private final WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, issueIndexSyncProgressChecker, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test
   public void search_tags() {

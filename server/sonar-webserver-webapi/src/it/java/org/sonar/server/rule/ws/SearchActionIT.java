@@ -982,7 +982,7 @@ public class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(result.getRulesCount()).isEqualTo(3);
-    assertThat(result.getRulesList()).extracting("key", "status.name").containsExactlyInAnyOrder(
+    assertThat(result.getRulesList()).extracting(Rule::getKey, r -> r.getStatus().name()).containsExactlyInAnyOrder(
       tuple(rule1.getKey().toString(), rule1.getStatus().name()),
       tuple(rule2.getKey().toString(), rule2.getStatus().name()),
       tuple(rule3.getKey().toString(), rule3.getStatus().name()));

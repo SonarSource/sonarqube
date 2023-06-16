@@ -93,7 +93,7 @@ public class ChangeStatusActionIT {
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -475,7 +475,6 @@ public class ChangeStatusActionIT {
   @Test
   public void wsExecution_whenOnNonMainBranch_shouldDistributeEvents() {
     ProjectDto project = dbTester.components().insertPublicProject().getProjectDto();
-    ComponentDto projectComponentDto = dbTester.components().getComponentDto(project);
     BranchDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("develop"));
     ComponentDto branchComponentDto = dbTester.components().getComponentDto(branch);
 

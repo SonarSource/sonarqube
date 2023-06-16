@@ -77,13 +77,13 @@ public class IssueUpdater {
 
   public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context, BranchDto branch) {
     Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
+    ComponentDto branchComponent = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), project, branch);
+    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), branchComponent, branch);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
-    result.addComponents(singleton(project));
+    result.addComponents(singleton(branchComponent));
     result.addComponents(singleton(component));
 
     if (context.refreshMeasures()) {

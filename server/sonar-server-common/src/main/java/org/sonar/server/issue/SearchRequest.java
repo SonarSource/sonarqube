@@ -33,7 +33,7 @@ public class SearchRequest {
   private List<String> assigneesUuid;
   private List<String> authors;
   private List<String> componentUuids;
-  private List<String> components;
+  private List<String> componentKeys;
   private String createdAfter;
   private String createdAt;
   private String createdBefore;
@@ -51,7 +51,7 @@ public class SearchRequest {
   private String pullRequest;
   private int page;
   private int pageSize;
-  private List<String> projects;
+  private List<String> projectKeys;
   private List<String> resolutions;
   private Boolean resolved;
   private List<String> rules;
@@ -435,22 +435,22 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getComponents() {
-    return components;
+  public List<String> getComponentKeys() {
+    return componentKeys;
   }
 
-  public SearchRequest setComponents(@Nullable List<String> components) {
-    this.components = components;
+  public SearchRequest setComponentKeys(@Nullable List<String> componentKeys) {
+    this.componentKeys = componentKeys;
     return this;
   }
 
   @CheckForNull
-  public List<String> getProjects() {
-    return projects;
+  public List<String> getProjectKeys() {
+    return projectKeys;
   }
 
-  public SearchRequest setProjects(@Nullable List<String> projects) {
-    this.projects = projects;
+  public SearchRequest setProjectKeys(@Nullable List<String> projectKeys) {
+    this.projectKeys = projectKeys;
     return this;
   }
 

@@ -214,6 +214,10 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  /**
+   * The project branch where the issue is located.
+   * Note that the name is misleading - it should be branch.
+   */
   public IssueDto setProject(ComponentDto project) {
     this.projectKey = project.getKey();
     this.projectUuid = project.uuid();
@@ -572,6 +576,10 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  /**
+   * The project branch where the issue is located.
+   * Note that the name is misleading - it should be 'branchUuid'.
+   */
   public String getProjectUuid() {
     return projectUuid;
   }

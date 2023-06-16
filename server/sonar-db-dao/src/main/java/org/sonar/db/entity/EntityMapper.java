@@ -35,6 +35,9 @@ public interface EntityMapper {
   @CheckForNull
   EntityDto selectByKey(String key);
 
+  @CheckForNull
+  EntityDto selectByComponentUuid(String componentUuid);
+
   List<EntityDto> selectByKeys(@Param("keys") Collection<String> keys);
 
   void scrollForIndexing(@Param("entityUuid") @Nullable String entityUuid, ResultHandler<EntityDto> handler);

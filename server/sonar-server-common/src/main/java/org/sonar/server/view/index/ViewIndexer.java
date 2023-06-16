@@ -70,16 +70,16 @@ public class ViewIndexer implements ResilientIndexer {
 
   private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
+      Map<String, String> rootViewUuidByViewUuid = new HashMap<>();
       for (UuidWithBranchUuidDto uuidWithBranchUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
-        viewAndProjectViewUuidMap.put(uuidWithBranchUuidDto.getUuid(), uuidWithBranchUuidDto.getBranchUuid());
+        rootViewUuidByViewUuid.put(uuidWithBranchUuidDto.getUuid(), uuidWithBranchUuidDto.getBranchUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, false, bulkSize);
+      index(dbSession, rootViewUuidByViewUuid, false, bulkSize);
     }
   }
 
   /**
-   * Index a root view : it will a view and its subviews and index them.
+   * Index a root view : it will fetch a view and its subviews from the DB and index them.
    * Used by the compute engine to reindex a root view.
    * <p/>
    * The views lookup cache will be cleared
@@ -106,15 +106,16 @@ public class ViewIndexer implements ResilientIndexer {
     bulk.stop();
   }
 
-  private void index(DbSession dbSession, Map<String, String> viewAndRootViewUuidMap, boolean needClearCache, Size bulkSize) {
+  private void index(DbSession dbSession, Map<String, String> rootViewUuidByViewUuid, boolean needClearCache, Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_VIEW, bulkSize);
     bulk.start();
-    for (Map.Entry<String, String> entry : viewAndRootViewUuidMap.entrySet()) {
+    for (Map.Entry<String, String> entry : rootViewUuidByViewUuid.entrySet()) {
       String viewUuid = entry.getKey();
-      List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, viewUuid, entry.getValue());
+      String rootViewUuid = entry.getValue();
+      List<String> projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, viewUuid, rootViewUuid);
       doIndex(bulk, new ViewDoc()
         .setUuid(viewUuid)
-        .setProjects(projects), needClearCache);
+        .setProjectBranchUuids(projectBranchUuids), needClearCache);
     }
     bulk.stop();
   }
@@ -145,7 +146,6 @@ public class ViewIndexer implements ResilientIndexer {
    * This is based on the fact that a WebService is only calling {@link ViewIndexer#delete(DbSession, Collection)}
    * So the resiliency is only taking in account a deletion of view component
    * A safety check is done by not deleting any component that still exist in database.
-   *
    * This should not occur but prevent any misuse on this resiliency
    */
   @Override
@@ -154,7 +154,7 @@ public class ViewIndexer implements ResilientIndexer {
       return new IndexingResult();
     }
 
-    Set<String> views = items
+    Set<String> viewUuids = items
       .stream()
       .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
@@ -163,8 +163,8 @@ public class ViewIndexer implements ResilientIndexer {
     bulkIndexer.start();
 
     // Safety check to remove all views that may not have been deleted
-    views.removeAll(dbClient.componentDao().selectExistingUuids(dbSession, views));
-    views.forEach(v -> bulkIndexer.addDeletion(TYPE_VIEW, v));
+    viewUuids.removeAll(dbClient.componentDao().selectExistingUuids(dbSession, viewUuids));
+    viewUuids.forEach(v -> bulkIndexer.addDeletion(TYPE_VIEW, v));
     return bulkIndexer.stop();
   }
 

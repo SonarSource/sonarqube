@@ -450,7 +450,7 @@ public class SearchAction implements IssuesWsAction {
       completeFacets(facets, request, query);
       collectFacets(collector, facets);
     }
-    SearchResponseData preloadedData = new SearchResponseData(emptyList());
+    SearchResponseData preloadedData = new SearchResponseData();
     preloadedData.addRules(List.copyOf(query.rules()));
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
@@ -550,7 +550,7 @@ public class SearchAction implements IssuesWsAction {
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
       .setAuthors(request.multiParam(PARAM_AUTHOR))
-      .setComponents(request.paramAsStrings(PARAM_COMPONENT_KEYS))
+      .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
       .setCreatedAt(request.param(PARAM_CREATED_AT))
       .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
@@ -567,7 +567,7 @@ public class SearchAction implements IssuesWsAction {
       .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setProjects(request.paramAsStrings(PARAM_PROJECTS))
+      .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setRules(request.paramAsStrings(PARAM_RULES))
@@ -590,7 +590,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {
-    List<String> components = searchRequest.getComponents();
+    List<String> components = searchRequest.getComponentKeys();
     if (components != null && !components.isEmpty()) {
       issueIndexSyncProgressChecker.checkIfAnyComponentsNeedIssueSync(dbSession, components);
     } else {

@@ -41,6 +41,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -101,6 +102,7 @@ public class SearchResponseLoader {
       loadComponents(preloadedResponseData, collector, dbSession, result);
       // for all loaded components in result we "join" branches to know to which branch components belong
       loadBranches(dbSession, result);
+      loadProjects(collector, dbSession, result);
 
       loadActionsAndTransitions(result, fields);
       completeTotalEffortFromFacet(facets, result);
@@ -148,10 +150,15 @@ public class SearchResponseLoader {
       result.addComponents(dbClient.componentDao().selectByUuids(dbSession, componentUuidsToLoad));
     }
 
-    // always load components and projects, because some issue fields still relate to component ids/keys.
+    // always load components and branches, because some issue fields still relate to component ids/keys.
     // They should be dropped but are kept for backward-compatibility (see SearchResponseFormat)
     result.addComponents(dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, collector.getComponentUuids()));
-    loadProjects(collector, dbSession, result);
+    loadBranchComponents(collector, dbSession, result);
+  }
+
+  private void loadProjects(Collector collector, DbSession dbSession, SearchResponseData result) {
+    List<ProjectDto> projects = dbClient.projectDao().selectByUuids(dbSession, collector.getProjectUuids());
+    result.addProjects(projects);
   }
 
   private void loadBranches(DbSession dbSession, SearchResponseData result) {
@@ -162,16 +169,16 @@ public class SearchResponseLoader {
     result.addBranches(branchDtos);
   }
 
-  private void loadProjects(Collector collector, DbSession dbSession, SearchResponseData result) {
+  private void loadBranchComponents(Collector collector, DbSession dbSession, SearchResponseData result) {
     Collection<ComponentDto> loadedComponents = result.getComponents();
     for (ComponentDto component : loadedComponents) {
-      collector.addProjectUuid(component.branchUuid());
+      collector.addBranchUuid(component.branchUuid());
     }
-    Set<String> loadedProjectUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.branchUuid())).map(ComponentDto::uuid).collect(MoreCollectors.toSet());
-    Set<String> projectUuidsToLoad = copyOf(difference(collector.getProjectUuids(), loadedProjectUuids));
-    if (!projectUuidsToLoad.isEmpty()) {
-      List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, collector.getProjectUuids());
-      result.addComponents(projects);
+    Set<String> loadedBranchUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.branchUuid())).map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+    Set<String> branchUuidsToLoad = copyOf(difference(collector.getBranchUuids(), loadedBranchUuids));
+    if (!branchUuidsToLoad.isEmpty()) {
+      List<ComponentDto> branchComponents = dbClient.componentDao().selectByUuids(dbSession, collector.getBranchUuids());
+      result.addComponents(branchComponents);
     }
   }
 
@@ -224,8 +231,8 @@ public class SearchResponseLoader {
       for (IssueDto issueDto : result.getIssues()) {
         // so that IssueDto can be used.
         if (fields.contains(ACTIONS)) {
-          ComponentDto project = componentsByProjectUuid.get(issueDto.getProjectUuid());
-          result.addActions(issueDto.getKey(), listAvailableActions(issueDto, project));
+          ComponentDto branch = componentsByProjectUuid.get(issueDto.getProjectUuid());
+          result.addActions(issueDto.getKey(), listAvailableActions(issueDto, branch));
         }
         if (fields.contains(TRANSITIONS) && !issueDto.isExternal()) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
@@ -236,7 +243,7 @@ public class SearchResponseLoader {
     }
   }
 
-  private Set<String> listAvailableActions(IssueDto issue, ComponentDto project) {
+  private Set<String> listAvailableActions(IssueDto issue, ComponentDto branch) {
     Set<String> availableActions = newHashSet();
     String login = userSession.getLogin();
     if (login == null) {
@@ -249,7 +256,7 @@ public class SearchResponseLoader {
       return availableActions;
     }
     availableActions.add(ASSIGN_KEY);
-    if (ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
+    if (ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, branch)) {
       availableActions.add(SET_TYPE_KEY);
       availableActions.add(SET_SEVERITY_KEY);
     }
@@ -270,6 +277,7 @@ public class SearchResponseLoader {
    */
   public static class Collector {
     private final Set<String> componentUuids = new HashSet<>();
+    private final Set<String> branchUuids = new HashSet<>();
     private final Set<String> projectUuids = new HashSet<>();
     private final List<String> issueKeys;
     private final Set<String> ruleUuids = new HashSet<>();
@@ -282,7 +290,7 @@ public class SearchResponseLoader {
     void collect(List<IssueDto> issues) {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
-        projectUuids.add(issue.getProjectUuid());
+        branchUuids.add(issue.getProjectUuid());
         Optional.ofNullable(issue.getRuleUuid()).ifPresent(ruleUuids::add);
         String issueAssigneeUuid = issue.getAssigneeUuid();
         if (issueAssigneeUuid != null) {
@@ -305,14 +313,14 @@ public class SearchResponseLoader {
       }
     }
 
-    void addProjectUuid(String uuid) {
-      this.projectUuids.add(uuid);
-    }
-
     void addProjectUuids(@Nullable Collection<String> uuids) {
       if (uuids != null) {
         this.projectUuids.addAll(uuids);
       }
+    }
+
+    void addBranchUuid(String uuid) {
+      this.branchUuids.add(uuid);
     }
 
     void addRuleIds(@Nullable Collection<String> ruleUuids) {
@@ -327,6 +335,10 @@ public class SearchResponseLoader {
       }
     }
 
+    public Set<String> getProjectUuids() {
+      return projectUuids;
+    }
+
     public List<String> getIssueKeys() {
       return issueKeys;
     }
@@ -335,8 +347,8 @@ public class SearchResponseLoader {
       return componentUuids;
     }
 
-    public Set<String> getProjectUuids() {
-      return projectUuids;
+    public Set<String> getBranchUuids() {
+      return branchUuids;
     }
 
     public Set<String> getRuleUuids() {

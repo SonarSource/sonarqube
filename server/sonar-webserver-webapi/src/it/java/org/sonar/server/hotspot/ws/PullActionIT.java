@@ -77,7 +77,7 @@ public class PullActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = mock(System2.class);
   private final PullHotspotsActionProtobufObjectGenerator pullActionProtobufObjectGenerator = new PullHotspotsActionProtobufObjectGenerator();
@@ -92,21 +92,21 @@ public class PullActionIT {
   private final WsActionTester tester = new WsActionTester(underTest);
 
   private ProjectDto project;
-  private ComponentDto correctProject, incorrectProject;
+  private ComponentDto correctMainBranch, incorrectMainBranch;
   private ComponentDto correctFile, incorrectFile;
 
   @Before
   public void before() {
     when(system2.now()).thenReturn(NOW);
     ProjectData projectData = db.components().insertPrivateProject();
-    correctProject = projectData.getMainBranchComponent();
+    correctMainBranch = projectData.getMainBranchComponent();
     project = projectData.getProjectDto();
 
-    correctFile = db.components().insertComponent(newFileDto(correctProject));
+    correctFile = db.components().insertComponent(newFileDto(correctMainBranch));
 
     ProjectData incorrectProjectData = db.components().insertPrivateProject();
-    incorrectProject = incorrectProjectData.getMainBranchComponent();
-    incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
+    incorrectMainBranch = incorrectProjectData.getMainBranchComponent();
+    incorrectFile = db.components().insertComponent(newFileDto(incorrectMainBranch));
   }
 
   @Test
@@ -133,7 +133,7 @@ public class PullActionIT {
     userSession.logIn();
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     assertThatThrownBy(request::execute)
@@ -232,7 +232,7 @@ public class PullActionIT {
     ComponentDto developBranch = projectData.getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     List<String> hotspotKeys = generateHotspots(developBranch, developFile, 1);
-    loginWithBrowsePermission(project, developFile.uuid());
+    loginWithBrowsePermission(project);
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", developBranch.getKey())
@@ -277,12 +277,12 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenDifferentHotspotsInTheTable_shouldReturnOnlyThatBelongToSelectedProject() throws IOException {
-    loginWithBrowsePermission(project, correctFile.uuid());
-    List<String> correctIssueKeys = generateHotspots(correctProject, correctFile, 10);
-    List<String> incorrectIssueKeys = generateHotspots(incorrectProject, incorrectFile, 5);
+    loginWithBrowsePermission(project);
+    List<String> correctIssueKeys = generateHotspots(correctMainBranch, correctFile, 10);
+    List<String> incorrectIssueKeys = generateHotspots(incorrectMainBranch, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
@@ -297,11 +297,11 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenNoIssuesBelongToTheProject_shouldReturnZeroIssues() throws IOException {
-    loginWithBrowsePermission(project, correctFile.uuid());
-    generateHotspots(incorrectProject, incorrectFile, 5);
+    loginWithBrowsePermission(project);
+    generateHotspots(incorrectMainBranch, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
@@ -312,7 +312,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenLanguagesParam_shouldReturnOneIssue() throws IOException {
-    loginWithBrowsePermission(project, correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
 
     IssueDto javaIssue = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -322,11 +322,11 @@ public class PullActionIT {
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setLanguage("java")
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("languages", "java");
 
@@ -340,7 +340,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenChangedSinceParam_shouldReturnMatchingIssue() throws IOException {
-    loginWithBrowsePermission(project, correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
 
     IssueDto issueBefore = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -350,7 +350,7 @@ public class PullActionIT {
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setLanguage("java")
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile));
 
     IssueDto issueAfter = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -360,12 +360,12 @@ public class PullActionIT {
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setLanguage("java")
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setUpdatedAt(NOW)
       .setComponent(correctFile));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("languages", "java")
       .setParam("changedSince", String.valueOf(issueBefore.getIssueUpdateTime() + 1L));
@@ -380,7 +380,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenWrongLanguageSet_shouldReturnZeroIssues() throws IOException {
-    loginWithBrowsePermission(project, correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript"));
 
     issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
@@ -389,11 +389,11 @@ public class PullActionIT {
       .setRule(javascriptRule)
       .setRuleUuid(javascriptRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("languages", "java");
 
@@ -429,19 +429,11 @@ public class PullActionIT {
   private void loginWithBrowsePermission(IssueDto issueDto) {
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get();
     ProjectDto projectDto = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid()).get();
-    loginWithBrowsePermission(projectDto, issueDto.getComponentUuid());
+    loginWithBrowsePermission(projectDto);
   }
 
-  private void loginWithBrowsePermission(ProjectDto project, String componentUuid) {
+  private void loginWithBrowsePermission(ProjectDto project) {
     UserDto user = db.users().insertUser("john");
-    userSession.logIn(user)
-      .addProjectPermission(USER, project)
-      .addProjectPermission(USER, getComponentOrFail(componentUuid, "component not found"));
-  }
-
-  private ComponentDto getComponentOrFail(String componentUuid, String failMessage) {
-    return db.getDbClient().componentDao()
-      .selectByUuid(db.getSession(), componentUuid)
-      .orElseGet(() -> fail(failMessage));
+    userSession.logIn(user).addProjectPermission(USER, project);
   }
 }

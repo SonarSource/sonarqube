@@ -111,7 +111,6 @@ public class ComponentCleanerServiceIT {
       .isInstanceOf(IllegalArgumentException.class);
   }
 
-
   @Test
   public void delete_application_from_db_and_index() {
     DbData data1 = insertProjectData();
@@ -182,7 +181,6 @@ public class ComponentCleanerServiceIT {
     assertExists(data3);
   }
 
-
   @Test
   public void delete_webhooks_from_projects() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -247,8 +245,7 @@ public class ComponentCleanerServiceIT {
 
   private void assertProjectOrAppExists(ProjectDto appOrProject, BranchDto branch, boolean exists) {
     assertThat(dbClient.projectDao().selectByUuid(dbSession, appOrProject.getUuid()).isPresent()).isEqualTo(exists);
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, branch.getUuid()).isPresent()).isEqualTo(exists);
-    assertThat(dbClient.branchDao().selectByUuid(dbSession, branch.getUuid()).isPresent()).isEqualTo(exists);
+    assertThat(dbClient.branchDao().selectByProject(dbSession, appOrProject).isEmpty()).isEqualTo(!exists);
   }
 
   private void assertNotExists(ComponentDto componentDto) {

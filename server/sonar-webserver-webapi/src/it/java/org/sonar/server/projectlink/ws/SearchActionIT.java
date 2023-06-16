@@ -54,9 +54,8 @@ public class SearchActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
 
-  private DbClient dbClient = db.getDbClient();
-
-  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession, TestComponentFinder.from(db)));
+  private final DbClient dbClient = db.getDbClient();
+  private final WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession, TestComponentFinder.from(db)));
 
   @Test
   public void example() {

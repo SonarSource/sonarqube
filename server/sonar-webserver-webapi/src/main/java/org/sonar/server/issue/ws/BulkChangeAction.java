@@ -245,7 +245,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
     return issue -> {
-      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.branchComponentByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
       return result.success.contains(issue);
@@ -311,7 +311,7 @@ public class BulkChangeAction implements IssuesWsAction {
       return;
     }
 
-    issueChangeEventService.distributeIssueChangeEvent(issues, bulkChangeData.projectsByUuid, bulkChangeData.branchesByProjectUuid);
+    issueChangeEventService.distributeIssueChangeEvent(issues, bulkChangeData.branchComponentByUuid, bulkChangeData.branchesByProjectUuid);
   }
 
   @CheckForNull
@@ -322,7 +322,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     RuleDto ruleDefinitionDto = bulkChangeData.rulesByKey.get(issue.ruleKey());
-    ComponentDto projectDto = bulkChangeData.projectsByUuid.get(issue.projectUuid());
+    ComponentDto projectDto = bulkChangeData.branchComponentByUuid.get(issue.projectUuid());
     if (ruleDefinitionDto == null || projectDto == null) {
       return null;
     }
@@ -369,7 +369,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Map<String, Map<String, Object>> propertiesByActions;
     private final boolean sendNotification;
     private final Collection<DefaultIssue> issues;
-    private final Map<String, ComponentDto> projectsByUuid;
+    private final Map<String, ComponentDto> branchComponentByUuid;
     private final Map<String, BranchDto> branchesByProjectUuid;
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<RuleKey, RuleDto> rulesByKey;
@@ -386,9 +386,9 @@ public class BulkChangeAction implements IssuesWsAction {
         .filter(issueDto -> SECURITY_HOTSPOT.getDbConstant() != issueDto.getType())
         .toList();
 
-      List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
-      this.projectsByUuid = getAuthorizedProjects(allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
-      this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, projectsByUuid.keySet()).stream()
+      List<ComponentDto> allBranches = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
+      this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, branchComponentByUuid.keySet()).stream()
         .collect(uniqueIndex(BranchDto::getUuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
@@ -408,14 +408,14 @@ public class BulkChangeAction implements IssuesWsAction {
       return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
     }
 
-    private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> projectDtos) {
+    private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> projectDtos) {
       return userSession.keepAuthorizedComponents(UserRole.USER, projectDtos);
     }
 
     private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
-      Set<String> projectUuids = projectsByUuid.values().stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+      Set<String> branchUuids = branchComponentByUuid.values().stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet());
       return allIssues.stream()
-        .filter(issue -> projectUuids.contains(issue.getProjectUuid()))
+        .filter(issue -> branchUuids.contains(issue.getProjectUuid()))
         .map(IssueDto::toDefaultIssue)
         .collect(MoreCollectors.toList());
     }

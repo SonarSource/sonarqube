@@ -51,7 +51,7 @@ public class ClearActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final ScannerAnalysisCacheDao dao = new ScannerAnalysisCacheDao();
   private final ProjectDao projectDao = new ProjectDao(System2.INSTANCE, new NoOpAuditPersister());

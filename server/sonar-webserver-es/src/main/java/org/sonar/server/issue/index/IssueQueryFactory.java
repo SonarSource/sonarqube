@@ -42,12 +42,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -248,18 +248,18 @@ public class IssueQueryFactory {
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, SearchRequest request, List<ComponentDto> allComponents) {
     Boolean onComponentOnly = request.getOnComponentOnly();
-    Collection<String> components = request.getComponents();
+    Collection<String> componentKeys = request.getComponentKeys();
     Collection<String> componentUuids = request.getComponentUuids();
     String branch = request.getBranch();
     String pullRequest = request.getPullRequest();
 
     boolean effectiveOnComponentOnly = false;
 
-    checkArgument(atMostOneNonNullElement(components, componentUuids),
+    checkArgument(atMostOneNonNullElement(componentKeys, componentUuids),
       "At most one of the following parameters can be provided: %s and %s", PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS);
 
-    if (components != null) {
-      allComponents.addAll(getComponentsFromKeys(session, components, branch, pullRequest));
+    if (componentKeys != null) {
+      allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch, pullRequest));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     } else if (componentUuids != null) {
       allComponents.addAll(getComponentsFromUuids(session, componentUuids));
@@ -284,7 +284,7 @@ public class IssueQueryFactory {
       return;
     }
 
-    List<String> projectKeys = request.getProjects();
+    List<String> projectKeys = request.getProjectKeys();
     if (projectKeys != null) {
       List<ComponentDto> branchComponents = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
       Set<String> projectUuids = retrieveProjectUuidsFromComponents(session, branchComponents);
@@ -348,11 +348,12 @@ public class IssueQueryFactory {
   }
 
   private void addProjectUuidsForApplication(IssueQuery.Builder builder, DbSession session, SearchRequest request) {
-    List<String> projectKeys = request.getProjects();
+    List<String> projectKeys = request.getProjectKeys();
     if (projectKeys != null) {
       // On application, branch should only be applied on the application, not on projects
-      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, null, null);
-      builder.projectUuids(projects.stream().map(ComponentDto::uuid).collect(toList()));
+      List<ComponentDto> appBranchComponents = getComponentsFromKeys(session, projectKeys, null, null);
+      Set<String> appUuids = retrieveProjectUuidsFromComponents(session, appBranchComponents);
+      builder.projectUuids(appUuids);
     }
   }
 
@@ -367,26 +368,26 @@ public class IssueQueryFactory {
     builder.viewUuids(filteredViewUuids);
   }
 
-  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> applications, SearchRequest request) {
-    Set<String> authorizedApplicationUuids = applications.stream()
+  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> appBranchComponents, SearchRequest request) {
+    Set<String> authorizedAppBranchUuids = appBranchComponents.stream()
       .filter(app -> userSession.hasComponentPermission(USER, app) && userSession.hasChildProjectsPermission(USER, app))
       .map(ComponentDto::uuid)
       .collect(toSet());
 
-    builder.viewUuids(authorizedApplicationUuids.isEmpty() ? singleton(UNKNOWN) : authorizedApplicationUuids);
-    addCreatedAfterByProjects(builder, dbSession, request, authorizedApplicationUuids);
+    builder.viewUuids(authorizedAppBranchUuids.isEmpty() ? singleton(UNKNOWN) : authorizedAppBranchUuids);
+    addCreatedAfterByProjects(builder, dbSession, request, authorizedAppBranchUuids);
   }
 
-  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request, Set<String> applicationUuids) {
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request, Set<String> appBranchUuids) {
     if (notInNewCodePeriod(request) || request.getPullRequest() != null) {
       return;
     }
 
-    Set<String> projectUuids = applicationUuids.stream()
-      .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
+    Set<String> projectBranchUuids = appBranchUuids.stream()
+      .flatMap(app -> dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, app, app).stream())
       .collect(toSet());
 
-    List<SnapshotDto> snapshots = getLastAnalysis(dbSession, projectUuids);
+    List<SnapshotDto> snapshots = getLastAnalysis(dbSession, projectBranchUuids);
 
     Set<String> newCodeReferenceByProjects = snapshots
       .stream()

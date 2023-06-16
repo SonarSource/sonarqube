@@ -47,10 +47,9 @@ public class DeleteActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession));
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession));
 
   @Test
   public void no_response() {

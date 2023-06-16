@@ -178,6 +178,10 @@ public class IssueQuery {
     return files;
   }
 
+  /**
+   * Restrict issues belonging to projects that were analyzed under a view.
+   * The view UUIDs should be portfolios, sub portfolios or application branches.
+   */
   public Collection<String> viewUuids() {
     return views;
   }
@@ -422,6 +426,10 @@ public class IssueQuery {
       return this;
     }
 
+    /**
+     * Restrict issues belonging to projects that were analyzed under a view.
+     * The view UUIDs should be portfolios, sub portfolios or application branches.
+     */
     public Builder viewUuids(@Nullable Collection<String> l) {
       this.views = l;
       return this;

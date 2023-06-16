@@ -56,10 +56,9 @@ public class CreateActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private WsActionTester ws = new WsActionTester(new CreateAction(dbClient, userSession, TestComponentFinder.from(db), UuidFactoryFast.getInstance()));
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final WsActionTester ws = new WsActionTester(new CreateAction(dbClient, userSession, TestComponentFinder.from(db), UuidFactoryFast.getInstance()));
 
   @Test
   public void example_with_key() {

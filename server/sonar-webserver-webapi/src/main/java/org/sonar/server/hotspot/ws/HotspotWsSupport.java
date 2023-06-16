@@ -31,6 +31,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -53,7 +55,7 @@ public class HotspotWsSupport {
     return userSession.checkLoggedIn().getUuid();
   }
 
-  BranchDto loadAndCheckBranch(DbSession dbSession, String hotspotKey) {
+  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, String hotspotKey) {
     IssueDto hotspot = loadHotspot(dbSession, hotspotKey);
     return loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
   }
@@ -65,7 +67,7 @@ public class HotspotWsSupport {
       .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
   }
 
-  BranchDto loadAndCheckBranch(DbSession dbSession, IssueDto hotspot, String userRole) {
+  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, IssueDto hotspot, String userRole) {
     String branchUuid = hotspot.getProjectUuid();
     checkArgument(branchUuid != null, "Hotspot '%s' has no branch", hotspot.getKee());
 
@@ -75,11 +77,11 @@ public class HotspotWsSupport {
       .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", branch.getProjectUuid())));
 
     userSession.checkEntityPermission(userRole, project);
-    return branch;
+    return new ProjectAndBranch(project, branch);
   }
 
-  boolean canChangeStatus(ComponentDto project) {
-    return userSession.hasComponentPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+  boolean canChangeStatus(ProjectDto project) {
+    return userSession.hasEntityPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
   }
 
   IssueChangeContext newIssueChangeContextWithoutMeasureRefresh() {

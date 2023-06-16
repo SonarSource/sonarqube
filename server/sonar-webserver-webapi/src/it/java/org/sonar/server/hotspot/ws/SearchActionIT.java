@@ -78,7 +78,6 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
@@ -143,7 +142,7 @@ public class SearchActionIT {
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -256,7 +255,7 @@ public class SearchActionIT {
         Stream.of(randomAlphabetic(3)))
       .filter(t -> !STATUS_REVIEWED.equals(t))
       .filter(t -> !STATUS_TO_REVIEW.equals(t))
-      .map(t -> new Object[]{t})
+      .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 
@@ -293,7 +292,7 @@ public class SearchActionIT {
         Stream.of(randomAlphabetic(4)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_TYPES.contains(t))
-      .map(t -> new Object[]{t})
+      .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 
@@ -324,7 +323,7 @@ public class SearchActionIT {
 
   @DataProvider
   public static Object[][] fixedOrSafeResolution() {
-    return new Object[][]{
+    return new Object[][] {
       {RESOLUTION_SAFE},
       {RESOLUTION_FIXED}
     };
@@ -417,10 +416,9 @@ public class SearchActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(USER, project);
+    userSessionRule.logIn().addProjectPermission(USER, projectData.getProjectDto());
 
-    SearchWsResponse response = newRequest(project)
-      .executeProtobuf(SearchWsResponse.class);
+    SearchWsResponse response = newRequest(project).executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
@@ -432,8 +430,7 @@ public class SearchActionIT {
     ComponentDto application = applicationData.getMainBranchComponent();
     userSessionRule.logIn().registerApplication(applicationData.getProjectDto()).addProjectPermission(USER, applicationData.getProjectDto());
 
-    SearchWsResponse response = newRequest(application)
-      .executeProtobuf(SearchWsResponse.class);
+    SearchWsResponse response = newRequest(application).executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
@@ -804,7 +801,7 @@ public class SearchActionIT {
 
   @DataProvider
   public static Object[][] onlyMineParamValues() {
-    return new Object[][]{
+    return new Object[][] {
       {"yes", true},
       {"true", true},
       {"no", false},
@@ -1012,7 +1009,7 @@ public class SearchActionIT {
 
   @DataProvider
   public static Object[][] validStatusesAndResolutions() {
-    return new Object[][]{
+    return new Object[][] {
       {STATUS_TO_REVIEW, null},
       {STATUS_REVIEWED, RESOLUTION_FIXED},
       {STATUS_REVIEWED, RESOLUTION_SAFE},
@@ -1045,13 +1042,13 @@ public class SearchActionIT {
   public static Object[][] allSQCategories() {
     Stream<Object[]> allCategoriesButOTHERS = SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()
       .stream()
-      .map(t -> new Object[]{
+      .map(t -> new Object[] {
         t.getValue().stream().map(c -> "cwe:" + c).collect(toSet()),
         t.getKey()
       });
     Stream<Object[]> sqCategoryOTHERS = Stream.of(
-      new Object[]{Collections.emptySet(), SQCategory.OTHERS},
-      new Object[]{of("foo", "donut", "acme"), SQCategory.OTHERS});
+      new Object[] {Collections.emptySet(), SQCategory.OTHERS},
+      new Object[] {of("foo", "donut", "acme"), SQCategory.OTHERS});
     return Stream.concat(allCategoriesButOTHERS, sqCategoryOTHERS).toArray(Object[][]::new);
   }
 
@@ -1750,6 +1747,7 @@ public class SearchActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
+    userSessionRule.addProjectBranchMapping(projectData.projectUuid(), project);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     long periodDate = 800_996_999_332L;
@@ -1960,7 +1958,8 @@ public class SearchActionIT {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
-    ProjectDto application = dbTester.components().insertPublicApplication().getProjectDto();
+    ProjectData applicationData = dbTester.components().insertPublicApplication();
+    ProjectDto application = applicationData.getProjectDto();
     BranchDto applicationBranch = dbTester.components().insertProjectBranch(application, branchDto -> branchDto.setKey("application_branch_1"));
     ProjectDto project = dbTester.components().insertPublicProject().getProjectDto();
     BranchDto projectBranch = dbTester.components().insertProjectBranch(project, branchDto -> branchDto.setKey("project_1_branch_1"));
@@ -1998,7 +1997,7 @@ public class SearchActionIT {
 
     indexIssues();
 
-    ComponentDto applicationComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), application.getUuid()).get();
+    ComponentDto applicationComponentDto = applicationData.getMainBranchComponent();
     SearchWsResponse responseAll = newRequest(applicationComponentDto,
       t -> t.setParam(PARAM_BRANCH, applicationBranch.getKey()))
       .executeProtobuf(SearchWsResponse.class);

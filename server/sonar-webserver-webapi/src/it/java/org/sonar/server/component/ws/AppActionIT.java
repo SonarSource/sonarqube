@@ -20,11 +20,14 @@
 package org.sonar.server.component.ws;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -54,19 +57,24 @@ public class AppActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
 
   private final ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(db.getDbClient());
-
   private final WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession,
     TestComponentFinder.from(db), componentViewerJsonWriter));
+  private ProjectData projectData;
+  private ComponentDto mainBranchComponent;
 
+  @Before
+  public void setup() {
+    projectData = db.components().insertPrivateProject();
+    mainBranchComponent = projectData.getMainBranchComponent();
+  }
   @Test
   public void file_info() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto directory = db.components().insertComponent(newDirectory(mainBranchComponent, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent, directory));
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -80,8 +88,8 @@ public class AppActionIT {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"project\": \"" + project.getKey() + "\",\n" +
-      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"project\": \"" + projectData.getProjectDto().getKey() + "\",\n" +
+      "  \"projectName\": \"" + projectData.getProjectDto().getName() + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
       "  \"measures\": {}\n" +
@@ -90,10 +98,9 @@ public class AppActionIT {
 
   @Test
   public void file_on_module() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto directory = db.components().insertComponent(newDirectory(mainBranchComponent, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent, directory));
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -107,8 +114,8 @@ public class AppActionIT {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"project\": \"" + project.getKey() + "\",\n" +
-      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"project\": \"" + projectData.getProjectDto().getKey() + "\",\n" +
+      "  \"projectName\": \"" + projectData.getProjectDto().getName() + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
       "  \"measures\": {}\n" +
@@ -117,9 +124,8 @@ public class AppActionIT {
 
   @Test
   public void file_without_measures() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent));
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -133,9 +139,8 @@ public class AppActionIT {
 
   @Test
   public void file_with_measures() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(mainBranchComponent, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent, directory));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
     db.measures().insertLiveMeasure(file, lines, m -> m.setValue(200d));
     MetricDto duplicatedLines = db.measures().insertMetric(m -> m.setKey(DUPLICATED_LINES_DENSITY_KEY));
@@ -148,7 +153,7 @@ public class AppActionIT {
     db.measures().insertLiveMeasure(file, issues, m -> m.setValue(231d));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -168,11 +173,10 @@ public class AppActionIT {
 
   @Test
   public void get_by_component() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, project));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent, mainBranchComponent));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -190,11 +194,10 @@ public class AppActionIT {
 
   @Test
   public void canMarkAsFavorite_is_true_when_logged() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", mainBranchComponent.getKey())
       .execute()
       .getInput();
 
@@ -205,11 +208,10 @@ public class AppActionIT {
 
   @Test
   public void canMarkAsFavorite_is_false_when_not_logged() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", mainBranchComponent.getKey())
       .execute()
       .getInput();
 
@@ -220,8 +222,11 @@ public class AppActionIT {
 
   @Test
   public void component_is_favorite() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    BranchDto mainBranch = projectData.getMainBranchDto();
+    ProjectDto project = projectData.getProjectDto();
+    userSession.logIn("john")
+      .addProjectPermission(USER, project)
+      .registerBranches(mainBranch);
     db.favorites().add(project, userSession.getUuid(), userSession.getLogin());
 
     String result = ws.newRequest()
@@ -236,11 +241,10 @@ public class AppActionIT {
 
   @Test
   public void component_is_not_favorite() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
 
     String result = ws.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", mainBranchComponent.getKey())
       .execute()
       .getInput();
 
@@ -251,13 +255,12 @@ public class AppActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
+    ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(mainBranchComponent.uuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project.uuid(), branch, directory));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent.uuid(), branch, directory));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
 
@@ -275,8 +278,8 @@ public class AppActionIT {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"project\": \"" + project.getKey() + "\",\n" +
-      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"project\": \"" + projectData.getProjectDto().getKey() + "\",\n" +
+      "  \"projectName\": \"" + projectData.getProjectDto().getName() + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
       "  \"measures\": {\n" +
@@ -295,12 +298,11 @@ public class AppActionIT {
 
   @Test
   public void component_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setKey(branchName));
+    userSession.addProjectBranchMapping(mainBranchComponent.uuid(), branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -316,8 +318,8 @@ public class AppActionIT {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"project\": \"" + project.getKey() + "\",\n" +
-      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"project\": \"" + projectData.getProjectDto().getKey() + "\",\n" +
+      "  \"projectName\": \"" + projectData.getProjectDto().getName() + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
       "  \"measures\": {}\n" +
@@ -326,12 +328,11 @@ public class AppActionIT {
 
   @Test
   public void component_and_pull_request_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
+    userSession.addProjectBranchMapping(mainBranchComponent.uuid(), branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
@@ -346,8 +347,8 @@ public class AppActionIT {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"project\": \"" + project.getKey() + "\",\n" +
-      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"project\": \"" + projectData.getProjectDto().getKey() + "\",\n" +
+      "  \"projectName\": \"" + projectData.getProjectDto().getName() + "\",\n" +
       "  \"pullRequest\": \"" + pullRequestKey + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
@@ -357,10 +358,9 @@ public class AppActionIT {
 
   @Test
   public void fail_if_component_and_pull_request_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn("john").addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    userSession.logIn("john").addProjectPermission(USER, mainBranchComponent);
+    ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
 
     TestRequest request = ws.newRequest()
       .setParam("component", file.getKey())
@@ -373,8 +373,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_component_not_found() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent));
 
     TestRequest request = ws.newRequest()
       .setParam("component", "unknown");
@@ -384,9 +383,8 @@ public class AppActionIT {
 
   @Test
   public void fail_when_branch_not_found() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
 
     TestRequest request = ws.newRequest()
       .setParam("component", file.getKey())
@@ -398,8 +396,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_missing_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent));
 
     TestRequest request = ws.newRequest()
       .setParam("component", file.getKey());

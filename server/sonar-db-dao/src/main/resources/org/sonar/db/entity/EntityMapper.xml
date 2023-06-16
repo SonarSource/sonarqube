@@ -22,7 +22,20 @@
     where p.uuid = #{uuid,jdbcType=VARCHAR})
   </select>
 
-  <sql id="selectAll">
+  <select id="selectByComponentUuid" parameterType="string" resultType="Entity">
+    (select <include refid="entityProjectColumns"/>
+    from projects p
+    inner join project_branches pb on pb.project_uuid = p.uuid
+    inner join components c on c.branch_uuid = pb.uuid
+    where c.uuid = #{uuid,jdbcType=VARCHAR})
+    UNION
+    (select <include refid="entityPortfolioColumns"/>
+    from portfolios p
+    inner join components c on c.branch_uuid = p.uuid
+    where c.uuid = #{uuid,jdbcType=VARCHAR})
+  </select>
+
+    <sql id="selectAll">
     (select <include refid="org.sonar.db.entity.EntityMapper.entityProjectColumns"/>
     from projects p)
     UNION

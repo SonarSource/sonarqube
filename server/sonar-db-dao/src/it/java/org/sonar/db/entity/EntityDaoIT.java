@@ -27,8 +27,12 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +44,42 @@ public class EntityDaoIT {
   public DbTester db = DbTester.create(system2, true);
 
   private final EntityDao entityDao = new EntityDao();
+
+  @Test
+  public void selectEntityByComponentUuid_shouldReturnProjectEntityBasedOnComponent() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    BranchDto branchDto = db.components().insertProjectBranch(project);
+    ComponentDto fileInBranch = db.components().insertFile(branchDto);
+
+    assertThat(entityDao.selectByComponentUuid(db.getSession(), fileInBranch.uuid()).get())
+      .extracting(EntityDto::getUuid, EntityDto::getKey)
+      .containsOnly(project.getUuid(), project.getKey());
+  }
+
+  @Test
+  public void selectEntityByComponentUuid_shouldReturnPortfolioEntityBasedOnComponent() {
+    PortfolioDto portfolio = db.components().insertPublicPortfolioDto();
+    assertThat(entityDao.selectByComponentUuid(db.getSession(), portfolio.getUuid()).get())
+      .extracting(EntityDto::getUuid, EntityDto::getKey)
+      .containsOnly(portfolio.getUuid(), portfolio.getKey());
+  }
+
+  @Test
+  public void selectEntityByComponentUuid_whenPortfolioWithHierarchy_shouldReturnPortfolioEntityBasedOnComponent() {
+    ComponentDto projectBranch = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    ComponentDto subPortfolio = db.components().insertSubportfolio(portfolio);
+    ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy(projectBranch, subPortfolio));
+
+    assertThat(entityDao.selectByComponentUuid(db.getSession(), projectCopy.uuid()).get())
+      .extracting(EntityDto::getUuid, EntityDto::getKey)
+      .containsOnly(portfolio.uuid(), portfolio.getKey());
+  }
+
+  @Test
+  public void selectEntityByComponentUuid_whenUnknown_shouldReturnEmpty() {
+    assertThat(entityDao.selectByComponentUuid(db.getSession(), "unknown")).isEmpty();
+  }
 
   @Test
   public void selectEntitiesByKeys_shouldReturnAllEntities() {

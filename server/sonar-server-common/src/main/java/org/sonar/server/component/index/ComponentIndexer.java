@@ -20,7 +20,6 @@
 package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,6 +32,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BaseDoc;
@@ -53,7 +53,7 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COM
 public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_COMPONENT, project -> true);
-  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_COMPONENT);
+  private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_COMPONENT);
 
   private final DbClient dbClient;
   private final EsClient esClient;
@@ -70,11 +70,11 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    doIndexByProjectUuid(Size.LARGE);
+    doIndexByEntityUuid(Size.LARGE);
   }
 
   public void indexAll() {
-    doIndexByProjectUuid(Size.REGULAR);
+    doIndexByEntityUuid(Size.REGULAR);
   }
 
   @Override
@@ -83,8 +83,17 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public void indexOnAnalysis(String entityUuid, Set<String> unchangedComponentUuids) {
-    doIndexByProjectUuid(entityUuid);
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid);
+
+      if (branchDto.isPresent() && !branchDto.get().isMain()) {
+        return;
+      }
+      EntityDto entity = dbClient.entityDao().selectByComponentUuid(dbSession, branchUuid)
+        .orElseThrow(() -> new IllegalStateException("Can't find entity " + branchUuid));
+      doIndexByEntityUuid(entity);
+    }
   }
 
   @Override
@@ -137,25 +146,18 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   /**
-   * @param entityUuid the uuid of the project to analyze, or {@code null} if all content should be indexed.<br/>
-   *                   <b>Warning:</b> only use {@code null} during startup.
+   * @param entity the entity to analyze, or {@code null} if all content should be indexed.<br/>
+   *               <b>Warning:</b> only use {@code null} during startup.
    */
-  private void doIndexByProjectUuid(String entityUuid) {
+  private void doIndexByEntityUuid(EntityDto entity) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, Size.REGULAR);
     bulk.start();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<EntityDto> entityDto = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
-
-      if (entityDto.isEmpty()) {
-        return;
-      }
-      EntityDto entity = entityDto.get();
-
       bulk.add(toDocument(entity).toIndexRequest());
 
       if (entity.getQualifier().equals("VW")) {
-        dbClient.portfolioDao().selectTree(dbSession, entityUuid).forEach(sub ->
+        dbClient.portfolioDao().selectTree(dbSession, entity.getUuid()).forEach(sub ->
           bulk.add(toDocument(sub).toIndexRequest()));
       }
     }
@@ -163,7 +165,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     bulk.stop();
   }
 
-  private void doIndexByProjectUuid(Size bulkSize) {
+  private void doIndexByEntityUuid(Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, bulkSize);
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {

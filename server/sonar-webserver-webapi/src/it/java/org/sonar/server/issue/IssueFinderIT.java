@@ -48,7 +48,7 @@ public class IssueFinderIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private RuleDbTester ruleDbTester = new RuleDbTester(db);
   private IssueDbTester issueDbTester = new IssueDbTester(db);

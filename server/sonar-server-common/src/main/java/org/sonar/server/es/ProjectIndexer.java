@@ -48,8 +48,7 @@ public interface ProjectIndexer extends ResilientIndexer {
   /**
    * This method is called when an analysis must be indexed.
    *
-   * @param branchUuid non-null UUID of branch in table "projects". It can reference
-   *                   a non-main branch
+   * @param branchUuid UUID of a project or application branch, or the UUID of a portfolio.
    */
   void indexOnAnalysis(String branchUuid);
 

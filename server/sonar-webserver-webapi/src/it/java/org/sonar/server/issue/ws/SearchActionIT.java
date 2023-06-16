@@ -135,7 +135,7 @@ public class SearchActionIT {
   @Rule
   public UserSessionRule userSession = standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
 
@@ -469,7 +469,8 @@ public class SearchActionIT {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ProjectData project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
+    ProjectData project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java"));
     grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
@@ -492,7 +493,8 @@ public class SearchActionIT {
   @Test
   public void search_by_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -536,7 +538,8 @@ public class SearchActionIT {
   @Test
   public void search_by_non_existing_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -557,7 +560,8 @@ public class SearchActionIT {
   @Test
   public void search_by_variants_with_facets() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant1")));
     db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant2")));
@@ -664,7 +668,8 @@ public class SearchActionIT {
   public void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     SnapshotDto snapshotDto = db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
@@ -914,7 +919,9 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_test_scope() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID"));
+    ComponentDto project = projectData.getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -955,7 +962,8 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_main_scope() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -996,7 +1004,8 @@ public class SearchActionIT {
 
   @Test
   public void filter_by_scope_always_returns_all_scope_facet_values() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -1029,7 +1038,8 @@ public class SearchActionIT {
   @Test
   public void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newIssue(rule, project, file)
@@ -1135,7 +1145,6 @@ public class SearchActionIT {
     assertThat(result.getIssuesList())
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto3.getKey());
-
   }
 
   @Test

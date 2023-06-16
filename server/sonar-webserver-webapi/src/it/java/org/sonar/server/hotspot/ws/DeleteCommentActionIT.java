@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 public class DeleteCommentActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -72,13 +72,13 @@ public class DeleteCommentActionIT {
   public void delete_comment_from_hotspot_private_project() {
     UserDto userDeletingOwnComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = dbTester.components().insertPrivateProject();
 
-    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
+    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(projectData.getMainBranchComponent()));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userDeletingOwnComment, "Some comment");
 
     userSessionRule.logIn(userDeletingOwnComment);
-    userSessionRule.addProjectPermission(UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 
@@ -138,13 +138,13 @@ public class DeleteCommentActionIT {
     UserDto userTryingToDelete = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = dbTester.components().insertPrivateProject();
 
-    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
+    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(projectData.getMainBranchComponent()));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
 
     userSessionRule.logIn(userTryingToDelete);
-    userSessionRule.addProjectPermission(UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 

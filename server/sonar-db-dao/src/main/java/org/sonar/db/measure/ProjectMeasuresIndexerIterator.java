@@ -72,38 +72,47 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
-    "FROM projects p " +
-    "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
-    "WHERE p.qualifier in (?, ?)";
+  private static final String SQL_PROJECTS = """
+    SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier
+    FROM projects p
+    INNER JOIN project_branches pb on p.uuid = pb.project_uuid
+    LEFT OUTER JOIN snapshots s ON s.component_uuid=pb.uuid AND s.islast=?
+    WHERE pb.is_main = ?
+    AND p.qualifier in (?, ?)""";
 
-  private static final String PROJECT_FILTER = " AND p.uuid=?";
+  private static final String PROJECT_FILTER = " AND pb.project_uuid=?";
 
-  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
-    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
-    "WHERE pm.component_uuid = ? " +
-    "AND m.name IN ({metricNames}) " +
-    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND m.enabled = ? ";
+  private static final String SQL_MEASURES = """
+    SELECT m.name, pm.value, pm.text_value FROM live_measures pm
+    INNER JOIN metrics m ON m.uuid = pm.metric_uuid
+    INNER JOIN project_branches pb ON pb.uuid = pm.component_uuid
+    WHERE pb.project_uuid = ?
+    AND pb.is_main = ?
+    AND m.name IN ({metricNames})
+    AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL)
+    AND m.enabled = ?""";
 
-  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
-    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
-    "WHERE pm.component_uuid = ? " +
-    "AND m.name = ? " +
-    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND m.enabled = ? ";
+  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = """
+    SELECT m.name, pm.value, pm.text_value FROM live_measures pm
+    INNER JOIN metrics m ON m.uuid = pm.metric_uuid
+    WHERE pm.component_uuid = ?
+    AND m.name = ?
+    AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL)
+    AND m.enabled = ?""";
 
-  private static final String SQL_BIGGEST_NCLOC_VALUE = "SELECT max(lm.value) FROM metrics m " +
-    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
-    "WHERE pb.project_uuid = ? " +
-    "AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? ";
+  private static final String SQL_BIGGEST_NCLOC_VALUE = """
+    SELECT max(lm.value) FROM metrics m
+    INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid
+    INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid
+    WHERE pb.project_uuid = ?
+    AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? """;
 
-  private static final String SQL_BRANCH_BY_NCLOC = "SELECT lm.component_uuid FROM metrics m " +
-    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
-    "WHERE pb.project_uuid = ? " +
-    "AND m.name = ? AND lm.value = ? AND m.enabled = ? ";
+  private static final String SQL_BRANCH_BY_NCLOC = """
+    SELECT lm.component_uuid FROM metrics m
+    INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid
+    INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid
+    WHERE pb.project_uuid = ?
+    AND m.name = ? AND lm.value = ? AND m.enabled = ?""";
 
   private static final boolean ENABLED = true;
   private static final int FIELD_METRIC_NAME = 1;
@@ -129,7 +138,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
-         ResultSet rs = stmt.executeQuery()) {
+      ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String uuid = rs.getString(1);
         String key = rs.getString(2);
@@ -154,10 +163,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
       PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
-      stmt.setString(2, Qualifiers.PROJECT);
-      stmt.setString(3, Qualifiers.APP);
+      stmt.setBoolean(2, true);
+      stmt.setString(3, Qualifiers.PROJECT);
+      stmt.setString(4, Qualifiers.APP);
       if (projectUuid != null) {
-        stmt.setString(4, projectUuid);
+        stmt.setString(5, projectUuid);
       }
       return stmt;
     } catch (SQLException e) {
@@ -219,6 +229,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private void prepareMeasuresStatement(String projectUuid) throws SQLException {
     AtomicInteger index = new AtomicInteger(1);
     measuresStatement.setString(index.getAndIncrement(), projectUuid);
+    measuresStatement.setBoolean(index.getAndIncrement(), true);
     METRIC_KEYS
       .stream()
       .filter(m -> !m.equals(NCLOC_LANGUAGE_DISTRIBUTION_KEY))
@@ -226,11 +237,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
   }
 
-  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String projectUuid) {
+  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String branchUuid) {
     try {
       PreparedStatement stmt = session.getConnection().prepareStatement(SQL_NCLOC_LANGUAGE_DISTRIBUTION);
       AtomicInteger index = new AtomicInteger(1);
-      stmt.setString(index.getAndIncrement(), projectUuid);
+      stmt.setString(index.getAndIncrement(), branchUuid);
       stmt.setString(index.getAndIncrement(), NCLOC_LANGUAGE_DISTRIBUTION_KEY);
       stmt.setBoolean(index.getAndIncrement(), ENABLED);
       return stmt;

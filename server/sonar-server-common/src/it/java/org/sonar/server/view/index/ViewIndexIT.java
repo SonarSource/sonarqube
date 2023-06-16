@@ -38,8 +38,8 @@ public class ViewIndexIT {
 
   @Test
   public void find_all_view_uuids() {
-    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(singletonList("P1"));
-    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(singletonList("P2"));
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjectBranchUuids(singletonList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjectBranchUuids(singletonList("P2"));
     es.putDocuments(TYPE_VIEW, view1);
     es.putDocuments(TYPE_VIEW, view2);
 

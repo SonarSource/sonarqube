@@ -82,7 +82,7 @@ public class SuggestionsActionIT {
     .collect(MoreCollectors.toList()).toArray(new String[0]);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public final EsTester es = EsTester.create();
   @Rule
@@ -472,11 +472,12 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_mark_recently_browsed_items() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("ProjectTest")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("ProjectTest"));
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = newFileDto(project).setName("File1");
     ComponentDto file2 = newFileDto(project).setName("File2");
     componentIndexer.indexOnAnalysis(project.branchUuid());
-    authorizationIndexerTester.allowOnlyAnyone(project);
+    authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -513,13 +514,13 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_return_empty_qualifiers() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    componentIndexer.indexOnAnalysis(project.branchUuid());
-    authorizationIndexerTester.allowOnlyAnyone(project);
+    ProjectData project = db.components().insertPrivateProject();
+    componentIndexer.indexOnAnalysis(project.getMainBranchComponent().uuid());
+    authorizationIndexerTester.allowOnlyAnyone(project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, project.name())
+      .setParam(PARAM_QUERY, project.getProjectDto().getName())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -531,17 +532,19 @@ public class SuggestionsActionIT {
   public void should_only_provide_project_for_certain_qualifiers() {
     String query = randomAlphabetic(10);
 
-    ComponentDto app = db.components().insertPublicApplication(v -> v.setName(query)).getMainBranchComponent();
+    ProjectData appData = db.components().insertPublicApplication(v -> v.setName(query));
+    ComponentDto app = appData.getMainBranchComponent();
     ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
     ComponentDto subView = db.components().insertSubView(view, v -> v.setName(query));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query)).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setName(query));
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
     ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
     componentIndexer.indexAll();
-    authorizationIndexerTester.allowOnlyAnyone(project);
+    authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
     authorizationIndexerTester.allowOnlyAnyone(view);
-    authorizationIndexerTester.allowOnlyAnyone(app);
+    authorizationIndexerTester.allowOnlyAnyone(appData.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")

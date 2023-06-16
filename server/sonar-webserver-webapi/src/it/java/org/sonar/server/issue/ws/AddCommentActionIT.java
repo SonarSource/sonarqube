@@ -75,7 +75,7 @@ public class AddCommentActionIT {
 
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public EsTester es = EsTester.create();

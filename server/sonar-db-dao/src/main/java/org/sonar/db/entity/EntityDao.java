@@ -54,6 +54,10 @@ public class EntityDao implements Dao {
     return executeLargeInputs(keys, partition -> mapper(dbSession).selectByKeys(partition));
   }
 
+  public Optional<EntityDto> selectByComponentUuid(DbSession dbSession, String componentUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByComponentUuid(componentUuid));
+  }
+
   public void scrollForIndexing(DbSession session, @Nullable String entityUuid, ResultHandler<EntityDto> handler) {
     mapper(session).scrollForIndexing(entityUuid, handler);
   }

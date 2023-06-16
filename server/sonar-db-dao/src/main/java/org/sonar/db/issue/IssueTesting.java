@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -48,8 +49,8 @@ public class IssueTesting {
     return newIssue(rule, branch.uuid(), branch.getKey(), file);
   }
 
-  public static IssueDto newIssue(RuleDto rule, ProjectDto project, ComponentDto file) {
-    return newIssue(rule, project.getUuid(), project.getKey(), file);
+  public static IssueDto newIssue(RuleDto rule, BranchDto branch, ComponentDto file) {
+    return newIssue(rule, branch.getUuid(), branch.getKey(), file);
   }
 
   public static IssueDto newIssue(RuleDto rule, String branchUuid, String projectKey, ComponentDto file) {
@@ -80,7 +81,7 @@ public class IssueTesting {
       .setUpdatedAt(System.currentTimeMillis() - 500);
   }
 
-  public static IssueChangeDto newIssuechangeDto(IssueDto issue) {
+  public static IssueChangeDto newIssueChangeDto(IssueDto issue) {
     return new IssueChangeDto()
       .setUuid(UuidFactoryFast.getInstance().create())
       .setKey(UuidFactoryFast.getInstance().create())

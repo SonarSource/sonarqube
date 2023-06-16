@@ -170,18 +170,18 @@ public class PermissionIndexer implements ProjectIndexer {
     bulkIndexers.forEach(BulkIndexer::start);
 
     PermissionIndexerDao permissionIndexerDao = new PermissionIndexerDao();
-    Set<String> remainingProjectUuids = items.stream().map(EsQueueDto::getDocId)
-      .map(AuthorizationDoc::projectUuidOf)
+    Set<String> remainingEntityUuids = items.stream().map(EsQueueDto::getDocId)
+      .map(AuthorizationDoc::entityUuidOf)
       .collect(MoreCollectors.toHashSet());
-    permissionIndexerDao.selectByUuids(dbClient, dbSession, remainingProjectUuids).forEach(p -> {
-      remainingProjectUuids.remove(p.getProjectUuid());
+    permissionIndexerDao.selectByUuids(dbClient, dbSession, remainingEntityUuids).forEach(p -> {
+      remainingEntityUuids.remove(p.getEntityUuid());
       bulkIndexers.forEach(bi -> bi.add(AuthorizationDoc.fromDto(bi.getIndexType(), p).toIndexRequest()));
     });
 
-    // the remaining references on projects that don't exist in db. They must
+    // the remaining references on entities that don't exist in db. They must
     // be deleted from index.
-    remainingProjectUuids.forEach(projectUuid -> bulkIndexers.forEach(bi -> {
-      String authorizationDocId = AuthorizationDoc.idOf(projectUuid);
+    remainingEntityUuids.forEach(entityUuid -> bulkIndexers.forEach(bi -> {
+      String authorizationDocId = AuthorizationDoc.idOf(entityUuid);
       bi.addDeletion(bi.getIndexType(), authorizationDocId, authorizationDocId);
     }));
 

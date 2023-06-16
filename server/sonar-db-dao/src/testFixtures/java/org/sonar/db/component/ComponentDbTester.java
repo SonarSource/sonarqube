@@ -93,7 +93,8 @@ public class ComponentDbTester {
   }
 
   public ComponentDto getComponentDto(ProjectDto project) {
-    return db.getDbClient().componentDao().selectByUuid(dbSession, project.getUuid())
+    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid()).get();
+    return db.getDbClient().componentDao().selectByUuid(dbSession, branchDto.getUuid())
       .orElseThrow(() -> new IllegalStateException("Can't find project"));
   }
 

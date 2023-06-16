@@ -55,7 +55,7 @@ public class WebIssueStorageIT {
   private final System2 system2 = new TestSystem2().setNow(2_000_000_000L);
 
   @org.junit.Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);

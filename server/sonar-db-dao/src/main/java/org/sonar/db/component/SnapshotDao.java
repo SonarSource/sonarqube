@@ -69,11 +69,11 @@ public class SnapshotDao implements Dao {
   /**
    * returns the last analysis of any branch for each existing project
    */
-  public List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(DbSession session, Collection<String> projectUuids) {
+  public List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjectUuids(DbSession session, Collection<String> projectUuids) {
     if (projectUuids.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).selectLastAnalysisDateByProjects(projectUuids);
+    return mapper(session).selectLastAnalysisDateByProjectUuids(projectUuids);
   }
 
   public Optional<SnapshotDto> selectLastAnalysisByRootComponentUuid(DbSession session, String componentUuid) {

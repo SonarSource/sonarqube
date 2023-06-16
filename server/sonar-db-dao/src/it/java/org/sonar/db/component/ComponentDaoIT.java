@@ -879,11 +879,11 @@ public class ComponentDaoIT {
     db.components().insertComponent(newProjectCopy(project1, subView));
     ComponentDto viewWithoutProject = db.components().insertPrivatePortfolio();
 
-    assertThat(underTest.selectProjectsFromView(dbSession, view.uuid(), view.uuid())).containsExactlyInAnyOrder(project1.uuid());
-    assertThat(underTest.selectProjectsFromView(dbSession, viewWithSubView.uuid(), viewWithSubView.uuid())).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
-    assertThat(underTest.selectProjectsFromView(dbSession, subView.uuid(), viewWithSubView.uuid())).containsExactlyInAnyOrder(project1.uuid());
-    assertThat(underTest.selectProjectsFromView(dbSession, viewWithoutProject.uuid(), viewWithoutProject.uuid())).isEmpty();
-    assertThat(underTest.selectProjectsFromView(dbSession, "Unknown", "Unknown")).isEmpty();
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, view.uuid(), view.uuid())).containsExactlyInAnyOrder(project1.uuid());
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, viewWithSubView.uuid(), viewWithSubView.uuid())).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, subView.uuid(), viewWithSubView.uuid())).containsExactlyInAnyOrder(project1.uuid());
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, viewWithoutProject.uuid(), viewWithoutProject.uuid())).isEmpty();
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, "Unknown", "Unknown")).isEmpty();
   }
 
   @Test
@@ -915,8 +915,8 @@ public class ComponentDaoIT {
     ComponentDto subView2 = db.components().insertComponent(newSubPortfolio(view, "ABC", "ABC-key"));
     db.components().insertComponent(newProjectCopy(project3, subView2));
 
-    assertThat(underTest.selectProjectsFromView(dbSession, subView1.uuid(), view.uuid())).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
-    assertThat(underTest.selectProjectsFromView(dbSession, subView2.uuid(), view.uuid())).containsExactlyInAnyOrder(project3.uuid());
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, subView1.uuid(), view.uuid())).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
+    assertThat(underTest.selectProjectBranchUuidsFromView(dbSession, subView2.uuid(), view.uuid())).containsExactlyInAnyOrder(project3.uuid());
   }
 
   @Test

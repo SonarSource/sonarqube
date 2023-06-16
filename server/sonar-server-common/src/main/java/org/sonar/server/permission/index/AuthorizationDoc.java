@@ -31,15 +31,15 @@ import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIEL
 
 public class AuthorizationDoc extends BaseDoc {
   private static final String ID_PREFIX = "auth_";
-  private final String projectUuid;
+  private final String entityUuid;
 
-  private AuthorizationDoc(IndexType indexType, String projectUuid) {
+  private AuthorizationDoc(IndexType indexType, String entityUuid) {
     super(indexType);
-    this.projectUuid = projectUuid;
+    this.entityUuid = entityUuid;
   }
 
   public static AuthorizationDoc fromDto(IndexType indexType, IndexPermissions dto) {
-    AuthorizationDoc res = new AuthorizationDoc(indexType, dto.getProjectUuid());
+    AuthorizationDoc res = new AuthorizationDoc(indexType, dto.getEntityUuid());
     if (dto.isAllowAnyone()) {
       return res.setAllowAnyone();
     }
@@ -48,7 +48,7 @@ public class AuthorizationDoc extends BaseDoc {
 
   @Override
   public String getId() {
-    return idOf(projectUuid);
+    return idOf(entityUuid);
   }
 
   public static String idOf(String projectUuid) {
@@ -56,7 +56,7 @@ public class AuthorizationDoc extends BaseDoc {
     return ID_PREFIX + projectUuid;
   }
 
-  public static String projectUuidOf(String id) {
+  public static String entityUuidOf(String id) {
     if (id.startsWith(ID_PREFIX)) {
       return id.substring(ID_PREFIX.length());
     }
@@ -65,7 +65,7 @@ public class AuthorizationDoc extends BaseDoc {
 
   @Override
   protected Optional<String> getSimpleMainTypeRouting() {
-    return Optional.of(projectUuid);
+    return Optional.of(entityUuid);
   }
 
   private AuthorizationDoc setAllowAnyone() {

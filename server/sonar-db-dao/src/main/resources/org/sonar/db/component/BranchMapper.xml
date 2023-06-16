@@ -107,7 +107,20 @@
     <foreach collection="branchKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
         (pb.project_uuid=#{key,jdbcType=VARCHAR} and pb.kee=#{value,jdbcType=VARCHAR})
     </foreach>
+    and pb.branch_type='BRANCH'
   </select>
+
+    <select id="selectByPullRequestKeys" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns"/>
+    from project_branches pb
+    where
+    <foreach collection="prKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
+        (pb.project_uuid=#{key,jdbcType=VARCHAR} and pb.kee=#{value,jdbcType=VARCHAR})
+    </foreach>
+    and pb.branch_type='PULL_REQUEST'
+  </select>
+
 
   <select id="selectBranchMeasuresWithCaycMetric" resultType="org.sonar.db.component.BranchMeasuresDto">
     select

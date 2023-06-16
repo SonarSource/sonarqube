@@ -73,7 +73,7 @@ public class AddCommentActionIT {
   private static final Random RANDOM = new Random();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

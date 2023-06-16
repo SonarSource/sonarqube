@@ -62,9 +62,7 @@ public class TagsAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
 
-  public TagsAction(IssueIndex issueIndex,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
-    ComponentFinder componentFinder) {
+  public TagsAction(IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient, ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.dbClient = dbClient;
@@ -108,8 +106,8 @@ public class TagsAction implements IssuesWsAction {
       boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
 
-      Optional<EntityDto> entity = getProject(dbSession, projectKey);
-      Optional<BranchDto> branch = entity.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.getUuid(), branchKey));
+      Optional<EntityDto> entity = getEntity(dbSession, projectKey);
+      Optional<BranchDto> branch = branchKey == null ? Optional.empty() : entity.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.getUuid(), branchKey));
       List<String> tags = searchTags(entity.orElse(null), branch.orElse(null), request, all, dbSession);
 
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
@@ -118,12 +116,12 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private Optional<EntityDto> getProject(DbSession dbSession, @Nullable String entityKey) {
+  private Optional<EntityDto> getEntity(DbSession dbSession, @Nullable String entityKey) {
     if (entityKey == null) {
       return Optional.empty();
     }
-    EntityDto entity = componentFinder.getEntityByKey(dbSession, entityKey);
-    return Optional.of(entity);
+    return Optional.of(componentFinder.getEntityByKey(dbSession, entityKey))
+      .filter(e -> !e.getQualifier().equals(Qualifiers.SUBVIEW));
   }
 
   private void checkIfAnyComponentsNeedIssueSync(DbSession session, @Nullable String projectKey) {

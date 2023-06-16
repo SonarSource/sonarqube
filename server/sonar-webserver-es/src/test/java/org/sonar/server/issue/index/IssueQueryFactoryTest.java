@@ -36,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -94,7 +93,7 @@ public class IssueQueryFactoryTest {
       .setStatuses(asList("CLOSED"))
       .setResolutions(asList("FALSE-POSITIVE"))
       .setResolved(true)
-      .setProjects(asList(project.getKey()))
+      .setProjectKeys(asList(project.getKey()))
       .setDirectories(asList("aDirPath"))
       .setFiles(asList(file.uuid()))
       .setAssigneesUuid(asList(user.getUuid()))
@@ -255,7 +254,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void add_unknown_when_no_component_found() {
     SearchRequest request = new SearchRequest()
-      .setComponents(asList("does_not_exist"));
+      .setComponentKeys(asList("does_not_exist"));
 
     IssueQuery query = underTest.create(request);
 
@@ -279,7 +278,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void fail_if_components_and_components_uuid_params_are_set_at_the_same_time() {
     SearchRequest request = new SearchRequest()
-      .setComponents(singletonList("foo"))
+      .setComponentKeys(singletonList("foo"))
       .setComponentUuids(singletonList("bar"));
 
     assertThatThrownBy(() -> underTest.create(request))
@@ -407,7 +406,7 @@ public class IssueQueryFactoryTest {
   public void onComponentOnly_restricts_search_to_specified_componentKeys() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SearchRequest request = new SearchRequest()
-      .setComponents(asList(project.getKey()))
+      .setComponentKeys(asList(project.getKey()))
       .setOnComponentOnly(true);
 
     IssueQuery query = underTest.create(request);
@@ -461,13 +460,13 @@ public class IssueQueryFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
     assertThat(underTest.create(new SearchRequest()
-      .setProjects(singletonList(branch.getKey()))
+      .setProjectKeys(singletonList(branch.getKey()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
 
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(branch.getKey()))
+      .setComponentKeys(singletonList(branch.getKey()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
@@ -481,20 +480,20 @@ public class IssueQueryFactoryTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(file.getKey()))
+      .setComponentKeys(singletonList(file.getKey()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
       .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
 
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(branch.getKey()))
+      .setComponentKeys(singletonList(branch.getKey()))
       .setFiles(singletonList(file.path()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
       .containsOnly(branch.uuid(), singletonList(file.path()), false);
 
     assertThat(underTest.create(new SearchRequest()
-      .setProjects(singletonList(branch.getKey()))
+      .setProjectKeys(singletonList(branch.getKey()))
       .setFiles(singletonList(file.path()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
@@ -509,7 +508,7 @@ public class IssueQueryFactoryTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(file.getKey()))
+      .setComponentKeys(singletonList(file.getKey()))
       .setBranch(branchName)
       .setOnComponentOnly(true)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
@@ -522,12 +521,12 @@ public class IssueQueryFactoryTest {
     db.components().insertProjectBranch(project);
 
     assertThat(underTest.create(new SearchRequest()
-      .setProjects(singletonList(project.getKey()))
+      .setProjectKeys(singletonList(project.getKey()))
       .setBranch(DEFAULT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(project.uuid(), singletonList(project.uuid()), true);
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(project.getKey()))
+      .setComponentKeys(singletonList(project.getKey()))
       .setBranch(DEFAULT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(project.uuid(), singletonList(project.uuid()), true);
@@ -550,7 +549,7 @@ public class IssueQueryFactoryTest {
       .addProjectPermission(USER, projectData2.getProjectDto());
 
     assertThat(underTest.create(new SearchRequest()
-        .setComponents(singletonList(application.getKey())))
+        .setComponentKeys(singletonList(application.getKey())))
       .viewUuids()).containsExactly(application.uuid());
   }
 
@@ -572,15 +571,15 @@ public class IssueQueryFactoryTest {
 
     // Search on applicationBranch1
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(applicationBranch1.getKey()))
+      .setComponentKeys(singletonList(applicationBranch1.getKey()))
       .setBranch(branchName1)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(applicationBranch1.uuid(), Collections.emptyList(), false);
 
     // Search on project1Branch1
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(applicationBranch1.getKey()))
-      .setProjects(singletonList(project1.getKey()))
+      .setComponentKeys(singletonList(applicationBranch1.getKey()))
+      .setProjectKeys(singletonList(project1.getKey()))
       .setBranch(branchName1)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(applicationBranch1.uuid(), singletonList(project1.uuid()), false);
@@ -657,7 +656,7 @@ public class IssueQueryFactoryTest {
 
     SearchRequest searchRequest = new SearchRequest()
       .setInNewCodePeriod(true)
-      .setComponents(asList(project1.getKey(), project2.getKey()));
+      .setComponentKeys(asList(project1.getKey(), project2.getKey()));
 
     assertThatThrownBy(() -> underTest.create(searchRequest))
       .isInstanceOf(IllegalArgumentException.class)

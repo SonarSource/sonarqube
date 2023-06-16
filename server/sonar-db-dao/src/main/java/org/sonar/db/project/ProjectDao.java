@@ -19,6 +19,7 @@
  */
 package org.sonar.db.project;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class ProjectDao implements Dao {
     return mapper(session).selectAllApplications();
   }
 
-  public List<ProjectDto> selectProjectsByKeys(DbSession session, Set<String> keys) {
+  public List<ProjectDto> selectProjectsByKeys(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
       return emptyList();
     }

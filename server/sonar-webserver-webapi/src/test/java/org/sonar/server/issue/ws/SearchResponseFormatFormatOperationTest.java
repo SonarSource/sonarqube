@@ -62,7 +62,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
-import static org.sonar.db.issue.IssueTesting.newIssuechangeDto;
+import static org.sonar.db.issue.IssueTesting.newIssueChangeDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.index.IssueScope.MAIN;
@@ -71,7 +71,7 @@ import static org.sonar.server.issue.index.IssueScope.TEST;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchResponseFormatFormatOperationTest {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final Durations durations = new Durations();
   private final Languages languages = mock(Languages.class);
   private final TextRangeResponseFormatter textRangeResponseFormatter = mock(TextRangeResponseFormatter.class);
@@ -252,7 +252,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_comments_on_issues() {
-    IssueChangeDto issueChangeDto = newIssuechangeDto(issueDto);
+    IssueChangeDto issueChangeDto = newIssueChangeDto(issueDto);
     searchResponseData.setComments(List.of(issueChangeDto));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);

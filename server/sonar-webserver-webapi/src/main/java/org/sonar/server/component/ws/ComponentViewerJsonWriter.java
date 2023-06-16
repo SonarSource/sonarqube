@@ -31,6 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
@@ -62,7 +63,7 @@ public class ComponentViewerJsonWriter {
     this.dbClient = dbClient;
   }
 
-  public void writeComponentWithoutFav(JsonWriter json, ComponentDto component, DbSession session, @Nullable String branch, @Nullable String pullRequest) {
+  public void writeComponentWithoutFav(JsonWriter json, EntityDto entity, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
     json.prop("key", component.getKey());
     json.prop("uuid", component.uuid());
     json.prop("path", component.path());
@@ -70,10 +71,8 @@ public class ComponentViewerJsonWriter {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.branchUuid());
-
-    json.prop("project", project.getKey());
-    json.prop("projectName", project.longName());
+    json.prop("project", entity.getKey());
+    json.prop("projectName", entity.getName());
     if (branch != null) {
       json.prop("branch", branch);
     }
@@ -82,15 +81,15 @@ public class ComponentViewerJsonWriter {
     }
   }
 
-  public void writeComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session, @Nullable String branch,
+  public void writeComponent(JsonWriter json, EntityDto entity, ComponentDto component, UserSession userSession, DbSession session, @Nullable String branch,
     @Nullable String pullRequest) {
-    writeComponentWithoutFav(json, component, session, branch, pullRequest);
+    writeComponentWithoutFav(json, entity, component, branch, pullRequest);
 
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey("favourite")
-      .setEntityUuid(component.uuid())
-      .setUserUuid(userSession.getUuid())
-      .build(),
+        .setKey("favourite")
+        .setEntityUuid(entity.getUuid())
+        .setUserUuid(userSession.getUuid())
+        .build(),
       session);
     boolean isFavourite = propertyDtos.size() == 1;
     json.prop("fav", isFavourite);

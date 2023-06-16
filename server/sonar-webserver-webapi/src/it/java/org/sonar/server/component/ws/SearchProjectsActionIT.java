@@ -25,14 +25,13 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,6 +47,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
@@ -122,31 +123,31 @@ public class SearchProjectsActionIT {
   @Rule
   public final EsTester es = EsTester.create();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][]{{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] component_qualifiers_for_valid_editions() {
-    return new Object[][]{
-      {new String[]{Qualifiers.PROJECT}, Edition.COMMUNITY},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
+    return new Object[][] {
+      {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
     };
   }
 
   @DataProvider
   public static Object[][] community_or_developer_edition() {
-    return new Object[][]{
+    return new Object[][] {
       {Edition.COMMUNITY},
       {Edition.DEVELOPER},
     };
@@ -154,7 +155,7 @@ public class SearchProjectsActionIT {
 
   @DataProvider
   public static Object[][] enterprise_or_datacenter_edition() {
-    return new Object[][]{
+    return new Object[][] {
       {Edition.ENTERPRISE},
       {Edition.DATACENTER},
     };
@@ -249,7 +250,7 @@ public class SearchProjectsActionIT {
       c -> c.setKey(KEY_PROJECT_EXAMPLE_003).setName("My Project 3"),
       p -> p.setTagsString("sales, offshore, java"),
       new Measure(coverage, c -> c.setValue(20d)));
-    addFavourite(project1);
+    addFavourite(db.components().getProjectDtoByMainBranch(project1));
     index();
 
     String jsonResult = ws.newRequest()
@@ -545,7 +546,7 @@ public class SearchProjectsActionIT {
     ComponentDto javaProject = insertProject();
     ComponentDto markDownProject = insertProject();
     ComponentDto sonarQubeProject = insertProject();
-    Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
+    Stream.of(javaProject, markDownProject).forEach(c -> addFavourite(db.components().getProjectDtoByMainBranch(c)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
@@ -560,7 +561,7 @@ public class SearchProjectsActionIT {
     ComponentDto javaProject = insertProject();
     ComponentDto markDownProject = insertProject();
     ComponentDto sonarQubeProject = insertProject();
-    Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
+    Stream.of(javaProject, markDownProject).forEach(c -> addFavourite(db.components().getProjectDtoByMainBranch(c)));
     index();
 
     addFavourite(null, null, null, null);
@@ -577,7 +578,7 @@ public class SearchProjectsActionIT {
     ComponentDto javaProject = insertProject();
     ComponentDto markDownProject = insertProject();
     ComponentDto sonarQubeProject = insertProject();
-    Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
+    Stream.of(javaProject, markDownProject).forEach(c -> addFavourite(db.components().getProjectDtoByMainBranch(c)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
@@ -1184,25 +1185,26 @@ public class SearchProjectsActionIT {
   @Test
   public void sort_by_last_analysis_date() {
     userSession.logIn();
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("project1")).getMainBranchComponent();
-    authorizationIndexerTester.allowOnlyAnyone(project1);
-    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("project2")).getMainBranchComponent();
+    ProjectData project1 = db.components().insertPublicProject(p -> p.setKey("project1"));
+    authorizationIndexerTester.allowOnlyAnyone(project1.getProjectDto());
+    ProjectDto project2 = db.components().insertPublicProject(p -> p.setKey("project2")).getProjectDto();
     db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(40_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project2);
-    ComponentDto project3 = db.components().insertPublicProject(p -> p.setKey("project3")).getMainBranchComponent();
+    ProjectDto project3 = db.components().insertPublicProject(p -> p.setKey("project3")).getProjectDto();
     db.components().insertSnapshot(project3, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project3);
-    ComponentDto project4 = db.components().insertPublicProject(p -> p.setKey("project4")).getMainBranchComponent();
+    ProjectDto project4 = db.components().insertPublicProject(p -> p.setKey("project4")).getProjectDto();
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project4);
     index();
 
-    assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(true)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+    List<Component> response = call(request.setSort(ANALYSIS_DATE).setAsc(true)).getComponentsList();
+    assertThat(response).extracting(Component::getKey)
+      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getProjectDto().getKey());
 
     assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(false)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project2.getKey(), project4.getKey(), project3.getKey(), project1.getKey());
+      .containsExactly(project2.getKey(), project4.getKey(), project3.getKey(), project1.getProjectDto().getKey());
   }
 
   @Test
@@ -1235,21 +1237,21 @@ public class SearchProjectsActionIT {
     userSession.logIn();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project1, snapshot -> snapshot.setPeriodDate(10_000_000_000L));
-    authorizationIndexerTester.allowOnlyAnyone(project1);
+    authorizationIndexerTester.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(project1));
     // No leak period
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     db.components().insertSnapshot(project2, snapshot -> snapshot.setPeriodDate(null));
-    authorizationIndexerTester.allowOnlyAnyone(project2);
+    authorizationIndexerTester.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(project2));
     // No snapshot on project 3
     ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
-    authorizationIndexerTester.allowOnlyAnyone(project3);
+    authorizationIndexerTester.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(project3));
 
     MetricDto leakProjects = db.measures().insertMetric(c -> c.setKey(LEAK_PROJECTS_KEY).setValueType(DATA.name()));
     ComponentDto application1 = insertApplication(
       new Measure(leakProjects, c -> c.setData("{\"leakProjects\":[{\"id\": 1, \"leak\":20000000000}, {\"id\": 2, \"leak\":10000000000}]}")));
     db.components().insertSnapshot(application1);
 
-    authorizationIndexerTester.allowOnlyAnyone(application1);
+    authorizationIndexerTester.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(application1));
     index();
 
     SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("leakPeriodDate")));
@@ -1354,16 +1356,13 @@ public class SearchProjectsActionIT {
     return httpRequest.executeProtobuf(SearchProjectsWsResponse.class);
   }
 
-  private void addFavourite(ComponentDto project) {
-    addFavourite(project.uuid(), project.getKey(),
-      project.name(), project.qualifier());
+  private void addFavourite(ProjectDto project) {
+    addFavourite(project.getUuid(), project.getKey(), project.getName(), project.getQualifier());
   }
 
-  private void addFavourite(@Nullable String componentUuid, @Nullable String componentKey,
-    @Nullable String componentName, @Nullable String qualifier) {
+  private void addFavourite(@Nullable String entityUuid, @Nullable String entityKey, @Nullable String entityName, @Nullable String qualifier) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
-        .setEntityUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
-      componentName, qualifier);
+        .setEntityUuid(entityUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), entityKey, entityName, qualifier);
     dbSession.commit();
   }
 
@@ -1375,8 +1374,7 @@ public class SearchProjectsActionIT {
     return insertProject(componentConsumer, defaults(), measures);
   }
 
-  private ComponentDto insertProject(Consumer<ComponentDto> componentConsumer, Consumer<ProjectDto> projectConsumer,
-    Measure... measures) {
+  private ComponentDto insertProject(Consumer<ComponentDto> componentConsumer, Consumer<ProjectDto> projectConsumer, Measure... measures) {
     ComponentDto project = db.components().insertPublicProject(componentConsumer, projectConsumer).getMainBranchComponent();
     Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(project, m.metric, m.consumer));
     return project;
@@ -1394,9 +1392,12 @@ public class SearchProjectsActionIT {
 
   private void index() {
     projectMeasuresIndexer.indexAll();
-    Set<ComponentDto> roots = dbClient.componentDao().selectComponentsByQualifiers(db.getSession(),
-      new HashSet<>(asList(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP)));
-    authorizationIndexerTester.allowOnlyAnyone(roots.toArray(new ComponentDto[0]));
+    ResultHandler<EntityDto> rh = r -> {
+      if (!r.getResultObject().getQualifier().equals(Qualifiers.SUBVIEW)) {
+        authorizationIndexerTester.allowOnlyAnyone(r.getResultObject());
+      }
+    };
+    db.getDbClient().entityDao().scrollForIndexing(dbSession, null, rh);
   }
 
   private ComponentDto insertPortfolio() {

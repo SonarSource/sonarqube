@@ -58,7 +58,7 @@ public class ComponentService {
   public void updateKey(DbSession dbSession, ProjectDto project, String newKey) {
     userSession.checkEntityPermission(UserRole.ADMIN, project);
     checkProjectKey(newKey);
-    dbClient.componentKeyUpdaterDao().updateKey(dbSession, project.getUuid(), newKey);
+    dbClient.componentKeyUpdaterDao().updateKey(dbSession, project.getUuid(), project.getKey(), newKey);
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     Project newProject = new Project(project.getUuid(), newKey, project.getName(), project.getDescription(), project.getTags());
     projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, project.getKey())));

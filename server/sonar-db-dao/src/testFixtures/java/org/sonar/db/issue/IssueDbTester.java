@@ -29,9 +29,9 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 
@@ -101,8 +101,8 @@ public class IssueDbTester {
   }
 
   @SafeVarargs
-  public final IssueDto insert(RuleDto rule, ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
-    IssueDto issue = newIssue(rule, project, file);
+  public final IssueDto insert(RuleDto rule, BranchDto branch, ComponentDto file, Consumer<IssueDto>... populators) {
+    IssueDto issue = newIssue(rule, branch, file);
     stream(populators).forEach(p -> p.accept(issue));
     return insert(issue);
   }
@@ -180,9 +180,9 @@ public class IssueDbTester {
     return insertHotspot(rule, project.getMainBranchComponent(), file, populators);
   }
 
-  public final IssueDto insertHotspot(ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insertHotspot(BranchDto branchDto, ComponentDto file, Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insertHotspotRule();
-    IssueDto issue = newIssue(rule, project, file)
+    IssueDto issue = newIssue(rule, branchDto, file)
       .setType(SECURITY_HOTSPOT)
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setResolution(null);
@@ -220,7 +220,7 @@ public class IssueDbTester {
 
   @SafeVarargs
   public final IssueChangeDto insertChange(IssueDto issueDto, Consumer<IssueChangeDto>... populators) {
-    IssueChangeDto dto = IssueTesting.newIssuechangeDto(issueDto);
+    IssueChangeDto dto = IssueTesting.newIssueChangeDto(issueDto);
     stream(populators).forEach(p -> p.accept(dto));
     return insertChange(dto);
   }

@@ -26,10 +26,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -54,7 +51,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -63,7 +59,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class AuthorsActionIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -75,20 +71,18 @@ public class AuthorsActionIT {
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
   private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
   private final WsActionTester ws = new WsActionTester(new AuthorsAction(userSession, db.getDbClient(), issueIndex,
-    issueIndexSyncProgressChecker, new ComponentFinder(db.getDbClient(), resourceTypes)));
+    issueIndexSyncProgressChecker));
 
   @Test
   public void search_authors() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranchComponent));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    db.issues().insertIssue(rule, mainBranchComponent, mainBranchComponent, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, mainBranchComponent, mainBranchComponent, issue -> issue.setAuthorLogin(luke));
     indexIssues();
     userSession.logIn();
 
@@ -102,12 +96,11 @@ public class AuthorsActionIT {
   public void search_authors_by_query() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranchComponent));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    db.issues().insertIssue(rule, mainBranchComponent, mainBranchComponent, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, mainBranchComponent, mainBranchComponent, issue -> issue.setAuthorLogin(luke));
     indexIssues();
     userSession.logIn();
 
@@ -124,45 +117,42 @@ public class AuthorsActionIT {
   public void search_authors_by_project() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ProjectData projectData1 = db.components().insertPrivateProject();
-    ComponentDto project1 = projectData1.getMainBranchComponent();
-    ProjectData projectData2 = db.components().insertPrivateProject();
-    ComponentDto project2 = projectData2.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData1.getProjectDto(), projectData2.getProjectDto());
+    ComponentDto mainBranch1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto mainBranch2 = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch1), db.components().getProjectDtoByMainBranch(mainBranch2));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
+    db.issues().insertIssue(rule, mainBranch1, mainBranch1, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, mainBranch2, mainBranch2, issue -> issue.setAuthorLogin(luke));
     indexIssues();
     userSession.logIn();
 
     assertThat(ws.newRequest()
-      .setParam("project", project1.getKey())
+      .setParam("project", mainBranch1.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
-      .setParam("project", project1.getKey())
+      .setParam("project", mainBranch1.getKey())
       .setParam(TEXT_QUERY, "eia")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
-      .setParam("project", project1.getKey())
+      .setParam("project", mainBranch1.getKey())
       .setParam(TEXT_QUERY, "luke")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .isEmpty();
+      .isEmpty();
 
-    verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
+    verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(mainBranch1.getKey()));
   }
 
   @Test
   public void search_authors_by_portfolio() {
     String leia = "leia.organa";
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    db.components().insertComponent(newProjectCopy(project, portfolio));
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertComponent(newProjectCopy(mainBranch, portfolio));
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexAll();
     userSession.logIn();
@@ -170,27 +160,26 @@ public class AuthorsActionIT {
     assertThat(ws.newRequest()
       .setParam("project", portfolio.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
   }
 
   @Test
   public void search_authors_by_application() {
     String leia = "leia.organa";
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    db.components().insertComponent(newProjectCopy(project, application));
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto appMainBranch = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto projectMainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertComponent(newProjectCopy(projectMainBranch, appMainBranch));
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(projectMainBranch));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, projectMainBranch, projectMainBranch, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexAll();
     userSession.logIn();
 
     assertThat(ws.newRequest()
-      .setParam("project", application.getKey())
+      .setParam("project", appMainBranch.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
   }
 
   @Test
@@ -198,13 +187,12 @@ public class AuthorsActionIT {
     String han = "han.solo";
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(han));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin(han));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin(luke));
     indexIssues();
     userSession.logIn();
 
@@ -220,10 +208,9 @@ public class AuthorsActionIT {
   @Test
   public void should_ignore_authors_of_hotspot() {
     String luke = "luke.skywalker";
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
-    db.issues().insertHotspot(project, project, issue -> issue
+    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
+    db.issues().insertHotspot(mainBranch, mainBranch, issue -> issue
       .setAuthorLogin(luke));
     indexIssues();
     userSession.logIn();
@@ -246,23 +233,6 @@ public class AuthorsActionIT {
   }
 
   @Test
-  public void fail_when_project_is_not_a_project() {
-    userSession.logIn();
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("project", file.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component '%s' not found", file.getKey()));
-  }
-
-  @Test
   public void fail_when_project_does_not_exist() {
     userSession.logIn();
 
@@ -272,17 +242,16 @@ public class AuthorsActionIT {
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Component 'unknown' not found");
+      .hasMessage("Entity not found: unknown");
   }
 
   @Test
   public void json_example() {
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    permissionIndexer.allowOnlyAnyone(projectData.getProjectDto());
+    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    permissionIndexer.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(mainBranch));
     RuleDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin("luke.skywalker"));
+    db.issues().insertIssue(rule, mainBranch, mainBranch, issue -> issue.setAuthorLogin("leia.organa"));
     indexIssues();
     userSession.logIn();
 

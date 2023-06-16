@@ -170,12 +170,12 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   @Override
   public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
     ListMultimap<String, EsQueueDto> itemsByIssueKey = ArrayListMultimap.create();
-    ListMultimap<String, EsQueueDto> itemsByProjectKey = ArrayListMultimap.create();
+    ListMultimap<String, EsQueueDto> itemsByProjectUuid = ArrayListMultimap.create();
     items.forEach(i -> {
       if (ID_TYPE_ISSUE_KEY.equals(i.getDocIdType())) {
         itemsByIssueKey.put(i.getDocId(), i);
       } else if (ID_TYPE_PROJECT_UUID.equals(i.getDocIdType())) {
-        itemsByProjectKey.put(i.getDocId(), i);
+        itemsByProjectUuid.put(i.getDocId(), i);
       } else {
         LOGGER.error("Unsupported es_queue.doc_id_type for issues. Manual fix is required: " + i);
       }
@@ -183,7 +183,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
     IndexingResult result = new IndexingResult();
     result.add(doIndexIssueItems(dbSession, itemsByIssueKey));
-    result.add(doIndexProjectItems(dbSession, itemsByProjectKey));
+    result.add(doIndexProjectItems(dbSession, itemsByProjectUuid));
     return result;
   }
 

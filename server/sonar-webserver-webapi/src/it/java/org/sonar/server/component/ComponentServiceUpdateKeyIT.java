@@ -52,7 +52,8 @@ public class ComponentServiceUpdateKeyIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
@@ -61,14 +62,15 @@ public class ComponentServiceUpdateKeyIT {
 
   @Test
   public void update_project_key() {
-    ComponentDto project = insertSampleProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo"));
-    ComponentDto inactiveFile = db.components().insertComponent(ComponentTesting.newFileDto(project).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
+    ProjectDto project = insertSampleProject();
+    ComponentDto mainBranchComponent = db.components().getComponentDto(project);
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(mainBranchComponent).setKey("sample:root:src/File.xoo"));
+    ComponentDto inactiveFile = db.components().insertComponent(ComponentTesting.newFileDto(mainBranchComponent).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 
     logInAsProjectAdministrator(project);
-    underTest.updateKey(dbSession, db.components().getProjectDtoByMainBranch(project), "sample2:root");
+    underTest.updateKey(dbSession, project, "sample2:root");
     dbSession.commit();
 
     // Check project key has been updated
@@ -82,13 +84,13 @@ public class ComponentServiceUpdateKeyIT {
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isEmpty();
 
-    assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(project.getUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
 
-    Deque<PushEventDto> pushEvents = db.getDbClient().pushEventDao().selectChunkByProjectUuids(dbSession, Set.of(project.uuid()), 0L, "id", 20);
+    Deque<PushEventDto> pushEvents = db.getDbClient().pushEventDao().selectChunkByProjectUuids(dbSession, Set.of(project.getUuid()), 0L, "id", 20);
 
     assertThat(pushEvents).isNotEmpty();
 
-    Optional<PushEventDto> event = pushEvents.stream().filter(e -> e.getProjectUuid().equals(project.uuid()) && e.getName().equals("ProjectKeyChanged")).findFirst();
+    Optional<PushEventDto> event = pushEvents.stream().filter(e -> e.getProjectUuid().equals(project.getUuid()) && e.getName().equals("ProjectKeyChanged")).findFirst();
     assertThat(event).isNotEmpty();
 
     String payload = new String(event.get().getPayload(), StandardCharsets.UTF_8);
@@ -98,37 +100,35 @@ public class ComponentServiceUpdateKeyIT {
 
   @Test
   public void update_provisioned_project_key() {
-    ComponentDto provisionedProject = insertProject("provisionedProject");
+    ProjectDto provisionedProject = insertProject("provisionedProject");
 
     dbSession.commit();
 
     logInAsProjectAdministrator(provisionedProject);
-    underTest.updateKey(dbSession, db.components().getProjectDtoByMainBranch(provisionedProject), "provisionedProject2");
+    underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.getKey(), "provisionedProject2");
-    assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(provisionedProject.getUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
   public void fail_to_update_project_key_without_admin_permission() {
-    ComponentDto project = insertSampleProject();
+    ProjectDto project = insertSampleProject();
     userSession.logIn("john").addProjectPermission(UserRole.USER, project);
 
-    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample2:root"))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project, "sample2:root"))
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
-    ComponentDto project = insertSampleProject();
+    ProjectDto project = insertSampleProject();
     ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
     String anotherProjectDbKey = anotherProject.getKey();
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto,
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project,
       anotherProjectDbKey))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Impossible to update key: a component with key \"" + anotherProjectDbKey + "\" already exists.");
@@ -136,32 +136,30 @@ public class ComponentServiceUpdateKeyIT {
 
   @Test
   public void fail_if_new_key_is_empty() {
-    ComponentDto project = insertSampleProject();
+    ProjectDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, ""))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project, ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
   public void fail_if_new_key_is_not_formatted_correctly() {
-    ComponentDto project = insertSampleProject();
+    ProjectDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    ProjectDto projectDto = db.components().getProjectDtoByMainBranch(project);
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample?root"))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project, "sample?root"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
-  private ComponentDto insertSampleProject() {
+  private ProjectDto insertSampleProject() {
     return insertProject("sample:root");
   }
 
-  private ComponentDto insertProject(String key) {
-    return db.components().insertPrivateProject(c -> c.setKey(key)).getMainBranchComponent();
+  private ProjectDto insertProject(String key) {
+    return db.components().insertPrivateProject(c -> c.setKey(key)).getProjectDto();
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
@@ -169,7 +167,7 @@ public class ComponentServiceUpdateKeyIT {
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
   }
 
-  private void logInAsProjectAdministrator(ComponentDto provisionedProject) {
+  private void logInAsProjectAdministrator(ProjectDto provisionedProject) {
     userSession.logIn("john").addProjectPermission(UserRole.ADMIN, provisionedProject);
   }
 }

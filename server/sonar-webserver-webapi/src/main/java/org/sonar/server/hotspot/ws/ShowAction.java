@@ -42,6 +42,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
@@ -49,6 +50,7 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
@@ -177,9 +179,9 @@ public class ShowAction implements HotspotsWsAction {
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
     responseBuilder
-      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getBranchComponent(), components.getBranch(), components.getPullRequest()))
+      .setProject(responseFormatter.formatProject(Hotspots.Component.newBuilder(), components.getProjectDto(), components.getBranch(), components.getPullRequest()))
       .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent(), components.getBranch(), components.getPullRequest()));
-    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getBranchComponent()));
+    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProjectDto()));
   }
 
   private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDto) {
@@ -266,9 +268,8 @@ public class ShowAction implements HotspotsWsAction {
       .filter(Optional::isPresent)
       .map(Optional::get)
       .collect(toSet());
-    Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.branchComponent, components.component);
     FormattingContext formattingContext = issueChangeSupport
-      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, preloadedComponents);
+      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, Set.of(components.component));
 
     issueChangeSupport.formatChangelog(hotspot, formattingContext)
       .forEach(responseBuilder::addChangelog);
@@ -300,24 +301,23 @@ public class ShowAction implements HotspotsWsAction {
     String componentUuid = hotspot.getComponentUuid();
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
 
-    BranchDto branch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    ProjectAndBranch projectAndBranch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    BranchDto branch = projectAndBranch.getBranch();
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
         .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
     boolean hotspotOnBranch = Objects.equals(branch.getUuid(), componentUuid);
-    ComponentDto branchComponent = hotspotOnBranch ? component : dbClient.componentDao().selectByUuid(dbSession, branch.getUuid())
-      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
-    return new Components(branchComponent, component, branch);
+    return new Components(projectAndBranch.getProject(), component, branch);
   }
 
   private static final class Components {
-    private final ComponentDto branchComponent;
+    private final ProjectDto project;
     private final ComponentDto component;
     private final String branch;
     private final String pullRequest;
 
-    private Components(ComponentDto branchComponent, ComponentDto component, BranchDto branch) {
-      this.branchComponent = branchComponent;
+    private Components(ProjectDto projectDto, ComponentDto component, BranchDto branch) {
+      this.project = projectDto;
       this.component = component;
       if (branch.isMain()) {
         this.branch = null;
@@ -331,6 +331,10 @@ public class ShowAction implements HotspotsWsAction {
       }
     }
 
+    public ProjectDto getProjectDto() {
+      return project;
+    }
+
     @CheckForNull
     public String getBranch() {
       return branch;
@@ -339,10 +343,6 @@ public class ShowAction implements HotspotsWsAction {
     @CheckForNull
     public String getPullRequest() {
       return pullRequest;
-    }
-
-    public ComponentDto getBranchComponent() {
-      return branchComponent;
     }
 
     public ComponentDto getComponent() {

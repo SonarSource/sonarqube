@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 public class EditCommentActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -77,16 +77,16 @@ public class EditCommentActionIT {
   public void edit_comment_from_hotspot_private_project() {
     UserDto userEditingOwnComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = dbTester.components().insertPrivateProject();
 
-    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
+    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project.getMainBranchComponent()));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userEditingOwnComment, "Some comment");
 
     assertThat(getHotspotCommentByKey(comment.getKey()))
       .isNotEmpty();
 
     userSessionRule.logIn(userEditingOwnComment);
-    userSessionRule.addProjectPermission(UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 
@@ -145,13 +145,13 @@ public class EditCommentActionIT {
     UserDto userTryingToDelete = dbTester.users().insertUser();
     UserDto userWithHotspotComment = dbTester.users().insertUser();
 
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = dbTester.components().insertPrivateProject();
 
-    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project));
+    IssueDto hotspot = dbTester.issues().insertHotspot(h -> h.setProject(project.getMainBranchComponent()));
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
 
     userSessionRule.logIn(userTryingToDelete);
-    userSessionRule.addProjectPermission(UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 

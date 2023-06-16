@@ -24,6 +24,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -50,7 +51,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
@@ -73,6 +74,7 @@ import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -112,10 +114,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final PlatformEditionProvider editionProvider;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
-    ProjectsInWarning projectsInWarning,
-    PlatformEditionProvider editionProvider,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession, ProjectsInWarning projectsInWarning,
+    PlatformEditionProvider editionProvider, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
@@ -249,9 +249,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
     List<String> projectUuids = esResults.getUuids();
     Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
     List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
-    Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
+    Map<String, BranchDto> mainBranchByUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, projectUuids)
+      .stream()
+      .collect(Collectors.toMap(BranchDto::getUuid, b -> b));
 
-    Map<String, Long> applicationsLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, projectUuids);
+    List<SnapshotDto> snapshots = getSnapshots(dbSession, request, mainBranchByUuid.keySet());
+    Map<String, SnapshotDto> analysisByProjectUuid = snapshots.stream()
+      .collect(Collectors.toMap(s -> mainBranchByUuid.get(s.getComponentUuid()).getProjectUuid(), s -> s));
+    Map<String, Long> applicationsBranchLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, mainBranchByUuid.keySet());
+    Map<String, Long> applicationsLeakPeriod = applicationsBranchLeakPeriod.entrySet()
+      .stream()
+      .collect(Collectors.toMap(e -> mainBranchByUuid.get(e.getKey()).getProjectUuid(), Entry::getValue));
 
     List<String> projectsInsync = getProjectUuidsWithBranchesNeedIssueSync(dbSession, Sets.newHashSet(projectUuids));
 
@@ -315,30 +323,26 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .build(),
       dbSession);
 
-    List<String> favoriteDbUuids = props.stream()
+    Set<String> favoriteDbUuids = props.stream()
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList(props.size()));
+      .collect(MoreCollectors.toSet(props.size()));
 
-    return dbClient.componentDao().selectByUuids(dbSession, favoriteDbUuids).stream()
-      .filter(ComponentDto::isEnabled)
-      .filter(f -> f.qualifier().equals(Qualifiers.PROJECT) || f.qualifier().equals(Qualifiers.APP))
-      .map(ComponentDto::uuid)
+    return dbClient.projectDao().selectByUuids(dbSession, favoriteDbUuids).stream()
+      .map(ProjectDto::getUuid)
       .collect(MoreCollectors.toSet());
   }
 
-  private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
+  private List<SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, Collection<String> mainBranchUuids) {
     if (request.getAdditionalFields().contains(ANALYSIS_DATE) || request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
-        .stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
+      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, mainBranchUuids);
     }
-    return emptyMap();
+    return emptyList();
   }
 
-  private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, List<String> projectUuids) {
+  private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, Collection<String> mainBranchUuids) {
     if (qualifiers.contains(Qualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
+      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
         .stream()
         .filter(lm -> !Objects.isNull(lm.getDataAsString()))
         .map(lm -> Maps.immutableEntry(lm.getComponentUuid(), ApplicationLeakProjects.parse(lm.getDataAsString()).getOldestLeak()))

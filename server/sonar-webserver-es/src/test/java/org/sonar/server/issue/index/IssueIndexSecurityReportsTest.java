@@ -735,8 +735,8 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     return statistics.getChildren().stream().filter(stat -> stat.getCategory().equals(cweId)).findAny().orElse(null);
   }
 
-  private void indexView(String viewUuid, List<String> projects) {
-    viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
+  private void indexView(String viewUuid, List<String> projectBranchUuids) {
+    viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjectBranchUuids(projectBranchUuids));
   }
 
 }

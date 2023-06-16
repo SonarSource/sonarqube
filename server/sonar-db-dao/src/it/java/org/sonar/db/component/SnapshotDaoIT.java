@@ -164,36 +164,8 @@ public class SnapshotDaoIT {
   }
 
   @Test
-  public void selectLastAnalysisDateByProject_takes_all_branches_into_account() {
-    ComponentDto firstProject = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch1 = db.components().insertProjectBranch(firstProject);
-    ComponentDto branch2 = db.components().insertProjectBranch(firstProject);
-
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(false).setCreatedAt(1L));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(false).setCreatedAt(2L));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(false).setCreatedAt(10L));
-
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true).setCreatedAt(7L));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(8L));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(true).setCreatedAt(9L));
-
-    Optional<Long> date = underTest.selectLastAnalysisDateByProject(dbSession, firstProject.uuid());
-
-    assertThat(date).contains(9L);
-  }
-
-  @Test
-  public void selectLastAnalysisDateByProject_is_empty_if_no_snapshot() {
-    ComponentDto firstProject = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch1 = db.components().insertProjectBranch(firstProject);
-    ComponentDto branch2 = db.components().insertProjectBranch(firstProject);
-
-    assertThat(underTest.selectLastAnalysisDateByProject(dbSession, firstProject.uuid())).isEmpty();
-  }
-
-  @Test
   public void selectLastAnalysisDateByProjects_is_empty_if_no_project_passed() {
-    assertThat(underTest.selectLastAnalysisDateByProjects(dbSession, emptyList())).isEmpty();
+    assertThat(underTest.selectLastAnalysisDateByProjectUuids(dbSession, emptyList())).isEmpty();
   }
 
   @Test
@@ -213,7 +185,7 @@ public class SnapshotDaoIT {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(false).setCreatedAt(5L));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(4L));
 
-    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjects(dbSession,
+    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjectUuids(dbSession,
       List.of(project1.uuid(), project2.uuid(), project3.uuid(), "non-existing"));
 
     assertThat(lastAnalysisByProject).extracting(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate)
@@ -230,7 +202,7 @@ public class SnapshotDaoIT {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(portfolio).setLast(true).setCreatedAt(2L));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(3L));
 
-    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjects(dbSession,
+    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjectUuids(dbSession,
       List.of(project1.uuid(), portfolio.uuid()));
 
     assertThat(lastAnalysisByProject).extracting(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate)

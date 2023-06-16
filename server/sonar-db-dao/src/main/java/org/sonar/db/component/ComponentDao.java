@@ -228,12 +228,11 @@ public class ComponentDao implements Dao {
    * Used by Governance
    */
   public Set<String> selectViewKeysWithEnabledCopyOfProject(DbSession session, Set<String> projectUuids) {
-    return executeLargeInputsIntoSet(projectUuids,
-      partition -> mapper(session).selectViewKeysWithEnabledCopyOfProject(partition),
-      i -> i);
+    return executeLargeInputsIntoSet(projectUuids, partition -> mapper(session).selectViewKeysWithEnabledCopyOfProject(partition), i -> i);
   }
 
-  public List<String> selectProjectsFromView(DbSession session, String viewUuid, String rootViewUuid) {
+  public List<String> selectProjectBranchUuidsFromView(DbSession session, String viewUuid, String rootViewUuid) {
+    // TODO why not query by scope/qualifier, using the view as the branchUuid?
     var escapedViewUuid = viewUuid.replace("_", "\\_").replace("%", "\\%");
     return mapper(session).selectProjectsFromView("%." + escapedViewUuid + ".%", rootViewUuid);
   }

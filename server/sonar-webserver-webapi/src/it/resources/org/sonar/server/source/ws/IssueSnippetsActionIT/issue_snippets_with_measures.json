@@ -8,7 +8,7 @@
       "longName": "null/NAME_file",
       "q": "FIL",
       "project": "KEY_projectUuid",
-      "projectName": "LONG_NAME_projectUuid",
+      "projectName": "NAME_projectUuid",
       "measures": {
         "lines": "200.0",
         "coverage": "95.4",

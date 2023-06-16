@@ -8,7 +8,7 @@
       "longName": "null/NAME_file",
       "q": "FIL",
       "project": "KEY_projectUuid",
-      "projectName": "LONG_NAME_projectUuid"
+      "projectName": "NAME_projectUuid"
     },
     "sources": [
       {
@@ -107,7 +107,7 @@
         "utCoveredConditions": 9,
         "coveredConditions": 9,
         "duplicated": true,
-        "isNew": true,
+        "isNew": true
       },
       {
         "line": 8,

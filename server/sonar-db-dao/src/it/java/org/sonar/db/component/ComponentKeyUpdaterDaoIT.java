@@ -59,7 +59,7 @@ public class ComponentKeyUpdaterDaoIT {
   public void updateKey_changes_the_key_of_tree_of_components() {
     populateSomeData();
 
-    underTest.updateKey(dbSession, "A", "struts:core");
+    underTest.updateKey(dbSession, "A", "org.struts:struts", "struts:core");
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
@@ -73,9 +73,7 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_disabled_components() {
-    ComponentDto project = db.components().insertComponent(
-      newPrivateProjectDto("A")
-        .setKey("my_project"));
+    ComponentDto project = db.components().insertPrivateProject("A", p -> p.setKey("my_project")).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(
       newDirectory(project, "B")
         .setKey("my_project:directory"));
@@ -83,7 +81,7 @@ public class ComponentKeyUpdaterDaoIT {
     ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
     db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
-    underTest.updateKey(dbSession, "A", "your_project");
+    underTest.updateKey(dbSession, "A", "my_project", "your_project");
     dbSession.commit();
 
     List<ComponentDto> result = dbClient.componentDao().selectByBranchUuid("A", dbSession);
@@ -107,7 +105,7 @@ public class ComponentKeyUpdaterDaoIT {
     assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    underTest.updateKey(dbSession, project.uuid(), newProjectKey);
+    underTest.updateKey(dbSession, project.uuid(), project.getKey(), newProjectKey);
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
@@ -133,7 +131,7 @@ public class ComponentKeyUpdaterDaoIT {
     assertThat(dbClient.componentDao().selectByBranchUuid(pullRequest.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    underTest.updateKey(dbSession, project.uuid(), newProjectKey);
+    underTest.updateKey(dbSession, project.uuid(), project.getKey(), newProjectKey);
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
@@ -150,19 +148,18 @@ public class ComponentKeyUpdaterDaoIT {
   public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     populateSomeData();
 
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, "A", "foo:struts-core"))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, "A", "org.struts:struts", "foo:struts-core"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Impossible to update key: a component with key \"foo:struts-core\" already exists.");
   }
 
   @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
-    ComponentDto project = newPrivateProjectDto("project-uuid").setKey("old-project-key");
-    db.components().insertComponent(project);
+    ComponentDto project = db.components().insertPrivateProject("project-uuid", p -> p.setKey("old-project-key")).getMainBranchComponent();
     db.components().insertComponent(newFileDto(project).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
 
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), newLongProjectKey))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), project.getKey(), newLongProjectKey))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
   }
@@ -175,12 +172,11 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_callsAuditPersister() {
-    db.components().insertComponent(newPrivateProjectDto("A").setKey("my_project"));
+    db.components().insertPrivateProject("A", p -> p.setKey("my_project"));
 
-    underTestWithAuditPersister.updateKey(dbSession, "A", "your_project");
+    underTestWithAuditPersister.updateKey(dbSession, "A", "my_project", "your_project");
 
-    verify(auditPersister, times(1))
-      .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
+    verify(auditPersister, times(1)).componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
   }
 
   private void populateSomeData() {

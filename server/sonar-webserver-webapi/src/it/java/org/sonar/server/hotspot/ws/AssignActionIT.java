@@ -49,7 +49,9 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
@@ -91,7 +93,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class AssignActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -204,12 +206,12 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenAssigneeForPrivateProject() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
-    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project.getProjectDto());
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -220,12 +222,12 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenUnassignedForPrivateProject() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     UserDto assignee = insertUser(randomAlphanumeric(15));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(assignee.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file, h -> h.setAssigneeUuid(assignee.getUuid()));
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -236,14 +238,14 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenAssigneeForPrivateProjectBranch() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.getMainBranchComponent().uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
-    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
-    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    userSessionRule.addProjectBranchMapping(project.projectUuid(), branch);
+    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project.getProjectDto());
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -254,11 +256,11 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenAssigneeDoesNotHaveAccessToPrivateProject_shouldFail() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
@@ -271,13 +273,13 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenAssigneeDoesNotHaveAccessToPrivateProjectBranch_shouldFail() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
-    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    userSessionRule.addProjectBranchMapping(project.projectUuid(), branch);
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
@@ -290,12 +292,11 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenAssignHotspotToMeForPrivateProject() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
-
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -474,11 +475,11 @@ public class AssignActionIT {
 
   @Test
   public void wsExecution_whenMissingBrowserAthentication_shouldFail() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
+    ProjectData project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.CODEVIEWER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.CODEVIEWER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -611,21 +612,19 @@ public class AssignActionIT {
     return dbTester.users().insertUser(login);
   }
 
-  private UserDto insertUserWithProjectPermission(String login, ComponentDto project, String permission) {
+  private UserDto insertUserWithProjectPermission(String login, EntityDto project, String permission) {
     UserDto user = dbTester.users().insertUser(login);
     dbTester.users().insertProjectPermissionOnUser(user, permission, project);
     return user;
   }
 
-  private UserDto insertUserWithProjectUserPermission(String login, ComponentDto project) {
+  private UserDto insertUserWithProjectUserPermission(String login, EntityDto project) {
     return insertUserWithProjectPermission(login, project, UserRole.USER);
   }
 
-  private UserDto insertAndLoginAsUserWithProjectUserPermission(String login, ComponentDto project, String permission) {
+  private UserDto insertAndLoginAsUserWithProjectUserPermission(String login, ProjectDto project, String permission) {
     UserDto user = insertUserWithProjectUserPermission(login, project);
-    userSessionRule.logIn(user)
-      .addProjectPermission(permission,
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), project.uuid()).get());
+    userSessionRule.logIn(user).addProjectPermission(permission, project);
     return user;
   }
 

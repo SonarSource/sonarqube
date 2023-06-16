@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,9 +33,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -71,7 +74,7 @@ public class PullActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = mock(System2.class);
   private final TaintChecker taintChecker = mock(TaintChecker.class);
@@ -87,19 +90,22 @@ public class PullActionIT {
   private final WsActionTester tester = new WsActionTester(underTest);
 
   private RuleDto correctRule, incorrectRule;
-  private ComponentDto correctProject, incorrectProject;
+  private ComponentDto correctMainBranch, incorrectMainBranch;
+  private ProjectDto project;
   private ComponentDto correctFile, incorrectFile;
 
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
     correctRule = db.rules().insertIssueRule();
-    correctProject = db.components().insertPrivateProject().getMainBranchComponent();
-    correctFile = db.components().insertComponent(newFileDto(correctProject));
+    ProjectData projectData = db.components().insertPrivateProject();
+    correctMainBranch = projectData.getMainBranchComponent();
+    project = projectData.getProjectDto();
+    correctFile = db.components().insertComponent(newFileDto(correctMainBranch));
 
     incorrectRule = db.rules().insertIssueRule();
-    incorrectProject = db.components().insertPrivateProject().getMainBranchComponent();
-    incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
+    incorrectMainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    incorrectFile = db.components().insertComponent(newFileDto(incorrectMainBranch));
 
     when(taintChecker.getTaintRepositories()).thenReturn(List.of("roslyn.sonaranalyzer.security.cs",
       "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity"));
@@ -129,7 +135,7 @@ public class PullActionIT {
     userSession.logIn();
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     assertThatThrownBy(request::execute)
@@ -267,7 +273,7 @@ public class PullActionIT {
     ComponentDto developBranch = db.components().insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateIssues(correctRule, developBranch, developFile, 1);
-    loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());
+    loginWithBrowsePermission(developBranch.branchUuid());
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", developBranch.getKey())
@@ -313,12 +319,12 @@ public class PullActionIT {
 
   @Test
   public void given15IssuesInTheTable_returnOnly10ThatBelongToProject() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    generateIssues(correctRule, correctProject, correctFile, 10);
-    generateIssues(incorrectRule, incorrectProject, incorrectFile, 5);
+    loginWithBrowsePermission(project);
+    generateIssues(correctRule, correctMainBranch, correctFile, 10);
+    generateIssues(incorrectRule, incorrectMainBranch, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
@@ -329,11 +335,11 @@ public class PullActionIT {
 
   @Test
   public void givenNoIssuesBelongToTheProject_return0Issues() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    generateIssues(incorrectRule, incorrectProject, incorrectFile, 5);
+    loginWithBrowsePermission(project);
+    generateIssues(incorrectRule, incorrectMainBranch, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
@@ -344,7 +350,7 @@ public class PullActionIT {
 
   @Test
   public void testLanguagesParam_return1Issue() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
 
     IssueDto javaIssue = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
@@ -355,12 +361,12 @@ public class PullActionIT {
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_OPEN)
       .setLanguage("java")
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile)
       .setType(Common.RuleType.BUG.getNumber()));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("languages", "java");
 
@@ -373,7 +379,7 @@ public class PullActionIT {
 
   @Test
   public void testLanguagesParam_givenWrongLanguage_return0Issues() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript"));
 
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
@@ -383,12 +389,12 @@ public class PullActionIT {
       .setRule(javascriptRule)
       .setRuleUuid(javascriptRule.getUuid())
       .setStatus(Issue.STATUS_OPEN)
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile)
       .setType(2));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("languages", "java");
 
@@ -400,7 +406,7 @@ public class PullActionIT {
 
   @Test
   public void testRuleRepositoriesParam_return1IssueForGivenRepository() throws IOException {
-    loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
+    loginWithBrowsePermission(project);
     RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("java"));
     RuleDto javaScriptRule = db.rules().insert(r -> r.setRepositoryKey("javascript"));
 
@@ -410,7 +416,7 @@ public class PullActionIT {
       .setCreatedAt(NOW)
       .setRule(javaRule)
       .setStatus(Issue.STATUS_OPEN)
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile)
       .setType(2));
 
@@ -421,12 +427,12 @@ public class PullActionIT {
       .setCreatedAt(NOW)
       .setRule(javaScriptRule)
       .setStatus(Issue.STATUS_OPEN)
-      .setProject(correctProject)
+      .setProject(correctMainBranch)
       .setComponent(correctFile)
       .setType(Common.RuleType.BUG.getNumber()));
 
     TestRequest request = tester.newRequest()
-      .setParam("projectKey", correctProject.getKey())
+      .setParam("projectKey", correctMainBranch.getKey())
       .setParam("branchName", DEFAULT_BRANCH)
       .setParam("ruleRepositories", "java");
 
@@ -460,15 +466,18 @@ public class PullActionIT {
   }
 
   private void loginWithBrowsePermission(IssueDto issueDto) {
-    loginWithBrowsePermission(issueDto.getProjectUuid(), issueDto.getComponentUuid());
+    loginWithBrowsePermission(issueDto.getProjectUuid());
   }
 
-  private void loginWithBrowsePermission(String projectUuid, String componentUuid) {
+  private void loginWithBrowsePermission(String branchUuid) {
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectByBranchUuid(db.getSession(), branchUuid);
+    loginWithBrowsePermission(projectDto.get());
+  }
+
+  private void loginWithBrowsePermission(ProjectDto projectDto) {
     UserDto user = db.users().insertUser("john");
     userSession.logIn(user)
-      .addProjectPermission(USER,
-        db.getDbClient().componentDao().selectByUuid(db.getSession(), projectUuid).get(),
-        db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
+      .addProjectPermission(USER, projectDto);
   }
 
 }

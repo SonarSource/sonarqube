@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 public class SearchActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

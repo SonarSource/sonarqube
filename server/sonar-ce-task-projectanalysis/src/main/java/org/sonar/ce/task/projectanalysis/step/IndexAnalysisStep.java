@@ -39,7 +39,7 @@ public class IndexAnalysisStep implements ComputationStep {
   private final ProjectIndexer[] indexers;
   private final DbClient dbClient;
 
-  public IndexAnalysisStep(TreeRootHolder treeRootHolder, FileStatuses fileStatuses, DbClient dbClient,ProjectIndexer... indexers) {
+  public IndexAnalysisStep(TreeRootHolder treeRootHolder, FileStatuses fileStatuses, DbClient dbClient, ProjectIndexer... indexers) {
     this.treeRootHolder = treeRootHolder;
     this.fileStatuses = fileStatuses;
     this.indexers = indexers;

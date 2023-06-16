@@ -58,7 +58,7 @@ public class LoginActionIT {
   private static final String PASSWORD = "PASSWORD";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = dbTester.getDbClient();
 

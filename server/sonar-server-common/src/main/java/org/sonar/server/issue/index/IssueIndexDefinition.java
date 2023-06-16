@@ -63,27 +63,20 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_LINE = "line";
 
   /**
-   * The (real) project, equivalent of projects.main_branch_project_uuid | projects.project_uuid, so
+   * The (real) project, equivalent of projects.uuid, so
    * it's never empty.
-   * On main branches, it is the UUID of the project.
-   * On non-main branches, it is the UUID of the main branch (which represents the project).
    * This field maps the parent association with issues/authorization.
    */
   public static final String FIELD_ISSUE_PROJECT_UUID = "project";
 
   /**
-   * The branch, as represented by the component with TRK qualifier. It's never
-   * empty. It maps the DB column projects.project_uuid:
-   * - on main branches, it is the UUID of the project. It equals {@link #FIELD_ISSUE_PROJECT_UUID}.
-   * - on non-main branches, it is the UUID of the project representing the branch and it
-   * is different than {@link #FIELD_ISSUE_PROJECT_UUID}.
+   * The branch. It's never empty. It maps the DB column components.branch_uuid.
+   * It's the UUID of the branch and it's different than {@link #FIELD_ISSUE_PROJECT_UUID}.
    */
   public static final String FIELD_ISSUE_BRANCH_UUID = "branch";
 
   /**
    * Whether component is in a main branch or not.
-   * If true, then {@link #FIELD_ISSUE_BRANCH_UUID} equals {@link #FIELD_ISSUE_PROJECT_UUID}.
-   * If false, then {@link #FIELD_ISSUE_BRANCH_UUID} is different than {@link #FIELD_ISSUE_PROJECT_UUID}.
    */
   public static final String FIELD_ISSUE_IS_MAIN_BRANCH = "isMainBranch";
 

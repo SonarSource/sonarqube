@@ -49,7 +49,7 @@ public class ViewIndexerIT {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
 
@@ -94,10 +94,10 @@ public class ViewIndexerIT {
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
 
-    assertThat(viewsByUuid.get(view1.uuid()).projects()).containsOnly(project1.uuid());
-    assertThat(viewsByUuid.get(view2.uuid()).projects()).containsOnly(project2.uuid(), project3.uuid());
-    assertThat(viewsByUuid.get(subView.uuid()).projects()).containsOnly(project3.uuid());
-    assertThat(viewsByUuid.get(view3.uuid()).projects()).isEmpty();
+    assertThat(viewsByUuid.get(view1.uuid()).projectBranchUuids()).containsOnly(project1.uuid());
+    assertThat(viewsByUuid.get(view2.uuid()).projectBranchUuids()).containsOnly(project2.uuid(), project3.uuid());
+    assertThat(viewsByUuid.get(subView.uuid()).projectBranchUuids()).containsOnly(project3.uuid());
+    assertThat(viewsByUuid.get(view3.uuid()).projectBranchUuids()).isEmpty();
   }
 
   @Test
@@ -126,20 +126,20 @@ public class ViewIndexerIT {
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
 
-    assertThat(viewsByUuid.get(view2.uuid()).projects()).containsOnly(project2.uuid(), project3.uuid());
-    assertThat(viewsByUuid.get(subView.uuid()).projects()).containsOnly(project3.uuid());
+    assertThat(viewsByUuid.get(view2.uuid()).projectBranchUuids()).containsOnly(project2.uuid(), project3.uuid());
+    assertThat(viewsByUuid.get(subView.uuid()).projectBranchUuids()).containsOnly(project3.uuid());
   }
 
   @Test
   public void index_view_doc() {
-    underTest.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
+    underTest.index(new ViewDoc().setUuid("EFGH").setProjectBranchUuids(newArrayList("KLMN", "JKLM")));
 
     List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc view = result.get(0);
     assertThat(view.uuid()).isEqualTo("EFGH");
-    assertThat(view.projects()).containsOnly("KLMN", "JKLM");
+    assertThat(view.projectBranchUuids()).containsOnly("KLMN", "JKLM");
   }
 
   @Test
@@ -154,7 +154,7 @@ public class ViewIndexerIT {
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
     assertThat(resultApp.uuid()).isEqualTo(application.uuid());
-    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(resultApp.projectBranchUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -169,7 +169,7 @@ public class ViewIndexerIT {
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
     assertThat(resultApp.uuid()).isEqualTo(application.uuid());
-    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(resultApp.projectBranchUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -184,7 +184,7 @@ public class ViewIndexerIT {
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
     assertThat(resultApp.uuid()).isEqualTo(application.uuid());
-    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(resultApp.projectBranchUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -207,16 +207,16 @@ public class ViewIndexerIT {
 
     List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
     assertThat(result)
-      .extracting(ViewDoc::uuid, ViewDoc::projects)
+      .extracting(ViewDoc::uuid, ViewDoc::projectBranchUuids)
       .containsExactlyInAnyOrder(
         tuple(applicationBranch1.uuid(), asList(project1Branch.uuid(), project2Branch.uuid())));
   }
 
   @Test
   public void delete_should_delete_the_view() {
-    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(Collections.singletonList("P1"));
-    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
-    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjectBranchUuids(Collections.singletonList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjectBranchUuids(asList("P2", "P3", "P4"));
+    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjectBranchUuids(asList("P2", "P3", "P4"));
     es.putDocuments(TYPE_VIEW, view1);
     es.putDocuments(TYPE_VIEW, view2);
     es.putDocuments(TYPE_VIEW, view3);

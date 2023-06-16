@@ -40,6 +40,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -164,9 +165,9 @@ public class SearchResponseFormat {
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setComponent(component.getKey());
     setBranchOrPr(component, issueBuilder, data);
-    ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
-    if (project != null) {
-      issueBuilder.setProject(project.getKey());
+    ComponentDto branch = data.getComponentByUuid(dto.getProjectUuid());
+    if (branch != null) {
+      issueBuilder.setProject(branch.getKey());
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     if (dto.isExternal()) {
@@ -456,10 +457,10 @@ public class SearchResponseFormat {
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(FACET_PROJECTS);
     facet.forEach((uuid, count) -> {
-      ComponentDto component = datas.getComponentByUuid(uuid);
-      requireNonNull(component, format("Component has not been found for uuid '%s'", uuid));
+      ProjectDto project = datas.getProject(uuid);
+      requireNonNull(project, format("Project has not been found for uuid '%s'", uuid));
       wsFacet.addValuesBuilder()
-        .setVal(component.getKey())
+        .setVal(project.getKey())
         .setCount(count)
         .build();
     });
