@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
@@ -101,7 +102,9 @@ public class DefaultScannerWsClient implements ScannerWsClient {
 
   private void failIfUnauthorized(WsResponse response) {
     int code = response.code();
+
     if (code == HTTP_UNAUTHORIZED) {
+      logResponseDetailsIfDebug(response);
       response.close();
       if (hasCredentials) {
         // credentials are not valid
@@ -110,12 +113,13 @@ public class DefaultScannerWsClient implements ScannerWsClient {
       }
       // not authenticated - see https://jira.sonarsource.com/browse/SONAR-4048
       throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. " +
-                                       "Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
+        "Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
         ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     if (code == HTTP_FORBIDDEN) {
+      logResponseDetailsIfDebug(response);
       throw MessageException.of("You're not authorized to analyze this project or the project doesn't exist on SonarQube" +
-                                " and you're not authorized to create it. Please contact an administrator.");
+        " and you're not authorized to create it. Please contact an administrator.");
     }
     if (code == HTTP_BAD_REQUEST) {
       String jsonMsg = tryParseAsJsonError(response.content());
@@ -123,9 +127,17 @@ public class DefaultScannerWsClient implements ScannerWsClient {
         throw MessageException.of(jsonMsg);
       }
     }
-
     // if failed, throws an HttpException
     response.failIfNotSuccessful();
+  }
+
+  private static void logResponseDetailsIfDebug(WsResponse response) {
+    if (!LOG.isDebugEnabled()) {
+      return;
+    }
+    String content = response.hasContent() ? response.content() : "<no content>";
+    Map<String, List<String>> headers = response.headers();
+    LOG.debug("Error response content: {}, headers: {}", content, headers);
   }
 
   private void checkAuthenticationWarnings(WsResponse response) {
@@ -154,7 +166,7 @@ public class DefaultScannerWsClient implements ScannerWsClient {
       LOG.warn("Analysis executed with this token will fail after the expiration date.");
     }
     analysisWarnings.addUnique(warningMessage + "\nAfter this date, the token can no longer be used to execute the analysis. "
-                               + "Please consider generating a new token and updating it in the locations where it is in use.");
+      + "Please consider generating a new token and updating it in the locations where it is in use.");
   }
 
   /**

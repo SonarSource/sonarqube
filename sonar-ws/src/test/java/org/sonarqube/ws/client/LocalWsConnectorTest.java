@@ -66,6 +66,7 @@ public class LocalWsConnectorTest {
     assertThat(IOUtils.toString(wsResponse.contentStream())).isEqualTo("{}");
     assertThat(wsResponse.contentType()).isEqualTo(MediaTypes.JSON);
     assertThat(wsResponse.requestUrl()).isEqualTo("api/issues/search");
+    assertThat(wsResponse.headers()).isEmpty();
   }
 
   @Test

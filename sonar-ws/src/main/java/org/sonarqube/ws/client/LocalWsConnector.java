@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -158,6 +159,11 @@ class LocalWsConnector implements WsConnector {
     @Override
     public Optional<String> header(String name) {
       return Optional.empty();
+    }
+
+    @Override
+    public Map<String, List<String>> headers() {
+      return new HashMap<>();
     }
   }
 }

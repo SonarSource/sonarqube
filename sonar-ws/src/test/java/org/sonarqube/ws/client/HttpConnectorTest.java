@@ -341,6 +341,8 @@ public class HttpConnectorTest {
     // verify response
     assertThat(response.hasContent()).isTrue();
     assertThat(response.content()).isEqualTo("hello, world!");
+    assertThat(response.headers()).hasEntrySatisfying("header", headerValues -> headerValues.contains("value"));
+    assertThat(response.header("header")).hasValue("value");
 
     // verify the request received by server
     RecordedRequest recordedRequest = server.takeRequest();
@@ -516,6 +518,6 @@ public class HttpConnectorTest {
   }
 
   private void answerHelloWorld() {
-    server.enqueue(new MockResponse().setBody("hello, world!"));
+    server.enqueue(new MockResponse().setBody("hello, world!").setHeader("header", "value"));
   }
 }

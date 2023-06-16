@@ -56,7 +56,7 @@ public class DefaultScannerWsClientTest {
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
 
   @Test
-  public void log_and_profile_request_if_debug_level() {
+  public void call_whenDebugLevel_shouldLogAndProfileRequest() {
     WsRequest request = newRequest();
     WsResponse response = newResponse().setRequestUrl("https://local/api/issues/search");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
@@ -76,63 +76,120 @@ public class DefaultScannerWsClientTest {
   }
 
   @Test
-  public void create_error_msg_from_json() {
+  public void createErrorMessage_whenJsonError_shouldCreateErrorMsg() {
     String content = "{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}";
     assertThat(DefaultScannerWsClient.createErrorMessage(new HttpException("url", 400, content))).isEqualTo("missing scan permission, missing another permission");
   }
 
   @Test
-  public void create_error_msg_from_html() {
+  public void createErrorMessage_whenHtml_shouldCreateErrorMsg() {
     String content = "<!DOCTYPE html><html>something</html>";
     assertThat(DefaultScannerWsClient.createErrorMessage(new HttpException("url", 400, content))).isEqualTo("HTTP code 400");
   }
 
   @Test
-  public void create_error_msg_from_long_content() {
+  public void createErrorMessage_whenLongContent_shouldCreateErrorMsg() {
     String content = StringUtils.repeat("mystring", 1000);
     assertThat(DefaultScannerWsClient.createErrorMessage(new HttpException("url", 400, content))).hasSize(15 + 128);
   }
 
   @Test
-  public void fail_if_requires_credentials() {
-    WsRequest request = newRequest();
-    WsResponse response = newResponse().setCode(401);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
-
-    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, false,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
-        .isInstanceOf(MessageException.class)
-        .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
-                    "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
-  }
-
-  @Test
-  public void fail_if_credentials_are_not_valid() {
-    WsRequest request = newRequest();
-    WsResponse response = newResponse().setCode(401);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
-
-    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
-        .isInstanceOf(MessageException.class)
-        .hasMessage("Not authorized. Please check the user token in the property 'sonar.token' or the credentials in the properties 'sonar.login' and 'sonar.password'.");
-  }
-
-  @Test
-  public void fail_if_requires_permission() {
+  public void call_whenUnauthorizedAndDebugEnabled_shouldLogResponseDetails() {
     WsRequest request = newRequest();
     WsResponse response = newResponse()
+      .setContent("Missing credentials")
+      .setHeader("Authorization: ", "Bearer ImNotAValidToken")
+      .setCode(403);
+
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage(
+        "You're not authorized to analyze this project or the project doesn't exist on SonarQube and you're not authorized to create it. Please contact an administrator.");
+
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs).hasSize(2);
+    assertThat(debugLogs.get(1)).contains("Error response content: Missing credentials, headers: {Authorization: =[Bearer ImNotAValidToken]}");
+  }
+
+  @Test
+  public void call_whenUnauthenticatedAndDebugEnabled_shouldLogResponseDetails() {
+    WsRequest request = newRequest();
+    WsResponse response = newResponse()
+      .setContent("Missing authentication")
+      .setHeader("X-Test-Header: ", "ImATestHeader")
+      .setCode(401);
+
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
+        "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs).hasSize(2);
+    assertThat(debugLogs.get(1)).contains("Error response content: Missing authentication, headers: {X-Test-Header: =[ImATestHeader]}");
+  }
+
+  @Test
+  public void call_whenMissingCredentials_shouldFailWithMsg() {
+    WsRequest request = newRequest();
+    WsResponse response = newResponse()
+      .setContent("Missing authentication")
+      .setCode(401);
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
+        "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+  }
+
+  @Test
+  public void call_whenInvalidCredentials_shouldFailWithMsg() {
+    WsRequest request = newRequest();
+    WsResponse response = newResponse()
+      .setContent("Invalid credentials")
+      .setCode(401);
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not authorized. Please check the user token in the property 'sonar.token' or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+  }
+
+  @Test
+  public void call_whenMissingPermissions_shouldFailWithMsg() {
+    WsRequest request = newRequest();
+    WsResponse response = newResponse()
+      .setContent("Unauthorized")
       .setCode(403);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
-        .isInstanceOf(MessageException.class)
-        .hasMessage("You're not authorized to analyze this project or the project doesn't exist on SonarQube and you're not authorized to create it. Please contact an administrator.");
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage(
+        "You're not authorized to analyze this project or the project doesn't exist on SonarQube and you're not authorized to create it. Please contact an administrator.");
   }
 
   @Test
-  public void warnings_are_added_when_expiration_approaches() {
+  public void call_whenTokenExpirationApproaches_shouldLogWarnings() {
     WsRequest request = newRequest();
     var fiveDaysLatter = LocalDateTime.now().atZone(ZoneOffset.UTC).plusDays(5);
     String expirationDate = DateTimeFormatter
@@ -146,7 +203,7 @@ public class DefaultScannerWsClientTest {
     logTester.setLevel(LoggerLevel.DEBUG);
     DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
     underTest.call(request);
-    //the second call should not add the same warning twice
+    // the second call should not add the same warning twice
     underTest.call(request);
 
     // check logs
@@ -157,17 +214,18 @@ public class DefaultScannerWsClientTest {
   }
 
   @Test
-  public void fail_if_bad_request() {
+  public void call_whenBadRequest_shouldFailWithMessage() {
     WsRequest request = newRequest();
     WsResponse response = newResponse()
       .setCode(400)
       .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
-        .isInstanceOf(MessageException.class)
-        .hasMessage("Boo! bad request! bad!");
+    DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    assertThatThrownBy(() -> client.call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Boo! bad request! bad!");
   }
 
   private MockWsResponse newResponse() {
