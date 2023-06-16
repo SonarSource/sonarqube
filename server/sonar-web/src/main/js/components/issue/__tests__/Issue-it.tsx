@@ -22,10 +22,11 @@ import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { omit, pick } from 'lodash';
 import * as React from 'react';
+import { Route } from 'react-router-dom';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
-import { findTooltipWithContent, renderApp } from '../../../helpers/testReactTestingUtils';
+import { findTooltipWithContent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import {
   IssueActions,
@@ -55,6 +56,11 @@ describe('rendering', () => {
     renderIssue({ issue, onSelect: onClick });
 
     expect(ui.effort('2 days').get()).toBeInTheDocument();
+    expect(ui.issueMessageLink.get()).toHaveAttribute(
+      'href',
+      '/project/issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2&id=myproject'
+    );
+
     await ui.clickIssueMessage();
     expect(onClick).toHaveBeenCalledWith(issue.key);
   });
@@ -154,7 +160,6 @@ describe('updating', () => {
     expect(ui.updateAssigneeBtn('luke').get()).toBeInTheDocument();
   });
 
-  // eslint-disable-next-line jest/no-commented-out-tests
   it('should allow updating the tags', async () => {
     const { ui } = getPageObject();
     const issue = mockRawIssue(false, {
@@ -222,11 +227,10 @@ function getPageObject() {
     ruleStatusBadge: (status: RuleStatus) => byText(`issue.resolution.badge.${status}`),
     locationsBadge: (count: number) => byText(count),
     lineInfo: (line: number) => byText(`L${line}`),
-    permalink: byRole('link', { name: 'permalink' }),
     effort: (effort: string) => byText(`issue.x_effort.${effort}`),
     whyLink: byRole('link', { name: 'issue.why_this_issue.long' }),
     checkbox: byRole('checkbox'),
-    issueMessageBtn: byRole('link', { name: 'This is an issue' }),
+    issueMessageLink: byRole('link', { name: 'This is an issue' }),
     variants: (n: number) => byText(`issue.x_code_variants.${n}`),
 
     // Changelog
@@ -366,7 +370,7 @@ function getPageObject() {
       await user.click(selectors.checkbox.get());
     },
     async clickIssueMessage() {
-      await user.click(selectors.issueMessageBtn.get());
+      await user.click(selectors.issueMessageLink.get());
     },
     async pressDismissShortcut() {
       await act(async () => {
@@ -432,9 +436,14 @@ function renderIssue(props: Partial<Omit<Issue['props'], 'onChange' | 'onPopupTo
     );
   }
 
-  return renderApp(
-    '/',
-    <Wrapper onSelect={jest.fn()} issue={mockIssue()} selected={false} {...props} />,
+  return renderAppRoutes(
+    'issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY',
+    () => (
+      <Route
+        path="issues"
+        element={<Wrapper onSelect={jest.fn()} issue={mockIssue()} selected={false} {...props} />}
+      />
+    ),
     {
       currentUser: mockLoggedInUser({ login: 'leia', name: 'Organa' }),
     }
