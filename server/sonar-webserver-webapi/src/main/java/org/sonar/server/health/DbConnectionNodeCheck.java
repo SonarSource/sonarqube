@@ -50,7 +50,7 @@ public class DbConnectionNodeCheck implements NodeHealthCheck {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbSession.getMapper(IsAliveMapper.class).isAlive() == IsAliveMapper.IS_ALIVE_RETURNED_VALUE;
     } catch (RuntimeException e) {
-      LOGGER.trace("DB connection is down: {}", e.getMessage());
+      LOGGER.trace("DB connection is down: {}", e.getMessage(), e);
       return false;
     }
   }

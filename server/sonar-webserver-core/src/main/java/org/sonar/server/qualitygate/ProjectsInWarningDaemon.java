@@ -104,7 +104,7 @@ public class ProjectsInWarningDaemon implements Startable {
       try (DbSession dbSession = dbClient.openSession(false)) {
         updateProjectsInWarningInDb(dbSession, nbProjectsInWarning);
       } catch (Exception e) {
-        LOG.error("Error updating number of projects in warning: {}", e.getMessage());
+        LOG.error("Error updating number of projects in warning: {}", e.getMessage(), e);
       }
       projectsInWarning.update(nbProjectsInWarning);
       if (nbProjectsInWarning == 0L) {
