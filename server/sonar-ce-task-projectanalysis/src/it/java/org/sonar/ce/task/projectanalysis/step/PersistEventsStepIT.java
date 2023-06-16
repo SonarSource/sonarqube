@@ -42,7 +42,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.event.EventDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
@@ -94,7 +93,7 @@ public class PersistEventsStepIT extends BaseStepTest {
   public void setup() {
     analysisMetadataHolder.setAnalysisDate(someDate.getTime()).setUuid(ANALYSIS_UUID);
     underTest = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository, uuidFactory);
-    when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.emptyList());
+    when(eventRepository.getEvents()).thenReturn(Collections.emptyList());
   }
 
   @Override
@@ -143,7 +142,7 @@ public class PersistEventsStepIT extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
     Event alert = Event.createAlert("Failed", null, "Open issues > 0");
-    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(alert));
+    when(eventRepository.getEvents()).thenReturn(ImmutableList.of(alert));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -167,7 +166,7 @@ public class PersistEventsStepIT extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
     Event profile = Event.createProfile("foo", null, "bar");
-    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(profile));
+    when(eventRepository.getEvents()).thenReturn(ImmutableList.of(profile));
 
     underTest.execute(new TestComputationStepContext());
 

@@ -132,7 +132,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
@@ -147,7 +147,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
@@ -162,7 +162,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
@@ -176,7 +176,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
@@ -189,7 +189,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository, never()).add(any(Component.class), any(Event.class));
+    verify(eventRepository, never()).add(any(Event.class));
   }
 
   @Test
@@ -202,7 +202,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(),
       "Changes in '" + qp2.getQpName() + "' (" + language.getName() + ")",
@@ -214,9 +214,9 @@ public class QualityProfileEventsStepTest {
   public void verify_detection_with_complex_mix_of_qps() {
     final Set<Event> events = new HashSet<>();
     doAnswer(invocationOnMock -> {
-      events.add((Event) invocationOnMock.getArguments()[1]);
+      events.add((Event) invocationOnMock.getArguments()[0]);
       return null;
-    }).when(eventRepository).add(eq(treeRootHolder.getRoot()), any(Event.class));
+    }).when(eventRepository).add(any(Event.class));
 
     Date date = new Date();
     QualityProfile qp1 = qp(QP_NAME_2, LANGUAGE_KEY_1, date);

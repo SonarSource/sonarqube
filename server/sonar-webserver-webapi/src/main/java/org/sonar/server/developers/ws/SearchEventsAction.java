@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -134,8 +135,8 @@ public class SearchEventsAction implements DevelopersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ProjectDto> authorizedProjects = searchProjects(dbSession, projectKeys);
       Map<String, ProjectDto> projectsByUuid = authorizedProjects.stream().collect(uniqueIndex(ProjectDto::getUuid));
-      List<UuidFromPair> uuidFromPairs = componentUuidFromPairs(fromDates, projectKeys, authorizedProjects);
-      List<SnapshotDto> analyses = dbClient.snapshotDao().selectFinishedByComponentUuidsAndFromDates(dbSession, componentUuids(uuidFromPairs), fromDates(uuidFromPairs));
+      List<UuidFromPair> uuidFromPairs = buildUuidFromPairs(fromDates, projectKeys, authorizedProjects);
+      List<SnapshotDto> analyses = dbClient.snapshotDao().selectFinishedByProjectUuidsAndFromDates(dbSession, componentUuids(uuidFromPairs), fromDates(uuidFromPairs));
 
       if (analyses.isEmpty()) {
         return Stream.empty();
@@ -224,7 +225,7 @@ public class SearchEventsAction implements DevelopersWsAction {
     return link;
   }
 
-  private static List<UuidFromPair> componentUuidFromPairs(List<Long> fromDates, List<String> projectKeys, List<ProjectDto> authorizedProjects) {
+  private static List<UuidFromPair> buildUuidFromPairs(List<Long> fromDates, List<String> projectKeys, List<ProjectDto> authorizedProjects) {
     checkRequest(projectKeys.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.", projectKeys.size(), fromDates.size());
     Map<String, Long> fromDatesByProjectKey = IntStream.range(0, projectKeys.size()).boxed()
       .collect(uniqueIndex(projectKeys::get, fromDates::get));

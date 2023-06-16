@@ -361,7 +361,7 @@ public class SnapshotDaoIT {
     SnapshotDto oldAnalysisOnThirdProject = db.components().insertSnapshot(thirdProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(otherFrom - 1L));
     insertActivity(thirdProject.uuid(), oldAnalysisOnThirdProject, SUCCESS);
 
-    List<SnapshotDto> result = underTest.selectFinishedByComponentUuidsAndFromDates(dbSession,
+    List<SnapshotDto> result = underTest.selectFinishedByProjectUuidsAndFromDates(dbSession,
       Arrays.asList(firstProject.uuid(), secondProject.uuid(), thirdProject.uuid()),
       Arrays.asList(from, otherFrom, otherFrom));
 
@@ -380,7 +380,7 @@ public class SnapshotDaoIT {
     SnapshotDto canceledAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
     insertActivity(project.uuid(), canceledAnalysis, CANCELED);
 
-    List<SnapshotDto> result = underTest.selectFinishedByComponentUuidsAndFromDates(dbSession, singletonList(project.uuid()), singletonList(from));
+    List<SnapshotDto> result = underTest.selectFinishedByProjectUuidsAndFromDates(dbSession, singletonList(project.uuid()), singletonList(from));
 
     assertThat(result).extracting(SnapshotDto::getUuid)
       .containsExactlyInAnyOrder(finishedAnalysis.getUuid(), canceledAnalysis.getUuid());
@@ -401,7 +401,7 @@ public class SnapshotDaoIT {
     SnapshotDto analysisOnSecondBranch = db.components().insertSnapshot(secondBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
     insertActivity(project.uuid(), analysisOnSecondBranch, SUCCESS);
 
-    List<SnapshotDto> result = underTest.selectFinishedByComponentUuidsAndFromDates(dbSession, singletonList(project.uuid()), singletonList(from));
+    List<SnapshotDto> result = underTest.selectFinishedByProjectUuidsAndFromDates(dbSession, singletonList(project.uuid()), singletonList(from));
 
     assertThat(result).extracting(SnapshotDto::getUuid)
       .containsExactlyInAnyOrder(finishedAnalysis.getUuid(), otherFinishedAnalysis.getUuid(), analysisOnSecondBranch.getUuid());

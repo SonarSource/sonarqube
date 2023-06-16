@@ -171,7 +171,7 @@ public class QualityGateEventsStepTest {
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(eventRepository).add(eq(PROJECT_COMPONENT), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
     Event event = eventArgumentCaptor.getValue();
@@ -227,7 +227,7 @@ public class QualityGateEventsStepTest {
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(eventRepository).add(eq(PROJECT_COMPONENT), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
     Event event = eventArgumentCaptor.getValue();

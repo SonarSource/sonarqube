@@ -52,7 +52,7 @@ public interface SnapshotMapper {
 
   void update(SnapshotDto analysis);
 
-  List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs);
+  List<SnapshotDto> selectFinishedByProjectUuidsAndFromDates(@Param("projectUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs);
 
   @CheckForNull
   Long selectLastAnalysisDateByProject(String projectUuid);

@@ -64,17 +64,17 @@ public class SearchEventsActionQualityGateIT {
 
   private static final long ANY_TIMESTAMP = 1666666666L;
 
-  private Server server = mock(Server.class);
-  private IssueIndex issueIndex = new IssueIndex(es.client(), null, userSession, null);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
+  private final Server server = mock(Server.class);
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), null, userSession, null);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
     issueIndexSyncProgressChecker));
 
   @Test
   public void quality_gate_events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto projectAnalysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Failed"));
 
@@ -98,7 +98,7 @@ public class SearchEventsActionQualityGateIT {
   public void branch_quality_gate_events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     insertSuccessfulActivity(project, 1_500_000_000_000L);
@@ -141,7 +141,7 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void return_only_latest_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto a1 = insertSuccessfulActivity(project, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(a1).setName("Failed").setDate(a1.getCreatedAt()));
     SnapshotDto a2 = insertSuccessfulActivity(project, 1_500_000_000_001L);
@@ -159,7 +159,7 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void return_link_to_dashboard_for_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
@@ -176,7 +176,7 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void encode_link() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
     EventDto event = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     when(server.getPublicRootUrl()).thenReturn("http://sonarcloud.io");
@@ -193,7 +193,7 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void filter_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
     EventDto qualityGateEvent = db.events().insertEvent(newQualityGateEvent(analysis).setDate(analysis.getCreatedAt()));
     EventDto versionEvent = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.VERSION.getLabel()).setDate(analysis.getCreatedAt()));
@@ -211,11 +211,11 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void filter_by_from_date_inclusive() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project1);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project1));
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project2);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project2));
     ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project3);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project3));
     long from1 = 1_500_000_000_000L;
     long from2 = 1_400_000_000_000L;
     long from3 = 1_300_000_000_000L;
@@ -239,9 +239,9 @@ public class SearchEventsActionQualityGateIT {
   @Test
   public void return_one_quality_gate_change_per_project() {
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("p1")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project1);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project1));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("p2")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project2);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project2));
     long from = 1_500_000_000_000L;
     SnapshotDto a11 = insertSuccessfulActivity(project1, from);
     SnapshotDto a12 = insertSuccessfulActivity(project1, from + 1L);

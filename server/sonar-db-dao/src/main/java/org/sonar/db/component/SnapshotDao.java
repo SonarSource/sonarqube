@@ -100,15 +100,15 @@ public class SnapshotDao implements Dao {
    *
    * Note that branches analysis of projects are also returned.
    */
-  public List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(DbSession dbSession, List<String> componentUuids, List<Long> fromDates) {
-    checkArgument(componentUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
-      String.valueOf(componentUuids.size()),
+  public List<SnapshotDto> selectFinishedByProjectUuidsAndFromDates(DbSession dbSession, List<String> projectUuids, List<Long> fromDates) {
+    checkArgument(projectUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
+      String.valueOf(projectUuids.size()),
       String.valueOf(fromDates.size()));
-    List<ComponentUuidFromDatePair> componentUuidFromDatePairs = IntStream.range(0, componentUuids.size())
-      .mapToObj(i -> new ComponentUuidFromDatePair(componentUuids.get(i), fromDates.get(i)))
-      .collect(MoreCollectors.toList(componentUuids.size()));
+    List<ComponentUuidFromDatePair> componentUuidFromDatePairs = IntStream.range(0, projectUuids.size())
+      .mapToObj(i -> new ComponentUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
+      .collect(MoreCollectors.toList(projectUuids.size()));
 
-    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByComponentUuidsAndFromDates(partition), i -> i / 2);
+    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
   }
 
   public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {

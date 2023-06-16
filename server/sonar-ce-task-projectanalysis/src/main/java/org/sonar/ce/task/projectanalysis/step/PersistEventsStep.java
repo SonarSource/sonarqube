@@ -25,10 +25,7 @@ import java.util.stream.StreamSupport;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.step.ComputationStep;
@@ -60,8 +57,7 @@ public class PersistEventsStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
-      new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(dbSession, analysisDate))
-        .visit(treeRootHolder.getRoot());
+      new PersistEvent(dbSession, analysisDate).process(treeRootHolder.getRoot());
       dbSession.commit();
     }
   }
@@ -71,18 +67,16 @@ public class PersistEventsStep implements ComputationStep {
     return "Persist events";
   }
 
-  private class PersistEventComponentVisitor extends TypeAwareVisitorAdapter {
+  private class PersistEvent {
     private final DbSession session;
     private final long analysisDate;
 
-    PersistEventComponentVisitor(DbSession session, long analysisDate) {
-      super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
+    PersistEvent(DbSession session, long analysisDate) {
       this.session = session;
       this.analysisDate = analysisDate;
     }
 
-    @Override
-    public void visitProject(Component project) {
+    public void process(Component project) {
       processEvents(session, project, analysisDate);
       saveVersionEvent(session, project, analysisDate);
     }
@@ -94,7 +88,7 @@ public class PersistEventsStep implements ComputationStep {
         .setDescription(event.getDescription())
         .setData(event.getData());
       // FIXME bulk insert
-      for (EventDto batchEventDto : StreamSupport.stream(eventRepository.getEvents(component).spliterator(), false).map(eventToEventDto).toList()) {
+      for (EventDto batchEventDto : StreamSupport.stream(eventRepository.getEvents().spliterator(), false).map(eventToEventDto).toList()) {
         dbClient.eventDao().insert(session, batchEventDto);
       }
     }

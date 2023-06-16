@@ -19,17 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.event;
 
-import org.sonar.ce.task.projectanalysis.component.Component;
-
 public interface EventRepository {
   /**
-   * @throws NullPointerException if {@code component} or {@code event} is {@code null}
-   * @throws IllegalArgumentException if type of {@code component} is not {@link Component.Type#PROJECT}
+   * @throws NullPointerException if {@code event} is {@code null}
    */
-  void add(Component component, Event event);
+  void add(Event event);
 
-  /**
-   * @throws NullPointerException if {@code component} is {@code null}
-   */
-  Iterable<Event> getEvents(Component component);
+  Iterable<Event> getEvents();
 }

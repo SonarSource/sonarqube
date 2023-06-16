@@ -19,17 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -43,10 +43,6 @@ import org.sonar.server.notification.NotificationService;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static java.util.Collections.singleton;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
@@ -78,13 +74,7 @@ public class QualityGateEventsStep implements ComputationStep {
     if (analysisMetadataHolder.isPullRequest()) {
       return;
     }
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER) {
-        @Override
-        public void visitProject(Component project) {
-          executeForProject(project);
-        }
-      }).visit(treeRootHolder.getRoot());
+    executeForProject(treeRootHolder.getRoot());
   }
 
   private void executeForProject(Component project) {
@@ -113,7 +103,7 @@ public class QualityGateEventsStep implements ComputationStep {
 
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
-      createEvent(project, rawStatus.getStatus().getLabel(), rawStatus.getText());
+      createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
       boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
       notifyUsers(project, rawStatus, isNewKo);
     }
@@ -122,7 +112,7 @@ public class QualityGateEventsStep implements ComputationStep {
   private void checkNewQualityGate(Component project, QualityGateStatus rawStatus) {
     if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
-      createEvent(project, rawStatus.getStatus().getLabel(), rawStatus.getText());
+      createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
       notifyUsers(project, rawStatus, true);
     }
   }
@@ -155,8 +145,8 @@ public class QualityGateEventsStep implements ComputationStep {
     notificationService.deliver(notification);
   }
 
-  private void createEvent(Component project, String name, @Nullable String description) {
-    eventRepository.add(project, Event.createAlert(name, null, description));
+  private void createEvent(String name, @Nullable String description) {
+    eventRepository.add(Event.createAlert(name, null, description));
   }
 
   @Override

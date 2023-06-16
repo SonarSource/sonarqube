@@ -33,6 +33,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
@@ -86,7 +87,7 @@ public class SearchEventsActionNewIssuesIT {
     userSession.logIn();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     insertIssue(project, analysis);
     insertIssue(project, analysis);
@@ -113,21 +114,22 @@ public class SearchEventsActionNewIssuesIT {
   public void many_issues_events() {
     userSession.logIn();
     long from = 1_500_000_000_000L;
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
-    SnapshotDto analysis = insertAnalysis(project, from);
-    insertIssue(project, analysis);
-    insertIssue(project, analysis);
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("SonarQube"));
+    ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData.getProjectDto());
+    SnapshotDto analysis = insertAnalysis(mainBranchComponent, from);
+    insertIssue(mainBranchComponent, analysis);
+    insertIssue(mainBranchComponent, analysis);
     issueIndexer.indexAllIssues();
     String fromDate = formatDateTime(from - 1_000L);
 
     SearchEventsWsResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(PARAM_PROJECTS, mainBranchComponent.getKey())
       .setParam(PARAM_FROM, fromDate)
       .executeProtobuf(SearchEventsWsResponse.class);
 
     assertThat(result.getEventsList()).extracting(Event::getCategory, Event::getMessage, Event::getProject, Event::getDate)
-      .containsExactly(tuple("NEW_ISSUES", "You have 2 new issues on project 'SonarQube'", project.getKey(),
+      .containsExactly(tuple("NEW_ISSUES", "You have 2 new issues on project 'SonarQube'", mainBranchComponent.getKey(),
         formatDateTime(from)));
   }
 
@@ -152,7 +154,7 @@ public class SearchEventsActionNewIssuesIT {
   public void return_link_to_issue_search_for_new_issues_event() {
     userSession.logIn("my_login");
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("my_project")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertAnalysis(project, 1_400_000_000_000L);
     insertIssue(project, analysis);
     issueIndexer.indexAllIssues();
@@ -172,7 +174,7 @@ public class SearchEventsActionNewIssuesIT {
     userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     String branchName1 = "branch1";
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName1));
     SnapshotDto branch1Analysis = insertAnalysis(branch1, project.uuid(), 1_500_000_000_000L);
@@ -208,7 +210,7 @@ public class SearchEventsActionNewIssuesIT {
     userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     String nonMainBranchName = "nonMain";
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(nonMainBranchName));
     SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, project.uuid(), 1_500_000_000_000L);
@@ -245,7 +247,7 @@ public class SearchEventsActionNewIssuesIT {
     userSession.logIn("rågnar").setSystemAdministrator();
     long from = 1_500_000_000_000L;
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's")).getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertAnalysis(project, from);
     insertIssue(project, analysis);
     issueIndexer.indexAllIssues();
