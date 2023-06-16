@@ -26,6 +26,7 @@ import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 interface Props {
   activeDeprecatedRules: number;
   profile: string;
+  organization: string;
 }
 
 export default function ProfileRulesDeprecatedWarning(props: Props) {
@@ -38,7 +39,7 @@ export default function ProfileRulesDeprecatedWarning(props: Props) {
           overlay={translate('quality_profiles.deprecated_rules_description')}
         />
       </span>
-      <Link className="pull-right" to={getDeprecatedActiveRulesUrl({ qprofile: props.profile })}>
+      <Link className="pull-right" to={getDeprecatedActiveRulesUrl({ qprofile: props.profile }, props.organization)}>
         {props.activeDeprecatedRules}
       </Link>
     </div>
