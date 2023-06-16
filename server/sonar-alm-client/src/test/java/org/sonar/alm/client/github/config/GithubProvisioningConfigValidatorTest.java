@@ -166,7 +166,7 @@ public class GithubProvisioningConfigValidatorTest {
     ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
 
     GsonApp githubApp = mockGithubApp(appConfigurationCaptor);
-    when(githubApp.getPermissions()).thenReturn(new Permissions(null, null, "read"));
+    when(githubApp.getPermissions()).thenReturn(new Permissions(null, null, "read", null));
     mockOrganizations(appConfigurationCaptor, "org1", "org2");
 
     ConfigCheckResult checkResult = configValidator.checkConfig();
@@ -268,7 +268,7 @@ public class GithubProvisioningConfigValidatorTest {
   private GsonApp mockGithubAppWithValidConfig(ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor) {
     GsonApp githubApp = mock(GsonApp.class);
     when(githubClient.getApp(appConfigurationCaptor.capture())).thenReturn(githubApp);
-    when(githubApp.getPermissions()).thenReturn(new Permissions(null, "read", "read"));
+    when(githubApp.getPermissions()).thenReturn(new Permissions(null, "read", "read", null));
 
     return githubApp;
   }
@@ -299,7 +299,7 @@ public class GithubProvisioningConfigValidatorTest {
 
   private static GithubAppInstallation mockInstallationWithMembersPermission(String org) {
     GithubAppInstallation installation = mockInstallation(org);
-    when(installation.permissions()).thenReturn(new Permissions(null, "read", "read"));
+    when(installation.permissions()).thenReturn(new Permissions(null, "read", "read", null));
     return installation;
   }
 

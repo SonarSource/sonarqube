@@ -148,11 +148,14 @@ public class GithubBinding {
     String members;
     @SerializedName("emails")
     String emails;
+    @SerializedName("contents")
+    String contents;
 
-    public Permissions(@Nullable String checks, @Nullable String members, @Nullable String emails) {
+    public Permissions(@Nullable String checks, @Nullable String members, @Nullable String emails, @Nullable String contents) {
       this.checks = checks;
       this.members = members;
       this.emails = emails;
+      this.contents = contents;
     }
 
     public Permissions() {
@@ -174,6 +177,11 @@ public class GithubBinding {
     @CheckForNull
     public String getEmails() {
       return emails;
+    }
+
+    @CheckForNull
+    public String getContents() {
+      return contents;
     }
   }
 
