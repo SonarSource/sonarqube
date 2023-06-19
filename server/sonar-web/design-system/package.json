@@ -14,10 +14,10 @@
     "validate-ci": "yarn install --immutable && yarn ts-check && yarn test --coverage --ci"
   },
   "devDependencies": {
-    "@babel/core": "7.21.4",
-    "@babel/plugin-transform-react-jsx": "7.21.0",
-    "@babel/preset-env": "7.21.4",
-    "@babel/preset-typescript": "7.21.4",
+    "@babel/core": "7.22.5",
+    "@babel/plugin-transform-react-jsx": "7.22.5",
+    "@babel/preset-env": "7.22.5",
+    "@babel/preset-typescript": "7.22.5",
     "@emotion/babel-plugin": "11.10.6",
     "@emotion/babel-plugin-jsx-pragmatic": "0.2.0",
     "@testing-library/dom": "8.20.0",
