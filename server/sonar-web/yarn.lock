@@ -4179,10 +4179,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.15.11":
-  version: 18.15.11
-  resolution: "@types/node@npm:18.15.11"
-  checksum: 977b4ad04708897ff0eb049ecf82246d210939c82461922d20f7d2dcfd81bbc661582ba3af28869210f7e8b1934529dcd46bff7d448551400f9d48b9d3bddec3
+"@types/node@npm:18.16.18":
+  version: 18.16.18
+  resolution: "@types/node@npm:18.16.18"
+  checksum: d32d8a0a04cd3f5ecb361bcb42f3a07623881ac90d680e06bf626defb3c663a94860d11690babe607cfe67265eceeb8a59ba5fe40c0e49f5a1b01e0088640469
   languageName: node
   linkType: hard
 
@@ -4682,7 +4682,7 @@ __metadata:
     "@types/enzyme": 3.10.12
     "@types/jest": 29.5.0
     "@types/lodash": 4.14.191
-    "@types/node": 18.15.11
+    "@types/node": 18.16.18
     "@types/react": 17.0.39
     "@types/react-dom": 17.0.11
     "@types/react-helmet": 6.1.6
