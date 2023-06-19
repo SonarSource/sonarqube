@@ -342,6 +342,7 @@ export class Menu extends React.PureComponent<Props> {
     const isApplication = this.isApplication();
     const label = translate(isProject ? 'project' : 'application', 'info.title');
     const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
+    const query = this.getQuery();
 
     if (isPullRequest(this.props.branchLike)) {
       return null;
@@ -355,10 +356,8 @@ export class Menu extends React.PureComponent<Props> {
       (isProject || isApplication) && (
         <li className="sw-body-md sw-pb-4">
           <Link
-            onClick={this.props.onToggleProjectInfo}
-            preventDefault
             ref={(node: HTMLAnchorElement | null) => (this.projectInfoLink = node)}
-            to={{}}
+            to={{ pathname: '/project/info', search: new URLSearchParams(query).toString() }}
           >
             {label}
           </Link>

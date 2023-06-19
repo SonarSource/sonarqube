@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
 import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -27,6 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
 import { MyProject, ProjectLink } from '../../../types/types';
+import MetaLink from '../../projectInformation/meta/MetaLink';
 
 interface Props {
   project: MyProject;

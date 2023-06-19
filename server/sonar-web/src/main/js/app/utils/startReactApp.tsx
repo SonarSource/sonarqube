@@ -44,6 +44,7 @@ import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import ProjectDeletionApp from '../../apps/projectDeletion/App';
 import projectDumpRoutes from '../../apps/projectDump/routes';
+import projectInfoRoutes from '../../apps/projectInformation/routes';
 import ProjectKeyApp from '../../apps/projectKey/ProjectKeyApp';
 import ProjectLinksApp from '../../apps/projectLinks/ProjectLinksApp';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
@@ -114,6 +115,7 @@ function renderComponentRoutes() {
         <Route path="security_hotspots" element={<SecurityHotspotsApp />} />
         {projectQualityGateRoutes()}
         {projectQualityProfilesRoutes()}
+        {projectInfoRoutes()}
 
         {tutorialsRoutes()}
       </Route>

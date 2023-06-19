@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LAYOUT_GLOBAL_NAV_HEIGHT, LAYOUT_PROJECT_NAV_HEIGHT, TopBar } from 'design-system';
+import { TopBar } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -33,8 +33,6 @@ import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingEr
 import Header from './Header';
 import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
-import InfoDrawer from './projectInformation/InfoDrawer';
-import ProjectInformation from './projectInformation/ProjectInformation';
 
 export interface ComponentNavProps {
   branchLikes: BranchLike[];
@@ -44,7 +42,6 @@ export interface ComponentNavProps {
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  onComponentChange: (changes: Partial<Component>) => void;
   onWarningDismiss: () => void;
   projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
@@ -119,19 +116,6 @@ export default function ComponentNav(props: ComponentNavProps) {
           }}
           projectInfoDisplayed={displayProjectInfo}
         />
-        <InfoDrawer
-          displayed={displayProjectInfo}
-          onClose={() => {
-            setDisplayProjectInfo(false);
-          }}
-          top={LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}
-        >
-          <ProjectInformation
-            branchLike={currentBranchLike}
-            component={component}
-            onComponentChange={props.onComponentChange}
-          />
-        </InfoDrawer>
       </TopBar>
       {prDecoNotifComponent}
     </>

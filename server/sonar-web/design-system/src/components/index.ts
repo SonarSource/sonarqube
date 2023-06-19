@@ -81,6 +81,7 @@ export * from './Table';
 export * from './Tags';
 export * from './TagsSelector';
 export * from './Text';
+export * from './Title';
 export { ToggleButton } from './ToggleButton';
 export { TopBar } from './TopBar';
 export * from './TreeMap';

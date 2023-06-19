@@ -46,11 +46,11 @@ import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import { Component, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import ComponentContainerNotFound from './ComponentContainerNotFound';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
 import withBranchStatusActions from './branch-status/withBranchStatusActions';
-import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
@@ -456,7 +456,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
               isInProgress={isInProgress}
               isPending={isPending}
-              onComponentChange={this.handleComponentChange}
               onWarningDismiss={this.handleWarningDismiss}
               projectBinding={projectBinding}
               projectBindingErrors={projectBindingErrors}

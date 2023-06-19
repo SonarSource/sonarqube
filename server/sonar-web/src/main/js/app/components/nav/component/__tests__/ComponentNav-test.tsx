@@ -67,10 +67,7 @@ it('renders correctly when the project binding is incorrect', () => {
 it('correctly returns focus to the Project Information link when the drawer is closed', () => {
   renderComponentNav();
   screen.getByRole('link', { name: 'project.info.title' }).click();
-  expect(screen.getByRole('link', { name: 'project.info.title' })).not.toHaveFocus();
-
-  screen.getByRole('button', { name: 'close' }).click();
-  expect(screen.getByRole('link', { name: 'project.info.title' })).toHaveFocus();
+  expect(screen.getByText('/project/info?id=my-project')).toBeInTheDocument();
 });
 
 function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
@@ -84,7 +81,6 @@ function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
       currentBranchLike={undefined}
       isInProgress={false}
       isPending={false}
-      onComponentChange={jest.fn()}
       onWarningDismiss={jest.fn()}
       warnings={[]}
       {...props}
