@@ -37,7 +37,7 @@ export default function OrganizationNavigationMenu({ location, organization }: O
       <NavBarTabs className="navbar-context-tabs">
         <li>
           <NavLink to={`/organizations/${organization.kee}/projects`}>
-            {translate('projects.page')}
+            {translate('projects')}
           </NavLink>
         </li>
         <li>
@@ -46,7 +46,7 @@ export default function OrganizationNavigationMenu({ location, organization }: O
                 pathname: `/organizations/${organization.kee}/issues`,
                 search: new URLSearchParams({ resolved: 'false' }).toString()
               }}>
-            {translate('issues.page')}
+            {translate('issues.facet.mode.count')}
           </NavLink>
         </li>
         <li>

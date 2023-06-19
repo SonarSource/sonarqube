@@ -74,7 +74,10 @@ function run() {
     .then(result => {
       const { port: esbuildport } = result;
 
-      const proxy = httpProxy.createProxyServer();
+      const proxy = httpProxy.createProxyServer({
+        changeOrigin:true,
+      }
+      );
       const esbuildProxy = httpProxy.createProxyServer({
         target: `http://localhost:${esbuildport}`
       });
