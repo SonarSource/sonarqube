@@ -3957,10 +3957,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-array@npm:3.0.4":
-  version: 3.0.4
-  resolution: "@types/d3-array@npm:3.0.4"
-  checksum: b0e398365fc1f638d48442e865e036d671c731b2b18f7a92e5172db1f60f5a38d4cd992693a29ad64b38e7ba981eb8c63a2aef95fbdcfbc4bf8926a9cb9ca978
+"@types/d3-array@npm:3.0.5":
+  version: 3.0.5
+  resolution: "@types/d3-array@npm:3.0.5"
+  checksum: c0014042f75dc77ff4749f6a7a78074aa73e63e5b6a985ac79a0abf3e3d943b19ddd3fbfcfcd11124f25b7f4b97cd0948eec84b2e0783cd617b49c593de695f0
   languageName: node
   linkType: hard
 
@@ -4671,7 +4671,7 @@ __metadata:
     "@testing-library/user-event": 14.4.3
     "@types/cheerio": 0.22.31
     "@types/classnames": 2.3.1
-    "@types/d3-array": 3.0.4
+    "@types/d3-array": 3.0.5
     "@types/d3-hierarchy": 3.1.2
     "@types/d3-scale": 4.0.3
     "@types/d3-selection": 3.0.5
@@ -4699,7 +4699,7 @@ __metadata:
     classnames: 2.3.2
     clipboard: 2.0.11
     core-js: 3.29.1
-    d3-array: 3.2.3
+    d3-array: 3.2.4
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
     d3-selection: 3.0.0
@@ -5921,12 +5921,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-array@npm:3.2.3":
-  version: 3.2.3
-  resolution: "d3-array@npm:3.2.3"
+"d3-array@npm:3.2.4":
+  version: 3.2.4
+  resolution: "d3-array@npm:3.2.4"
   dependencies:
     internmap: 1 - 2
-  checksum: 41d6a4989b73e0d2649a880b2f29a7e7cc059db0eba36cd29a79e0118ebdf6b78922a84cde0733cd54cb4072f3442ec44f3563902e00ea42892442d60e99f961
+  checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
   languageName: node
   linkType: hard
 
@@ -6322,7 +6322,7 @@ __metadata:
     "@primer/octicons-react": 18.3.0
     classnames: 2.3.2
     clipboard: 2.0.11
-    d3-array: 3.2.3
+    d3-array: 3.2.4
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
     d3-selection: 3.0.0
