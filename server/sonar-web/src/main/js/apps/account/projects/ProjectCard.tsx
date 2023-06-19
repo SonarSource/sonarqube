@@ -78,7 +78,7 @@ export default function ProjectCard({ project }: Props) {
       </aside>
 
       <h3 className="account-project-name">
-        <Link to={getProjectUrl(project.key)}>{project.name}</Link>
+        <Link to={getProjectUrl(project.key)}>Key: {project.name}</Link>
       </h3>
 
       {orderedLinks.length > 0 && (
