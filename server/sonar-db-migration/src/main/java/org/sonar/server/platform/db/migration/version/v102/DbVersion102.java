@@ -40,12 +40,14 @@ public class DbVersion102 implements DbVersion {
 
   @Override
   public void addSteps(MigrationStepRegistry registry) {
-    registry.add(10_2_000, "Drop index 'group_roles_component_uuid' in 'group_roles'", DropIndexComponentUuidInGroupRoles.class)
+    registry
+      .add(10_2_000, "Rename 'component_uuid' in 'user_roles' table to 'entity_uuid'", RenameComponentUuidInUserRoles.class)
       .add(10_2_001, "Rename 'component_uuid' in 'group_roles' table to 'entity_uuid'", RenameComponentUuidInGroupRoles.class)
-      .add(10_2_002, "Create index 'entity_uuid_user_roles' in 'group_roles' table", CreateIndexEntityUuidInGroupRoles.class)
 
-      .add(10_2_003, "Drop index 'user_roles_component_uuid' in 'user_roles' table", DropIndexComponentUuidInUserRoles.class)
-      .add(10_2_004, "Rename 'component_uuid' in 'user_roles' table to 'entity_uuid", RenameComponentUuidInUserRoles.class)
+      .add(10_2_002, "Drop index 'group_roles_component_uuid' in 'group_roles'", DropIndexComponentUuidInGroupRoles.class)
+      .add(10_2_003, "Create index 'entity_uuid_user_roles' in 'group_roles' table", CreateIndexEntityUuidInGroupRoles.class)
+
+      .add(10_2_004, "Drop index 'user_roles_component_uuid' in 'user_roles' table", DropIndexComponentUuidInUserRoles.class)
       .add(10_2_005, "Create index 'user_roles_entity_uuid' in 'user_roles'", CreateIndexEntityUuidInUserRoles.class)
 
       .add(10_2_006, "Drop index 'ce_activity_component' in 'ce_activity'", DropIndexMainComponentUuidInCeActivity.class)
@@ -55,9 +57,8 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_009, "Drop index 'ce_queue_main_component' in 'ce_queue' table", DropIndexMainComponentUuidInCeQueue.class)
       .add(10_2_010, "Rename 'main_component_uuid' in 'ce_queue' table to 'entity_uuid'", RenameMainComponentUuidInCeQueue.class)
       .add(10_2_011, "Create index 'ce_queue_entity_uuid' in 'ce_queue' table", CreateIndexEntityUuidInCeQueue.class)
-      .add(10_2_012, "Rename 'component_uuid' in 'user_roles' table to 'entity_uuid'", RenameComponentUuidInUserRoles.class)
-      .add(10_2_013, "Rename 'component_uuid' in 'group_roles' table to 'entity_uuid'", RenameComponentUuidInGroupRoles.class)
-      .add(10_2_014, "Drop 'project_mappings' table", DropTableProjectMappings.class)
+
+      .add(10_2_012, "Drop 'project_mappings' table", DropTableProjectMappings.class)
     ;
   }
 
