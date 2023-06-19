@@ -54,12 +54,12 @@ public class QProfileStatusRepositoryImplTest {
   public void get_return_empty_for_qp_not_registered(QProfileStatusRepository.Status status) {
     underTest.register("key", status);
 
-    assertThat(underTest.get("other_key")).isEqualTo(Optional.empty());
+    assertThat(underTest.get("other_key")).isEmpty();
   }
 
   @Test
   public void get_return_empty_for_null_qp_key() {
-    assertThat(underTest.get(null)).isEqualTo(Optional.empty());
+    assertThat(underTest.get(null)).isEmpty();
   }
 
   @Test

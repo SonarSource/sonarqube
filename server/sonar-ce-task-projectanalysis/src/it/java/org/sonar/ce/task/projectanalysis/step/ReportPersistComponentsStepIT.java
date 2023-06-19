@@ -464,7 +464,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
     Stream.of(project.uuid(), dir.uuid())
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(db.getSession(), uuid).get().isPrivate())
         .describedAs("for uuid " + uuid)
-        .isEqualTo(true));
+        .isTrue());
   }
 
   private ReportComponent createSampleProjectComponentTree(ComponentDto project) {

@@ -35,7 +35,7 @@ public class FastStringComparatorTest {
     String s2 = "PE";
 
     assertThat(s1).hasSameHashCodeAs(s2);
-    assertThat(compare(s1, s2)).isLessThan(0);
+    assertThat(compare(s1, s2)).isNegative();
     assertThat(compare(s2, s1)).isPositive();
   }
 
