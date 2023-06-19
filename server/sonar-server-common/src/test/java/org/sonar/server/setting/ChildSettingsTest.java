@@ -100,7 +100,7 @@ public class ChildSettingsTest {
     assertThat(underTest.get(key)).isEqualTo(Optional.of(childValue));
 
     underTest.remove(key);
-    assertThat(underTest.get(key)).isEqualTo(Optional.empty());
+    assertThat(underTest.get(key)).isEmpty();
   }
 
   @Test

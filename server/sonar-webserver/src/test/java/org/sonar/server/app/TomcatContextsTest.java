@@ -88,8 +88,9 @@ public class TomcatContextsTest {
 
     underTest.addStaticDir(tomcat, "/deploy", dir);
 
-    assertThat(dir).isDirectory().exists();
-    assertThat(dir.listFiles()).isEmpty();
+    assertThat(dir).isDirectory()
+      .exists()
+      .isEmptyDirectory();
   }
 
   @Test

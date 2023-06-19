@@ -127,7 +127,7 @@ public class EsLoggingTest {
 
   private void verifyProperties(Properties properties, String... expectedPropertyKeysAndValuesOrdered) {
     if (expectedPropertyKeysAndValuesOrdered.length == 0) {
-      assertThat(properties.size()).isZero();
+      assertThat(properties).isEmpty();
     } else {
       assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isZero();
       Set<String> keys = new HashSet<>(expectedPropertyKeysAndValuesOrdered.length / 2 + 1);
