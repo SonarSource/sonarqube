@@ -173,37 +173,6 @@ export class Conditions extends React.PureComponent<Props, State> {
 
     return (
       <div className="quality-gate-section">
-        {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
-          <Alert className="big-spacer-top big-spacer-bottom cayc-success-banner" variant="success">
-            <h4 className="spacer-bottom cayc-success-header">
-              {translate('quality_gates.cayc.banner.title')}
-            </h4>
-            <div className="cayc-warning-description">
-              <FormattedMessage
-                id="quality_gates.cayc.banner.description1"
-                defaultMessage={translate('quality_gates.cayc.banner.description1')}
-                values={{
-                  cayc_link: (
-                    <DocLink to="/user-guide/clean-as-you-code/">
-                      {translate('quality_gates.cayc')}
-                    </DocLink>
-                  ),
-                }}
-              />
-              <br />
-              {translate('quality_gates.cayc.banner.description2')}
-            </div>
-            <ul className="big-spacer-top big-spacer-left spacer-bottom cayc-warning-description">
-              <li>{translate('quality_gates.cayc.banner.list_item1')}</li>
-              <li>{translate('quality_gates.cayc.banner.list_item2')}</li>
-              <li>{translate('quality_gates.cayc.banner.list_item3')}</li>
-              <li>{translate('quality_gates.cayc.banner.list_item4')}</li>
-              <li>{translate('quality_gates.cayc.banner.list_item5')}</li>
-              <li>{translate('quality_gates.cayc.banner.list_item6')}</li>
-            </ul>
-          </Alert>
-        )}
-
         {qualityGate.caycStatus === CaycStatus.OverCompliant && (
           <Alert className="big-spacer-top big-spacer-bottom cayc-success-banner" variant="info">
             <h4 className="spacer-bottom cayc-over-compliant-header">
