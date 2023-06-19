@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
@@ -91,12 +93,22 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
+    Component project = treeRootHolder.getRoot();
+
     BranchType branchType = analysisMetadataHolder.getBranch().getType();
     if (branchType == PULL_REQUEST) {
-      return;
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        BranchDto referenceBranch = dbClient.branchDao().selectByUuid(dbSession, analysisMetadataHolder.getBranch().getReferenceBranchUuid()).orElseThrow(IllegalArgumentException::new);
+        boolean notificationsEnabled = Optional.ofNullable(dbClient.propertiesDao()
+                        .selectProjectProperty(referenceBranch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+                .map(prop -> Boolean.parseBoolean(prop.getValue()))
+                .orElse(false);
+        if (!notificationsEnabled) {
+          return;
+        }
+      }
     }
 
-    Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
     if (service.hasProjectSubscribersForTypes(analysisMetadataHolder.getProject().getUuid(), NOTIF_TYPES)) {
       doExecute(notificationStatistics, project);

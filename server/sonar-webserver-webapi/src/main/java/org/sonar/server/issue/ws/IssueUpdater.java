@@ -31,6 +31,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
@@ -138,8 +139,14 @@ public class IssueUpdater {
     return issueDto;
   }
 
-  private static boolean hasNotificationSupport(BranchDto branch) {
-    return branch.getBranchType() != PULL_REQUEST;
+  private boolean hasNotificationSupport(BranchDto branch) {
+    if (branch.getBranchType() == BranchType.PULL_REQUEST) {
+      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+              .map(prop -> Boolean.parseBoolean(prop.getValue()))
+              .orElse(false);
+    }
+
+    return true;
   }
 
   private ComponentDto getComponent(DbSession dbSession, DefaultIssue issue, @Nullable String componentUuid) {

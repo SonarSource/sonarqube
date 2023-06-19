@@ -341,8 +341,14 @@ public class BulkChangeAction implements IssuesWsAction {
       .build();
   }
 
-  private static boolean hasNotificationSupport(@Nullable BranchDto branch) {
-    return branch != null && branch.getBranchType() != BranchType.PULL_REQUEST;
+  private boolean hasNotificationSupport(@Nullable BranchDto branch) {
+    if (branch != null && branch.getBranchType() == BranchType.PULL_REQUEST) {
+      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+              .map(prop -> Boolean.parseBoolean(prop.getValue()))
+              .orElse(false);
+    }
+
+    return true;
   }
 
   private static long oldestUpdateDate(Collection<DefaultIssue> issues) {
