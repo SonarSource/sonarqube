@@ -114,7 +114,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
           updateTelemetryProps(now);
         }
       } catch (Exception e) {
-        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage());
+        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage(), e);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };
