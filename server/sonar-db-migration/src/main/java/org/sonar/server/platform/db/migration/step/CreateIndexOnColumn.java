@@ -31,7 +31,7 @@ public abstract class CreateIndexOnColumn extends DdlChange {
   private final String columnName;
   private final boolean unique;
 
-  public CreateIndexOnColumn(Database db, String table, String columnName, boolean unique) {
+  protected CreateIndexOnColumn(Database db, String table, String columnName, boolean unique) {
     super(db);
     this.table = table;
     this.columnName = columnName;

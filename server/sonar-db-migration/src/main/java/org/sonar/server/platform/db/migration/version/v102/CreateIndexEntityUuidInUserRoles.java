@@ -24,7 +24,7 @@ import org.sonar.server.platform.db.migration.step.CreateIndexOnColumn;
 
 public class CreateIndexEntityUuidInUserRoles extends CreateIndexOnColumn {
 
-  private static final String TABLE_NAME = "group_roles";
+  private static final String TABLE_NAME = "user_roles";
   private static final String COLUMN_NAME = "entity_uuid";
 
   public CreateIndexEntityUuidInUserRoles(Database db) {

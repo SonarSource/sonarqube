@@ -19,16 +19,31 @@
  */
 package org.sonar.server.platform.db.migration.version.v102;
 
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class RenameMainComponentUuidInCeActivity extends RenameVarcharColumnChange {
+public class CreateIndexEntityUuidInCeQueueTest {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexEntityUuidInCeQueueTest.class, "schema.sql");
 
-  private static final String TABLE_NAME = "ce_activity";
-  private static final String OLD_COLUMN_NAME = "main_component_uuid";
-  private static final String NEW_COLUMN_NAME = "entity_uuid";
+  private final CreateIndexEntityUuidInCeQueue createIndex = new CreateIndexEntityUuidInCeQueue(db.database());
 
-  public RenameMainComponentUuidInCeActivity(Database db) {
-    super(db, TABLE_NAME, OLD_COLUMN_NAME, NEW_COLUMN_NAME);
+  @Test
+  public void migration_should_create_index() throws SQLException {
+    db.assertIndexDoesNotExist("ce_queue", "ce_queue_entity_uuid");
+
+    createIndex.execute();
+
+    db.assertIndex("ce_queue", "ce_queue_entity_uuid", "entity_uuid");
+  }
+
+  @Test
+  public void migration_should_be_reentrant() throws SQLException {
+    createIndex.execute();
+    createIndex.execute();
+
+    db.assertIndex("ce_queue", "ce_queue_entity_uuid", "entity_uuid");
   }
 }

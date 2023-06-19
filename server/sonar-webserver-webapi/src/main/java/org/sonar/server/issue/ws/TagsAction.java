@@ -141,8 +141,7 @@ public class TagsAction implements IssuesWsAction {
       switch (entity.getQualifier()) {
         case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(entity.getUuid()));
         case Qualifiers.VIEW, Qualifiers.APP -> issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
-        default ->
-          throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", entity.getQualifier()));
+        default -> throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", entity.getQualifier()));
       }
 
       if (branch != null && !branch.isMain()) {
