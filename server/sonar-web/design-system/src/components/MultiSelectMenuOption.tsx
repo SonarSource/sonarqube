@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { identity } from 'lodash';
 import { ItemCheckbox } from './DropdownMenu';
 
 export interface MultiSelectOptionProps {
@@ -28,12 +29,27 @@ export interface MultiSelectOptionProps {
   element: string;
   onHover: (element: string) => void;
   onSelectChange: (selected: boolean, element: string) => void;
+  renderLabel?: (element: string) => React.ReactNode;
   selected?: boolean;
 }
 
 export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
-  const { active, createElementLabel, custom, disabled, element, onSelectChange, selected } = props;
-  const onHover = () => props.onHover(element);
+  const {
+    active,
+    createElementLabel,
+    custom,
+    disabled,
+    element,
+    onSelectChange,
+    selected,
+    renderLabel = identity,
+  } = props;
+
+  const onHover = () => {
+    props.onHover(element);
+  };
+
+  const label = renderLabel(element);
 
   return (
     <ItemCheckbox
@@ -57,7 +73,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
           {element}
         </span>
       ) : (
-        <span className="sw-ml-3">{element}</span>
+        <span className="sw-ml-3">{label}</span>
       )}
     </ItemCheckbox>
   );

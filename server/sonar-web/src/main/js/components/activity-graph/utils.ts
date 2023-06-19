@@ -148,11 +148,11 @@ export function saveActivityGraph(
   namespace: string,
   project: string,
   graph: GraphType,
-  metrics: string[] = []
+  metrics?: string[]
 ) {
   save(namespace, graph, project);
 
-  if (isCustomGraph(graph)) {
+  if (isCustomGraph(graph) && metrics) {
     save(`${namespace}.custom`, metrics.join(','), project);
   }
 }

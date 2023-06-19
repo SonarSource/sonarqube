@@ -264,6 +264,8 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       noResultsLabel,
       searchInputAriaLabel,
     } = this.props;
+    const { renderLabel } = this.props as PropsWithDefault;
+
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
     const showNewElement = allowNewElements && this.isNewElement(query, this.props);
@@ -301,6 +303,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={renderLabel}
                 selected
               />
             ))}
@@ -314,6 +317,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={renderLabel}
               />
             ))}
           {showNewElement && (

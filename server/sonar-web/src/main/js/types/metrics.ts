@@ -154,6 +154,7 @@ export enum MetricType {
   ShortInteger = 'SHORT_INT',
   ShortWorkDuration = 'SHORT_WORK_DUR',
   Data = 'DATA',
+  Distribution = 'DISTRIB',
 }
 
 export function isMetricKey(key: string): key is MetricKey {

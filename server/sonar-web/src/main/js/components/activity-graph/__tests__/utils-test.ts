@@ -189,13 +189,13 @@ describe('saveActivityGraph', () => {
     expect(save).toHaveBeenCalledWith('foo', GraphType.issues, 'bar');
   });
 
-  it.each([undefined, [MetricKey.bugs, MetricKey.alert_status]])(
+  it.each([[[]], [[MetricKey.bugs, MetricKey.alert_status]]])(
     'should correctly store data for custom graph types',
     (metrics) => {
       utils.saveActivityGraph('foo', 'bar', GraphType.custom, metrics);
       expect(save).toHaveBeenCalledWith('foo', GraphType.custom, 'bar');
       // eslint-disable-next-line jest/no-conditional-in-test
-      expect(save).toHaveBeenCalledWith('foo.custom', metrics ? metrics.join(',') : '', 'bar');
+      expect(save).toHaveBeenCalledWith('foo.custom', metrics.join(','), 'bar');
     }
   );
 });

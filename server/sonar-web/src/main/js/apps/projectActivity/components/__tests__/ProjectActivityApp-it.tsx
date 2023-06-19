@@ -461,7 +461,9 @@ function getPageObject() {
       },
 
       async changeGraphType(type: GraphType) {
-        await selectEvent.select(ui.graphTypeSelect.get(), [`project_activity.graphs.${type}`]);
+        await user.click(ui.graphTypeSelect.get());
+        const optionForType = await screen.findByText(`project_activity.graphs.${type}`);
+        await user.click(optionForType);
       },
 
       async openMetricsDropdown() {

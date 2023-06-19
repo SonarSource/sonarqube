@@ -31,7 +31,6 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
 import { Metric } from '../../types/types';
-import Select from '../controls/Select';
 import AddGraphMetric from './AddGraphMetric';
 import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
@@ -47,90 +46,76 @@ interface Props {
   onUpdateGraph: (graphType: string) => void;
 }
 
-export default class GraphsHeader extends React.PureComponent<Props> {
-  handleGraphChange = (option: { value: string }) => {
-    if (option.value !== this.props.graph) {
-      this.props.onUpdateGraph(option.value);
-    }
-  };
+export default function GraphsHeader(props: Props) {
+  const {
+    className,
+    graph,
+    metrics,
+    metricsTypeFilter,
+    onUpdateGraph,
+    selectedMetrics = [],
+  } = props;
 
-  render() {
-    const { className, graph, metrics, metricsTypeFilter, selectedMetrics = [] } = this.props;
+  const handleGraphChange = React.useCallback(
+    (value: GraphType) => {
+      if (value !== graph) {
+        onUpdateGraph(value);
+      }
+    },
+    [graph, onUpdateGraph]
+  );
 
-    const noCustomGraph =
-      this.props.onAddCustomMetric === undefined || this.props.onRemoveCustomMetric === undefined;
+  const noCustomGraph =
+    props.onAddCustomMetric === undefined || props.onRemoveCustomMetric === undefined;
 
+  const options = React.useMemo(() => {
     const types = getGraphTypes(noCustomGraph);
 
-    const overlayItems: JSX.Element[] = [];
-
-    const selectOptions: Array<{
-      label: string;
-      value: GraphType;
-    }> = [];
-
-    types.forEach((type) => {
+    return types.map((type) => {
       const label = translate('project_activity.graphs', type);
 
-      selectOptions.push({ label, value: type });
-
-      overlayItems.push(
-        <ItemButton key={label} onClick={() => this.handleGraphChange({ value: type })}>
+      return (
+        <ItemButton key={label} onClick={() => handleGraphChange(type)}>
           {label}
         </ItemButton>
       );
     });
+  }, [noCustomGraph, handleGraphChange]);
 
-    const selectedOption = selectOptions.find((option) => option.value === graph);
-    const selectedLabel = selectedOption?.label ?? '';
+  return (
+    <div className={className}>
+      <div className="sw-flex">
+        <Dropdown
+          id="activity-graph-type"
+          size="auto"
+          placement={PopupPlacement.BottomLeft}
+          zLevel={PopupZLevel.Content}
+          overlay={options}
+        >
+          <ButtonSecondary
+            aria-label={translate('project_activity.graphs.choose_type')}
+            className={
+              'sw-body-sm sw-flex sw-flex-row sw-justify-between sw-pl-3 sw-pr-2 sw-w-32 ' +
+              'sw-z-normal' // needed because the legends overlap part of the button
+            }
+          >
+            <TextMuted text={translate('project_activity.graphs', graph)} />
+            <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
+          </ButtonSecondary>
+        </Dropdown>
 
-    return (
-      <div className={className}>
-        <div className="display-flex-end">
-          <div className="display-flex-column">
-            {noCustomGraph ? (
-              <Dropdown
-                id="activity-graph-type"
-                size="auto"
-                placement={PopupPlacement.BottomLeft}
-                zLevel={PopupZLevel.Content}
-                overlay={overlayItems}
-              >
-                <ButtonSecondary
-                  aria-label={translate('project_activity.graphs.choose_type')}
-                  className={
-                    'sw-body-sm sw-flex sw-flex-row sw-justify-between sw-pl-3 sw-pr-2 sw-w-32 ' +
-                    'sw-z-normal' // needed because the legends overlap part of the button
-                  }
-                >
-                  <TextMuted text={selectedLabel} />
-                  <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
-                </ButtonSecondary>
-              </Dropdown>
-            ) : (
-              <Select
-                aria-label={translate('project_activity.graphs.choose_type')}
-                className="input-medium"
-                isSearchable={false}
-                onChange={this.handleGraphChange}
-                options={selectOptions}
-                value={selectedOption}
-              />
-            )}
-          </div>
-          {isCustomGraph(graph) &&
-            this.props.onAddCustomMetric !== undefined &&
-            this.props.onRemoveCustomMetric !== undefined && (
-              <AddGraphMetric
-                onAddMetric={this.props.onAddCustomMetric}
-                metrics={metrics}
-                metricsTypeFilter={metricsTypeFilter}
-                onRemoveMetric={this.props.onRemoveCustomMetric}
-                selectedMetrics={selectedMetrics}
-              />
-            )}
-        </div>
+        {isCustomGraph(graph) &&
+          props.onAddCustomMetric !== undefined &&
+          props.onRemoveCustomMetric !== undefined && (
+            <AddGraphMetric
+              onAddMetric={props.onAddCustomMetric}
+              metrics={metrics}
+              metricsTypeFilter={metricsTypeFilter}
+              onRemoveMetric={props.onRemoveCustomMetric}
+              selectedMetrics={selectedMetrics}
+            />
+          )}
       </div>
-    );
-  }
+    </div>
+  );
 }

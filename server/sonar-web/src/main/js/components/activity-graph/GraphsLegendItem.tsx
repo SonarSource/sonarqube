@@ -19,11 +19,10 @@
  */
 
 import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Theme, themeColor } from 'design-system';
+import { CloseIcon, DestructiveIcon, FlagWarningIcon, Theme, themeColor } from 'design-system';
 import * as React from 'react';
-import { ClearButton } from '../../components/controls/buttons';
-import AlertWarnIcon from '../../components/icons/AlertWarnIcon';
 import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
 import { translateWithParameters } from '../../helpers/l10n';
 
@@ -48,29 +47,31 @@ export function GraphsLegendItem({
 
   const isActionable = removeMetric !== undefined;
 
-  const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
-
   return (
-    <span className={legendClass}>
+    <StyledLegendItem className={classNames('sw-px-2 sw-py-1 sw-rounded-pill', className)}>
       {showWarning ? (
-        <AlertWarnIcon className="sw-mr-2" />
+        <FlagWarningIcon className="sw-mx-2" />
       ) : (
-        <ChartLegendIcon className="sw-align-middle sw-mr-2" index={index} />
+        <ChartLegendIcon className="sw-mx-2" index={index} />
       )}
-      <span
-        className="sw-align-middle sw-body-sm"
-        style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
-      >
+      <span className="sw-body-sm" style={{ color: themeColor('graphCursorLineColor')({ theme }) }}>
         {name}
       </span>
       {isActionable && (
-        <ClearButton
+        <DestructiveIcon
+          Icon={CloseIcon}
           aria-label={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
-          className="button-tiny sw-align-middle sw-ml-2"
-          iconProps={{ size: 12 }}
+          className="sw-ml-2"
+          size="small"
           onClick={() => removeMetric(metric)}
         />
       )}
-    </span>
+    </StyledLegendItem>
   );
 }
+
+const StyledLegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid ${themeColor('graphLegendBorder')};
+`;

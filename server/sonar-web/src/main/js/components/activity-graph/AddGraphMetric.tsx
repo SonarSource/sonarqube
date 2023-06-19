@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, ChevronDownIcon, Dropdown, TextMuted } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
-import Dropdown from '../../components/controls/Dropdown';
-import DropdownIcon from '../../components/icons/DropdownIcon';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { MetricType } from '../../types/metrics';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
@@ -63,7 +62,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         if (
           metric.hidden ||
           isDiffMetric(metric.key) ||
-          ['DATA', 'DISTRIB'].includes(metric.type) ||
+          [MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType) ||
           selectedMetrics.includes(metric.key) ||
           !getLocalizedMetricName(metric).toLowerCase().includes(query.toLowerCase())
         ) {
@@ -120,11 +119,13 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
       this.props.metrics,
       this.props.selectedMetrics
     );
+
     return (
       <Dropdown
-        className="display-inline-block"
+        allowResizing
+        size="large"
         closeOnClick={false}
-        closeOnClickOutside
+        id="activity-graph-custom-metric-selector"
         overlay={
           <AddGraphMetricPopup
             elements={filteredMetrics}
@@ -138,12 +139,15 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
           />
         }
       >
-        <Button className="spacer-left">
-          <span className="text-ellipsis text-middle">
-            {translate('project_activity.graphs.custom.add')}
-          </span>
-          <DropdownIcon className="text-top little-spacer-left" />
-        </Button>
+        <ButtonSecondary
+          className={
+            'sw-ml-2 sw-body-sm sw-flex sw-flex-row sw-justify-between sw-pl-3 sw-pr-2 sw-w-32 ' +
+            'sw-z-normal' // needed because the legends overlap part of the button
+          }
+        >
+          <TextMuted text={translate('project_activity.graphs.custom.add')} />
+          <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
+        </ButtonSecondary>
       </Dropdown>
     );
   }

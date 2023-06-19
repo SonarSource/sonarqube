@@ -460,6 +460,7 @@ export const lightTheme = {
     graphZoomBackgroundColor: COLORS.blueGrey[25],
     graphZoomBorderColor: COLORS.blueGrey[100],
     graphZoomHandleColor: COLORS.blueGrey[400],
+    graphLegendBorder: secondary.darker,
 
     // page
     pageTitle: COLORS.blueGrey[700],
