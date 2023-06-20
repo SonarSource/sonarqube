@@ -39,6 +39,7 @@ interface Props {
   branchLikes: BranchLike[];
   component: Component;
   onBranchesChange: () => void;
+  comparisonBranchesEnabled: boolean;
 }
 
 interface State {
@@ -77,6 +78,31 @@ const TABS = [
   },
 ];
 
+const TABS_SF = [
+  {
+    key: Tabs.Branch,
+    label: (
+        <>
+          <BranchIcon />
+          <span className="spacer-left">
+          {translate('project_branch_pull_request.tabs.branches')}
+        </span>
+        </>
+    )
+  },
+  {
+    key: Tabs.PullRequest,
+    label: (
+        <>
+          <PullRequestIcon />
+          <span className="spacer-left">
+          {translate('project_branch_pull_request.tabs.pull_requests.sf')}
+        </span>
+        </>
+    )
+  }
+];
+
 export default class BranchLikeTabs extends React.PureComponent<Props, State> {
   state: State = { currentTab: Tabs.Branch };
 
@@ -85,7 +111,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
   };
 
   handleDeleteBranchLike = (branchLike: BranchLike) => {
-    this.setState({ deleting: branchLike });
+    this.setState({ deleting: {...branchLike, isComparisonBranch: this.props.comparisonBranchesEnabled} });
   };
 
   handleRenameBranchLike = (branchLike: BranchLike) => {
@@ -116,7 +142,9 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     const title = translate(
       isBranchMode
         ? 'project_branch_pull_request.table.branch'
-        : 'project_branch_pull_request.table.pull_request'
+        : (this.props.comparisonBranchesEnabled
+                  ? 'project_branch_pull_request.table.comparison_branch'
+                  : 'project_branch_pull_request.table.pull_request')
     );
 
     return (
@@ -125,7 +153,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           className="branch-like-tabs"
           onSelect={this.handleTabSelect}
           selected={currentTab}
-          tabs={TABS}
+          tabs={this.props.comparisonBranchesEnabled ? TABS_SF : TABS}
         />
 
         <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
@@ -137,6 +165,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
             onRename={this.handleRenameBranchLike}
             onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
             title={title}
+            comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
           />
         </div>
 

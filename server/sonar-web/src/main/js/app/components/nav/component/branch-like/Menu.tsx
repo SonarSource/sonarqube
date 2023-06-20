@@ -42,6 +42,7 @@ interface Props {
   component: Component;
   currentBranchLike: BranchLike;
   onClose: () => void;
+  comparisonBranchesEnabled: boolean;
   router: Router;
 }
 
@@ -179,6 +180,7 @@ export class Menu extends React.PureComponent<Props, State> {
             hasResults={hasResults}
             onSelect={this.handleOnSelect}
             selectedBranchLike={selectedBranchLike}
+            comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
           />
         </div>
 
@@ -188,7 +190,11 @@ export class Menu extends React.PureComponent<Props, State> {
               onClick={() => onClose()}
               to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
             >
-              {translate('branch_like_navigation.manage')}
+              {
+                this.props.comparisonBranchesEnabled
+                    ? translate('branch_like_navigation.manage.sf')
+                    : translate('branch_like_navigation.manage')
+              }
             </Link>
           </div>
         )}

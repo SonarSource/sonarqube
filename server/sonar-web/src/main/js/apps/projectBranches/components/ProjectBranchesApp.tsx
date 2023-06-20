@@ -29,6 +29,7 @@ export interface ProjectBranchesAppProps {
   branchLikes: BranchLike[];
   component: Component;
   onBranchesChange: () => void;
+  comparisonBranchesEnabled: boolean;
 }
 
 export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
@@ -37,14 +38,21 @@ export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   return (
     <div className="page page-limited" id="project-branch-like">
       <header className="page-header">
-        <h1>{translate('project_branch_pull_request.page')}</h1>
-        <LifetimeInformation />
+        <h1>
+          {
+            props.comparisonBranchesEnabled
+                ? translate('project_branches.page')
+                : translate('project_branch_pull_request.page')
+          }
+        </h1>
+        <LifetimeInformation comparisonBranchesEnabled={props.comparisonBranchesEnabled}/>
       </header>
 
       <BranchLikeTabs
         branchLikes={branchLikes}
         component={component}
         onBranchesChange={props.onBranchesChange}
+        comparisonBranchesEnabled={props.comparisonBranchesEnabled}
       />
     </div>
   );

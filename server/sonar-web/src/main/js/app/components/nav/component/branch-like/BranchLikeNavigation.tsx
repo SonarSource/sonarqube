@@ -37,6 +37,7 @@ export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
   component: Component;
   currentBranchLike: BranchLike;
   projectBinding?: ProjectAlmBindingResponse;
+  comparisonBranchesEnabled: boolean;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
@@ -62,6 +63,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
       currentBranchLike={currentBranchLike}
       hasManyBranches={hasManyBranches}
       projectBinding={projectBinding}
+      comparisonBranchesEnabled={props.comparisonBranchesEnabled}
     />
   );
 
@@ -85,6 +87,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
               component={component}
               currentBranchLike={currentBranchLike}
               onClose={() => setIsMenuOpen(false)}
+              comparisonBranchesEnabled={props.comparisonBranchesEnabled}
             />
           }
         >

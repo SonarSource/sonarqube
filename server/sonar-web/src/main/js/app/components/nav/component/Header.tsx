@@ -38,6 +38,7 @@ export interface HeaderProps {
   currentUser: CurrentUser;
   projectBinding?: ProjectAlmBindingResponse;
   organization: Organization;
+  comparisonBranchesEnabled: boolean;
 }
 
 export function Header(props: HeaderProps) {
@@ -74,6 +75,7 @@ export function Header(props: HeaderProps) {
               component={component}
               currentBranchLike={currentBranchLike}
               projectBinding={projectBinding}
+              comparisonBranchesEnabled={props.comparisonBranchesEnabled}
             />
             <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
           </>

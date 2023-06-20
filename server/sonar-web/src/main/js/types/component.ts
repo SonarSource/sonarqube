@@ -107,4 +107,5 @@ export interface ComponentContextShape {
   onComponentChange: (changes: Partial<Component>) => void;
   projectBinding?: ProjectAlmBindingResponse;
   organization?: Organization;
+  comparisonBranchesEnabled?: boolean;
 }

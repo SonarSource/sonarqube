@@ -89,6 +89,18 @@ public class ScannerProperties {
             + "If no target is defined, the main branch is used as the target.")
         .hidden()
         .build(),
+      PropertyDefinition.builder(COMPARISON_BRANCH)
+              .name("Optional name of comparison branch")
+              .description("Provide a name for the comparison branch being analyzed. It might match an existing comparison branch of the project, otherwise a new comparison branch will be created.")
+              .hidden()
+              .build(),
+      PropertyDefinition.builder(COMPARISON_BASE)
+              .name("Optional name of target branch to merge into")
+              .description(
+                      "Defines the target branch of the comparison branch being analyzed. "
+                              + "If no target is defined, the main branch is used as the target.")
+              .hidden()
+              .build(),
       PropertyDefinition.builder(DISABLE_PROJECT_AND_ORG_AUTODETECTION)
         .name("Disables project auto-detection")
         .description("Disables auto-detection of project keys from scanner execution environment.")

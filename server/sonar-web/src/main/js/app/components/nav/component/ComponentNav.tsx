@@ -52,6 +52,7 @@ export interface ComponentNavProps {
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   warnings: TaskWarning[];
   organization: Organization;
+  comparisonBranchesEnabled: boolean;
 }
 
 const ALERT_HEIGHT = 30;
@@ -70,6 +71,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     projectBindingErrors,
     warnings,
     organization,
+    comparisonBranchesEnabled,
   } = props;
   const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
 
@@ -139,6 +141,7 @@ export default function ComponentNav(props: ComponentNavProps) {
           currentBranchLike={currentBranchLike}
           projectBinding={projectBinding}
           organization={organization}
+          comparisonBranchesEnabled={comparisonBranchesEnabled}
         />
         <HeaderMeta
           branchLike={currentBranchLike}
@@ -155,6 +158,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         isPending={isPending}
         onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
         projectInfoDisplayed={displayProjectInfo}
+        comparisonBranchesEnabled={comparisonBranchesEnabled}
       />
       <InfoDrawer
         displayed={displayProjectInfo}

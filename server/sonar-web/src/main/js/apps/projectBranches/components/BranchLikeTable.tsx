@@ -33,6 +33,7 @@ export interface BranchLikeTableProps {
   onRename: (branchLike: BranchLike) => void;
   onUpdatePurgeSetting: () => void;
   title: string;
+  comparisonBranchesEnabled?: boolean;
 }
 
 export function BranchLikeTable(props: BranchLikeTableProps) {
@@ -75,7 +76,7 @@ export function BranchLikeTable(props: BranchLikeTableProps) {
         <tbody>
           {branchLikes.map((branchLike) => (
             <BranchLikeRow
-              branchLike={branchLike}
+              branchLike={{...branchLike, isComparisonBranch: props.comparisonBranchesEnabled}}
               component={component}
               displayPurgeSetting={displayPurgeSetting}
               key={getBranchLikeKey(branchLike)}

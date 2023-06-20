@@ -39,6 +39,7 @@ export interface CurrentBranchLikeProps {
   currentBranchLike: BranchLike;
   hasManyBranches: boolean;
   projectBinding?: ProjectAlmBindingResponse;
+  comparisonBranchesEnabled?: boolean;
 }
 
 export function CurrentBranchLike(props: CurrentBranchLikeProps) {
@@ -51,7 +52,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
     projectBinding,
   } = props;
 
-  const displayName = getBranchLikeDisplayName(currentBranchLike);
+  const displayName = getBranchLikeDisplayName({...currentBranchLike, isComparisonBranch: props.comparisonBranchesEnabled});
   const isApplication = component.qualifier === ComponentQualifier.Application;
   const canAdminComponent = configuration && configuration.showSettings;
   const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;

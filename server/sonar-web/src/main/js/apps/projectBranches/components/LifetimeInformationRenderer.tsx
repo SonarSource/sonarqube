@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 export interface LifetimeInformationRendererProps {
+  comparisonBranchesEnabled: boolean;
   branchAndPullRequestLifeTimeInDays?: string;
   canAdmin?: boolean;
   loading: boolean;
@@ -38,7 +39,11 @@ export function LifetimeInformationRenderer(props: LifetimeInformationRendererPr
       {branchAndPullRequestLifeTimeInDays && (
         <p className="page-description">
           <FormattedMessage
-            defaultMessage={translate('project_branch_pull_request.lifetime_information')}
+            defaultMessage={
+              props.comparisonBranchesEnabled
+                  ? translate('project_comparison_branch_request.lifetime_information')
+                  : translate('project_branch_pull_request.lifetime_information')
+            }
             id="project_branch_pull_request.lifetime_information"
             values={{ days: formatMeasure(branchAndPullRequestLifeTimeInDays, 'INT') }}
           />

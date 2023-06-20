@@ -80,7 +80,9 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
     const { branchLike } = this.props;
     const header = translate(
       isPullRequest(branchLike)
-        ? 'project_branch_pull_request.pull_request.delete'
+        ? (branchLike.isComparisonBranch
+              ? 'project_branch_pull_request.comparison_branch.delete'
+              : 'project_branch_pull_request.pull_request.delete')
         : 'project_branch_pull_request.branch.delete'
     );
 
@@ -93,7 +95,9 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
           <div className="modal-body">
             {translateWithParameters(
               isPullRequest(branchLike)
-                ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
+                ? (branchLike.isComparisonBranch
+                      ? 'project_branch_pull_request.comparison_branch.delete.are_you_sure'
+                      : 'project_branch_pull_request.pull_request.delete.are_you_sure')
                 : 'project_branch_pull_request.branch.delete.are_you_sure',
               getBranchLikeDisplayName(branchLike)
             )}

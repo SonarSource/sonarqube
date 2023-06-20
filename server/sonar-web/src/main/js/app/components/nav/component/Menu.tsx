@@ -62,6 +62,7 @@ interface Props extends WithAvailableFeaturesProps {
   isPending?: boolean;
   onToggleProjectInfo: () => void;
   projectInfoDisplayed: boolean;
+  comparisonBranchesEnabled: boolean;
 }
 
 type Query = BranchParameters & { id: string };
@@ -408,7 +409,11 @@ export class Menu extends React.PureComponent<Props> {
         <NavLink
           to={{ pathname: '/project/branches', search: new URLSearchParams(query).toString() }}
         >
-          {translate('project_branch_pull_request.page')}
+          {
+            this.props.comparisonBranchesEnabled
+                ? translate('project_branches.page')
+                : translate('project_branch_pull_request.page')
+          }
         </NavLink>
       </li>
     );

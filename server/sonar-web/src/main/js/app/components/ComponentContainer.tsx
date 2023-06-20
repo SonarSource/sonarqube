@@ -52,6 +52,7 @@ import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 import { getOrganization, getOrganizationNavigation } from "../../api/organizations";
+import { getValues } from "../../api/settings";
 
 interface Props extends WithAvailableFeaturesProps {
   location: Location;
@@ -71,6 +72,7 @@ interface State {
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
   organization?: Organization;
+  comparisonBranchesEnabled: boolean;
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -78,7 +80,7 @@ const FETCH_STATUS_WAIT_TIME = 3000;
 export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
-  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [] };
+  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [], comparisonBranchesEnabled: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -112,11 +114,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       ]);
       componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
-      const [organization, navigation] = await Promise.all([
+      const [settings, organization, navigation] = await Promise.all([
+        getValues({ keys: ['codescan.comparison.branches'], component: component.key }),
         getOrganization(component.organization),
         getOrganizationNavigation(component.organization)
       ]);
-      this.setState({ organization: { ...organization, ...navigation } });
+      this.setState({ organization: { ...organization, ...navigation }, comparisonBranchesEnabled: settings[0].value === "true" });
     } catch (e) {
       if (this.mounted) {
         if (e && e instanceof Response && e.status === HttpStatus.Forbidden) {
@@ -415,6 +418,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       projectBindingErrors,
       tasksInProgress,
       warnings,
+      comparisonBranchesEnabled,
     } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
@@ -438,6 +442,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               projectBindingErrors={projectBindingErrors}
               warnings={warnings}
               organization={organization}
+              comparisonBranchesEnabled={comparisonBranchesEnabled}
             />
           )}
         {loading ? (
@@ -456,6 +461,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               onComponentChange: this.handleComponentChange,
               projectBinding,
               organization,
+              comparisonBranchesEnabled,
             }}
           >
             <Outlet />

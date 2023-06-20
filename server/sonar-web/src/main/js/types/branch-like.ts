@@ -42,6 +42,7 @@ export interface PullRequest {
   target: string;
   title: string;
   url?: string;
+  isComparisonBranch?: boolean;
 }
 
 export type BranchLike = Branch | PullRequest;
