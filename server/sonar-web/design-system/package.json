@@ -76,7 +76,7 @@
     "react-router-dom": "6.11.2",
     "react-select": "5.7.3",
     "react-virtualized": "9.22.5",
-    "tailwindcss": "3.3.1"
+    "tailwindcss": "3.3.2"
   },
   "babelMacros": {
     "twin": {
