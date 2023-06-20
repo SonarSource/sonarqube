@@ -319,3 +319,24 @@
   min-height: 200px;
   padding-bottom: 0;
 }
+
+.grc-section{
+  background-color: var(--sonarcloudBlack100);
+}
+
+.grc-section .tab{
+  padding: 15px 15px 10px 15px;
+  border: 1px solid var(--barBorderColor);
+  border-top: 2px solid var(--blue);
+  background: white;;
+}
+.grc-section .seperator{
+  height: 15px;
+  background: var(--barBackgroundColor);
+}
+
+.grc-section .overview-measures-row{
+  border: 1px solid var(--barBorderColor);
+  border-top: none;
+  background: white;
+}

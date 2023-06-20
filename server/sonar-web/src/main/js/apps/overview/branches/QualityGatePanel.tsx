@@ -35,14 +35,24 @@ export interface QualityGatePanelProps {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
+  grc:boolean;
 }
 
 export function QualityGatePanel(props: QualityGatePanelProps) {
-  const { component, loading, qgStatuses = [] } = props;
+  const { component, loading, qgStatuses = [], grc } = props;
 
   if (qgStatuses === undefined) {
     return null;
   }
+
+  let title = translate('overview.quality_gate');
+    let helpMsg = translate('overview.quality_gate.help');
+    if(grc){
+      // title = translate('grc.overview.quality_gate');
+      // helpMsg = translate('grc.overview.quality_gate.help');
+      title = "Analysis Gate Status";
+      helpMsg = "Analysis Gate is a set of measure-based Boolean conditions. It helps you know immediately whether your project is production-ready. If your current status is not Passed, you'll see which measures caused the problem and the values required to pass.";
+    }
 
   const overallLevel = qgStatuses.map((s) => s.status).includes('ERROR') ? 'ERROR' : 'OK';
   const success = overallLevel === 'OK';
@@ -72,13 +82,13 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     <div className="overview-panel" data-test="overview__quality-gate-panel">
       <div className="display-flex-center spacer-bottom">
         <h2 className="overview-panel-title null-spacer-bottom">
-          {translate('overview.quality_gate')}{' '}
+          {title}{' '}
         </h2>
         <HelpTooltip
           className="little-spacer-left"
           overlay={
             <div className="big-padded-top big-padded-bottom">
-              {translate('overview.quality_gate.help')}
+              {helpMsg}
             </div>
           }
         />
@@ -128,6 +138,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
                     component={component}
                     key={qgStatus.key}
                     qgStatus={qgStatus}
+                    grc={grc}
                   />
                 ))}
               </div>

@@ -59,6 +59,7 @@ interface Props {
   branchesEnabled?: boolean;
   component: Component;
   projectBinding?: ProjectAlmBindingResponse;
+  grc: boolean;
 }
 
 interface State {
@@ -402,7 +403,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, branchesEnabled, component, projectBinding } = this.props;
+    const { branch, branchesEnabled, component, projectBinding, grc } = this.props;
     const {
       analyses,
       appLeak,
@@ -443,6 +444,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         projectBinding={projectBinding}
         projectIsEmpty={projectIsEmpty}
         qgStatuses={qgStatuses}
+        grc={grc}
       />
     );
   }

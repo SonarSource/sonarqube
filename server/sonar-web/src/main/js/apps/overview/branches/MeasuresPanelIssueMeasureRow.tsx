@@ -34,10 +34,12 @@ export interface MeasuresPanelIssueMeasureRowProps {
   isNewCodeTab: boolean;
   measures: MeasureEnhanced[];
   type: IssueType;
+  grc: boolean;
+  renderLink: boolean;
 }
 
 export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMeasureRowProps) {
-  const { branchLike, component, isNewCodeTab, measures, type } = props;
+  const { branchLike, component, isNewCodeTab, measures, type, grc, renderLink } = props;
 
   const isApp = component.qualifier === ComponentQualifier.Application;
 
@@ -63,6 +65,8 @@ export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMe
               measures={measures}
               type={type}
               useDiffMetric={isNewCodeTab}
+              grc={grc}
+              renderLink={renderLink}
             />
           </div>
         </>
@@ -79,6 +83,8 @@ export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMe
             measures={measures}
             type={type}
             useDiffMetric={isNewCodeTab}
+            grc={grc}
+            renderLink={renderLink}
           />
         </div>
       )}
@@ -95,6 +101,7 @@ export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMe
             measures={measures}
             type={type}
             useDiffMetric={isNewCodeTab}
+            grc={grc}
           />
         </div>
       )}

@@ -137,8 +137,13 @@ const MEASUREMENTS_MAP = {
   },
 };
 
-export function getIssueRatingName(type: IssueType) {
-  return translate('metric_domain', ISSUETYPE_METRIC_KEYS_MAP[type].ratingName);
+export function getIssueRatingName(type: IssueType, grc: boolean = false) {
+  if(grc){
+    return "Policy Analysis Rating";
+  }else{
+    const metricLabel = grc?"grc.metric_domain":"metric_domain";
+    return translate(metricLabel, ISSUETYPE_METRIC_KEYS_MAP[type].ratingName);
+  }
 }
 
 export function getIssueIconClass(type: IssueType) {

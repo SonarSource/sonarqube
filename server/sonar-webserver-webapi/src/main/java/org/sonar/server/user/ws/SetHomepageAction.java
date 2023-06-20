@@ -133,6 +133,7 @@ public class SetHomepageAction implements UsersWsAction {
         return componentFinder.getByKey(dbSession, componentParameter).uuid();
       case PORTFOLIOS, PROJECTS, ISSUES:
         return null;
+      case POLICY_RESULTS:
       case ORGANIZATION:
         checkArgument(isNotBlank(organizationParameter), PARAMETER_REQUIRED, type.name(), PARAM_ORGANIZATION);
         return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)

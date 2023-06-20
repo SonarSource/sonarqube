@@ -46,6 +46,7 @@ import LargeQualityGateBadge from './LargeQualityGateBadge';
 interface Props extends BranchStatusData, Pick<BranchStatusContextInterface, 'fetchBranchStatus'> {
   branchLike: PullRequest;
   component: Component;
+  grc:boolean;
 }
 
 interface State {
@@ -135,7 +136,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component, conditions, ignoredConditions, status } = this.props;
+    const { grc, branchLike, component, conditions, ignoredConditions, status } = this.props;
     const { loading, measures } = this.state;
 
     if (loading) {
@@ -201,6 +202,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                   collapsible={true}
                   component={component}
                   failedConditions={failedConditions}
+                  grc={grc}
                 />
               </div>
             )}
@@ -225,6 +227,8 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                         measures={measures}
                         type={type}
                         useDiffMetric={true}
+                        grc={grc}
+                        renderLink={true}
                       />
                     </div>
                     <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
@@ -234,6 +238,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                         measures={measures}
                         type={type}
                         useDiffMetric={true}
+                        grc={grc}
                       />
                     </div>
                   </div>

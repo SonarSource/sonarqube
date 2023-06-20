@@ -38,6 +38,7 @@ export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
   qgStatus: QualityGateStatus;
+  grc: boolean;
 }
 
 function splitConditions(
@@ -71,8 +72,17 @@ function displayConditions(conditions: number) {
 }
 
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
-  const { component, qgStatus } = props;
+  const { component, qgStatus, grc } = props;
   const [collapsed, setCollapsed] = React.useState(false);
+
+  let newCodeTitle = translate('quality_gates.conditions.new_code');
+  let existingCodeTitle = translate('quality_gates.conditions.overall_code');
+  if(grc){
+    //newCodeTitle = translate('grc.quality_gates.conditions.new_code');
+    //existingCodeTitle = translate('grc.quality_gates.conditions.overall_code');
+    newCodeTitle = "On New Violations";
+    existingCodeTitle = "On Overall Violations";
+  }
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed);
@@ -149,10 +159,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
             <>
               {showSectionTitles && (
                 <h4 className="big-padded overview-quality-gate-conditions-section-title">
-                  {translateWithParameters(
-                    'quality_gates.conditions.new_code_x',
-                    newCodeFailedConditions.length.toString()
-                  )}
+                  {newCodeTitle}
                 </h4>
               )}
               <QualityGateConditions
@@ -167,10 +174,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
             <>
               {showSectionTitles && (
                 <h4 className="big-padded overview-quality-gate-conditions-section-title">
-                  {translateWithParameters(
-                    'quality_gates.conditions.overall_code_x',
-                    overallFailedConditions.length.toString()
-                  )}
+                  {existingCodeTitle}
                 </h4>
               )}
               <QualityGateConditions

@@ -391,6 +391,10 @@ export function getOrganizationUrl(organization: string) {
   return `/organizations/${organization}`;
 }
 
+export function getOrganizationPolicyResultsUrl(organization: string) {
+  return `/organizations/${organization}/policy-results`;
+}
+
 export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
     case 'APPLICATION':
@@ -412,6 +416,8 @@ export function getHomePageUrl(homepage: HomePage) {
     case 'ISSUES':
     case 'MY_ISSUES':
       return { pathname: '/issues', query: { resolved: 'false' } };
+    case 'POLICY_RESULTS':
+      return getOrganizationPolicyResultsUrl(homepage.organization);
   }
 
   // should never happen, but just in case...

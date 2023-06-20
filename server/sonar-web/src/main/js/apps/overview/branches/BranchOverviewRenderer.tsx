@@ -51,6 +51,7 @@ export interface BranchOverviewRendererProps {
   projectBinding?: ProjectAlmBindingResponse;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
+  grc: boolean;
 }
 
 export default function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
@@ -72,6 +73,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     projectBinding,
     projectIsEmpty,
     qgStatuses,
+    grc
   } = props;
 
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
@@ -91,6 +93,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   component={component}
                   loading={loadingStatus}
                   qgStatuses={qgStatuses}
+                  grc={grc}
                 />
               </div>
 
@@ -103,19 +106,21 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     loading={loadingStatus}
                     measures={measures}
                     period={period}
+                    grc={grc}
                   />
 
-                  <ActivityPanel
-                    analyses={analyses}
-                    branchLike={branch}
-                    component={component}
-                    graph={graph}
-                    leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
-                    loading={loadingHistory}
-                    measuresHistory={measuresHistory}
-                    metrics={metrics}
-                    onGraphChange={onGraphChange}
-                  />
+                  { !grc ? (<>      
+                    <ActivityPanel
+                      analyses={analyses}
+                      branchLike={branch}
+                      component={component}
+                      graph={graph}
+                      leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
+                      loading={loadingHistory}
+                      measuresHistory={measuresHistory}
+                      metrics={metrics}
+                      onGraphChange={onGraphChange}
+                    /></>) :(<></>)}            
                 </div>
               </div>
             </div>

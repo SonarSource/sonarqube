@@ -80,6 +80,7 @@ export class App extends React.PureComponent<Props> {
             branchesEnabled={branchSupportEnabled}
             component={component}
             projectBinding={projectBinding}
+            grc={false}
           />
         )}
       </>

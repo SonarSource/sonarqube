@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { MetricKey } from '../../../../js/types/metrics';
 import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
@@ -37,11 +38,15 @@ export interface IssueLabelProps {
   measures: MeasureEnhanced[];
   type: IssueType;
   useDiffMetric?: boolean;
+  grc: boolean;
+  renderLink: boolean;
 }
 
 export function IssueLabel(props: IssueLabelProps) {
-  const { branchLike, component, helpTooltip, measures, type, useDiffMetric = false } = props;
+  const { branchLike, component, helpTooltip, measures, type, useDiffMetric = false, grc, renderLink } = props;
+  
   const metricKey = getIssueMetricKey(type, useDiffMetric);
+  const grcMetric = metricKey===MetricKey.security_hotspots?"violations":"new_violations" 
   const measure = findMeasure(measures, metricKey);
   const iconClass = getIssueIconClass(type);
 
@@ -66,7 +71,8 @@ export function IssueLabel(props: IssueLabelProps) {
     <>
       {value === undefined ? (
         <span aria-label={translate('no_data')} className="overview-measures-empty-value" />
-      ) : (
+      ) : (<>{
+        renderLink ? (<>
         <Link
           aria-label={translateWithParameters(
             'overview.see_list_of_x_y_issues',
@@ -78,9 +84,13 @@ export function IssueLabel(props: IssueLabelProps) {
         >
           {formatMeasure(value, 'SHORT_INT')}
         </Link>
-      )}
+        </>) : (<><span  className="overview-measures-value text-light">
+                  {formatMeasure(value, 'SHORT_INT')}
+                </span></>)
+      }</>)}
+
       {React.createElement(iconClass, { className: 'big-spacer-left little-spacer-right' })}
-      {localizeMetric(metricKey)}
+      {grc?localizeMetric(grcMetric):localizeMetric(metricKey)}
       {helpTooltip && <HelpTooltip className="little-spacer-left" overlay={helpTooltip} />}
     </>
   );

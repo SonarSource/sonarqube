@@ -40,6 +40,7 @@ import ProfileDetails from '../quality-profiles/details/ProfileDetails';
 import HomeContainer from '../quality-profiles/home/HomeContainer';
 import OrganizationPageExtension from "../../app/components/extensions/OrganizationPageExtension";
 import OrganizationMembers from "../organizationMembers/OrganizationMembers";
+import PolicyResults from "../policy-results/components/PolicyResults";
 
 const routes = () => (
     <Route path="organizations">
@@ -54,6 +55,7 @@ const routes = () => (
         <Route path="projects_management" element={<ProjectManagementApp />}/>
         <Route path="webhooks" element={<WebhookApp />}/>
         <Route path="issues" element={<IssuesApp />}/>
+        <Route path="policy-results" element={<PolicyResults/>}/>
         {qualityGatesRoutes()}
         <Route path="quality_profiles" element={<QualityProfilesApp />}>
            <Route index={true} element={<HomeContainer />} />

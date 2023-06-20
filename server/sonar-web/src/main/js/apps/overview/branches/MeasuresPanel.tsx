@@ -47,6 +47,7 @@ export interface MeasuresPanelProps {
   measures?: MeasureEnhanced[];
   period?: Period;
   location: Location;
+  grc: boolean;
 }
 
 export enum MeasuresPanelTabs {
@@ -55,7 +56,7 @@ export enum MeasuresPanelTabs {
 }
 
 export function MeasuresPanel(props: MeasuresPanelProps) {
-  const { appLeak, branch, component, loading, measures = [], period, location } = props;
+  const { appLeak, branch, component, loading, measures = [], period, location, grc } = props;
 
   const hasDiffMeasures = measures.some((m) => isDiffMetric(m.metric.key));
   const isApp = component.qualifier === ComponentQualifier.Application;
@@ -69,6 +70,16 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
   });
 
   const isNewCodeTab = tab === MeasuresPanelTabs.New;
+
+  const renderRows = grc
+    ? [IssueType.SecurityHotspot]
+    : [IssueType.Bug, IssueType.Vulnerability, IssueType.SecurityHotspot, IssueType.CodeSmell];
+
+
+  const newCodeLabel = grc ? "New Violations" : translate('overview.new_code');
+  const overallCodeLabel = grc
+    ? "Existing Violations"
+    : translate('overview.overall_code');
 
   React.useEffect(() => {
     // Open Overall tab by default if there are no new measures.
@@ -85,7 +96,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
       key: MeasuresPanelTabs.New,
       label: (
         <div className="text-left overview-measures-tab">
-          <span className="text-bold">{translate('overview.new_code')}</span>
+          <span className="text-bold">{newCodeLabel}</span>
           {leakPeriod && <LeakPeriodInfo leakPeriod={leakPeriod} />}
         </div>
       ),
@@ -95,7 +106,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
       label: (
         <div className="text-left overview-measures-tab">
           <span className="text-bold" style={{ position: 'absolute', top: 2 * rawSizes.grid }}>
-            {translate('overview.overall_code')}
+            {overallCodeLabel}
           </span>
         </div>
       ),
@@ -114,6 +125,46 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
           <DeferredSpinner loading={loading} />
         </div>
       ) : (
+
+        <>
+          { grc ? (<>
+            <div className="grc-section">
+              <section>
+                <div className="tab">
+                  <span className="text-bold">{newCodeLabel}</span>
+                  {leakPeriod && <LeakPeriodInfo leakPeriod={leakPeriod} />}
+                </div>
+                {renderRows.map((type: IssueType) => (
+                  <MeasuresPanelIssueMeasureRow
+                    branchLike={branch}
+                    component={component}
+                    isNewCodeTab={true}
+                    key={type}
+                    measures={measures}
+                    type={type}
+                    grc={grc}
+                    renderLink={true}
+                  />
+                ))}
+                <div className="seperator"></div>
+                <div className="tab">
+                  <span className="text-bold">{overallCodeLabel}</span>
+                </div>
+                {renderRows.map((type: IssueType) => (
+                  <MeasuresPanelIssueMeasureRow
+                    branchLike={branch}
+                    component={component}
+                    isNewCodeTab={false}
+                    key={type}
+                    measures={measures}
+                    type={type}
+                    grc={grc}
+                    renderLink={true}
+                  />
+                ))}
+              </section>
+            </div>
+          </>):
         <>
           <BoxedTabs onSelect={(key) => selectTab(key)} selected={tab} tabs={tabs} />
 
@@ -196,6 +247,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
               </>
             )}
           </div>
+        </>}
         </>
       )}
     </div>
