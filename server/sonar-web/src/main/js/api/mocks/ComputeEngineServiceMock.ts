@@ -70,7 +70,7 @@ export default class ComputeEngineServiceMock {
     jest.mocked(getActivity).mockImplementation(this.handleGetActivity);
     (getStatus as jest.Mock).mockImplementation(this.handleGetStatus);
     (getTypes as jest.Mock).mockImplementation(this.handleGetTypes);
-    (getTask as jest.Mock).mockImplementation(this.handleGetTask);
+    jest.mocked(getTask).mockImplementation(this.handleGetTask);
     (getWorkers as jest.Mock).mockImplementation(this.handleGetWorkers);
     (setWorkerCount as jest.Mock).mockImplementation(this.handleSetWorkerCount);
 
