@@ -46,7 +46,7 @@
     "postcss": "8.4.24",
     "postcss-calc": "9.0.1",
     "postcss-custom-properties": "12.1.11",
-    "twin.macro": "3.3.0",
+    "twin.macro": "3.3.1",
     "typescript": "5.0.3",
     "vite": "4.2.1",
     "vite-plugin-dts": "2.2.0",

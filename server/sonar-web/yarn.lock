@@ -6624,7 +6624,7 @@ __metadata:
     postcss: 8.4.24
     postcss-calc: 9.0.1
     postcss-custom-properties: 12.1.11
-    twin.macro: 3.3.0
+    twin.macro: 3.3.1
     typescript: 5.0.3
     vite: 4.2.1
     vite-plugin-dts: 2.2.0
@@ -12951,9 +12951,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"twin.macro@npm:3.3.0":
-  version: 3.3.0
-  resolution: "twin.macro@npm:3.3.0"
+"twin.macro@npm:3.3.1":
+  version: 3.3.1
+  resolution: "twin.macro@npm:3.3.1"
   dependencies:
     "@babel/template": ^7.18.10
     babel-plugin-macros: ^3.1.0
@@ -12963,7 +12963,7 @@ __metadata:
     postcss-selector-parser: ^6.0.10
   peerDependencies:
     tailwindcss: ">=3.3.1"
-  checksum: 9cab9b23a67466201e9edaaef1db542bb9eda54e9c3010b7190ef94ff0e40ad1bdbeb256b3e071f07b148d0e549f681153867dede3fd2bc99148dc4c12f9a727
+  checksum: e9eb3dc7fa5d82cb915f76c4b485a20d6a7741755065b7a30097b56862115f5a3559a0383718d3fa54c01270f62d7830934deb94369c7e873e9060afe284b2a1
   languageName: node
   linkType: hard
 
