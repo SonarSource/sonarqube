@@ -4403,10 +4403,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.14.191":
-  version: 4.14.191
-  resolution: "@types/lodash@npm:4.14.191"
-  checksum: ba0d5434e10690869f32d5ea49095250157cae502f10d57de0a723fd72229ce6c6a4979576f0f13e0aa9fbe3ce2457bfb9fa7d4ec3d6daba56730a51906d1491
+"@types/lodash@npm:4.14.195":
+  version: 4.14.195
+  resolution: "@types/lodash@npm:4.14.195"
+  checksum: 39b75ca635b3fa943d17d3d3aabc750babe4c8212485a4df166fe0516e39288e14b0c60afc6e21913cc0e5a84734633c71e617e2bd14eaa1cf51b8d7799c432e
   languageName: node
   linkType: hard
 
@@ -4981,7 +4981,7 @@ __metadata:
     "@types/dompurify": 2.4.0
     "@types/enzyme": 3.10.13
     "@types/jest": 29.5.2
-    "@types/lodash": 4.14.191
+    "@types/lodash": 4.14.195
     "@types/node": 18.16.18
     "@types/react": 17.0.39
     "@types/react-dom": 17.0.11
