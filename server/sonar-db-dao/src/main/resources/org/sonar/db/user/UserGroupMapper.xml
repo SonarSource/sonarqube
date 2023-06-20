@@ -30,6 +30,12 @@
     where group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByOrganizationAndUser" parameterType="map">
+    delete from groups_users
+    where user_uuid = #{userUuid,jdbcType=VARCHAR} and
+    group_uuid in (select uuid from groups where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
+  </delete>
+
   <delete id="deleteByUserUuid" parameterType="String">
     DELETE FROM groups_users WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
