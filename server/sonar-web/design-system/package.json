@@ -24,6 +24,8 @@
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "12.1.5",
     "@testing-library/user-event": "14.4.3",
+    "@types/d3-array": "3.0.5",
+    "@types/d3-zoom": "3.0.3",
     "@types/react": "17.0.39",
     "@types/react-highlight-words": "0.16.4",
     "@typescript-eslint/parser": "5.57.0",

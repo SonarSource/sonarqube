@@ -3965,9 +3965,9 @@ __metadata:
   linkType: hard
 
 "@types/d3-color@npm:*":
-  version: 3.0.2
-  resolution: "@types/d3-color@npm:3.0.2"
-  checksum: 9009aa52e41638442ca4884666e694f177b650b46df5d2495f80437659545c9f3afd598ab95c4ff6d0d13e445df4bd893a89887ca3d34239279a37215d148873
+  version: 3.1.0
+  resolution: "@types/d3-color@npm:3.1.0"
+  checksum: b1856f17d6366559a68eaba0164f30727e9dc5eaf1b3a6c8844354da228860240423d19fa4de65bff9da26b4ead8843eab14b1566962665412e8fd82c3810554
   languageName: node
   linkType: hard
 
@@ -4003,14 +4003,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-selection@npm:*":
-  version: 3.0.1
-  resolution: "@types/d3-selection@npm:3.0.1"
-  checksum: 6733caaf1a579a0c5d5e905867f51eb061a8216244ac749c8a8cb679d6e8661c6e3e78de3d999e1f107224322bd69ff0f71fb834015f9d780d46181adf42273c
-  languageName: node
-  linkType: hard
-
-"@types/d3-selection@npm:3.0.5":
+"@types/d3-selection@npm:*, @types/d3-selection@npm:3.0.5":
   version: 3.0.5
   resolution: "@types/d3-selection@npm:3.0.5"
   checksum: 77ea35c92273cd2d736355ab5a4cf6477086b064a1f608489a6fef4198ee6bc1d5440e5dfd880099265ac96c4f4b4fda659d89fbaaef37ba03708663196ba8ad
@@ -4033,13 +4026,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-zoom@npm:3.0.2":
-  version: 3.0.2
-  resolution: "@types/d3-zoom@npm:3.0.2"
+"@types/d3-zoom@npm:3.0.3":
+  version: 3.0.3
+  resolution: "@types/d3-zoom@npm:3.0.3"
   dependencies:
     "@types/d3-interpolate": "*"
     "@types/d3-selection": "*"
-  checksum: c55b18ec5d5108c265d3e19299f51469e48d215f179a665f5797ac18bf8458dcbefd0c682154f8d8eb9d297a7486a5853115f72444af9cd02b3b4b5d1e4f9b22
+  checksum: 1c828538e2b04c47f659ead552824bed1c545dd1934f38abfec95f4a3c1cb4eaf7e107959ebd05a3dfec0166fa98677037ede6f633383c6502b1a05eaeb1d418
   languageName: node
   linkType: hard
 
@@ -4676,7 +4669,6 @@ __metadata:
     "@types/d3-scale": 4.0.3
     "@types/d3-selection": 3.0.5
     "@types/d3-shape": 3.1.1
-    "@types/d3-zoom": 3.0.2
     "@types/diff": 5.0.3
     "@types/dompurify": 2.4.0
     "@types/enzyme": 3.10.12
@@ -6293,6 +6285,8 @@ __metadata:
     "@testing-library/jest-dom": 5.16.5
     "@testing-library/react": 12.1.5
     "@testing-library/user-event": 14.4.3
+    "@types/d3-array": 3.0.5
+    "@types/d3-zoom": 3.0.3
     "@types/react": 17.0.39
     "@types/react-highlight-words": 0.16.4
     "@typescript-eslint/parser": 5.57.0
