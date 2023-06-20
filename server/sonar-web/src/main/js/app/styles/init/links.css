@@ -49,3 +49,11 @@ a img {
 .link-rating:hover {
   border-bottom: 0 !important;
 }
+
+.set-homepage-link{
+
+}
+
+.set-homepage-link:hover{
+  border-bottom-color: transparent !important;
+}
