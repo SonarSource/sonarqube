@@ -27,10 +27,10 @@ import { ComponentQualifier } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
 import { Query } from '../utils';
-import './projectActivity.css';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
 import ProjectActivityPageFilters from './ProjectActivityPageFilters';
+import './projectActivity.css';
 
 interface Props {
   onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;

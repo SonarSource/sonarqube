@@ -192,7 +192,7 @@ export function selectStyle<
     }),
     placeholder: (base) => ({
       ...base,
-      color: themeContrast('primaryLight')({ theme }),
+      color: themeContrast('inputPlaceholder')({ theme }),
     }),
   };
 }
