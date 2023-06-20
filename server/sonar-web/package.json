@@ -36,7 +36,7 @@
     "react-intl": "6.4.4",
     "react-modal": "3.16.1",
     "react-router-dom": "6.11.2",
-    "react-select": "5.7.2",
+    "react-select": "5.7.3",
     "react-virtualized": "9.22.3",
     "regenerator-runtime": "0.13.11",
     "valid-url": "1.0.9"
