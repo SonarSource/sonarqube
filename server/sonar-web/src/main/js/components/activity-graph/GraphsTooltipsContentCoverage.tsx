@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentCoverageProps {
@@ -33,13 +33,13 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
   const { addSeparator, measuresHistory, tooltipIdx } = props;
   const uncovered = measuresHistory.find((measure) => measure.metric === MetricKey.uncovered_lines);
   const coverage = measuresHistory.find((measure) => measure.metric === MetricKey.coverage);
-  if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {
+  if (!uncovered?.history[tooltipIdx] || !coverage?.history[tooltipIdx]) {
     return null;
   }
   const uncoveredValue = uncovered.history[tooltipIdx].value;
   const coverageValue = coverage.history[tooltipIdx].value;
   return (
-    <tbody>
+    <>
       {addSeparator && (
         <tr>
           <td className="activity-graph-tooltip-separator" colSpan={3}>
@@ -50,7 +50,7 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
       {uncoveredValue && (
         <tr className="activity-graph-tooltip-line">
           <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-            {formatMeasure(uncoveredValue, 'SHORT_INT')}
+            {formatMeasure(uncoveredValue, MetricType.ShortInteger)}
           </td>
           <td>{translate('metric.uncovered_lines.name')}</td>
         </tr>
@@ -58,11 +58,11 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
       {coverageValue && (
         <tr className="activity-graph-tooltip-line">
           <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-            {formatMeasure(coverageValue, 'PERCENT')}
+            {formatMeasure(coverageValue, MetricType.Percent)}
           </td>
           <td>{translate('metric.coverage.name')}</td>
         </tr>
       )}
-    </tbody>
+    </>
   );
 }

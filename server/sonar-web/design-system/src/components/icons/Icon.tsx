@@ -39,6 +39,12 @@ export interface IconProps extends Omit<Props, 'children'> {
   width?: number;
 }
 
+const PIXELS_IN_ONE_REM = 16;
+
+function convertRemToPixel(remString: string) {
+  return Number(remString.replace('rem', '')) * PIXELS_IN_ONE_REM;
+}
+
 export function CustomIcon(props: Props) {
   const {
     'aria-label': ariaLabel,
@@ -54,7 +60,7 @@ export function CustomIcon(props: Props) {
       aria-label={ariaLabel}
       className={className}
       fill="none"
-      height={theme('height.icon')}
+      height={convertRemToPixel(theme('height.icon'))}
       role="img"
       style={{
         clipRule: 'evenodd',
@@ -67,7 +73,7 @@ export function CustomIcon(props: Props) {
       }}
       version="1.1"
       viewBox="0 0 16 16"
-      width={theme('width.icon')}
+      width={convertRemToPixel(theme('width.icon'))}
       xmlSpace="preserve"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       {...iconProps}

@@ -128,31 +128,33 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
             className="width-100"
             style={{ color: themeColor('dropdownMenuSubTitle')({ theme }) }}
           >
-            {addSeparator && (
-              <tr>
-                <td className="activity-graph-tooltip-separator" colSpan={3}>
-                  <hr />
-                </td>
-              </tr>
-            )}
-            {events?.length > 0 && (
-              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
-            )}
-            <tbody>{tooltipContent}</tbody>
-            {graph === GraphType.coverage && (
-              <GraphsTooltipsContentCoverage
-                addSeparator={addSeparator}
-                measuresHistory={measuresHistory}
-                tooltipIdx={tooltipIdx}
-              />
-            )}
-            {graph === GraphType.duplications && (
-              <GraphsTooltipsContentDuplication
-                addSeparator={addSeparator}
-                measuresHistory={measuresHistory}
-                tooltipIdx={tooltipIdx}
-              />
-            )}
+            <tbody>
+              {addSeparator && (
+                <tr>
+                  <td className="activity-graph-tooltip-separator" colSpan={3}>
+                    <hr />
+                  </td>
+                </tr>
+              )}
+              {events?.length > 0 && (
+                <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+              )}
+              {tooltipContent}
+              {graph === GraphType.coverage && (
+                <GraphsTooltipsContentCoverage
+                  addSeparator={addSeparator}
+                  measuresHistory={measuresHistory}
+                  tooltipIdx={tooltipIdx}
+                />
+              )}
+              {graph === GraphType.duplications && (
+                <GraphsTooltipsContentDuplication
+                  addSeparator={addSeparator}
+                  measuresHistory={measuresHistory}
+                  tooltipIdx={tooltipIdx}
+                />
+              )}
+            </tbody>
           </table>
         </div>
       </Popup>

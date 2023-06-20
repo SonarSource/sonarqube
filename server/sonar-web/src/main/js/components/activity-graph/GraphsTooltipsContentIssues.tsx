@@ -44,7 +44,7 @@ export default function GraphsTooltipsContentIssues(props: GraphsTooltipsContent
   const { index, measuresHistory, name, tooltipIdx, translatedName, value } = props;
   const rating = measuresHistory.find((measure) => measure.metric === METRIC_RATING[name]);
 
-  if (!rating || !rating.history[tooltipIdx]) {
+  if (!rating?.history[tooltipIdx]) {
     return null;
   }
 

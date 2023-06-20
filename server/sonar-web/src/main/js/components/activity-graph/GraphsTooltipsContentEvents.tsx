@@ -28,7 +28,7 @@ interface Props {
 
 export default function GraphsTooltipsContentEvents({ addSeparator, events }: Props) {
   return (
-    <tbody>
+    <>
       <tr className="activity-graph-tooltip-line">
         <td colSpan={3}>
           {events.map((event) => (
@@ -45,6 +45,6 @@ export default function GraphsTooltipsContentEvents({ addSeparator, events }: Pr
           </td>
         </tr>
       )}
-    </tbody>
+    </>
   );
 }

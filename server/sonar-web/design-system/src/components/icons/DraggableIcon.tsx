@@ -17,30 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.chart-zoom-tick {
-  fill: var(--secondFontColor);
-  font-size: 10px;
-  text-anchor: middle;
-  user-select: none;
+import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { themeColor, themeContrast } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
+
+export function DraggableIcon({
+  fill = 'currentColor',
+  ...iconProps
+}: IconProps & { x: number; y: number }) {
+  const theme = useTheme();
+  const fillColor = themeColor(fill)({ theme });
+  const innerFillColor = themeContrast(fill)({ theme });
+
+  return (
+    <StyledCustomIcon {...iconProps}>
+      <circle cx="8" cy="8" fill={fillColor} r="8" />
+      <rect fill={innerFillColor} height="7" width="1" x="6" y="5" />
+      <rect fill={innerFillColor} height="7" width="1" x="9" y="5" />
+    </StyledCustomIcon>
+  );
 }
 
-.chart-zoom .zoom-overlay {
-  fill: none;
-  stroke: none;
-  cursor: crosshair;
-  pointer-events: all;
-}
-
-.chart-zoom .zoom-selection {
-  fill: var(--secondFontColor);
-  fill-opacity: 0.2;
-  stroke: var(--secondFontColor);
-  shape-rendering: crispEdges;
-  cursor: move;
-}
-
-.chart-zoom .zoom-selection-handle {
+const StyledCustomIcon = styled(CustomIcon)`
   cursor: ew-resize;
-  fill-opacity: 0;
-  stroke: none;
-}
+`;

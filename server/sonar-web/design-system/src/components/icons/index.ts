@@ -31,6 +31,7 @@ export { CodeSmellIcon } from './CodeSmellIcon';
 export { CommentIcon } from './CommentIcon';
 export { CopyIcon } from './CopyIcon';
 export { DirectoryIcon } from './DirectoryIcon';
+export { DraggableIcon } from './DraggableIcon';
 export { ExecutionFlowIcon } from './ExecutionFlowIcon';
 export { FileIcon } from './FileIcon';
 export { FilterIcon } from './FilterIcon';

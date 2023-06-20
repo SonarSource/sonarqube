@@ -49,10 +49,19 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
   const mockedAnalysis = [
     mockAnalysis({
       events: [
-        mockAnalysisEvent(),
-        mockAnalysisEvent({ category: ProjectAnalysisEventCategory.Version, name: 'v1.0' }),
-        mockAnalysisEvent({ category: ProjectAnalysisEventCategory.Other, name: 'Other' }),
+        mockAnalysisEvent({ key: '1' }),
         mockAnalysisEvent({
+          key: '2',
+          category: ProjectAnalysisEventCategory.Version,
+          name: 'v1.0',
+        }),
+        mockAnalysisEvent({
+          key: '3',
+          category: ProjectAnalysisEventCategory.Other,
+          name: 'Other',
+        }),
+        mockAnalysisEvent({
+          key: '4',
           category: ApplicationAnalysisEventCategory.DefinitionChange,
           name: 'DefinitionChange',
           definitionChange: {

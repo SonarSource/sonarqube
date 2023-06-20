@@ -18,20 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import classNames from 'classnames';
+import styled from '@emotion/styled';
 import { extent, max } from 'd3-array';
 import { ScaleTime, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { ThemeProp, themeColor, withTheme } from 'design-system';
+import { CSSColor, DraggableIcon, themeColor } from 'design-system';
 import { flatten, sortBy, throttle } from 'lodash';
 import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
 import { MetricType } from '../../types/metrics';
 import { Chart } from '../../types/types';
-import './LineChart.css';
-import './ZoomTimeLine.css';
 
-export interface PropsWithoutTheme {
+export interface Props {
   basisCurve?: boolean;
   endDate?: Date;
   height: number;
@@ -40,15 +38,12 @@ export interface PropsWithoutTheme {
   padding?: number[];
   series: Chart.Serie[];
   showAreas?: boolean;
-  showXTicks?: boolean;
   startDate?: Date;
   updateZoom: (start?: Date, endDate?: Date) => void;
   width: number;
 }
 
-export type Props = PropsWithoutTheme & ThemeProp;
-
-export type PropsWithDefaults = Props & typeof ZoomTimeLineClass.defaultProps;
+export type PropsWithDefaults = Props & typeof ZoomTimeLine.defaultProps;
 
 interface State {
   overlayLeftPos?: number;
@@ -57,7 +52,7 @@ interface State {
 
 type XScale = ScaleTime<number, number>;
 
-export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
+export class ZoomTimeLine extends React.PureComponent<Props, State> {
   static defaultProps = {
     padding: [0, 0, 18, 0],
   };
@@ -181,8 +176,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
 
   renderBaseLine = (xScale: XScale, yScale: { range: () => number[] }) => {
     return (
-      <line
-        className="line-chart-grid"
+      <StyledBaseLine
         x1={xScale.range()[0]}
         x2={xScale.range()[1]}
         y1={yScale.range()[0]}
@@ -191,30 +185,8 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
     );
   };
 
-  renderTicks = (xScale: XScale, yScale: { range: () => number[] }) => {
-    const format = xScale.tickFormat(7);
-    const ticks = xScale.ticks(7);
-    const y = yScale.range()[0];
-
-    return (
-      <g>
-        {ticks.slice(0, -1).map((tick, index) => {
-          const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
-          const x = (xScale(tick) + xScale(nextTick)) / 2;
-
-          return (
-            // eslint-disable-next-line react/no-array-index-key
-            <text className="chart-zoom-tick" dy="1.3em" key={index} x={x} y={y}>
-              {format(tick)}
-            </text>
-          );
-        })}
-      </g>
-    );
-  };
-
   renderNewCode = (xScale: XScale, yScale: { range: () => number[] }) => {
-    const { leakPeriodDate, theme } = this.props;
+    const { leakPeriodDate } = this.props;
 
     if (!leakPeriodDate) {
       return null;
@@ -223,8 +195,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
     const yRange = yScale.range();
 
     return (
-      <rect
-        fill={themeColor('newCodeLegend')({ theme })}
+      <StyledNewCodeLegend
         height={yRange[0] - yRange[yRange.length - 1]}
         width={xScale.range()[1] - xScale(leakPeriodDate)}
         x={xScale(leakPeriodDate)}
@@ -234,7 +205,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
   };
 
   renderLines = (xScale: XScale, yScale: (y: string | number | undefined) => number) => {
-    const { series, theme } = this.props;
+    const { series } = this.props;
 
     const lineGenerator = d3Line<Chart.Point>()
       .defined((d) => Boolean(d.y || d.y === 0))
@@ -248,14 +219,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
     return (
       <g>
         {series.map((serie, idx) => (
-          <path
-            className={classNames('line-chart-path', `line-chart-path-${idx}`)}
-            d={lineGenerator(serie.data) ?? undefined}
-            key={serie.name}
-            stroke={themeColor(`graphLineColor.${idx}` as Parameters<typeof themeColor>[0])({
-              theme,
-            })}
-          />
+          <StyledPath index={idx} d={lineGenerator(serie.data) ?? undefined} key={serie.name} />
         ))}
       </g>
     );
@@ -275,11 +239,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
     return (
       <g>
         {this.props.series.map((serie, idx) => (
-          <path
-            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
-            d={areaGenerator(serie.data) || undefined}
-            key={serie.name}
-          />
+          <StyledArea index={idx} d={areaGenerator(serie.data) ?? undefined} key={serie.name} />
         ))}
       </g>
     );
@@ -311,13 +271,19 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
       )}
       position={{ x: options.xPos, y: 0 }}
     >
-      <rect
-        className="zoom-selection-handle"
-        height={options.yDim[0] - options.yDim[1] + 1}
-        width={6}
-        x={-3}
-        y={options.yDim[1]}
-      />
+      <g>
+        <ZoomHighlightHandle
+          height={options.yDim[0] - options.yDim[1] + 1}
+          width={2}
+          x={options.direction === 'right' ? 0 : -2}
+          y={options.yDim[1]}
+        />
+        <DraggableIcon
+          fill="graphZoomHandleColor"
+          x={options.direction === 'right' ? -7 : -9}
+          y={16}
+        />
+      </g>
     </Draggable>
   );
 
@@ -337,14 +303,13 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
       this.state.newZoomStart === endX;
 
     return (
-      <g className="chart-zoom">
+      <g>
         <DraggableCore
           onDrag={this.handleNewZoomDrag(xScale, xDim)}
           onStart={this.handleNewZoomDragStart(xDim)}
           onStop={this.handleNewZoomDragEnd(xScale, xDim)}
         >
-          <rect
-            className="zoom-overlay"
+          <ZoomOverlay
             height={yDim[0] - yDim[1]}
             width={xDim[1] - xDim[0]}
             x={xDim[0]}
@@ -359,8 +324,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
             onStop={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim)}
             position={{ x: xArray[0], y: 0 }}
           >
-            <rect
-              className="zoom-selection"
+            <ZoomHighlight
               height={yDim[0] - yDim[1] + 1}
               onDoubleClick={this.handleDoubleClick(xScale, xDim)}
               width={zoomBoxWidth}
@@ -392,7 +356,7 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { padding, showXTicks = true } = this.props as PropsWithDefaults;
+    const { padding } = this.props as PropsWithDefaults;
 
     if (!this.props.width || !this.props.height) {
       return <div />;
@@ -401,11 +365,10 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
     const { xScale, yScale } = this.getScales();
 
     return (
-      <svg className="line-chart " height={this.props.height} width={this.props.width}>
+      <svg height={this.props.height} width={this.props.width}>
         <g transform={`translate(${padding[3]}, ${padding[0] + 2})`}>
           {this.renderNewCode(xScale, yScale as Parameters<typeof this.renderNewCode>[1])}
           {this.renderBaseLine(xScale, yScale as Parameters<typeof this.renderBaseLine>[1])}
-          {showXTicks && this.renderTicks(xScale, yScale as Parameters<typeof this.renderTicks>[1])}
           {this.props.showAreas &&
             this.renderAreas(xScale, yScale as Parameters<typeof this.renderAreas>[1])}
           {this.renderLines(xScale, yScale as Parameters<typeof this.renderLines>[1])}
@@ -416,4 +379,48 @@ export class ZoomTimeLineClass extends React.PureComponent<Props, State> {
   }
 }
 
-export const ZoomTimeLine = withTheme<PropsWithoutTheme>(ZoomTimeLineClass);
+const ZoomHighlight = styled.rect`
+  cursor: move;
+  fill: ${themeColor('graphZoomBackgroundColor')};
+  stroke: ${themeColor('graphZoomBorderColor')};
+  fill-opacity: 0.2;
+  shape-rendering: crispEdges;
+`;
+
+const ZoomHighlightHandle = styled.rect`
+  cursor: ew-resize;
+  fill-opacity: 1;
+  fill: ${themeColor('graphZoomHandleColor')};
+  stroke: none;
+`;
+
+const ZoomOverlay = styled.rect`
+  cursor: crosshair;
+  pointer-events: all;
+  fill: none;
+  stroke: none;
+`;
+
+const AREA_OPACITY = 0.15;
+
+const StyledArea = styled.path<{ index: number }>`
+  clip-path: url(#chart-clip);
+  fill: ${({ index }) => themeColor(`graphLineColor.${index}` as CSSColor, AREA_OPACITY)};
+  stroke-width: 0;
+`;
+
+const StyledPath = styled.path<{ index: number }>`
+  clip-path: url(#chart-clip);
+  fill: none;
+  stroke: ${({ index }) => themeColor(`graphLineColor.${index}` as CSSColor)};
+  stroke-width: 2px;
+`;
+
+const StyledNewCodeLegend = styled.rect`
+  fill: ${themeColor('newCodeLegend')};
+`;
+
+const StyledBaseLine = styled('line')`
+  shape-rendering: crispedges;
+  stroke: ${themeColor('graphGridColor')};
+`;

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentDuplicationProps {
@@ -36,7 +36,7 @@ export default function GraphsTooltipsContentDuplication(
   const duplicationDensity = measuresHistory.find(
     (measure) => measure.metric === MetricKey.duplicated_lines_density
   );
-  if (!duplicationDensity || !duplicationDensity.history[tooltipIdx]) {
+  if (!duplicationDensity?.history[tooltipIdx]) {
     return null;
   }
   const duplicationDensityValue = duplicationDensity.history[tooltipIdx].value;
@@ -44,7 +44,7 @@ export default function GraphsTooltipsContentDuplication(
     return null;
   }
   return (
-    <tbody>
+    <>
       {addSeparator && (
         <tr>
           <td className="activity-graph-tooltip-separator" colSpan={3}>
@@ -54,10 +54,10 @@ export default function GraphsTooltipsContentDuplication(
       )}
       <tr className="activity-graph-tooltip-line">
         <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
-          {formatMeasure(duplicationDensityValue, 'PERCENT')}
+          {formatMeasure(duplicationDensityValue, MetricType.Percent)}
         </td>
         <td>{translate('metric.duplicated_lines_density.name')}</td>
       </tr>
-    </tbody>
+    </>
   );
 }

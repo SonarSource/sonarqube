@@ -123,12 +123,12 @@ exports[`should render correctly when issueType is provided 1`] = `
       <svg
         aria-hidden="true"
         fill="none"
-        height="1rem"
+        height="16"
         role="img"
         style="clip-rule: evenodd; display: inline-block; fill-rule: evenodd; user-select: none; vertical-align: middle; stroke-linejoin: round; stroke-miterlimit: 1.414;"
         version="1.1"
         viewBox="0 0 16 16"
-        width="1rem"
+        width="16"
         xml:space="preserve"
         xmlns:xlink="http://www.w3.org/1999/xlink"
       >
