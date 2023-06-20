@@ -4472,12 +4472,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-modal@npm:3.13.1":
-  version: 3.13.1
-  resolution: "@types/react-modal@npm:3.13.1"
+"@types/react-modal@npm:3.16.0":
+  version: 3.16.0
+  resolution: "@types/react-modal@npm:3.16.0"
   dependencies:
     "@types/react": "*"
-  checksum: b0ad403e0051a2882e9086c6006cc342901b1c90caf760893b31717a5cbc04f86cc1ea7b5ce12a2c8350c9c09e9b344de3783404e70b7c7ea6a037d0ffd70e99
+  checksum: 975c0238d81cea234a2318a7cfcb95a8e6beb7fc5341ca2311651535c6476881e8d2f2f2e1c679ca6e416c04505c748071a1fab0d3fb3e88b0a9e43060b012fe
   languageName: node
   linkType: hard
 
@@ -4987,7 +4987,7 @@ __metadata:
     "@types/react-dom": 17.0.11
     "@types/react-helmet": 6.1.6
     "@types/react-highlight-words": 0.16.4
-    "@types/react-modal": 3.13.1
+    "@types/react-modal": 3.16.0
     "@types/react-virtualized": 9.21.21
     "@types/valid-url": 1.0.4
     "@typescript-eslint/eslint-plugin": 5.59.11
