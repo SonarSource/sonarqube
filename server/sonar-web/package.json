@@ -37,7 +37,7 @@
     "react-modal": "3.16.1",
     "react-router-dom": "6.11.2",
     "react-select": "5.7.3",
-    "react-virtualized": "9.22.3",
+    "react-virtualized": "9.22.5",
     "regenerator-runtime": "0.13.11",
     "valid-url": "1.0.9"
   },
@@ -67,7 +67,7 @@
     "@types/react-helmet": "6.1.6",
     "@types/react-highlight-words": "0.16.4",
     "@types/react-modal": "3.16.0",
-    "@types/react-virtualized": "9.21.21",
+    "@types/react-virtualized": "9.21.22",
     "@types/valid-url": "1.0.4",
     "@typescript-eslint/eslint-plugin": "5.59.11",
     "@typescript-eslint/parser": "5.59.11",

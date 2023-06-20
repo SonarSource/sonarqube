@@ -4490,13 +4490,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-virtualized@npm:9.21.21":
-  version: 9.21.21
-  resolution: "@types/react-virtualized@npm:9.21.21"
+"@types/react-virtualized@npm:9.21.22":
+  version: 9.21.22
+  resolution: "@types/react-virtualized@npm:9.21.22"
   dependencies:
     "@types/prop-types": "*"
-    "@types/react": ^17
-  checksum: 7f360746ae926c93ba07d830a33940ab1598f6966263594896d0dc746d704f9c0e0d1692cf543e925bcca7b007d70d3cc53379a9b1810f60c2d43ee5cfdb591e
+    "@types/react": "*"
+  checksum: 1c3f8e3f93f3ff8fc80ea0cbf24507cfd40e51b2503a6fbae323b0aa39f192d56d83b9007897e787c2810398b84bfcdf90364f3517c3bc4679cee69462e4d4c6
   languageName: node
   linkType: hard
 
@@ -4988,7 +4988,7 @@ __metadata:
     "@types/react-helmet": 6.1.6
     "@types/react-highlight-words": 0.16.4
     "@types/react-modal": 3.16.0
-    "@types/react-virtualized": 9.21.21
+    "@types/react-virtualized": 9.21.22
     "@types/valid-url": 1.0.4
     "@typescript-eslint/eslint-plugin": 5.59.11
     "@typescript-eslint/parser": 5.59.11
@@ -5048,7 +5048,7 @@ __metadata:
     react-router-dom: 6.11.2
     react-select: 5.7.3
     react-select-event: 5.5.1
-    react-virtualized: 9.22.3
+    react-virtualized: 9.22.5
     regenerator-runtime: 0.13.11
     tailwindcss: 3.3.1
     turbo: 1.8.8
@@ -6645,7 +6645,7 @@ __metadata:
     react-modal: 3.16.1
     react-router-dom: 6.11.2
     react-select: 5.7.3
-    react-virtualized: 9.22.3
+    react-virtualized: 9.22.5
     tailwindcss: 3.3.1
   languageName: unknown
   linkType: soft
@@ -11611,9 +11611,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtualized@npm:9.22.3":
-  version: 9.22.3
-  resolution: "react-virtualized@npm:9.22.3"
+"react-virtualized@npm:9.22.5":
+  version: 9.22.5
+  resolution: "react-virtualized@npm:9.22.5"
   dependencies:
     "@babel/runtime": ^7.7.2
     clsx: ^1.0.4
@@ -11622,9 +11622,9 @@ __metadata:
     prop-types: ^15.7.2
     react-lifecycles-compat: ^3.0.4
   peerDependencies:
-    react: ^15.3.0 || ^16.0.0-alpha
-    react-dom: ^15.3.0 || ^16.0.0-alpha
-  checksum: 5e3b566592293bc0057bc6be4f6ee29c58c8931421d2882a3ef45ca9b24c6f3ea78bbc5a182c2916af6520845e5a90f569b3a63c9b5e89428720913e6d6239cc
+    react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+    react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+  checksum: 01f5ed8d8db7c831d592172946c2b61fcb409bf6cbc84500468f12d6cf9b7e60453e332fac02dd608480d23cb14421f7f17716393e623e83bb10a7763fad9e2c
   languageName: node
   linkType: hard
 
