@@ -18,99 +18,97 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {translate} from "../../helpers/l10n";
+import { useState } from 'react';
+import { translate } from "../../helpers/l10n";
 import Modal from "../../components/controls/Modal";
-import {ResetButtonLink, SubmitButton} from "../../components/controls/buttons";
+import { Button, ResetButtonLink, SubmitButton } from "../../components/controls/buttons";
 import Link from "../../components/common/Link";
 import { Organization, OrganizationMember } from "../../types/types";
-import { searchMembers } from "../../api/organizations";
+import withAppStateContext from "../../app/components/app-state/withAppStateContext";
+import { AppState } from "../../types/appstate";
+import UsersSelectSearch from "./UsersSelectSearch";
 
-interface Props {
+interface AddMemberFormProps {
+  appState: AppState;
   addMember: (member: OrganizationMember) => void;
   organization: Organization;
   memberLogins: string[];
 }
 
-interface State {
-  open: boolean;
-  selectedMember?: OrganizationMember;
-}
+function AddMemberForm(props: AddMemberFormProps) {
 
-export default class AddMemberForm extends React.PureComponent<Props, State> {
-  state: State = {
-    open: false
+  const { canAdmin, canCustomerAdmin } = props.appState;
+  const [open, setOpen] = useState<boolean>();
+  const [selectedMember, setSelectedMember] = useState<OrganizationMember>();
+
+  const openForm = () => {
+    setOpen(true);
   };
 
-  openForm = () => {
-    this.setState({ open: true });
+  const closeForm = () => {
+    setOpen(false);
+    setSelectedMember(undefined);
   };
 
-  closeForm = () => {
-    this.setState({ open: false, selectedMember: undefined });
-  };
-
-  handleSearch = (query: string | undefined, ps: number) => {
-    const data = { organization: this.props.organization.kee, ps, selected: 'deselected' };
-    if (query && query.length >=2) {
-      return searchMembers({ ...data, q: query });
-    } else {
-      return Promise.resolve({ paging: { pageIndex: 1, pageSize: 50, total: 0 }, users: [] });
-    }
-  };
-
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (this.state.selectedMember) {
-      this.props.addMember(this.state.selectedMember);
-      this.closeForm();
+    if (selectedMember) {
+      props.addMember(selectedMember);
+      closeForm();
     }
   };
 
-  selectedMemberChange = (member: OrganizationMember) => {
-    this.setState({ selectedMember: member });
+  const selectedMemberChange = (member: OrganizationMember) => {
+    setSelectedMember(member);
   };
 
-  renderModal() {
+  const renderModal = () => {
     const header = translate('users.add');
     return (
-      <Modal contentLabel={header} key="add-member-modal" onRequestClose={this.closeForm}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            <div className="modal-field">
-              <label>{translate('users.search_description')}</label>
-              <UsersSelectSearch
-                autoFocus={true}
-                excludedUsers={this.props.memberLogins}
-                handleValueChange={this.selectedMemberChange}
-                searchUsers={this.handleSearch}
-                selectedUser={this.state.selectedMember}
-              />
+        <Modal contentLabel={header} key="add-member-modal" onRequestClose={closeForm}>
+          <header className="modal-head">
+            <h2>{header}</h2>
+          </header>
+          <form onSubmit={handleSubmit}>
+            <div className="modal-body">
+              <div className="modal-field">
+                <label>{translate('users.search_description')}</label>
+                <UsersSelectSearch
+                    autoFocus={true}
+                    excludedUsers={props.memberLogins}
+                    handleValueChange={selectedMemberChange}
+                    selectedUser={selectedMember}
+                    organization={props.organization}
+                />
+              </div>
             </div>
-          </div>
-          <footer className="modal-foot">
-            <div>
-              <SubmitButton disabled={!this.state.selectedMember}>
-                {translate('organization.members.add_to_members')}
-              </SubmitButton>
-              <ResetButtonLink onClick={this.closeForm}>{translate('cancel')}</ResetButtonLink>
-            </div>
-          </footer>
-        </form>
-      </Modal>
+            <footer className="modal-foot">
+              <div>
+                <SubmitButton disabled={!selectedMember}>
+                  {translate('organization.members.add_to_members')}
+                </SubmitButton>
+                <ResetButtonLink onClick={closeForm}>{translate('cancel')}</ResetButtonLink>
+              </div>
+            </footer>
+          </form>
+        </Modal>
     );
   }
 
-  render() {
-    return (
+  return (
       <>
-        <Link to={"/organizations/" + this.props.organization.kee + "/extension/developer/invite_users"} className="button little-spacer-left">
+        {(canAdmin || canCustomerAdmin) && (
+            <Button key="add-member-button" onClick={openForm}>
+              {translate('organization.members.add')}
+            </Button>
+        )}
+        <Link to={"/organizations/" + props.organization.kee + "/extension/developer/invite_users"}
+              className="button little-spacer-left">
           Invite Member
         </Link>
-        {this.state.open && this.renderModal()}
+        {open && renderModal()}
       </>
-    );
-  }
+  );
 }
+
+export default withAppStateContext(AddMemberForm);
