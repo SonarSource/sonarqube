@@ -29,6 +29,7 @@ export function hasGlobalPermission(user: CurrentUser, permission: string): bool
 export function isSameHomePage(a: HomePage, b: HomePage) {
   return (
     a.type === b.type &&
+    (a as any).organization === (b as any).organization &&
     (a as any).branch === (b as any).branch &&
     (a as any).component === (b as any).component
   );
