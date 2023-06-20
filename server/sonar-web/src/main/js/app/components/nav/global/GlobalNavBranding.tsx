@@ -34,11 +34,11 @@ export function GlobalNavBranding({ appState: { settings } }: GlobalNavBrandingP
   const customLogoWidth = settings[GlobalSettingKeys.LogoWidth];
 
   const title = translate('layout.nav.home_logo_alt');
-  const url = customLogoUrl || `${getBaseUrl()}/images/logo.svg?v=6.6`;
+  const url = customLogoUrl || `${getBaseUrl()}/images/sonarcloud-logo.svg`;
   const width = customLogoUrl ? customLogoWidth || 100 : 83;
 
   return (
-    <Link className="navbar-brand" to="/">
+    <Link className="navbar-brand-home" to="/">
       <img alt={title} height={30} src={url} title={title} width={width} />
     </Link>
   );
