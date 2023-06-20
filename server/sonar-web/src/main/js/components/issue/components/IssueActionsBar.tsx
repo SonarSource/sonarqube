@@ -191,7 +191,9 @@ export default function IssueActionsBar(props: Props) {
             <Tooltip
               overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
             >
-              <Badge>{ruleEngine}</Badge>
+              <span>
+                <Badge>{ruleEngine}</Badge>
+              </span>
             </Tooltip>
           </li>
         )}
@@ -200,11 +202,11 @@ export default function IssueActionsBar(props: Props) {
           <>
             <IssueMetaListItem>
               <Tooltip overlay={issue.codeVariants.join(', ')}>
-                <>
+                <span>
                   {issue.codeVariants.length > 1
                     ? translateWithParameters('issue.x_code_variants', issue.codeVariants.length)
                     : translate('issue.1_code_variant')}
-                </>
+                </span>
               </Tooltip>
             </IssueMetaListItem>
             <SeparatorCircleIcon aria-hidden as="li" />
