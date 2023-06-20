@@ -103,7 +103,7 @@
     "prettier": "2.8.8",
     "react-select-event": "5.5.1",
     "tailwindcss": "3.3.2",
-    "turbo": "1.8.8",
+    "turbo": "1.10.3",
     "typescript": "5.0.3",
     "whatwg-fetch": "3.6.2"
   },
