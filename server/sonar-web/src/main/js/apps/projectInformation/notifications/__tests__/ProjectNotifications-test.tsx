@@ -49,7 +49,9 @@ it('should render correctly', async () => {
   const user = userEvent.setup();
   renderProjectNotifications();
 
-  expect(await screen.findByText('notification.channel.channel1')).toBeInTheDocument();
+  expect(
+    await screen.findByText('project_information.project_notifications.title')
+  ).toBeInTheDocument();
   expect(
     screen.getByLabelText(
       'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project'

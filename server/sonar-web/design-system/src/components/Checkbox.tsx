@@ -140,6 +140,7 @@ export const AccessibleCheckbox = styled.input`
   padding: 0;
   white-space: nowrap;
   width: 1px;
+  appearance: none;
 
   &:focus,
   &:active {

@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Checkbox, FlagMessage, SubTitle } from 'design-system';
 import * as React from 'react';
 import {
-  withNotifications,
   WithNotificationsProps,
+  withNotifications,
 } from '../../../components/hoc/withNotifications';
-import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
+import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
+import { NotificationProjectType } from '../../../types/notifications';
 import { Component } from '../../../types/types';
-import NotificationsList from '../../account/notifications/NotificationsList';
 
 interface Props {
   component: Component;
@@ -34,70 +34,76 @@ interface Props {
 
 export function ProjectNotifications(props: WithNotificationsProps & Props) {
   const { channels, component, loading, notifications, perProjectTypes } = props;
-  const heading = React.useRef<HTMLHeadingElement>(null);
 
-  React.useEffect(() => {
-    if (heading.current) {
-      // a11y: provide focus to the heading when the info drawer page is opened.
-      heading.current.focus();
+  const handleCheck = (type: NotificationProjectType, channel: string, checked: boolean) => {
+    if (checked) {
+      props.addNotification({ project: component.key, channel, type });
+    } else {
+      props.removeNotification({
+        project: component.key,
+        channel,
+        type,
+      });
     }
-  }, [heading]);
-
-  const handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
-    props.addNotification({ project: component.key, channel, type });
-  };
-
-  const handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
-    props.removeNotification({
-      project: component.key,
-      channel,
-      type,
-    });
   };
 
   const getCheckboxId = (type: string, channel: string) => {
     return `project-notification-${component.key}-${type}-${channel}`;
   };
 
-  const projectNotifications = notifications.filter(
-    (n) => n.project && n.project === component.key
-  );
+  const getDispatcherLabel = (dispatcher: string) => {
+    const globalMessageKey = ['notification.dispatcher', dispatcher];
+    const projectMessageKey = [...globalMessageKey, 'project'];
+    const shouldUseProjectMessage = hasMessage(...projectMessageKey);
+    return shouldUseProjectMessage
+      ? translate(...projectMessageKey)
+      : translate(...globalMessageKey);
+  };
+
+  const isEnabled = (type: string, channel: string) => {
+    return !!notifications.find(
+      (notification) =>
+        notification.type === type &&
+        notification.channel === channel &&
+        notification.project === component.key
+    );
+  };
+
+  const emailChannel = channels[0];
 
   return (
-    <div>
-      <h3 tabIndex={-1} ref={heading}>
-        {translate('project.info.notifications')}
-      </h3>
+    <form aria-labelledby="notifications-update-title">
+      <SubTitle>{translate('project.info.notifications')}</SubTitle>
 
-      <Alert className="spacer-top" variant="info">
+      <FlagMessage className="spacer-top" variant="info">
         {translate('notification.dispatcher.information')}
-      </Alert>
+      </FlagMessage>
 
       <DeferredSpinner loading={loading}>
-        <table className="data zebra notifications-table">
-          <thead>
-            <tr>
-              <th aria-label={translate('project')} />
-              {channels.map((channel) => (
-                <th className="text-center" key={channel}>
-                  <h4>{translate('notification.channel', channel)}</h4>
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <NotificationsList
-            channels={channels}
-            checkboxId={getCheckboxId}
-            notifications={projectNotifications}
-            onAdd={handleAddNotification}
-            onRemove={handleRemoveNotification}
-            project
-            types={perProjectTypes}
-          />
-        </table>
+        <h3 id="notifications-update-title" className="sw-mt-6">
+          {translate('project_information.project_notifications.title')}
+        </h3>
+        <ul className="sw-list-none sw-mt-4 sw-pl-0">
+          {perProjectTypes.map((type) => (
+            <li className="sw-pl-0 sw-p-2" key={type}>
+              <Checkbox
+                right
+                className="sw-flex sw-justify-between"
+                label={translateWithParameters(
+                  'notification.dispatcher.descrption_x',
+                  getDispatcherLabel(type)
+                )}
+                checked={isEnabled(type, emailChannel)}
+                id={getCheckboxId(type, emailChannel)}
+                onCheck={(checked: boolean) => handleCheck(type, emailChannel, checked)}
+              >
+                {getDispatcherLabel(type)}
+              </Checkbox>
+            </li>
+          ))}
+        </ul>
       </DeferredSpinner>
-    </div>
+    </form>
   );
 }
 
