@@ -35,7 +35,7 @@
     "react-highlight-words": "0.20.0",
     "react-intl": "6.4.4",
     "react-modal": "3.16.1",
-    "react-router-dom": "6.10.0",
+    "react-router-dom": "6.11.2",
     "react-select": "5.7.2",
     "react-virtualized": "9.22.3",
     "regenerator-runtime": "0.13.11",
