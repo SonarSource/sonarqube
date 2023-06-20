@@ -100,7 +100,7 @@
     "postcss": "8.4.24",
     "postcss-calc": "8.2.4",
     "postcss-custom-properties": "12.1.11",
-    "prettier": "2.8.7",
+    "prettier": "2.8.8",
     "react-select-event": "5.5.1",
     "tailwindcss": "3.3.1",
     "turbo": "1.8.8",
