@@ -58,7 +58,7 @@
     "@types/d3-shape": "3.1.1",
     "@types/diff": "5.0.3",
     "@types/dompurify": "2.4.0",
-    "@types/enzyme": "3.10.12",
+    "@types/enzyme": "3.10.13",
     "@types/jest": "29.5.0",
     "@types/lodash": "4.14.191",
     "@types/node": "18.16.18",

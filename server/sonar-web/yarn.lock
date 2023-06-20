@@ -4297,13 +4297,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/enzyme@npm:3.10.12":
-  version: 3.10.12
-  resolution: "@types/enzyme@npm:3.10.12"
+"@types/enzyme@npm:3.10.13":
+  version: 3.10.13
+  resolution: "@types/enzyme@npm:3.10.13"
   dependencies:
     "@types/cheerio": "*"
-    "@types/react": "*"
-  checksum: 356e9142566b68c9b324ae71a7b93f03512a1c009a1d337a25ce4f495590f3e79de08aa4a0016d6224cb228c27832d92b6d7d3276ba5962302c41d0577e8a912
+    "@types/react": ^16
+  checksum: a7983c56a9991bb9446a9468fbf0d5905d46574122ab76d87dab690685321bbe1875ce152f731481700a15e646b22560187ceb0b9591f5c6940a01be60e1f961
   languageName: node
   linkType: hard
 
@@ -4979,7 +4979,7 @@ __metadata:
     "@types/d3-shape": 3.1.1
     "@types/diff": 5.0.3
     "@types/dompurify": 2.4.0
-    "@types/enzyme": 3.10.12
+    "@types/enzyme": 3.10.13
     "@types/jest": 29.5.0
     "@types/lodash": 4.14.191
     "@types/node": 18.16.18

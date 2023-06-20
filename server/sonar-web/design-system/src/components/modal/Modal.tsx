@@ -155,6 +155,7 @@ const globalStyles = ({ theme }: { theme: Theme }) => css`
   }
 `;
 
+Modal.displayName = 'Modal';
 Modal.Body = ModalBody;
 Modal.Footer = ModalFooter;
 Modal.Header = ModalHeader;
