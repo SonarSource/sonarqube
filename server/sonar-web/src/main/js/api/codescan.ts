@@ -19,39 +19,34 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import { throwGlobalError } from '../helpers/error';
+import { Visibility } from "../types/types";
 
 export function getNotificationsForOrganization(key: string) {
   return getJSON('/_codescan/notifications', { organizationid: key }).then(
-    r => r.organization,
-    throwglobalerror
+      r => r.organization, throwGlobalError
   );
 }
 
 export function deleteProject(data: {
-  organizationid: string;
-  projectkey: string;
-  projectdelete?: boolean;
-}): promise<void> {
+  organizationId: string;
+  projectKey: string;
+  projectDelete?: boolean;
+}): Promise<void> {
   return post('/_codescan/integrations/destroy', data)
-    .catch(throwglobalerror);
+      .catch(throwGlobalError);
 }
 
 export function deleteBulkProjects(data: {
-  analyzedbefore?: string;
-  onprovisionedonly?: boolean;
+  analyzedBefore?: string;
+  onProvisionedOnly?: boolean;
   organization: string;
   projects?: string;
   q?: string;
   qualifiers?: string;
-  visibility?: t.visibility;
-}): promise<void> {
+  visibility?: Visibility;
+}): Promise<void> {
   return post('/_codescan/integrations/projects/bulk_delete', data)
-    .catch(throwglobalerror);
-}
-
-export function deleteOrganization(organizationid: string): promise<void> {
-  return post('/_codescan/integrations/organizations/delete', { organizationid })
-    .catch(throwglobalerror);
+      .catch(throwGlobalError);
 }
 
 export function getApiKeyForZoho(data: {
@@ -66,6 +61,6 @@ export function getApiKeyForZoho(data: {
 }
 
 export function getProjectAnalysis(organizationId: string, projectKey: string): Promise<object> {
-  return getJSON('/_codescan/integrations/list', {organizationId, projectKey})
-    .catch(throwGlobalError);
+  return getJSON('/_codescan/integrations/list', { organizationId, projectKey })
+      .catch(throwGlobalError);
 }

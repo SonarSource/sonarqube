@@ -53,6 +53,7 @@ public class ProjectsService extends BaseService {
       new PostRequest(path("bulk_delete"))
         .setParam("analyzedBefore", request.getAnalyzedBefore())
         .setParam("onProvisionedOnly", request.getOnProvisionedOnly())
+        .setParam("organization", request.getOrganization())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qualifiers", request.getQualifiers() == null ? null : request.getQualifiers().stream().collect(Collectors.joining(",")))
@@ -73,6 +74,7 @@ public class ProjectsService extends BaseService {
       new PostRequest(path("create"))
         .setParam("branch", request.getBranch())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("visibility", request.getVisibility()),
       CreateWsResponse.parser());
@@ -118,6 +120,7 @@ public class ProjectsService extends BaseService {
       new GetRequest(path("search"))
         .setParam("analyzedBefore", request.getAnalyzedBefore())
         .setParam("onProvisionedOnly", request.getOnProvisionedOnly())
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("ps", request.getPs())

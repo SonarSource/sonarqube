@@ -37,16 +37,19 @@ interface Props {
 export class Form extends React.PureComponent<Props> {
   handleDelete = async () => {
     const { component } = this.props;
-    let deleteMethod = deleteProject;
     let redirectTo = '/';
     if (isPortfolioLike(component.qualifier)) {
-      deleteMethod = deletePortfolio;
+      await deletePortfolio(component.key);
       redirectTo = '/portfolios';
     } else if (isApplication(component.qualifier)) {
-      deleteMethod = deleteApplication;
+      await deleteApplication(component.key);
+    } else {
+      await deleteProject({
+        organizationId: component.organization,
+        projectKey: component.key,
+        projectDelete: true
+      })
     }
-
-    await deleteMethod(component.organization, component.key, true);
 
     addGlobalSuccessMessage(
       translateWithParameters('project_deletion.resource_deleted', component.name)
