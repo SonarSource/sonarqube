@@ -49,6 +49,7 @@ import ManualProjectCreate from './manual/ManualProjectCreate';
 import './style.css';
 import { CreateProjectApiCallback, CreateProjectModes } from './types';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
+import classNames from 'classnames';
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
@@ -352,7 +353,12 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          {isProjectSetupDone ? this.renderNcdSelection() : this.renderProjectCreation(mode)}
+          <div className={classNames({ 'sw-hidden': isProjectSetupDone })}>
+            {this.renderProjectCreation(mode)}
+          </div>
+          <div className={classNames({ 'sw-hidden': !isProjectSetupDone })}>
+            {this.renderNcdSelection()}
+          </div>
 
           {creatingAlmDefinition && (
             <AlmBindingDefinitionForm
