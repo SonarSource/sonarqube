@@ -42,13 +42,16 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -62,7 +65,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 
 public class ReportAnalysisFailureNotificationExecutionListenerIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final Random random = new Random();
   private final DbClient dbClient = dbTester.getDbClient();
@@ -114,29 +117,30 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_has_no_effect_if_there_is_no_subscriber_for_ReportAnalysisFailureNotification_type() {
-    String componentUuid = randomAlphanumeric(6);
+    ProjectData projectData = dbTester.components().insertPrivateProject();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(projectData.getMainBranchDto().getUuid(), null, null)));
+    when(notificationService.hasProjectSubscribersForTypes(projectData.projectUuid(), singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(false);
 
-    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
-    verifyNoInteractions(ceTaskResultMock, throwableMock, dbClientMock, serializer, system2);
+    verifyNoInteractions(ceTaskResultMock, throwableMock, serializer, system2);
   }
 
   @Test
   public void onEnd_fails_with_ISE_if_project_does_not_exist_in_DB() {
-    String componentUuid = randomAlphanumeric(6);
+    BranchDto branchDto = dbTester.components().insertProjectBranch(new ProjectDto().setUuid("uuid").setKee("kee").setName("name"));
+    String componentUuid = branchDto.getUuid();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
+    when(notificationService.hasProjectSubscribersForTypes(branchDto.getProjectUuid(), singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
     Duration randomDuration = randomDuration();
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Could not find project uuid " + componentUuid);
+      .hasMessage("Could not find project uuid " + branchDto.getProjectUuid());
   }
 
   @Test
@@ -153,50 +157,49 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     Duration randomDuration = randomDuration();
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Could not find a branch for project uuid " + componentUuid);
+      .hasMessage("Could not find a branch with uuid " + componentUuid);
   }
 
   @Test
-  public void onEnd_fails_with_IAE_if_component_is_not_a_project() {
+  public void onEnd_fails_with_IAE_if_component_is_not_a_branch() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(project, randomAlphanumeric(12)));
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto mainBranch = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(mainBranch, randomAlphanumeric(12)));
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(mainBranch));
     ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newPortfolio());
     ComponentDto subView = dbTester.components().insertComponent(ComponentTesting.newSubPortfolio(view));
-    ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project, subView));
+    ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy(mainBranch, subView));
     ComponentDto application = dbTester.components().insertComponent(ComponentTesting.newApplication());
 
     Arrays.asList(directory, file, view, subView, projectCopy, application)
       .forEach(component -> {
 
-      when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
-      when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
-        .thenReturn(true);
+        when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
+        when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
+          .thenReturn(true);
 
         Duration randomDuration = randomDuration();
         try {
           underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock);
 
           fail("An IllegalArgumentException should have been thrown for component " + component);
-        } catch (IllegalArgumentException e) {
-          assertThat(e.getMessage()).isEqualTo(String.format("Component %s must be a project (qualifier=%s)", component.uuid(), component.qualifier()));
         } catch (IllegalStateException e) {
-          assertThat(e.getMessage()).isEqualTo("Could not find project uuid " + component.uuid());
+          assertThat(e.getMessage()).isIn("Could not find project uuid " + component.uuid(), "Could not find a branch with uuid " + component.uuid());
         }
       });
   }
 
   @Test
   public void onEnd_fails_with_RowNotFoundException_if_activity_for_task_does_not_exist_in_DB() {
-    String componentUuid = randomAlphanumeric(6);
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String taskUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
-    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(mainBranch.uuid(), null, null)));
+    when(notificationService.hasProjectSubscribersForTypes(projectData.projectUuid(), singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
-    dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid)).getMainBranchComponent();
+
 
     Duration randomDuration = randomDuration();
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
@@ -209,7 +212,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     String taskUuid = randomAlphanumeric(12);
     int createdAt = random.nextInt(999_999);
     long executedAt = random.nextInt(999_999);
-    ComponentDto project = initMocksToPassConditions(taskUuid, createdAt, executedAt);
+    ProjectData project = initMocksToPassConditions(taskUuid, createdAt, executedAt);
     Notification notificationMock = mockSerializer();
 
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
@@ -220,10 +223,40 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
 
     ReportAnalysisFailureNotificationBuilder.Project notificationProject = reportAnalysisFailureNotificationBuilder.project();
-    assertThat(notificationProject.name()).isEqualTo(project.name());
-    assertThat(notificationProject.key()).isEqualTo(project.getKey());
-    assertThat(notificationProject.uuid()).isEqualTo(project.uuid());
+    assertThat(notificationProject.name()).isEqualTo(project.getProjectDto().getName());
+    assertThat(notificationProject.key()).isEqualTo(project.getProjectDto().getKey());
+    assertThat(notificationProject.uuid()).isEqualTo(project.getProjectDto().getUuid());
     assertThat(notificationProject.branchName()).isNull();
+    ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.task();
+    assertThat(notificationTask.uuid()).isEqualTo(taskUuid);
+    assertThat(notificationTask.createdAt()).isEqualTo(createdAt);
+    assertThat(notificationTask.failedAt()).isEqualTo(executedAt);
+  }
+
+  @Test
+  public void onEnd_shouldCreateNotificationWithDataFromActivity_whenNonMainBranchIsFailing() {
+    String taskUuid = randomAlphanumeric(12);
+    int createdAt = random.nextInt(999_999);
+    long executedAt = random.nextInt(999_999);
+
+    ProjectData project = random.nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
+    ComponentDto branchComponent = dbTester.components().insertProjectBranch(project.getMainBranchComponent(), b->b.setKey("otherbranch"));
+    initMocksToPassConditionsForBranch(branchComponent, project, taskUuid, createdAt, executedAt);
+
+    Notification notificationMock = mockSerializer();
+
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
+
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
+    verify(notificationService).deliver(same(notificationMock));
+
+    ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
+
+    ReportAnalysisFailureNotificationBuilder.Project notificationProject = reportAnalysisFailureNotificationBuilder.project();
+    assertThat(notificationProject.name()).isEqualTo(project.getProjectDto().getName());
+    assertThat(notificationProject.key()).isEqualTo(project.getProjectDto().getKey());
+    assertThat(notificationProject.uuid()).isEqualTo(project.getProjectDto().getUuid());
+    assertThat(notificationProject.branchName()).isEqualTo("otherbranch");
     ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.task();
     assertThat(notificationTask.uuid()).isEqualTo(taskUuid);
     assertThat(notificationTask.createdAt()).isEqualTo(createdAt);
@@ -303,22 +336,31 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     return notificationMock;
   }
 
-  private ComponentDto initMocksToPassConditions(String taskUuid, int createdAt, @Nullable Long executedAt) {
-    ComponentDto project = random.nextBoolean() ? dbTester.components().insertPrivateProject().getMainBranchComponent() : dbTester.components().insertPublicProject().getMainBranchComponent();
-    when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(project.uuid(), null, null)));
-    when(ceTaskMock.getUuid()).thenReturn(taskUuid);
-    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), singleton(ReportAnalysisFailureNotification.class)))
-      .thenReturn(true);
-    insertActivityDto(taskUuid, createdAt, executedAt, project);
-    return project;
+  private ProjectData initMocksToPassConditions(String taskUuid, int createdAt, @Nullable Long executedAt) {
+    ProjectData projectData = random.nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
+    mockCeTask(taskUuid, createdAt, executedAt, projectData, projectData.getMainBranchComponent());
+    return projectData;
   }
 
-  private void insertActivityDto(String taskUuid, int createdAt, @Nullable Long executedAt, ComponentDto project) {
+  private ComponentDto initMocksToPassConditionsForBranch(ComponentDto branchComponent, ProjectData projectData, String taskUuid, int createdAt, @Nullable Long executedAt) {
+    mockCeTask(taskUuid, createdAt, executedAt, projectData, branchComponent);
+    return branchComponent;
+  }
+
+  private void mockCeTask(String taskUuid, int createdAt, @org.jetbrains.annotations.Nullable Long executedAt, ProjectData projectData, ComponentDto branchComponent) {
+    when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(branchComponent.uuid(), null, null)));
+    when(ceTaskMock.getUuid()).thenReturn(taskUuid);
+    when(notificationService.hasProjectSubscribersForTypes(projectData.projectUuid(), singleton(ReportAnalysisFailureNotification.class)))
+      .thenReturn(true);
+    insertActivityDto(taskUuid, createdAt, executedAt, branchComponent);
+  }
+
+  private void insertActivityDto(String taskUuid, int createdAt, @Nullable Long executedAt, ComponentDto branch) {
     dbClient.ceActivityDao().insert(dbTester.getSession(), new CeActivityDto(new CeQueueDto()
       .setUuid(taskUuid)
       .setTaskType(CeTaskTypes.REPORT)
-      .setComponentUuid(project.uuid())
+      .setComponentUuid(branch.uuid())
       .setCreatedAt(createdAt))
       .setExecutedAt(executedAt)
       .setStatus(CeActivityDto.Status.FAILED));
