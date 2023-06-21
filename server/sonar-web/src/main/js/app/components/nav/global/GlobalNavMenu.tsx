@@ -80,7 +80,7 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to={{pathname: '/issues', search }}
         >
-          {translate('issues.page')}
+          {translate('myissues.page')}
         </NavLink>
       </li>
     );
