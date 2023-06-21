@@ -3707,12 +3707,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primer/octicons-react@npm:18.3.0":
-  version: 18.3.0
-  resolution: "@primer/octicons-react@npm:18.3.0"
+"@primer/octicons-react@npm:19.3.0":
+  version: 19.3.0
+  resolution: "@primer/octicons-react@npm:19.3.0"
   peerDependencies:
-    react: ">=15"
-  checksum: 12d9578bf637ba1abb9ef7b2a74611aa6f94bd56b6a711ef51413b045bae80755de8bbd510d45d8431e07df8ff405a5774ec84528d57f5a9c1696ad290f1a06f
+    react: ">=16.3"
+  checksum: ee1e1d2a815a2571827173a4c76f8e64a22afa375b18a4e86a04142dcbeffb1cece858da3211607fe5e841d978a2eead7f0881e06b81048e29a2f940a734cbc9
   languageName: node
   linkType: hard
 
@@ -4960,7 +4960,7 @@ __metadata:
     "@emotion/jest": 11.11.0
     "@emotion/react": 11.11.1
     "@emotion/styled": 11.11.0
-    "@primer/octicons-react": 18.3.0
+    "@primer/octicons-react": 19.3.0
     "@swc/core": 1.3.65
     "@swc/jest": 0.2.26
     "@tanstack/react-query": 4.29.14
@@ -6624,7 +6624,7 @@ __metadata:
   peerDependencies:
     "@emotion/react": 11.11.1
     "@emotion/styled": 11.11.0
-    "@primer/octicons-react": 18.3.0
+    "@primer/octicons-react": 19.3.0
     classnames: 2.3.2
     clipboard: 2.0.11
     d3-array: 3.2.4
