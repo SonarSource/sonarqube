@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;

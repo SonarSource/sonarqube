@@ -51,7 +51,6 @@ import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.BranchMeasuresDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMainBranchLiveMeasureDto;
 import org.sonar.db.metric.MetricDto;

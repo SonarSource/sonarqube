@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -40,7 +39,6 @@ import org.sonar.server.permission.ws.ProjectWsRef;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
