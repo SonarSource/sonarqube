@@ -4305,6 +4305,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:18.16.18":
+  version: 18.16.18
+  resolution: "@types/node@npm:18.16.18"
+  checksum: d32d8a0a04cd3f5ecb361bcb42f3a07623881ac90d680e06bf626defb3c663a94860d11690babe607cfe67265eceeb8a59ba5fe40c0e49f5a1b01e0088640469
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
@@ -4862,6 +4869,7 @@ __metadata:
     "@types/enzyme": 3.10.13
     "@types/jest": 29.5.2
     "@types/lodash": 4.14.195
+    "@types/node": 18.16.18
     "@types/react": 17.0.39
     "@types/react-dom": 17.0.11
     "@types/react-helmet": 6.1.6
