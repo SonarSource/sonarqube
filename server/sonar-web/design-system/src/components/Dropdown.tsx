@@ -140,17 +140,18 @@ export class Dropdown extends React.PureComponent<Props, State> {
 }
 
 interface ActionsDropdownProps extends Omit<Props, 'children' | 'overlay'> {
+  ariaLabel?: string;
   buttonSize?: 'small' | 'medium';
   children: React.ReactNode;
 }
 
 export function ActionsDropdown(props: ActionsDropdownProps) {
-  const { children, buttonSize, ...dropdownProps } = props;
+  const { children, buttonSize, ariaLabel, ...dropdownProps } = props;
   return (
     <Dropdown overlay={children} {...dropdownProps}>
       <InteractiveIcon
         Icon={MenuIcon}
-        aria-label={translate('menu')}
+        aria-label={ariaLabel ?? translate('menu')}
         size={buttonSize}
         stopPropagation={false}
       />

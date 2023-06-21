@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, InteractiveIcon, PencilIcon, TrashIcon } from 'design-system';
 import * as React from 'react';
 import EventInner from '../../../components/activity-graph/EventInner';
-import { DeleteButton, EditButton } from '../../../components/controls/buttons';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import ChangeEventForm from './forms/ChangeEventForm';
@@ -47,30 +48,36 @@ function Event(props: EventProps) {
   const showActions = canAdmin && (canChange || canDelete);
 
   return (
-    <div className="project-activity-event">
+    <div className="it__project-activity-event sw-flex sw-justify-between">
       <EventInner event={event} />
 
       {showActions && (
-        <span className="nowrap">
+        <div className="sw-grow-0 sw-shrink-0 sw-ml-2">
           {canChange && (
-            <EditButton
-              aria-label={translate('project_activity.events.tooltip.edit')}
-              className="button-small"
-              data-test="project-activity__edit-event"
-              onClick={() => setChanging(true)}
-              stopPropagation
-            />
+            <Tooltip overlay={translate('project_activity.events.tooltip.edit')}>
+              <InteractiveIcon
+                Icon={PencilIcon}
+                aria-label={translate('project_activity.events.tooltip.edit')}
+                data-test="project-activity__edit-event"
+                onClick={() => setChanging(true)}
+                stopPropagation
+                size="small"
+              />
+            </Tooltip>
           )}
           {canDelete && (
-            <DeleteButton
-              aria-label={translate('project_activity.events.tooltip.delete')}
-              className="button-small"
-              data-test="project-activity__delete-event"
-              onClick={() => setDeleting(true)}
-              stopPropagation
-            />
+            <Tooltip overlay={translate('project_activity.events.tooltip.delete')}>
+              <DestructiveIcon
+                Icon={TrashIcon}
+                aria-label={translate('project_activity.events.tooltip.delete')}
+                data-test="project-activity__delete-event"
+                onClick={() => setDeleting(true)}
+                stopPropagation
+                size="small"
+              />
+            </Tooltip>
           )}
-        </span>
+        </div>
       )}
 
       {changing && props.onChange && (

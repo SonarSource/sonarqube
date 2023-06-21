@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
@@ -34,14 +34,16 @@ export interface RemoveEventFormProps {
 export default function RemoveEventForm(props: RemoveEventFormProps) {
   const { analysisKey, event, header, removeEventQuestion } = props;
   return (
-    <ConfirmModal
-      confirmButtonText={translate('delete')}
-      header={header}
-      isDestructive
+    <Modal
+      headerTitle={header}
       onClose={props.onClose}
-      onConfirm={() => props.onConfirm(analysisKey, event.key)}
-    >
-      {removeEventQuestion}
-    </ConfirmModal>
+      body={<p>{removeEventQuestion}</p>}
+      primaryButton={
+        <DangerButtonPrimary onClick={() => props.onConfirm(analysisKey, event.key)}>
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

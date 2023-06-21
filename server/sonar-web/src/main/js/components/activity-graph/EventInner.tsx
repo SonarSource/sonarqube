@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note } from 'design-system';
 import * as React from 'react';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
 import { translate } from '../../helpers/l10n';
 import { AnalysisEvent } from '../../types/project-activity';
 import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
-import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
+import { RichQualityGateEventInner, isRichQualityGateEvent } from './RichQualityGateEventInner';
 
 export interface EventInnerProps {
   event: AnalysisEvent;
@@ -44,12 +45,19 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
   }
   return (
     <Tooltip overlay={event.description}>
-      <span className="text-middle">
-        <span className="note little-spacer-right">
-          {translate('event.category', event.category)}:
-        </span>
-        <strong className="spacer-right">{event.name}</strong>
-      </span>
+      <div className="sw-min-w-0 sw-flex-1">
+        <div className="sw-flex sw-items-start">
+          <span>
+            <Note className="sw-mr-1 sw-body-sm-highlight">
+              {translate('event.category', event.category)}
+              {event.category === 'VERSION' && ':'}
+            </Note>
+            <Note className="sw-body-sm" title={event.description}>
+              {event.name}
+            </Note>
+          </span>
+        </div>
+      </div>
     </Tooltip>
   );
 }

@@ -33,7 +33,7 @@ export * from './DatePicker';
 export * from './DateRangePicker';
 export { DeferredSpinner } from './DeferredSpinner';
 export * from './DiscreetSelect';
-export { Dropdown } from './Dropdown';
+export { ActionsDropdown, Dropdown } from './Dropdown';
 export * from './DropdownMenu';
 export { DropdownToggler } from './DropdownToggler';
 export * from './DuplicationsIndicator';

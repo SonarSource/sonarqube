@@ -169,11 +169,13 @@ describe('CRUD', () => {
     await ui.appLoaded();
 
     await ui.addVersionEvent('1.1.0.1', initialValue);
-    expect(screen.getAllByText(initialValue)[0]).toBeInTheDocument();
+    // should appear 3x, one for the list, one for the graph and one for the tooltip
+    expect(screen.getAllByText(initialValue).length).toEqual(3);
 
     await act(async () => {
       await ui.updateEvent(1, updatedValue);
-      expect(screen.getAllByText(updatedValue)[0]).toBeInTheDocument();
+      // should appear 3x, one for the list, one for the graph and one for the tooltip
+      expect(screen.getAllByText(updatedValue).length).toEqual(3);
     });
 
     await ui.deleteEvent(0);
@@ -198,12 +200,12 @@ describe('CRUD', () => {
 
     await act(async () => {
       await ui.addCustomEvent('1.1.0.1', initialValue);
-      expect(screen.getByText(initialValue)).toBeInTheDocument();
+      expect(screen.getAllByText(initialValue)[0]).toBeInTheDocument();
     });
 
     await act(async () => {
       await ui.updateEvent(1, updatedValue);
-      expect(screen.getByText(updatedValue)).toBeInTheDocument();
+      expect(screen.getAllByText(updatedValue)[0]).toBeInTheDocument();
     });
 
     await ui.deleteEvent(0);
@@ -428,10 +430,10 @@ function getPageObject() {
     activityItem: byLabelText(/project_activity.show_analysis_X_on_graph/),
     cogBtn: (id: string) => byRole('button', { name: `project_activity.analysis_X_actions.${id}` }),
     seeDetailsBtn: (time: string) =>
-      byRole('button', { name: `project_activity.show_analysis_X_on_graph.${time}` }),
-    addCustomEventBtn: byRole('button', { name: 'project_activity.add_custom_event' }),
-    addVersionEvenBtn: byRole('button', { name: 'project_activity.add_version' }),
-    deleteAnalysisBtn: byRole('button', { name: 'project_activity.delete_analysis' }),
+      byLabelText(`project_activity.show_analysis_X_on_graph.${time}`),
+    addCustomEventBtn: byRole('menuitem', { name: 'project_activity.add_custom_event' }),
+    addVersionEvenBtn: byRole('menuitem', { name: 'project_activity.add_version' }),
+    deleteAnalysisBtn: byRole('menuitem', { name: 'project_activity.delete_analysis' }),
     editEventBtn: byRole('button', { name: 'project_activity.events.tooltip.edit' }),
     deleteEventBtn: byRole('button', { name: 'project_activity.events.tooltip.delete' }),
 

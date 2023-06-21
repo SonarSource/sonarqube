@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
@@ -44,25 +44,42 @@ export default class ChangeEventForm extends React.PureComponent<Props, State> {
   };
 
   handleSubmit = () => {
-    return this.props.changeEvent(this.props.event.key, this.state.name);
+    this.props.changeEvent(this.props.event.key, this.state.name);
+    this.props.onClose();
   };
 
   render() {
     const { name } = this.state;
     return (
-      <ConfirmModal
-        confirmButtonText={translate('change_verb')}
-        confirmDisable={!name || name === this.props.event.name}
-        header={this.props.header}
+      <Modal
+        headerTitle={this.props.header}
         onClose={this.props.onClose}
-        onConfirm={this.handleSubmit}
-        size="small"
-      >
-        <div className="modal-field">
-          <label htmlFor="name">{translate('name')}</label>
-          <input id="name" autoFocus onChange={this.changeInput} type="text" value={name} />
-        </div>
-      </ConfirmModal>
+        body={
+          <div>
+            <label htmlFor="name">{translate('name')}</label>
+            <InputField
+              id="name"
+              autoFocus
+              onChange={this.changeInput}
+              type="text"
+              value={name}
+              size="full"
+            />
+          </div>
+        }
+        primaryButton={
+          <ButtonPrimary
+            id="change-event-submit"
+            form="change-event-form"
+            type="submit"
+            disabled={!name || name === this.props.event.name}
+            onClick={this.handleSubmit}
+          >
+            {translate('change_verb')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

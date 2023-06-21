@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import {
+  ActionsDropdown,
+  ItemButton,
+  ItemDangerButton,
+  ItemDivider,
+  PopupZLevel,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import { injectIntl, WrappedComponentProps } from 'react-intl';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem,
-} from '../../../components/controls/ActionsDropdown';
-import { ButtonPlain } from '../../../components/controls/buttons';
-import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
+import { WrappedComponentProps, injectIntl } from 'react-intl';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Tooltip from '../../../components/controls/Tooltip';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../types/project-activity';
@@ -68,7 +72,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
   React.useEffect(() => {
     if (node && selected) {
-      node.scrollIntoView({ behavior: 'smooth' });
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   });
 
@@ -84,140 +88,155 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   const canDeleteAnalyses =
     props.canDeleteAnalyses && !isFirst && !analysis.manualNewCodePeriodBaseline;
 
-  return (
-    <li
-      className={classNames('project-activity-analysis bordered-top bordered-bottom', {
-        selected,
-      })}
-      onClick={() => props.onUpdateSelectedDate(analysis.date)}
-      ref={(ref) => (node = ref)}
-    >
-      <div className="display-flex-center display-flex-space-between">
-        <div className="project-activity-time">
-          <TimeFormatter date={parsedDate} long={false}>
-            {(formattedTime) => (
-              <ButtonPlain
-                aria-current={selected}
-                aria-label={translateWithParameters(
-                  'project_activity.show_analysis_X_on_graph',
-                  analysis.buildString || formatDate(parsedDate, formatterOption)
-                )}
-                onClick={() => props.onUpdateSelectedDate(analysis.date)}
-              >
-                <time className="text-middle" dateTime={parsedDate.toISOString()}>
-                  {formattedTime}
-                </time>
-              </ButtonPlain>
-            )}
-          </TimeFormatter>
-        </div>
+  let tooltipContent = <TimeFormatter date={parsedDate} long />;
+  if (analysis.buildString) {
+    tooltipContent = (
+      <>
+        {tooltipContent}
+        {translateWithParameters('project_activity.analysis_build_string_X', analysis.buildString)}
+      </>
+    );
+  }
 
-        {analysis.buildString && (
-          <div className="flex-shrink small text-muted text-ellipsis">
-            {translateWithParameters(
-              'project_activity.analysis_build_string_X',
-              analysis.buildString
-            )}
-          </div>
+  return (
+    <Tooltip mouseEnterDelay={0.5} overlay={tooltipContent} placement="left">
+      <ActivityAnalysisListItem
+        className={classNames(
+          'it__project-activity-analysis sw-flex sw-cursor-pointer sw-p-1 sw-relative',
+          {
+            active: selected,
+          }
         )}
+        aria-label={translateWithParameters(
+          'project_activity.show_analysis_X_on_graph',
+          analysis.buildString || formatDate(parsedDate, formatterOption)
+        )}
+        onClick={() => props.onUpdateSelectedDate(analysis.date)}
+        ref={(ref) => (node = ref)}
+      >
+        <div className="it__project-activity-time">
+          <ActivityTime className="sw-box-border sw-grow-0 sw-shrink-0 sw-h-page sw-body-sm-highlight sw-text-right sw-mr-2">
+            <TimeFormatter date={parsedDate} long={false}>
+              {(formattedTime) => <time dateTime={parsedDate.toISOString()}>{formattedTime}</time>}
+            </TimeFormatter>
+          </ActivityTime>
+        </div>
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-          <ClickEventBoundary>
-            <div className="project-activity-analysis-actions big-spacer-left">
-              <ActionsDropdown
-                label={translateWithParameters(
-                  'project_activity.analysis_X_actions',
-                  analysis.buildString || formatDate(parsedDate, formatterOption)
-                )}
-                overlayPlacement={PopupPlacement.BottomRight}
-                small
-                toggleClassName="js-analysis-actions"
-              >
-                {canAddVersion && (
-                  <ActionsDropdownItem
-                    className="js-add-version"
-                    onClick={() => setAddVersionForm(true)}
-                  >
-                    {translate('project_activity.add_version')}
-                  </ActionsDropdownItem>
-                )}
-                {canAddEvent && (
-                  <ActionsDropdownItem
-                    className="js-add-event"
-                    onClick={() => setAddEventForm(true)}
-                  >
-                    {translate('project_activity.add_custom_event')}
-                  </ActionsDropdownItem>
-                )}
-                {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ActionsDropdownDivider />}
-                {canDeleteAnalyses && (
-                  <ActionsDropdownItem
-                    className="js-delete-analysis"
-                    destructive
-                    onClick={() => setRemoveAnalysisForm(true)}
-                  >
-                    {translate('project_activity.delete_analysis')}
-                  </ActionsDropdownItem>
-                )}
-              </ActionsDropdown>
-
-              {addVersionForm && (
-                <AddEventForm
-                  addEvent={props.onAddVersion}
-                  addEventButtonText="project_activity.add_version"
-                  analysis={analysis}
-                  onClose={() => setAddVersionForm(false)}
-                />
+          <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
+            <ActionsDropdown
+              ariaLabel={translateWithParameters(
+                'project_activity.analysis_X_actions',
+                analysis.buildString || formatDate(parsedDate, formatterOption)
               )}
-
-              {addEventForm && (
-                <AddEventForm
-                  addEvent={props.onAddCustomEvent}
-                  addEventButtonText="project_activity.add_custom_event"
-                  analysis={analysis}
-                  onClose={() => setAddEventForm(false)}
-                />
+              buttonSize="small"
+              id="it__analysis-actions"
+              zLevel={PopupZLevel.Absolute}
+            >
+              {canAddVersion && (
+                <ItemButton className="js-add-version" onClick={() => setAddVersionForm(true)}>
+                  {translate('project_activity.add_version')}
+                </ItemButton>
               )}
-
-              {removeAnalysisForm && (
-                <RemoveAnalysisForm
-                  analysis={analysis}
-                  deleteAnalysis={props.onDeleteAnalysis}
-                  onClose={() => setRemoveAnalysisForm(false)}
-                />
+              {canAddEvent && (
+                <ItemButton className="js-add-event" onClick={() => setAddEventForm(true)}>
+                  {translate('project_activity.add_custom_event')}
+                </ItemButton>
               )}
-            </div>
-          </ClickEventBoundary>
-        )}
-      </div>
+              {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
+              {canDeleteAnalyses && (
+                <ItemDangerButton
+                  className="js-delete-analysis"
+                  onClick={() => setRemoveAnalysisForm(true)}
+                >
+                  {translate('project_activity.delete_analysis')}
+                </ItemDangerButton>
+              )}
+            </ActionsDropdown>
 
-      {analysis.events.length > 0 && (
-        <Events
-          analysisKey={analysis.key}
-          canAdmin={canAdmin}
-          events={analysis.events}
-          isFirst={isFirst}
-          onChange={props.onChangeEvent}
-          onDelete={props.onDeleteEvent}
-        />
-      )}
+            {addVersionForm && (
+              <AddEventForm
+                addEvent={props.onAddVersion}
+                addEventButtonText="project_activity.add_version"
+                analysis={analysis}
+                onClose={() => setAddVersionForm(false)}
+              />
+            )}
 
-      {isBaseline && (
-        <div className="baseline-marker">
-          <div className="wedge" />
-          <hr />
-          <div className="label display-flex-center">
-            {translate('project_activity.new_code_period_start')}
-            <HelpTooltip
-              className="little-spacer-left"
-              overlay={translate('project_activity.new_code_period_start.help')}
-              placement="top"
-            />
+            {addEventForm && (
+              <AddEventForm
+                addEvent={props.onAddCustomEvent}
+                addEventButtonText="project_activity.add_custom_event"
+                analysis={analysis}
+                onClose={() => setAddEventForm(false)}
+              />
+            )}
+
+            {removeAnalysisForm && (
+              <RemoveAnalysisForm
+                analysis={analysis}
+                deleteAnalysis={props.onDeleteAnalysis}
+                onClose={() => setRemoveAnalysisForm(false)}
+              />
+            )}
           </div>
-        </div>
-      )}
-    </li>
+        )}
+
+        {analysis.events.length > 0 && (
+          <Events
+            analysisKey={analysis.key}
+            canAdmin={canAdmin}
+            events={analysis.events}
+            isFirst={isFirst}
+            onChange={props.onChangeEvent}
+            onDelete={props.onDeleteEvent}
+          />
+        )}
+
+        {isBaseline && (
+          <div className="baseline-marker">
+            <div className="wedge" />
+            <hr />
+            <div className="label display-flex-center">
+              {translate('project_activity.new_code_period_start')}
+              <HelpTooltip
+                className="little-spacer-left"
+                overlay={translate('project_activity.new_code_period_start.help')}
+                placement="top"
+              />
+            </div>
+          </div>
+        )}
+      </ActivityAnalysisListItem>
+    </Tooltip>
   );
 }
+
+const ActivityTime = styled.div`
+  width: 4.5rem;
+`;
+
+const ActivityAnalysisListItem = styled.li`
+  border-bottom: ${themeBorder('default')};
+  border-left: ${themeBorder('active', 'transparent')};
+
+  &:first-of-type {
+    border-top: ${themeBorder('default')};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover,
+  &:focus,
+  &.active {
+    background-color: ${themeColor('subnavigationHover')};
+  }
+
+  &.active {
+    border-left: ${themeBorder('active')};
+  }
+`;
 
 export default injectIntl(ProjectActivityAnalysis);

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BareButton, ChevronDownIcon, StandoutLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isMainBranch } from '../../helpers/branch-like';
@@ -29,11 +30,8 @@ import {
   ApplicationAnalysisEventCategory,
   DefinitionChangeType,
 } from '../../types/project-activity';
-import Link from '../common/Link';
-import { ButtonLink } from '../controls/buttons';
 import ClickEventBoundary from '../controls/ClickEventBoundary';
 import BranchIcon from '../icons/BranchIcon';
-import DropdownIcon from '../icons/DropdownIcon';
 
 export type DefinitionChangeEvent = AnalysisEvent &
   Required<Pick<AnalysisEvent, 'definitionChange'>>;
@@ -66,9 +64,9 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
 
   renderProjectLink = (project: { key: string; name: string }, branch: string | undefined) => (
     <ClickEventBoundary>
-      <Link title={project.name} to={getProjectUrl(project.key, branch)}>
+      <StandoutLink title={project.name} to={getProjectUrl(project.key, branch)}>
         {limitComponentName(project.name, NAME_MAX_LENGTH)}
-      </Link>
+      </StandoutLink>
     </ClickEventBoundary>
   );
 
@@ -95,16 +93,14 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
           ? 'event.definition_change.added'
           : 'event.definition_change.branch_added';
         return (
-          <div className="text-ellipsis">
-            <FormattedMessage
-              defaultMessage={translate(message)}
-              id={message}
-              values={{
-                project: this.renderProjectLink(project, project.branch),
-                branch: this.renderBranch(project.branch),
-              }}
-            />
-          </div>
+          <FormattedMessage
+            defaultMessage={translate(message)}
+            id={message}
+            values={{
+              project: this.renderProjectLink(project, project.branch),
+              branch: this.renderBranch(project.branch),
+            }}
+          />
         );
       }
 
@@ -113,16 +109,14 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
           ? 'event.definition_change.removed'
           : 'event.definition_change.branch_removed';
         return (
-          <div className="text-ellipsis">
-            <FormattedMessage
-              defaultMessage={translate(message)}
-              id={message}
-              values={{
-                project: this.renderProjectLink(project, project.branch),
-                branch: this.renderBranch(project.branch),
-              }}
-            />
-          </div>
+          <FormattedMessage
+            defaultMessage={translate(message)}
+            id={message}
+            values={{
+              project: this.renderProjectLink(project, project.branch),
+              branch: this.renderBranch(project.branch),
+            }}
+          />
         );
       }
 
@@ -145,35 +139,30 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
     const { event, readonly } = this.props;
     const { expanded } = this.state;
     return (
-      <>
-        <span className="note">
-          {translate('event.category', event.category)}
-          {!readonly && ':'}
-        </span>
+      <div className="sw-flex sw-basis-full sw-flex-col">
+        <div className="sw-flex sw-justify-between">
+          <span className="sw-mr-1">{translate('event.category', event.category)}</span>
 
-        {!readonly && (
-          <div>
-            <ButtonLink
-              className="project-activity-event-inner-more-link"
-              onClick={this.toggleProjectsList}
-              stopPropagation
-            >
-              {expanded ? translate('hide') : translate('more')}
-              <DropdownIcon className="little-spacer-left" turned={expanded} />
-            </ButtonLink>
-          </div>
-        )}
+          {!readonly && (
+            <div>
+              <BareButton onClick={this.toggleProjectsList}>
+                {expanded ? translate('hide') : translate('more')}
+                <ChevronDownIcon transform={expanded ? 'rotate(180)' : undefined} />
+              </BareButton>
+            </div>
+          )}
+        </div>
 
         {expanded && (
-          <ul className="spacer-left spacer-top">
+          <ul className="sw-mt-2">
             {event.definitionChange.projects.map((project) => (
-              <li className="display-flex-center spacer-top" key={project.key}>
+              <li className="sw-p-1 sw-text-ellipsis sw-overflow-hidden" key={project.key}>
                 {this.renderProjectChange(project)}
               </li>
             ))}
           </ul>
         )}
-      </>
+      </div>
     );
   }
 }

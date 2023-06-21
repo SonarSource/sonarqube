@@ -36,6 +36,7 @@ interface Props {
 export interface IconProps extends Omit<Props, 'children'> {
   fill?: ThemeColors | CSSColor;
   height?: number;
+  transform?: string;
   width?: number;
 }
 

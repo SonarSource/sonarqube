@@ -43,7 +43,7 @@ function Events(props: EventsProps) {
   );
 
   return (
-    <div className="big-spacer-top">
+    <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-1">
       {sortedEvents.map((event) => (
         <Event
           analysisKey={analysisKey}

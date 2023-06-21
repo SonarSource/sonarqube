@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
@@ -30,15 +30,16 @@ interface Props {
 
 export default function RemoveAnalysisForm({ analysis, deleteAnalysis, onClose }: Props) {
   return (
-    <ConfirmModal
-      confirmButtonText={translate('delete')}
-      confirmData={analysis.key}
-      header={translate('project_activity.delete_analysis')}
-      isDestructive
+    <Modal
+      headerTitle={translate('project_activity.delete_analysis')}
       onClose={onClose}
-      onConfirm={deleteAnalysis}
-    >
-      {translate('project_activity.delete_analysis.question')}
-    </ConfirmModal>
+      body={<p>{translate('project_activity.delete_analysis.question')}</p>}
+      primaryButton={
+        <DangerButtonPrimary onClick={() => deleteAnalysis(analysis.key)} type="submit">
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
@@ -41,30 +41,41 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
   };
 
   handleSubmit = () => {
-    return this.props.addEvent(this.props.analysis.key, this.state.name);
+    this.props.addEvent(this.props.analysis.key, this.state.name);
+    this.props.onClose();
   };
 
   render() {
     return (
-      <ConfirmModal
-        confirmButtonText={translate('save')}
-        confirmDisable={!this.state.name}
-        header={translate(this.props.addEventButtonText)}
+      <Modal
+        headerTitle={translate(this.props.addEventButtonText)}
         onClose={this.props.onClose}
-        onConfirm={this.handleSubmit}
-        size="small"
-      >
-        <div className="modal-field">
-          <label htmlFor="name">{translate('name')}</label>
-          <input
-            id="name"
-            autoFocus
-            onChange={this.handleNameChange}
-            type="text"
-            value={this.state.name}
-          />
-        </div>
-      </ConfirmModal>
+        body={
+          <div>
+            <label htmlFor="name">{translate('name')}</label>
+            <InputField
+              id="name"
+              autoFocus
+              onChange={this.handleNameChange}
+              type="text"
+              value={this.state.name}
+              size="full"
+            />
+          </div>
+        }
+        primaryButton={
+          <ButtonPrimary
+            id="add-event-submit"
+            form="add-event-form"
+            type="submit"
+            disabled={!this.state.name}
+            onClick={this.handleSubmit}
+          >
+            {translate('save')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }
