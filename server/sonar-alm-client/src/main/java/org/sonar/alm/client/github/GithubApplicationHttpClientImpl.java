@@ -93,7 +93,8 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
 
   private static void validateEndPoint(String endPoint) {
-    checkArgument(endPoint.startsWith("/") || endPoint.startsWith("http"), "endpoint must start with '/' or 'http'");
+    checkArgument(endPoint.startsWith("/") || endPoint.startsWith("http") || endPoint.isEmpty(),
+      "endpoint must start with '/' or 'http'");
   }
 
   private static Request newGetRequest(String appUrl, AccessToken token, String endPoint) {
