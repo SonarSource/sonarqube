@@ -151,7 +151,7 @@ public class EsSettings {
     }
     if (!path.toFile().canRead()) {
       throw new MessageException("Unable to configure: " + processProperty.getKey() + ". "
-          + "Could not get read access to [" + processPropertyPath + "]");
+        + "Could not get read access to [" + processPropertyPath + "]");
     }
     return path.getFileName().toString();
   }

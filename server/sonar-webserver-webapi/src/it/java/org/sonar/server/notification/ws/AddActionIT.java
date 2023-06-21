@@ -216,7 +216,8 @@ public class AddActionIT {
     userSession.logIn(user).setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin()))
+    String login = user.getLogin();
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, login))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -227,7 +228,8 @@ public class AddActionIT {
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, projectKey, null))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -267,7 +269,8 @@ public class AddActionIT {
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
-    assertThatThrownBy(() -> call("Dispatcher42", null, project.getKey(), null))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call("Dispatcher42", null, projectKey, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }
@@ -280,14 +283,16 @@ public class AddActionIT {
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
-    assertThatThrownBy(() -> call("Dispatcher42", null, project.getKey(), null))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call("Dispatcher42", null, projectKey, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }
 
   @Test
   public void fail_when_no_dispatcher() {
-    assertThatThrownBy(() -> ws.newRequest().execute())
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class);
   }
 

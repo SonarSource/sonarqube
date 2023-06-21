@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 

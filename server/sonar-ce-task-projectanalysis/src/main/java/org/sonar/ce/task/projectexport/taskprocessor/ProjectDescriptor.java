@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectexport.taskprocessor;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Objects.requireNonNull;
