@@ -6597,8 +6597,10 @@ __metadata:
     "@testing-library/user-event": 14.4.3
     "@types/d3-array": 3.0.5
     "@types/d3-zoom": 3.0.3
+    "@types/lodash": 4.14.195
     "@types/react": 17.0.39
     "@types/react-highlight-words": 0.16.4
+    "@types/react-modal": 3.16.0
     "@typescript-eslint/parser": 5.59.11
     "@vitejs/plugin-react": 3.1.0
     autoprefixer: 10.4.14
