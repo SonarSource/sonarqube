@@ -53,11 +53,14 @@ export default function GlobalNewCodeDefinitionDescription({
 
   return (
     <>
-      <div className="general-setting display-flex-start">
-        <span className="sw-font-bold flex-0">{setting}:&nbsp;</span>
-        <span>
-          {description} {useCase}
-        </span>
+      <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
+        <span className="sw-font-bold flex-0">{setting}</span>
+        {isGlobalNcdCompliant && (
+          <>
+            <span>{description}</span>
+            <span>{useCase}</span>
+          </>
+        )}
       </div>
       {!isGlobalNcdCompliant && (
         <Alert variant="warning" className="sw-mt-4 sw-max-w-[800px]">

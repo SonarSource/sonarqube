@@ -329,7 +329,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           onNcdChanged={this.handleNcdChanged}
         />
 
-        <div className="sw-flex sw-flex-row sw-gap-2 sw-mt-4">
+        <div className="sw-flex sw-flex-row sw-gap-4 sw-mt-4">
           <ButtonLink onClick={this.handleGoBack}>{translate('back')}</ButtonLink>
           <SubmitButton
             onClick={this.handleProjectCreation}
