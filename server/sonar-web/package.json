@@ -98,7 +98,7 @@
     "jsdom": "21.1.1",
     "path-browserify": "1.0.1",
     "postcss": "8.4.24",
-    "postcss-calc": "8.2.4",
+    "postcss-calc": "9.0.1",
     "postcss-custom-properties": "12.1.11",
     "prettier": "2.8.8",
     "react-select-event": "5.5.1",

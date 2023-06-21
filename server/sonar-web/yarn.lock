@@ -5034,7 +5034,7 @@ __metadata:
     lunr: 2.3.9
     path-browserify: 1.0.1
     postcss: 8.4.24
-    postcss-calc: 8.2.4
+    postcss-calc: 9.0.1
     postcss-custom-properties: 12.1.11
     prettier: 2.8.8
     react: 17.0.2
@@ -6615,7 +6615,7 @@ __metadata:
     history: 5.3.0
     jest: 29.5.0
     postcss: 8.4.24
-    postcss-calc: 8.2.4
+    postcss-calc: 9.0.1
     postcss-custom-properties: 12.1.11
     twin.macro: 3.3.0
     typescript: 5.0.3
@@ -11044,15 +11044,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-calc@npm:8.2.4":
-  version: 8.2.4
-  resolution: "postcss-calc@npm:8.2.4"
+"postcss-calc@npm:9.0.1":
+  version: 9.0.1
+  resolution: "postcss-calc@npm:9.0.1"
   dependencies:
-    postcss-selector-parser: ^6.0.9
+    postcss-selector-parser: ^6.0.11
     postcss-value-parser: ^4.2.0
   peerDependencies:
     postcss: ^8.2.2
-  checksum: 314b4cebb0c4ed0cf8356b4bce71eca78f5a7842e6a3942a3bba49db168d5296b2bd93c3f735ae1c616f2651d94719ade33becc03c73d2d79c7394fb7f73eabb
+  checksum: 7327ed83bfec544ab8b3e38353baa72ff6d04378b856db4ad82dbd68ce0b73668867ef182b5d4025f9dd9aa9c64aacc50cd1bd9db8d8b51ccc4cb97866b9d72b
   languageName: node
   linkType: hard
 
@@ -11120,7 +11120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.10, postcss-selector-parser@npm:^6.0.11, postcss-selector-parser@npm:^6.0.9":
+"postcss-selector-parser@npm:^6.0.10, postcss-selector-parser@npm:^6.0.11":
   version: 6.0.11
   resolution: "postcss-selector-parser@npm:6.0.11"
   dependencies:
