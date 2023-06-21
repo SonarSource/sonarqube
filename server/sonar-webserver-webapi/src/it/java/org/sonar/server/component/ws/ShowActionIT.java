@@ -66,7 +66,7 @@ public class ShowActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db),
     new IssueIndexSyncProgressChecker(db.getDbClient())));
@@ -217,7 +217,8 @@ public class ShowActionIT {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto publicProject = projectData.getMainBranchComponent();
 
-    userSession.registerProjects(projectData.getProjectDto());
+    userSession.registerProjects(projectData.getProjectDto())
+      .registerBranches(projectData.getMainBranchDto());
 
     ShowWsResponse result = newRequest(publicProject.getKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
@@ -349,7 +350,8 @@ public class ShowActionIT {
     userSession.addProjectBranchMapping(projectData3.projectUuid(), branch4);
     userSession.addProjectBranchMapping(projectData3.projectUuid(), branch5);
 
-    userSession.addProjectPermission(UserRole.USER, projectData1.getProjectDto(), projectData2.getProjectDto(), projectData3.getProjectDto());
+    userSession.addProjectPermission(UserRole.USER, projectData1.getProjectDto(), projectData2.getProjectDto(), projectData3.getProjectDto())
+        .registerBranches(projectData1.getMainBranchDto(), projectData2.getMainBranchDto(), projectData3.getMainBranchDto());
     userSession.registerPortfolios(portfolio1, portfolio2, subview);
     userSession.registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto(), projectData3.getProjectDto());
 

@@ -30,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -72,12 +73,14 @@ public class IssueSnippetsActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final FileSourceTester fileSourceTester = new FileSourceTester(db);
-  private ComponentDto project;
+  private ProjectData project;
   private WsActionTester actionTester;
+  private ComponentDto mainBranchComponent;
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject("projectUuid").getMainBranchComponent();
+    project = db.components().insertPrivateProject("projectUuid");
+    mainBranchComponent = project.getMainBranchComponent();
 
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString()))
@@ -100,10 +103,10 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void should_display_single_location_single_file() {
-    ComponentDto file = insertFile(project, "file");
+    ComponentDto file = insertFile(mainBranchComponent, "file");
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -113,7 +116,7 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void should_add_measures_to_components() {
-    ComponentDto file = insertFile(project, "file");
+    ComponentDto file = insertFile(mainBranchComponent, "file");
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
     db.measures().insertLiveMeasure(file, lines, m -> m.setValue(200d));
@@ -130,7 +133,7 @@ public class IssueSnippetsActionIT {
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -140,12 +143,12 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void issue_references_a_non_existing_component() {
-    ComponentDto file = insertFile(project, "file");
-    ComponentDto file2 = newFileDto(project, null, "nonexisting");
+    ComponentDto file = insertFile(mainBranchComponent, "file");
+    ComponentDto file2 = newFileDto(mainBranchComponent, null, "nonexisting");
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     String issueKey = insertIssue(file, newLocation(file2.uuid(), 5, 5));
 
@@ -155,8 +158,8 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void no_code_to_display() {
-    ComponentDto file = insertFile(project, "file");
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    ComponentDto file = insertFile(mainBranchComponent, "file");
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -166,8 +169,8 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void fail_if_no_project_permission() {
-    ComponentDto file = insertFile(project, "file");
-    userSession.logIn().addProjectPermission(USER, project, file);
+    ComponentDto file = insertFile(mainBranchComponent, "file");
+    userSession.logIn().addProjectPermission(USER, project.getProjectDto());
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
     var request = actionTester.newRequest().setParam("issueKey", issueKey);
@@ -177,9 +180,9 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void fail_if_issue_not_found() {
-    ComponentDto file = insertFile(project, "file");
+    ComponentDto file = insertFile(mainBranchComponent, "file");
     insertIssue(file, newLocation(file.uuid(), 5, 5));
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     var request = actionTester.newRequest().setParam("issueKey", "invalid");
     assertThatThrownBy(request::execute)
@@ -189,8 +192,8 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void fail_if_parameter_missing() {
-    ComponentDto file = insertFile(project, "file");
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+    ComponentDto file = insertFile(mainBranchComponent, "file");
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     var request = actionTester.newRequest();
     assertThatThrownBy(request::execute)
@@ -200,14 +203,14 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void should_display_multiple_locations_multiple_files() {
-    ComponentDto file1 = insertFile(project, "file1");
-    ComponentDto file2 = insertFile(project, "file2");
+    ComponentDto file1 = insertFile(mainBranchComponent, "file1");
+    ComponentDto file2 = insertFile(mainBranchComponent, "file2");
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file1, 10, dto -> dto.setSourceData(fileSources));
     fileSourceTester.insertFileSource(file2, 10, dto -> dto.setSourceData(fileSources));
 
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file1, file2);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
       newLocation(file1.uuid(), 9, 9), newLocation(file2.uuid(), 1, 5));
@@ -219,12 +222,12 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void should_connect_snippets_close_to_each_other() {
-    ComponentDto file1 = insertFile(project, "file1");
+    ComponentDto file1 = insertFile(mainBranchComponent, "file1");
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(20).build();
     fileSourceTester.insertFileSource(file1, 20, dto -> dto.setSourceData(fileSources));
 
-    userSession.logIn().addProjectPermission(CODEVIEWER, project, file1);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     // these two locations should get connected, making a single range 3-14
     String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
@@ -252,9 +255,9 @@ public class IssueSnippetsActionIT {
     RuleDto rule = db.rules().insert();
     DbIssues.Flow flow = DbIssues.Flow.newBuilder().addAllLocation(Arrays.asList(locations)).build();
 
-    IssueDto issue = db.issues().insert(rule, project, file, i -> {
+    IssueDto issue = db.issues().insert(rule, project.getMainBranchComponent(), file, i -> {
       i.setLocations(DbIssues.Locations.newBuilder().addFlow(flow).build());
-      i.setProjectUuid(project.uuid());
+      i.setProjectUuid(mainBranchComponent.uuid());
       i.setLine(locations[0].getTextRange().getStartLine());
     });
 

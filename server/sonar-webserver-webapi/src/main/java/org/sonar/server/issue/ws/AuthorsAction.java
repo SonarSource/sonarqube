@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -35,8 +34,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
@@ -75,8 +76,8 @@ public class AuthorsAction implements IssuesWsAction {
     NewAction action = controller.createAction("authors")
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query.<br/>" +
-        "Requires authentication."
-        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+                      "Requires authentication."
+                      + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setChangelog(new Change("7.4", "The maximum size of 'ps' is set to 100"))
       .setHandler(this);
@@ -97,8 +98,8 @@ public class AuthorsAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkIfComponentNeedIssueSync(dbSession, request.param(PARAM_PROJECT));
 
-      Optional<ComponentDto> project = getProject(dbSession, request.param(PARAM_PROJECT));
-      List<String> authors = getAuthors(project.orElse(null), request);
+      Optional<EntityDto> entity = getEntity(dbSession, request.param(PARAM_PROJECT));
+      List<String> authors = getAuthors(entity.orElse(null), request, dbSession);
       AuthorsResponse wsResponse = AuthorsResponse.newBuilder().addAllAuthors(authors).build();
       writeProtobuf(wsResponse, request, response);
     }
@@ -112,27 +113,32 @@ public class AuthorsAction implements IssuesWsAction {
     }
   }
 
-  private Optional<ComponentDto> getProject(DbSession dbSession, @Nullable String projectKey) {
+  private Optional<EntityDto> getEntity(DbSession dbSession, @Nullable String projectKey) {
     if (projectKey == null) {
       return Optional.empty();
     }
-    ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-    checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
-    return Optional.of(project);
+    EntityDto entity = componentFinder.getEntityByKey(dbSession, projectKey);
+    return Optional.of(entity);
   }
 
-  private List<String> getAuthors(@Nullable ComponentDto project, Request request) {
+  private List<String> getAuthors(@Nullable EntityDto entity, Request request, DbSession dbSession) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
-    ofNullable(project).ifPresent(p -> {
-      switch (p.qualifier()) {
+    ofNullable(entity).ifPresent(e -> {
+      switch (e.getQualifier()) {
         case Qualifiers.PROJECT:
-          issueQueryBuilder.projectUuids(Set.of(p.uuid()));
+          issueQueryBuilder.projectUuids(Set.of(e.getUuid()));
           return;
-        case Qualifiers.APP, Qualifiers.VIEW:
-          issueQueryBuilder.viewUuids(Set.of(p.uuid()));
+        case Qualifiers.VIEW:
+          issueQueryBuilder.viewUuids(Set.of(e.getUuid()));
+          return;
+        case Qualifiers.APP:
+          issueQueryBuilder.viewUuids(Set.of(e.getUuid()));
+          BranchDto branchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid())
+            .orElseThrow(() -> new NotFoundException("Main branch of application %s not found".formatted(e.getUuid())));
+          issueQueryBuilder.branchUuid(branchDto.getUuid());
           return;
         default:
-          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", p.qualifier()));
+          throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", e.getQualifier()));
       }
     });
     return issueIndex.searchAuthors(
