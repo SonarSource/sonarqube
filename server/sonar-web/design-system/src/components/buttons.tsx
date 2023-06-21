@@ -158,12 +158,24 @@ const BaseButton = styled.button`
   }
 `;
 
+const PrimaryStyle = (props: ThemedProps) => css`
+  background: ${themeColor('button')(props)};
+  backgroundhover: ${themeColor('buttonHover')(props)};
+  color: ${themeContrast('primary')(props)};
+  focus: ${themeColor('button', OPACITY_20_PERCENT)(props)};
+  border: ${themeBorder('default', 'transparent')(props)};
+`;
+
 export const ButtonPrimary: React.FC<ButtonProps> = styled(Button)`
-  --background: ${themeColor('button')};
-  --backgroundHover: ${themeColor('buttonHover')};
-  --color: ${themeContrast('primary')};
-  --focus: ${themeColor('button', OPACITY_20_PERCENT)};
-  --border: ${themeBorder('default', 'transparent')};
+  ${PrimaryStyle}
+`;
+
+export const DownloadButton = styled.a`
+  ${buttonStyle}
+  ${PrimaryStyle}
+  &:hover {
+    border-bottom-color: transparent;
+  }
 `;
 
 export const ButtonSecondary: React.FC<ButtonProps> = styled(Button)`

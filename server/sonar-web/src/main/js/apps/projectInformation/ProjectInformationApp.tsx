@@ -123,11 +123,7 @@ export class ProjectInformationApp extends React.PureComponent<Props, State> {
                 {component.qualifier === ComponentQualifier.Project &&
                   regulatoryReportFeatureEnabled && (
                     <Card>
-                      <RegulatoryReport
-                        component={component}
-                        branchLike={branchLike}
-                        onClose={() => {}}
-                      />
+                      <RegulatoryReport component={component} branchLike={branchLike} />
                     </Card>
                   )}
               </div>

@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { BranchLike } from '../../../../types/branch-like';
 import RegulatoryReport from '../RegulatoryReport';
 
 let handler: BranchesServiceMock;
+
+const ui = {
+  page: byText('regulatory_report.page'),
+  description1: byText('regulatory_report.description1'),
+  description2: byText('regulatory_report.description2'),
+  availableBranchesInfo: byText(/regulatory_page.available_branches_info.only_keep_when_inactive/),
+  moreInfo: byText(/regulatory_page.available_branches_info.more_info$/),
+  noBranchAvailable: byText('regulatory_page.no_available_branch'),
+  branchSelect: byRole('combobox', { name: 'regulatory_page.select_branch' }),
+  downloadButton: byRole('link', { name: 'download_verb' }),
+};
 
 beforeAll(() => {
   handler = new BranchesServiceMock();
@@ -38,27 +50,25 @@ describe('RegulatoryReport tests', () => {
   it('should open the regulatory report page', async () => {
     const user = userEvent.setup();
     renderRegulatoryReportApp();
-    expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
-    expect(screen.getByText('regulatory_report.description1')).toBeInTheDocument();
-    expect(screen.getByText('regulatory_report.description2')).toBeInTheDocument();
-    expect(
-      screen.getByText('regulatory_page.available_branches_info.only_keep_when_inactive')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('regulatory_page.available_branches_info.more_info')
-    ).toBeInTheDocument();
+    expect(await ui.page.find()).toBeInTheDocument();
+    expect(ui.description1.get()).toBeInTheDocument();
+    expect(ui.description2.get()).toBeInTheDocument();
+    expect(ui.availableBranchesInfo.get()).toBeInTheDocument();
+    expect(ui.moreInfo.get()).toBeInTheDocument();
+    expect(ui.branchSelect.get()).toBeInTheDocument();
 
-    const branchSelect = screen.getByRole('combobox', { name: 'regulatory_page.select_branch' });
-    expect(branchSelect).toBeInTheDocument();
+    await act(async () => {
+      await user.click(ui.branchSelect.get());
+      await user.keyboard('[ArrowDown][Enter]');
+    });
 
-    await user.click(branchSelect);
-    await user.keyboard('[ArrowDown][Enter]');
-
-    const downloadButton = screen.getByRole('link', { name: 'download_verb' });
-    expect(downloadButton).toBeInTheDocument();
-
+    expect(ui.downloadButton.get()).toBeInTheDocument();
     expect(screen.queryByText('regulatory_page.download_start.sentence')).not.toBeInTheDocument();
-    await user.click(downloadButton);
+
+    await act(async () => {
+      await user.click(ui.downloadButton.get());
+    });
+
     expect(screen.getByText('regulatory_page.download_start.sentence')).toBeInTheDocument();
   });
 
@@ -66,13 +76,9 @@ describe('RegulatoryReport tests', () => {
     handler.emptyBranches();
     renderRegulatoryReportApp();
 
-    expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
-
-    expect(screen.getByText('regulatory_page.no_available_branch')).toBeInTheDocument();
-
-    const downloadButton = screen.getByRole('link', { name: 'download_verb' });
-    expect(downloadButton).toBeInTheDocument();
-    expect(downloadButton).toHaveClass('disabled');
+    expect(await ui.page.find()).toBeInTheDocument();
+    expect(ui.noBranchAvailable.get()).toBeInTheDocument();
+    expect(ui.downloadButton.query()).not.toBeInTheDocument();
   });
 
   it('should automatically select passed branch if compatible', async () => {
@@ -80,12 +86,12 @@ describe('RegulatoryReport tests', () => {
     handler.addBranch(compatibleBranch);
     renderRegulatoryReportApp(compatibleBranch);
 
-    expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
-
-    const downloadButton = screen.getByRole<HTMLAnchorElement>('link', { name: 'download_verb' });
-    expect(downloadButton).toBeInTheDocument();
-    expect(downloadButton).not.toHaveClass('disabled');
-    expect(downloadButton.href).toContain(compatibleBranch.name);
+    expect(await ui.page.find()).toBeInTheDocument();
+    expect(ui.downloadButton.get()).toBeInTheDocument();
+    expect(ui.downloadButton.get()).toHaveAttribute(
+      'href',
+      `/api/regulatory_reports/download?project=&branch=${compatibleBranch.name}`
+    );
   });
 
   it('should automatically select main branch if present and passed branch is not compatible', async () => {
@@ -99,21 +105,15 @@ describe('RegulatoryReport tests', () => {
     handler.addBranch(notCompatibleBranch);
     renderRegulatoryReportApp(notCompatibleBranch);
 
-    expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
-
-    const downloadButton = screen.getByRole<HTMLAnchorElement>('link', { name: 'download_verb' });
-    expect(downloadButton).toBeInTheDocument();
-    expect(downloadButton).not.toHaveClass('disabled');
-    expect(downloadButton.href).toContain(mainBranch.name);
+    expect(await ui.page.find()).toBeInTheDocument();
+    expect(ui.downloadButton.get()).toBeInTheDocument();
+    expect(ui.downloadButton.get()).toHaveAttribute(
+      'href',
+      `/api/regulatory_reports/download?project=&branch=${mainBranch.name}`
+    );
   });
 });
 
 function renderRegulatoryReportApp(branchLike?: BranchLike) {
-  renderComponent(
-    <RegulatoryReport
-      component={{ key: '', name: '' }}
-      branchLike={branchLike}
-      onClose={() => {}}
-    />
-  );
+  renderComponent(<RegulatoryReport component={{ key: '', name: '' }} branchLike={branchLike} />);
 }

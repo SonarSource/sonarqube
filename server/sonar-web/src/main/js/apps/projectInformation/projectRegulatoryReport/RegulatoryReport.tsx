@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { orderBy } from 'lodash';
+import {
+  BasicSeparator,
+  DownloadButton,
+  FlagMessage,
+  FormField,
+  InputSelect,
+  SubTitle,
+} from 'design-system';
+import { isEmpty, orderBy } from 'lodash';
 import * as React from 'react';
+import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranches } from '../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../api/regulatory-report';
 import DocLink from '../../../components/common/DocLink';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
-import { ButtonLink } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
+import { LabelValueSelectOption } from '../../../components/controls/Select';
 import {
   getBranchLikeDisplayName,
   getBranchLikeKey,
@@ -39,30 +45,19 @@ import { Component } from '../../../types/types';
 interface Props {
   component: Pick<Component, 'key' | 'name'>;
   branchLike?: BranchLike;
-  onClose: () => void;
 }
 
-interface State {
-  downloadStarted: boolean;
-  selectedBranch: string;
-  branchOptions: LabelValueSelectOption[];
-}
+export default function RegulatoryReport({ component, branchLike }: Props) {
+  const [downloadStarted, setDownloadStarted] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [branchOptions, setBranchOptions] = useState<LabelValueSelectOption[]>([]);
 
-export default class RegulatoryReport extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      downloadStarted: false,
-      selectedBranch: '',
-      branchOptions: [],
-    };
-  }
+  React.useEffect(() => {
+    async function fetchBranches() {
+      try {
+        const branches = await getBranches(component.key);
 
-  componentDidMount() {
-    const { component, branchLike } = this.props;
-    getBranches(component.key)
-      .then((data) => {
-        const availableBranches = data.filter(
+        const availableBranches = branches.filter(
           (br) => br.analysisDate && (isMainBranch(br) || br.excludedFromPurge)
         );
         const mainBranch = availableBranches.find(isMainBranch);
@@ -87,105 +82,94 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
         } else if (mainBranch) {
           selectedBranch = getBranchLikeDisplayName(mainBranch);
         }
-        this.setState({ selectedBranch, branchOptions: options });
-      })
-      .catch(() => {
-        this.setState({ branchOptions: [] });
-      });
-  }
+        setSelectedBranch(selectedBranch);
+        setBranchOptions(options);
+      } catch (error) {
+        setBranchOptions([]);
+      }
+    }
 
-  onBranchSelect = (newOption: LabelValueSelectOption) => {
-    this.setState({ selectedBranch: newOption.value, downloadStarted: false });
-  };
+    fetchBranches();
+  }, [component, branchLike]);
 
-  render() {
-    const { component, onClose } = this.props;
-    const { downloadStarted, selectedBranch, branchOptions } = this.state;
-    const isDownloadButtonDisabled = downloadStarted || !selectedBranch;
+  const isDownloadButtonDisabled = downloadStarted || !selectedBranch;
 
-    return (
-      <>
-        <div className="modal-head">
-          <h2>{translate('regulatory_report.page')}</h2>
-        </div>
-        <div className="modal-body">
-          <p>{translate('regulatory_report.description1')}</p>
-          <div className="markdown">
-            <ul>
-              <li>{translate('regulatory_report.bullet_point1')}</li>
-              <li>{translate('regulatory_report.bullet_point2')}</li>
-              <li>{translate('regulatory_report.bullet_point3')}</li>
-            </ul>
+  return (
+    <>
+      <SubTitle>{translate('regulatory_report.page')}</SubTitle>
+
+      <p>{translate('regulatory_report.description1')}</p>
+      <div className="markdown">
+        <ul>
+          <li>{translate('regulatory_report.bullet_point1')}</li>
+          <li>{translate('regulatory_report.bullet_point2')}</li>
+          <li>{translate('regulatory_report.bullet_point3')}</li>
+        </ul>
+      </div>
+
+      <p className="sw-mb-4">{translate('regulatory_report.description2')}</p>
+
+      <BasicSeparator className="sw-mb-4" />
+
+      {isEmpty(branchOptions) ? (
+        <FlagMessage className="sw-mb-4" variant="warning">
+          {translate('regulatory_page.no_available_branch')}
+        </FlagMessage>
+      ) : (
+        <>
+          <div className="sw-grid sw-mb-4">
+            <FormField
+              htmlFor="regulatory-report-branch-select"
+              label={translate('regulatory_page.select_branch')}
+            >
+              <InputSelect
+                className="sw-w-abs-300"
+                inputId="regulatory-report-branch-select"
+                onChange={({ value }: LabelValueSelectOption) => {
+                  setSelectedBranch(value);
+                  setDownloadStarted(false);
+                }}
+                options={branchOptions}
+                value={branchOptions.find((o) => o.value === selectedBranch)}
+                size="full"
+              />
+            </FormField>
           </div>
-          <p>{translate('regulatory_report.description2')}</p>
-          {branchOptions.length > 0 ? (
-            <>
-              <div className="modal-field big-spacer-top">
-                <label htmlFor="regulatory-report-branch-select">
-                  {translate('regulatory_page.select_branch')}
-                </label>
-                <Select
-                  className="width-100"
-                  inputId="regulatory-report-branch-select"
-                  id="regulatory-report-branch-select-input"
-                  onChange={this.onBranchSelect}
-                  options={branchOptions}
-                  value={branchOptions.find((o) => o.value === selectedBranch)}
-                />
-              </div>
-              <Alert variant="info">
-                <div>
-                  {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
-                </div>
-                <div>
-                  <FormattedMessage
-                    id="regulatory_page.available_branches_info.more_info"
-                    defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
-                    values={{
-                      doc_link: (
-                        <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
-                          {translate('regulatory_page.available_branches_info.more_info.doc_link')}
-                        </DocLink>
-                      ),
-                    }}
-                  />
-                </div>
-              </Alert>
-            </>
-          ) : (
-            <div className="big-spacer-top">
-              <Alert variant="warning">
-                <div>{translate('regulatory_page.no_available_branch')}</div>
-              </Alert>
-            </div>
-          )}
-          <div className="modal-field big-spacer-top">
-            {downloadStarted && (
-              <div>
-                <p>{translate('regulatory_page.download_start.sentence')}</p>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="modal-foot">
-          <a
-            className={classNames('button button-primary big-spacer-right', {
-              disabled: isDownloadButtonDisabled,
-            })}
-            download={[component.name, selectedBranch, 'regulatory report.zip']
-              .filter((s) => !!s)
-              .join(' - ')}
-            onClick={() => this.setState({ downloadStarted: true })}
-            href={getRegulatoryReportUrl(component.key, selectedBranch)}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-disabled={isDownloadButtonDisabled}
-          >
-            {translate('download_verb')}
-          </a>
-          <ButtonLink onClick={onClose}>{translate('close')}</ButtonLink>
-        </div>
-      </>
-    );
-  }
+          <FlagMessage className="sw-mb-4" variant="info">
+            {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
+            <FormattedMessage
+              id="regulatory_page.available_branches_info.more_info"
+              defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
+              values={{
+                doc_link: (
+                  <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                    {translate('regulatory_page.available_branches_info.more_info.doc_link')}
+                  </DocLink>
+                ),
+              }}
+            />
+          </FlagMessage>
+        </>
+      )}
+
+      {downloadStarted && (
+        <p className="sw-mb-4">{translate('regulatory_page.download_start.sentence')}</p>
+      )}
+
+      {!isDownloadButtonDisabled && (
+        <DownloadButton
+          download={[component.name, selectedBranch, 'regulatory report.zip']
+            .filter((s) => !!s)
+            .join(' - ')}
+          onClick={() => setDownloadStarted(true)}
+          href={getRegulatoryReportUrl(component.key, selectedBranch)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={isDownloadButtonDisabled}
+        >
+          {translate('download_verb')}
+        </DownloadButton>
+      )}
+    </>
+  );
 }
