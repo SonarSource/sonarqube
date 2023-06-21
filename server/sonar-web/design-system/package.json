@@ -32,7 +32,7 @@
     "@types/react-modal": "3.16.0",
     "@types/react-virtualized": "9.21.22",
     "@typescript-eslint/parser": "5.59.11",
-    "@vitejs/plugin-react": "3.1.0",
+    "@vitejs/plugin-react": "4.0.1",
     "autoprefixer": "10.4.14",
     "eslint": "8.43.0",
     "eslint-plugin-header": "3.1.1",
