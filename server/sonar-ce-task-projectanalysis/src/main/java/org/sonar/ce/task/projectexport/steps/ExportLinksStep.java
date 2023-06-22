@@ -35,13 +35,11 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 public class ExportLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final ComponentRepository componentRepository;
   private final ProjectHolder projectHolder;
   private final DumpWriter dumpWriter;
 
-  public ExportLinksStep(DbClient dbClient, ComponentRepository componentRepository, ProjectHolder projectHolder, DumpWriter dumpWriter) {
+  public ExportLinksStep(DbClient dbClient, ProjectHolder projectHolder, DumpWriter dumpWriter) {
     this.dbClient = dbClient;
-    this.componentRepository = componentRepository;
     this.projectHolder = projectHolder;
     this.dumpWriter = dumpWriter;
   }
@@ -61,8 +59,7 @@ public class ExportLinksStep implements ComputationStep {
             .setUuid(link.getUuid())
             .setName(defaultString(link.getName()))
             .setHref(defaultString(link.getHref()))
-            .setType(defaultString(link.getType()))
-            .setComponentRef(componentRepository.getRef(link.getProjectUuid()));
+            .setType(defaultString(link.getType()));
           linksWriter.write(builder.build());
           ++count;
         }

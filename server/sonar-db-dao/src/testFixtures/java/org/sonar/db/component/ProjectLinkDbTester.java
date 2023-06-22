@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.component.ProjectLinkTesting.newCustomLinkDto;
 import static org.sonar.db.component.ProjectLinkTesting.newProvidedLinkDto;
@@ -56,4 +57,23 @@ public class ProjectLinkDbTester {
     db.commit();
     return componentLink;
   }
+
+  @SafeVarargs
+  public final ProjectLinkDto insertProvidedLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
+    return insertLink(project, newProvidedLinkDto(), dtoPopulators);
+  }
+
+  @SafeVarargs
+  public final ProjectLinkDto insertCustomLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
+    return insertLink(project, newCustomLinkDto(), dtoPopulators);
+  }
+
+  @SafeVarargs
+  private final ProjectLinkDto insertLink(ProjectDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(componentLink));
+    dbClient.projectLinkDao().insert(dbSession, componentLink.setProjectUuid(project.getUuid()));
+    db.commit();
+    return componentLink;
+  }
+
 }

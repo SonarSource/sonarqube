@@ -33,6 +33,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,16 +66,15 @@ public class ExportLinksStepIT {
   public LogTester logTester = new LogTester();
 
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private final ComponentRepository componentRepository = mock(ComponentRepository.class);
   private final ProjectHolder projectHolder = mock(ProjectHolder.class);
-  private final ExportLinksStep underTest = new ExportLinksStep(db.getDbClient(), componentRepository, projectHolder, dumpWriter);
+  private final ExportLinksStep underTest = new ExportLinksStep(db.getDbClient(), projectHolder, dumpWriter);
+  private ProjectDto project;
 
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    ComponentDto project = db.components().insertPublicProject(PROJECT).getMainBranchComponent();
-    when(projectHolder.projectDto()).thenReturn(db.components().getProjectDtoByMainBranch(project));
-    when(componentRepository.getRef(PROJECT_UUID)).thenReturn(1L);
+    project = db.components().insertPublicProject(PROJECT).getProjectDto();
+    when(projectHolder.projectDto()).thenReturn(project);
   }
 
   @Test
@@ -87,9 +87,9 @@ public class ExportLinksStepIT {
 
   @Test
   public void export_links() {
-    ProjectLinkDto link1 = db.componentLinks().insertCustomLink(PROJECT);
-    ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(PROJECT);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getMainBranchComponent());
+    ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project);
+    ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project);
+    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -103,10 +103,10 @@ public class ExportLinksStepIT {
 
   @Test
   public void throws_ISE_if_error() {
-    db.componentLinks().insertCustomLink(PROJECT);
-    db.componentLinks().insertProvidedLink(PROJECT);
-    db.componentLinks().insertProvidedLink(PROJECT);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getMainBranchComponent());
+    db.componentLinks().insertCustomLink(project);
+    db.componentLinks().insertProvidedLink(project);
+    db.componentLinks().insertProvidedLink(project);
+    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
 
     dumpWriter.failIfMoreThan(2, DumpElement.LINKS);
 
@@ -117,7 +117,7 @@ public class ExportLinksStepIT {
 
   @Test
   public void test_all_fields() {
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(PROJECT, l -> l.setName("name").setHref("href").setType("type"));
+    ProjectLinkDto link = db.componentLinks().insertCustomLink(project, l -> l.setName("name").setHref("href").setType("type"));
 
     underTest.execute(new TestComputationStepContext());
 

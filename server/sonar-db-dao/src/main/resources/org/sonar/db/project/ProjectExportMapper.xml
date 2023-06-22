@@ -36,9 +36,7 @@
         p.created_at as "createdAt",
         p.updated_at as "updatedAt"
         from project_links p
-        join components proj on proj.uuid = p.project_uuid
-        join project_branches pb on pb.uuid = proj.uuid
-        where pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+        where p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
         order by p.uuid
     </select>
 

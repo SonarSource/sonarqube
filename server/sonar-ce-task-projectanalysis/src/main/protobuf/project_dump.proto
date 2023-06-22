@@ -185,7 +185,7 @@ message Link {
   string name = 2;
   string href = 3;
   string uuid = 4;
-  int64 component_ref = 5;
+  reserved 5; //component_ref
 }
 
 message Event {
