@@ -93,7 +93,7 @@ public class NewCodeDefinitionResolver {
     dbClient.newCodePeriodDao().insert(dbSession, dto);
   }
 
-  public static void checkNewCodeDefinitionParam(String newCodeDefinitionType, String newCodeDefinitionValue) {
+  public static void checkNewCodeDefinitionParam(@Nullable String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
     if (newCodeDefinitionType == null && newCodeDefinitionValue != null) {
       throw new IllegalArgumentException("New code definition type is required when new code definition value is provided");
     }
