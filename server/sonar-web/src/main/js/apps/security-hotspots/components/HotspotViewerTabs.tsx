@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import { groupBy, omit } from 'lodash';
 import * as React from 'react';
@@ -34,18 +35,20 @@ import { HotspotHeader } from './HotspotHeader';
 
 interface Props {
   activityTabContent: React.ReactNode;
-  codeTabContent: React.ReactNode;
-  hotspot: Hotspot;
-  ruleDescriptionSections?: RuleDescriptionSection[];
-  component: Component;
   branchLike?: BranchLike;
+  codeTabContent: React.ReactNode;
+  component: Component;
+  hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  ruleDescriptionSections?: RuleDescriptionSection[];
+  ruleLanguage?: string;
   standards?: Standards;
 }
+
 interface Tab {
-  value: TabKeys;
-  label: string;
   counter?: number;
+  label: string;
+  value: TabKeys;
 }
 
 export enum TabKeys {
@@ -61,13 +64,14 @@ const STICKY_HEADER_COMPRESS_THRESHOLD = 200;
 
 export default function HotspotViewerTabs(props: Props) {
   const {
-    ruleDescriptionSections,
-    codeTabContent,
     activityTabContent,
-    hotspot,
-    component,
-    standards,
     branchLike,
+    codeTabContent,
+    component,
+    hotspot,
+    ruleDescriptionSections,
+    ruleLanguage,
+    standards,
   } = props;
 
   const { isScrolled, isCompressed, resetScrollDownCompress } = useScrollDownCompress(
@@ -119,6 +123,7 @@ export default function HotspotViewerTabs(props: Props) {
     if (isInput(event) || isShortcut(event)) {
       return true;
     }
+
     if (event.key === KeyboardKeys.LeftArrow) {
       event.preventDefault();
       selectNeighboringTab(-1);
@@ -143,6 +148,7 @@ export default function HotspotViewerTabs(props: Props) {
 
   const handleSelectTabs = (tabKey: TabKeys) => {
     const currentTab = tabs.find((tab) => tab.value === tabKey);
+
     if (currentTab) {
       setCurrentTab(currentTab);
     }
@@ -152,10 +158,12 @@ export default function HotspotViewerTabs(props: Props) {
     document.addEventListener('keydown', handleKeyboardNavigation);
 
     return () => document.removeEventListener('keydown', handleKeyboardNavigation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     setCurrentTab(tabs[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hotspot.key]);
 
   React.useEffect(() => {
@@ -163,9 +171,11 @@ export default function HotspotViewerTabs(props: Props) {
       window.scrollTo({ top: 0 });
     }
     resetScrollDownCompress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTab]);
 
   const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
+
   const rootCauseDescriptionSections =
     descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
     descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
@@ -173,13 +183,13 @@ export default function HotspotViewerTabs(props: Props) {
   return (
     <>
       <HotspotHeader
-        hotspot={hotspot}
-        component={component}
-        standards={standards}
-        onUpdateHotspot={props.onUpdateHotspot}
         branchLike={branchLike}
-        isScrolled={isScrolled}
+        component={component}
+        hotspot={hotspot}
         isCompressed={isCompressed}
+        isScrolled={isScrolled}
+        onUpdateHotspot={props.onUpdateHotspot}
+        standards={standards}
         tabs={
           <ToggleButton
             role="tablist"
@@ -198,12 +208,13 @@ export default function HotspotViewerTabs(props: Props) {
         {currentTab.value === TabKeys.Code && codeTabContent}
 
         {currentTab.value === TabKeys.RiskDescription && rootCauseDescriptionSections && (
-          <RuleDescription sections={rootCauseDescriptionSections} />
+          <RuleDescription language={ruleLanguage} sections={rootCauseDescriptionSections} />
         )}
 
         {currentTab.value === TabKeys.VulnerabilityDescription &&
           descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
             <RuleDescription
+              language={ruleLanguage}
               sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
             />
           )}
@@ -211,6 +222,7 @@ export default function HotspotViewerTabs(props: Props) {
         {currentTab.value === TabKeys.FixRecommendation &&
           descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
             <RuleDescription
+              language={ruleLanguage}
               sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             />
           )}

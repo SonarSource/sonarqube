@@ -26,7 +26,7 @@ export { Breadcrumbs } from './Breadcrumbs';
 export * from './BubbleChart';
 export * from './Card';
 export * from './Checkbox';
-export * from './CodeSnippet';
+export * from './CodeSyntaxHighlighter';
 export * from './ColorsLegend';
 export * from './CoverageIndicator';
 export * from './DatePicker';

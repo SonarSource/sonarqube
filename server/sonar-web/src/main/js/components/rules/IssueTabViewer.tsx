@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { ToggleButton } from 'design-system';
 import { cloneDeep, debounce, groupBy } from 'lodash';
@@ -84,7 +85,9 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
 
   constructor(props: IssueTabViewerProps) {
     super(props);
+
     this.educationPrinciplesRef = React.createRef();
+
     this.checkIfEducationPrinciplesAreVisible = debounce(
       this.checkIfEducationPrinciplesAreVisible,
       DEBOUNCE_FOR_SCROLL
@@ -98,6 +101,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
     const tabs = this.computeTabs(Boolean(this.state.displayEducationalPrinciplesNotification));
 
     const query = new URLSearchParams(this.props.location.search);
+
     if (query.has('why')) {
       this.setState({
         selectedTab: tabs.find((tab) => tab.key === TabKeys.WhyIsThisAnIssue) || tabs[0],
@@ -114,6 +118,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       selectedFlowIndex,
       selectedLocationIndex,
     } = this.props;
+
     const { selectedTab } = this.state;
 
     if (
@@ -163,6 +168,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       ruleDetails.educationPrinciples.length > 0 &&
       isLoggedIn &&
       !dismissedNotices[NoticeType.EDUCATION_PRINCIPLES];
+
     const tabs = this.computeTabs(displayEducationalPrinciplesNotification);
 
     return {
@@ -175,7 +181,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
       codeTabContent,
-      ruleDetails: { descriptionSections, educationPrinciples, type: ruleType },
+      ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
       ruleDescriptionContextKey,
       extendedDescription,
       activityTabContent,
@@ -214,11 +220,12 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
         content: (descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
           descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
           <RuleDescription
+            defaultContextKey={ruleDescriptionContextKey}
+            language={ruleLanguage}
             sections={
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
             }
-            defaultContextKey={ruleDescriptionContextKey}
           />
         ),
       },
@@ -228,6 +235,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
         label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
+            language={ruleLanguage}
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         ),
@@ -238,8 +246,9 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
         label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
         content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             defaultContextKey={ruleDescriptionContextKey}
+            language={ruleLanguage}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
           />
         ),
       },
@@ -257,10 +266,11 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
         content: ((educationPrinciples && educationPrinciples.length > 0) ||
           descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
-            educationPrinciples={educationPrinciples}
-            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
             displayEducationalPrinciplesNotification={displayEducationalPrinciplesNotification}
+            educationPrinciples={educationPrinciples}
             educationPrinciplesRef={this.educationPrinciplesRef}
+            language={ruleLanguage}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         ),
         counter: displayEducationalPrinciplesNotification ? 1 : undefined,
@@ -346,7 +356,8 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
           {({ top }) => (
             <div
               style={{
-                // We substract the footer height with padding (80) and the main layout padding (20) and the tabs padding (20)
+                // We substract the footer height with padding (80) and the main layout padding (20)
+                // and the tabs padding (20)
                 maxHeight: scrollInTab ? `calc(100vh - ${top + 120}px)` : 'initial',
               }}
               className="sw-flex sw-flex-col"

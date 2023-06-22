@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagMessage, HtmlFormatter, themeBorder, themeColor, ToggleButton } from 'design-system';
+import {
+  CodeSyntaxHighlighter,
+  FlagMessage,
+  HtmlFormatter,
+  ToggleButton,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
@@ -29,9 +37,10 @@ import OtherContextOption from './OtherContextOption';
 const OTHERS_KEY = 'others';
 
 interface Props {
-  sections: RuleDescriptionSection[];
-  defaultContextKey?: string;
   className?: string;
+  defaultContextKey?: string;
+  language?: string;
+  sections: RuleDescriptionSection[];
 }
 
 interface State {
@@ -102,13 +111,14 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const { contexts } = this.state;
 
     const selected = contexts.find((ctxt) => ctxt.displayName === value);
+
     if (selected) {
       this.setState({ selectedContext: selected });
     }
   };
 
   render() {
-    const { className, sections } = this.props;
+    const { className, language, sections } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
 
     const options = contexts.map((ctxt) => ({
@@ -127,6 +137,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           <h2 className="sw-body-sm-highlight sw-mb-4">
             {translate('coding_rules.description_context.title')}
           </h2>
+
           {defaultContext && (
             <FlagMessage variant="info" className="sw-mb-4">
               {translateWithParameters(
@@ -135,6 +146,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               )}
             </FlagMessage>
           )}
+
           <div className="sw-mb-4">
             <ToggleButton
               label={translate('coding_rules.description_context.title')}
@@ -142,6 +154,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               options={options}
               value={selectedContext.displayName}
             />
+
             {selectedContext.key !== OTHERS_KEY && (
               <h2>
                 {translateWithParameters(
@@ -151,12 +164,13 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               </h2>
             )}
           </div>
+
           {selectedContext.key === OTHERS_KEY ? (
             <OtherContextOption />
           ) : (
-            <div
-              /* eslint-disable-next-line react/no-danger */
-              dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
+            <CodeSyntaxHighlighter
+              htmlAsString={sanitizeString(selectedContext.content)}
+              language={language}
             />
           )}
         </StyledHtmlFormatter>
@@ -169,11 +183,12 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
         ref={(node: HTMLDivElement) => {
           applyCodeDifferences(node);
         }}
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: sanitizeString(sections[0].content),
-        }}
-      />
+      >
+        <CodeSyntaxHighlighter
+          htmlAsString={sanitizeString(sections[0].content)}
+          language={language}
+        />
+      </StyledHtmlFormatter>
     );
   }
 }

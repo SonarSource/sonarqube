@@ -17,30 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+declare module 'highlightjs-apex' {
+  import { LanguageFn } from 'highlight.js';
 
-import { uniqueId } from 'lodash';
-import { ComponentQualifier } from '../../types/component';
-import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
-
-export function mockTask(overrides: Partial<Task> = {}): Task {
-  return {
-    analysisId: 'x123',
-    componentKey: 'foo',
-    componentName: 'Foo',
-    componentQualifier: ComponentQualifier.Project,
-    id: 'AXR8jg_0mF2ZsYr8Wzs2',
-    status: TaskStatuses.Pending,
-    submittedAt: '2020-09-11T11:45:35+0200',
-    type: TaskTypes.Report,
-    ...overrides,
-  };
-}
-
-export function mockTaskWarning(overrides: Partial<TaskWarning> = {}): TaskWarning {
-  return {
-    key: uniqueId('foo'),
-    message: 'Lorem ipsum',
-    dismissable: false,
-    ...overrides,
-  };
+  const defineLanguage: LanguageFn;
+  // eslint-disable-next-line import/no-default-export
+  export default defineLanguage;
 }

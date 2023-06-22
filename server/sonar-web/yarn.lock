@@ -6173,6 +6173,9 @@ __metadata:
     eslint-plugin-local-rules: 1.3.2
     eslint-plugin-typescript-sort-keys: 2.3.0
     highlight.js: 11.7.0
+    highlightjs-apex: 1.2.0
+    highlightjs-cobol: 0.3.3
+    highlightjs-sap-abap: 0.2.0
     history: 5.3.0
     jest: 29.5.0
     postcss: 8.4.21
@@ -7874,6 +7877,30 @@ __metadata:
   version: 11.7.0
   resolution: "highlight.js@npm:11.7.0"
   checksum: 19e3fb8b56f4b361b057a8523b989dfeb6479bbd1e29cec3fac6fa5c78d09927d5fa61b7dba6631fdb57cfdca9b3084aa4da49405ceaf4a67f67beae2ed5b77d
+  languageName: node
+  linkType: hard
+
+"highlightjs-apex@npm:1.2.0":
+  version: 1.2.0
+  resolution: "highlightjs-apex@npm:1.2.0"
+  checksum: d0e1543dbdfa156c0bb6da74afcb7aaf315fe211024246917c8f967075d6c239bcd408d6a667c324ea75b928a2d8495cb1b8d160b403894aea8c9a16c293f33a
+  languageName: node
+  linkType: hard
+
+"highlightjs-cobol@npm:0.3.3":
+  version: 0.3.3
+  resolution: "highlightjs-cobol@npm:0.3.3"
+  dependencies:
+    minimist: ">=1.2.6"
+    mkdirp: ^1.0.4
+  checksum: f59a694703f883ead2fbdf262f36eab583c8bbf64649e59d5de1e13a43e43979ad9030eab69e1cb08f7558ce60ca5cfd1fe42c7a38e34fd8b0baebf06df9118d
+  languageName: node
+  linkType: hard
+
+"highlightjs-sap-abap@npm:0.2.0":
+  version: 0.2.0
+  resolution: "highlightjs-sap-abap@npm:0.2.0"
+  checksum: 685293fc2de3b333d0166f7323d38b53b70a53a462851d075484826c7ee16fa09f4c24cda44c1c957525352e112ba0a83cefe37641ee65b62e1483be93c60019
   languageName: node
   linkType: hard
 
@@ -9813,6 +9840,13 @@ __metadata:
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 7564208ef81d7065a370f788d337cd80a689e981042cb9a1d0e6580b6c6a8c9279eba80010516e258835a988363f99f54a6f711a315089b8b42694f5da9d0d77
+  languageName: node
+  linkType: hard
+
+"minimist@npm:>=1.2.6":
+  version: 1.2.8
+  resolution: "minimist@npm:1.2.8"
+  checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0
   languageName: node
   linkType: hard
 

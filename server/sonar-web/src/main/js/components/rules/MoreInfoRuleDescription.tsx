@@ -17,31 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
 import { ButtonLink } from '../controls/buttons';
 import { Alert } from '../ui/Alert';
+import RuleDescription from './RuleDescription';
 import DefenseInDepth from './educationPrinciples/DefenseInDepth';
 import NeverTrustUserInput from './educationPrinciples/NeverTrustUserInput';
-import RuleDescription from './RuleDescription';
 import './style.css';
 
 interface Props {
-  sections?: RuleDescriptionSection[];
-  educationPrinciples?: string[];
   displayEducationalPrinciplesNotification?: boolean;
+  educationPrinciples?: string[];
   educationPrinciplesRef?: React.RefObject<HTMLDivElement>;
+  language?: string;
+  sections?: RuleDescriptionSection[];
 }
 
 const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
   defense_in_depth: DefenseInDepth,
   never_trust_user_input: NeverTrustUserInput,
 };
+
 export default class MoreInfoRuleDescription extends React.PureComponent<Props, {}> {
   handleNotificationScroll = () => {
     const element = this.props.educationPrinciplesRef?.current;
+
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
     }
@@ -50,10 +54,12 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   render() {
     const {
       displayEducationalPrinciplesNotification,
+      language,
       sections = [],
       educationPrinciples = [],
       educationPrinciplesRef,
     } = this.props;
+
     return (
       <div className="padded rule-desc">
         {displayEducationalPrinciplesNotification && (
@@ -61,6 +67,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             <p className="little-spacer-bottom little-spacer-top">
               {translate('coding_rules.more_info.notification_message')}
             </p>
+
             <ButtonLink
               onClick={() => {
                 this.handleNotificationScroll();
@@ -70,10 +77,11 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             </ButtonLink>
           </Alert>
         )}
+
         {sections.length > 0 && (
           <>
             <h2>{translate('coding_rules.more_info.resources.title')}</h2>
-            <RuleDescription sections={sections} />
+            <RuleDescription language={language} sections={sections} />
           </>
         )}
 
@@ -82,11 +90,14 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             <h2 ref={educationPrinciplesRef}>
               {translate('coding_rules.more_info.education_principles.title')}
             </h2>
+
             {educationPrinciples.map((key) => {
               const Concept = EDUCATION_PRINCIPLES_MAP[key];
+
               if (Concept === undefined) {
                 return null;
               }
+
               return (
                 <div key={key} className="education-principles big-spacer-top big-padded">
                   <Concept />

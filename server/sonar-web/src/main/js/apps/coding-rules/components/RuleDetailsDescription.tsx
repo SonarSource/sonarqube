@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CodeSyntaxHighlighter } from 'design-system';
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
@@ -46,8 +48,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
   state: State = {
     description: '',
     descriptionForm: false,
-    submitting: false,
     removeDescriptionModal: false,
+    submitting: false,
   };
 
   componentDidMount() {
@@ -89,6 +91,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     }).then(
       (ruleDetails) => {
         this.props.onChange(ruleDetails);
+
         if (this.mounted) {
           this.setState({ submitting: false, descriptionForm: false });
         }
@@ -104,7 +107,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
   handleExtendDescriptionClick = () => {
     this.setState({
       // set description` to the current `mdNote` each time the form is open
-      description: this.props.ruleDetails.mdNote || '',
+      description: this.props.ruleDetails.mdNote ?? '',
       descriptionForm: true,
     });
   };
@@ -112,14 +115,13 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
   renderExtendedDescription = () => (
     <div id="coding-rules-detail-description-extra">
       {this.props.ruleDetails.htmlNote !== undefined && (
-        <div
-          className="rule-desc spacer-bottom markdown"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: sanitizeUserInput(this.props.ruleDetails.htmlNote),
-          }}
+        <CodeSyntaxHighlighter
+          className="rule-desc markdown sw-mb-2"
+          htmlAsString={sanitizeUserInput(this.props.ruleDetails.htmlNote)}
+          language={this.props.ruleDetails.lang}
         />
       )}
+
       {this.props.canWrite && (
         <Button
           id="coding-rules-detail-extend-description"
@@ -147,6 +149,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
               />
             </td>
           </tr>
+
           <tr>
             <td>
               <Button
@@ -156,6 +159,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
               >
                 {translate('save')}
               </Button>
+
               {this.props.ruleDetails.mdNote !== undefined && (
                 <>
                   <Button
@@ -174,6 +178,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
                   )}
                 </>
               )}
+
               <ResetButtonLink
                 className="spacer-left"
                 disabled={this.state.submitting}
@@ -184,6 +189,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
               </ResetButtonLink>
               {this.state.submitting && <i className="spinner spacer-left" />}
             </td>
+
             <td className="text-right">
               <FormattingTips />
             </td>
@@ -216,23 +222,24 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     return (
       <div className="js-rule-description">
         {defaultSection && (
-          <section
+          <CodeSyntaxHighlighter
             className="coding-rules-detail-description markdown"
             key={defaultSection.key}
-            /* eslint-disable-next-line react/no-danger */
-            dangerouslySetInnerHTML={{ __html: sanitizeString(defaultSection.content) }}
+            htmlAsString={sanitizeString(defaultSection.content)}
+            language={ruleDetails.lang}
           />
         )}
 
         {hasDescriptionSection && !defaultSection && (
           <>
             {introductionSection && (
-              <div
+              <CodeSyntaxHighlighter
                 className="rule-desc"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: sanitizeString(introductionSection) }}
+                htmlAsString={sanitizeString(introductionSection)}
+                language={ruleDetails.lang}
               />
             )}
+
             <RuleTabViewer ruleDetails={ruleDetails} />
           </>
         )}

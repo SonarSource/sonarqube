@@ -17,34 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+declare module 'highlightjs-sap-abap' {
+  import { LanguageFn } from 'highlight.js';
 
-import { renderWithContext } from '../../helpers/testUtils';
-import { FCProps } from '../../types/misc';
-import { Highlighter } from '../Highlighter';
-
-it('renders correctly', () => {
-  expect(setupWithProps().container).toMatchSnapshot();
-});
-
-it('should handle multiple lines of code', () => {
-  expect(
-    setupWithProps({
-      code: `foo: bar
-              pleh: help
-              stuff:
-               foo: bar
-               bar: foo`,
-      language: 'yaml',
-    }).container
-  ).toMatchSnapshot();
-});
-
-it('should display edit functions', () => {
-  expect(
-    setupWithProps({ code: 'One line command', toggleEdit: jest.fn() }).container
-  ).toMatchSnapshot();
-});
-
-function setupWithProps(props: Partial<FCProps<typeof Highlighter>> = {}) {
-  return renderWithContext(<Highlighter code="foo\nbar" {...props} />);
+  const defineLanguage: LanguageFn;
+  // eslint-disable-next-line import/no-default-export
+  export default defineLanguage;
 }

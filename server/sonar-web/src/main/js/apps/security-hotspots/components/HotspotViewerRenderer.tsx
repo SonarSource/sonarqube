@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -36,17 +37,17 @@ export interface HotspotViewerRendererProps {
   component: Component;
   currentUser: CurrentUser;
   hotspot?: Hotspot;
-  ruleDescriptionSections?: RuleDescriptionSection[];
   hotspotsReviewedMeasure?: string;
-  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
   lastStatusChangedTo?: HotspotStatusOption;
-  onCloseStatusUpdateSuccessModal: () => void;
-  showStatusUpdateSuccessModal: boolean;
-
   loading: boolean;
-  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  onCloseStatusUpdateSuccessModal: () => void;
   onLocationClick: (index: number) => void;
+  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
+  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  ruleDescriptionSections?: RuleDescriptionSection[];
+  ruleLanguage?: string;
   selectedHotspotLocation?: number;
+  showStatusUpdateSuccessModal: boolean;
   standards?: Standards;
 }
 
@@ -55,12 +56,13 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     component,
     currentUser,
     hotspot,
-    loading,
-    selectedHotspotLocation,
-    ruleDescriptionSections,
-    showStatusUpdateSuccessModal,
     hotspotsReviewedMeasure,
     lastStatusChangedTo,
+    loading,
+    ruleDescriptionSections,
+    ruleLanguage,
+    selectedHotspotLocation,
+    showStatusUpdateSuccessModal,
     standards,
   } = props;
 
@@ -89,6 +91,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                 onCommentUpdate={props.onUpdateHotspot}
               />
             }
+            branchLike={branchLike}
             codeTabContent={
               <HotspotSnippetContainer
                 branchLike={branchLike}
@@ -99,11 +102,11 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               />
             }
             component={component}
-            standards={standards}
-            onUpdateHotspot={props.onUpdateHotspot}
-            branchLike={branchLike}
             hotspot={hotspot}
+            onUpdateHotspot={props.onUpdateHotspot}
             ruleDescriptionSections={ruleDescriptionSections}
+            ruleLanguage={ruleLanguage}
+            standards={standards}
           />
         </div>
       )}

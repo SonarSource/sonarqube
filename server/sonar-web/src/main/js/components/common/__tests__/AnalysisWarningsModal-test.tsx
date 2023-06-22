@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { getTask } from '../../../api/ce';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
 import { mockCurrentUser } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({
@@ -34,48 +35,50 @@ jest.mock('../../../api/ce', () => ({
 
 beforeEach(jest.clearAllMocks);
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ warnings: [mockTaskWarning({ dismissable: true })] })).toMatchSnapshot(
-    'with dismissable warnings'
-  );
-  expect(
-    shallowRender({
+describe('should render correctly', () => {
+  it('should not show dismiss buttons for non-dismissable warnings', () => {
+    renderAnalysisWarningsModal();
+
+    expect(screen.getByText('warning 1')).toBeInTheDocument();
+    expect(screen.getByText('warning 2')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'dismiss_permanently' })).not.toBeInTheDocument();
+  });
+
+  it('should show a dismiss button for dismissable warnings', () => {
+    renderAnalysisWarningsModal({ warnings: [mockTaskWarning({ dismissable: true })] });
+
+    expect(screen.getByRole('button', { name: 'dismiss_permanently' })).toBeInTheDocument();
+  });
+
+  it('should not show dismiss buttons if not logged in', () => {
+    renderAnalysisWarningsModal({
       currentUser: mockCurrentUser({ isLoggedIn: false }),
       warnings: [mockTaskWarning({ dismissable: true })],
-    })
-  ).toMatchSnapshot('do not show dismissable links for anonymous');
+    });
+
+    expect(screen.queryByRole('button', { name: 'dismiss_permanently' })).not.toBeInTheDocument();
+  });
 });
 
 it('should not fetch task warnings if it does not have to', () => {
-  shallowRender();
+  renderAnalysisWarningsModal();
+
   expect(getTask).not.toHaveBeenCalled();
 });
 
 it('should fetch task warnings if it has to', async () => {
-  const wrapper = shallowRender({ taskId: 'abcd1234', warnings: undefined });
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  renderAnalysisWarningsModal({ taskId: 'abcd1234', warnings: undefined });
+
+  expect(screen.queryByText('message foo')).not.toBeInTheDocument();
   expect(getTask).toHaveBeenCalledWith('abcd1234', ['warnings']);
+
+  await waitFor(() => {
+    expect(screen.getByText('message foo')).toBeInTheDocument();
+  });
 });
 
-it('should correctly handle updates', async () => {
-  const wrapper = shallowRender();
-
-  await waitAndUpdate(wrapper);
-  expect(getTask).not.toHaveBeenCalled();
-
-  wrapper.setProps({ taskId: '1', warnings: undefined });
-  await waitAndUpdate(wrapper);
-  expect(getTask).toHaveBeenCalled();
-
-  (getTask as jest.Mock).mockClear();
-  wrapper.setProps({ taskId: undefined, warnings: [mockTaskWarning()] });
-  expect(getTask).not.toHaveBeenCalled();
-});
-
-function shallowRender(props: Partial<AnalysisWarningsModal['props']> = {}) {
-  return shallow<AnalysisWarningsModal>(
+function renderAnalysisWarningsModal(props: Partial<AnalysisWarningsModal['props']> = {}) {
+  return renderComponent(
     <AnalysisWarningsModal
       currentUser={mockCurrentUser({ isLoggedIn: true })}
       onClose={jest.fn()}
