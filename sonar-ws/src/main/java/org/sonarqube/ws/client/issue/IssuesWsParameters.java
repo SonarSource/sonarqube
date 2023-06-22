@@ -108,6 +108,8 @@ public class IssuesWsParameters {
 
   public static final String FACET_MODE_EFFORT = "effort";
 
+  public static final String PARAM_ORGANIZATION = "organization";
+
   private IssuesWsParameters() {
     // Utility class
   }

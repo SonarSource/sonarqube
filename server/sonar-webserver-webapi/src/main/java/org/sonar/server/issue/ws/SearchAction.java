@@ -109,6 +109,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_LEVEL;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
@@ -365,6 +366,10 @@ public class SearchAction implements IssuesWsAction {
       .setRequired(false)
       .setExampleValue("'Europe/Paris', 'Z' or '+02:00'")
       .setSince("8.6");
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true);
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -591,7 +596,8 @@ public class SearchAction implements IssuesWsAction {
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setSearchAfter(request.param(PARAM_SEARCH_AFTER))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
-      .setTimeZone(request.param(PARAM_TIMEZONE));
+      .setTimeZone(request.param(PARAM_TIMEZONE))
+      .setOrganization(request.param(PARAM_ORGANIZATION));
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {

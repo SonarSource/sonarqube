@@ -74,6 +74,8 @@ public class SearchRequest {
 
   private Integer owaspAsvsLevel;
 
+  private String organization;
+
   public SearchRequest() {
     // nothing to do here
   }
@@ -531,5 +533,14 @@ public class SearchRequest {
   public SearchRequest setOwaspAsvsLevel(@Nullable Integer owaspAsvsLevel) {
     this.owaspAsvsLevel = owaspAsvsLevel;
     return this;
+  }
+
+  public SearchRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }
