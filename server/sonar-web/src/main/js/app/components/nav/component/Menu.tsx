@@ -21,7 +21,6 @@ import {
   DisabledTabLink,
   Dropdown,
   ItemNavLink,
-  Link,
   NavBarTabLink,
   NavBarTabs,
   PopupZLevel,
@@ -354,14 +353,10 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       (isProject || isApplication) && (
-        <li className="sw-body-md sw-pb-4">
-          <Link
-            ref={(node: HTMLAnchorElement | null) => (this.projectInfoLink = node)}
-            to={{ pathname: '/project/info', search: new URLSearchParams(query).toString() }}
-          >
-            {label}
-          </Link>
-        </li>
+        <NavBarTabLink
+          to={{ pathname: '/project/information', search: new URLSearchParams(query).toString() }}
+          text={label}
+        />
       )
     );
   };

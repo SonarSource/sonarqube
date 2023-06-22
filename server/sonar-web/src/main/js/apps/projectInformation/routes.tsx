@@ -21,6 +21,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import ProjectInformationApp from './ProjectInformationApp';
 
-const routes = () => <Route path="project/info" element={<ProjectInformationApp />} />;
+const routes = () => <Route path="project/information" element={<ProjectInformationApp />} />;
 
 export default routes;
