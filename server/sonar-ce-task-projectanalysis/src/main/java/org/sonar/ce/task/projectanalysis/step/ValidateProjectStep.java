@@ -61,8 +61,6 @@ public class ValidateProjectStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Component root = treeRootHolder.getRoot();
-      String branchKey = analysisMetadataHolder.isBranch() ? analysisMetadataHolder.getBranch().getName() : null;
-      String prKey = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getBranch().getPullRequestKey() : null;
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao());
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
