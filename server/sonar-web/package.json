@@ -131,7 +131,7 @@
     "dep-check": "node scripts/validate-package-json.js"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=14"
   },
   "browser": {
     "path": "path-browserify"
