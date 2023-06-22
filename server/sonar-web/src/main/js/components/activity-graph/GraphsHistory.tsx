@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DeferredSpinner, LightLabel } from 'design-system';
 import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/system';
 import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import GraphHistory from './GraphHistory';
-import './styles.css';
 import { getSeriesMetricType, hasHistoryData, isCustomGraph } from './utils';
 
 interface Props {
@@ -73,8 +71,8 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
 
     if (loading) {
       return (
-        <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
-          <div className="text-center">
+        <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
+          <div className="sw-text-center">
             <DeferredSpinner ariaLabel={translate('loading')} loading={loading} />
           </div>
         </div>
@@ -83,28 +81,20 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
 
     if (!hasHistoryData(series)) {
       return (
-        <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
-          <div className="display-flex-center display-flex-justify-center">
-            <img
-              alt="" /* Make screen readers ignore this image; it's purely eye candy. */
-              className="spacer-right"
-              height={52}
-              src={`${getBaseUrl()}/images/activity-chart.svg`}
-            />
-            <div className="big-spacer-left big text-muted" style={{ maxWidth: 300 }}>
-              {translate(
-                isCustom
-                  ? 'project_activity.graphs.custom.no_history'
-                  : 'component_measures.no_history'
-              )}
-            </div>
-          </div>
+        <div className="sw-flex sw-items-center sw-justify-center sw-h-full">
+          <LightLabel className="sw-body-sm">
+            {translate(
+              isCustom
+                ? 'project_activity.graphs.custom.no_history'
+                : 'component_measures.no_history'
+            )}
+          </LightLabel>
         </div>
       );
     }
     const showAreas = [GraphType.coverage, GraphType.duplications].includes(graph);
     return (
-      <div className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow">
+      <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
         {this.props.graphs.map((graphSeries, idx) => {
           return (
             <GraphHistory

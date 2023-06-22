@@ -32,7 +32,6 @@ import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
 import { Metric } from '../../types/types';
 import AddGraphMetric from './AddGraphMetric';
-import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
 
 interface Props {

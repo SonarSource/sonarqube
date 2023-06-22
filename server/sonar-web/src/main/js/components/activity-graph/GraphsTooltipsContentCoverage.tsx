@@ -42,22 +42,22 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
     <>
       {addSeparator && (
         <tr>
-          <td className="activity-graph-tooltip-separator" colSpan={3}>
+          <td colSpan={3}>
             <hr />
           </td>
         </tr>
       )}
       {uncoveredValue && (
-        <tr className="activity-graph-tooltip-line">
-          <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
+        <tr className="sw-h-8">
+          <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
             {formatMeasure(uncoveredValue, MetricType.ShortInteger)}
           </td>
           <td>{translate('metric.uncovered_lines.name')}</td>
         </tr>
       )}
       {coverageValue && (
-        <tr className="activity-graph-tooltip-line">
-          <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
+        <tr className="sw-h-8">
+          <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
             {formatMeasure(coverageValue, MetricType.Percent)}
           </td>
           <td>{translate('metric.coverage.name')}</td>

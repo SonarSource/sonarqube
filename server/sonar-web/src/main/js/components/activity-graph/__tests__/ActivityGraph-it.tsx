@@ -42,7 +42,7 @@ const START_DATE = '2016-01-01T00:00:00+0200';
 describe('rendering', () => {
   it('should render correctly when loading', async () => {
     renderActivityGraph({ loading: true });
-    expect(await screen.findByText('loading')).toBeInTheDocument();
+    expect(await screen.findByLabelText('loading')).toBeInTheDocument();
   });
 
   it('should show the correct legend items', async () => {

@@ -30,7 +30,7 @@ export interface GraphsLegendStaticProps {
 
 export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) {
   return (
-    <ul className="activity-graph-legends">
+    <ul className="activity-graph-legends sw-flex sw-justify-center sw-items-center sw-pb-4">
       {series.map((serie, idx) => (
         <li key={serie.name}>
           <GraphsLegendItem

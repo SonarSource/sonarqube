@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import styled from '@emotion/styled';
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { AdvancedTimeline } from '../../components/charts/AdvancedTimeline';
@@ -25,7 +26,6 @@ import { translate } from '../../helpers/l10n';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import ModalButton from '../controls/ModalButton';
-import { Button } from '../controls/buttons';
 import DataTableModal from './DataTableModal';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
@@ -104,19 +104,14 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
     const events = getAnalysisEventsForDate(analyses, selectedDate);
 
     return (
-      <div
-        className={
-          'activity-graph-container flex-grow display-flex-column display-flex-stretch ' +
-          'display-flex-justify-center'
-        }
-      >
+      <StyledGraphContainer className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2">
         {isCustom && this.props.removeCustomMetric ? (
           <GraphsLegendCustom removeMetric={this.props.removeCustomMetric} series={series} />
         ) : (
           <GraphsLegendStatic series={series} />
         )}
 
-        <div className="flex-1">
+        <div className="sw-flex-1">
           <AutoSizer>
             {({ height, width }) => (
               <div>
@@ -158,13 +153,17 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
         {canShowDataAsTable && (
           <ModalButton modal={modalProp}>
             {({ onClick }) => (
-              <Button className="a11y-hidden" onClick={onClick}>
+              <ButtonSecondary className="a11y-hidden" onClick={onClick}>
                 {translate('project_activity.graphs.open_in_table')}
-              </Button>
+              </ButtonSecondary>
             )}
           </ModalButton>
         )}
-      </div>
+      </StyledGraphContainer>
     );
   }
 }
+
+const StyledGraphContainer = styled.div`
+  height: 300px;
+`;

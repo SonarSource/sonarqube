@@ -97,7 +97,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
                     </StandoutLink>
                   </ClickEventBoundary>
                 </div>
-                <div className="sw-shrink sw-flex">
+                <div className="sw-shrink sw-flex sw-ml-2">
                   <div className="sw-items-top">
                     <QualityGateIndicator status={event.qualityGate.status} size="sm" />
                   </div>

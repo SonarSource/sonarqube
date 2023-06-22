@@ -47,13 +47,13 @@ export default function GraphsTooltipsContentDuplication(
     <>
       {addSeparator && (
         <tr>
-          <td className="activity-graph-tooltip-separator" colSpan={3}>
+          <td colSpan={3}>
             <hr />
           </td>
         </tr>
       )}
-      <tr className="activity-graph-tooltip-line">
-        <td className="activity-graph-tooltip-value text-right spacer-right thin" colSpan={2}>
+      <tr className="sw-h-8">
+        <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>
           {formatMeasure(duplicationDensityValue, MetricType.Percent)}
         </td>
         <td>{translate('metric.duplicated_lines_density.name')}</td>

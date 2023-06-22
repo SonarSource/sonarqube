@@ -25,6 +25,7 @@ import { translate } from '../helpers/l10n';
 import { themeColor } from '../helpers/theme';
 
 interface Props {
+  ariaLabel?: string;
   children?: React.ReactNode;
   className?: string;
   customSpinner?: JSX.Element;
@@ -77,12 +78,12 @@ export class DeferredSpinner extends React.PureComponent<Props, State> {
 
   render() {
     const { showSpinner } = this.state;
-    const { customSpinner, className, children, placeholder } = this.props;
+    const { customSpinner, className, children, placeholder, ariaLabel } = this.props;
     if (showSpinner) {
       if (customSpinner) {
         return customSpinner;
       }
-      return <Spinner className={className} role="status" />;
+      return <Spinner aria-label={ariaLabel} className={className} role="status" />;
     }
     if (children) {
       return children;

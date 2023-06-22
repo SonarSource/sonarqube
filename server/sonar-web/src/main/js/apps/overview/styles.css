@@ -142,7 +142,7 @@
  */
 
 .overview-panel .activity-graph-legends {
-  justify-content: right;
+  justify-content: right !important;
   margin-top: -38px;
 }
 
@@ -175,9 +175,4 @@
 
 .overview-analysis-event + .overview-analysis-event {
   margin-top: 4px;
-}
-
-.activity-graph-container {
-  height: 300px;
-  padding-bottom: 0;
 }

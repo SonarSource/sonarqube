@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { Badge, DeferredSpinner, themeColor } from 'design-system';
+import { Badge, DeferredSpinner, LightLabel, themeColor } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -108,7 +108,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
               <DeferredSpinner />
             </div>
           ) : (
-            <div className="sw-p-4 sw-body-sm">{translate('no_results')}</div>
+            <div className="sw-p-4 sw-body-sm">
+              <LightLabel>{translate('no_results')}</LightLabel>
+            </div>
           )}
         </div>
       );
@@ -116,9 +118,10 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <ul
-        className="it__project-activity-versions-list sw-box-border sw-max-w-abs-400 sw-overflow-auto sw-grow sw-shrink-0 sw-py-0 sw-px-4"
+        className="it__project-activity-versions-list sw-box-border sw-overflow-auto sw-grow sw-shrink-0 sw-py-0 sw-px-4"
         ref={(element) => (this.scrollContainer = element)}
         style={{
+          height: 'calc(100vh - 250px)',
           marginTop:
             this.props.project.qualifier === ComponentQualifier.Project
               ? LIST_MARGIN_TOP
@@ -136,7 +139,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
               {version.version && (
                 <VersionTagStyled
                   className={classNames(
-                    'sw-sticky sw-top-0 sw-left-0 sw-pb-1 -sw-ml-4 sw-pt-3 sw-z-normal',
+                    'sw-sticky sw-top-0 sw-left-0 sw-pb-1 -sw-ml-4 sw-z-normal',
                     {
                       'sw-top-0 sw-pt-0': idx === 0,
                     }

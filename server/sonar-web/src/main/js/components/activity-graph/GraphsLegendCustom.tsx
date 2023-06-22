@@ -35,7 +35,7 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
   const { series } = props;
 
   return (
-    <ul className="activity-graph-legends">
+    <ul className="activity-graph-legends sw-flex sw-justify-center sw-items-center sw-pb-4">
       {series.map((serie, idx) => {
         const hasData = hasDataValues(serie);
 

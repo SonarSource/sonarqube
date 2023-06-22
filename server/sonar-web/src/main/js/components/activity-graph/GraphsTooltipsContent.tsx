@@ -30,11 +30,11 @@ interface Props {
 
 export default function GraphsTooltipsContent({ name, index, translatedName, value }: Props) {
   return (
-    <tr className="activity-graph-tooltip-line" key={name}>
+    <tr className="sw-h-8" key={name}>
       <td className="thin">
         <ChartLegendIcon className="spacer-right" index={index} />
       </td>
-      <td className="activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
+      <td className="sw-font-bold sw-text-right sw-pr-2 thin">{value}</td>
       <td>{translatedName}</td>
     </tr>
   );

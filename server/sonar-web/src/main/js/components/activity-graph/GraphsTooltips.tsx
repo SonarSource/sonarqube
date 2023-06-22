@@ -112,12 +112,12 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
 
     return (
       <Popup
-        className="disabled-pointer-events"
+        className="sw-pointer-events-none"
         noArrow
         placement={placement}
         style={{ top, left, width: TOOLTIP_WIDTH }}
       >
-        <div className="activity-graph-tooltip">
+        <div className="sw-p-2">
           <div
             className="sw-body-md-highlight sw-whitespace-nowrap"
             style={{ color: themeColor('selectionCardHeader')({ theme }) }}
@@ -131,7 +131,7 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
             <tbody>
               {addSeparator && (
                 <tr>
-                  <td className="activity-graph-tooltip-separator" colSpan={3}>
+                  <td colSpan={3}>
                     <hr />
                   </td>
                 </tr>

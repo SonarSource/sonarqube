@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FlagMessage, Modal } from 'design-system';
 import { filter, slice, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { ParsedAnalysis, Serie } from '../../types/project-activity';
-import Modal from '../controls/Modal';
-import { Button } from '../controls/buttons';
 import DateFormatter from '../intl/DateFormatter';
 import TimeFormatter from '../intl/TimeFormatter';
-import { Alert } from '../ui/Alert';
 import EventInner from './EventInner';
 import { getAnalysisEventsForDate } from './utils';
 
@@ -49,9 +48,9 @@ export default function DataTableModal(props: DataTableModalProps) {
   if (series.length === 0) {
     return renderModal(
       props,
-      <Alert variant="info">
+      <FlagMessage variant="warning">
         {translate('project_activity.graphs.data_table.no_data_warning')}
-      </Alert>
+      </FlagMessage>
     );
   }
 
@@ -93,21 +92,21 @@ export default function DataTableModal(props: DataTableModalProps) {
     MAX_DATA_TABLE_ROWS
   ).map(({ date, ...values }) => (
     <tr key={date.getTime()}>
-      <td className="nowrap">
+      <td className="sw-whitespace-nowrap">
         <DateFormatter long date={date} />
-        <div className="small note">
+        <div className="sw-text-xs">
           <TimeFormatter date={date} />
         </div>
       </td>
       {metrics.map((metric) => (
-        <td key={metric} className="thin nowrap">
+        <td key={metric} className="sw-whitespace-nowrap sw-w-20">
           {values[metric] ?? '-'}
         </td>
       ))}
       <td>
         <ul>
           {getAnalysisEventsForDate(analyses, date).map((event) => (
-            <li className="little-spacer-bottom" key={event.key}>
+            <li className="sw-mb-1" key={event.key}>
               <EventInner event={event} readonly />
             </li>
           ))}
@@ -131,7 +130,7 @@ export default function DataTableModal(props: DataTableModalProps) {
     }
     return renderModal(
       props,
-      <Alert variant="info">
+      <FlagMessage variant="warning">
         <FormattedMessage
           defaultMessage={translate(
             `project_activity.graphs.data_table.no_data_warning_check_dates${suffix}`
@@ -139,7 +138,7 @@ export default function DataTableModal(props: DataTableModalProps) {
           id={`project_activity.graphs.data_table.no_data_warning_check_dates${suffix}`}
           values={{ start, end }}
         />
-      </Alert>
+      </FlagMessage>
     );
   }
 
@@ -147,19 +146,19 @@ export default function DataTableModal(props: DataTableModalProps) {
     props,
     <>
       {rowCount === MAX_DATA_TABLE_ROWS && (
-        <Alert variant="info">
+        <FlagMessage variant="warning">
           {translateWithParameters(
             'project_activity.graphs.data_table.max_lines_warning',
             MAX_DATA_TABLE_ROWS
           )}
-        </Alert>
+        </FlagMessage>
       )}
-      <table className="spacer-top data zebra">
+      <StyledTable className="sw-mt-2">
         <thead>
           <tr>
             <th>{translate('date')}</th>
             {series.map((serie) => (
-              <th key={serie.name} className="thin nowrap">
+              <th key={serie.name} className="sw-whitespace-nowrap sw-w-20">
                 {serie.translatedName}
               </th>
             ))}
@@ -167,7 +166,7 @@ export default function DataTableModal(props: DataTableModalProps) {
           </tr>
         </thead>
         <tbody>{rows}</tbody>
-      </table>
+      </StyledTable>
     </>
   );
 }
@@ -175,14 +174,47 @@ export default function DataTableModal(props: DataTableModalProps) {
 function renderModal(props: DataTableModalProps, children: React.ReactNode) {
   const heading = translate('project_activity.graphs.data_table.title');
   return (
-    <Modal onRequestClose={props.onClose} contentLabel={heading} size="medium">
-      <div className="modal-head">
-        <h2>{heading}</h2>
-      </div>
-      <div className="modal-body modal-container">{children}</div>
-      <div className="modal-foot">
-        <Button onClick={props.onClose}>{translate('close')}</Button>
-      </div>
-    </Modal>
+    <Modal
+      headerTitle={heading}
+      isLarge
+      onClose={props.onClose}
+      body={children}
+      primaryButton={null}
+      secondaryButtonLabel={translate('close')}
+    />
   );
 }
+
+const StyledTable = styled.table`
+  width: 100%;
+  & > thead > tr > th {
+    position: relative;
+    vertical-align: top;
+    line-height: 18px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--barBorderColor);
+    font-weight: 600;
+  }
+
+  & > thead > tr > th > .small {
+    display: block;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  & > tfoot > tr > td {
+    font-size: 93%;
+    color: var(--secondFontColor);
+    padding: 5px;
+  }
+
+  & > tbody > tr > td {
+    position: relative;
+    padding: 8px 10px;
+    line-height: 16px;
+  }
+
+  & > tbody > tr > td.text-middle {
+    vertical-align: middle;
+  }
+`;

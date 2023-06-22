@@ -43,6 +43,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/security_hotspots',
   '/component_measures',
   '/project/issues',
+  '/project/activity',
   '/code',
 ];
 

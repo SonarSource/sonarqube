@@ -24,7 +24,6 @@ import { keyBy, times } from 'lodash';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { Route } from 'react-router-dom';
-import selectEvent from 'react-select-event';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import { parseDate } from '../../../../helpers/dates';

@@ -203,10 +203,10 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     const { graphEndDate, graphStartDate, series } = this.state;
 
     return (
-      <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
+      <div className="sw-px-5 sw-py-4 sw-h-full sw-flex sw-flex-col sw-box-border">
         <GraphsHeader
           onAddCustomMetric={this.handleAddCustomMetric}
-          className="big-spacer-bottom"
+          className="sw-mb-4"
           graph={query.graph}
           metrics={metrics}
           metricsTypeFilter={this.getMetricsTypeFilter()}
