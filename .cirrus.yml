@@ -193,8 +193,8 @@ cache_dependencies_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 7.5
-    memory: 8Gb
+    cpu: 2
+    memory: 4Gb
   script:
     - ./private/cirrus/cirrus-cache-dependencies.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
