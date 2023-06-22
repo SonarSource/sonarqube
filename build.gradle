@@ -392,7 +392,7 @@ subprojects {
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.0.2.275'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.42.0.312'
-      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.29.0.1000'
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.30.0.1030'
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
