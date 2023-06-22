@@ -52,7 +52,7 @@ public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDt
   public String toString() {
     return new ToStringBuilder(this)
       .append("uuid", uuid)
-      .append("componentUuid", componentUuid)
+      .append("projectUuid", projectUuid)
       .append("name", name)
       .append("success", success)
       .append("httpStatus", httpStatus)

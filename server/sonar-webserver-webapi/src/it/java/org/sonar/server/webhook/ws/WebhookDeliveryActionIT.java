@@ -23,11 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -50,18 +49,18 @@ public class WebhookDeliveryActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private DbClient dbClient = db.getDbClient();
   private WsActionTester ws;
-  private ComponentDto project;
+  private ProjectDto project;
 
   @Before
   public void setUp() {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveryAction underTest = new WebhookDeliveryAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertPrivateProject(c -> c.setKey("my-project")).getMainBranchComponent();
+    project = db.components().insertPrivateProject(c -> c.setKey("my-project")).getProjectDto();
   }
 
   @Test
@@ -96,7 +95,7 @@ public class WebhookDeliveryActionIT {
   public void load_the_delivery_of_example() {
     WebhookDeliveryDto dto = newDto()
       .setUuid("d1")
-      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setCeTaskUuid("task-1")
       .setName("Jenkins")
       .setUrl("http://jenkins")
@@ -120,7 +119,7 @@ public class WebhookDeliveryActionIT {
   @Test
   public void return_delivery_that_failed_to_be_sent() {
     WebhookDeliveryDto dto = newDto()
-      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setSuccess(false)
       .setHttpStatus(null)
       .setErrorStacktrace("IOException -> can not connect");
@@ -140,7 +139,7 @@ public class WebhookDeliveryActionIT {
   @Test
   public void return_delivery_with_none_of_optional_fields() {
     WebhookDeliveryDto dto = newDto()
-      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setCeTaskUuid(null)
       .setHttpStatus(null)
       .setErrorStacktrace(null)
@@ -162,7 +161,7 @@ public class WebhookDeliveryActionIT {
   @Test
   public void throw_ForbiddenException_if_not_admin_of_project() {
     WebhookDeliveryDto dto = newDto()
-      .setComponentUuid(project.uuid());
+      .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);

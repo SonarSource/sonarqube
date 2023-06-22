@@ -28,8 +28,8 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
   protected String uuid;
   /** Technical unique identifier, can be null for migration */
   protected String webhookUuid;
-  /** Component UUID, can't be null */
-  protected String componentUuid;
+  /** Project UUID, can't be null */
+  protected String projectUuid;
   /** Compute Engine task UUID, can be null */
   protected String ceTaskUuid;
   /** analysis UUID, can be null */
@@ -64,12 +64,12 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
     return (T) this;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public T setComponentUuid(String s) {
-    this.componentUuid = s;
+  public T setProjectUuid(String s) {
+    this.projectUuid = s;
     return (T) this;
   }
 
@@ -153,7 +153,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
   public String toString() {
     return new ToStringBuilder(this)
       .append("uuid", uuid)
-      .append("componentUuid", componentUuid)
+      .append("componentUuid", projectUuid)
       .append("ceTaskUuid", ceTaskUuid)
       .append("name", name)
       .append("success", success)

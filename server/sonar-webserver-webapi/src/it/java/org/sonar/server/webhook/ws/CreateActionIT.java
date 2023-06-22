@@ -62,7 +62,7 @@ public class CreateActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = create();
+  public DbTester db = create(true);
   private final DbClient dbClient = db.getDbClient();
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentDbTester componentDbTester = db.components();
@@ -96,7 +96,7 @@ public class CreateActionIT {
   @Test
   public void create_a_webhook_with_400_length_project_key() {
     String longProjectKey = generateStringWithLength(400);
-    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey)).getMainBranchComponent();
+    ProjectDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey)).getProjectDto();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -158,7 +158,7 @@ public class CreateActionIT {
 
   @Test
   public void create_a_webhook_on_project() {
-    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 

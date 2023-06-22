@@ -58,7 +58,7 @@ public class UpdateActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = create();
+  public DbTester db = create(true);
   private final DbClient dbClient = db.getDbClient();
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentDbTester componentDbTester = db.components();

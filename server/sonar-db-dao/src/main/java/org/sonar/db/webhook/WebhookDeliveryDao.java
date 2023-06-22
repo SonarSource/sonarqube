@@ -46,15 +46,15 @@ public class WebhookDeliveryDao implements Dao {
     return mapper(dbSession).selectByWebhookUuid(webhookUuid, new RowBounds(offset, limit));
   }
 
-  public int countDeliveriesByComponentUuid(DbSession dbSession, String componentUuid) {
-    return mapper(dbSession).countByComponentUuid(componentUuid);
+  public int countDeliveriesByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).countByProjectUuid(projectUuid);
   }
 
   /**
-   * All the deliveries for the specified component. Results are ordered by descending date.
+   * All the deliveries for the specified project. Results are ordered by descending date.
    */
-  public List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(DbSession dbSession, String componentUuid, int offset, int limit) {
-    return mapper(dbSession).selectOrderedByComponentUuid(componentUuid, new RowBounds(offset, limit));
+  public List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(DbSession dbSession, String projectUuid, int offset, int limit) {
+    return mapper(dbSession).selectOrderedByProjectUuid(projectUuid, new RowBounds(offset, limit));
   }
 
   public int countDeliveriesByCeTaskUuid(DbSession dbSession, String ceTaskId) {
@@ -72,8 +72,8 @@ public class WebhookDeliveryDao implements Dao {
     mapper(dbSession).insert(dto);
   }
 
-  public void deleteComponentBeforeDate(DbSession dbSession, String componentUuid, long beforeDate) {
-    mapper(dbSession).deleteComponentBeforeDate(componentUuid, beforeDate);
+  public void deleteProjectBeforeDate(DbSession dbSession, String projectUuid, long beforeDate) {
+    mapper(dbSession).deleteProjectBeforeDate(projectUuid, beforeDate);
   }
 
   public Map<String, WebhookDeliveryLiteDto> selectLatestDeliveries(DbSession dbSession, List<WebhookDto> webhooks) {

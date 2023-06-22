@@ -64,7 +64,7 @@ public class WebhookDeliveryStorageIT {
     WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
     assertThat(dto.getUuid()).isEqualTo(DELIVERY_UUID);
     assertThat(dto.getWebhookUuid()).isEqualTo("WEBHOOK_UUID_1");
-    assertThat(dto.getComponentUuid()).isEqualTo(delivery.getWebhook().getComponentUuid());
+    assertThat(dto.getProjectUuid()).isEqualTo(delivery.getWebhook().getProjectUuid());
     assertThat(dto.getCeTaskUuid()).isEqualTo(delivery.getWebhook().getCeTaskUuid().get());
     assertThat(dto.getName()).isEqualTo(delivery.getWebhook().getName());
     assertThat(dto.getUrl()).isEqualTo(delivery.getWebhook().getUrl());
@@ -128,7 +128,7 @@ public class WebhookDeliveryStorageIT {
   private static WebhookDeliveryDto newDto(String uuid, String componentUuid, long at) {
     return WebhookDeliveryTesting.newDto()
       .setUuid(uuid)
-      .setComponentUuid(componentUuid)
+      .setProjectUuid(componentUuid)
       .setCreatedAt(at);
   }
 }

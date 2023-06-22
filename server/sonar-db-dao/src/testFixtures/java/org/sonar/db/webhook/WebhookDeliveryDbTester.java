@@ -54,7 +54,7 @@ public class WebhookDeliveryDbTester {
     WebhookDeliveryDto dto = newDto();
     stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
     String projectUuid = webhook.getProjectUuid();
-    dto.setComponentUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
+    dto.setProjectUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
     dto.setWebhookUuid(webhook.getUuid());
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebhookDaoIT {
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = System2.INSTANCE;
   private final DbClient dbClient = dbTester.getDbClient();

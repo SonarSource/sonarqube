@@ -39,11 +39,11 @@ public class WebhookDeliveryTesting {
    * Build a {@link WebhookDeliveryDto} with all mandatory fields.
    * Optional fields are kept null.
    */
-  public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String componentUuid, String ceTaskUuid) {
+  public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String projectUuid, String ceTaskUuid) {
     return newDto()
       .setUuid(uuid)
       .setWebhookUuid(webhookUuid)
-      .setComponentUuid(componentUuid)
+      .setProjectUuid(projectUuid)
       .setCeTaskUuid(ceTaskUuid);
   }
 
@@ -51,7 +51,7 @@ public class WebhookDeliveryTesting {
     return new WebhookDeliveryDto()
       .setUuid(Uuids.createFast())
       .setWebhookUuid(randomAlphanumeric(40))
-      .setComponentUuid(randomAlphanumeric(40))
+      .setProjectUuid(randomAlphanumeric(40))
       .setCeTaskUuid(randomAlphanumeric(40))
       .setAnalysisUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(10))

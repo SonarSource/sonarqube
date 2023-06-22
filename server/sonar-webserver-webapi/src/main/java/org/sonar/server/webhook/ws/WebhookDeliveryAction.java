@@ -81,7 +81,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WebhookDeliveryDto delivery = dbClient.webhookDeliveryDao().selectByUuid(dbSession, deliveryUuid)
         .orElseThrow(() -> new NotFoundException("Webhook delivery not found"));
-      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.getComponentUuid());
+      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.getProjectUuid());
       return new Data(project, delivery);
     }
   }

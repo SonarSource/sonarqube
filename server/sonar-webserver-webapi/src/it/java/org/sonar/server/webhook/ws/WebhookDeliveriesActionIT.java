@@ -27,7 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
@@ -51,22 +51,22 @@ public class WebhookDeliveriesActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = db.getDbClient();
   private WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
 
   private WsActionTester ws;
-  private ComponentDto project;
-  private ComponentDto otherProject;
+  private ProjectDto project;
+  private ProjectDto otherProject;
 
   @Before
   public void setUp() {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertPrivateProject(c -> c.setKey("my-project")).getMainBranchComponent();
-    otherProject = db.components().insertPrivateProject(c -> c.setKey("other-project")).getMainBranchComponent();
+    project = db.components().insertPrivateProject(c -> c.setKey("my-project")).getProjectDto();
+    otherProject = db.components().insertPrivateProject(c -> c.setKey("other-project")).getProjectDto();
   }
 
   @Test
@@ -121,7 +121,7 @@ public class WebhookDeliveriesActionIT {
   public void search_by_component_and_return_records_of_example() {
     WebhookDeliveryDto dto = newDto()
       .setUuid("d1")
-      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setCeTaskUuid("task-1")
       .setName("Jenkins")
       .setUrl("http://jenkins")
@@ -143,9 +143,9 @@ public class WebhookDeliveriesActionIT {
 
   @Test
   public void search_by_task_and_return_records() {
-    WebhookDeliveryDto dto1 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
-    WebhookDeliveryDto dto2 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
-    WebhookDeliveryDto dto3 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2");
+    WebhookDeliveryDto dto1 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1");
+    WebhookDeliveryDto dto2 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1");
+    WebhookDeliveryDto dto3 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t2");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
@@ -161,12 +161,12 @@ public class WebhookDeliveriesActionIT {
 
   @Test
   public void search_by_webhook_and_return_records() {
-    WebhookDeliveryDto dto1 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
-    WebhookDeliveryDto dto2 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
-    WebhookDeliveryDto dto3 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
+    WebhookDeliveryDto dto1 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto2 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto3 = newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
 
-    WebhookDeliveryDto dto4 = newDto().setComponentUuid(otherProject.uuid()).setCeTaskUuid("t4").setWebhookUuid("wh-1-uuid");
-    WebhookDeliveryDto dto5 = newDto().setComponentUuid(otherProject.uuid()).setCeTaskUuid("t5").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto4 = newDto().setProjectUuid(otherProject.getUuid()).setCeTaskUuid("t4").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto5 = newDto().setProjectUuid(otherProject.getUuid()).setCeTaskUuid("t5").setWebhookUuid("wh-1-uuid");
 
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
@@ -194,7 +194,7 @@ public class WebhookDeliveriesActionIT {
   public void validate_default_pagination() {
 
     for (int i = 0; i < 15; i++) {
-      webhookDeliveryDbTester.insert(newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
+      webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -211,7 +211,7 @@ public class WebhookDeliveriesActionIT {
   public void validate_pagination_first_page() {
 
     for (int i = 0; i < 12; i++) {
-      webhookDeliveryDbTester.insert(newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
+      webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -231,7 +231,7 @@ public class WebhookDeliveriesActionIT {
   public void validate_pagination_last_page() {
 
     for (int i = 0; i < 12; i++) {
-      webhookDeliveryDbTester.insert(newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
+      webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -250,7 +250,7 @@ public class WebhookDeliveriesActionIT {
   @Test
   public void search_by_component_and_throw_ForbiddenException_if_not_admin_of_project() {
     WebhookDeliveryDto dto = newDto()
-      .setComponentUuid(project.uuid());
+      .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -265,7 +265,7 @@ public class WebhookDeliveriesActionIT {
   @Test
   public void search_by_task_and_throw_ForbiddenException_if_not_admin_of_project() {
     WebhookDeliveryDto dto = newDto()
-      .setComponentUuid(project.uuid());
+      .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);

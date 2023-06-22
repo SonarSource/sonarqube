@@ -570,7 +570,7 @@
   </delete>
 
   <delete id="deleteWebhookDeliveriesByProjectUuid">
-    delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
+    delete from webhook_deliveries where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProjectAlmSettingsByProjectUuid">

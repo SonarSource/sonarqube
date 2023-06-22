@@ -127,8 +127,8 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
         ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
         projectUuidMap = new HashMap<>();
         projectUuidMap.put(project.getUuid(), project);
-        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, project.getUuid());
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, project.getUuid(), offset(page, pageSize), pageSize);
+        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByProjectUuid(dbSession, project.getUuid());
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByProjectUuid(dbSession, project.getUuid(), offset(page, pageSize), pageSize);
       } else {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, offset(page, pageSize), pageSize);
@@ -141,7 +141,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
   private Map<String, ProjectDto> getProjectsDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
     Map<String, String> deliveredComponentUuid = deliveries
       .stream()
-      .collect(Collectors.toMap(WebhookDeliveryLiteDto::getUuid, WebhookDeliveryLiteDto::getComponentUuid));
+      .collect(Collectors.toMap(WebhookDeliveryLiteDto::getUuid, WebhookDeliveryLiteDto::getProjectUuid));
 
     if (!deliveredComponentUuid.isEmpty()) {
       return dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(deliveredComponentUuid.values()))
@@ -183,7 +183,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       Webhooks.DeliveriesWsResponse.Builder responseBuilder = Webhooks.DeliveriesWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
       for (WebhookDeliveryLiteDto dto : deliveryDtos) {
-        ProjectDto project = projectUuidMap.get(dto.getComponentUuid());
+        ProjectDto project = projectUuidMap.get(dto.getProjectUuid());
         copyDtoToProtobuf(project, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }

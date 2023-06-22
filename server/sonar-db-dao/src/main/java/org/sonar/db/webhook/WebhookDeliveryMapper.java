@@ -33,9 +33,9 @@ public interface WebhookDeliveryMapper {
 
   List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, RowBounds rowBounds);
 
-  int countByComponentUuid(@Param("componentUuid") String componentUuid);
+  int countByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(@Param("projectUuid") String projectUuid, RowBounds rowBounds);
 
   int countByCeTaskUuid(@Param("ceTaskUuid") String ceTaskId);
 
@@ -43,7 +43,7 @@ public interface WebhookDeliveryMapper {
 
   void insert(WebhookDeliveryDto dto);
 
-  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
+  void deleteProjectBeforeDate(@Param("projectUuid") String projectUuid, @Param("beforeDate") long beforeDate);
 
   void deleteByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 }

@@ -1446,8 +1446,8 @@ public class PurgeDaoIT {
   @Test
   public void deleteProject_deletes_webhook_deliveries() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
-    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid("P2").setUuid("D2").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setProjectUuid(project.uuid()).setUuid("D1").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setProjectUuid("P2").setUuid("D2").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
 
     underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 
