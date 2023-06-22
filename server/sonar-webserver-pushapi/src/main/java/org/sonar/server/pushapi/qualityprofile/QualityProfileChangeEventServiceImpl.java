@@ -289,7 +289,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   private Set<String> getQualityProfileAssociatedProjectUuids(DbSession dbSession, QProfileDto profile) {
-    List<ProjectQprofileAssociationDto> associations = dbClient.qualityProfileDao().selectSelectedProjects(dbSession, profile, null);
+    List<ProjectQprofileAssociationDto> associations = dbClient.qualityProfileDao().selectSelectedProjects(dbSession, null, profile, null);
 
     return associations
       .stream()

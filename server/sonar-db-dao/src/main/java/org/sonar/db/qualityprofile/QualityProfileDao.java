@@ -239,19 +239,19 @@ public class QualityProfileDao implements Dao {
     DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteProjectAssociationByProfileUuids);
   }
 
-  public List<ProjectQprofileAssociationDto> selectSelectedProjects(DbSession dbSession, QProfileDto profile, @Nullable String query) {
+  public List<ProjectQprofileAssociationDto> selectSelectedProjects(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(dbSession).selectSelectedProjects(profile.getKee(), nameQuery);
+    return mapper(dbSession).selectSelectedProjects(organization != null ? organization.getUuid() : null, profile.getKee(), nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(DbSession dbSession, QProfileDto profile, @Nullable String query) {
+  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(dbSession).selectDeselectedProjects(profile.getKee(), nameQuery);
+    return mapper(dbSession).selectDeselectedProjects(organization != null ? organization.getUuid() : null, profile.getKee(), nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectProjectAssociations(DbSession dbSession, QProfileDto profile, @Nullable String query) {
+  public List<ProjectQprofileAssociationDto> selectProjectAssociations(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(dbSession).selectProjectAssociations(profile.getKee(), nameQuery);
+    return mapper(dbSession).selectProjectAssociations(organization != null ? organization.getUuid() : null, profile.getKee(), nameQuery);
   }
 
   public Collection<String> selectUuidsOfCustomRulesProfiles(DbSession dbSession, String language, String name) {

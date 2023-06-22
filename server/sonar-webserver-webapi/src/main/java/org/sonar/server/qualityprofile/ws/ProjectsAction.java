@@ -35,6 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,10 +52,12 @@ public class ProjectsAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public ProjectsAction(DbClient dbClient, UserSession userSession) {
+  public ProjectsAction(DbClient dbClient, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -121,6 +124,7 @@ public class ProjectsAction implements QProfileWsAction {
 
   private List<ProjectQprofileAssociationDto> loadAllProjects(String profileKey, DbSession session, String selected, String query) {
     QProfileDto profile = dbClient.qualityProfileDao().selectByUuid(session, profileKey);
+    OrganizationDto organization = qProfileWsSupport.getOrganization(session, profile);
     if (profile == null) {
       throw new NotFoundException("Quality profile not found: " + profileKey);
     }
@@ -128,11 +132,11 @@ public class ProjectsAction implements QProfileWsAction {
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
 
     if (SelectionMode.SELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectSelectedProjects(session, profile, query);
+      projects = dbClient.qualityProfileDao().selectSelectedProjects(session, organization, profile, query);
     } else if (SelectionMode.DESELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectDeselectedProjects(session, profile, query);
+      projects = dbClient.qualityProfileDao().selectDeselectedProjects(session, organization, profile, query);
     } else {
-      projects = dbClient.qualityProfileDao().selectProjectAssociations(session, profile, query);
+      projects = dbClient.qualityProfileDao().selectProjectAssociations(session, organization, profile, query);
     }
 
     return projects;

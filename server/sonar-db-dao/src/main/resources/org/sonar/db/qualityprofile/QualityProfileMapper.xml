@@ -369,6 +369,7 @@
       and pj.qualifier = 'TRK'
       and pj.main_branch_project_uuid is null
       and (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
+      and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     order by pj.name ASC
   </select>
 
@@ -386,6 +387,7 @@
       AND pj.main_branch_project_uuid is null
       AND (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
       AND pp.profile_key IS NULL
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
@@ -403,6 +405,7 @@
       AND pj.qualifier='TRK'
       AND pj.main_branch_project_uuid is null
       AND (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
   </select>
 
