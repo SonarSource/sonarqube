@@ -175,7 +175,7 @@ message AdHocRule {
 message Setting {
   string key = 1;
   string value = 2;
-  int64 component_ref = 3;
+  reserved 3; // component_ref
 }
 
 // links specified on the project, and only on the project (not on modules

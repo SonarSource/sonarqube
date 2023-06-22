@@ -34,6 +34,9 @@ import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.property.PropertyDto;
 
@@ -43,7 +46,6 @@ import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 
 public class ExportSettingsStepIT {
 
-  private static final ComponentDto GLOBAL = null;
   private static final ComponentDto PROJECT = new ComponentDto()
     .setUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
@@ -59,19 +61,19 @@ public class ExportSettingsStepIT {
   public LogTester logTester = new LogTester();
   @Rule
   public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
-  private final MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
   private final MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private final ExportSettingsStep underTest = new ExportSettingsStep(dbTester.getDbClient(), projectHolder, componentRepository, dumpWriter);
+  private final ExportSettingsStep underTest = new ExportSettingsStep(dbTester.getDbClient(), projectHolder, dumpWriter);
+  private ProjectDto project;
+  private ProjectDto anotherProject;
 
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    dbTester.components().insertPublicProject(PROJECT);
-    dbTester.components().insertPublicProject(ANOTHER_PROJECT);
+    project = dbTester.components().insertPublicProject(PROJECT).getProjectDto();
+    anotherProject = dbTester.components().insertPublicProject(ANOTHER_PROJECT).getProjectDto();
     dbTester.commit();
-    projectHolder.setProjectDto(dbTester.components().getProjectDtoByMainBranch(PROJECT));
-    componentRepository.register(1, PROJECT.uuid(), false);
+    projectHolder.setProjectDto(project);
   }
 
   @Test
@@ -84,13 +86,13 @@ public class ExportSettingsStepIT {
 
   @Test
   public void export_only_project_settings() {
-    PropertyDto projectProperty1 = newDto("p1", "v1", PROJECT);
-    PropertyDto projectProperty2 = newDto("p2", "v2", PROJECT);
+    PropertyDto projectProperty1 = newDto("p1", "v1", project);
+    PropertyDto projectProperty2 = newDto("p2", "v2", project);
     // the following properties are not exported
-    PropertyDto propOnOtherProject = newDto("p3", "v3", ANOTHER_PROJECT);
-    PropertyDto globalProperty = newDto("p4", "v4", GLOBAL);
-    insertProperties(PROJECT.getKey(), PROJECT.name(), projectProperty1, projectProperty2);
-    insertProperties(ANOTHER_PROJECT.getKey(), ANOTHER_PROJECT.name(), propOnOtherProject);
+    PropertyDto propOnOtherProject = newDto("p3", "v3", anotherProject);
+    PropertyDto globalProperty = newDto("p4", "v4", null);
+    insertProperties(project.getKey(), project.getName(), projectProperty1, projectProperty2);
+    insertProperties(anotherProject.getKey(), anotherProject.getName(), propOnOtherProject);
     insertProperties(null, null, globalProperty);
 
     underTest.execute(new TestComputationStepContext());
@@ -103,7 +105,7 @@ public class ExportSettingsStepIT {
 
   @Test
   public void exclude_properties_specific_to_environment() {
-    insertProperties(PROJECT.getKey(), PROJECT.name(), newDto("sonar.issues.defaultAssigneeLogin", null, PROJECT));
+    insertProperties(project.getKey(), project.getName(), newDto("sonar.issues.defaultAssigneeLogin", null, project));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -113,8 +115,8 @@ public class ExportSettingsStepIT {
 
   @Test
   public void test_exported_fields() {
-    PropertyDto dto = newDto("p1", "v1", PROJECT);
-    insertProperties(PROJECT.getKey(), PROJECT.name(), dto);
+    PropertyDto dto = newDto("p1", "v1", project);
+    insertProperties(project.getKey(), project.getName(), dto);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -125,7 +127,7 @@ public class ExportSettingsStepIT {
 
   @Test
   public void property_can_have_empty_value() {
-    insertProperties(PROJECT.getKey(), PROJECT.name(), newDto("p1", null, PROJECT));
+    insertProperties(project.getKey(), project.getName(), newDto("p1", null, project));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -137,8 +139,8 @@ public class ExportSettingsStepIT {
   @Test
   public void throws_ISE_if_error() {
     dumpWriter.failIfMoreThan(1, DumpElement.SETTINGS);
-    insertProperties(PROJECT.getKey(), PROJECT.name(), newDto("p1", null, PROJECT),
-      newDto("p2", null, PROJECT));
+    insertProperties(project.getKey(), project.getName(), newDto("p1", null, project),
+      newDto("p2", null, project));
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)
@@ -150,17 +152,17 @@ public class ExportSettingsStepIT {
     assertThat(underTest.getDescription()).isEqualTo("Export settings");
   }
 
-  private static PropertyDto newDto(String key, @Nullable String value, @Nullable ComponentDto project) {
+  private static PropertyDto newDto(String key, @Nullable String value, @Nullable EntityDto project) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value);
     if (project != null) {
-      dto.setEntityUuid(project.uuid());
+      dto.setEntityUuid(project.getUuid());
     }
     return dto;
   }
 
-  private void insertProperties(@Nullable String componentKey, @Nullable String componentName, PropertyDto... dtos) {
+  private void insertProperties(@Nullable String entityKey, @Nullable String entityName, PropertyDto... dtos) {
     for (PropertyDto dto : dtos) {
-      dbTester.getDbClient().propertiesDao().saveProperty(dbTester.getSession(), dto, null, componentKey, componentName, Qualifiers.VIEW);
+      dbTester.getDbClient().propertiesDao().saveProperty(dbTester.getSession(), dto, null, entityKey, entityName, Qualifiers.VIEW);
     }
     dbTester.commit();
   }

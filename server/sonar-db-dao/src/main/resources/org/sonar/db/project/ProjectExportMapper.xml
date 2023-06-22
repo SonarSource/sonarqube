@@ -23,9 +23,7 @@
         p.entity_uuid as entityUuid,
         p.user_uuid as userUuid
         from properties p
-        join components pr on p.entity_uuid=pr.uuid
-        join project_branches pb on pb.uuid = pr.uuid
-        where p.user_uuid is null and pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+        where p.entity_uuid=#{projectUuid,jdbcType=VARCHAR} and p.user_uuid is null
     </select>
 
     <select id="selectLinksForExport" parameterType="string" resultType="org.sonar.db.component.ProjectLinkDto">

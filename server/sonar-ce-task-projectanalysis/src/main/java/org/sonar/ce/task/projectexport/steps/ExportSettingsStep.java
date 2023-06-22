@@ -43,13 +43,11 @@ public class ExportSettingsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;
-  private final ComponentRepository componentRepository;
   private final DumpWriter dumpWriter;
 
-  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder, ComponentRepository componentRepository, DumpWriter dumpWriter) {
+  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder,DumpWriter dumpWriter) {
     this.dbClient = dbClient;
     this.projectHolder = projectHolder;
-    this.componentRepository = componentRepository;
     this.dumpWriter = dumpWriter;
   }
 
@@ -70,10 +68,6 @@ public class ExportSettingsStep implements ComputationStep {
         builder.clear()
           .setKey(property.getKey())
           .setValue(defaultString(property.getValue()));
-
-        if (property.getEntityUuid() != null) {
-          builder.setComponentRef(componentRepository.getRef(property.getEntityUuid()));
-        }
         output.write(builder.build());
         ++count;
       }
