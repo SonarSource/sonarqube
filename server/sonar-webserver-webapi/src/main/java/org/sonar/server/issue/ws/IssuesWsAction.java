@@ -21,6 +21,6 @@ package org.sonar.server.issue.ws;
 
 import org.sonar.server.ws.WsAction;
 
-interface IssuesWsAction extends WsAction {
+public interface IssuesWsAction extends WsAction {
   // Marker interface
 }
