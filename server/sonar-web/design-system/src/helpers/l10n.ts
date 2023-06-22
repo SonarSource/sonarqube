@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+/**
+ * (!) Do not use this, it is left for legacy purposes and should be slowly replaced with react-intl
+ */
 export function translate(keys: string): string {
   return keys;
 }

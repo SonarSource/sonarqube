@@ -44,6 +44,10 @@ interface AvatarProps {
   size?: Size;
 }
 
+/**
+ * (!) Do not use directly. it requires the gravatar settings to properly fetch the avatars.
+ * This is injected by the `Avatar` component in `components/ui` in sonar-web
+ */
 export function Avatar({
   className,
   enableGravatar,
