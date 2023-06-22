@@ -75,7 +75,7 @@ it('prevents selection of global setting if it is not compliant and warns non-ad
   await ui.appIsLoaded();
 
   expect(ui.generalSettingRadio.get()).toBeChecked();
-  expect(ui.generalSettingRadio.get()).toHaveClass('disabled');
+  expect(ui.generalSettingRadio.get()).toBeDisabled();
   expect(ui.complianceWarning.get()).toBeVisible();
 });
 
@@ -91,7 +91,7 @@ it('prevents selection of global setting if it is not compliant and warns admin 
   await ui.appIsLoaded();
 
   expect(ui.generalSettingRadio.get()).toBeChecked();
-  expect(ui.generalSettingRadio.get()).toHaveClass('disabled');
+  expect(ui.generalSettingRadio.get()).toBeDisabled();
   expect(ui.complianceWarningAdmin.get()).toBeVisible();
   expect(ui.complianceWarning.query()).not.toBeInTheDocument();
 });

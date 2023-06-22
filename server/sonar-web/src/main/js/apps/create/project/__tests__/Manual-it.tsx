@@ -149,7 +149,7 @@ it('global NCD option should be disabled if not compliant', async () => {
 
   expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
   expect(ui.inheritGlobalNcdRadio.get()).toBeInTheDocument();
-  expect(ui.inheritGlobalNcdRadio.get()).toHaveClass('disabled');
+  expect(ui.inheritGlobalNcdRadio.get()).toBeDisabled();
   expect(ui.projectCreateButton.get()).toBeDisabled();
 });
 
@@ -182,9 +182,9 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
 
     expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
     expect(ui.inheritGlobalNcdRadio.get()).toBeInTheDocument();
-    expect(ui.inheritGlobalNcdRadio.get()).toHaveClass('disabled');
+    expect(ui.inheritGlobalNcdRadio.get()).toBeDisabled();
     expect(ui.projectCreateButton.get()).toBeDisabled();
-    expect(ui.overrideNcdRadio.get()).not.toHaveClass('disabled');
+    expect(ui.overrideNcdRadio.get()).toBeEnabled();
     expect(option.get()).toHaveClass('disabled');
 
     await user.click(ui.overrideNcdRadio.get());

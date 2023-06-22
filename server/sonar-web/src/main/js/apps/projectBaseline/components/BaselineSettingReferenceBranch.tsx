@@ -95,6 +95,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
 
   return (
     <RadioCard
+      noRadio
       className={className}
       disabled={disabled}
       onClick={() => props.onSelect(NewCodePeriodSettingType.REFERENCE_BRANCH)}

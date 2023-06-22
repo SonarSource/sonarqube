@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RadioButton } from 'design-system/lib';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -28,7 +29,6 @@ import {
   NewCodePeriodSettingType,
   NewCodePeriodWithCompliance,
 } from '../../types/types';
-import Radio from '../controls/Radio';
 import RadioCard from '../controls/RadioCard';
 import Tooltip from '../controls/Tooltip';
 import { Alert } from '../ui/Alert';
@@ -95,8 +95,8 @@ export default function NewCodeDefinitionSelector(props: Props) {
         <strong>{translate('new_code_definition.question')}</strong>
       </p>
       <div className="big-spacer-top spacer-bottom" role="radiogroup">
-        <Radio
-          ariaLabel={translate('new_code_definition.global_setting')}
+        <RadioButton
+          aria-label={translate('new_code_definition.global_setting')}
           checked={selectedNcdType === NewCodePeriodSettingType.INHERITED}
           className="big-spacer-bottom"
           disabled={!iGlobalNcdCompliant}
@@ -112,7 +112,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           >
             <span>{translate('new_code_definition.global_setting')}</span>
           </Tooltip>
-        </Radio>
+        </RadioButton>
 
         <div className="sw-ml-4">
           {globalNcd && (
@@ -124,8 +124,8 @@ export default function NewCodeDefinitionSelector(props: Props) {
           )}
         </div>
 
-        <Radio
-          ariaLabel={translate('new_code_definition.specific_setting')}
+        <RadioButton
+          aria-label={translate('new_code_definition.specific_setting')}
           checked={Boolean(
             selectedNcdType && selectedNcdType !== NewCodePeriodSettingType.INHERITED
           )}
@@ -134,7 +134,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           value="specific"
         >
           {translate('new_code_definition.specific_setting')}
-        </Radio>
+        </RadioButton>
       </div>
 
       <div className="big-spacer-left big-spacer-right project-baseline-setting">
@@ -160,6 +160,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           />
 
           <RadioCard
+            noRadio
             disabled={Boolean(
               !selectedNcdType || selectedNcdType === NewCodePeriodSettingType.INHERITED
             )}

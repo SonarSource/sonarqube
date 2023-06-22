@@ -37,6 +37,7 @@ export default function NewCodeDefinitionPreviousVersionOption({
 }: Props) {
   return (
     <RadioCard
+      noRadio
       disabled={disabled}
       onClick={() => onSelect(NewCodePeriodSettingType.PREVIOUS_VERSION)}
       selected={selected}

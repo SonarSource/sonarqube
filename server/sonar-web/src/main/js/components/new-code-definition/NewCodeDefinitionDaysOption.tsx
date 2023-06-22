@@ -41,6 +41,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
 
   return (
     <RadioCard
+      noRadio
       className={className}
       disabled={disabled}
       onClick={() => onSelect(NewCodePeriodSettingType.NUMBER_OF_DAYS)}

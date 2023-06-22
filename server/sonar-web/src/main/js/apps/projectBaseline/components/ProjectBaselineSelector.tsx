@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { RadioButton } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Radio from '../../../components/controls/Radio';
 import Tooltip from '../../../components/controls/Tooltip';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
@@ -99,7 +99,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
   return (
     <form className="project-baseline-selector" onSubmit={props.onSubmit}>
       <div className="big-spacer-top spacer-bottom" role="radiogroup">
-        <Radio
+        <RadioButton
           checked={!overrideGeneralSetting}
           className="big-spacer-bottom"
           disabled={!isGlobalNcdCompliant}
@@ -115,7 +115,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           >
             <span>{translate('project_baseline.global_setting')}</span>
           </Tooltip>
-        </Radio>
+        </RadioButton>
 
         <div className="sw-ml-4">
           <GlobalNewCodeDefinitionDescription
@@ -125,14 +125,14 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           />
         </div>
 
-        <Radio
+        <RadioButton
           checked={overrideGeneralSetting}
           className="huge-spacer-top"
           onCheck={() => props.onToggleSpecificSetting(true)}
           value="specific"
         >
           {translate('project_baseline.specific_setting')}
-        </Radio>
+        </RadioButton>
       </div>
 
       <div className="big-spacer-left big-spacer-right project-baseline-setting">
