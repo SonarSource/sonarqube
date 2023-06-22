@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -53,6 +54,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -152,7 +154,8 @@ public class IssueQueryFactory {
         .createdBefore(parseEndingDateOrDateTime(request.getCreatedBefore(), timeZone))
         .facetMode(request.getFacetMode())
         .searchAfter(request.getSearchAfter())
-        .timeZone(timeZone);
+        .timeZone(timeZone)
+        .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()));
 
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
@@ -178,6 +181,15 @@ public class IssueQueryFactory {
       LOGGER.warn("TimeZone '" + timeZone + "' cannot be parsed as a valid zone ID");
       return Optional.empty();
     }
+  }
+
+  @CheckForNull
+  private String convertOrganizationKeyToUuid(DbSession dbSession, @Nullable String organizationKey) {
+    if (organizationKey == null) {
+      return null;
+    }
+    Optional<OrganizationDto> organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+    return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
   private void setCreatedAfterFromDates(IssueQuery.Builder builder, @Nullable Date createdAfter, @Nullable String createdInLast, boolean createdAfterInclusive) {

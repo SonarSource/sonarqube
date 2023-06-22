@@ -105,6 +105,7 @@ public class IssueQuery {
   private final ZoneId timeZone;
   private final Boolean newCodeOnReference;
   private final Collection<String> newCodeOnReferenceByProjectUuids;
+  private String organizationUuid;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -150,6 +151,7 @@ public class IssueQuery {
     this.timeZone = builder.timeZone;
     this.newCodeOnReference = builder.newCodeOnReference;
     this.newCodeOnReferenceByProjectUuids = defaultCollection(builder.newCodeOnReferenceByProjectUuids);
+    this.organizationUuid = builder.organizationUuid;
   }
 
   public Collection<String> issueKeys() {
@@ -344,6 +346,11 @@ public class IssueQuery {
     return newCodeOnReferenceByProjectUuids;
   }
 
+  @CheckForNull
+  public String organizationUuid() {
+    return organizationUuid;
+  }
+
 
   public static class Builder {
     private Collection<String> issueKeys;
@@ -389,6 +396,8 @@ public class IssueQuery {
     private ZoneId timeZone;
     private Boolean newCodeOnReference = null;
     private Collection<String> newCodeOnReferenceByProjectUuids;
+
+    private String organizationUuid;
 
     private Builder() {
 
@@ -633,6 +642,11 @@ public class IssueQuery {
 
     public Builder newCodeOnReferenceByProjectUuids(@Nullable Collection<String> newCodeOnReferenceByProjectUuids) {
       this.newCodeOnReferenceByProjectUuids = newCodeOnReferenceByProjectUuids;
+      return this;
+    }
+
+    public Builder organizationUuid(String s) {
+      this.organizationUuid = s;
       return this;
     }
   }
