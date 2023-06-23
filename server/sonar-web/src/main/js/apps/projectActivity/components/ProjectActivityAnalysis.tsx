@@ -30,6 +30,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
@@ -115,7 +116,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
         ref={(ref) => (node = ref)}
       >
         <div className="it__project-activity-time">
-          <ActivityTime className="sw-box-border sw-grow-0 sw-shrink-0 sw-h-page sw-body-sm-highlight sw-text-right sw-mr-2">
+          <ActivityTime className="sw-h-page sw-body-sm-highlight sw-text-right sw-mr-2 sw-py-1/2">
             <TimeFormatter date={parsedDate} long={false}>
               {(formattedTime) => <time dateTime={parsedDate.toISOString()}>{formattedTime}</time>}
             </TimeFormatter>
@@ -123,63 +124,65 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
         </div>
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-          <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
-            <ActionsDropdown
-              ariaLabel={translateWithParameters(
-                'project_activity.analysis_X_actions',
-                analysis.buildString || formatDate(parsedDate, formatterOption)
-              )}
-              buttonSize="small"
-              id="it__analysis-actions"
-              zLevel={PopupZLevel.Absolute}
-            >
-              {canAddVersion && (
-                <ItemButton className="js-add-version" onClick={() => setAddVersionForm(true)}>
-                  {translate('project_activity.add_version')}
-                </ItemButton>
-              )}
-              {canAddEvent && (
-                <ItemButton className="js-add-event" onClick={() => setAddEventForm(true)}>
-                  {translate('project_activity.add_custom_event')}
-                </ItemButton>
-              )}
-              {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
-              {canDeleteAnalyses && (
-                <ItemDangerButton
-                  className="js-delete-analysis"
-                  onClick={() => setRemoveAnalysisForm(true)}
-                >
-                  {translate('project_activity.delete_analysis')}
-                </ItemDangerButton>
-              )}
-            </ActionsDropdown>
+          <ClickEventBoundary>
+            <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
+              <ActionsDropdown
+                ariaLabel={translateWithParameters(
+                  'project_activity.analysis_X_actions',
+                  analysis.buildString || formatDate(parsedDate, formatterOption)
+                )}
+                buttonSize="small"
+                id="it__analysis-actions"
+                zLevel={PopupZLevel.Absolute}
+              >
+                {canAddVersion && (
+                  <ItemButton className="js-add-version" onClick={() => setAddVersionForm(true)}>
+                    {translate('project_activity.add_version')}
+                  </ItemButton>
+                )}
+                {canAddEvent && (
+                  <ItemButton className="js-add-event" onClick={() => setAddEventForm(true)}>
+                    {translate('project_activity.add_custom_event')}
+                  </ItemButton>
+                )}
+                {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
+                {canDeleteAnalyses && (
+                  <ItemDangerButton
+                    className="js-delete-analysis"
+                    onClick={() => setRemoveAnalysisForm(true)}
+                  >
+                    {translate('project_activity.delete_analysis')}
+                  </ItemDangerButton>
+                )}
+              </ActionsDropdown>
 
-            {addVersionForm && (
-              <AddEventForm
-                addEvent={props.onAddVersion}
-                addEventButtonText="project_activity.add_version"
-                analysis={analysis}
-                onClose={() => setAddVersionForm(false)}
-              />
-            )}
+              {addVersionForm && (
+                <AddEventForm
+                  addEvent={props.onAddVersion}
+                  addEventButtonText="project_activity.add_version"
+                  analysis={analysis}
+                  onClose={() => setAddVersionForm(false)}
+                />
+              )}
 
-            {addEventForm && (
-              <AddEventForm
-                addEvent={props.onAddCustomEvent}
-                addEventButtonText="project_activity.add_custom_event"
-                analysis={analysis}
-                onClose={() => setAddEventForm(false)}
-              />
-            )}
+              {addEventForm && (
+                <AddEventForm
+                  addEvent={props.onAddCustomEvent}
+                  addEventButtonText="project_activity.add_custom_event"
+                  analysis={analysis}
+                  onClose={() => setAddEventForm(false)}
+                />
+              )}
 
-            {removeAnalysisForm && (
-              <RemoveAnalysisForm
-                analysis={analysis}
-                deleteAnalysis={props.onDeleteAnalysis}
-                onClose={() => setRemoveAnalysisForm(false)}
-              />
-            )}
-          </div>
+              {removeAnalysisForm && (
+                <RemoveAnalysisForm
+                  analysis={analysis}
+                  deleteAnalysis={props.onDeleteAnalysis}
+                  onClose={() => setRemoveAnalysisForm(false)}
+                />
+              )}
+            </div>
+          </ClickEventBoundary>
         )}
 
         {analysis.events.length > 0 && (
@@ -213,6 +216,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 }
 
 const ActivityTime = styled.div`
+  box-sizing: border-box;
   width: 4.5rem;
 `;
 

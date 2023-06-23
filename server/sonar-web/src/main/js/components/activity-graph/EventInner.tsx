@@ -45,7 +45,7 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
   }
   return (
     <Tooltip overlay={event.description}>
-      <div className="sw-min-w-0 sw-flex-1">
+      <div className="sw-min-w-0 sw-flex-1 sw-py-1/2">
         <div className="sw-flex sw-items-start">
           <span>
             <Note className="sw-mr-1 sw-body-sm-highlight">

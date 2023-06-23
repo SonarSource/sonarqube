@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BareButton, ChevronDownIcon, StandoutLink } from 'design-system';
+import { BareButton, BranchIcon, ChevronDownIcon, Note, StandoutLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
-import { limitComponentName } from '../../helpers/path';
 import { getProjectUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import {
@@ -31,7 +30,6 @@ import {
   DefinitionChangeType,
 } from '../../types/project-activity';
 import ClickEventBoundary from '../controls/ClickEventBoundary';
-import BranchIcon from '../icons/BranchIcon';
 
 export type DefinitionChangeEvent = AnalysisEvent &
   Required<Pick<AnalysisEvent, 'definitionChange'>>;
@@ -53,8 +51,6 @@ interface State {
   expanded: boolean;
 }
 
-const NAME_MAX_LENGTH = 28;
-
 export class DefinitionChangeEventInner extends React.PureComponent<Props, State> {
   state: State = { expanded: false };
 
@@ -64,15 +60,19 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
 
   renderProjectLink = (project: { key: string; name: string }, branch: string | undefined) => (
     <ClickEventBoundary>
-      <StandoutLink title={project.name} to={getProjectUrl(project.key, branch)}>
-        {limitComponentName(project.name, NAME_MAX_LENGTH)}
+      <StandoutLink
+        className="sw-truncate sw-mr-1"
+        title={project.name}
+        to={getProjectUrl(project.key, branch)}
+      >
+        {project.name}
       </StandoutLink>
     </ClickEventBoundary>
   );
 
   renderBranch = (branch = translate('branches.main_branch')) => (
-    <span className="nowrap" title={branch}>
-      <BranchIcon className="little-spacer-left text-text-top" />
+    <span className="sw-flex sw-items-center sw-mr-1" title={branch}>
+      <BranchIcon className="sw-ml-1" />
       {branch}
     </span>
   );
@@ -139,24 +139,29 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
     const { event, readonly } = this.props;
     const { expanded } = this.state;
     return (
-      <div className="sw-flex sw-basis-full sw-flex-col">
+      <div className="sw-w-full sw-body-sm sw-py-1/2">
         <div className="sw-flex sw-justify-between">
-          <span className="sw-mr-1">{translate('event.category', event.category)}</span>
+          <Note className="sw-mr-1 sw-body-sm-highlight">
+            {translate('event.category', event.category)}
+          </Note>
 
           {!readonly && (
-            <div>
-              <BareButton onClick={this.toggleProjectsList}>
+            <ClickEventBoundary>
+              <BareButton
+                className="sw-flex sw-items-center sw-ml-2"
+                onClick={this.toggleProjectsList}
+              >
                 {expanded ? translate('hide') : translate('more')}
                 <ChevronDownIcon transform={expanded ? 'rotate(180)' : undefined} />
               </BareButton>
-            </div>
+            </ClickEventBoundary>
           )}
         </div>
 
         {expanded && (
           <ul className="sw-mt-2">
             {event.definitionChange.projects.map((project) => (
-              <li className="sw-p-1 sw-text-ellipsis sw-overflow-hidden" key={project.key}>
+              <li className="sw-flex sw-items-center sw-flex-wrap sw-p-1 sw-mb-1" key={project.key}>
                 {this.renderProjectChange(project)}
               </li>
             ))}
