@@ -21,14 +21,12 @@
 import styled from '@emotion/styled';
 import hljs from 'highlight.js';
 import apex from 'highlightjs-apex';
-import cobol from 'highlightjs-cobol';
 import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 
 hljs.registerLanguage('abap', abap);
 hljs.registerLanguage('apex', apex);
-hljs.registerLanguage('cobol', cobol);
 
 hljs.registerAliases('azureresourcemanager', { languageName: 'json' });
 hljs.registerAliases('flex', { languageName: 'actionscript' });
