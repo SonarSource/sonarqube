@@ -135,7 +135,7 @@ export default function RegulatoryReport({ component, branchLike }: Props) {
               />
             </FormField>
           </div>
-          <FlagMessage className="sw-mb-4" variant="info">
+          <FlagMessage className="sw-mb-4 sw-w-full" variant="info">
             {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
             <FormattedMessage
               id="regulatory_page.available_branches_info.more_info"

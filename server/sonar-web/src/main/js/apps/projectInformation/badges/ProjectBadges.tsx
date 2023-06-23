@@ -173,7 +173,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
         )}
       </DeferredSpinner>
 
-      <FlagMessage variant="warning">
+      <FlagMessage className="sw-w-full" variant="warning">
         <p>
           {translate('overview.badges.leak_warning')}
           {canRenew && (
