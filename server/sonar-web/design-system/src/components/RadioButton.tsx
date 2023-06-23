@@ -28,14 +28,16 @@ type AllowedRadioButtonAttributes = Pick<
   'aria-label' | 'autoFocus' | 'id' | 'name' | 'style' | 'title' | 'type'
 >;
 
-interface Props extends AllowedRadioButtonAttributes {
+interface PropsBase extends AllowedRadioButtonAttributes {
   checked: boolean;
   children?: React.ReactNode;
   className?: string;
   disabled?: boolean;
-  onCheck: (value: string) => void;
-  value: string;
 }
+
+type Props =
+  | ({ onCheck: (value: string) => void; value: string } & PropsBase)
+  | ({ onCheck: () => void; value: never } & PropsBase);
 
 export function RadioButton({
   checked,

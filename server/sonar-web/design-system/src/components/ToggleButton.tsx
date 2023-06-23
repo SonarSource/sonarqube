@@ -38,7 +38,7 @@ export interface ButtonToggleProps<T extends ToggleButtonValueType> {
   disabled?: boolean;
   label?: string;
   onChange: (value: T) => void;
-  options: Array<ToggleButtonsOption<T>>;
+  options: ReadonlyArray<ToggleButtonsOption<T>>;
   role?: 'radiogroup' | 'tablist';
   value?: T;
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, postJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 
 export function getProjectBadgesToken(project: string) {
   return getJSON('/api/project_badges/token', { project })
@@ -27,5 +27,5 @@ export function getProjectBadgesToken(project: string) {
 }
 
 export function renewProjectBadgesToken(project: string) {
-  return postJSON('/api/project_badges/renew_token', { project }).catch(throwGlobalError);
+  return post('/api/project_badges/renew_token', { project }).catch(throwGlobalError);
 }

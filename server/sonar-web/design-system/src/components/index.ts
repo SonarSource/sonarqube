@@ -49,6 +49,7 @@ export * from './HighlightedSection';
 export { Histogram } from './Histogram';
 export { HotspotRating } from './HotspotRating';
 export * from './HtmlFormatter';
+export { IllustratedSelectionCard } from './IlllustredSelectionCard';
 export * from './InputField';
 export * from './InputMultiSelect';
 export { InputSearch } from './InputSearch';

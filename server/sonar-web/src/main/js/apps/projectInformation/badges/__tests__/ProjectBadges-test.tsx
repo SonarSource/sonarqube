@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -28,7 +28,7 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
-import ProjectBadges from '../ProjectBadges';
+import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
 
 jest.mock('../../../../helpers/urls', () => ({
@@ -65,13 +65,11 @@ it('should renew token', async () => {
     component: mockComponent({ configuration: { showSettings: true } }),
   });
 
-  expect(
-    await screen.findByText(`overview.badges.get_badge.${ComponentQualifier.Project}`)
-  ).toHaveFocus();
-
-  expect(screen.getByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)).toHaveAttribute(
-    'src',
-    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo'
+  await waitFor(() =>
+    expect(screen.getByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)).toHaveAttribute(
+      'src',
+      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo'
+    )
   );
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
@@ -105,7 +103,7 @@ it('should update params', async () => {
     )
   ).toBeInTheDocument();
 
-  await selectEvent.select(screen.getByLabelText('format:'), [
+  await selectEvent.select(screen.getByLabelText('overview.badges.format'), [
     'overview.badges.options.formats.url',
   ]);
 
@@ -115,7 +113,7 @@ it('should update params', async () => {
     )
   ).toBeInTheDocument();
 
-  await selectEvent.select(screen.getByLabelText('overview.badges.metric:'), MetricKey.coverage);
+  await selectEvent.select(screen.getByLabelText('overview.badges.metric'), MetricKey.coverage);
 
   expect(
     screen.getByText(
@@ -124,7 +122,7 @@ it('should update params', async () => {
   ).toBeInTheDocument();
 });
 
-function renderProjectBadges(props: Partial<ProjectBadges['props']> = {}) {
+function renderProjectBadges(props: Partial<ProjectBadgesProps> = {}) {
   return renderComponent(
     <ProjectBadges
       branchLike={mockBranch()}
