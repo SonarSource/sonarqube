@@ -28,7 +28,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import withMetricsContext from '../../app/components/metrics/withMetricsContext';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
+import { ComponentQualifier, isApplication, isProject } from '../../types/component';
 import { Feature } from '../../types/features';
 import { MetricKey } from '../../types/metrics';
 import { Component, Dict, Measure, Metric } from '../../types/types';
@@ -82,14 +82,12 @@ export class ProjectInformationApp extends React.PureComponent<Props, State> {
     const { branchLike, component, currentUser, metrics } = this.props;
     const { measures } = this.state;
 
-    const canConfigureNotifications =
-      isLoggedIn(currentUser) && component.qualifier === ComponentQualifier.Project;
+    const canConfigureNotifications = isLoggedIn(currentUser) && isProject(component.qualifier);
     const canUseBadges =
       metrics !== undefined &&
-      (component.qualifier === ComponentQualifier.Application ||
-        component.qualifier === ComponentQualifier.Project);
+      (isApplication(component.qualifier) || isProject(component.qualifier));
     const regulatoryReportFeatureEnabled = this.props.hasFeature(Feature.RegulatoryReport);
-    const isApp = component.qualifier === ComponentQualifier.Application;
+    const isApp = isApplication(component.qualifier);
 
     return (
       <main>

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Link from '../../../components/common/Link';
+import MetaLink from '../../../components/common/MetaLink';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import Level from '../../../components/ui/Level';
@@ -26,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
 import { MyProject, ProjectLink } from '../../../types/types';
-import MetaLink from '../../projectInformation/meta/MetaLink';
 
 interface Props {
   project: MyProject;

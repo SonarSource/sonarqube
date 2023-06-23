@@ -19,14 +19,15 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { searchRules } from '../../../../api/rules';
-import { mockLanguage, mockPaging, mockQualityProfile } from '../../../../helpers/testMocks';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { SearchRulesResponse } from '../../../../types/coding-rules';
-import { Dict } from '../../../../types/types';
+import { searchRules } from '../../../../../api/rules';
+import { LanguagesContext } from '../../../../../app/components/languages/LanguagesContext';
+import { mockLanguage, mockPaging, mockQualityProfile } from '../../../../../helpers/testMocks';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { SearchRulesResponse } from '../../../../../types/coding-rules';
+import { Dict } from '../../../../../types/types';
 import { MetaQualityProfiles } from '../MetaQualityProfiles';
 
-jest.mock('../../../../api/rules', () => {
+jest.mock('../../../../../api/rules', () => {
   return {
     searchRules: jest.fn().mockResolvedValue({
       total: 10,
@@ -57,24 +58,27 @@ it('should render correctly', async () => {
   expect(screen.getByText('overview.deprecated_profile.10')).toBeInTheDocument();
 });
 
-function renderMetaQualityprofiles(overrides: Partial<MetaQualityProfiles['props']> = {}) {
+function renderMetaQualityprofiles(
+  overrides: Partial<Parameters<typeof MetaQualityProfiles>[0]> = {}
+) {
   return renderComponent(
-    <MetaQualityProfiles
-      languages={{ css: mockLanguage() }}
-      profiles={[
-        { ...mockQualityProfile({ key: 'js', name: 'javascript' }), deleted: true },
-        { ...mockQualityProfile({ key: 'ts', name: 'typescript' }), deleted: false },
-        {
-          ...mockQualityProfile({
-            key: 'css',
-            name: 'style',
-            language: 'css',
-            languageName: 'CSS',
-          }),
-          deleted: false,
-        },
-      ]}
-      {...overrides}
-    />
+    <LanguagesContext.Provider value={{ css: mockLanguage() }}>
+      <MetaQualityProfiles
+        profiles={[
+          { ...mockQualityProfile({ key: 'js', name: 'javascript' }), deleted: true },
+          { ...mockQualityProfile({ key: 'ts', name: 'typescript' }), deleted: false },
+          {
+            ...mockQualityProfile({
+              key: 'css',
+              name: 'style',
+              language: 'css',
+              languageName: 'CSS',
+            }),
+            deleted: false,
+          },
+        ]}
+        {...overrides}
+      />
+    </LanguagesContext.Provider>
   );
 }

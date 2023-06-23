@@ -67,7 +67,7 @@ it('renders correctly when the project binding is incorrect', () => {
 it('correctly returns focus to the Project Information link when the drawer is closed', () => {
   renderComponentNav();
   screen.getByRole('link', { name: 'project.info.title' }).click();
-  expect(screen.getByText('/project/info?id=my-project')).toBeInTheDocument();
+  expect(screen.getByText('/project/information?id=my-project')).toBeInTheDocument();
 });
 
 function renderComponentNav(props: Partial<ComponentNavProps> = {}) {

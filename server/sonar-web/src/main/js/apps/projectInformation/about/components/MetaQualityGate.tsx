@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { translate } from '../../../helpers/l10n';
-import { getQualityGateUrl } from '../../../helpers/urls';
+import { translate } from '../../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../../helpers/urls';
 
 interface Props {
   qualityGate: { isDefault?: boolean; name: string };
@@ -29,9 +29,9 @@ interface Props {
 export default function MetaQualityGate({ qualityGate }: Props) {
   return (
     <>
-      <h3>{translate('project.info.quality_gate')}</h3>
+      <h3 id="quality-gate-header">{translate('project.info.quality_gate')}</h3>
 
-      <ul className="project-info-list">
+      <ul className="project-info-list" aria-labelledby="quality-gate-header">
         <li>
           {qualityGate.isDefault && (
             <span className="note spacer-right">({translate('default')})</span>

@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkExternalIcon } from '@primer/octicons-react';
+import { HomeIcon } from 'design-system';
 import * as React from 'react';
 import BugTrackerIcon from './BugTrackerIcon';
 import ContinuousIntegrationIcon from './ContinuousIntegrationIcon';
@@ -27,19 +29,30 @@ import SCMIcon from './SCMIcon';
 
 interface ProjectLinkIconProps {
   type: string;
+  miui?: boolean;
 }
 
-export default function ProjectLinkIcon({ type, ...iconProps }: IconProps & ProjectLinkIconProps) {
-  switch (type) {
-    case 'issue':
-      return <BugTrackerIcon {...iconProps} />;
-    case 'homepage':
-      return <HouseIcon {...iconProps} />;
-    case 'ci':
-      return <ContinuousIntegrationIcon {...iconProps} />;
-    case 'scm':
-      return <SCMIcon {...iconProps} />;
-    default:
-      return <DetachIcon {...iconProps} />;
-  }
+export default function ProjectLinkIcon({
+  miui,
+  type,
+  ...iconProps
+}: IconProps & ProjectLinkIconProps) {
+  const getIcon = (): any => {
+    switch (type) {
+      case 'issue':
+        return BugTrackerIcon;
+      case 'homepage':
+        return miui ? HomeIcon : HouseIcon;
+      case 'ci':
+        return ContinuousIntegrationIcon;
+      case 'scm':
+        return SCMIcon;
+      default:
+        return miui ? LinkExternalIcon : DetachIcon;
+    }
+  };
+
+  const Icon = getIcon();
+
+  return <Icon {...iconProps} />;
 }

@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
+import classNames from 'classnames';
+import { BasicSeparator, SubTitle } from 'design-system';
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { getProjectLinks } from '../../../api/projectLinks';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier } from '../../../types/component';
-import { Component, Measure } from '../../../types/types';
-import MetaKey from '../meta/MetaKey';
-import MetaLinks from '../meta/MetaLinks';
-import MetaQualityGate from '../meta/MetaQualityGate';
-import MetaQualityProfiles from '../meta/MetaQualityProfiles';
-import MetaSize from '../meta/MetaSize';
-import MetaTags from '../meta/MetaTags';
+import { ComponentQualifier, Visibility } from '../../../types/component';
+import { Component, Measure, ProjectLink } from '../../../types/types';
+import { isLoggedIn } from '../../../types/users';
+import MetaDescription from './components/MetaDescription';
+import MetaHome from './components/MetaHome';
+import MetaKey from './components/MetaKey';
+import MetaLinks from './components/MetaLinks';
+import MetaQualityGate from './components/MetaQualityGate';
+import MetaQualityProfiles from './components/MetaQualityProfiles';
+import MetaSize from './components/MetaSize';
+import MetaTags from './components/MetaTags';
+import MetaVisibility from './components/MetaVisibility';
 
 export interface AboutProjectProps {
   component: Component;
@@ -35,73 +42,90 @@ export interface AboutProjectProps {
   onComponentChange: (changes: {}) => void;
 }
 
-export function AboutProject(props: AboutProjectProps) {
+export default function AboutProject(props: AboutProjectProps) {
+  const { currentUser } = useContext(CurrentUserContext);
   const { component, measures = [] } = props;
-
-  const heading = React.useRef<HTMLHeadingElement>(null);
   const isApp = component.qualifier === ComponentQualifier.Application;
+  const [links, setLinks] = useState<ProjectLink[] | undefined>(undefined);
 
-  React.useEffect(() => {
-    if (heading.current) {
-      // a11y: provide focus to the heading when the Project Information is opened.
-      heading.current.focus();
+  useEffect(() => {
+    if (!isApp) {
+      getProjectLinks(component.key).then(
+        (links) => setLinks(links),
+        () => {}
+      );
     }
-  }, [heading]);
+  }, [component.key, isApp]);
 
   return (
     <>
       <div>
-        <h2 className="big-padded bordered-bottom" tabIndex={-1} ref={heading}>
-          {translate(isApp ? 'application' : 'project', 'info.title')}
-        </h2>
+        <SubTitle>{translate(isApp ? 'application' : 'project', 'about.title')}</SubTitle>
       </div>
 
-      <div className="overflow-y-auto">
-        <div className="big-padded bordered-bottom">
-          <div className="display-flex-center">
-            <h3 className="spacer-right">{translate('project.info.description')}</h3>
-            {component.visibility && (
-              <PrivacyBadgeContainer
-                qualifier={component.qualifier}
-                visibility={component.visibility}
+      {!isApp &&
+        (component.qualityGate ||
+          (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
+          <ProjectInformationSection className="sw-pt-0">
+            {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
+
+            {component.qualityProfiles && component.qualityProfiles.length > 0 && (
+              <MetaQualityProfiles
+                headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
+                profiles={component.qualityProfiles}
               />
             )}
-          </div>
+          </ProjectInformationSection>
+        )}
 
-          {component.description && (
-            <p className="it__project-description">{component.description}</p>
-          )}
+      <ProjectInformationSection>
+        <MetaKey componentKey={component.key} qualifier={component.qualifier} />
+      </ProjectInformationSection>
 
-          <MetaTags component={component} onComponentChange={props.onComponentChange} />
-        </div>
+      {component.visibility === Visibility.Private && (
+        <ProjectInformationSection>
+          <MetaVisibility qualifier={component.qualifier} visibility={component.visibility} />
+        </ProjectInformationSection>
+      )}
 
-        <div className="big-padded bordered-bottom it__project-loc-value">
-          <MetaSize component={component} measures={measures} />
-        </div>
+      <ProjectInformationSection>
+        <MetaDescription description={component.description} isApp={isApp} />
+      </ProjectInformationSection>
 
-        {!isApp &&
-          (component.qualityGate ||
-            (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
-            <div className="big-padded bordered-bottom">
-              {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
+      <ProjectInformationSection>
+        <MetaTags component={component} onComponentChange={props.onComponentChange} />
+      </ProjectInformationSection>
 
-              {component.qualityProfiles && component.qualityProfiles.length > 0 && (
-                <MetaQualityProfiles
-                  headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
-                  profiles={component.qualityProfiles}
-                />
-              )}
-            </div>
-          )}
+      <ProjectInformationSection>
+        <MetaSize component={component} measures={measures} />
+      </ProjectInformationSection>
 
-        {!isApp && <MetaLinks component={component} />}
+      {!isApp && links && links.length > 0 && (
+        <ProjectInformationSection last={!isLoggedIn(currentUser)}>
+          <MetaLinks links={links} />
+        </ProjectInformationSection>
+      )}
 
-        <div className="big-padded bordered-bottom">
-          <MetaKey componentKey={component.key} qualifier={component.qualifier} />
-        </div>
-      </div>
+      {isLoggedIn(currentUser) && (
+        <ProjectInformationSection last>
+          <MetaHome componentKey={component.key} currentUser={currentUser} isApp={isApp} />
+        </ProjectInformationSection>
+      )}
     </>
   );
 }
 
-export default AboutProject;
+interface ProjectInformationSectionProps {
+  last?: boolean;
+  className?: string;
+}
+
+function ProjectInformationSection(props: PropsWithChildren<ProjectInformationSectionProps>) {
+  const { children, className, last = false } = props;
+  return (
+    <>
+      <div className={classNames('sw-py-6', className)}>{children}</div>
+      {!last && <BasicSeparator />}
+    </>
+  );
+}

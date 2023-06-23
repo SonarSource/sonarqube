@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import * as React from 'react';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../types/component';
-import MetaKey, { MetaKeyProps } from '../MetaKey';
+import React from 'react';
+import MetaLink from '../../../../components/common/MetaLink';
+import { translate } from '../../../../helpers/l10n';
+import { orderLinks } from '../../../../helpers/projectLinks';
+import { ProjectLink } from '../../../../types/types';
 
-it('should render correctly', () => {
-  renderMetaKey();
-  expect(
-    screen.getByLabelText(`overview.project_key.${ComponentQualifier.Project}`)
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: 'overview.project_key.click_to_copy' })
-  ).toBeInTheDocument();
-});
+interface Props {
+  links: ProjectLink[];
+}
 
-function renderMetaKey(props: Partial<MetaKeyProps> = {}) {
-  return renderComponent(
-    <MetaKey componentKey="foo" qualifier={ComponentQualifier.Project} {...props} />
+export default function MetaLinks({ links }: Props) {
+  const orderedLinks = orderLinks(links);
+
+  return (
+    <>
+      <h3>{translate('overview.external_links')}</h3>
+      <ul className="project-info-list">
+        {orderedLinks.map((link) => (
+          <MetaLink miui key={link.id} link={link} />
+        ))}
+      </ul>
+    </>
   );
 }

@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
-import { mockComponent } from '../../../../helpers/mocks/component';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../types/component';
+import { setApplicationTags, setProjectTags } from '../../../../../api/components';
+import { mockComponent } from '../../../../../helpers/mocks/component';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../../../types/component';
 import MetaTags from '../MetaTags';
 
-jest.mock('../../../../api/components', () => ({
+jest.mock('../../../../../api/components', () => ({
   setApplicationTags: jest.fn().mockResolvedValue(true),
   setProjectTags: jest.fn().mockResolvedValue(true),
-  searchProjectTags: jest.fn(),
+  searchProjectTags: jest.fn().mockResolvedValue({ tags: ['best', 'useless'] }),
 }));
 
 beforeEach(() => {
@@ -45,7 +45,6 @@ it('should render without tags and admin rights', async () => {
 
 it('should allow to edit tags for a project', async () => {
   const user = userEvent.setup();
-  jest.mocked(searchProjectTags).mockResolvedValue({ tags: ['best', 'useless'] });
 
   const onComponentChange = jest.fn();
   const component = mockComponent({
@@ -62,11 +61,11 @@ it('should allow to edit tags for a project', async () => {
   expect(await screen.findByText('foo, bar')).toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'tags_list_x.foo, bar' }));
+  await act(() => user.click(screen.getByRole('button', { name: 'foo, bar +' })));
 
-  expect(await screen.findByText('best')).toBeInTheDocument();
+  expect(await screen.findByRole('checkbox', { name: 'best' })).toBeInTheDocument();
 
-  await user.click(screen.getByText('best'));
+  await user.click(screen.getByRole('checkbox', { name: 'best' }));
   expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo', 'bar', 'best'] });
 
   onComponentChange.mockClear();
@@ -74,7 +73,7 @@ it('should allow to edit tags for a project', async () => {
   /*
    * Since we're not actually updating the tags, we're back to having the foo, bar only
    */
-  await user.click(screen.getByText('bar'));
+  await user.click(screen.getByRole('checkbox', { name: 'bar' }));
   expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo'] });
 
   expect(setProjectTags).toHaveBeenCalled();
@@ -93,15 +92,15 @@ it('should set tags for an app', async () => {
     }),
   });
 
-  await user.click(screen.getByRole('button', { name: 'tags_list_x.no_tags' }));
+  await act(() => user.click(screen.getByRole('button', { name: 'no_tags +' })));
 
-  await user.click(screen.getByText('best'));
+  await user.click(await screen.findByRole('checkbox', { name: 'best' }));
 
   expect(setProjectTags).not.toHaveBeenCalled();
   expect(setApplicationTags).toHaveBeenCalled();
 });
 
-function renderMetaTags(overrides: Partial<MetaTags['props']> = {}) {
+function renderMetaTags(overrides: Partial<Parameters<typeof MetaTags>[0]> = {}) {
   const component = mockComponent({
     configuration: {
       showSettings: false,

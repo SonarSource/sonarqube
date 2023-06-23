@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DrilldownLink, SizeIndicator } from 'design-system';
 import * as React from 'react';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
-import SizeRating from '../../../components/ui/SizeRating';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, localizeMetric } from '../../../helpers/measures';
-import { ComponentQualifier } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
-import { Component, Measure } from '../../../types/types';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { formatMeasure, localizeMetric } from '../../../../helpers/measures';
+import { getComponentDrilldownUrl } from '../../../../helpers/urls';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
+import { Component, Measure } from '../../../../types/types';
 
-export interface MetaSizeProps {
+interface MetaSizeProps {
   component: Component;
   measures: Measure[];
 }
@@ -37,17 +37,22 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
   const projects = isApp
     ? measures.find((measure) => measure.metric === MetricKey.projects)
     : undefined;
+  const url = getComponentDrilldownUrl({
+    componentKey: component.key,
+    metric: MetricKey.ncloc,
+    listView: true,
+  });
 
   return (
     <>
-      <div className="display-flex-row display-inline-flex-baseline">
+      <div className="sw-flex sw-items-center">
         <h3>{localizeMetric(MetricKey.ncloc)}</h3>
-        <span className="spacer-left small">({translate('project.info.main_branch')})</span>
+        <span className="sw-ml-1 small">({translate('project.info.main_branch')})</span>
       </div>
-      <div className="display-flex-center">
+      <div className="sw-flex sw-items-center">
         {ncloc && ncloc.value ? (
           <>
-            <DrilldownLink className="huge" component={component.key} metric={MetricKey.ncloc}>
+            <DrilldownLink className="huge" to={url}>
               <span
                 aria-label={translateWithParameters(
                   'project.info.see_more_info_on_x_locs',
@@ -59,7 +64,7 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
             </DrilldownLink>
 
             <span className="spacer-left">
-              <SizeRating value={Number(ncloc.value)} />
+              <SizeIndicator value={Number(ncloc.value)} size="xs" />
             </span>
           </>
         ) : (
@@ -69,7 +74,7 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
         {isApp && (
           <span className="huge-spacer-left display-inline-flex-center">
             {projects ? (
-              <DrilldownLink component={component.key} metric={MetricKey.projects}>
+              <DrilldownLink to={url}>
                 <span className="big">{formatMeasure(projects.value, 'SHORT_INT')}</span>
               </DrilldownLink>
             ) : (

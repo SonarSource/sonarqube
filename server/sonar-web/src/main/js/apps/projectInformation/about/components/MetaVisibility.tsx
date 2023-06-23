@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
+import PrivacyBadgeContainer from '../../../../components/common/PrivacyBadgeContainer';
+import { translate } from '../../../../helpers/l10n';
+import { Visibility } from '../../../../types/component';
 
-import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { FCProps } from '../../types/misc';
+interface Props {
+  qualifier: string;
+  visibility: Visibility;
+}
 
-import { SizeLabel } from '../../types/measures';
-import { SizeIndicator } from '../SizeIndicator';
-
-it.each([
-  [100, 'XS'],
-  [1100, 'S'],
-  [20_000, 'M'],
-  [200_000, 'L'],
-  [1_000_000, 'XL'],
-])('should display SizeIndicator with size', (value: number, letter: SizeLabel) => {
-  setupWithProps({ value });
-  expect(screen.getByText(letter)).toBeInTheDocument();
-});
-
-function setupWithProps(props: Partial<FCProps<typeof SizeIndicator>> = {}) {
-  return render(<SizeIndicator value={0} {...props} />);
+export default function MetaVisibility({ qualifier, visibility }: Props) {
+  return (
+    <>
+      <h3>{translate('visibility')}</h3>
+      <PrivacyBadgeContainer qualifier={qualifier} visibility={visibility} />
+    </>
+  );
 }
