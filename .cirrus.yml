@@ -34,9 +34,6 @@ cache_dependencies_dependant_task_template: &CACHE_DEPENDENCIES_DEPENDANT_TASK_T
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
 
-nightly_task_template: &NIGHTLY_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY
-
 master_and_nightly_task_template: &MASTER_AND_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
 
@@ -64,7 +61,30 @@ ldap_task_template: &LDAP_TASK_TEMPLATE
 github_task_template: &GITHUB_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/github/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java')
+
+gitlab_task_template: &GITLAB_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java')
+
+azure_task_template: &AZURE_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/azuredevops/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/azure/**/*.java')
+
+bitbucket_server_task_template: &BITBUCKET_SERVER_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucketserver/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketserver/**/*.java')
+
+bitbucket_cloud_task_template: &BITBUCKET_CLOUD_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/**/*.java')
+
 
 docker_build_container_template: &CONTAINER_TEMPLATE
   region: eu-central-1
@@ -356,6 +376,7 @@ task: #bitbucket
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BITBUCKET_SERVER_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -381,6 +402,7 @@ qa_bb_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BITBUCKET_CLOUD_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -437,6 +459,7 @@ qa_gitlab_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *GITLAB_TASK_TEMPLATE
   depends_on:
     - build
   env:
@@ -487,6 +510,7 @@ qa_gitlab_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *GITLAB_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -508,6 +532,7 @@ qa_azure_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *AZURE_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
