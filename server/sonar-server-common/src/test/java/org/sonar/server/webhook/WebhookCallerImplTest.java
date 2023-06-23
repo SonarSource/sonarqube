@@ -250,7 +250,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_url_is_local_network_interface() throws Exception {
-    String url = "https://192.168.1.21";
+    String url = "https://localhost";
 
     InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse(url).host());
 
