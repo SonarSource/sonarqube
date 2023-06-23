@@ -21,6 +21,7 @@ package org.sonar.xoo.lang;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,6 +77,7 @@ public class CpdTokenizerSensorTest {
     InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .setLanguage("xoo")
       .initMetadata(content)
+      .setCharset(Charset.defaultCharset())
       .setModuleBaseDir(baseDir.toPath())
       .build();
     context.fileSystem().add(inputFile);
