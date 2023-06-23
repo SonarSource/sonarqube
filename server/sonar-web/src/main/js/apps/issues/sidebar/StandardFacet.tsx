@@ -465,7 +465,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             </>
           )}
         </FacetBox>
-        <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
+        {/* <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
           <FacetHeader
             fetching={this.props.fetchingOwaspTop10}
             name={translate('issues.facet.owaspTop10')}
@@ -481,7 +481,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               {this.renderOwaspTop10Hint()}
             </>
           )}
-        </FacetBox>
+        </FacetBox> */}
         <FacetBox className="is-inner" property={SecurityStandard.SANS_TOP25}>
           <FacetHeader
             fetching={this.props.fetchingSansTop25}
