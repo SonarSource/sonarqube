@@ -21,7 +21,6 @@ package org.sonar.server.notification;
 
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

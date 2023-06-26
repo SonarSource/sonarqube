@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.notifications.NotificationChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 

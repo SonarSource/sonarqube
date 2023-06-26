@@ -34,10 +34,7 @@ import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
-import org.sonar.api.profiles.XMLProfileParser;
-import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
@@ -130,7 +127,6 @@ import org.sonar.server.management.DelegatingManagedServices;
 import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
-import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.monitoring.ComputeEngineMetricStatusTask;
@@ -198,7 +194,6 @@ import org.sonar.server.pushapi.ServerPushModule;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventServiceImpl;
 import org.sonar.server.pushapi.issues.IssueChangeEventServiceImpl;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
-import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualitygate.ws.QualityGateWsModule;
@@ -318,8 +313,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // quality profile
       BuiltInQProfileRepositoryImpl.class,
       ActiveRuleIndexer.class,
-      XMLProfileParser.class,
-      XMLProfileSerializer.class,
       QProfileComparison.class,
       QProfileTreeImpl.class,
       QProfileRulesImpl.class,
@@ -336,7 +329,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // rule
       RuleIndexDefinition.class,
       RuleIndexer.class,
-      AnnotationRuleParser.class,
       WebServerRuleFinderImpl.class,
       RuleDefinitionsLoader.class,
       RulesDefinitionXmlLoader.class,
@@ -366,11 +358,9 @@ public class PlatformLevel4 extends PlatformLevel {
       // measure
       new MetricsWsModule(),
       new MeasuresWsModule(),
-      MetricFinder.class,
       UnanalyzedLanguageMetrics.class,
 
       new QualityGateModule(),
-      new ProjectsInWarningModule(),
       new QualityGateWsModule(),
 
       // web services

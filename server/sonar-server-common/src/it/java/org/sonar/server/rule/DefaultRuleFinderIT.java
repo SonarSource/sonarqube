@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -32,10 +33,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
+import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 
 public class DefaultRuleFinderIT {
@@ -122,6 +125,17 @@ public class DefaultRuleFinderIT {
 
     assertThat(underTest.findDtoByKey(RuleKey.of("pmd", "CallSuperFirst")).get().getUuid()).isEqualTo(rule4.getUuid());
     assertThat(underTest.findDtoByUuid(rule4.getUuid())).isPresent();
+  }
+
+  @Test
+  public void should_include_rule_params() {
+    RuleParamDto ruleParamDto = dbTester.rules().insertRuleParam(rule1, p -> p.setType("type").setName("name").setDescription("desc"));
+    dbTester.getSession().commit();
+    Rule rule = underTest.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
+    assertThat(rule).isNotNull();
+    assertThat(rule.getParams())
+      .extracting(RuleParam::getKey, RuleParam::getType, RuleParam::getDescription)
+      .containsOnly(tuple("name", "type", "desc"));
   }
 
   @Test

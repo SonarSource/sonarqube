@@ -227,21 +227,6 @@ public class ListDefinitionsActionIT {
   }
 
   @Test
-  public void return_license_type_in_property_set() {
-    logIn();
-    propertyDefinitions.addComponent(PropertyDefinition
-      .builder("foo")
-      .type(PropertyType.PROPERTY_SET)
-      .fields(PropertyFieldDefinition.build("license").name("License").type(PropertyType.LICENSE).build())
-      .build());
-
-    ListDefinitionsWsResponse result = executeRequest();
-
-    assertThat(result.getDefinitionsList()).hasSize(1);
-    assertThat(result.getDefinitions(0).getFieldsList()).extracting(Settings.Field::getKey, Settings.Field::getType).containsOnly(tuple("license", LICENSE));
-  }
-
-  @Test
   public void return_global_settings_definitions() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
@@ -312,19 +297,6 @@ public class ListDefinitionsActionIT {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).isEmpty();
-  }
-
-  @Test
-  public void return_license_type() {
-    logInAsAdmin();
-    propertyDefinitions.addComponents(asList(
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
-      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
-
-    ListDefinitionsWsResponse result = executeRequest();
-
-    assertThat(result.getDefinitionsList()).extracting(Definition::getKey, Definition::getType)
-      .containsOnly(tuple("plugin.license.secured", LICENSE), tuple("commercial.plugin", LICENSE));
   }
 
   @Test

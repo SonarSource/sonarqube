@@ -199,7 +199,6 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     when(notificationService.hasProjectSubscribersForTypes(projectData.projectUuid(), singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
-
     Duration randomDuration = randomDuration();
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(RowNotFoundException.class)
@@ -239,7 +238,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
     long executedAt = random.nextInt(999_999);
 
     ProjectData project = random.nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
-    ComponentDto branchComponent = dbTester.components().insertProjectBranch(project.getMainBranchComponent(), b->b.setKey("otherbranch"));
+    ComponentDto branchComponent = dbTester.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("otherbranch"));
     initMocksToPassConditionsForBranch(branchComponent, project, taskUuid, createdAt, executedAt);
 
     Notification notificationMock = mockSerializer();

@@ -194,15 +194,5 @@ public class StatusActionTest {
     public String getPublicRootUrl() {
       throw new UnsupportedOperationException();
     }
-
-    @Override
-    public boolean isSecured() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getPermanentServerId() {
-      throw new UnsupportedOperationException();
-    }
   }
 }

@@ -55,7 +55,6 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -354,13 +353,12 @@ public class ProjectMeasuresIndex {
           .subAggregation(rangeAgg));
   }
 
-  private static AbstractAggregationBuilder<?> createQualityGateFacet(ProjectMeasuresQuery projectMeasuresQuery) {
+  private static AbstractAggregationBuilder<?> createQualityGateFacet() {
     return filters(
       ALERT_STATUS_KEY,
       QUALITY_GATE_STATUS
         .entrySet()
         .stream()
-        .filter(qgs -> !(projectMeasuresQuery.isIgnoreWarning() && qgs.getKey().equals(Metric.Level.WARN.name())))
         .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
         .toArray(KeyedFilter[]::new));
   }
@@ -462,7 +460,7 @@ public class ProjectMeasuresIndex {
 
     TermsAggregationBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
       .field(FIELD_TAGS)
-      .size(size*page)
+      .size(size * page)
       .minDocCount(1)
       .order(BucketOrder.key(true));
     if (textQuery != null) {
@@ -480,7 +478,7 @@ public class ProjectMeasuresIndex {
     Terms aggregation = response.getAggregations().get(FIELD_TAGS);
 
     return aggregation.getBuckets().stream()
-      .skip((page-1) * size)
+      .skip((page - 1) * size)
       .map(Bucket::getKeyAsString)
       .toList();
   }
@@ -611,7 +609,7 @@ public class ProjectMeasuresIndex {
     return topAggregationHelper.buildTopAggregation(
       facet.getName(), facet.getTopAggregationDef(),
       NO_EXTRA_FILTER,
-      t -> t.subAggregation(createQualityGateFacet(query)));
+      t -> t.subAggregation(createQualityGateFacet()));
   }
 
   private static FilterAggregationBuilder buildTagsFacet(Facet facet, ProjectMeasuresQuery query, TopAggregationHelper topAggregationHelper) {

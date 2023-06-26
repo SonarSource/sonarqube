@@ -42,7 +42,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -602,15 +601,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     }
     comments.add(comment);
     return this;
-  }
-
-  /**
-   * @deprecated since 7.2, comments are not more available
-   */
-  @Override
-  @Deprecated
-  public List<IssueComment> comments() {
-    return Collections.emptyList();
   }
 
   public List<DefaultIssueComment> defaultIssueComments() {

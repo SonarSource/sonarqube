@@ -53,11 +53,6 @@ public class ServerImpl extends Server {
   }
 
   @Override
-  public String getPermanentServerId() {
-    return getId();
-  }
-
-  @Override
   public String getVersion() {
     return version.get().toString();
   }
@@ -75,10 +70,5 @@ public class ServerImpl extends Server {
   @Override
   public String getPublicRootUrl() {
     return urlSettings.getBaseUrl();
-  }
-
-  @Override
-  public boolean isSecured() {
-    return urlSettings.isSecured();
   }
 }

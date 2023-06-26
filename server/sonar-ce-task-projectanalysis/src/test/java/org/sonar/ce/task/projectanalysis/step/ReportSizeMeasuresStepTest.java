@@ -106,7 +106,6 @@ public class ReportSizeMeasuresStepTest {
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(CoreMetrics.FILES)
-    .add(CoreMetrics.DIRECTORIES)
     .add(CoreMetrics.LINES)
     .add(CoreMetrics.GENERATED_LINES)
     .add(CoreMetrics.NCLOC)

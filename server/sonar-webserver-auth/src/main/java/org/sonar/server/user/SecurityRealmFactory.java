@@ -23,10 +23,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
@@ -47,10 +45,9 @@ public class SecurityRealmFactory implements Startable {
   private final SecurityRealm realm;
 
   @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
+  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
     ignoreStartupFailure = config.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
     String realmName = config.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
-    String className = config.get(CoreProperties.CORE_AUTHENTICATOR_CLASS).orElse(null);
 
     if (LDAP_SECURITY_REALM.equals(realmName)) {
       realm = null;
@@ -65,31 +62,14 @@ public class SecurityRealmFactory implements Startable {
           "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, SONAR_SECURITY_REALM.getKey()));
       }
     }
-    if (selectedRealm == null && !StringUtils.isEmpty(className)) {
-      LoginPasswordAuthenticator authenticator = selectAuthenticator(authenticators, className);
-      if (authenticator == null) {
-        throw new SonarException(String.format(
-          "Authenticator '%s' not found. Please check the property '%s' in conf/sonar.properties", className, CoreProperties.CORE_AUTHENTICATOR_CLASS));
-      }
-      selectedRealm = new CompatibilityRealm(authenticator);
-    }
+
     realm = selectedRealm;
 
   }
 
   @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, LoginPasswordAuthenticator[] authenticators) {
-    this(config, new SecurityRealm[0], authenticators);
-  }
-
-  @Autowired(required = false)
-  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
-    this(config, realms, new LoginPasswordAuthenticator[0]);
-  }
-
-  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config) {
-    this(config, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
+    this(config, new SecurityRealm[0]);
   }
 
   @Override
@@ -131,14 +111,4 @@ public class SecurityRealmFactory implements Startable {
     }
     return null;
   }
-
-  private static LoginPasswordAuthenticator selectAuthenticator(LoginPasswordAuthenticator[] authenticators, String className) {
-    for (LoginPasswordAuthenticator lpa : authenticators) {
-      if (lpa.getClass().getName().equals(className)) {
-        return lpa;
-      }
-    }
-    return null;
-  }
-
 }

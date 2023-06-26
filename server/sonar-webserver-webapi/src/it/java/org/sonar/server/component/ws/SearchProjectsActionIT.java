@@ -61,7 +61,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.qualitygate.ProjectsInWarning;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -167,17 +166,11 @@ public class SearchProjectsActionIT {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
-  private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock,
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock,
     new IssueIndexSyncProgressChecker(db.getDbClient())));
 
   private RequestBuilder request = SearchProjectsRequest.builder();
-
-  @Before
-  public void setUp() {
-    projectsInWarning.update(0L);
-  }
 
   @Test
   public void verify_definition() {
@@ -1080,9 +1073,7 @@ public class SearchProjectsActionIT {
     MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(ALERT_STATUS_KEY).setValueType(LEVEL.name()));
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
-    insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.WARN.name()).setValue(null)));
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.OK.name()).setValue(null)));
-    projectsInWarning.update(1L);
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(ALERT_STATUS_KEY)));
@@ -1094,8 +1085,7 @@ public class SearchProjectsActionIT {
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsOnly(
         tuple("OK", 1L),
-        tuple("ERROR", 2L),
-        tuple("WARN", 1L));
+        tuple("ERROR", 2L));
   }
 
   @Test
@@ -1105,7 +1095,6 @@ public class SearchProjectsActionIT {
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
     insertProject(new Measure(qualityGateStatus, c -> c.setData(Metric.Level.OK.name()).setValue(null)));
-    projectsInWarning.update(0L);
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(ALERT_STATUS_KEY)));
@@ -1291,25 +1280,6 @@ public class SearchProjectsActionIT {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(project.getKey());
-  }
-
-  @Test
-  public void use_deprecated_warning_quality_gate_in_filter() {
-    userSession.logIn();
-    MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()));
-    ComponentDto project1 = insertProject(c -> c.setName("Sonar Java"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("ERROR")));
-    ComponentDto project2 = insertProject(c -> c.setName("Sonar Groovy"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("WARN")));
-    ComponentDto project3 = insertProject(c -> c.setName("Sonar Markdown"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("WARN")));
-    ComponentDto project4 = insertProject(c -> c.setName("Sonar Qube"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
-    index();
-
-    List<Component> projects = call(request
-      .setFilter("alert_status = WARN"))
-      .getComponentsList();
-
-    assertThat(projects)
-      .extracting(Component::getKey)
-      .containsExactly(project2.getKey(), project3.getKey());
   }
 
   @Test

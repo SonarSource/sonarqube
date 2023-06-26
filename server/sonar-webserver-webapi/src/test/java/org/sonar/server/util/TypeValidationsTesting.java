@@ -30,11 +30,9 @@ public class TypeValidationsTesting {
     return new TypeValidations(Arrays.asList(
       new BooleanTypeValidation(),
       new IntegerTypeValidation(),
-      new LongTypeValidation(),
       new FloatTypeValidation(),
       new StringTypeValidation(),
-      new StringListTypeValidation(),
-      new MetricLevelTypeValidation()
+      new StringListTypeValidation()
       ));
   }
 }

@@ -116,14 +116,4 @@ class FakeServer extends Server {
   public String getPublicRootUrl() {
     return null;
   }
-
-  @Override
-  public boolean isSecured() {
-    return false;
-  }
-
-  @Override
-  public String getPermanentServerId() {
-    return null;
-  }
 }

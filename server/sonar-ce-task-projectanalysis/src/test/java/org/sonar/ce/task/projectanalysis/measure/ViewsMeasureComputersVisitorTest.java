@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.api.ce.measure.test.TestMeasureComputerDefinitionContext;
+import org.sonar.api.testfixtures.measure.TestMeasureComputerDefinitionContext;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerDefinitionImpl;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;

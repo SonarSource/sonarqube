@@ -162,12 +162,13 @@ public class CachingRuleFinder implements ServerRuleFinder {
     Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(ruleDto)).ifPresent(apiRule::setDescription);
     Optional.ofNullable(ruleDto.getLanguage()).ifPresent(apiRule::setLanguage);
 
-    List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
-      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.getName(), param.getDescription(), param.getType())
-        .setDefaultValue(param.getDefaultValue()));
+      apiRule.createParameter()
+        .setDescription(param.getDescription())
+        .setKey(param.getName())
+        .setType(param.getType())
+        .setDefaultValue(param.getDefaultValue());
     }
-    apiRule.setParams(apiParams);
 
     return apiRule;
   }

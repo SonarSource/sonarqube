@@ -46,10 +46,8 @@ public class DefaultServerTest {
     assertThat(metadata.getVersion()).isEqualTo("2.2");
     assertThat(metadata.getStartedAt()).isNotNull();
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://foo.com");
-    assertThat(metadata.getPermanentServerId()).isEqualTo("123");
 
     assertThat(metadata.getContextPath()).isNull();
-    assertThat(metadata.isSecured()).isFalse();
   }
 
   @Test

@@ -346,27 +346,6 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_multi_value_with_type_metric() {
-    definitions.addComponent(PropertyDefinition
-      .builder("my_key")
-      .name("foo")
-      .description("desc")
-      .category("cat")
-      .subCategory("subCat")
-      .type(PropertyType.METRIC)
-      .defaultValue("default")
-      .multiValues(true)
-      .build());
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key_1"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key_2"));
-    dbSession.commit();
-
-    callForMultiValueGlobalSetting("my_key", List.of("metric_key_1", "metric_key_2"));
-
-    assertGlobalSetting("my_key", "metric_key_1,metric_key_2");
-  }
-
-  @Test
   public void persist_multi_value_with_type_logIn() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
@@ -699,28 +678,6 @@ public class SetActionIT {
     assertThatThrownBy(() -> callForGlobalSetting("my.key", "My Value"))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Not an integer error message");
-  }
-
-  @Test
-  public void fail_when_data_and_metric_type_with_invalid_key() {
-    definitions.addComponent(PropertyDefinition
-      .builder("my_key")
-      .name("foo")
-      .description("desc")
-      .category("cat")
-      .subCategory("subCat")
-      .type(PropertyType.METRIC)
-      .defaultValue("default")
-      .multiValues(true)
-      .build());
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_disabled_key").setEnabled(false));
-    dbSession.commit();
-
-    List<String> values = List.of("metric_key", "metric_disabled_key");
-    assertThatThrownBy(() -> callForMultiValueGlobalSetting("my_key", values))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Error when validating metric setting with key 'my_key' and values [metric_key, metric_disabled_key]. A value is not a valid metric key.");
   }
 
   @Test

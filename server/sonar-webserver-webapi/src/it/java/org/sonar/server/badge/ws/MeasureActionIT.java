@@ -64,7 +64,6 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
@@ -75,7 +74,6 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
-import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_WARN;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureActionIT {
@@ -237,23 +235,6 @@ public class MeasureActionIT {
     // Second call with If-None-Match must return 304
     checkWithIfNoneMatchHeader(project, metric, response);
 
-  }
-
-  @Test
-  public void display_deprecated_warning_quality_gate() {
-    ProjectData projectData = db.components().insertPublicProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-
-    userSession.registerProjects(projectData.getProjectDto());
-    MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(WARN.name()));
-
-    TestResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute();
-
-    checkSvg(response, "quality gate", "warning", QUALITY_GATE_WARN);
   }
 
   @Test

@@ -28,11 +28,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.utils.SonarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.utils.SonarException;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -111,7 +110,8 @@ public class DefaultNotificationManager implements NotificationManager {
   }
 
   @Override
-  public Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
+  public Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey,
+    SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
     verifyProjectKey(projectKey);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -150,7 +150,8 @@ public class DefaultNotificationManager implements NotificationManager {
       .collect(Collectors.toSet());
   }
 
-  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
+  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey,
+    Set<EmailSubscriberDto> emailSubscribers,
     SubscriberPermissionsOnProject requiredPermissions) {
     if (requiredPermissions.getGlobalSubscribers().equals(requiredPermissions.getProjectSubscribers())) {
       return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, null, requiredPermissions.getGlobalSubscribers());
@@ -161,7 +162,8 @@ public class DefaultNotificationManager implements NotificationManager {
     }
   }
 
-  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
+  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey,
+    Set<EmailSubscriberDto> emailSubscribers,
     @Nullable Boolean global, String permission) {
     Set<EmailSubscriberDto> subscribers = emailSubscribers.stream()
       .filter(s -> global == null || s.isGlobal() == global)

@@ -72,14 +72,4 @@ public class DefaultServer extends Server {
     }
     return StringUtils.removeEnd(baseUrl, "/");
   }
-
-  @Override
-  public boolean isSecured() {
-    return false;
-  }
-
-  @Override
-  public String getPermanentServerId() {
-    return getId();
-  }
 }

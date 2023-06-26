@@ -27,7 +27,6 @@ import java.io.ObjectOutputStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.utils.SonarException;
 
 /**
  * @since 3.7.1
@@ -70,7 +69,7 @@ public class NotificationQueueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static <T extends Notification> NotificationQueueDto toNotificationQueueDto(T notification) {
+  public static NotificationQueueDto toNotificationQueueDto(Notification notification) {
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
       objectOutputStream.writeObject(notification);
@@ -78,7 +77,7 @@ public class NotificationQueueDto {
       return new NotificationQueueDto().setData(byteArrayOutputStream.toByteArray());
 
     } catch (IOException e) {
-      throw new SonarException("Unable to write notification", e);
+      throw new IllegalStateException("Unable to write notification", e);
     }
   }
 

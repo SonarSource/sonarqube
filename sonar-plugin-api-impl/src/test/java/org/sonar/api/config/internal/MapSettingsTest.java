@@ -61,7 +61,7 @@ public class MapSettingsTest {
     @Property(key = "integer", name = "Integer", defaultValue = "12345"),
     @Property(key = "array", name = "Array", defaultValue = "one,two,three"),
     @Property(key = "multi_values", name = "Array", defaultValue = "1,2,3", multiValues = true),
-    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET, propertySetKey = "jira"),
+    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET),
     @Property(key = "newKey", name = "New key", deprecatedKey = "oldKey"),
     @Property(key = "newKeyWithDefaultValue", name = "New key with default value", deprecatedKey = "oldKeyWithDefaultValue", defaultValue = "default_value"),
     @Property(key = "new_multi_values", name = "New multi values", defaultValue = "1,2,3", multiValues = true, deprecatedKey = "old_multi_values")

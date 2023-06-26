@@ -44,12 +44,6 @@ class FakeServer extends Server {
     return this;
   }
 
-  @CheckForNull
-  @Override
-  public String getPermanentServerId() {
-    return null;
-  }
-
   @Override
   public String getVersion() {
     return this.version;
@@ -74,10 +68,4 @@ class FakeServer extends Server {
   public String getPublicRootUrl() {
     return null;
   }
-
-  @Override
-  public boolean isSecured() {
-    return false;
-  }
-
 }

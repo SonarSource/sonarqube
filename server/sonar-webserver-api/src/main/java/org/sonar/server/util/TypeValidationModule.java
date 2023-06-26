@@ -31,9 +31,7 @@ public class TypeValidationModule extends Module {
       BooleanTypeValidation.class,
       TextTypeValidation.class,
       StringTypeValidation.class,
-      StringListTypeValidation.class,
-      LongTypeValidation.class,
-      MetricLevelTypeValidation.class
+      StringListTypeValidation.class
     );
   }
 }

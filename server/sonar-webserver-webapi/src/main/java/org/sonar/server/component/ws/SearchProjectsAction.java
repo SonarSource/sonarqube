@@ -64,7 +64,6 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.qualitygate.ProjectsInWarning;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
@@ -108,16 +107,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
   private final UserSession userSession;
-  private final ProjectsInWarning projectsInWarning;
   private final PlatformEditionProvider editionProvider;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession, ProjectsInWarning projectsInWarning,
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
     PlatformEditionProvider editionProvider, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
-    this.projectsInWarning = projectsInWarning;
     this.editionProvider = editionProvider;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
   }
@@ -231,7 +228,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
     List<Criterion> criteria = FilterParser.parse(firstNonNull(request.getFilter(), ""));
     ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, hasFavoriteFilter(criteria) ? favoriteProjectUuids : null)
-      .setIgnoreWarning(projectsInWarning.count() == 0L)
       .setSort(request.getSort())
       .setAsc(request.getAsc());
 

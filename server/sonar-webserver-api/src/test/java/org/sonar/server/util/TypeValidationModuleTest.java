@@ -29,6 +29,6 @@ public class TypeValidationModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new TypeValidationModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(9);
+    assertThat(container.getAddedObjects()).hasSize(7);
   }
 }

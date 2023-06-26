@@ -25,11 +25,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -194,13 +192,6 @@ public class SensorContextTesterTest {
     assertThat(tester.measures("foo:src/Foo.java")).hasSize(2);
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNotNull();
     assertThat(tester.measure("foo:src/Foo.java", "lines")).isNotNull();
-    tester.<Integer>newMeasure()
-      .on(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())))
-      .forMetric(CoreMetrics.DIRECTORIES)
-      .withValue(4)
-      .save();
-    assertThat(tester.measures("foo")).hasSize(1);
-    assertThat(tester.measure("foo", "directories")).isNotNull();
   }
 
   @Test(expected = IllegalStateException.class)

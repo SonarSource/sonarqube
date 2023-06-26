@@ -182,8 +182,8 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
   public void send_global_new_issues_notification() {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     protoIssueCache.newAppender().append(
-      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
-        .setCreationDate(new Date(ANALYSE_DATE)))
+        createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
+          .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
@@ -238,8 +238,8 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
   public void do_not_send_global_new_issues_notification_if_issue_has_been_backdated() {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     protoIssueCache.newAppender().append(
-      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
-        .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
+        createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
+          .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
@@ -317,7 +317,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
 
     protoIssueCache.newAppender().append(
-      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid()).setCreationDate(new Date(ANALYSE_DATE)))
+        createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid()).setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
@@ -478,8 +478,8 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     UserDto user = db.users().insertUser();
     protoIssueCache.newAppender().append(
-      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid())
-        .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
+        createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid())
+          .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 

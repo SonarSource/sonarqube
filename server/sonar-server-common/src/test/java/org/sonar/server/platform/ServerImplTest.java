@@ -44,7 +44,6 @@ public class ServerImplTest {
 
     assertThat(underTest.getContextPath()).isEqualTo("/foo");
     assertThat(underTest.getPublicRootUrl()).isEqualTo("http://localhost:9000/foo");
-    assertThat(underTest.isSecured()).isFalse();
   }
 
   @Test
@@ -60,7 +59,6 @@ public class ServerImplTest {
     settings.setProperty(CoreProperties.SERVER_ID, "foo");
 
     assertThat(underTest.getId()).isEqualTo("foo");
-    assertThat(underTest.getPermanentServerId()).isEqualTo("foo");
   }
 
   @Test

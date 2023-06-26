@@ -21,6 +21,8 @@ package org.sonar.scanner.scan;
 
 import javax.annotation.Nullable;
 import javax.annotation.Priority;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
@@ -29,8 +31,6 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
@@ -104,9 +104,7 @@ import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
-import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.QProfileVerifier;
-import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
@@ -168,7 +166,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ResourceTypes.class,
       ProjectReactorValidator.class,
       ProjectInfo.class,
-      new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
       ProjectRepositoriesProvider.class,
@@ -313,7 +310,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
     add(SvnScmSupport.getObjects());
 
     add(DefaultProjectSettingsLoader.class,
-      DefaultRulesLoader.class,
       DefaultActiveRulesLoader.class,
       DefaultQualityProfileLoader.class,
       DefaultProjectRepositoriesLoader.class);
@@ -358,7 +354,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
     }
 
     getComponentByType(DeprecatedPropertiesWarningGenerator.class).execute();
-
 
     getComponentByType(ProjectFileIndexer.class).index();
 

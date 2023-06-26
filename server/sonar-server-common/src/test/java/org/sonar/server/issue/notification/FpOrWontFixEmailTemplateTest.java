@@ -426,10 +426,10 @@ public class FpOrWontFixEmailTemplateTest {
     Rule rule2 = newRandomNotAHotspotRule("a");
     String host = randomAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(
-      IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, project1, rule1)),
-      IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, project1, rule2)),
-      IntStream.range(0, 81).mapToObj(i -> newChangedIssue("1-40_41-80_1_" + i, project2, rule2)),
-      IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, project2Branch, rule1)))
+        IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, project1, rule1)),
+        IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, project1, rule2)),
+        IntStream.range(0, 81).mapToObj(i -> newChangedIssue("1-40_41-80_1_" + i, project2, rule2)),
+        IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, project2Branch, rule1)))
       .flatMap(t -> t)
       .collect(toList());
     Collections.shuffle(changedIssues);

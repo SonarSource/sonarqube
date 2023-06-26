@@ -20,10 +20,10 @@
 package org.sonar.server.notification.ws;
 
 import org.junit.Test;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.issue.notification.FPOrWontFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
+import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 

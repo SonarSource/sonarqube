@@ -29,7 +29,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,6 +39,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.notification.NotificationChannel;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Notifications.ListResponse;
 import org.sonarqube.ws.Notifications.Notification;
@@ -118,7 +118,8 @@ public class ListAction implements NotificationsWsAction {
 
   private UnaryOperator<ListResponse.Builder> addNotifications(DbSession dbSession, UserDto user) {
     return response -> {
-      List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession);
+      List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(),
+        dbSession);
       Map<String, EntityDto> entitiesByUuid = searchProjects(dbSession, properties);
 
       Predicate<PropertyDto> isNotification = prop -> prop.getKey().startsWith("notification.");
@@ -158,14 +159,16 @@ public class ListAction implements NotificationsWsAction {
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
-    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, userSession.getUuid(), UserRole.USER);
+    Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids,
+      userSession.getUuid(), UserRole.USER);
     return dbClient.entityDao().selectByUuids(dbSession, entityUuids)
       .stream()
       .filter(c -> authorizedProjectUuids.contains(c.getUuid()))
       .collect(Collectors.toMap(EntityDto::getUuid, Function.identity()));
   }
 
-  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification, Map<String, EntityDto> projectsByUuid) {
+  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification,
+    Map<String, EntityDto> projectsByUuid) {
     return property -> {
       notification.clear();
       List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());

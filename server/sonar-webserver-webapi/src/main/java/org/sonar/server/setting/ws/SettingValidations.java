@@ -128,9 +128,7 @@ public class SettingValidations {
         return;
       }
 
-      if (definition.type() == PropertyType.METRIC) {
-        validateMetric(data);
-      } else if (definition.type() == PropertyType.USER_LOGIN) {
+      if (definition.type() == PropertyType.USER_LOGIN) {
         validateLogin(data);
       } else if (definition.type() == PropertyType.JSON) {
         validateJson(data, definition);
