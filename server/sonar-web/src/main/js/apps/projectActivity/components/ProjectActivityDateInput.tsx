@@ -43,6 +43,7 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
         <DateRangePicker
           ariaNextMonthLabel={translate('next_')}
           ariaPreviousMonthLabel={translate('previous_')}
+          className="sw-w-abs-350"
           clearButtonLabel={translate('clear')}
           fromLabel={translate('start_date')}
           onChange={this.handleChange}

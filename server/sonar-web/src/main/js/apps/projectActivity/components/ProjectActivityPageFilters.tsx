@@ -61,7 +61,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
       {!isPortfolioLike(project.qualifier) && (
         <InputSelect
           aria-label={translate('project_activity.filter_events')}
-          className="sw-mr-8 sw-body-sm"
+          className="sw-mr-8 sw-body-sm sw-w-abs-200"
           onChange={(data: LabelValueSelectOption<string>) => handleCategoryChange(data)}
           options={options}
           placeholder={translate('project_activity.filter_events')}
