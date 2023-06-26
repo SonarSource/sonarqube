@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import hljs from 'highlight.js';
 import apex from 'highlightjs-apex';
 import abap from 'highlightjs-sap-abap';
@@ -40,6 +41,7 @@ interface Props {
   className?: string;
   htmlAsString: string;
   language?: string;
+  wrap?: boolean;
 }
 
 const CODE_REGEXP = '<(code|pre)\\b([^>]*?)>(.+?)<\\/\\1>';
@@ -52,7 +54,8 @@ const htmlDecode = (escapedCode: string) => {
   return doc.documentElement.textContent ?? '';
 };
 
-export function CodeSyntaxHighlighter({ className, htmlAsString, language }: Props) {
+export function CodeSyntaxHighlighter(props: Props) {
+  const { className, htmlAsString, language, wrap } = props;
   let highlightedHtmlAsString = htmlAsString;
 
   htmlAsString.match(GLOBAL_REGEXP)?.forEach((codeBlock) => {
@@ -83,7 +86,7 @@ export function CodeSyntaxHighlighter({ className, htmlAsString, language }: Pro
 
   return (
     <StyledSpan
-      className={`hljs ${className ?? ''}`}
+      className={classNames(`hljs ${className ?? ''}`, { 'code-wrap': wrap })}
       // Safe: value is escaped by highlight.js
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: highlightedHtmlAsString }}
@@ -138,6 +141,11 @@ const StyledSpan = styled.span`
 
   .hljs-meta .hljs-keyword {
     color: ${themeColor('codeSnippetPreprocessingDirective')};
+  }
+
+  &.code-wrap {
+    ${tw`sw-whitespace-pre-wrap`}
+    ${tw`sw-break-all`}
   }
 
   mark {

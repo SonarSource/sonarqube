@@ -45,13 +45,7 @@ export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
       </div>
       <div className="sw-w-full">
         <div className="sw-flex sw-gap-2 sw-items-center sw-min-w-0">
-          <CodeSnippet
-            className="sw-min-w-0"
-            isOneLine
-            noCopy
-            highlight={false}
-            snippet={componentKey}
-          />
+          <CodeSnippet className="sw-min-w-0" isOneLine noCopy snippet={componentKey} />
           <ClipboardIconButton copyValue={componentKey} />
         </div>
       </div>

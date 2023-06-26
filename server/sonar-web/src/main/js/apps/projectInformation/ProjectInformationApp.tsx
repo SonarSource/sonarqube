@@ -28,7 +28,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import withMetricsContext from '../../app/components/metrics/withMetricsContext';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier, isApplication, isProject } from '../../types/component';
+import { isApplication, isProject } from '../../types/component';
 import { Feature } from '../../types/features';
 import { MetricKey } from '../../types/metrics';
 import { Component, Dict, Measure, Metric } from '../../types/types';
@@ -99,12 +99,11 @@ function ProjectInformationApp(props: Props) {
                   <ProjectBadges branchLike={branchLike} component={component} />
                 </Card>
               )}
-              {component.qualifier === ComponentQualifier.Project &&
-                regulatoryReportFeatureEnabled && (
-                  <Card>
-                    <RegulatoryReport component={component} branchLike={branchLike} />
-                  </Card>
-                )}
+              {isProject(component.qualifier) && regulatoryReportFeatureEnabled && (
+                <Card>
+                  <RegulatoryReport component={component} branchLike={branchLike} />
+                </Card>
+              )}
             </div>
           </div>
         </PageContentFontWrapper>

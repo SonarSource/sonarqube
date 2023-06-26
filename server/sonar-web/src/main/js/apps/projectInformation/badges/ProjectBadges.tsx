@@ -165,10 +165,10 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       <DeferredSpinner className="spacer-top spacer-bottom" loading={isFetchingToken || isRenewing}>
         {!isLoading && (
           <CodeSnippet
-            wrap
-            className="sw-p-6 it__code-snippet"
             language="plaintext"
+            className="sw-p-6 it__code-snippet"
             snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
+            wrap
           />
         )}
       </DeferredSpinner>
@@ -177,7 +177,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
         <p>
           {translate('overview.badges.leak_warning')}
           {canRenew && (
-            <div className="sw-flex sw-flex-col">
+            <span className="sw-flex sw-flex-col">
               {translate('overview.badges.renew.description')}{' '}
               <ButtonSecondary
                 disabled={isLoading}
@@ -188,7 +188,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
               >
                 {translate('overview.badges.renew')}
               </ButtonSecondary>
-            </div>
+            </span>
           )}
         </p>
       </FlagMessage>
