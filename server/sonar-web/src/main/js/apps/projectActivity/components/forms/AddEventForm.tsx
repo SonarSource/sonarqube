@@ -51,17 +51,18 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
         headerTitle={translate(this.props.addEventButtonText)}
         onClose={this.props.onClose}
         body={
-          <div>
+          <form id="add-event-form">
             <label htmlFor="name">{translate('name')}</label>
             <InputField
               id="name"
+              className="sw-my-2"
               autoFocus
               onChange={this.handleNameChange}
               type="text"
               value={this.state.name}
               size="full"
             />
-          </div>
+          </form>
         }
         primaryButton={
           <ButtonPrimary
