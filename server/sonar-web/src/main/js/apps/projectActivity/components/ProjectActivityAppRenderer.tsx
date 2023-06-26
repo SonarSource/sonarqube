@@ -37,7 +37,6 @@ import { Query } from '../utils';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
 import ProjectActivityPageFilters from './ProjectActivityPageFilters';
-import './projectActivity.css';
 
 interface Props {
   onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
