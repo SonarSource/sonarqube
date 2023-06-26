@@ -71,7 +71,7 @@ export default function MetaTags(props: Props) {
       <Tags
         allowUpdate={canUpdateTags()}
         ariaTagsListLabel={translate('tags')}
-        className="js-issue-edit-tags"
+        className="project-info-tags"
         emptyText={translate('no_tags')}
         overlay={<MetaTagsSelector selectedTags={tags} setProjectTags={handleSetProjectTags} />}
         popupPlacement={PopupPlacement.Bottom}

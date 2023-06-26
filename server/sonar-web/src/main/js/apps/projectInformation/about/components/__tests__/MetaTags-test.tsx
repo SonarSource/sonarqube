@@ -78,6 +78,8 @@ it('should allow to edit tags for a project', async () => {
 
   expect(setProjectTags).toHaveBeenCalled();
   expect(setApplicationTags).not.toHaveBeenCalled();
+  await user.click(document.body);
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
 });
 
 it('should set tags for an app', async () => {

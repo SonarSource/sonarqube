@@ -62,6 +62,10 @@ export class MeasuresServiceMock {
     return this.#measures;
   };
 
+  setComponents = (components: ComponentTree) => {
+    this.#components = components;
+  };
+
   findComponentTree = (key: string, from?: ComponentTree): ComponentTree => {
     const recurse = (node: ComponentTree): ComponentTree | undefined => {
       if (node.component.key === key) {

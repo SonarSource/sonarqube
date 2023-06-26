@@ -21,6 +21,8 @@ import { cloneDeep } from 'lodash';
 import { ProjectLink } from '../../types/types';
 import { createLink, deleteLink, getProjectLinks } from '../projectLinks';
 
+jest.mock('../projectLinks');
+
 export default class ProjectLinksServiceMock {
   projectLinks: ProjectLink[] = [];
   idCounter: number = 0;

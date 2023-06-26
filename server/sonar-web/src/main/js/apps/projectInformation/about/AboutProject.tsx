@@ -96,7 +96,7 @@ export default function AboutProject(props: AboutProjectProps) {
         <MetaTags component={component} onComponentChange={props.onComponentChange} />
       </ProjectInformationSection>
 
-      <ProjectInformationSection>
+      <ProjectInformationSection last={!isLoggedIn(currentUser) && (isApp || !links?.length)}>
         <MetaSize component={component} measures={measures} />
       </ProjectInformationSection>
 
@@ -124,7 +124,7 @@ function ProjectInformationSection(props: PropsWithChildren<ProjectInformationSe
   const { children, className, last = false } = props;
   return (
     <>
-      <div className={classNames('sw-py-6', className)}>{children}</div>
+      <div className={classNames('sw-py-4', className)}>{children}</div>
       {!last && <BasicSeparator />}
     </>
   );

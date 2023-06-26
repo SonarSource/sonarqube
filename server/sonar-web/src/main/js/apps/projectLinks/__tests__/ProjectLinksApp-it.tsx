@@ -27,8 +27,6 @@ import { renderAppWithComponentContext } from '../../../helpers/testReactTesting
 import { byRole, byText } from '../../../helpers/testSelector';
 import ProjectLinksApp from '../ProjectLinksApp';
 
-jest.mock('../../../api/projectLinks');
-
 const componentsMock = new ProjectLinksServiceMock();
 
 afterEach(() => {

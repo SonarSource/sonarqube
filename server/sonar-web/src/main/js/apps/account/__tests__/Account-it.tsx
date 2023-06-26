@@ -36,7 +36,6 @@ import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
 jest.mock('../../../api/user-tokens');
-jest.mock('../../../api/notifications');
 
 jest.mock('../../../helpers/preferences', () => ({
   getKeyboardShortcutEnabled: jest.fn().mockResolvedValue(true),

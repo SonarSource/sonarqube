@@ -46,6 +46,8 @@ import {
   getDuplications,
   getSources,
   getTree,
+  setApplicationTags,
+  setProjectTags,
 } from '../components';
 import {
   ComponentTree,
@@ -95,6 +97,8 @@ export default class ComponentsServiceMock {
     jest.mocked(changeKey).mockImplementation(this.handleChangeKey);
     jest.mocked(getComponentLeaves).mockImplementation(this.handleGetComponentLeaves);
     jest.mocked(getBreadcrumbs).mockImplementation(this.handleGetBreadcrumbs);
+    jest.mocked(setProjectTags).mockImplementation(this.handleSetProjectTags);
+    jest.mocked(setApplicationTags).mockImplementation(this.handleSetApplicationTags);
   }
 
   findComponentTree = (key: string, from?: ComponentTree) => {
@@ -369,7 +373,25 @@ export default class ComponentsServiceMock {
     return this.reply([...(base.ancestors as ComponentRaw[]), base.component as ComponentRaw]);
   };
 
-  reply<T>(response: T): Promise<T> {
-    return Promise.resolve(cloneDeep(response));
+  handleSetProjectTags: typeof setProjectTags = ({ project, tags }) => {
+    const base = this.findComponentTree(project);
+    if (base !== undefined) {
+      base.component.tags = tags.split(',');
+    }
+    return this.reply();
+  };
+
+  handleSetApplicationTags: typeof setApplicationTags = ({ application, tags }) => {
+    const base = this.findComponentTree(application);
+    if (base !== undefined) {
+      base.component.tags = tags.split(',');
+    }
+    return this.reply();
+  };
+
+  reply<T>(): Promise<void>;
+  reply<T>(response: T): Promise<T>;
+  reply<T>(response?: T): Promise<T | void> {
+    return Promise.resolve(response ? cloneDeep(response) : undefined);
   }
 }

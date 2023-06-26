@@ -37,7 +37,7 @@ export default function MetaHome({ componentKey, currentUser, isApp }: MetaHomeP
   const { updateCurrentUserHomepage } = useContext(CurrentUserContext);
   const currentPage: HomePage = {
     component: componentKey,
-    type: 'PROJECT',
+    type: isApp ? 'APPLICATION' : 'PROJECT',
     branch: undefined,
   };
 

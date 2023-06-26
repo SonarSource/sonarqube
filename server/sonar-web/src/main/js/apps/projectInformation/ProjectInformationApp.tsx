@@ -50,7 +50,7 @@ interface State {
   measures?: Measure[];
 }
 
-export class ProjectInformationApp extends React.PureComponent<Props, State> {
+class ProjectInformationApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {};
 

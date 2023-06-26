@@ -17,9 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LinkExternalIcon } from '@primer/octicons-react';
-import { HomeIcon } from 'design-system';
-import * as React from 'react';
+import {
+  FileIcon,
+  HomeIcon,
+  LinkExternalIcon,
+  IconProps as MIUIIconProps,
+  PulseIcon,
+  SyncIcon,
+} from '@primer/octicons-react';
+import React, { FC } from 'react';
 import BugTrackerIcon from './BugTrackerIcon';
 import ContinuousIntegrationIcon from './ContinuousIntegrationIcon';
 import DetachIcon from './DetachIcon';
@@ -37,16 +43,16 @@ export default function ProjectLinkIcon({
   type,
   ...iconProps
 }: IconProps & ProjectLinkIconProps) {
-  const getIcon = (): any => {
+  const getIcon = (): FC<IconProps | MIUIIconProps> => {
     switch (type) {
       case 'issue':
-        return BugTrackerIcon;
+        return miui ? PulseIcon : BugTrackerIcon;
       case 'homepage':
         return miui ? HomeIcon : HouseIcon;
       case 'ci':
-        return ContinuousIntegrationIcon;
+        return miui ? SyncIcon : ContinuousIntegrationIcon;
       case 'scm':
-        return SCMIcon;
+        return miui ? FileIcon : SCMIcon;
       default:
         return miui ? LinkExternalIcon : DetachIcon;
     }

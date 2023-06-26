@@ -30,11 +30,10 @@ export default function MetaDescription({ description, isApp }: Props) {
   return (
     <>
       <h3>{translate('project.info.description')}</h3>
-      {description ? (
-        <p className="it__project-description">{description}</p>
-      ) : (
-        <TextMuted text={translate(isApp ? 'application' : 'project', 'info.empty_description')} />
-      )}
+      <TextMuted
+        className="it__project-description"
+        text={description ?? translate(isApp ? 'application' : 'project', 'info.empty_description')}
+      />
     </>
   );
 }

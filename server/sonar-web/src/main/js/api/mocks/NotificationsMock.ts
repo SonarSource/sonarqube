@@ -27,6 +27,8 @@ import {
 } from '../../types/notifications';
 import { addNotification, getNotifications, removeNotification } from '../notifications';
 
+jest.mock('../notifications');
+
 /* Constants */
 const channels = ['EmailNotificationChannel'];
 const defaultNotifications: Notification[] = [
