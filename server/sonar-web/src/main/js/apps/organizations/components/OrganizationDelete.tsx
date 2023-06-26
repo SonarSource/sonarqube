@@ -78,6 +78,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
       } else {
         addGlobalSuccessMessage(translate('organization.deleted'));
         this.props.router.replace('/');
+        window.location.reload();
       }
     });
   };
