@@ -55,7 +55,15 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
   scrollContainer?: HTMLUListElement | null;
 
   componentDidUpdate(prevProps: Props) {
-    if (this.scrollContainer && activityQueryChanged(prevProps.query, this.props.query)) {
+    const selectedDate = this.props.query.selectedDate
+      ? this.props.query.selectedDate.valueOf()
+      : null;
+
+    if (
+      this.scrollContainer &&
+      activityQueryChanged(prevProps.query, this.props.query) &&
+      !this.props.analyses.some(({ date }) => date.valueOf() === selectedDate)
+    ) {
       this.scrollContainer.scrollTop = 0;
     }
   }
