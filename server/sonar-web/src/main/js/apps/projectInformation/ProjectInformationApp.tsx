@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Card, LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { getMeasures } from '../../api/measures';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -46,91 +46,71 @@ interface Props extends WithAvailableFeaturesProps {
   metrics: Dict<Metric>;
 }
 
-interface State {
-  measures?: Measure[];
-}
+function ProjectInformationApp(props: Props) {
+  const [measures, setMeasures] = useState<Measure[] | undefined>(undefined);
 
-class ProjectInformationApp extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {};
+  const { branchLike, component, currentUser, metrics } = props;
 
-  componentDidMount() {
-    this.mounted = true;
-    this.loadMeasures();
-  }
+  useEffect(() => {
+    const { key } = component;
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  loadMeasures = () => {
-    const {
-      component: { key },
-    } = this.props;
-
-    return getMeasures({
+    getMeasures({
       component: key,
       metricKeys: [MetricKey.ncloc, MetricKey.projects].join(),
-    }).then((measures) => {
-      if (this.mounted) {
-        this.setState({ measures });
-      }
-    });
-  };
+    })
+      .then((measures) => {
+        setMeasures(measures);
+      })
+      .catch(() => {});
+  }, [component]);
 
-  render() {
-    const { branchLike, component, currentUser, metrics } = this.props;
-    const { measures } = this.state;
+  const canConfigureNotifications = isLoggedIn(currentUser) && isProject(component.qualifier);
+  const canUseBadges =
+    metrics !== undefined && (isApplication(component.qualifier) || isProject(component.qualifier));
+  const regulatoryReportFeatureEnabled = props.hasFeature(Feature.RegulatoryReport);
+  const isApp = isApplication(component.qualifier);
 
-    const canConfigureNotifications = isLoggedIn(currentUser) && isProject(component.qualifier);
-    const canUseBadges =
-      metrics !== undefined &&
-      (isApplication(component.qualifier) || isProject(component.qualifier));
-    const regulatoryReportFeatureEnabled = this.props.hasFeature(Feature.RegulatoryReport);
-    const isApp = isApplication(component.qualifier);
-
-    return (
-      <main>
-        <LargeCenteredLayout>
-          <PageContentFontWrapper>
-            <div className="overview sw-my-6 sw-body-sm">
-              <Title className="sw-mb-12">
-                {translate(isApp ? 'application' : 'project', 'info.title')}
-              </Title>
-              <div className="sw-grid sw-grid-cols-[488px_minmax(0,_2fr)] sw-gap-x-12 sw-gap-y-3 sw-auto-rows-min">
-                <div className="sw-row-span-3">
-                  <Card>
-                    <AboutProject
-                      component={component}
-                      measures={measures}
-                      onComponentChange={this.props.onComponentChange}
-                    />
-                  </Card>
-                </div>
-
-                {canConfigureNotifications && (
-                  <Card>
-                    <ProjectNotifications component={component} />
-                  </Card>
-                )}
-                {canUseBadges && (
-                  <Card>
-                    <ProjectBadges branchLike={branchLike} component={component} />
-                  </Card>
-                )}
-                {component.qualifier === ComponentQualifier.Project &&
-                  regulatoryReportFeatureEnabled && (
-                    <Card>
-                      <RegulatoryReport component={component} branchLike={branchLike} />
-                    </Card>
-                  )}
+  return (
+    <main>
+      <LargeCenteredLayout>
+        <PageContentFontWrapper>
+          <div className="overview sw-my-6 sw-body-sm">
+            <Title className="sw-mb-12">
+              {translate(isApp ? 'application' : 'project', 'info.title')}
+            </Title>
+            <div className="sw-grid sw-grid-cols-[488px_minmax(0,_2fr)] sw-gap-x-12 sw-gap-y-3 sw-auto-rows-min">
+              <div className="sw-row-span-3">
+                <Card>
+                  <AboutProject
+                    component={component}
+                    measures={measures}
+                    onComponentChange={props.onComponentChange}
+                  />
+                </Card>
               </div>
+
+              {canConfigureNotifications && (
+                <Card>
+                  <ProjectNotifications component={component} />
+                </Card>
+              )}
+              {canUseBadges && (
+                <Card>
+                  <ProjectBadges branchLike={branchLike} component={component} />
+                </Card>
+              )}
+              {component.qualifier === ComponentQualifier.Project &&
+                regulatoryReportFeatureEnabled && (
+                  <Card>
+                    <RegulatoryReport component={component} branchLike={branchLike} />
+                  </Card>
+                )}
             </div>
-          </PageContentFontWrapper>
-        </LargeCenteredLayout>
-      </main>
-    );
-  }
+          </div>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </main>
+  );
 }
 
 export default withComponentContext(
