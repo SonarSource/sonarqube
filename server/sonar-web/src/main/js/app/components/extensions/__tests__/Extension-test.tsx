@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { lightTheme } from 'design-system';
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
@@ -91,6 +92,7 @@ function shallowRender(props: Partial<Extension['props']> = {}) {
   // We need to mount, as we rely on refs.
   return mount<Extension>(
     <Extension
+      theme={lightTheme}
       appState={mockAppState()}
       currentUser={mockCurrentUser()}
       extension={{ key: 'foo', name: 'Foo' }}

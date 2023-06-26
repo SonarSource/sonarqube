@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { ComponentContext } from '../componentContext/ComponentContext';
 import NotFound from '../NotFound';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
 
 export interface ProjectPageExtensionProps {

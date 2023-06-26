@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import { Theme } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
@@ -35,6 +37,7 @@ import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
 interface Props extends WrappedComponentProps {
+  theme: Theme;
   appState: AppState;
   currentUser: CurrentUser;
   extension: TypeExtension;
@@ -71,6 +74,7 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 
   handleStart = (start: ExtensionStartMethod) => {
+    const { theme: dsTheme } = this.props;
     const result = start({
       appState: this.props.appState,
       el: this.container,
@@ -79,6 +83,8 @@ export class Extension extends React.PureComponent<Props, State> {
       location: this.props.location,
       router: this.props.router,
       theme,
+      // New theme from design-system, we should drop old theme once the migration to miui is done
+      dsTheme,
       baseUrl: getBaseUrl(),
       l10nBundle: getCurrentL10nBundle(),
       // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
@@ -127,4 +133,6 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 }
 
-export default injectIntl(withRouter(withAppStateContext(withCurrentUserContext(Extension))));
+export default injectIntl(
+  withRouter(withTheme(withAppStateContext(withCurrentUserContext(Extension))))
+);
