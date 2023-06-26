@@ -107,6 +107,7 @@ module.exports = {
       filterbar: '50',
       'content-popup': '52',
       'filterbar-header': '55',
+      'dropdown-menu-page': '100',
       'top-navbar': '419',
       popup: '420',
       'global-navbar': '421',

@@ -67,6 +67,9 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
           placeholder={translate('project_activity.filter_events')}
           size="small"
           value={options.find((o) => o.value === category)}
+          classNames={{
+            menu: () => 'sw-z-dropdown-menu-page',
+          }}
         />
       )}
       <ProjectActivityDateInput from={from} onChange={props.updateQuery} to={to} />

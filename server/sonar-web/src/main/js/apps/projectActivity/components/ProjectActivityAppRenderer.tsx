@@ -18,7 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { LargeCenteredLayout, themeBorder, themeColor } from 'design-system';
+import {
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
@@ -66,50 +71,52 @@ export default function ProjectActivityAppRenderer(props: Props) {
 
       <A11ySkipTarget anchor="activity_main" />
       <LargeCenteredLayout>
-        <ProjectActivityPageFilters
-          category={query.category}
-          from={query.from}
-          project={props.project}
-          to={query.to}
-          updateQuery={props.onUpdateQuery}
-        />
+        <PageContentFontWrapper>
+          <ProjectActivityPageFilters
+            category={query.category}
+            from={query.from}
+            project={props.project}
+            to={query.to}
+            updateQuery={props.onUpdateQuery}
+          />
 
-        <div className="sw-grid sw-grid-cols-12 sw-gap-x-12">
-          <StyledWrapper className="sw-col-span-4 sw-rounded-1">
-            <ProjectActivityAnalysesList
-              onAddCustomEvent={props.onAddCustomEvent}
-              onAddVersion={props.onAddVersion}
-              analyses={analyses}
-              analysesLoading={props.analysesLoading}
-              canAdmin={canAdmin}
-              canDeleteAnalyses={canDeleteAnalyses}
-              onChangeEvent={props.onChangeEvent}
-              onDeleteAnalysis={props.onDeleteAnalysis}
-              onDeleteEvent={props.onDeleteEvent}
-              initializing={props.initializing}
-              leakPeriodDate={
-                props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-              }
-              project={props.project}
-              query={query}
-              onUpdateQuery={props.onUpdateQuery}
-            />
-          </StyledWrapper>
-          <StyledWrapper className="sw-col-span-8 sw-rounded-1">
-            <ProjectActivityGraphs
-              analyses={analyses}
-              leakPeriodDate={
-                props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-              }
-              loading={props.graphLoading}
-              measuresHistory={measuresHistory}
-              metrics={props.metrics}
-              project={props.project.key}
-              query={query}
-              updateQuery={props.onUpdateQuery}
-            />
-          </StyledWrapper>
-        </div>
+          <div className="sw-grid sw-grid-cols-12 sw-gap-x-12">
+            <StyledWrapper className="sw-col-span-4 sw-rounded-1">
+              <ProjectActivityAnalysesList
+                onAddCustomEvent={props.onAddCustomEvent}
+                onAddVersion={props.onAddVersion}
+                analyses={analyses}
+                analysesLoading={props.analysesLoading}
+                canAdmin={canAdmin}
+                canDeleteAnalyses={canDeleteAnalyses}
+                onChangeEvent={props.onChangeEvent}
+                onDeleteAnalysis={props.onDeleteAnalysis}
+                onDeleteEvent={props.onDeleteEvent}
+                initializing={props.initializing}
+                leakPeriodDate={
+                  props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
+                }
+                project={props.project}
+                query={query}
+                onUpdateQuery={props.onUpdateQuery}
+              />
+            </StyledWrapper>
+            <StyledWrapper className="sw-col-span-8 sw-rounded-1">
+              <ProjectActivityGraphs
+                analyses={analyses}
+                leakPeriodDate={
+                  props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
+                }
+                loading={props.graphLoading}
+                measuresHistory={measuresHistory}
+                metrics={props.metrics}
+                project={props.project.key}
+                query={query}
+                updateQuery={props.onUpdateQuery}
+              />
+            </StyledWrapper>
+          </div>
+        </PageContentFontWrapper>
       </LargeCenteredLayout>
     </main>
   );

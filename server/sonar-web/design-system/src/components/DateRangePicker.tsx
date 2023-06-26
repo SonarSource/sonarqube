@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import { max, min } from 'date-fns';
 import * as React from 'react';
+import { PopupZLevel } from '../helpers';
 import { DatePicker } from './DatePicker';
 import { LightLabel } from './Text';
 
@@ -42,6 +43,7 @@ interface Props {
   toLabel: string;
   value?: DateRange;
   valueFormatter?: (date?: Date) => string;
+  zLevel?: PopupZLevel;
 }
 
 export class DateRangePicker extends React.PureComponent<Props> {
@@ -82,6 +84,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
       separatorText,
       toLabel,
       valueFormatter,
+      zLevel,
     } = this.props;
 
     return (
@@ -101,6 +104,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
           size="full"
           value={this.from}
           valueFormatter={valueFormatter}
+          zLevel={zLevel}
         />
         <LightLabel className="sw-mx-2">{separatorText ?? '–'}</LightLabel>
         <DatePicker
@@ -122,6 +126,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
           size="full"
           value={this.to}
           valueFormatter={valueFormatter}
+          zLevel={zLevel}
         />
       </div>
     );

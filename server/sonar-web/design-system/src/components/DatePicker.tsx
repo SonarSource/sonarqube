@@ -77,6 +77,7 @@ interface Props {
   size?: InputSizeKeys;
   value?: Date;
   valueFormatter?: (date?: Date) => string;
+  zLevel?: PopupZLevel;
 }
 
 interface State {
@@ -144,6 +145,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
       showClearButton = true,
       valueFormatter = (date?: Date) => (date ? format(date, 'MMM d, yyyy') : ''),
       size,
+      zLevel = PopupZLevel.Global,
     } = this.props;
     const { lastHovered, currentMonth, open } = this.state;
 
@@ -206,7 +208,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
                 ) : null
               }
               placement={alignRight ? PopupPlacement.BottomRight : PopupPlacement.BottomLeft}
-              zLevel={PopupZLevel.Global}
+              zLevel={zLevel}
             >
               <span
                 className={classNames('sw-relative sw-inline-block sw-cursor-pointer', className)}
