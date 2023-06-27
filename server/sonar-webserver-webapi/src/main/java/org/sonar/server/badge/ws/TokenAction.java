@@ -20,6 +20,7 @@
 package org.sonar.server.badge.ws;
 
 import com.google.common.io.Resources;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +35,8 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonarqube.ws.ProjectBadgeToken.TokenWsResponse;
 
+import static java.lang.String.format;
+import static org.sonar.server.badge.ws.ProjectBadgesWs.PROJECT_OR_APP_NOT_FOUND;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -55,9 +58,10 @@ public class TokenAction implements ProjectBadgesWsAction {
     NewAction action = controller.createAction("token")
       .setHandler(this)
       .setSince("9.2")
-      .setDescription("Retrieve a token to use for project badge access for private projects.<br/>" +
+      .setChangelog(new Change("9.9", format("Application key can be used for %s parameter.", PROJECT_KEY_PARAM)))
+      .setDescription("Retrieve a token to use for project or application badge access for private projects or applications.<br/>" +
         "This token can be used to authenticate with api/project_badges/quality_gate and api/project_badges/measure endpoints.<br/>" +
-        "Requires 'Browse' permission on the specified project.")
+        "Requires 'Browse' permission on the specified project or application.")
       .setResponseExample(Resources.getResource(getClass(), "token-example.json"));
     action.createParam(PROJECT_KEY_PARAM)
       .setDescription("Project or application key")
@@ -75,7 +79,8 @@ public class TokenAction implements ProjectBadgesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectKey = request.mandatoryParam(PROJECT_KEY_PARAM);
 
-      ProjectDto projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey).orElseThrow(() -> new IllegalArgumentException("project not found"));
+      ProjectDto projectDto = dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
+        .orElseThrow(() -> new IllegalArgumentException(PROJECT_OR_APP_NOT_FOUND));
       userSession.checkProjectPermission(UserRole.USER, projectDto);
       ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
 

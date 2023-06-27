@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.WebService;
 
 public class ProjectBadgesWs implements WebService {
 
+  static final String PROJECT_OR_APP_NOT_FOUND = "Project or Application not found";
+
   private final List<ProjectBadgesWsAction> actions;
 
   public ProjectBadgesWs(List<ProjectBadgesWsAction> actions) {

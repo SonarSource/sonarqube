@@ -82,6 +82,18 @@ public class TokenActionTest {
   }
 
   @Test
+  public void handle_whenApplicationKeyPassed_shouldReturnToken() {
+    ComponentDto application = db.components().insertPrivateApplication();
+    userSession.logIn().addProjectPermission(UserRole.USER, application);
+    when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
+
+    TestResponse response = ws.newRequest().setParam("project", application.getKey()).execute();
+
+    response.assertJson("{\"token\":\"generated_token\"}");
+  }
+
+
+  @Test
   public void should_reuse_generated_token() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
