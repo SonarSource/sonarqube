@@ -153,6 +153,11 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH);
   }
 
+  @CheckForNull
+  public String organizationUuid() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID);
+  }
+
   public IssueDoc setKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
     return this;
@@ -272,6 +277,11 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
+    return this;
+  }
+
+  public IssueDoc setOrganizationUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, s);
     return this;
   }
 

@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -44,6 +45,7 @@ import org.sonarqube.ws.Issues;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_TYPE_NAMES;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -55,6 +57,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
  * @since 5.1
  */
 public class TagsAction implements IssuesWsAction {
+  private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_ALL = "all";
@@ -84,6 +87,12 @@ public class TagsAction implements IssuesWsAction {
         new Change("9.4", "Max page size increased to 500"));
     action.createSearchQuery("misra", "tags");
     action.createPageSize(10, 500);
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
+      .setSince("6.4");
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
       .setRequired(false)
@@ -106,13 +115,15 @@ public class TagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectKey = request.param(PARAM_PROJECT);
+      String organizatioKey = request.param(PARAM_ORGANIZATION);
       String branchKey = request.param(PARAM_BRANCH);
       boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
 
-      Optional<ComponentDto> project = getProject(dbSession, projectKey);
+      Optional<OrganizationDto> organization = getOrganization(dbSession, organizatioKey);
+      Optional<ComponentDto> project = getProject(dbSession, organization, projectKey);
       Optional<BranchDto> branch = project.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.uuid(), branchKey));
-      List<String> tags = searchTags(project.orElse(null), branch.orElse(null), request, all);
+      List<String> tags = searchTags(organization, project.orElse(null), branch.orElse(null), request, all);
 
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
       tags.forEach(tagsResponseBuilder::addTags);
@@ -120,12 +131,18 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private Optional<ComponentDto> getProject(DbSession dbSession, @Nullable String projectKey) {
+  private Optional<OrganizationDto> getOrganization(DbSession dbSession, @Nullable String organizationKey) {
+    return organizationKey == null ? Optional.empty()
+      : Optional.of(checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey));
+  }
+
+  private Optional<ComponentDto> getProject(DbSession dbSession, Optional<OrganizationDto> organization, @Nullable String projectKey) {
     if (projectKey == null) {
       return Optional.empty();
     }
     ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
     checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
+    organization.ifPresent(o -> checkArgument(project.getOrganizationUuid().equals(o.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, o.getKey()));
     return Optional.of(project);
   }
 
@@ -137,9 +154,10 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private List<String> searchTags(@Nullable ComponentDto project, @Nullable BranchDto branch, Request request, boolean all) {
+  private List<String> searchTags(Optional<OrganizationDto> organization, @Nullable ComponentDto project, @Nullable BranchDto branch, Request request, boolean all) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
       .types(ISSUE_TYPE_NAMES);
+    organization.ifPresent(o -> issueQueryBuilder.organizationUuid(o.getUuid()));
     if (project != null) {
       switch (project.qualifier()) {
         case Qualifiers.PROJECT:

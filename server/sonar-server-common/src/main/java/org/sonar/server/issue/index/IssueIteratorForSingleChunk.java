@@ -82,7 +82,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.issue_type",
     "r.security_standards",
     "c.qualifier",
-    "n.uuid"
+    "n.uuid",
+    "c.organization_uuid"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -244,6 +245,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
       doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
       doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
+      doc.setOrganizationUuid(rs.getString(25));
       return doc;
     }
 

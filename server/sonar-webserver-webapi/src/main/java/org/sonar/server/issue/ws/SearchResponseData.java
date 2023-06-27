@@ -34,6 +34,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.workflow.Transition;
@@ -49,11 +50,13 @@ public class SearchResponseData {
   private Long effortTotal = null;
   private final Map<String, UserDto> usersByUuid = new HashMap<>();
   private final List<RuleDto> rules = new ArrayList<>();
+  private final Map<String, String> organizationKeysByUuid = new HashMap<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, Transition> transitionsByIssueKey = ArrayListMultimap.create();
   private final Set<String> updatableComments = new HashSet<>();
+  private final Set<String> userOrganizationUuids = new HashSet<>();
   private final Map<String, BranchDto> branchesByUuid = new HashMap<>();
 
   public SearchResponseData(IssueDto issue) {
@@ -89,6 +92,12 @@ public class SearchResponseData {
 
   public List<RuleDto> getRules() {
     return rules;
+  }
+
+  public String getOrganizationKey(String organizationUuid) {
+    String organizationKey = organizationKeysByUuid.get(organizationUuid);
+    checkNotNull(organizationKey, "Organization for uuid '%s' not found", organizationUuid);
+    return organizationKey;
   }
 
   @CheckForNull
@@ -174,6 +183,18 @@ public class SearchResponseData {
 
   void setEffortTotal(@Nullable Long effortTotal) {
     this.effortTotal = effortTotal;
+  }
+
+  void addOrganization(OrganizationDto organizationDto) {
+    this.organizationKeysByUuid.put(organizationDto.getUuid(), organizationDto.getKey());
+  }
+
+  void setUserOrganizationUuids(Set<String> organizationUuids) {
+    this.userOrganizationUuids.addAll(organizationUuids);
+  }
+
+  Set<String> getUserOrganizationUuids() {
+    return this.userOrganizationUuids;
   }
 
   @CheckForNull
