@@ -28,7 +28,8 @@ auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_
 skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
   skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
 
-cache_dependencies_dependant_task_template: &CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+cache_dependencies_dependant_task_template:
+  &CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   depends_on: cache_dependencies
 
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
@@ -37,7 +38,8 @@ build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
 master_and_nightly_task_template: &MASTER_AND_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
 
-master_or_nightly_or_maintenance_task_template: &MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+master_or_nightly_or_maintenance_task_template:
+  &MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
 
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
@@ -84,7 +86,6 @@ bitbucket_cloud_task_template: &BITBUCKET_CLOUD_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/**/*.java')
-
 
 docker_build_container_template: &CONTAINER_TEMPLATE
   region: eu-central-1
@@ -285,7 +286,7 @@ yarn_validate_task:
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
-    memory: 20Gb
+    memory: 25Gb
   script:
     - ./private/cirrus/cirrus-yarn-validate-ci.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
