@@ -80,6 +80,7 @@ public class RuleForIndexingDto {
     ruleForIndexingDto.type = r.getType();
     ruleForIndexingDto.createdAt = r.getCreatedAt();
     ruleForIndexingDto.updatedAt = r.getUpdatedAt();
+    ruleForIndexingDto.organizationUuid = r.getOrganizationUuid();
     if (r.getRuleDescriptionSectionDtos() != null) {
       ruleForIndexingDto.setRuleDescriptionSectionsDtos(Sets.newHashSet(r.getRuleDescriptionSectionDtos()));
     }
