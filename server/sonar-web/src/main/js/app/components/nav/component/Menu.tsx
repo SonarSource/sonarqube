@@ -605,7 +605,7 @@ export class Menu extends React.PureComponent<Props> {
   renderExtensions = () => {
     const query = this.getQuery();
     const extensions = this.props.component.extensions || [];
-    const withoutSecurityExtension = extensions.filter(
+    let withoutSecurityExtension = extensions.filter(
       (extension) =>
         !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/')
     );
@@ -613,6 +613,10 @@ export class Menu extends React.PureComponent<Props> {
     if (withoutSecurityExtension.length === 0) {
       return null;
     }
+
+    withoutSecurityExtension = withoutSecurityExtension.filter((e)=>{
+      return e.name  !== "Project Job"
+    });
 
     return (
       <Dropdown
