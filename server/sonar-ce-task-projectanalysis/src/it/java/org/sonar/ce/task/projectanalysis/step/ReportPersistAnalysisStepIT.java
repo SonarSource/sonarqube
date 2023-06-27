@@ -120,7 +120,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
-    assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
+    assertThat(projectSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getProjectVersion()).isEqualTo(projectVersion);
     assertThat(projectSnapshot.getBuildString()).isEqualTo(buildString);
     assertThat(projectSnapshot.getLast()).isFalse();
@@ -199,7 +199,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
 
   private SnapshotDto getUnprocessedSnapshot(String componentUuid) {
     List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbTester.getSession(),
-      new SnapshotQuery().setComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
+      new SnapshotQuery().setRootComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);
   }

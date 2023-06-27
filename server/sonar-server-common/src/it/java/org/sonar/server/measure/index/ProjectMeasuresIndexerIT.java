@@ -314,7 +314,7 @@ public class ProjectMeasuresIndexerIT {
 
   private void assertThatIndexContainsOnly(SnapshotDto... expectedProjects) {
     assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
-      Arrays.stream(expectedProjects).map(SnapshotDto::getComponentUuid).toArray(String[]::new));
+      Arrays.stream(expectedProjects).map(SnapshotDto::getRootComponentUuid).toArray(String[]::new));
   }
 
   private void assertThatIndexContainsOnly(ComponentDto... expectedProjects) {
@@ -328,7 +328,7 @@ public class ProjectMeasuresIndexerIT {
   }
 
   private void assertThatQualifierIs(String qualifier, SnapshotDto... expectedComponents) {
-    String[] expectedComponentUuids = Arrays.stream(expectedComponents).map(SnapshotDto::getComponentUuid).toArray(String[]::new);
+    String[] expectedComponentUuids = Arrays.stream(expectedComponents).map(SnapshotDto::getRootComponentUuid).toArray(String[]::new);
     assertThatQualifierIs(qualifier, expectedComponentUuids);
   }
 

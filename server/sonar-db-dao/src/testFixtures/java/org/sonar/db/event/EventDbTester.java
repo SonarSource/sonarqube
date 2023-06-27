@@ -67,7 +67,7 @@ public class EventDbTester {
       .setComponentKey(component.getKey())
       .setComponentName(component.name())
       .setComponentBranchKey(Optional.ofNullable(branch).map(BranchDto::getKey).orElse(null));
-    EventPurgeData eventPurgeData = new EventPurgeData(analysis.getComponentUuid(), analysis.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(analysis.getRootComponentUuid(), analysis.getUuid());
     
     dbClient.eventComponentChangeDao().insert(dbSession, eventComponentChange, eventPurgeData);
     db.commit();

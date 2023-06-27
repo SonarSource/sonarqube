@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
+package org.sonar.server.platform.db.migration.version.v102;
 
-import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+public class DropIndexComponentUuidInSnapshots extends DropIndexChange {
 
-public class EventTesting {
+  private static final String TABLE_NAME = "snapshots";
+  private static final String INDEX_NAME = "snapshot_component";
 
-  public static EventDto newEvent(SnapshotDto analysis) {
-    requireNonNull(analysis.getUuid());
-    requireNonNull(analysis.getRootComponentUuid());
-
-    return new EventDto()
-      .setAnalysisUuid(analysis.getUuid())
-      .setComponentUuid(analysis.getRootComponentUuid())
-      .setUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(400))
-      .setDescription(null)
-      .setCategory("Other")
-      .setCreatedAt(System.currentTimeMillis())
-      .setDate(System.currentTimeMillis());
+  public DropIndexComponentUuidInSnapshots(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

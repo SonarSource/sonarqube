@@ -170,7 +170,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addAnalyses(SearchData.Builder data) {
     SnapshotQuery dbQuery = new SnapshotQuery()
-      .setComponentUuid(data.getProject().uuid())
+      .setRootComponentUuid(data.getProject().uuid())
       .setStatuses(data.getRequest().getStatuses())
       .setSort(BY_DATE, DESC);
     ofNullable(data.getRequest().getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));

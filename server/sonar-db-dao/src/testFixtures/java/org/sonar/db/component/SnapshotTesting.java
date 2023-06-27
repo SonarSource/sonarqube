@@ -44,7 +44,7 @@ public class SnapshotTesting {
   public static SnapshotDto newAnalysis(String uuid) {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(uuid)
+      .setRootComponentUuid(uuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())
@@ -55,7 +55,7 @@ public class SnapshotTesting {
   public static SnapshotDto newSnapshot() {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(randomAlphanumeric(40))
+      .setRootComponentUuid(randomAlphanumeric(40))
       .setStatus(randomAscii(1))
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())

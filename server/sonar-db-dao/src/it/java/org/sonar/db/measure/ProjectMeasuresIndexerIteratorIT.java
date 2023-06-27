@@ -21,7 +21,6 @@ package org.sonar.db.measure;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,13 +29,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -47,8 +43,6 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.db.component.ComponentDbTester.defaults;
-import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ProjectMeasuresIndexerIteratorIT {

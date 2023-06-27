@@ -437,31 +437,31 @@ public class PurgeDaoIT {
     SnapshotDto[] analyses = new SnapshotDto[] {
       newSnapshot()
         .setUuid("u1")
-        .setComponentUuid(PROJECT_UUID)
+        .setRootComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_PROCESSED)
         .setLast(true),
       // not processed -> exclude
       newSnapshot()
         .setUuid("u2")
-        .setComponentUuid(PROJECT_UUID)
+        .setRootComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_UNPROCESSED)
         .setLast(false),
       // on other resource -> exclude
       newSnapshot()
         .setUuid("u3")
-        .setComponentUuid("uuid_222")
+        .setRootComponentUuid("uuid_222")
         .setStatus(STATUS_PROCESSED)
         .setLast(true),
       // without event -> select
       newSnapshot()
         .setUuid("u4")
-        .setComponentUuid(PROJECT_UUID)
+        .setRootComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_PROCESSED)
         .setLast(false),
       // with event -> select
       newSnapshot()
         .setUuid("u5")
-        .setComponentUuid(PROJECT_UUID)
+        .setRootComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_PROCESSED)
         .setLast(false)
         .setProjectVersion("V5")
@@ -489,7 +489,7 @@ public class PurgeDaoIT {
   public void selectPurgeableAnalyses_does_not_return_the_baseline() {
     ComponentDto project1 = db.components().insertPublicProject("master").getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(newSnapshot()
-      .setComponentUuid(project1.uuid())
+      .setRootComponentUuid(project1.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
     dbClient.newCodePeriodDao().insert(dbSession,
@@ -500,7 +500,7 @@ public class PurgeDaoIT {
         .setValue(analysis1.getUuid()));
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis2 = db.components().insertSnapshot(newSnapshot()
-      .setComponentUuid(project2.uuid())
+      .setRootComponentUuid(project2.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
     db.components().insertProjectBranch(project2);
@@ -515,7 +515,7 @@ public class PurgeDaoIT {
   public void selectPurgeableAnalyses_does_not_return_the_baseline_of_specific_branch() {
     ComponentDto project = db.components().insertPublicProject("master").getMainBranchComponent();
     SnapshotDto analysisProject = db.components().insertSnapshot(newSnapshot()
-      .setComponentUuid(project.uuid())
+      .setRootComponentUuid(project.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
     dbClient.newCodePeriodDao().insert(dbSession,
@@ -526,12 +526,12 @@ public class PurgeDaoIT {
         .setValue(analysisProject.getUuid()));
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     SnapshotDto analysisBranch1 = db.components().insertSnapshot(newSnapshot()
-      .setComponentUuid(branch1.uuid())
+      .setRootComponentUuid(branch1.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     SnapshotDto analysisBranch2 = db.components().insertSnapshot(newSnapshot()
-      .setComponentUuid(branch2.uuid())
+      .setRootComponentUuid(branch2.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
     dbClient.newCodePeriodDao().insert(dbSession,
@@ -1971,7 +1971,7 @@ public class PurgeDaoIT {
   }
 
   private Stream<String> uuidsOfAnalysesOfRoot(ComponentDto rootComponent) {
-    return db.select("select uuid as \"UUID\" from snapshots where component_uuid='" + rootComponent.uuid() + "'")
+    return db.select("select uuid as \"UUID\" from snapshots where root_component_uuid='" + rootComponent.uuid() + "'")
       .stream()
       .map(t -> (String) t.get("UUID"));
   }

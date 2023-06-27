@@ -117,7 +117,7 @@ public class ExportEventsStepIT {
     dbTester.getDbClient().eventDao().insert(dbTester.getSession(), new EventDto()
       .setUuid("E1")
       .setAnalysisUuid(snapshot.getUuid())
-      .setComponentUuid(snapshot.getComponentUuid())
+      .setComponentUuid(snapshot.getRootComponentUuid())
       .setDate(IN_THE_PAST)
       .setCreatedAt(NOW)
       .setData("data")
@@ -148,7 +148,7 @@ public class ExportEventsStepIT {
     dbTester.getDbClient().eventDao().insert(dbTester.getSession(), new EventDto()
       .setUuid(uuid)
       .setAnalysisUuid(snapshot.getUuid())
-      .setComponentUuid(snapshot.getComponentUuid())
+      .setComponentUuid(snapshot.getRootComponentUuid())
       .setDate(IN_THE_PAST)
       .setCreatedAt(NOW)
       .setName(name));
@@ -158,7 +158,7 @@ public class ExportEventsStepIT {
   private SnapshotDto insertSnapshot() {
     SnapshotDto snapshot = new SnapshotDto()
       .setUuid("U1")
-      .setComponentUuid(PROJECT.uuid())
+      .setRootComponentUuid(PROJECT.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), snapshot);

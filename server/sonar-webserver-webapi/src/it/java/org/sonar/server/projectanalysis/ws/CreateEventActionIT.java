@@ -106,14 +106,14 @@ public class CreateEventActionIT {
 
     CreateEventResponse result = call(VERSION.name(), "5.6.3", analysis.getUuid());
 
-    List<EventDto> dbEvents = dbClient.eventDao().selectByComponentUuid(dbSession, analysis.getComponentUuid());
+    List<EventDto> dbEvents = dbClient.eventDao().selectByComponentUuid(dbSession, analysis.getRootComponentUuid());
     assertThat(dbEvents).hasSize(1);
     EventDto dbEvent = dbEvents.get(0);
     assertThat(dbEvent.getName()).isEqualTo("5.6.3");
     assertThat(dbEvent.getCategory()).isEqualTo(VERSION.getLabel());
     assertThat(dbEvent.getDescription()).isNull();
     assertThat(dbEvent.getAnalysisUuid()).isEqualTo(analysis.getUuid());
-    assertThat(dbEvent.getComponentUuid()).isEqualTo(analysis.getComponentUuid());
+    assertThat(dbEvent.getComponentUuid()).isEqualTo(analysis.getRootComponentUuid());
     assertThat(dbEvent.getUuid()).isEqualTo(result.getEvent().getKey());
     assertThat(dbEvent.getCreatedAt()).isEqualTo(123_456_789L);
     assertThat(dbEvent.getDate()).isEqualTo(analysis.getCreatedAt());
@@ -130,14 +130,14 @@ public class CreateEventActionIT {
 
     CreateEventResponse result = call(VERSION.name(), "5.6.3", analysis.getUuid());
 
-    List<EventDto> dbEvents = dbClient.eventDao().selectByComponentUuid(dbSession, analysis.getComponentUuid());
+    List<EventDto> dbEvents = dbClient.eventDao().selectByComponentUuid(dbSession, analysis.getRootComponentUuid());
     assertThat(dbEvents).hasSize(1);
     EventDto dbEvent = dbEvents.get(0);
     assertThat(dbEvent.getName()).isEqualTo("5.6.3");
     assertThat(dbEvent.getCategory()).isEqualTo(VERSION.getLabel());
     assertThat(dbEvent.getDescription()).isNull();
     assertThat(dbEvent.getAnalysisUuid()).isEqualTo(analysis.getUuid());
-    assertThat(dbEvent.getComponentUuid()).isEqualTo(analysis.getComponentUuid());
+    assertThat(dbEvent.getComponentUuid()).isEqualTo(analysis.getRootComponentUuid());
     assertThat(dbEvent.getUuid()).isEqualTo(result.getEvent().getKey());
     assertThat(dbEvent.getCreatedAt()).isEqualTo(123_456_789L);
     assertThat(dbEvent.getDate()).isEqualTo(analysis.getCreatedAt());

@@ -134,7 +134,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private ProjectDto getProjectOrApplication(DbSession dbSession, SnapshotDto analysis) {
-    return dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid())
+    return dbClient.branchDao().selectByUuid(dbSession, analysis.getRootComponentUuid())
       .flatMap(branch -> dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid()))
       .orElseThrow(() -> new IllegalStateException(String.format("Project of analysis '%s' not found", analysis.getUuid())));
   }
@@ -157,7 +157,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
     return new EventDto()
       .setUuid(uuidFactory.create())
       .setAnalysisUuid(analysis.getUuid())
-      .setComponentUuid(analysis.getComponentUuid())
+      .setComponentUuid(analysis.getRootComponentUuid())
       .setCategory(request.getCategory().getLabel())
       .setName(request.getName())
       .setCreatedAt(system.now())

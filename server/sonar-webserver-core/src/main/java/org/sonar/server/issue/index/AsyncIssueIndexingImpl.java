@@ -121,7 +121,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   private void sortProjectUuids(DbSession dbSession, List<String> projectUuids) {
     Map<String, SnapshotDto> snapshotByProjectUuid = dbClient.snapshotDao()
       .selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
-      .collect(Collectors.toMap(SnapshotDto::getComponentUuid, Function.identity()));
+      .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, Function.identity()));
 
     projectUuids.sort(compareBySnapshot(snapshotByProjectUuid));
   }

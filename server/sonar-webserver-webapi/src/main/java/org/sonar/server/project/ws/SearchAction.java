@@ -163,7 +163,7 @@ public class SearchAction implements ProjectsWsAction {
         .collect(Collectors.toMap(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate));
       Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, identity()));
+        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getRootComponentUuid, identity()));
 
       return buildResponse(components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, paging);
     }

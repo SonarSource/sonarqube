@@ -4,7 +4,7 @@
 
   <sql id="snapshotColumns">
     s.uuid as uuid,
-    s.component_uuid as componentUuid,
+    s.root_component_uuid as rootComponentUuid,
     s.created_at as createdAt,
     s.build_date as buildDate,
     s.status as status,
@@ -38,7 +38,7 @@
   <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
-    inner join components p on s.component_uuid = p.branch_uuid
+    inner join components p on s.root_component_uuid = p.branch_uuid
     where
       s.islast=${_true}
       and p.uuid = #{componentUuid,jdbcType=VARCHAR}
@@ -47,7 +47,7 @@
   <select id="selectLastAnalysisDateByProject" resultType="long">
     select max(s.created_at)
     from snapshots s
-    inner join components p on s.component_uuid = p.branch_uuid
+    inner join components p on s.root_component_uuid = p.branch_uuid
     left join project_branches pb on pb.uuid = p.branch_uuid
     where
       s.islast=${_true}
@@ -65,7 +65,7 @@
         s.created_at as last_analysis_date
       from
         snapshots s
-      inner join components c on s.component_uuid = c.branch_uuid
+      inner join components c on s.root_component_uuid = c.branch_uuid
       left join project_branches pb on pb.uuid = c.branch_uuid
       where
         s.islast = ${_true}
@@ -89,7 +89,7 @@
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
-    where s.islast=${_true} and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where s.islast=${_true} and s.root_component_uuid = #{rootComponentUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectLastSnapshotsByRootComponentUuids" resultType="Snapshot">
@@ -97,9 +97,9 @@
     from snapshots s
     where
       s.islast=${_true}
-      and s.component_uuid in
-      <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
-        #{componentUuid,jdbcType=VARCHAR}
+      and s.root_component_uuid in
+      <foreach collection="rootComponentUuids" item="rootComponentUuid" separator="," open="(" close=")">
+        #{rootComponentUuid,jdbcType=VARCHAR}
       </foreach>
   </select>
 
@@ -107,8 +107,8 @@
     SELECT
     <include refid="snapshotColumns" />
     FROM snapshots s
-    <if test="query.componentUuid != null">
-      INNER JOIN components p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
+    <if test="query.rootComponentUuid != null">
+      INNER JOIN components p ON p.uuid=s.root_component_uuid AND p.enabled=${_true} AND s.root_component_uuid=#{query.rootComponentUuid,jdbcType=VARCHAR}
     </if>
     <where>
       <if test="query.status != null">
@@ -148,7 +148,7 @@
     select
     <include refid="snapshotColumns" />
     from snapshots s
-      inner join components p on p.uuid=s.component_uuid and p.enabled=${_true}
+      inner join components p on p.uuid=s.root_component_uuid and p.enabled=${_true}
       inner join project_branches pb on pb.uuid=p.uuid
     where
       <foreach collection="projectUuidFromDatePairs" open="(" close=")" item="projectUuidFromDatePair" separator=" or ">
@@ -164,7 +164,7 @@
     <include refid="snapshotColumns" />
     FROM snapshots s
     <where>
-      and s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and s.root_component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
       and s.status = #{status,jdbcType=VARCHAR}
     </where>
     ORDER BY s.created_at ASC
@@ -175,17 +175,17 @@
     <include refid="viewsSnapshotColumns" />
     FROM snapshots s
     <where>
-      and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and s.root_component_uuid = #{rootComponentUuid,jdbcType=VARCHAR}
       and s.status = 'P'
       and s.created_at &lt; #{date,jdbcType=BIGINT}
     </where>
     order by created_at desc
   </select>
 
-  <update id="unsetIsLastFlagForComponentUuid" parameterType="map">
+  <update id="unsetIsLastFlagForRootComponentUuid" parameterType="map">
     update snapshots
     set islast = ${_false}
-    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where root_component_uuid = #{rootComponentUuid,jdbcType=VARCHAR}
     and islast = ${_true}
   </update>
 
@@ -205,7 +205,7 @@
   <insert id="insert" parameterType="Snapshot" useGeneratedKeys="false">
     insert into snapshots (
       uuid,
-      component_uuid,
+      root_component_uuid,
       created_at,
       build_date,
       status,
@@ -219,7 +219,7 @@
     )
     values (
       #{uuid, jdbcType=VARCHAR},
-      #{componentUuid, jdbcType=VARCHAR},
+      #{rootComponentUuid, jdbcType=VARCHAR},
       #{createdAt, jdbcType=BIGINT},
       #{buildDate, jdbcType=BIGINT},
       #{status, jdbcType=VARCHAR},

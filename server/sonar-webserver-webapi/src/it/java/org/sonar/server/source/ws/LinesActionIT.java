@@ -425,7 +425,7 @@ public class LinesActionIT {
     dto.setUuid("uuid");
     dto.setLast(true);
     dto.setPeriodDate(date);
-    dto.setComponentUuid(componentDto.uuid());
+    dto.setRootComponentUuid(componentDto.uuid());
     snapshotDao.insert(db.getSession(), dto);
   }
 }

@@ -50,7 +50,7 @@ class SearchMyProjectsData {
     this.projects = copyOf(builder.projects);
     this.branchUuidByProjectUuids = buildBranchUuidByProjectUuidMap(builder.branches);
     this.projectLinksByProjectUuid = buildProjectLinks(builder.projectLinks);
-    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, identity()));
+    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(uniqueIndex(SnapshotDto::getRootComponentUuid, identity()));
     this.qualityGateStatuses = buildQualityGateStatuses(builder.qualityGates);
     this.totalNbOfProject = builder.totalNbOfProjects;
   }

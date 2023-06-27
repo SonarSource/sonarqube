@@ -196,7 +196,7 @@ public class ExportAnalysesStepIT {
     return new SnapshotDto()
       .setUuid(uuid)
       .setCreatedAt(date)
-      .setComponentUuid(componentUuid)
+      .setRootComponentUuid(componentUuid)
       .setProjectVersion(version)
       .setBuildString(buildString)
       .setLast(isLast)

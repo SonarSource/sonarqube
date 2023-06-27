@@ -244,7 +244,7 @@ public class ExportMeasuresStepIT {
   private SnapshotDto insertSnapshot(String snapshotUuid, ComponentDto project, String status) {
     SnapshotDto snapshot = new SnapshotDto()
       .setUuid(snapshotUuid)
-      .setComponentUuid(project.uuid())
+      .setRootComponentUuid(project.uuid())
       .setStatus(status)
       .setLast(true);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), snapshot);

@@ -72,7 +72,7 @@ public class EventDaoIT {
       .toArray(String[]::new);
     EventDto event2 = dbTester.events().insertEvent(new EventDto()
       .setAnalysisUuid(analysis2.getUuid())
-      .setComponentUuid(analysis2.getComponentUuid())
+      .setComponentUuid(analysis2.getRootComponentUuid())
       .setName("name_2_")
       .setUuid("2_")
       .setCategory("cat_2_")

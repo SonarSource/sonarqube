@@ -57,7 +57,7 @@
     inner join snapshots s on
       s.uuid = e.analysis_uuid
       and s.status = 'P'
-      and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and s.root_component_uuid = #{componentUuid,jdbcType=VARCHAR}
     where
       e.category = 'Version'
     order by

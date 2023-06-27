@@ -392,13 +392,13 @@ public class IssueQueryFactory {
     Set<String> newCodeReferenceByProjects = snapshots
       .stream()
       .filter(s -> isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
-      .map(SnapshotDto::getComponentUuid)
+      .map(SnapshotDto::getRootComponentUuid)
       .collect(toSet());
 
     Map<String, PeriodStart> leakByProjects = snapshots
       .stream()
       .filter(s -> s.getPeriodDate() != null && !isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
+      .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);
@@ -406,7 +406,7 @@ public class IssueQueryFactory {
 
   private boolean isLastAnalysisFromReAnalyzedReferenceBranch(DbSession dbSession, SnapshotDto snapshot) {
     return isLastAnalysisUsingReferenceBranch(snapshot) &&
-      isLastAnalysisFromSonarQube94Onwards(dbSession, snapshot.getComponentUuid());
+      isLastAnalysisFromSonarQube94Onwards(dbSession, snapshot.getRootComponentUuid());
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {

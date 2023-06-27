@@ -397,7 +397,7 @@ public class PurgeCommandsIT {
   }
 
   private Stream<String> uuidsOfAnalysesOfRoot(ComponentDto rootComponent) {
-    return dbTester.select("select uuid as \"UUID\" from snapshots where component_uuid='" + rootComponent.uuid() + "'")
+    return dbTester.select("select uuid as \"UUID\" from snapshots where root_component_uuid='" + rootComponent.uuid() + "'")
       .stream()
       .map(t -> (String) t.get("UUID"));
   }
@@ -887,13 +887,13 @@ public class PurgeCommandsIT {
   }
 
   private int countAnalysesOfRoot(ComponentDto projectOrView) {
-    return dbTester.countSql("select count(1) from snapshots where component_uuid='" + projectOrView.uuid() + "'");
+    return dbTester.countSql("select count(1) from snapshots where root_component_uuid='" + projectOrView.uuid() + "'");
   }
 
   private int countAnalysesOfRoot(ComponentDto projectOrView, String status, boolean isLast) {
     Dialect dialect = dbTester.getDbClient().getDatabase().getDialect();
     String bool = isLast ? dialect.getTrueSqlValue() : dialect.getFalseSqlValue();
-    return dbTester.countSql("select count(1) from snapshots where component_uuid='" + projectOrView.uuid() + "' and status='" + status + "' and islast=" + bool);
+    return dbTester.countSql("select count(1) from snapshots where root_component_uuid='" + projectOrView.uuid() + "' and status='" + status + "' and islast=" + bool);
   }
 
   private List<String> getHugeNumberOfUuids() {

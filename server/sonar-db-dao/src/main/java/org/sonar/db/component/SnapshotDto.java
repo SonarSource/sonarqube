@@ -38,7 +38,7 @@ public final class SnapshotDto {
   public static final int MAX_BUILD_STRING_LENGTH = 100;
 
   private String uuid;
-  private String componentUuid;
+  private String rootComponentUuid;
   private Long createdAt;
   private Long buildDate;
   private String status = STATUS_UNPROCESSED;
@@ -74,12 +74,12 @@ public final class SnapshotDto {
     return this;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public SnapshotDto setComponentUuid(String componentUuid) {
-    this.componentUuid = componentUuid;
+  public SnapshotDto setRootComponentUuid(String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 
@@ -207,7 +207,7 @@ public final class SnapshotDto {
     }
     SnapshotDto that = (SnapshotDto) o;
     return Objects.equals(uuid, that.uuid) &&
-      Objects.equals(componentUuid, that.componentUuid) &&
+      Objects.equals(rootComponentUuid, that.rootComponentUuid) &&
       Objects.equals(createdAt, that.createdAt) &&
       Objects.equals(buildDate, that.buildDate) &&
       Objects.equals(status, that.status) &&
@@ -221,14 +221,14 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, componentUuid, createdAt, buildDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
+    return Objects.hash(uuid, rootComponentUuid, createdAt, buildDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
   }
 
   @Override
   public String toString() {
     return "SnapshotDto{" +
       "uuid='" + uuid + '\'' +
-      ", componentUuid='" + componentUuid + '\'' +
+      ", componentUuid='" + rootComponentUuid + '\'' +
       ", createdAt=" + createdAt +
       ", buildDate=" + buildDate +
       ", status='" + status + '\'' +

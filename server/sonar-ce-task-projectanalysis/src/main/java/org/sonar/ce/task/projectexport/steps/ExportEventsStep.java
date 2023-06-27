@@ -41,7 +41,7 @@ public class ExportEventsStep implements ComputationStep {
     " p.uuid, e.name, e.analysis_uuid, e.category, e.description, e.event_data, e.event_date, e.uuid" +
     " from events e" +
     " join snapshots s on s.uuid=e.analysis_uuid" +
-    " join components p on p.uuid=s.component_uuid" +
+    " join components p on p.uuid=s.root_component_uuid" +
     " join project_branches pb on pb.uuid=p.uuid" +
     " where pb.project_uuid=? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=? and s.status=? and p.enabled=?";
 

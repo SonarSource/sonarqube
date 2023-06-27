@@ -503,13 +503,13 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> newCodeReferenceByProjects = snapshots
       .stream()
       .filter(s -> !isNullOrEmpty(s.getPeriodMode()) && s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
-      .map(SnapshotDto::getComponentUuid)
+      .map(SnapshotDto::getRootComponentUuid)
       .collect(toSet());
 
     Map<String, IssueQuery.PeriodStart> leakByProjects = snapshots
       .stream()
       .filter(s -> isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+      .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);

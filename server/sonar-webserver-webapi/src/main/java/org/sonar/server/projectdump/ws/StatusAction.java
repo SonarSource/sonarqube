@@ -119,7 +119,7 @@ public class StatusAction implements ProjectDumpAction {
         " count(*), islast" +
         " from snapshots" +
         " where" +
-        " component_uuid = ?" +
+        " root_component_uuid = ?" +
         " group by" +
         " islast";
       stmt = dbClient.getMyBatis().newScrollingSelectStatement(dbSession, sql);

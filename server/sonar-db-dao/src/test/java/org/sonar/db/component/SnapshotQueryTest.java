@@ -31,7 +31,7 @@ public class SnapshotQueryTest {
   @Test
   public void test_setters_and_getters() {
     SnapshotQuery query = new SnapshotQuery()
-      .setComponentUuid("abcd")
+      .setRootComponentUuid("abcd")
       .setIsLast(true)
       .setStatus("P")
       .setProjectVersion("1.0")
@@ -39,7 +39,7 @@ public class SnapshotQueryTest {
       .setCreatedBefore(20L)
       .setSort(BY_DATE, ASC);
 
-    assertThat(query.getComponentUuid()).isEqualTo("abcd");
+    assertThat(query.getRootComponentUuid()).isEqualTo("abcd");
     assertThat(query.getIsLast()).isTrue();
     assertThat(query.getStatus()).isEqualTo(List.of("P"));
     assertThat(query.getProjectVersion()).isEqualTo("1.0");

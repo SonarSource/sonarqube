@@ -97,7 +97,7 @@ public class ListAction implements BranchWsAction {
         .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, branchUuids).stream()
-        .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
+        .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
       branches.forEach(b -> addBranch(protobufResponse, b, qualityGateMeasuresByComponentUuids.get(b.getUuid()),

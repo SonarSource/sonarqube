@@ -272,7 +272,7 @@ public class SetAction implements NewCodePeriodsWsAction {
   }
 
   private void checkAnalysis(DbSession dbSession, ProjectDto project, BranchDto branch, SnapshotDto analysis) {
-    BranchDto analysisBranch = dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid()).orElse(null);
+    BranchDto analysisBranch = dbClient.branchDao().selectByUuid(dbSession, analysis.getRootComponentUuid()).orElse(null);
     boolean analysisMatchesProjectBranch = analysisBranch != null && analysisBranch.getUuid().equals(branch.getUuid());
 
     checkArgument(analysisMatchesProjectBranch,

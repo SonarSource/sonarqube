@@ -218,7 +218,7 @@ public class MeasureDaoIT {
   private SnapshotDto insertAnalysis(String projectUuid, boolean isLast) {
     return db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshot()
       .setUuid(Uuids.createFast())
-      .setComponentUuid(projectUuid)
+      .setRootComponentUuid(projectUuid)
       .setLast(isLast));
   }
 

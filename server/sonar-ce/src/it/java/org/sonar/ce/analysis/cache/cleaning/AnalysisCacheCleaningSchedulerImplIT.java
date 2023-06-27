@@ -66,32 +66,32 @@ public class AnalysisCacheCleaningSchedulerImplIT {
     var snapshotDao = dbTester.getDbClient().snapshotDao();
     var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
-    scannerAnalysisCacheDao.insert(dbSession, snapshot1.getComponentUuid(), new ByteArrayInputStream("data".getBytes()));
+    scannerAnalysisCacheDao.insert(dbSession, snapshot1.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
     var snapshot2 = createSnapshot(LocalDateTime.now().minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot2);
-    scannerAnalysisCacheDao.insert(dbSession, snapshot2.getComponentUuid(), new ByteArrayInputStream("data".getBytes()));
+    scannerAnalysisCacheDao.insert(dbSession, snapshot2.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
     var snapshot3 = createSnapshot(LocalDateTime.now().minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot3);
-    scannerAnalysisCacheDao.insert(dbSession, snapshot3.getComponentUuid(), new ByteArrayInputStream("data".getBytes()));
+    scannerAnalysisCacheDao.insert(dbSession, snapshot3.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
     var snapshot4 = createSnapshot(LocalDateTime.now().minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot4);
-    scannerAnalysisCacheDao.insert(dbSession, snapshot4.getComponentUuid(), new ByteArrayInputStream("data".getBytes()));
+    scannerAnalysisCacheDao.insert(dbSession, snapshot4.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(4);
 
     underTest.clean();
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(2);
-    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot1.getComponentUuid())).isNotNull();
-    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot2.getComponentUuid())).isNotNull();
-    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot3.getComponentUuid())).isNull();
-    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot4.getComponentUuid())).isNull();
+    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot1.getRootComponentUuid())).isNotNull();
+    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot2.getRootComponentUuid())).isNotNull();
+    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot3.getRootComponentUuid())).isNull();
+    assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot4.getRootComponentUuid())).isNull();
   }
 
   private static SnapshotDto createSnapshot(long buildtime) {
     return new SnapshotDto()
       .setUuid(uuidFactory.create())
-      .setComponentUuid(uuidFactory.create())
+      .setRootComponentUuid(uuidFactory.create())
       .setStatus("P")
       .setLast(true)
       .setProjectVersion("2.1-SNAPSHOT")

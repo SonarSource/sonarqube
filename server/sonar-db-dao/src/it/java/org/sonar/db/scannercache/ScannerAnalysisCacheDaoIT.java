@@ -97,16 +97,16 @@ public class ScannerAnalysisCacheDaoIT {
     var snapshotDao = dbTester.getDbClient().snapshotDao();
     var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
-    underTest.insert(dbSession, snapshot1.getComponentUuid(), stringToInputStream("test data"));
+    underTest.insert(dbSession, snapshot1.getRootComponentUuid(), stringToInputStream("test data"));
     var snapshot2 = createSnapshot(LocalDateTime.now().minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot2);
-    underTest.insert(dbSession, snapshot2.getComponentUuid(), stringToInputStream("test data"));
+    underTest.insert(dbSession, snapshot2.getRootComponentUuid(), stringToInputStream("test data"));
     var snapshot3 = createSnapshot(LocalDateTime.now().minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot3);
-    underTest.insert(dbSession, snapshot3.getComponentUuid(), stringToInputStream("test data"));
+    underTest.insert(dbSession, snapshot3.getRootComponentUuid(), stringToInputStream("test data"));
     var snapshot4 = createSnapshot(LocalDateTime.now().minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot4);
-    underTest.insert(dbSession, snapshot4.getComponentUuid(), stringToInputStream("test data"));
+    underTest.insert(dbSession, snapshot4.getRootComponentUuid(), stringToInputStream("test data"));
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(4);
 
@@ -114,10 +114,10 @@ public class ScannerAnalysisCacheDaoIT {
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(2);
-    assertThat(underTest.selectData(dbSession, snapshot1.getComponentUuid())).isNotNull();
-    assertThat(underTest.selectData(dbSession, snapshot2.getComponentUuid())).isNotNull();
-    assertThat(underTest.selectData(dbSession, snapshot3.getComponentUuid())).isNull();
-    assertThat(underTest.selectData(dbSession, snapshot4.getComponentUuid())).isNull();
+    assertThat(underTest.selectData(dbSession, snapshot1.getRootComponentUuid())).isNotNull();
+    assertThat(underTest.selectData(dbSession, snapshot2.getRootComponentUuid())).isNotNull();
+    assertThat(underTest.selectData(dbSession, snapshot3.getRootComponentUuid())).isNull();
+    assertThat(underTest.selectData(dbSession, snapshot4.getRootComponentUuid())).isNull();
   }
 
   private static String dataStreamToString(DbInputStream dbInputStream) throws IOException {
@@ -133,7 +133,7 @@ public class ScannerAnalysisCacheDaoIT {
   private static SnapshotDto createSnapshot(long buildtime) {
     return new SnapshotDto()
       .setUuid(uuidFactory.create())
-      .setComponentUuid(uuidFactory.create())
+      .setRootComponentUuid(uuidFactory.create())
       .setStatus("P")
       .setLast(true)
       .setProjectVersion("2.1-SNAPSHOT")

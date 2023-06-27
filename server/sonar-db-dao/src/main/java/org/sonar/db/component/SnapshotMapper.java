@@ -36,17 +36,17 @@ public interface SnapshotMapper {
   SnapshotDto selectLastSnapshotByComponentUuid(@Param("componentUuid") String componentUuid);
 
   @CheckForNull
-  SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("componentUuid") String componentUuid);
+  SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
-  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") Collection<String> componentUuids);
+  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("rootComponentUuids") Collection<String> rootComponentUuids);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
-  List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, @Param("status") String status, RowBounds rowBounds);
+  List<SnapshotDto> selectOldestSnapshots(@Param("rootComponentUuid") String rootComponentUuid, @Param("status") String status, RowBounds rowBounds);
 
-  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
+  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("rootComponentUuid") String rootComponentUuid, @Param("date") long date);
 
-  void unsetIsLastFlagForComponentUuid(@Param("componentUuid") String componentUuid);
+  void unsetIsLastFlagForRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
   void setIsLastFlagForAnalysisUuid(@Param("analysisUuid") String analysisUuid);
 

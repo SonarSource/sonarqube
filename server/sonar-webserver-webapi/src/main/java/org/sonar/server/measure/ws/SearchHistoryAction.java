@@ -193,7 +193,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   private List<SnapshotDto> searchAnalyses(DbSession dbSession, SearchHistoryRequest request, ComponentDto component) {
     SnapshotQuery dbQuery = new SnapshotQuery()
-      .setComponentUuid(component.branchUuid())
+      .setRootComponentUuid(component.branchUuid())
       .setStatus(STATUS_PROCESSED)
       .setSort(SORT_FIELD.BY_DATE, SORT_ORDER.ASC);
     ofNullable(request.getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));

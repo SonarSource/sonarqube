@@ -73,7 +73,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
       if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
         throw analysisNotFoundException(analysisUuid);
       }
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getRootComponentUuid());
 
       checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisUuid);
       checkNotUsedInNewCodePeriod(dbSession, analysis);

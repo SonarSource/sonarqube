@@ -107,7 +107,7 @@ public class PersistAnalysisStep implements ComputationStep {
         .setUuid(snapshotUuid)
         .setProjectVersion(projectVersion)
         .setBuildString(buildString)
-        .setComponentUuid(componentUuid)
+        .setRootComponentUuid(componentUuid)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)

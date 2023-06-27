@@ -43,7 +43,7 @@ public final class SnapshotQuery {
     }
   }
 
-  private String componentUuid;
+  private String rootComponentUuid;
   private Long createdAfter;
   private Long createdBefore;
   private List<String> statuses;
@@ -89,12 +89,12 @@ public final class SnapshotQuery {
   }
 
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public SnapshotQuery setComponentUuid(@Nullable String componentUuid) {
-    this.componentUuid = componentUuid;
+  public SnapshotQuery setRootComponentUuid(@Nullable String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 

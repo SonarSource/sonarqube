@@ -72,13 +72,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  private static final String SQL_PROJECTS = """
-    SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier
-    FROM projects p
-    INNER JOIN project_branches pb on p.uuid = pb.project_uuid
-    LEFT OUTER JOIN snapshots s ON s.component_uuid=pb.uuid AND s.islast=?
-    WHERE pb.is_main = ?
-    AND p.qualifier in (?, ?)""";
+  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
+    "FROM projects p " +
+    "INNER JOIN project_branches pb ON pb.project_uuid = p.uuid AND pb.is_main = ? " +
+    "LEFT OUTER JOIN snapshots s ON s.root_component_uuid=pb.uuid AND s.islast=? " +
+    "WHERE p.qualifier in (?, ?)";
 
   private static final String PROJECT_FILTER = " AND pb.project_uuid=?";
 

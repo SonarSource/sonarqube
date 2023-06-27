@@ -35,7 +35,7 @@
     select
       cp.uuid as "projectUuid", ap.text_value as "propertyValue"
     from components cp
-    inner join snapshots s on s.component_uuid = cp.uuid
+    inner join snapshots s on s.root_component_uuid = cp.uuid
     inner join analysis_properties ap on ap.analysis_uuid = s.uuid
     inner join project_branches pb on pb.uuid = cp.branch_uuid
     where

@@ -67,7 +67,9 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_016, "Rename 'component_uuid' in 'webhook_deliveries' table to 'project_uuid'", RenameComponentUuidInWebhookDeliveries.class)
       .add(10_2_017, "Create index 'webhook_deliveries_project_uuid' in 'webhook_deliveries' table", CreateIndexProjectUuidInWebhookDeliveries.class)
 
+      .add(10_2_018, "Drop index 'component_uuid' in 'snapshots' table", DropIndexComponentUuidInSnapshots.class)
+      .add(10_2_019, "Rename 'component_uuid' in 'snapshots' table to 'root_component_uuid'", RenameComponentUuidInSnapshots.class)
+      .add(10_2_020, "Create index 'snapshots_root_component_uuid' in 'snapshots' table", CreateIndexRootComponentUuidInSnapshots.class)
     ;
   }
-
 }

@@ -33,7 +33,7 @@ public class SnapshotDtoTest {
   public void test_getter_and_setter() {
     SnapshotDto snapshotDto = new SnapshotDto()
       .setBuildDate(parseDate("2014-07-02").getTime())
-      .setComponentUuid("uuid_21")
+      .setRootComponentUuid("uuid_21")
       .setLast(true)
       .setProjectVersion("1.0")
       .setBuildString("1.0.1.123")
@@ -42,7 +42,7 @@ public class SnapshotDtoTest {
       .setPeriodDate(parseDate("2014-06-01").getTime());
 
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
-    assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
+    assertThat(snapshotDto.getRootComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
     assertThat(snapshotDto.getProjectVersion()).isEqualTo("1.0");
     assertThat(snapshotDto.getBuildString()).isEqualTo("1.0.1.123");

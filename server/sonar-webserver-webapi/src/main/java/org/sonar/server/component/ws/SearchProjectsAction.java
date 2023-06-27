@@ -255,7 +255,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     List<SnapshotDto> snapshots = getSnapshots(dbSession, request, mainBranchByUuid.keySet());
     Map<String, SnapshotDto> analysisByProjectUuid = snapshots.stream()
-      .collect(Collectors.toMap(s -> mainBranchByUuid.get(s.getComponentUuid()).getProjectUuid(), s -> s));
+      .collect(Collectors.toMap(s -> mainBranchByUuid.get(s.getRootComponentUuid()).getProjectUuid(), s -> s));
     Map<String, Long> applicationsBranchLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, mainBranchByUuid.keySet());
     Map<String, Long> applicationsLeakPeriod = applicationsBranchLeakPeriod.entrySet()
       .stream()

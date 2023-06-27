@@ -337,7 +337,7 @@ public class AsyncIssueIndexingImplTest {
   private SnapshotDto insertSnapshot(String analysisUuid, String projectUuid, long createdAt) {
     SnapshotDto snapshot = new SnapshotDto()
       .setUuid(analysisUuid)
-      .setComponentUuid(projectUuid)
+      .setRootComponentUuid(projectUuid)
       .setStatus(STATUS_PROCESSED)
       .setCreatedAt(createdAt)
       .setLast(true);

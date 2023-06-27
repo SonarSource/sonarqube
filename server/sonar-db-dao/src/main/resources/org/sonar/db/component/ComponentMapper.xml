@@ -224,7 +224,7 @@
   <sql id="sqlSelectByQuery">
     from components p
     <if test="query.analyzedBefore!=null">
-      inner join snapshots sa on sa.component_uuid=p.uuid
+      inner join snapshots sa on sa.root_component_uuid=p.uuid
         and sa.status='P' and sa.islast=${_true} and sa.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
     </if>
     left join project_branches pb on pb.uuid = p.branch_uuid
@@ -273,10 +273,10 @@
         </if>
       </if>
       <if test="query.isOnProvisionedOnly()">
-        and not exists(select 1 from snapshots sp where sp.component_uuid=p.uuid)
+        and not exists(select 1 from snapshots sp where sp.root_component_uuid=p.uuid)
         and not exists(
           select 1 from snapshots sp
-          inner join project_branches pb2 on sp.component_uuid = pb2.uuid
+          inner join project_branches pb2 on sp.root_component_uuid = pb2.uuid
           where pb2.project_uuid = pb.project_uuid
         )
       </if>
@@ -285,7 +285,7 @@
           exists(
             -- branches of projects and applications
             select 1 from snapshots s
-            inner join project_branches pb2 on s.component_uuid = pb2.uuid
+            inner join project_branches pb2 on s.root_component_uuid = pb2.uuid
             where pb2.project_uuid = pb.project_uuid
             and s.status='P'
             and s.islast = ${_true}
@@ -294,7 +294,7 @@
           or exists (
             -- portfolios
             select 1 from snapshots s
-            where s.component_uuid = p.uuid
+            where s.root_component_uuid = p.uuid
             and s.status='P'
             and s.islast = ${_true}
             and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
@@ -306,7 +306,7 @@
           exists(
           -- branches of projects and applications
           select 1 from snapshots s
-          inner join project_branches pb2 on s.component_uuid = pb2.uuid
+          inner join project_branches pb2 on s.root_component_uuid = pb2.uuid
           where pb2.project_uuid = pb.project_uuid
           and s.status='P'
           and s.islast = ${_true}
@@ -315,7 +315,7 @@
           or exists (
           -- portfolios
           select 1 from snapshots s
-          where s.component_uuid = p.uuid
+          where s.root_component_uuid = p.uuid
           and s.status='P'
           and s.islast = ${_true}
           and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
@@ -326,7 +326,7 @@
         and
         (
             (select max(s.created_at) from snapshots s
-            inner join project_branches pb2 on s.component_uuid = pb2.uuid
+            inner join project_branches pb2 on s.root_component_uuid = pb2.uuid
             where pb2.project_uuid = pb.project_uuid
             and s.status='P'
             and s.islast = ${_true}
@@ -335,7 +335,7 @@
             exists (
             -- portfolios
             select 1 from snapshots s
-            where s.component_uuid = p.uuid
+            where s.root_component_uuid = p.uuid
             and p.qualifier = 'VW'
             and s.status='P'
             and s.islast = ${_true}

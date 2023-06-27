@@ -191,7 +191,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   private ProjectAndSnapshot getSnapshotThenProject(DbSession dbSession, String analysisUuid) {
     SnapshotDto snapshotDto = getSnapshot(dbSession, analysisUuid);
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, snapshotDto.getComponentUuid())
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, snapshotDto.getRootComponentUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Branch '%s' not found", snapshotDto.getUuid())));
     ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, branchDto.getProjectUuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Project '%s' not found", branchDto.getProjectUuid())));

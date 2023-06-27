@@ -141,7 +141,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         return Stream.empty();
       }
 
-      List<String> branchUuids = analyses.stream().map(SnapshotDto::getComponentUuid).collect(toList());
+      List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).collect(toList());
       Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
 
       return Stream.concat(
