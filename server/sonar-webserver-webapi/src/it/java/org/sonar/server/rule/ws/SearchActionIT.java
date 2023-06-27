@@ -19,6 +19,11 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -306,22 +311,31 @@ public class SearchActionIT {
 
   @Test
   public void return_all_rule_fields_by_default() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java").setNoteUserUuid(null));
+    OffsetDateTime dateTime = OffsetDateTime.now(Clock.fixed(Instant.ofEpochMilli(1687816800000L), ZoneId.systemDefault()));
+
+    RuleDto rule = db.rules().insert(
+      r -> r.setCreatedAt(dateTime.toInstant().toEpochMilli()),
+      r -> r.setUpdatedAt(dateTime.toInstant().toEpochMilli()),
+      r -> r.setGapDescription("Gap Description"),
+      r -> r.setIsTemplate(true),
+      r -> r.setName("Name"),
+      r -> r.setRepositoryKey("repo_key"),
+      r -> r.setSeverity("MINOR"),
+      r -> r.setLanguage("java")
+      );
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
     Rules.Rule result = response.getRules(0);
-    assertThat(result.getCreatedAt()).isNotEmpty();
-    assertThat(result.getUpdatedAt()).isNotEmpty();
-    assertThat(result.getGapDescription()).isNotEmpty();
-    assertThat(result.getHtmlDesc()).isNotEmpty();
+    assertThat(result.getCreatedAt()).isEqualTo(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")));
+    assertThat(result.getUpdatedAt()).isEqualTo(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")));
+    assertThat(result.getGapDescription()).isEqualTo("Gap Description");
     assertThat(result.hasIsTemplate()).isTrue();
-    assertThat(result.getLang()).isEqualTo(rule.getLanguage());
-    assertThat(result.getLangName()).isEqualTo(languages.get(rule.getLanguage()).getName());
-    assertThat(result.getName()).isNotEmpty();
-    assertThat(result.getRepo()).isNotEmpty();
-    assertThat(result.getSeverity()).isNotEmpty();
+    assertThat(result.getName()).isEqualTo("Name");
+    assertThat(result.getRepo()).isEqualTo("repo_key");
+    assertThat(result.getSeverity()).isEqualTo("MINOR");
     assertThat(result.getType().name()).isEqualTo(RuleType.valueOf(rule.getType()).name());
+    assertThat(result.getLang()).isEqualTo("java");
   }
 
   @Test
