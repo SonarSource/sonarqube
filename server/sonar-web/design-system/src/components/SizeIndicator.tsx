@@ -34,15 +34,22 @@ const SIZE_MAPPING = {
   md: '2rem',
 };
 
+const SIZE_IN_LOC = {
+  xs: 1000,
+  sm: 10_000,
+  md: 100_000,
+  l: 500_000,
+};
+
 export function SizeIndicator({ size = 'sm', value }: Props) {
   let letter: SizeLabel;
-  if (inRange(value, 0, 1000)) {
+  if (inRange(value, 0, SIZE_IN_LOC.xs)) {
     letter = 'XS';
-  } else if (inRange(value, 1000, 10000)) {
+  } else if (inRange(value, SIZE_IN_LOC.xs, SIZE_IN_LOC.sm)) {
     letter = 'S';
-  } else if (inRange(value, 10000, 100000)) {
+  } else if (inRange(value, SIZE_IN_LOC.sm, SIZE_IN_LOC.md)) {
     letter = 'M';
-  } else if (inRange(value, 100000, 500000)) {
+  } else if (inRange(value, SIZE_IN_LOC.md, SIZE_IN_LOC.l)) {
     letter = 'L';
   } else {
     letter = 'XL';

@@ -37,7 +37,7 @@ export default function MetaTags(props: Props) {
 
   const canUpdateTags = () => {
     const { configuration } = props.component;
-    return configuration && configuration.showSettings;
+    return configuration?.showSettings;
   };
 
   const setTags = (values: string[]) => {
@@ -63,7 +63,7 @@ export default function MetaTags(props: Props) {
     );
   };
 
-  const tags = props.component.tags || [];
+  const tags = props.component.tags ?? [];
 
   return (
     <>
@@ -91,6 +91,7 @@ interface MetaTagsSelectorProps {
 }
 
 const LIST_SIZE = 10;
+const MAX_LIST_SIZE = 100;
 
 function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProps) {
   const [searchResult, setSearchResult] = useState<string[]>([]);
@@ -99,7 +100,7 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
   const onSearch = (query: string) => {
     return searchProjectTags({
       q: query,
-      ps: Math.min(selectedTags.length - 1 + LIST_SIZE, 100),
+      ps: Math.min(selectedTags.length - 1 + LIST_SIZE, MAX_LIST_SIZE),
     }).then(
       ({ tags }) => setSearchResult(tags),
       () => {}
