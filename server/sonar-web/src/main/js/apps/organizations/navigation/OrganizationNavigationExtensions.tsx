@@ -31,10 +31,16 @@ interface Props {
 }
 
 export default function OrganizationNavigationExtensions({ location, organization }: Props) {
-  const extensions = organization.pages || [];
+  let extensions = organization.pages || [];
   if (extensions.length === 0) {
     return null;
   }
+
+  // removing request error extenstion link.
+  extensions = extensions.filter((e)=>{
+    return e.name !== "Request Error"
+  });
+
   const active = extensions.some(
     extension =>
       location.pathname === `/organizations/${organization.kee}/extension/${extension.key}`
