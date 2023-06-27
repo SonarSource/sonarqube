@@ -20,11 +20,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { BubbleColorVal } from '../types/charts';
-import { Checkbox } from './Checkbox';
-import Tooltip from './Tooltip';
-
 import { themeBorder, themeColor, themeContrast } from '../helpers';
+import { BubbleColorVal } from '../types/charts';
+import Tooltip from './Tooltip';
+import { Checkbox } from './input/Checkbox';
 
 export interface ColorFilterOption {
   ariaLabel?: string;

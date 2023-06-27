@@ -22,9 +22,9 @@ import classNames from 'classnames';
 import tw from 'twin.macro';
 import { translate } from '../helpers/l10n';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
-import { RadioButtonStyled } from './RadioButton';
 import { LightLabel } from './Text';
 import { RecommendedIcon } from './icons/RecommendedIcon';
+import { RadioButtonStyled } from './input/RadioButton';
 
 export interface SelectionCardProps {
   children?: React.ReactNode;

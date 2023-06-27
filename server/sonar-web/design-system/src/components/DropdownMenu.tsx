@@ -25,12 +25,12 @@ import tw from 'twin.macro';
 import { INPUT_SIZES } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys, ThemedProps } from '../types/theme';
-import { Checkbox } from './Checkbox';
 import { BaseLink, LinkProps } from './Link';
 import NavLink from './NavLink';
-import { RadioButton } from './RadioButton';
 import Tooltip from './Tooltip';
 import { ClipboardBase } from './clipboard';
+import { Checkbox } from './input/Checkbox';
+import { RadioButton } from './input/RadioButton';
 
 interface Props extends React.HtmlHTMLAttributes<HTMLMenuElement> {
   children?: React.ReactNode;
