@@ -137,14 +137,15 @@ beforeEach(() => {
 });
 
 describe('different filters combinations', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     jest.useFakeTimers({
       advanceTimers: true,
       now: new Date('2023-07-05T07:08:59Z'),
     });
   });
 
-  afterAll(() => {
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 

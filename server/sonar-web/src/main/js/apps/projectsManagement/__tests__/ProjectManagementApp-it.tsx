@@ -146,7 +146,7 @@ const ui = {
   }),
 };
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers({
     advanceTimers: true,
     now: new Date('2019-01-05T07:08:59Z'),
@@ -154,6 +154,9 @@ beforeAll(() => {
 });
 
 afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+
   permissionsHandler.reset();
   settingsHandler.reset();
   handler.reset();

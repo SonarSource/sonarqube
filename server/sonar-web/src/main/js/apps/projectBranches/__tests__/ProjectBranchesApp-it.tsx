@@ -71,16 +71,18 @@ const ui = {
   getPullRequestRow: () => within(ui.pullRequestTabContent.get()).getAllByRole('row'),
 };
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers({
     advanceTimers: true,
     now: new Date('2018-02-01T07:08:59Z'),
   });
-});
-
-beforeEach(() => {
   handler.reset();
   settingsHandler.reset();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 it('should show all branches', async () => {

@@ -20,15 +20,12 @@
 import { render, screen } from '@testing-library/react';
 import { DeferredSpinner } from '../DeferredSpinner';
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers();
 });
 
 afterEach(() => {
   jest.runOnlyPendingTimers();
-});
-
-afterAll(() => {
   jest.useRealTimers();
 });
 

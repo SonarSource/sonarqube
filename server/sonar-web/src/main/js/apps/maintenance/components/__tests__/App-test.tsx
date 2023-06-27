@@ -40,8 +40,6 @@ const originalLocation = window.location;
 const replace = jest.fn();
 
 beforeAll(() => {
-  jest.useFakeTimers();
-
   const location = {
     ...window.location,
     replace,
@@ -53,16 +51,21 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-
   Object.defineProperty(window, 'location', {
     writable: true,
     value: originalLocation,
   });
 });
 
-beforeEach(jest.clearAllMocks);
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 describe('Maintenance', () => {
   it.each([

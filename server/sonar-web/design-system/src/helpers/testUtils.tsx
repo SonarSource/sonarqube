@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render as rtlRender, RenderOptions } from '@testing-library/react';
+import { RenderOptions, render as rtlRender } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Options as UserEventsOptions } from '@testing-library/user-event/dist/types/options';
 import { InitialEntry } from 'history';
@@ -113,15 +113,3 @@ export const debounceTimer = jest
 
     return debounced;
   });
-
-export function flushPromises(usingFakeTime = false): Promise<void> {
-  return new Promise((resolve) => {
-    if (usingFakeTime) {
-      jest.useRealTimers();
-    }
-    setTimeout(resolve, 0);
-    if (usingFakeTime) {
-      jest.useFakeTimers();
-    }
-  });
-}

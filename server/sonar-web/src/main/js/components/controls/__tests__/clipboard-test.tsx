@@ -28,11 +28,11 @@ import {
   ClipboardIconButtonProps,
 } from '../clipboard';
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });

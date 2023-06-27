@@ -203,17 +203,14 @@ describe('post', () => {
 });
 
 describe('requestTryAndRepeatUntil', () => {
-  beforeAll(() => {
+  beforeEach(() => {
+    jest.clearAllTimers();
     jest.useFakeTimers();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
-  });
-
-  beforeEach(() => {
-    jest.clearAllTimers();
   });
 
   it('should repeat call until stop condition is met', async () => {

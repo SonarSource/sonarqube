@@ -24,15 +24,12 @@ jest.mock('../../helpers/globalMessages', () => ({
   addGlobalErrorMessage: jest.fn(),
 }));
 
-beforeAll(() => {
-  jest.useFakeTimers();
-});
-
 beforeEach(() => {
+  jest.useFakeTimers();
   jest.clearAllMocks();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });

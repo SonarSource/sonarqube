@@ -32,18 +32,14 @@ jest.mock('../../../helpers/extensionsHandler', () => ({
   getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined),
 }));
 
-beforeAll(() => {
+beforeEach(() => {
+  jest.clearAllMocks();
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
-});
-
-beforeEach(() => {
-  jest.clearAllTimers();
-  jest.clearAllMocks();
 });
 
 it('should not trigger if no analytics system is given', () => {

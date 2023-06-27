@@ -447,6 +447,7 @@ describe('Github tab', () => {
 
   describe('Github Provisioning', () => {
     let user: UserEvent;
+
     beforeEach(() => {
       jest.useFakeTimers({
         advanceTimers: true,
@@ -454,6 +455,12 @@ describe('Github tab', () => {
       });
       user = userEvent.setup();
     });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
     it('should display a success status when the synchronisation is a success', async () => {
       handler.addProvisioningTask({
         status: TaskStatuses.Success,

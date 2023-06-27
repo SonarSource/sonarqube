@@ -21,11 +21,12 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Tooltip, { TooltipInner, TooltipProps } from '../Tooltip';
 
-beforeAll(() => {
+beforeEach(() => {
+  jest.clearAllMocks();
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
@@ -43,8 +44,6 @@ jest.mock('lodash', () => {
     uniqueId: jest.fn((prefix) => `${prefix}1`),
   });
 });
-
-beforeEach(jest.clearAllMocks);
 
 it('should render', () => {
   expect(shallowRenderTooltipInner()).toMatchSnapshot();

@@ -23,11 +23,12 @@ import { MultiSelectMenu } from '../MultiSelectMenu';
 
 const elements = ['foo', 'bar', 'baz'];
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
+  jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
 

@@ -21,11 +21,11 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import WorkspaceRuleViewer, { Props } from '../WorkspaceRuleViewer';
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });

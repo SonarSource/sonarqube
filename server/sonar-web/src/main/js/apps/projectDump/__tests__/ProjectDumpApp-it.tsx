@@ -56,10 +56,6 @@ const ui = {
   noDumpImportMsg: byText('project_dump.no_file_to_import'),
 };
 
-afterAll(() => {
-  jest.useRealTimers();
-});
-
 beforeEach(() => {
   computeEngineHandler.reset();
   handler.reset();
@@ -67,6 +63,11 @@ beforeEach(() => {
     advanceTimers: true,
     now: new Date('2023-06-08T13:00:00Z'),
   });
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 it('can export project, but can not import', async () => {

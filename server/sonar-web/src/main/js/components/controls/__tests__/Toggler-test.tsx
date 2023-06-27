@@ -24,11 +24,12 @@ import * as React from 'react';
 import { byRole } from '../../../helpers/testSelector';
 import Toggler from '../Toggler';
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
+  jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
 const ui = {

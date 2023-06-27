@@ -23,11 +23,12 @@ import { formatISO, parseISO } from 'date-fns';
 import { render } from '../../helpers/testUtils';
 import { DateRangePicker } from '../DateRangePicker';
 
-beforeAll(() => {
+beforeEach(() => {
   jest.useFakeTimers().setSystemTime(parseISO('2022-06-12'));
 });
 
-afterAll(() => {
+afterEach(() => {
+  jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
 
