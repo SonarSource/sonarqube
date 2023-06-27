@@ -29,7 +29,7 @@ function buildDesignSystem({ callback, force } = {}) {
   const build = spawn('npx', [
     'turbo',
     'run',
-    ...(force ? ['--force'] : []),
+    ...(force ? ['--force=true'] : []),
     'design-system#build:no-checks',
   ]);
 
