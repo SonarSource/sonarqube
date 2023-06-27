@@ -36,8 +36,10 @@ export interface ButtonProps extends AllowedButtonAttributes {
   children?: React.ReactNode;
   className?: string;
   disabled?: boolean;
+  download?: string;
   icon?: React.ReactNode;
   innerRef?: React.Ref<HTMLButtonElement>;
+  isExternal?: LinkProps['isExternal'];
   onClick?: (event?: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
 
   preventDefault?: boolean;

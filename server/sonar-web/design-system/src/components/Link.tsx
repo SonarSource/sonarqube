@@ -51,7 +51,6 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
     preventDefault,
     showExternalIcon = !icon,
     stopPropagation,
-    target = '_blank',
     to,
     ...rest
   } = props;
@@ -85,12 +84,12 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
   if (isExternal) {
     return (
       <a
+        rel="noopener noreferrer"
+        target="_blank"
         {...rest}
         href={toAsString}
         onClick={handleClick}
         ref={ref}
-        rel="noopener noreferrer"
-        target={target}
       >
         {icon}
         {children}
