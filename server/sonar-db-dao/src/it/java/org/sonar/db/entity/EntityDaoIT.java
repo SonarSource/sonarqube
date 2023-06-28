@@ -162,36 +162,9 @@ public class EntityDaoIT {
 
     List<EntityDto> result = new LinkedList<>();
     ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    entityDao.scrollForIndexing(db.getSession(), null, handler);
+    entityDao.scrollForIndexing(db.getSession(), handler);
 
     assertThat(result).extracting(EntityDto::getUuid)
       .containsOnly(project.projectUuid(), application.projectUuid(), portfolio.getUuid());
-  }
-
-  @Test
-  public void scrollEntitiesForIndexing_whenEntityUuidSpecified_shouldReturnSpecificEntity() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    List<EntityDto> result = new LinkedList<>();
-    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    entityDao.scrollForIndexing(db.getSession(), project.projectUuid(), handler);
-
-    assertThat(result).extracting(EntityDto::getUuid)
-      .containsOnly(project.projectUuid());
-  }
-
-  @Test
-  public void scrollEntitiesForIndexing_whenNonExistingUuidSpecified_shouldReturnEmpty() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-
-    List<EntityDto> result = new LinkedList<>();
-    ResultHandler<EntityDto> handler = resultContext -> result.add(resultContext.getResultObject());
-    entityDao.scrollForIndexing(db.getSession(), "unknown", handler);
-
-    assertThat(result).isEmpty();
   }
 }

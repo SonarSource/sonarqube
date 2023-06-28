@@ -52,7 +52,7 @@ public class ComponentIndexSearchTest {
   @Rule
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
-  private final ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private final EntityDefinitionIndexer indexer = new EntityDefinitionIndexer(db.getDbClient(), es.client());
   private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private final ComponentIndex underTest = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 

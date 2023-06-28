@@ -34,7 +34,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
-import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.AnalysisIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,16 +53,11 @@ public class IndexAnalysisStepIT extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private final DbClient dbClient = mock(DbClient.class);
-
   private final FileStatuses fileStatuses = mock(FileStatuses.class);
-
-  private final ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
-
+  private final AnalysisIndexer analysisIndexer = mock(AnalysisIndexer.class);
   private final DbSession dbSession = mock(DbSession.class);
-
   private final BranchDao branchDao = mock(BranchDao.class);
-
-  private final IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, fileStatuses, dbClient, projectIndexer);
+  private final IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, fileStatuses, dbClient, analysisIndexer);
 
   private TestComputationStepContext testComputationStepContext;
 
@@ -81,7 +76,7 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     underTest.execute(testComputationStepContext);
 
-    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
   }
 
   @Test
@@ -91,7 +86,7 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     underTest.execute(testComputationStepContext);
 
-    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
   }
 
   @Test
@@ -103,7 +98,7 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     underTest.execute(testComputationStepContext);
 
-    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, anyUuids);
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, anyUuids);
   }
 
   @Test
@@ -114,7 +109,7 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     underTest.execute(testComputationStepContext);
 
-    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID);
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Override

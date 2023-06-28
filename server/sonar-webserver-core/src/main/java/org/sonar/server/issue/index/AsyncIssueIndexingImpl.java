@@ -47,7 +47,6 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
-@ServerSide
 public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncIssueIndexingImpl.class);

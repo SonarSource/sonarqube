@@ -38,6 +38,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
@@ -75,7 +76,7 @@ public class ReportSubmitter {
 
   public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      boolean projectCreated = false;
+      ComponentCreationData componentCreationData = null;
       // Note: when the main branch is analyzed, the characteristics may or may not have the branch name, so componentKey#isMainBranch is not
       // reliable!
       BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
@@ -86,8 +87,8 @@ public class ReportSubmitter {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
       } else {
-        mainBranchComponent = createProject(dbSession, componentKey.getKey(), projectName);
-        projectCreated = true;
+        componentCreationData = createProject(dbSession, componentKey.getKey(), projectName);
+        mainBranchComponent = componentCreationData.mainBranchComponent();
       }
 
       BranchDto mainBranch = dbClient.branchDao().selectByUuid(dbSession, mainBranchComponent.branchUuid())
@@ -103,8 +104,8 @@ public class ReportSubmitter {
           .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, mainBranchComponent, mainBranch));
       }
 
-      if (projectCreated) {
-        componentUpdater.commitAndIndex(dbSession, mainBranchComponent);
+      if (componentCreationData != null) {
+        componentUpdater.commitAndIndex(dbSession, componentCreationData);
       } else {
         dbSession.commit();
       }
@@ -151,7 +152,7 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, String projectKey, @Nullable String projectName) {
+  private ComponentCreationData createProject(DbSession dbSession, String projectKey, @Nullable String projectName) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
     String userUuid = userSession.getUuid();
     String userName = userSession.getLogin();
@@ -167,8 +168,7 @@ public class ReportSubmitter {
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userName, c -> {
-    }).mainBranchComponent();
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userName);
   }
 
   private Visibility getDefaultVisibility(DbSession dbSession) {

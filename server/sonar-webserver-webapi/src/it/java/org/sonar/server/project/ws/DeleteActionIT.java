@@ -20,18 +20,14 @@
 package org.sonar.server.project.ws;
 
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
@@ -40,7 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.Project;
@@ -54,10 +50,8 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -75,7 +69,6 @@ public class DeleteActionIT {
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
-  private final ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
   private final DeleteAction underTest = new DeleteAction(
     componentCleanerService,
@@ -83,17 +76,6 @@ public class DeleteActionIT {
     dbClient,
     userSessionRule, projectLifeCycleListeners);
   private final WsActionTester tester = new WsActionTester(underTest);
-
-  @Before
-  public void before() {
-    mockResourceTypeAsValidProject();
-  }
-
-  private void mockResourceTypeAsValidProject() {
-    ResourceType resourceType = mock(ResourceType.class);
-    when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
-    when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-  }
 
   @Test
   public void global_administrator_deletes_project_by_key() {
@@ -128,7 +110,7 @@ public class DeleteActionIT {
     dbSession.commit();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)
@@ -151,7 +133,7 @@ public class DeleteActionIT {
 
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)
@@ -190,7 +172,7 @@ public class DeleteActionIT {
 
   private String verifyDeletedKey() {
     ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
-    verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
+    verify(componentCleanerService).deleteEntity(any(DbSession.class), argument.capture());
     return argument.getValue().getKey();
   }
 

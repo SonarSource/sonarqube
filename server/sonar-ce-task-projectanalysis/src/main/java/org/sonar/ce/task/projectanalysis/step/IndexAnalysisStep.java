@@ -28,7 +28,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.AnalysisIndexer;
 
 public class IndexAnalysisStep implements ComputationStep {
 
@@ -36,10 +36,10 @@ public class IndexAnalysisStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final FileStatuses fileStatuses;
-  private final ProjectIndexer[] indexers;
+  private final AnalysisIndexer[] indexers;
   private final DbClient dbClient;
 
-  public IndexAnalysisStep(TreeRootHolder treeRootHolder, FileStatuses fileStatuses, DbClient dbClient, ProjectIndexer... indexers) {
+  public IndexAnalysisStep(TreeRootHolder treeRootHolder, FileStatuses fileStatuses, DbClient dbClient, AnalysisIndexer... indexers) {
     this.treeRootHolder = treeRootHolder;
     this.fileStatuses = fileStatuses;
     this.indexers = indexers;
@@ -49,14 +49,14 @@ public class IndexAnalysisStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     String branchUuid = treeRootHolder.getRoot().getUuid();
-    Consumer<ProjectIndexer> projectIndexerConsumer = getProjectIndexerConsumer(branchUuid);
-    for (ProjectIndexer indexer : indexers) {
+    Consumer<AnalysisIndexer> analysisIndexerConsumer = getAnalysisIndexerConsumer(branchUuid);
+    for (AnalysisIndexer indexer : indexers) {
       LOGGER.debug("Call {}", indexer);
-      projectIndexerConsumer.accept(indexer);
+      analysisIndexerConsumer.accept(indexer);
     }
   }
 
-  private Consumer<ProjectIndexer> getProjectIndexerConsumer(String branchUuid) {
+  private Consumer<AnalysisIndexer> getAnalysisIndexerConsumer(String branchUuid) {
     Set<String> fileUuidsMarkedAsUnchanged = fileStatuses.getFileUuidsMarkedAsUnchanged();
     return isBranchNeedIssueSync(branchUuid)
       ? (indexer -> indexer.indexOnAnalysis(branchUuid))

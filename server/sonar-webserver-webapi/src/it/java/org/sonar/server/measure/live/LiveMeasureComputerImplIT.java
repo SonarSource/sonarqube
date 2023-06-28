@@ -40,7 +40,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
@@ -61,7 +61,7 @@ public class LiveMeasureComputerImplIT {
   @Rule
   public DbTester db = DbTester.create(true);
 
-  private final TestProjectIndexers projectIndexer = new TestProjectIndexers();
+  private final TestIndexers projectIndexer = new TestIndexers();
   private MetricDto metric1;
   private MetricDto metric2;
   private ComponentDto project;

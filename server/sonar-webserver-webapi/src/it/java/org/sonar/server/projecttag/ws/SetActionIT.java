@@ -32,7 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -48,7 +48,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentDbTester.defaults;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 
 public class SetActionIT {
   @Rule
@@ -58,8 +60,8 @@ public class SetActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private final TagsWsSupport tagsWsSupport = new TagsWsSupport(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE);
+  private final TestIndexers indexers = new TestIndexers();
+  private final TagsWsSupport tagsWsSupport = new TagsWsSupport(dbClient, TestComponentFinder.from(db), userSession, indexers, System2.INSTANCE);
   private final WsActionTester ws = new WsActionTester(new SetAction(dbClient, tagsWsSupport));
   private ProjectDto project;
   private ComponentDto projectComponent;
@@ -77,15 +79,13 @@ public class SetActionIT {
     TestResponse response = call(project.getKey(), "finance , offshore, platform,   ,");
 
     assertTags(project.getKey(), "finance", "offshore", "platform");
-    // FIXME verify(indexer).indexProject(project.uuid(), PROJECT_TAGS_UPDATE);
-
+    indexers.hasBeenCalledForEntity(project.getUuid(), PROJECT_TAGS_UPDATE);
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
   }
 
   @Test
   public void reset_tags() {
-    project = db.components().insertPrivateProject(c -> {
-    }, p -> p.setTagsString("platform,scanner")).getProjectDto();
+    project = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("platform,scanner")).getProjectDto();
     userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "");
@@ -95,8 +95,7 @@ public class SetActionIT {
 
   @Test
   public void override_existing_tags() {
-    project = db.components().insertPrivateProject(c -> {
-    }, p -> p.setTagsString("marketing,languages")).getProjectDto();
+    project = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("marketing,languages")).getProjectDto();
     userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "finance,offshore,platform");
@@ -111,6 +110,7 @@ public class SetActionIT {
     call(project.getKey(), "platform, lambda");
 
     assertTags(project.getKey(), "platform", "lambda");
+    indexers.hasBeenCalledForEntity(project.getUuid(), PROJECT_TAGS_UPDATE);
   }
 
   @Test

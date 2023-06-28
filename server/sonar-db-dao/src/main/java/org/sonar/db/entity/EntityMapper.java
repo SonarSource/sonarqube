@@ -40,5 +40,5 @@ public interface EntityMapper {
 
   List<EntityDto> selectByKeys(@Param("keys") Collection<String> keys);
 
-  void scrollForIndexing(@Param("entityUuid") @Nullable String entityUuid, ResultHandler<EntityDto> handler);
+  void scrollForIndexing(ResultHandler<EntityDto> handler);
 }

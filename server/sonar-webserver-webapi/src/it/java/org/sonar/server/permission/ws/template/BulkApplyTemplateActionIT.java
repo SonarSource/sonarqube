@@ -39,8 +39,8 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
@@ -71,14 +71,14 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
   private GroupDto group1;
   private GroupDto group2;
   private PermissionTemplateDto template1;
-  private final ProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final Indexers indexers = new TestIndexers();
   private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-      projectIndexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory());
+      indexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory());
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

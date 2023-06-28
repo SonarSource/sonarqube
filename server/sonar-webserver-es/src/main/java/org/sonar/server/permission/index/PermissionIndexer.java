@@ -35,21 +35,21 @@ import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EventIndexer;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
-import org.sonar.server.es.ProjectIndexer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 
 /**
- * Populates the types "authorization" of each index requiring project
+ * Populates the types "authorization" of each index requiring entity
  * authorization.
  */
-public class PermissionIndexer implements ProjectIndexer {
-
+public class PermissionIndexer implements EventIndexer {
   private final DbClient dbClient;
   private final EsClient esClient;
   private final Collection<AuthorizationScope> authorizationScopes;
@@ -99,26 +99,18 @@ public class PermissionIndexer implements ProjectIndexer {
   }
 
   @Override
-  public void indexOnAnalysis(String branchUuid) {
-    // nothing to do, permissions don't change during an analysis
-  }
-
-  @Override
-  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
-    // nothing to do, permissions don't change during an analysis
-  }
-
-  @Override
-  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
+  public Collection<EsQueueDto> prepareForRecoveryOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, Indexers.EntityEvent cause) {
     return switch (cause) {
-      case MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE ->
+      case PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE ->
         // nothing to change. Measures, project key and tags are not part of this index
         emptyList();
-      case PROJECT_CREATION, PROJECT_DELETION, PERMISSION_CHANGE -> insertIntoEsQueue(dbSession, projectUuids);
-      default ->
-        // defensive case
-        throw new IllegalStateException("Unsupported cause: " + cause);
+      case CREATION, DELETION, PERMISSION_CHANGE -> insertIntoEsQueue(dbSession, entityUuids);
     };
+  }
+
+  @Override
+  public Collection<EsQueueDto> prepareForRecoveryOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, Indexers.BranchEvent cause) {
+    return emptyList();
   }
 
   private Collection<EsQueueDto> insertIntoEsQueue(DbSession dbSession, Collection<String> projectUuids) {
@@ -143,7 +135,7 @@ public class PermissionIndexer implements ProjectIndexer {
       bulkIndexer.start();
 
       authorizations.stream()
-        .filter(scope.getProjectPredicate())
+        .filter(scope.getEntityPredicate())
         .map(dto -> AuthorizationDoc.fromDto(indexType, dto).toIndexRequest())
         .forEach(bulkIndexer::add);
 
@@ -179,7 +171,7 @@ public class PermissionIndexer implements ProjectIndexer {
     });
 
     // the remaining references on entities that don't exist in db. They must
-    // be deleted from index.
+    // be deleted from the index.
     remainingEntityUuids.forEach(entityUuid -> bulkIndexers.forEach(bi -> {
       String authorizationDocId = AuthorizationDoc.idOf(entityUuid);
       bi.addDeletion(bi.getIndexType(), authorizationDocId, authorizationDocId);

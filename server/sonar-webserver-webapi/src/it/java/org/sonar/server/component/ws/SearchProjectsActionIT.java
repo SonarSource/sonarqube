@@ -1397,7 +1397,7 @@ public class SearchProjectsActionIT {
         authorizationIndexerTester.allowOnlyAnyone(r.getResultObject());
       }
     };
-    db.getDbClient().entityDao().scrollForIndexing(dbSession, null, rh);
+    db.getDbClient().entityDao().scrollForIndexing(dbSession, rh);
   }
 
   private ComponentDto insertPortfolio() {

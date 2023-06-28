@@ -165,7 +165,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
           newCodeDefinitionType, newCodeDefinitionValue);
       }
 
-      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+      componentUpdater.commitAndIndex(dbSession, componentCreationData);
 
       return toCreateResponse(projectDto);
     }
@@ -198,8 +198,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
     String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
 
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName, p -> {
-    });
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto componentDto, AlmSettingDto almSettingDto) {

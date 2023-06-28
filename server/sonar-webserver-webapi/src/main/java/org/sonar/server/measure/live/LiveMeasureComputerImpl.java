@@ -39,8 +39,8 @@ import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.EventIndexer;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
@@ -59,11 +59,11 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private final ComponentIndexFactory componentIndexFactory;
   private final LiveQualityGateComputer qGateComputer;
   private final ProjectConfigurationLoader projectConfigurationLoader;
-  private final ProjectIndexers projectIndexer;
+  private final Indexers projectIndexer;
   private final LiveMeasureTreeUpdater treeUpdater;
 
   public LiveMeasureComputerImpl(DbClient dbClient, MeasureUpdateFormulaFactory formulaFactory, ComponentIndexFactory componentIndexFactory,
-    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, ProjectIndexers projectIndexer, LiveMeasureTreeUpdater treeUpdater) {
+    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, Indexers projectIndexer, LiveMeasureTreeUpdater treeUpdater) {
     this.dbClient = dbClient;
     this.formulaFactory = formulaFactory;
     this.componentIndexFactory = componentIndexFactory;
@@ -106,7 +106,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
     Metric.Level previousStatus = loadPreviousStatus(dbSession, branchComponent);
     EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix, config);
-    persistAndIndex(dbSession, matrix, branchComponent);
+    persistAndIndex(dbSession, matrix, branch);
 
     return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
@@ -118,10 +118,10 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
   }
 
-  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, ComponentDto branchComponent) {
+  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, BranchDto branch) {
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
-    projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
+    projectIndexer.commitAndIndexBranches(dbSession, singleton(branch), Indexers.BranchEvent.MEASURE_CHANGE);
   }
 
   @CheckForNull

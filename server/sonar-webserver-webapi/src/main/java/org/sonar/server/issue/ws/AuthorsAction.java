@@ -119,16 +119,17 @@ public class AuthorsAction implements IssuesWsAction {
 
   private List<String> getAuthors(DbSession session, @Nullable EntityDto entity, Request request) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
-    ofNullable(entity).ifPresent(p -> {
-      switch (p.getQualifier()) {
-        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(p.getUuid()));
-        case Qualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(p.getUuid()));
+    ofNullable(entity).ifPresent(e -> {
+      switch (e.getQualifier()) {
+        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(e.getUuid()));
+        case Qualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(e.getUuid()));
         case Qualifiers.APP -> {
-          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(session, entity.getUuid())
-            .orElseThrow(() -> new IllegalStateException("Couldn't find main branch for APP " + entity.getUuid()));
-          issueQueryBuilder.viewUuids(Set.of(appMainBranch.getUuid()));
+          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(session, e.getUuid())
+            .orElseThrow(() -> new IllegalStateException("Couldn't find main branch for APP " + e.getUuid()));
+          issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
+          issueQueryBuilder.branchUuid(appMainBranch.getUuid());
         }
-        default -> throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", p.getQualifier()));
+        default -> throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", e.getQualifier()));
       }
     });
     return issueIndex.searchAuthors(

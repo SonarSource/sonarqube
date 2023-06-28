@@ -81,7 +81,7 @@ public class DeleteAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
       checkPermission(project);
-      componentCleanerService.delete(dbSession, project);
+      componentCleanerService.deleteEntity(dbSession, project);
       projectLifeCycleListeners.onProjectsDeleted(singleton(Project.fromProjectDtoWithTags(project)));
     }
 

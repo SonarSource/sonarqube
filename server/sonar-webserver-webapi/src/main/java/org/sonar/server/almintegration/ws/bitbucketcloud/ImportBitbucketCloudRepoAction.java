@@ -153,7 +153,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
           newCodeDefinitionType, newCodeDefinitionValue);
       }
 
-      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+      componentUpdater.commitAndIndex(dbSession, componentCreationData);
 
       return toCreateResponse(projectDto);
     }
@@ -180,8 +180,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
     String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
     String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
 
-    return componentUpdater.createWithoutCommit(dbSession, mainBranch, userUuid, userLogin, defaultBranchName, p -> {
-    });
+    return componentUpdater.createWithoutCommit(dbSession, mainBranch, userUuid, userLogin, defaultBranchName);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

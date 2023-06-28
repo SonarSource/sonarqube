@@ -164,7 +164,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
           newCodeDefinitionType, newCodeDefinitionValue);
       }
 
-      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+      componentUpdater.commitAndIndex(dbSession, componentCreationData);
 
       return toCreateResponse(projectDto);
     }
@@ -187,8 +187,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
         .setPrivate(visibility)
         .setQualifier(PROJECT)
         .build(),
-      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {
-      });
+      userSession.getUuid(), userSession.getLogin(), mainBranchName);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

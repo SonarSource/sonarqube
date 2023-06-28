@@ -23,21 +23,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 
 /**
  * Add or remove global/project permissions to a group. This class does not verify that caller has administration right on the related project.
  */
 public class PermissionUpdater {
 
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final UserPermissionChanger userPermissionChanger;
   private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(ProjectIndexers projectIndexers,
+  public PermissionUpdater(Indexers indexers,
     UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.userPermissionChanger = userPermissionChanger;
     this.groupPermissionChanger = groupPermissionChanger;
   }
@@ -51,7 +50,7 @@ public class PermissionUpdater {
         projectOrViewUuids.add(projectUuid);
       }
     }
-    projectIndexers.commitAndIndexByProjectUuids(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    indexers.commitAndIndexOnEntityEvent(dbSession, projectOrViewUuids, Indexers.EntityEvent.PERMISSION_CHANGE);
   }
 
   private boolean doApply(DbSession dbSession, PermissionChange change) {

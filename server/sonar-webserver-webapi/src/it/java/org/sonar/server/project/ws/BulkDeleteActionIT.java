@@ -238,7 +238,7 @@ public class BulkDeleteActionIT {
       .setParam("projects", StringUtils.join(keys, ","))
       .execute();
 
-    verify(componentCleanerService, times(1_000)).delete(any(DbSession.class), any(EntityDto.class));
+    verify(componentCleanerService, times(1_000)).deleteEntity(any(DbSession.class), any(EntityDto.class));
     ArgumentCaptor<Set<Project>> projectsCaptor = ArgumentCaptor.forClass(Set.class);
     verify(projectLifeCycleListeners).onProjectsDeleted(projectsCaptor.capture());
     assertThat(projectsCaptor.getValue()).hasSize(1_000);
@@ -255,7 +255,7 @@ public class BulkDeleteActionIT {
     doNothing()
       .doThrow(expectedException)
       .when(componentCleanerService)
-      .delete(any(), any(ProjectDto.class));
+      .deleteEntity(any(), any(ProjectDto.class));
 
     try {
       ws.newRequest()
@@ -314,7 +314,7 @@ public class BulkDeleteActionIT {
 
   private void verifyEntityDeleted(EntityDto... entities) {
     ArgumentCaptor<EntityDto> argument = ArgumentCaptor.forClass(EntityDto.class);
-    verify(componentCleanerService, times(entities.length)).delete(any(DbSession.class), argument.capture());
+    verify(componentCleanerService, times(entities.length)).deleteEntity(any(DbSession.class), argument.capture());
 
     for (EntityDto entity : entities) {
       assertThat(argument.getAllValues()).extracting(EntityDto::getUuid).contains(entity.getUuid());

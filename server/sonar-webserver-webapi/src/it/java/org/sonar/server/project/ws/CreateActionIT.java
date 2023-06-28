@@ -38,7 +38,8 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -96,12 +97,12 @@ public class CreateActionIT {
 
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
-  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final TestIndexers projectIndexers = new TestIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
-  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
@@ -133,9 +134,11 @@ public class CreateActionIT {
       .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false);
 
-    assertThat(db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).get())
+    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).get();
+    assertThat(branch)
       .extracting(BranchDto::getKey)
       .isEqualTo(MAIN_BRANCH);
+    projectIndexers.hasBeenCalledForEntity(branch.getProjectUuid(), Indexers.EntityEvent.CREATION);
   }
 
   @Test

@@ -82,7 +82,7 @@ import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.developers.ws.DevelopersWsModule;
@@ -92,7 +92,7 @@ import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
-import org.sonar.server.es.ProjectIndexersImpl;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -434,7 +434,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentCleanerService.class,
       ComponentIndexDefinition.class,
       ComponentIndex.class,
-      ComponentIndexer.class,
+      EntityDefinitionIndexer.class,
       new LiveMeasureModule(),
       ComponentViewerJsonWriter.class,
 
@@ -615,7 +615,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new HttpRequestIdModule(),
 
       RecoveryIndexer.class,
-      ProjectIndexersImpl.class,
+      IndexersImpl.class,
 
       // telemetry
       TelemetryDataLoaderImpl.class,

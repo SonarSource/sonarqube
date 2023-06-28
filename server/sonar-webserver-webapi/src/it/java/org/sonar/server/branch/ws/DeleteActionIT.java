@@ -51,9 +51,9 @@ public class DeleteActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
 
-  private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
-  private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
+  private final ComponentFinder componentFinder = TestComponentFinder.from(db);
+  private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

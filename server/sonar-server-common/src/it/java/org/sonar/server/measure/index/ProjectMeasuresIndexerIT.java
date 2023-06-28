@@ -37,8 +37,8 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.IndexPermissions;
 
@@ -52,10 +52,10 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.es.EsClient.prepareSearch;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_KEY_UPDATE;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
+import static org.sonar.server.es.Indexers.EntityEvent.CREATION;
+import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
@@ -74,12 +74,12 @@ public class ProjectMeasuresIndexerIT {
   private final ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
 
   @Test
-  public void test_getAuthorizationScope() {
+  public void getAuthorizationScope_shouldReturnTrueForProjectAndApp() {
     AuthorizationScope scope = underTest.getAuthorizationScope();
     assertThat(scope.getIndexType().getIndex()).isEqualTo(ProjectMeasuresIndexDefinition.DESCRIPTOR);
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
-    Predicate<IndexPermissions> projectPredicate = scope.getProjectPredicate();
+    Predicate<IndexPermissions> projectPredicate = scope.getEntityPredicate();
     IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
     IndexPermissions app = new IndexPermissions("P1", Qualifiers.APP);
     IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
@@ -89,14 +89,14 @@ public class ProjectMeasuresIndexerIT {
   }
 
   @Test
-  public void index_nothing() {
+  public void indexOnStartup_whenNoEntities_shouldNotIndexAnything() {
     underTest.indexOnStartup(emptySet());
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
   }
 
   @Test
-  public void indexOnStartup_indexes_all_projects() {
+  public void indexOnStartup_shouldIndexAllProjects() {
     SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
     SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
     SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
@@ -205,7 +205,7 @@ public class ProjectMeasuresIndexerIT {
   public void update_index_when_project_is_created() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    IndexingResult result = indexProject(project, PROJECT_CREATION);
+    IndexingResult result = indexProject(project, CREATION);
 
     assertThatIndexContainsOnly(project);
     assertThat(result.getTotal()).isOne();
@@ -215,12 +215,11 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void update_index_when_project_tags_are_updated() {
     ProjectDto project = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("foo")).getProjectDto();
-    indexProject(project, PROJECT_CREATION);
+    indexProject(project, CREATION);
     assertThatProjectHasTag(project, "foo");
 
     project.setTagsString("bar");
     db.getDbClient().projectDao().updateTags(db.getSession(), project);
-    // TODO change indexing?
     IndexingResult result = indexProject(project, PROJECT_TAGS_UPDATE);
 
     assertThatProjectHasTag(project, "bar");
@@ -231,11 +230,11 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void delete_doc_from_index_when_project_is_deleted() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    indexProject(project, PROJECT_CREATION);
+    indexProject(project, CREATION);
     assertThatIndexContainsOnly(project);
 
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), Qualifiers.PROJECT, project.getName(), project.getKey());
-    IndexingResult result = indexProject(project, PROJECT_DELETION);
+    IndexingResult result = indexProject(project, DELETION);
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
     assertThat(result.getTotal()).isOne();
@@ -258,7 +257,7 @@ public class ProjectMeasuresIndexerIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     es.lockWrites(TYPE_PROJECT_MEASURES);
 
-    IndexingResult result = indexProject(project, PROJECT_CREATION);
+    IndexingResult result = indexProject(project, CREATION);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getFailures()).isOne();
 
@@ -288,9 +287,9 @@ public class ProjectMeasuresIndexerIT {
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
   }
 
-  private IndexingResult indexProject(ProjectDto project, ProjectIndexer.Cause cause) {
+  private IndexingResult indexProject(ProjectDto project, Indexers.EntityEvent cause) {
     DbSession dbSession = db.getSession();
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(project.getUuid()), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnEntityEvent(dbSession, singletonList(project.getUuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
   }

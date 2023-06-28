@@ -45,8 +45,7 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.exceptions.TemplateMatchingKeyException;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.user.UserSession;
@@ -62,15 +61,15 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 public class PermissionTemplateService {
 
   private final DbClient dbClient;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
   private final UuidFactory uuidFactory;
 
-  public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
+  public PermissionTemplateService(DbClient dbClient, Indexers indexers, UserSession userSession,
     DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
     this.uuidFactory = uuidFactory;
@@ -106,11 +105,12 @@ public class PermissionTemplateService {
       dbClient.userPermissionDao().deleteEntityPermissions(dbSession, entity);
       copyPermissions(dbSession, template, entity, null);
     }
-    projectIndexers.commitAndIndexEntities(dbSession, entities, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    indexers.commitAndIndexEntities(dbSession, entities, Indexers.EntityEvent.PERMISSION_CHANGE);
   }
 
   /**
    * Apply the default permission template to a new project (has no permissions yet).
+   *
    * @param projectCreatorUserId id of the user creating the project.
    */
   public void applyDefaultToNewComponent(DbSession dbSession, EntityDto entityDto, @Nullable String projectCreatorUserId) {

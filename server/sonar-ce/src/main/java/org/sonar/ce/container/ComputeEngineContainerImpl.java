@@ -89,10 +89,10 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.es.EsModule;
-import org.sonar.server.es.ProjectIndexersImpl;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -381,11 +381,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // components,
       FavoriteUpdater.class,
-      ProjectIndexersImpl.class,
+      IndexersImpl.class,
       QGChangeNotificationHandler.class,
       QGChangeNotificationHandler.newMetadata(),
       ProjectMeasuresIndexer.class,
-      ComponentIndexer.class,
+      EntityDefinitionIndexer.class,
 
       // views
       ViewIndexer.class,

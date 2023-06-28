@@ -41,7 +41,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -83,7 +83,7 @@ public class ImportGitLabProjectActionIT {
   DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
     defaultBranchNameResolver, true);
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
@@ -137,7 +137,7 @@ public class ImportGitLabProjectActionIT {
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -252,7 +252,6 @@ public class ImportGitLabProjectActionIT {
       .containsExactlyInAnyOrder(tuple(DEFAULT_MAIN_BRANCH_NAME, true));
   }
 
-
   @Test
   public void import_project_without_NCD() {
     UserDto user = db.users().insertUser();
@@ -283,7 +282,6 @@ public class ImportGitLabProjectActionIT {
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
   }
-
 
   private Project getGitlabProject() {
     return new Project(randomAlphanumeric(5), randomAlphanumeric(5));

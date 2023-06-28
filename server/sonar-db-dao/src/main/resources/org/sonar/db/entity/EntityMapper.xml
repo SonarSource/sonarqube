@@ -85,17 +85,11 @@
       </foreach>)
   </select>
 
-  <select id="scrollForIndexing" parameterType="map" resultType="Entity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollForIndexing" resultType="Entity" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     (select <include refid="entityProjectColumns"/>
-    from projects p
-    <if test="entityUuid != null">
-      where p.uuid = #{entityUuid,jdbcType=VARCHAR}
-    </if>)
+    from projects p)
     UNION
     (select <include refid="entityPortfolioColumns"/>
-    from portfolios p
-    <if test="entityUuid != null">
-      where p.uuid = #{entityUuid,jdbcType=VARCHAR}
-    </if>)
+    from portfolios p)
   </select>
 </mapper>

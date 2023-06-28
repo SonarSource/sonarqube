@@ -34,8 +34,8 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.EventIndexer;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
@@ -57,14 +57,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final UuidFactory uuidFactory;
   private final Configuration configuration;
 
-  public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers, UuidFactory uuidFactory, Configuration configuration) {
+  public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, Indexers indexers, UuidFactory uuidFactory, Configuration configuration) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.uuidFactory = uuidFactory;
     this.configuration = configuration;
   }
@@ -119,7 +119,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         } else {
           updatePermissionsToPublic(dbSession, entityDto);
         }
-        projectIndexers.commitAndIndexEntities(dbSession, singletonList(entityDto), ProjectIndexer.Cause.PERMISSION_CHANGE);
+        indexers.commitAndIndexEntities(dbSession, singletonList(entityDto), Indexers.EntityEvent.PERMISSION_CHANGE);
       }
 
       response.noContent();

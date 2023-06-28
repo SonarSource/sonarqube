@@ -30,13 +30,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,7 +55,7 @@ public class ComponentServiceUpdateKeyIT {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private TestIndexers projectIndexers = new TestIndexers();
   private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexers, projectLifeCycleListeners);
 
@@ -84,7 +83,7 @@ public class ComponentServiceUpdateKeyIT {
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isEmpty();
 
-    assertThat(projectIndexers.hasBeenCalled(project.getUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalledForEntity(project.getUuid(), Indexers.EntityEvent.PROJECT_KEY_UPDATE)).isTrue();
 
     Deque<PushEventDto> pushEvents = db.getDbClient().pushEventDao().selectChunkByProjectUuids(dbSession, Set.of(project.getUuid()), 0L, "id", 20);
 
@@ -109,7 +108,7 @@ public class ComponentServiceUpdateKeyIT {
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.getKey(), "provisionedProject2");
-    assertThat(projectIndexers.hasBeenCalled(provisionedProject.getUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalledForEntity(provisionedProject.getUuid(), Indexers.EntityEvent.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test

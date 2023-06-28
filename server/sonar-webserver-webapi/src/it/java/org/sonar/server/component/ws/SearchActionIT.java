@@ -22,7 +22,6 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jface.text.projection.ProjectionDocument;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +35,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.component.ws.SearchAction.SearchRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.l18n.I18nRule;
@@ -77,7 +76,7 @@ public class SearchActionIT {
 
   private final I18nRule i18n = new I18nRule();
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  private final ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private final EntityDefinitionIndexer indexer = new EntityDefinitionIndexer(db.getDbClient(), es.client());
   private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private final ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 

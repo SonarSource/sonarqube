@@ -23,22 +23,22 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 @ServerSide
 public class IndexPurgeListener implements PurgeListener {
   private final IssueIndexer issueIndexer;
-  private final ComponentIndexer componentIndexer;
+  private final EntityDefinitionIndexer entityDefinitionIndexer;
 
-  public IndexPurgeListener(IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
+  public IndexPurgeListener(IssueIndexer issueIndexer, EntityDefinitionIndexer entityDefinitionIndexer) {
     this.issueIndexer = issueIndexer;
-    this.componentIndexer = componentIndexer;
+    this.entityDefinitionIndexer = entityDefinitionIndexer;
   }
 
   @Override
   public void onComponentsDisabling(String projectUuid, Collection<String> disabledComponentUuids) {
-    componentIndexer.delete(projectUuid, disabledComponentUuids);
+    entityDefinitionIndexer.delete(projectUuid, disabledComponentUuids);
   }
 
   @Override

@@ -182,7 +182,7 @@ public class BranchReportSubmitterIT {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
     when(componentCreationData.mainBranchComponent())
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject).getMainBranchComponent());
-    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin()), any()))
+    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin())))
       .thenReturn(componentCreationData);
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), any())).thenReturn(createdBranch);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingProject.getKey()))).thenReturn(true);
@@ -197,7 +197,7 @@ public class BranchReportSubmitterIT {
     verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), eq(exitingProjectMainBranch));
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(nonExistingProject, createdBranch, user, randomCharacteristics, taskUuid);
-    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(nonExistingProject));
+    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(componentCreationData));
   }
 
   @Test

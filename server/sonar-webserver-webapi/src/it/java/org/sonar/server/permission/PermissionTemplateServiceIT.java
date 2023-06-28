@@ -37,8 +37,8 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.TemplateMatchingKeyException;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -60,8 +60,8 @@ public class PermissionTemplateServiceIT {
   private final UserSessionRule userSession = UserSessionRule.standalone();
   private final PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private final DbSession session = dbTester.getSession();
-  private final ProjectIndexers projectIndexers = new TestProjectIndexers();
-  private final PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver,
+  private final Indexers indexers = new TestIndexers();
+  private final PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), indexers, userSession, defaultTemplatesResolver,
     new SequenceUuidFactory());
 
   @Test

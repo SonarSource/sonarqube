@@ -31,11 +31,11 @@ import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE
 @Immutable
 public final class AuthorizationScope {
   private final IndexMainType indexType;
-  private final Predicate<IndexPermissions> projectPredicate;
+  private final Predicate<IndexPermissions> entityPredicate;
 
-  public AuthorizationScope(IndexRelationType functionalType, Predicate<IndexPermissions> projectPredicate) {
+  public AuthorizationScope(IndexRelationType functionalType, Predicate<IndexPermissions> entityPredicate) {
     this.indexType = getAuthorizationIndexType(functionalType);
-    this.projectPredicate = requireNonNull(projectPredicate);
+    this.entityPredicate = requireNonNull(entityPredicate);
   }
 
   /**
@@ -59,9 +59,9 @@ public final class AuthorizationScope {
   }
 
   /**
-   * Predicates that filters the projects to be involved in authorization.
+   * Predicates that filters the entities to be involved in authorization.
    */
-  public Predicate<IndexPermissions> getProjectPredicate() {
-    return projectPredicate;
+  public Predicate<IndexPermissions> getEntityPredicate() {
+    return entityPredicate;
   }
 }

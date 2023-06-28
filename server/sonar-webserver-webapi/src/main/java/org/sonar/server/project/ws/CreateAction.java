@@ -28,7 +28,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
@@ -132,18 +134,18 @@ public class CreateAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(PROVISION_PROJECTS);
       checkNewCodeDefinitionParam(request.getNewCodeDefinitionType(), request.getNewCodeDefinitionValue());
-      ComponentDto componentDto = createProject(request, dbSession);
+      ComponentCreationData componentData = createProject(request, dbSession);
       if (request.getNewCodeDefinitionType() != null) {
         String defaultBranchName = Optional.ofNullable(request.getMainBranchKey()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName());
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, componentDto.uuid(), defaultBranchName, request.getNewCodeDefinitionType(),
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, componentData.mainBranchDto().getUuid(), defaultBranchName, request.getNewCodeDefinitionType(),
           request.getNewCodeDefinitionValue());
       }
-      componentUpdater.commitAndIndex(dbSession, componentDto);
-      return toCreateResponse(componentDto);
+      componentUpdater.commitAndIndex(dbSession, componentData);
+      return toCreateResponse(componentData.projectDto());
     }
   }
 
-  private ComponentDto createProject(CreateRequest request, DbSession dbSession) {
+  private ComponentCreationData createProject(CreateRequest request, DbSession dbSession) {
     String visibility = request.getVisibility();
     boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
@@ -155,8 +157,7 @@ public class CreateAction implements ProjectsWsAction {
         .build(),
       userSession.isLoggedIn() ? userSession.getUuid() : null,
       userSession.isLoggedIn() ? userSession.getLogin() : null,
-      request.getMainBranchKey(), s -> {
-      }).mainBranchComponent();
+      request.getMainBranchKey());
 
   }
 
@@ -171,13 +172,13 @@ public class CreateAction implements ProjectsWsAction {
       .build();
   }
 
-  private static CreateWsResponse toCreateResponse(ComponentDto componentDto) {
+  private static CreateWsResponse toCreateResponse(EntityDto project) {
     return CreateWsResponse.newBuilder()
       .setProject(CreateWsResponse.Project.newBuilder()
-        .setKey(componentDto.getKey())
-        .setName(componentDto.name())
-        .setQualifier(componentDto.qualifier())
-        .setVisibility(Visibility.getLabel(componentDto.isPrivate())))
+        .setKey(project.getKey())
+        .setName(project.getName())
+        .setQualifier(project.getQualifier())
+        .setVisibility(Visibility.getLabel(project.isPrivate())))
       .build();
   }
 

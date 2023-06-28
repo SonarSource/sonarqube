@@ -43,11 +43,13 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.Indexers.EntityEvent;
 import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.IndexPermissions;
@@ -62,6 +64,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.es.Indexers.BranchEvent.DELETION;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
@@ -79,17 +84,17 @@ public class IssueIndexerIT {
   private final IssueIndexer underTest = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
 
   @Test
-  public void test_getIndexTypes() {
+  public void getIndexTypes_shouldReturnTypeIssue() {
     assertThat(underTest.getIndexTypes()).containsExactly(TYPE_ISSUE);
   }
 
   @Test
-  public void test_getAuthorizationScope() {
+  public void getAuthorizationScope_shouldBeProject() {
     AuthorizationScope scope = underTest.getAuthorizationScope();
     assertThat(scope.getIndexType().getIndex()).isEqualTo(IssueIndexDefinition.DESCRIPTOR);
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
-    Predicate<IndexPermissions> projectPredicate = scope.getProjectPredicate();
+    Predicate<IndexPermissions> projectPredicate = scope.getEntityPredicate();
     IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
     IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
     assertThat(projectPredicate.test(project)).isTrue();
@@ -97,7 +102,7 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void indexOnStartup_scrolls_db_and_adds_all_issues_to_index() {
+  public void indexAllIssues_shouldIndexAllIssues() {
     IssueDto issue1 = db.issues().insert();
     IssueDto issue2 = db.issues().insert();
 
@@ -107,7 +112,7 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void verify_indexed_fields() {
+  public void indexAllIssues_shouldIndexAllIssueFields() {
     RuleDto rule = db.rules().insert();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -142,7 +147,7 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void verify_security_standards_indexation() {
+  public void indexAllIssues_shouldIndexSecurityStandards() {
     RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863", "owaspAsvs-4.0:2.1.1"))));
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
@@ -166,7 +171,7 @@ public class IssueIndexerIT {
     Set<IndexType> uninitializedIndexTypes = emptySet();
     assertThatThrownBy(() -> underTest.indexOnStartup(uninitializedIndexTypes))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("SYNCHRONE StartupIndexer must implement indexOnStartup");
+      .hasMessage("SYNCHRONOUS StartupIndexer must implement indexOnStartup");
     assertThatIndexHasSize(0);
     assertThatEsQueueTableHasSize(0);
     es.unlockWrites(TYPE_ISSUE);
@@ -175,13 +180,13 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_indexes_the_issues_of_project() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issue = db.issues().insert(rule, project, file);
+    ComponentDto branchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branchComponent));
+    IssueDto issue = db.issues().insert(rule, branchComponent, file);
     ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertComponent(newFileDto(otherProject));
 
-    underTest.indexOnAnalysis(project.uuid());
+    underTest.indexOnAnalysis(branchComponent.uuid());
 
     assertThatIndexHasOnly(issue);
   }
@@ -189,14 +194,14 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_does_not_delete_orphan_docs() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issue = db.issues().insert(rule, project, file);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()));
+    IssueDto issue = db.issues().insert(rule, projectData.getMainBranchComponent(), file);
 
     // orphan in the project
-    addIssueToIndex(project.uuid(), "orphan");
+    addIssueToIndex(projectData.projectUuid(), projectData.getMainBranchComponent().uuid(), "orphan");
 
-    underTest.indexOnAnalysis(project.uuid());
+    underTest.indexOnAnalysis(projectData.getMainBranchComponent().uuid());
 
     assertThat(es.getDocuments(TYPE_ISSUE))
       .extracting(SearchHit::getId)
@@ -222,23 +227,11 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void index_is_not_updated_when_creating_project() {
-    // it's impossible to already have an issue on a project
-    // that is being created, but it's just to verify that
-    // indexing is disabled
-    IssueDto issue = db.issues().insert();
-
-    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
-    assertThat(result.getTotal()).isZero();
-    assertThatIndexHasSize(0);
-  }
-
-  @Test
   public void index_is_not_updated_when_updating_project_key() {
     // issue is inserted to verify that indexing of project is not triggered
     IssueDto issue = db.issues().insert();
 
-    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    IndexingResult result = indexProject(issue.getProjectUuid(), PROJECT_KEY_UPDATE);
     assertThat(result.getTotal()).isZero();
     assertThatIndexHasSize(0);
   }
@@ -248,17 +241,37 @@ public class IssueIndexerIT {
     // issue is inserted to verify that indexing of project is not triggered
     IssueDto issue = db.issues().insert();
 
-    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    IndexingResult result = indexProject(issue.getProjectUuid(), PROJECT_TAGS_UPDATE);
     assertThat(result.getTotal()).isZero();
     assertThatIndexHasSize(0);
   }
 
   @Test
+  public void index_is_updated_when_deleting_branch() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+
+    addIssueToIndex(project.getUuid(), branch1.getUuid(), "I1");
+    addIssueToIndex(project.getUuid(), branch1.getUuid(), "I2");
+    addIssueToIndex(project.getUuid(), branch2.getUuid(), "I3");
+
+    assertThatIndexHasSize(3);
+
+    IndexingResult result = indexBranch(branch1.getUuid(), DELETION);
+
+    assertThat(result.getTotal()).isEqualTo(2);
+    assertThat(result.getSuccess()).isEqualTo(2);
+    assertThatIndexHasOnly("I3");
+  }
+
+  @Test
   public void index_is_updated_when_deleting_project() {
-    addIssueToIndex("P1", "I1");
+    BranchDto branch = db.components().insertPrivateProject().getMainBranchDto();
+    addIssueToIndex(branch.getProjectUuid(), branch.getUuid(), "I1");
     assertThatIndexHasSize(1);
 
-    IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
+    IndexingResult result = indexProject(branch.getProjectUuid(), EntityEvent.DELETION);
 
     assertThat(result.getTotal()).isOne();
     assertThat(result.getSuccess()).isOne();
@@ -267,24 +280,26 @@ public class IssueIndexerIT {
 
   @Test
   public void errors_during_project_deletion_are_recovered() {
-    addIssueToIndex("P1", "I1");
-    assertThatIndexHasSize(1);
+    addIssueToIndex("P1", "B1", "I1");
+    addIssueToIndex("P1", "B2", "I2");
+
+    assertThatIndexHasSize(2);
     es.lockWrites(TYPE_ISSUE);
 
-    IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
-    assertThat(result.getTotal()).isOne();
-    assertThat(result.getFailures()).isOne();
+    IndexingResult result = indexProject("P1", EntityEvent.DELETION);
+    assertThat(result.getTotal()).isEqualTo(2);
+    assertThat(result.getFailures()).isEqualTo(2);
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isOne();
-    assertThat(result.getFailures()).isOne();
-    assertThatIndexHasSize(1);
+    assertThat(result.getTotal()).isEqualTo(2);
+    assertThat(result.getFailures()).isEqualTo(2);
+    assertThatIndexHasSize(2);
 
     es.unlockWrites(TYPE_ISSUE);
 
     result = recover();
-    assertThat(result.getTotal()).isOne();
+    assertThat(result.getTotal()).isEqualTo(2);
     assertThat(result.getFailures()).isZero();
     assertThatIndexHasSize(0);
   }
@@ -310,8 +325,8 @@ public class IssueIndexerIT {
 
   @Test
   public void commitAndIndexIssues_removes_issue_from_index_if_it_does_not_exist_in_db() {
-    IssueDto issue1 = new IssueDto().setKee("I1").setProjectUuid("P1");
-    addIssueToIndex(issue1.getProjectUuid(), issue1.getKey());
+    IssueDto issue1 = new IssueDto().setKee("I1").setProjectUuid("B1");
+    addIssueToIndex("B1", issue1.getProjectUuid(), issue1.getKey());
     IssueDto issue2 = db.issues().insert();
 
     underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
@@ -400,7 +415,7 @@ public class IssueIndexerIT {
 
     es.lockWrites(TYPE_ISSUE);
 
-    IndexingResult result = indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_DELETION);
+    IndexingResult result = indexBranch(project.uuid(), DELETION);
     assertThat(result.getTotal()).isEqualTo(2L);
     assertThat(result.getFailures()).isEqualTo(2L);
 
@@ -419,18 +434,24 @@ public class IssueIndexerIT {
     assertThatEsQueueTableHasSize(0);
   }
 
-  private IndexingResult indexProject(String projectUuid, ProjectIndexer.Cause cause) {
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(db.getSession(), singletonList(projectUuid), cause);
+  private IndexingResult indexBranch(String branchUuid, Indexers.BranchEvent cause) {
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnBranchEvent(db.getSession(), singletonList(branchUuid), cause);
+    db.commit();
+    return underTest.index(db.getSession(), items);
+  }
+
+  private IndexingResult indexProject(String projectUuid, EntityEvent cause) {
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnEntityEvent(db.getSession(), singletonList(projectUuid), cause);
     db.commit();
     return underTest.index(db.getSession(), items);
   }
 
   @Test
-  public void deleteByKeys_deletes_docs_by_keys() {
-    addIssueToIndex("P1", "Issue1");
-    addIssueToIndex("P1", "Issue2");
-    addIssueToIndex("P1", "Issue3");
-    addIssueToIndex("P2", "Issue4");
+  public void deleteByKeys_shouldDeleteDocsByKeys() {
+    addIssueToIndex("P1", "B1", "Issue1");
+    addIssueToIndex("P1", "B1", "Issue2");
+    addIssueToIndex("P1", "B1", "Issue3");
+    addIssueToIndex("P2", "B2", "Issue4");
 
     assertThatIndexHasOnly("Issue1", "Issue2", "Issue3", "Issue4");
 
@@ -440,8 +461,8 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void deleteByKeys_does_not_recover_from_errors() {
-    addIssueToIndex("P1", "Issue1");
+  public void deleteByKeys_shouldNotRecoverFromErrors() {
+    addIssueToIndex("P1", "B1","Issue1");
     es.lockWrites(TYPE_ISSUE);
 
     List<String> issues = List.of("Issue1");
@@ -454,12 +475,12 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void nothing_to_do_when_delete_issues_on_empty_list() {
-    addIssueToIndex("P1", "Issue1");
-    addIssueToIndex("P1", "Issue2");
-    addIssueToIndex("P1", "Issue3");
+  public void deleteByKeys_whenEmptyList_shouldDoNothing() {
+    addIssueToIndex("P1", "B1", "Issue1");
+    addIssueToIndex("P1", "B1", "Issue2");
+    addIssueToIndex("P1", "B1", "Issue3");
 
-    underTest.deleteByKeys("P1", emptyList());
+    underTest.deleteByKeys("B1", emptyList());
 
     assertThatIndexHasOnly("Issue1", "Issue2", "Issue3");
   }
@@ -533,14 +554,14 @@ public class IssueIndexerIT {
   @Test
   public void issue_on_project_has_main_code_scope() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    IssueDto issue = db.issues().insert(rule, project, project);
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto issue = db.issues().insert(rule, mainBranchComponent, mainBranchComponent);
 
     underTest.indexAllIssues();
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.componentUuid()).isEqualTo(project.uuid());
+    assertThat(doc.componentUuid()).isEqualTo(mainBranchComponent.uuid());
     assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
   }
 
@@ -552,17 +573,17 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenChangedComponents_shouldReindexOnlyChangedComponents() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(project));
-    ComponentDto unchangedComponent = db.components().insertComponent(newFileDto(project));
-    ComponentDto ChangedComponent2 = db.components().insertComponent(newFileDto(project));
-    IssueDto changedIssue1 = db.issues().insert(rule, project, changedComponent1);
-    IssueDto changedIssue2 = db.issues().insert(rule, project, changedComponent1);
-    IssueDto changedIssue3 = db.issues().insert(rule, project, ChangedComponent2);
-    db.issues().insert(rule, project, unchangedComponent);
-    db.issues().insert(rule, project, unchangedComponent);
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(mainBranchComponent));
+    ComponentDto unchangedComponent = db.components().insertComponent(newFileDto(mainBranchComponent));
+    ComponentDto ChangedComponent2 = db.components().insertComponent(newFileDto(mainBranchComponent));
+    IssueDto changedIssue1 = db.issues().insert(rule, mainBranchComponent, changedComponent1);
+    IssueDto changedIssue2 = db.issues().insert(rule, mainBranchComponent, changedComponent1);
+    IssueDto changedIssue3 = db.issues().insert(rule, mainBranchComponent, ChangedComponent2);
+    db.issues().insert(rule, mainBranchComponent, unchangedComponent);
+    db.issues().insert(rule, mainBranchComponent, unchangedComponent);
 
-    underTest.indexOnAnalysis(project.uuid(), Set.of(unchangedComponent.uuid()));
+    underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of(unchangedComponent.uuid()));
 
     assertThatIndexHasOnly(changedIssue1, changedIssue2, changedIssue3);
   }
@@ -570,12 +591,12 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenEmptyUnchangedComponents_shouldReindexEverything() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto changedComponent = db.components().insertComponent(newFileDto(project));
-    IssueDto changedIssue1 = db.issues().insert(rule, project, changedComponent);
-    IssueDto changedIssue2 = db.issues().insert(rule, project, changedComponent);
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto changedComponent = db.components().insertComponent(newFileDto(mainBranchComponent));
+    IssueDto changedIssue1 = db.issues().insert(rule, mainBranchComponent, changedComponent);
+    IssueDto changedIssue2 = db.issues().insert(rule, mainBranchComponent, changedComponent);
 
-    underTest.indexOnAnalysis(project.uuid(), Set.of());
+    underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of());
 
     assertThatIndexHasOnly(changedIssue1, changedIssue2);
   }
@@ -583,17 +604,17 @@ public class IssueIndexerIT {
   @Test
   public void indexOnAnalysis_whenChangedComponentWithoutIssue_shouldReindexNothing() {
     db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertComponent(newFileDto(project));
+    ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertComponent(newFileDto(mainBranchComponent));
 
-    underTest.indexOnAnalysis(project.uuid(), Set.of());
+    underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of());
 
     assertThat(es.getDocuments(TYPE_ISSUE)).isEmpty();
   }
 
-  private void addIssueToIndex(String projectUuid, String issueKey) {
+  private void addIssueToIndex(String projectUuid, String branchUuid, String issueKey) {
     es.putDocuments(TYPE_ISSUE,
-      newDoc().setKey(issueKey).setProjectUuid(projectUuid));
+      newDoc().setKey(issueKey).setProjectUuid(projectUuid).setBranchUuid(branchUuid));
   }
 
   private void assertThatIndexHasSize(long expectedSize) {

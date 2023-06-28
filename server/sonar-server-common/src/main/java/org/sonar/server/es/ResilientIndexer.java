@@ -24,13 +24,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 
 /**
- * Indexers that are resilient
+ * Indexers that are resilient. These indexers handle indexation items that are queued in the DB.
  */
 public interface ResilientIndexer extends StartupIndexer {
 
   /**
    * Index the items and delete them from es_queue DB table when the indexation
-   * is done, keeping them if there is a failure on the item of the collection
+   * is done. If there is a failure, the items are kept in DB to be re-processed later.
    *
    * @param dbSession the db session
    * @param items     the items to be indexed

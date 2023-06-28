@@ -19,21 +19,15 @@
  */
 package org.sonar.server.permission.index;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.db.DbSession;
-import org.sonar.db.es.EsQueueDto;
+import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IndexType;
-import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 
 import static org.sonar.server.permission.index.FooIndexDefinition.TYPE_FOO;
 
-public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+public class FooIndexer implements AnalysisIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_FOO, p -> true);
 
@@ -57,11 +51,6 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
     addToIndex(branchUuid, "bar");
     addToIndex(branchUuid, "baz");
-  }
-
-  @Override
-  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
-    throw new UnsupportedOperationException();
   }
 
   private void addToIndex(String projectUuid, String name) {
@@ -91,20 +80,5 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
       return projectUuid + "_" + name;
     }
 
-  }
-
-  @Override
-  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(TYPE_FOO);
-  }
-
-  @Override
-  public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-    throw new UnsupportedOperationException();
   }
 }

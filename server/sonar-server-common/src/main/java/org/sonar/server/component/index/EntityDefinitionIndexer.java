@@ -35,14 +35,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EventIndexer;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToManyResilientIndexingListener;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
@@ -50,15 +52,18 @@ import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 import static java.util.Collections.emptyList;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+/**
+ * Indexes the definition of all entities: projects, applications, portfolios and sub-portfolios.
+ */
+public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, NeedAuthorizationIndexer {
 
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_COMPONENT, project -> true);
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_COMPONENT, entity -> true);
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_COMPONENT);
 
   private final DbClient dbClient;
   private final EsClient esClient;
 
-  public ComponentIndexer(DbClient dbClient, EsClient esClient) {
+  public EntityDefinitionIndexer(DbClient dbClient, EsClient esClient) {
     this.dbClient = dbClient;
     this.esClient = esClient;
   }
@@ -91,7 +96,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
         return;
       }
       EntityDto entity = dbClient.entityDao().selectByComponentUuid(dbSession, branchUuid)
-        .orElseThrow(() -> new IllegalStateException("Can't find entity " + branchUuid));
+        .orElseThrow(() -> new IllegalStateException("Can't find entity for branch " + branchUuid));
       doIndexByEntityUuid(entity);
     }
   }
@@ -102,20 +107,23 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
-    switch (cause) {
-      case MEASURE_CHANGE, PROJECT_TAGS_UPDATE, PERMISSION_CHANGE:
-        // measures, tags and permissions are not part of type components/component
-        return emptyList();
-      case PROJECT_CREATION, PROJECT_DELETION, PROJECT_KEY_UPDATE:
-        List<EsQueueDto> items = projectUuids.stream()
-          .map(projectUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), projectUuid, null, projectUuid))
-          .collect(MoreCollectors.toArrayList(projectUuids.size()));
-        return dbClient.esQueueDao().insert(dbSession, items);
-      default:
-        // defensive case
-        throw new IllegalStateException("Unsupported cause: " + cause);
-    }
+  public Collection<EsQueueDto> prepareForRecoveryOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, Indexers.EntityEvent cause) {
+    return switch (cause) {
+      case PROJECT_TAGS_UPDATE, PERMISSION_CHANGE ->
+        // measures, tags and permissions does not affect the definition of entities
+        emptyList();
+      case CREATION, DELETION, PROJECT_KEY_UPDATE -> {
+        List<EsQueueDto> items = entityUuids.stream()
+          .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
+          .collect(MoreCollectors.toArrayList(entityUuids.size()));
+        yield dbClient.esQueueDao().insert(dbSession, items);
+      }
+    };
+  }
+
+  @Override
+  public Collection<EsQueueDto> prepareForRecoveryOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, Indexers.BranchEvent cause) {
+    return emptyList();
   }
 
   @Override
@@ -130,13 +138,10 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     Set<String> entityUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toHashSet(items.size()));
     Set<String> remaining = new HashSet<>(entityUuids);
 
-    for (String entityUuid : entityUuids) {
-      dbClient.entityDao().scrollForIndexing(dbSession, entityUuid, context -> {
-        EntityDto dto = context.getResultObject();
-        remaining.remove(dto.getUuid());
-        bulkIndexer.add(toDocument(dto).toIndexRequest());
-      });
-    }
+    dbClient.entityDao().selectByUuids(dbSession, entityUuids).forEach(dto -> {
+      remaining.remove(dto.getUuid());
+      bulkIndexer.add(toDocument(dto).toIndexRequest());
+    });
 
     // the remaining uuids reference projects that don't exist in db. They must
     // be deleted from index.
@@ -169,7 +174,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, bulkSize);
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.entityDao().scrollForIndexing(dbSession, null, context -> {
+      dbClient.entityDao().scrollForIndexing(dbSession, context -> {
         EntityDto dto = context.getResultObject();
         bulk.add(toDocument(dto).toIndexRequest());
       });
@@ -197,7 +202,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, Size.REGULAR);
     bulk.start();
     Arrays.stream(docs)
-      .map(ComponentIndexer::toDocument)
+      .map(EntityDefinitionIndexer::toDocument)
       .map(BaseDoc::toIndexRequest)
       .forEach(bulk::add);
     bulk.stop();

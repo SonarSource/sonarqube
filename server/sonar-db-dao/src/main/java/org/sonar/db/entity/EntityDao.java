@@ -58,8 +58,8 @@ public class EntityDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByComponentUuid(componentUuid));
   }
 
-  public void scrollForIndexing(DbSession session, @Nullable String entityUuid, ResultHandler<EntityDto> handler) {
-    mapper(session).scrollForIndexing(entityUuid, handler);
+  public void scrollForIndexing(DbSession session, ResultHandler<EntityDto> handler) {
+    mapper(session).scrollForIndexing(handler);
   }
 
   private static EntityMapper mapper(DbSession session) {

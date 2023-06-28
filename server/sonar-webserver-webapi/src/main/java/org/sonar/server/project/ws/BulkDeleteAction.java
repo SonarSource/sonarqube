@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -151,9 +152,9 @@ public class BulkDeleteAction implements ProjectsWsAction {
       List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
 
       try {
-        entities.forEach(e -> componentCleanerService.delete(dbSession, e));
+        entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
       } finally {
-        projectLifeCycleListeners.onProjectsDeleted(entities.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
+        projectLifeCycleListeners.onProjectsDeleted(entities.stream().map(Project::from).collect(Collectors.toSet()));
       }
     }
     response.noContent();

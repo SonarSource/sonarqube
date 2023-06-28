@@ -26,32 +26,41 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
+import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EventIndexer;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
-public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+/**
+ * Indexes data related to projects and applications.
+ * The name is a bit misleading - it indexes a lot more data than just measures.
+ * We index by project/app UUID, but we get a lot of the data from their main branches.
+ */
+public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES,
-    project -> Qualifiers.PROJECT.equals(project.getQualifier()) || Qualifiers.APP.equals(project.getQualifier()));
+    entity -> Qualifiers.PROJECT.equals(entity.getQualifier()) || Qualifiers.APP.equals(entity.getQualifier()));
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_PROJECT_MEASURES);
 
   private final DbClient dbClient;
@@ -82,33 +91,46 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
-    indexOnAnalysis(projectUuid, Set.of());
+  public void indexOnAnalysis(String branchUuid) {
+    indexOnAnalysis(branchUuid, Set.of());
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid, Set<String> unchangedComponentUuids) {
-    doIndex(Size.REGULAR, projectUuid);
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
+    doIndex(Size.REGULAR, branchUuid);
   }
 
   @Override
-  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
-    switch (cause) {
-      case PERMISSION_CHANGE:
-        // nothing to do, permissions are not used in type projectmeasures/projectmeasure
-        return Collections.emptyList();
-      case MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_CREATION, PROJECT_TAGS_UPDATE, PROJECT_DELETION:
+  public Collection<EsQueueDto> prepareForRecoveryOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, Indexers.EntityEvent cause) {
+    return switch (cause) {
+      case PERMISSION_CHANGE ->
+        // nothing to do, permissions are not used in index type projectmeasures/projectmeasure
+        Collections.emptyList();
+      case PROJECT_KEY_UPDATE, CREATION, PROJECT_TAGS_UPDATE, DELETION ->
         // when MEASURE_CHANGE or PROJECT_KEY_UPDATE project must be re-indexed because key is used in this index
         // when PROJECT_CREATION provisioned projects are supported by WS api/components/search_projects
-        List<EsQueueDto> items = projectUuids.stream()
-          .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
-          .collect(MoreCollectors.toArrayList(projectUuids.size()));
-        return dbClient.esQueueDao().insert(dbSession, items);
+        prepareForRecovery(dbSession, entityUuids);
+    };
+  }
 
-      default:
-        // defensive case
-        throw new IllegalStateException("Unsupported cause: " + cause);
-    }
+  @Override
+  public Collection<EsQueueDto> prepareForRecoveryOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, Indexers.BranchEvent cause) {
+    return switch (cause) {
+      case DELETION -> Collections.emptyList();
+      case MEASURE_CHANGE -> {
+        Set<String> entityUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids)
+          .stream().map(BranchDto::getProjectUuid)
+          .collect(Collectors.toSet());
+        yield prepareForRecovery(dbSession, entityUuids);
+      }
+    };
+  }
+
+  private Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> entityUuids) {
+    List<EsQueueDto> items = entityUuids.stream()
+      .map(entityUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), entityUuid, null, entityUuid))
+      .collect(MoreCollectors.toArrayList(entityUuids.size()));
+    return dbClient.esQueueDao().insert(dbSession, items);
   }
 
   public IndexingResult commitAndIndex(DbSession dbSession, Collection<String> projectUuids) {

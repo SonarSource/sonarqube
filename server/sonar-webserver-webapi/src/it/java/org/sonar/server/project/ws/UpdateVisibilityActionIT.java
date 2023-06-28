@@ -54,8 +54,8 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -101,7 +101,7 @@ public class UpdateVisibilityActionIT {
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final TestIndexers projectIndexers = new TestIndexers();
   private final Configuration configuration = mock(Configuration.class);
 
   private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, projectIndexers, new SequenceUuidFactory(), configuration);
@@ -423,7 +423,7 @@ public class UpdateVisibilityActionIT {
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PUBLIC : PRIVATE)
       .execute();
 
-    assertThat(projectIndexers.hasBeenCalled(project.projectUuid(), ProjectIndexer.Cause.PERMISSION_CHANGE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalledForEntity(project.projectUuid(), Indexers.EntityEvent.PERMISSION_CHANGE)).isTrue();
   }
 
   @Test
@@ -436,7 +436,7 @@ public class UpdateVisibilityActionIT {
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PRIVATE : PUBLIC)
       .execute();
 
-    assertThat(projectIndexers.hasBeenCalled(project.projectUuid())).isFalse();
+    assertThat(projectIndexers.hasBeenCalledForEntity(project.projectUuid())).isFalse();
   }
 
   @Test

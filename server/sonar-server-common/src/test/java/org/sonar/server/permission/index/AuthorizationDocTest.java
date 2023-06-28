@@ -49,7 +49,7 @@ public class AuthorizationDocTest {
   public void idOf_fails_with_NPE_if_argument_is_null() {
     assertThatThrownBy(() -> AuthorizationDoc.idOf(null))
       .isInstanceOf(NullPointerException.class)
-      .hasMessage("projectUuid can't be null");
+      .hasMessage("entityUuid can't be null");
   }
 
   @Test
@@ -81,7 +81,7 @@ public class AuthorizationDocTest {
 
     assertThatThrownBy(() -> underTest.getId())
       .isInstanceOf(NullPointerException.class)
-      .hasMessage("projectUuid can't be null");
+      .hasMessage("entityUuid can't be null");
   }
 
   @Test

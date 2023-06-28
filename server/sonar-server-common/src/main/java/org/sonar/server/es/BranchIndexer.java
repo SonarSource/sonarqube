@@ -20,29 +20,26 @@
 package org.sonar.server.es;
 
 import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 
-import static java.util.Arrays.asList;
+public interface BranchIndexer extends ResilientIndexer {
 
-public class ProjectIndexersImpl implements ProjectIndexers {
-
-  private final List<ProjectIndexer> indexers;
-
-  public ProjectIndexersImpl(ProjectIndexer... indexers) {
-    this.indexers = asList(indexers);
+  enum Cause {
+    CREATION,
+    DELETION,
+    MEASURE_CHANGE
   }
 
-  @Override
-  public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
-    Map<ProjectIndexer, Collection<EsQueueDto>> itemsByIndexer = new IdentityHashMap<>();
-    indexers.forEach(i -> itemsByIndexer.put(i, i.prepareForRecovery(dbSession, projectUuids, cause)));
-    dbSession.commit();
+  /**
+   * This method is called when an analysis must be indexed.
+   *
+   * @param branchUuid UUID of a project or application branch, or the UUID of a portfolio.
+   */
+  void indexBranchOnAnalysis(String branchUuid);
 
-    // ensure that indexer#index() is called only with the item type that it supports
-    itemsByIndexer.forEach((indexer, items) -> indexer.index(dbSession, items));
-  }
+  void indexBranchOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids);
+
+  Collection<EsQueueDto> prepareBranchIndexForRecovery(DbSession dbSession, Collection<String> branchUuids, BranchIndexer.Cause cause);
 }

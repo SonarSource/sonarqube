@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -41,8 +40,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.es.ProjectIndexer.Cause;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.DefaultBranchNameResolver;
@@ -56,7 +54,7 @@ import static org.sonar.server.exceptions.BadRequestException.throwBadRequestExc
 
 public class ComponentUpdater {
 
-  private static final Set<String> MAIN_BRANCH_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> PROJ_APP_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
   private static final String KEY_ALREADY_EXISTS_ERROR = "Could not create %s with key: \"%s\". A similar key already exists: \"%s\"";
   private static final String MALFORMED_KEY_ERROR = "Malformed key for %s: '%s'. %s.";
   private final DbClient dbClient;
@@ -64,7 +62,7 @@ public class ComponentUpdater {
   private final System2 system2;
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final UuidFactory uuidFactory;
   private final DefaultBranchNameResolver defaultBranchNameResolver;
   private final boolean useDifferentUuids;
@@ -72,21 +70,21 @@ public class ComponentUpdater {
   @Autowired
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver) {
-    this(dbClient, i18n, system2, permissionTemplateService, favoriteUpdater, projectIndexers, uuidFactory, defaultBranchNameResolver, false);
+    Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver) {
+    this(dbClient, i18n, system2, permissionTemplateService, favoriteUpdater, indexers, uuidFactory, defaultBranchNameResolver, false);
   }
 
   @VisibleForTesting
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver,
+    Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver,
     boolean useDifferentUuids) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.uuidFactory = uuidFactory;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
     this.useDifferentUuids = useDifferentUuids;
@@ -99,19 +97,17 @@ public class ComponentUpdater {
    * - Index component in es indexes
    */
   public ComponentCreationData create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin) {
-    return create(dbSession, newComponent, userUuid, userLogin, null);
-  }
-
-  public ComponentCreationData create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin,
-    @Nullable String mainBranchName) {
-    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, c -> {
-    });
-    commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null);
+    commitAndIndex(dbSession, componentCreationData);
     return componentCreationData;
   }
 
-  public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
-    projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
+  public void commitAndIndex(DbSession dbSession, ComponentCreationData componentCreationData) {
+    if (componentCreationData.portfolioDto() != null) {
+      indexers.commitAndIndexEntities(dbSession, singletonList(componentCreationData.portfolioDto()), Indexers.EntityEvent.CREATION);
+    } else if (componentCreationData.projectDto() != null) {
+      indexers.commitAndIndexEntities(dbSession, singletonList(componentCreationData.projectDto()), Indexers.EntityEvent.CREATION);
+    }
   }
 
   /**
@@ -119,8 +115,8 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin, Consumer<ComponentDto> componentModifier) {
-    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null, componentModifier);
+    @Nullable String userUuid, @Nullable String userLogin) {
+    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null);
   }
 
   /**
@@ -128,33 +124,33 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName,
-    Consumer<ComponentDto> componentModifier) {
+    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     checkKeyAlreadyExists(dbSession, newComponent);
 
     long now = system2.now();
 
-    ComponentDto componentDto = createRootComponent(dbSession, newComponent, componentModifier, now);
+    ComponentDto componentDto = createRootComponent(dbSession, newComponent, now);
 
     BranchDto mainBranch = null;
     ProjectDto projectDto = null;
+    PortfolioDto portfolioDto = null;
 
-    if (isRootProject(componentDto)) {
+    if (isProjectOrApp(componentDto)) {
       projectDto = toProjectDto(componentDto, now);
       dbClient.projectDao().insert(dbSession, projectDto);
       addToFavourites(dbSession, projectDto, userUuid, userLogin);
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
       permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
-    } else if (isRootView(componentDto)) {
-      PortfolioDto portfolioDto = toPortfolioDto(componentDto, now);
+    } else if (isPortfolio(componentDto)) {
+      portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
       permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, userUuid);
     } else {
       throw new IllegalArgumentException("Component " + componentDto + " is not a top level entity");
     }
 
-    return new ComponentCreationData(componentDto, mainBranch, projectDto);
+    return new ComponentCreationData(componentDto, portfolioDto, mainBranch, projectDto);
   }
 
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {
@@ -179,7 +175,7 @@ public class ComponentUpdater {
     }
   }
 
-  private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, Consumer<ComponentDto> componentModifier, long now) {
+  private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, long now) {
     String uuid = uuidFactory.create();
 
     ComponentDto component = new ComponentDto()
@@ -195,7 +191,6 @@ public class ComponentUpdater {
       .setPrivate(newComponent.isPrivate())
       .setCreatedAt(new Date(now));
 
-    componentModifier.accept(component);
     dbClient.componentDao().insert(session, component, true);
     return component;
   }
@@ -225,14 +220,12 @@ public class ComponentUpdater {
       .setCreatedAt(now);
   }
 
-  private static boolean isRootProject(ComponentDto componentDto) {
-    return Scopes.PROJECT.equals(componentDto.scope())
-      && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
+  private static boolean isProjectOrApp(ComponentDto componentDto) {
+    return PROJ_APP_QUALIFIERS.contains(componentDto.qualifier());
   }
 
-  private static boolean isRootView(ComponentDto componentDto) {
-    return Scopes.PROJECT.equals(componentDto.scope())
-      && Qualifiers.VIEW.contains(componentDto.qualifier());
+  private static boolean isPortfolio(ComponentDto componentDto) {
+    return Qualifiers.VIEW.contains(componentDto.qualifier());
   }
 
   private BranchDto createMainBranch(DbSession session, String componentUuid, String projectUuid, @Nullable String mainBranch) {

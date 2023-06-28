@@ -34,7 +34,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -70,7 +70,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
   private final PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
+    new TestIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
 
   @Override
   protected ApplyTemplateAction buildWsAction() {

@@ -41,7 +41,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -87,7 +87,7 @@ public class ReportSubmitterIT {
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
   private final CeQueue queue = mock(CeQueueImpl.class);
-  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final TestIndexers projectIndexers = new TestIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,

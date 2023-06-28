@@ -30,14 +30,15 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -46,11 +47,13 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
+import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
+import static org.sonar.server.es.Indexers.EntityEvent.CREATION;
+import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
-public class ComponentIndexerIT {
+public class EntityDefinitionIndexerIT {
 
   private System2 system2 = System2.INSTANCE;
 
@@ -61,7 +64,7 @@ public class ComponentIndexerIT {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentIndexer underTest = new ComponentIndexer(db.getDbClient(), es.client());
+  private EntityDefinitionIndexer underTest = new EntityDefinitionIndexer(db.getDbClient(), es.client());
 
   @Test
   public void test_getIndexTypes() {
@@ -152,7 +155,7 @@ public class ComponentIndexerIT {
   public void do_not_update_index_on_project_tag_update() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    indexEntity(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    indexProject(project, PROJECT_TAGS_UPDATE);
 
     assertThatIndexHasSize(0);
   }
@@ -161,7 +164,7 @@ public class ComponentIndexerIT {
   public void do_not_update_index_on_permission_change() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    indexEntity(project, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    indexProject(project, PERMISSION_CHANGE);
 
     assertThatIndexHasSize(0);
   }
@@ -170,7 +173,7 @@ public class ComponentIndexerIT {
   public void update_index_on_project_creation() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    IndexingResult result = indexEntity(project, PROJECT_CREATION);
+    IndexingResult result = indexProject(project, CREATION);
 
     assertThatIndexContainsOnly(project);
     assertThat(result.getTotal()).isOne();
@@ -180,7 +183,7 @@ public class ComponentIndexerIT {
   @Test
   public void delete_some_components() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    indexEntity(project, PROJECT_CREATION);
+    indexProject(project, CREATION);
 
     underTest.delete(project.getUuid(), emptySet());
 
@@ -190,43 +193,42 @@ public class ComponentIndexerIT {
   @Test
   public void delete_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    indexEntity(project, PROJECT_CREATION);
+    indexProject(project, CREATION);
     assertThatIndexHasSize(1);
 
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getName(), project.getKey());
-    indexEntity(project, PROJECT_DELETION);
+    indexProject(project, DELETION);
 
     assertThatIndexHasSize(0);
   }
 
   @Test
   public void indexOnAnalysis_updates_index_on_changes() {
-  ProjectData project = db.components().insertPrivateProject();
-  underTest.indexOnAnalysis(project.getMainBranchComponent().uuid());
-  assertThatEntityHasName(project.projectUuid(), project.getProjectDto().getName());
+    ProjectData project = db.components().insertPrivateProject();
+    ProjectDto projectDto = project.getProjectDto();
 
-  // modify
-  ProjectDto projectDto = project.getProjectDto();
-  projectDto.setName("NewName");
+    underTest.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    assertThatEntityHasName(projectDto.getUuid(), projectDto.getName());
 
-  db.getDbClient().projectDao().update(dbSession, projectDto);
-  db.commit();
+    // modify
+    projectDto.setName("NewName");
 
-  // verify that index is updated
-  underTest.indexOnAnalysis(project.getMainBranchComponent().uuid());
+    db.getDbClient().projectDao().update(dbSession, projectDto);
+    db.commit();
 
-  assertThatIndexContainsOnly(projectDto.getUuid());
-  assertThatEntityHasName(projectDto.getUuid(), "NewName");
-}
+    // verify that index is updated
+    underTest.indexOnAnalysis(project.getMainBranchDto().getUuid());
 
-
+    assertThatIndexContainsOnly(projectDto.getUuid());
+    assertThatEntityHasName(projectDto.getUuid(), "NewName");
+  }
 
   @Test
   public void errors_during_indexing_are_recovered() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     es.lockWrites(TYPE_COMPONENT);
 
-    IndexingResult result = indexEntity(project1, PROJECT_CREATION);
+    IndexingResult result = indexProject(project1, CREATION);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getFailures()).isOne();
 
@@ -244,9 +246,9 @@ public class ComponentIndexerIT {
     assertThatIndexContainsOnly(project1);
   }
 
-  private IndexingResult indexEntity(EntityDto entity, ProjectIndexer.Cause cause) {
+  private IndexingResult indexProject(ProjectDto project, Indexers.EntityEvent cause) {
     DbSession dbSession = db.getSession();
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(entity.getUuid()), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnEntityEvent(dbSession, singletonList(project.getUuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
   }

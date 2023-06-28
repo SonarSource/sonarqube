@@ -156,7 +156,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
           newCodeDefinitionType, newCodeDefinitionValue);
       }
 
-      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+      componentUpdater.commitAndIndex(dbSession, componentCreationData);
 
       return toCreateResponse(projectDto);
     }
@@ -180,9 +180,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
         .build(),
       userSession.isLoggedIn() ? userSession.getUuid() : null,
       userSession.isLoggedIn() ? userSession.getLogin() : null,
-      repo.getDefaultBranchName(),
-      s -> {
-      });
+      repo.getDefaultBranchName());
   }
 
   private void populatePRSetting(DbSession dbSession, GsonAzureRepo repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

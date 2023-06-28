@@ -30,11 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
+import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class TagsWsSupport {
@@ -47,14 +47,14 @@ public class TagsWsSupport {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final System2 system2;
 
-  public TagsWsSupport(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ProjectIndexers projectIndexers, System2 system2) {
+  public TagsWsSupport(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, Indexers indexers, System2 system2) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.system2 = system2;
   }
 
@@ -76,7 +76,7 @@ public class TagsWsSupport {
     projectOrApplication.setUpdatedAt(system2.now());
     dbClient.projectDao().updateTags(dbSession, projectOrApplication);
 
-    projectIndexers.commitAndIndexProjects(dbSession, singletonList(projectOrApplication), PROJECT_TAGS_UPDATE);
+    indexers.commitAndIndexEntities(dbSession, singletonList(projectOrApplication), PROJECT_TAGS_UPDATE);
   }
 
   public static List<String> checkAndUnifyTags(List<String> tags) {

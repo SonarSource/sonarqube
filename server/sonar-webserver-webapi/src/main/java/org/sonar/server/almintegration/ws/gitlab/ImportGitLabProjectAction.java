@@ -144,7 +144,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
           newCodeDefinitionType, newCodeDefinitionValue);
       }
 
-      componentUpdater.commitAndIndex(dbSession, componentCreationData.mainBranchComponent());
+      componentUpdater.commitAndIndex(dbSession, componentCreationData);
 
       return ImportHelper.toCreateResponse(projectDto);
     }
@@ -183,8 +183,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
         .setPrivate(visibility)
         .setQualifier(PROJECT)
         .build(),
-      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {
-      });
+      userSession.getUuid(), userSession.getLogin(), mainBranchName);
   }
 
 }

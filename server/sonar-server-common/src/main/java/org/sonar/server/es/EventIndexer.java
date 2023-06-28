@@ -20,39 +20,21 @@
 package org.sonar.server.es;
 
 import java.util.Collection;
-import java.util.Set;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 
 /**
- * A {@link ProjectIndexer} populates an Elasticsearch index
- * containing project-related documents, for instance issues
- * or tests. This interface allows to quickly integrate new
- * indices in the lifecycle of projects.
+ * A {@link EventIndexer} populates an Elasticsearch index
+ * based on events related to entities and branches. This interface allows to quickly integrate new
+ * indices in the lifecycle of entities and branches.
  *
  * If the related index handles verification of authorization,
- * then the implementation of {@link ProjectIndexer} must
+ * then the implementation of {@link EventIndexer} must
  * also implement {@link org.sonar.server.permission.index.NeedAuthorizationIndexer}
  */
-public interface ProjectIndexer extends ResilientIndexer {
+public interface EventIndexer extends ResilientIndexer {
+  Collection<EsQueueDto> prepareForRecoveryOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, Indexers.EntityEvent cause);
 
-  enum Cause {
-    PROJECT_CREATION,
-    PROJECT_DELETION,
-    PROJECT_KEY_UPDATE,
-    PROJECT_TAGS_UPDATE,
-    PERMISSION_CHANGE,
-    MEASURE_CHANGE
-  }
+  Collection<EsQueueDto> prepareForRecoveryOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, Indexers.BranchEvent cause);
 
-  /**
-   * This method is called when an analysis must be indexed.
-   *
-   * @param branchUuid UUID of a project or application branch, or the UUID of a portfolio.
-   */
-  void indexOnAnalysis(String branchUuid);
-
-  void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids);
-
-  Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 }

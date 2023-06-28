@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.purge;
 
 import java.util.List;
 import org.junit.Test;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static java.util.Arrays.asList;
@@ -32,9 +32,9 @@ import static org.mockito.Mockito.verify;
 public class IndexPurgeListenerTest {
 
   private IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
+  private EntityDefinitionIndexer entityDefinitionIndexer = mock(EntityDefinitionIndexer.class);
 
-  private IndexPurgeListener underTest = new IndexPurgeListener(issueIndexer, componentIndexer);
+  private IndexPurgeListener underTest = new IndexPurgeListener(issueIndexer, entityDefinitionIndexer);
 
   @Test
   public void test_onComponentDisabling() {
@@ -43,7 +43,7 @@ public class IndexPurgeListenerTest {
     List<String> uuids = singletonList(uuid);
     underTest.onComponentsDisabling(projectUuid, uuids);
 
-    verify(componentIndexer).delete(projectUuid, uuids);
+    verify(entityDefinitionIndexer).delete(projectUuid, uuids);
   }
 
   @Test

@@ -19,27 +19,25 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import java.util.Collection;
-import org.sonar.db.DbSession;
+import java.util.Set;
 
-public class TestProjectIndexers implements ProjectIndexers {
+/**
+ * Indexers that should be called when a project branch is analyzed
+ */
+public interface AnalysisIndexer {
+  /**
+   * This method is called when an analysis must be indexed.
+   *
+   * @param branchUuid UUID of a project or application branch
+   */
+  void indexOnAnalysis(String branchUuid);
 
-  private final ListMultimap<String, ProjectIndexer.Cause> calls = ArrayListMultimap.create();
-
-  @Override
-  public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
-    dbSession.commit();
-    projectUuids.forEach(projectUuid -> calls.put(projectUuid, cause));
-
-  }
-
-  public boolean hasBeenCalled(String projectUuid, ProjectIndexer.Cause expectedCause) {
-    return calls.get(projectUuid).contains(expectedCause);
-  }
-
-  public boolean hasBeenCalled(String projectUuid) {
-    return calls.containsKey(projectUuid);
-  }
+  /**
+   * This method is called when an analysis must be indexed.
+   *
+   * @param branchUuid UUID of a project or application branch
+   * @param unchangedComponentUuids UUIDs of components that didn't change in this analysis.
+   *                                Indexers can be optimized by not re-indexing data related to these components.
+   */
+  void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids);
 }

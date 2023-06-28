@@ -34,8 +34,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.Indexers.EntityEvent;
 import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.es.ProjectIndexer.Cause.PERMISSION_CHANGE;
+import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 public class PermissionIndexerTest {
@@ -98,7 +98,7 @@ public class PermissionIndexerTest {
 
     // Simulate a indexation issue
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.getUuid(), PROJECT, project1.getName(), project1.getKey());
-    underTest.prepareForRecovery(db.getSession(), asList(project1.getUuid()), ProjectIndexer.Cause.PROJECT_DELETION);
+    underTest.prepareForRecoveryOnEntityEvent(db.getSession(), asList(project1.getUuid()), EntityEvent.DELETION);
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isOne();
     Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
 
@@ -247,20 +247,10 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void indexOnAnalysis_does_nothing_because_CE_does_not_touch_permissions() {
-    ProjectDto project = createAndIndexPublicProject();
-
-    underTest.indexOnAnalysis(project.getUuid());
-
-    assertThatAuthIndexHasSize(0);
-    verifyAnyoneNotAuthorized(project);
-  }
-
-  @Test
   public void permissions_are_not_updated_on_project_tags_update() {
     ProjectDto project = createAndIndexPublicProject();
 
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    indexPermissions(project, EntityEvent.PROJECT_TAGS_UPDATE);
 
     assertThatAuthIndexHasSize(0);
     verifyAnyoneNotAuthorized(project);
@@ -270,7 +260,7 @@ public class PermissionIndexerTest {
   public void permissions_are_not_updated_on_project_key_update() {
     ProjectDto project = createAndIndexPublicProject();
 
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    indexPermissions(project, EntityEvent.PROJECT_TAGS_UPDATE);
 
     assertThatAuthIndexHasSize(0);
     verifyAnyoneNotAuthorized(project);
@@ -282,7 +272,7 @@ public class PermissionIndexerTest {
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project);
 
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
+    indexPermissions(project, EntityEvent.CREATION);
 
     assertThatAuthIndexHasSize(1);
     verifyAuthorized(project, user);
@@ -294,7 +284,7 @@ public class PermissionIndexerTest {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user1, USER, project);
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
+    indexPermissions(project, EntityEvent.CREATION);
     verifyAuthorized(project, user1);
     verifyNotAuthorized(project, user2);
 
@@ -310,11 +300,11 @@ public class PermissionIndexerTest {
     ProjectDto project = createAndIndexPrivateProject();
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, USER, project);
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
+    indexPermissions(project, EntityEvent.CREATION);
     verifyAuthorized(project, user);
 
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getUuid(), project.getKey());
-    indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
+    indexPermissions(project, EntityEvent.DELETION);
 
     verifyNotAuthorized(project, user);
     assertThatAuthIndexHasSize(0);
@@ -392,9 +382,9 @@ public class PermissionIndexerTest {
     return userSession;
   }
 
-  private IndexingResult indexPermissions(EntityDto entity, ProjectIndexer.Cause cause) {
+  private IndexingResult indexPermissions(EntityDto entity, EntityEvent cause) {
     DbSession dbSession = db.getSession();
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(entity.getUuid()), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnEntityEvent(dbSession, singletonList(entity.getUuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
   }

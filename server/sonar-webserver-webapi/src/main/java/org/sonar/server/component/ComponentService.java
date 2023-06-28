@@ -27,8 +27,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
-import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.EventIndexer;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
@@ -45,13 +45,13 @@ public class ComponentService {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectIndexers projectIndexers;
+  private final Indexers indexers;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
-  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers, ProjectLifeCycleListeners projectLifeCycleListeners) {
+  public ComponentService(DbClient dbClient, UserSession userSession, Indexers indexers, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.projectIndexers = projectIndexers;
+    this.indexers = indexers;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
@@ -59,7 +59,7 @@ public class ComponentService {
     userSession.checkEntityPermission(UserRole.ADMIN, project);
     checkProjectKey(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, project.getUuid(), project.getKey(), newKey);
-    projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    indexers.commitAndIndexEntities(dbSession, singletonList(project), Indexers.EntityEvent.PROJECT_KEY_UPDATE);
     Project newProject = new Project(project.getUuid(), newKey, project.getName(), project.getDescription(), project.getTags());
     projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, project.getKey())));
     persistEvent(project, newKey);

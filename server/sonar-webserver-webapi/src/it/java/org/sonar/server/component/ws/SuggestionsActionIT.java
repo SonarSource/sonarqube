@@ -38,7 +38,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -89,11 +89,11 @@ public class SuggestionsActionIT {
   public final UserSessionRule userSessionRule = UserSessionRule.standalone();
   public final ResourceTypesRule resourceTypes = new ResourceTypesRule();
 
-  private final ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private final EntityDefinitionIndexer entityDefinitionIndexer = new EntityDefinitionIndexer(db.getDbClient(), es.client());
   private final FavoriteFinder favoriteFinder = mock(FavoriteFinder.class);
   private final ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSessionRule), System2.INSTANCE);
   private final SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder, userSessionRule, resourceTypes);
-  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
+  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, entityDefinitionIndexer);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -134,7 +134,7 @@ public class SuggestionsActionIT {
   public void test_example_json_response() {
     ProjectDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube")).getProjectDto();
     ProjectDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint")).getProjectDto();
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
@@ -152,7 +152,7 @@ public class SuggestionsActionIT {
   public void suggestions_without_query_should_contain_recently_browsed() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -177,7 +177,7 @@ public class SuggestionsActionIT {
   public void suggestions_without_query_should_contain_recently_browsed_public_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -201,7 +201,7 @@ public class SuggestionsActionIT {
   public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -218,7 +218,7 @@ public class SuggestionsActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -243,7 +243,7 @@ public class SuggestionsActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -259,7 +259,7 @@ public class SuggestionsActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -284,7 +284,7 @@ public class SuggestionsActionIT {
   public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -306,7 +306,7 @@ public class SuggestionsActionIT {
     ProjectDto project4 = db.components().insertPrivateProject(p -> p.setName("Delta")).getProjectDto();
     doReturn(asList(project4, project2)).when(favoriteFinder).list();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project1);
     userSessionRule.addProjectPermission(USER, project2);
     userSessionRule.addProjectPermission(USER, project3);
@@ -331,7 +331,7 @@ public class SuggestionsActionIT {
   @Test
   public void suggestions_without_query_should_return_empty_qualifiers() {
     ProjectData project = db.components().insertPrivateProject();
-    componentIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    entityDefinitionIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
     userSessionRule.addProjectPermission(USER, project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -349,7 +349,7 @@ public class SuggestionsActionIT {
   public void suggestions_should_filter_allowed_qualifiers() {
     resourceTypes.setAllQualifiers(PROJECT, FILE, UNIT_TEST_FILE);
     ProjectData project = db.components().insertPrivateProject();
-    componentIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    entityDefinitionIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
     userSessionRule.addProjectPermission(USER, project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -366,7 +366,7 @@ public class SuggestionsActionIT {
   public void exact_match_in_one_qualifier() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -391,7 +391,7 @@ public class SuggestionsActionIT {
   public void should_not_return_suggestion_on_non_existing_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getName(), project.getKey());
@@ -412,7 +412,7 @@ public class SuggestionsActionIT {
   public void must_not_search_if_no_valid_tokens_are_provided() {
     ProjectDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -438,7 +438,7 @@ public class SuggestionsActionIT {
   public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() {
     ProjectDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube")).getProjectDto();
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -456,7 +456,7 @@ public class SuggestionsActionIT {
   @Test
   public void should_contain_component_names() {
     ProjectData project1 = db.components().insertPrivateProject(p -> p.setName("Project1"));
-    componentIndexer.indexOnAnalysis(project1.getMainBranchDto().getUuid());
+    entityDefinitionIndexer.indexOnAnalysis(project1.getMainBranchDto().getUuid());
     authorizationIndexerTester.allowOnlyAnyone(project1.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -476,7 +476,7 @@ public class SuggestionsActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = newFileDto(project).setName("File1");
     ComponentDto file2 = newFileDto(project).setName("File2");
-    componentIndexer.indexOnAnalysis(project.branchUuid());
+    entityDefinitionIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -497,8 +497,8 @@ public class SuggestionsActionIT {
     ProjectData nonFavouriteProject = db.components().insertPublicProject(p -> p.setName("Project2"));
 
     doReturn(singletonList(favouriteProject.getProjectDto())).when(favoriteFinder).list();
-    componentIndexer.indexOnAnalysis(favouriteProject.getMainBranchDto().getUuid());
-    componentIndexer.indexOnAnalysis(nonFavouriteProject.getMainBranchDto().getUuid());
+    entityDefinitionIndexer.indexOnAnalysis(favouriteProject.getMainBranchDto().getUuid());
+    entityDefinitionIndexer.indexOnAnalysis(nonFavouriteProject.getMainBranchDto().getUuid());
     authorizationIndexerTester.allowOnlyAnyone(favouriteProject.getProjectDto(), nonFavouriteProject.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -515,7 +515,7 @@ public class SuggestionsActionIT {
   @Test
   public void should_return_empty_qualifiers() {
     ProjectData project = db.components().insertPrivateProject();
-    componentIndexer.indexOnAnalysis(project.getMainBranchComponent().uuid());
+    entityDefinitionIndexer.indexOnAnalysis(project.getMainBranchComponent().uuid());
     authorizationIndexerTester.allowOnlyAnyone(project.getProjectDto());
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -541,7 +541,7 @@ public class SuggestionsActionIT {
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
     ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
     authorizationIndexerTester.allowOnlyAnyone(view);
     authorizationIndexerTester.allowOnlyAnyone(appData.getProjectDto());
@@ -565,7 +565,7 @@ public class SuggestionsActionIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     authorizationIndexerTester.allowOnlyAnyone(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -684,7 +684,7 @@ public class SuggestionsActionIT {
       .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)).getProjectDto())
       .collect(Collectors.toList());
 
-    componentIndexer.indexAll();
+    entityDefinitionIndexer.indexAll();
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
 
     TestRequest request = ws.newRequest()

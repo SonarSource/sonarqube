@@ -22,8 +22,9 @@ package org.sonar.server.component;
 import javax.annotation.Nullable;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
-public record ComponentCreationData(ComponentDto mainBranchComponent, @Nullable BranchDto mainBranchDto,
+public record ComponentCreationData(ComponentDto mainBranchComponent, @Nullable PortfolioDto portfolioDto, @Nullable BranchDto mainBranchDto,
                                     @Nullable ProjectDto projectDto) {
 }

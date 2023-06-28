@@ -51,9 +51,9 @@ public class AuthorizationDoc extends BaseDoc {
     return idOf(entityUuid);
   }
 
-  public static String idOf(String projectUuid) {
-    requireNonNull(projectUuid, "projectUuid can't be null");
-    return ID_PREFIX + projectUuid;
+  public static String idOf(String entityUuid) {
+    requireNonNull(entityUuid, "entityUuid can't be null");
+    return ID_PREFIX + entityUuid;
   }
 
   public static String entityUuidOf(String id) {

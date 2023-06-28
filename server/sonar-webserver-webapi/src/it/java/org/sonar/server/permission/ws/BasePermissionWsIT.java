@@ -31,7 +31,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.ProjectIndexersImpl;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
@@ -82,7 +82,7 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
-      new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
+      new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
       new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()));
   }
