@@ -184,10 +184,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
         HTML_UL_END_TAG +
-        "To filter on language keys use the language key: " +
+        "To filter on languages use the 'languages' keyword: " +
         HTML_UL_START_TAG +
-        " <li>to filter on a single language you can use 'language = java'</li>" +
-        " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
+        " <li>to filter on a single language you can use 'languages = java'</li>" +
+        " <li>to filter on several languages you must use 'languages IN (java, js)'</li>" +
         HTML_UL_END_TAG +
         "Use the WS api/languages/list to find the key of a language.<br> " +
         "To filter on tags use the 'tags' keyword:" +
