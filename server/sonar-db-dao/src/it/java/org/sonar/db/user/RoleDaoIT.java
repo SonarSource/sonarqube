@@ -20,10 +20,12 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import java.util.Set;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -36,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 public class RoleDaoIT {
+
+  private static final Set<String> PROJECT_QUALIFIER = Set.of(Qualifiers.PROJECT);
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -58,18 +62,18 @@ public class RoleDaoIT {
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.USER, Uuids.createFast()));
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.USER, Uuids.createFast(), PROJECT_QUALIFIER));
   }
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.CODEVIEWER, Uuids.createFast()));
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.CODEVIEWER, Uuids.createFast(), PROJECT_QUALIFIER));
   }
 
   private void expectUnsupportedUserAndCodeViewerPermission(ThrowingCallable callback) {
     assertThatThrownBy(callback)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Permissions [user, codeviewer] are not supported by selectEntityUuidsByPermissionAndUserUuid");
+      .hasMessage("Permissions [user, codeviewer] are not supported by selectEntityUuidsByPermissionAndUserUuidAndQualifier");
   }
 
   @Test
@@ -83,7 +87,7 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> entityUuids = underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
+    List<String> entityUuids = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(), PROJECT_QUALIFIER);
 
     assertThat(entityUuids).containsExactly(project1.uuid(), project2.uuid());
   }
@@ -104,7 +108,7 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuid(dbSession, UserRole.ADMIN, user1.getUuid());
+    List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(), PROJECT_QUALIFIER);
 
     assertThat(result).containsExactly(project1.uuid(), project2.uuid());
   }
@@ -135,4 +139,6 @@ public class RoleDaoIT {
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
       "provisioning");
   }
+
+  // TODO : add test for qualifier method.
 }

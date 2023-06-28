@@ -39,6 +39,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
@@ -51,6 +52,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -342,6 +344,30 @@ public class ProjectDaoIT {
     List<String> projectUuids = projectDao.selectAllProjectUuids(db.getSession());
 
     assertThat(projectUuids).containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
+  }
+
+  // methodName_when<conditionInCamelCase>_should<assertionInCamelCase>
+  @Test
+  public void selectByUuids_whenUuidsAreEmptyWithPagination_shouldReturnEmptyList() {
+    db.components().insertPublicProject();
+
+    List<ProjectDto> projectDtos = projectDao.selectByUuids(db.getSession(), emptySet(), Pagination.forPage(1).andSize(1));
+
+    assertThat(projectDtos).isEmpty();
+  }
+
+  @Test
+  public void selectByUuids_whenPagination_shouldReturnSubSetOfPagination() {
+    Set<String> projectUuids = new HashSet<>();
+    for (int i = 0; i < 5; i++) {
+      final String name = "Project_" + i;
+      String projectUuid = db.components().insertPublicProject(c -> c.setName(name)).projectUuid();
+      projectUuids.add(projectUuid);
+    }
+
+    List<ProjectDto> projectDtos = projectDao.selectByUuids(db.getSession(), projectUuids, Pagination.forPage(2).andSize(2));
+
+    assertThat(projectDtos).extracting(ProjectDto::getName).containsOnly("Project_2", "Project_3");
   }
 
   private void insertDefaultQualityProfile(String language) {

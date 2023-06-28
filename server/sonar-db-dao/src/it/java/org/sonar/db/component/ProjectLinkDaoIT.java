@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -38,14 +39,14 @@ public class ProjectLinkDaoIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private ProjectLinkDao underTest = db.getDbClient().projectLinkDao();
 
   @Test
   public void select_by_id() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project, c -> c
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
       .setName("Home")
       .setType("homepage")
@@ -54,7 +55,7 @@ public class ProjectLinkDaoIT {
     ProjectLinkDto reloaded = underTest.selectByUuid(db.getSession(), link.getUuid());
 
     assertThat(reloaded.getUuid()).isEqualTo("ABCD");
-    assertThat(reloaded.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(reloaded.getProjectUuid()).isEqualTo(project.getUuid());
     assertThat(reloaded.getType()).isEqualTo("homepage");
     assertThat(reloaded.getName()).isEqualTo("Home");
     assertThat(reloaded.getHref()).isEqualTo("http://www.struts.org");
@@ -64,17 +65,17 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void select_by_project_uuid() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link1 = db.componentLinks().insertProvidedLink(project);
-    ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project);
-    ProjectLinkDto link3 = db.componentLinks().insertProvidedLink(project);
-    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto otherLink = db.componentLinks().insertProvidedLink(otherProject);
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link1 = db.projectLinks().insertProvidedLink(project1);
+    ProjectLinkDto link2 = db.projectLinks().insertProvidedLink(project1);
+    ProjectLinkDto link3 = db.projectLinks().insertProvidedLink(project1);
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto otherLink = db.projectLinks().insertProvidedLink(project2);
 
-    assertThat(underTest.selectByProjectUuid(db.getSession(), project.uuid()))
+    assertThat(underTest.selectByProjectUuid(db.getSession(), project1.getUuid()))
       .extracting(ProjectLinkDto::getUuid)
       .containsExactlyInAnyOrder(link1.getUuid(), link2.getUuid(), link3.getUuid());
-    assertThat(underTest.selectByProjectUuid(db.getSession(), otherProject.uuid()))
+    assertThat(underTest.selectByProjectUuid(db.getSession(), project2.getUuid()))
       .extracting(ProjectLinkDto::getUuid)
       .containsExactlyInAnyOrder(otherLink.getUuid());
     assertThat(underTest.selectByProjectUuid(db.getSession(), "UNKNOWN")).isEmpty();
@@ -82,16 +83,16 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void select_by_project_uuids() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link1 = db.componentLinks().insertProvidedLink(project1);
-    ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project1);
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link3 = db.componentLinks().insertProvidedLink(project2);
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link1 = db.projectLinks().insertProvidedLink(project1);
+    ProjectLinkDto link2 = db.projectLinks().insertProvidedLink(project1);
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link3 = db.projectLinks().insertProvidedLink(project2);
 
-    assertThat(underTest.selectByProjectUuids(db.getSession(), asList(project1.uuid(), project2.uuid())))
+    assertThat(underTest.selectByProjectUuids(db.getSession(), asList(project1.getUuid(), project2.getUuid())))
       .extracting(ProjectLinkDto::getUuid)
       .containsOnly(link1.getUuid(), link2.getUuid(), link3.getUuid());
-    assertThat(underTest.selectByProjectUuids(db.getSession(), singletonList(project1.uuid())))
+    assertThat(underTest.selectByProjectUuids(db.getSession(), singletonList(project1.getUuid())))
       .extracting(ProjectLinkDto::getUuid)
       .containsOnly(link1.getUuid(), link2.getUuid());
     assertThat(underTest.selectByProjectUuids(db.getSession(), Collections.emptyList())).isEmpty();
@@ -99,10 +100,10 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void insert() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = ProjectLinkTesting.newProvidedLinkDto()
       .setUuid("ABCD")
-      .setProjectUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setName("Home")
       .setType("homepage")
       .setHref("http://www.struts.org")
@@ -115,7 +116,7 @@ public class ProjectLinkDaoIT {
 
     ProjectLinkDto reloaded = underTest.selectByUuid(db.getSession(), link.getUuid());
     assertThat(reloaded.getUuid()).isEqualTo("ABCD");
-    assertThat(reloaded.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(reloaded.getProjectUuid()).isEqualTo(project.getUuid());
     assertThat(reloaded.getType()).isEqualTo("homepage");
     assertThat(reloaded.getName()).isEqualTo("Home");
     assertThat(reloaded.getHref()).isEqualTo("http://www.struts.org");
@@ -125,8 +126,8 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void update() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project, c -> c
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
       .setType("ci")
       .setName("Gihub")
@@ -154,8 +155,8 @@ public class ProjectLinkDaoIT {
 
   @Test
   public void delete() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertProvidedLink(project);
 
     underTest.delete(db.getSession(), link.getUuid());
     db.getSession().commit();

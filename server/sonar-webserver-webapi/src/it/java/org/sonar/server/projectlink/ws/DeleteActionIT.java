@@ -26,8 +26,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,7 +45,7 @@ public class DeleteActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -54,8 +54,8 @@ public class DeleteActionIT {
 
   @Test
   public void no_response() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     TestResponse response = deleteLink(link);
@@ -66,8 +66,8 @@ public class DeleteActionIT {
 
   @Test
   public void remove_custom_link() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     deleteLink(link);
@@ -77,10 +77,10 @@ public class DeleteActionIT {
 
   @Test
   public void keep_links_of_another_project() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto customLink1 = db.componentLinks().insertCustomLink(project1);
-    ProjectLinkDto customLink2 = db.componentLinks().insertCustomLink(project2);
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto customLink1 = db.projectLinks().insertCustomLink(project1);
+    ProjectLinkDto customLink2 = db.projectLinks().insertCustomLink(project2);
     userSession.logIn().addProjectPermission(ADMIN, project1, project2);
 
     deleteLink(customLink1);
@@ -91,8 +91,8 @@ public class DeleteActionIT {
 
   @Test
   public void fail_when_delete_provided_link() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> deleteLink(link))
@@ -106,13 +106,13 @@ public class DeleteActionIT {
       .setMethod("POST")
       .setParam(PARAM_ID, "UNKNOWN")
       .execute())
-      .isInstanceOf(NotFoundException.class);
+        .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_anonymous() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     userSession.anonymous();
 
     assertThatThrownBy(() -> deleteLink(link))
@@ -121,8 +121,8 @@ public class DeleteActionIT {
 
   @Test
   public void fail_if_not_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     userSession.logIn();
 
     assertThatThrownBy(() -> deleteLink(link))
@@ -154,7 +154,7 @@ public class DeleteActionIT {
     assertThat(dbClient.projectLinkDao().selectByUuid(dbSession, uuid)).isNotNull();
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(ADMIN, project);
   }
 }

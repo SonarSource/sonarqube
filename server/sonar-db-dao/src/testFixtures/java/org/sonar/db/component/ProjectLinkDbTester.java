@@ -39,25 +39,7 @@ public class ProjectLinkDbTester {
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
   }
-
-  @SafeVarargs
-  public final ProjectLinkDto insertProvidedLink(ComponentDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
-    return insertLink(project, newProvidedLinkDto(), dtoPopulators);
-  }
-
-  @SafeVarargs
-  public final ProjectLinkDto insertCustomLink(ComponentDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
-    return insertLink(project, newCustomLinkDto(), dtoPopulators);
-  }
-
-  @SafeVarargs
-  private final ProjectLinkDto insertLink(ComponentDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
-    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(componentLink));
-    dbClient.projectLinkDao().insert(dbSession, componentLink.setProjectUuid(project.uuid()));
-    db.commit();
-    return componentLink;
-  }
-
+  
   @SafeVarargs
   public final ProjectLinkDto insertProvidedLink(ProjectDto project, Consumer<ProjectLinkDto>... dtoPopulators) {
     return insertLink(project, newProvidedLinkDto(), dtoPopulators);

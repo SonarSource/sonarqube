@@ -19,12 +19,14 @@
  */
 package org.sonar.db.user;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface RoleMapper {
 
-  List<String> selectEntityUuidsByPermissionAndUserUuid(@Param("permission") String permission, @Param("userUuid") String userUuid);
+  List<String> selectEntityUuidsByPermissionAndUserUuidAndQualifier(@Param("permission") String permission,
+    @Param("userUuid") String userUuid, @Param("qualifiers") Collection<String> qualifiers);
 
   void deleteGroupRolesByGroupUuid(String groupUuid);
 

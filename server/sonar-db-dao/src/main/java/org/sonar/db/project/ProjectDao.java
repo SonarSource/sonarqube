@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 
@@ -104,6 +105,13 @@ public class ProjectDao implements Dao {
       return emptyList();
     }
     return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
+  }
+
+  public List<ProjectDto> selectByUuids(DbSession session, Set<String> uuids, Pagination pagination) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(session).selectByUuidsWithPagination(uuids, pagination);
   }
 
   public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {

@@ -33,10 +33,13 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -48,7 +51,6 @@ import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -60,7 +62,7 @@ public class SearchMyProjectsActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -80,18 +82,18 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void search_json_example() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto cLang = insertClang();
-    db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://www.oracle.com").setType(ProjectLinkDto.TYPE_HOME_PAGE).setName("Home"));
-    db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://download.java.net/openjdk/jdk8/").setType(ProjectLinkDto.TYPE_SOURCES).setName("Sources"));
+    ProjectData jdk7 = insertJdk7();
+    ProjectData cLang = insertClang();
+    db.projectLinks().insertProvidedLink(jdk7.getProjectDto(), l -> l.setHref("http://www.oracle.com").setType(ProjectLinkDto.TYPE_HOME_PAGE).setName("Home"));
+    db.projectLinks().insertProvidedLink(jdk7.getProjectDto(), l -> l.setHref("http://download.java.net/openjdk/jdk8/").setType(ProjectLinkDto.TYPE_SOURCES).setName("Sources"));
     long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
-    SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7).setCreatedAt(oneTime));
-    SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang).setCreatedAt(anotherTime));
-    dbClient.liveMeasureDao().insert(dbSession, newLiveMeasure(jdk7, alertStatusMetric).setData(Level.ERROR.name()));
-    dbClient.liveMeasureDao().insert(dbSession, newLiveMeasure(cLang, alertStatusMetric).setData(Level.OK.name()));
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, cLang);
+    SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7.getMainBranchDto()).setCreatedAt(oneTime));
+    SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang.getMainBranchDto()).setCreatedAt(anotherTime));
+    dbClient.liveMeasureDao().insert(dbSession, newLiveMeasure(jdk7.getMainBranchDto(), alertStatusMetric).setData(Level.ERROR.name()));
+    dbClient.liveMeasureDao().insert(dbSession, newLiveMeasure(cLang.getMainBranchDto(), alertStatusMetric).setData(Level.OK.name()));
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, cLang.getProjectDto());
     db.commit();
     System.setProperty("user.timezone", "UTC");
 
@@ -102,11 +104,11 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void return_only_current_user_projects() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto cLang = insertClang();
+    ProjectData jdk7 = insertJdk7();
+    ProjectData cLang = insertClang();
     UserDto anotherUser = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -144,8 +146,8 @@ public class SearchMyProjectsActionIT {
   public void paginate_projects() {
     for (int i = 0; i < 10; i++) {
       int j = i;
-      ComponentDto project = db.components().insertPrivateProject(p -> p.setName("project-" + j)).getMainBranchComponent();
-      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
+      ProjectData project = db.components().insertPrivateProject(p -> p.setName("project-" + j));
+      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project.getProjectDto());
     }
 
     SearchMyProjectsWsResponse result = ws.newRequest()
@@ -153,17 +155,17 @@ public class SearchMyProjectsActionIT {
       .setParam(Param.PAGE_SIZE, "3")
       .executeProtobuf(SearchMyProjectsWsResponse.class);
 
-    assertThat(result.getProjectsCount()).isEqualTo(3);
     assertThat(result.getProjectsList()).extracting(Project::getName).containsExactly("project-3", "project-4", "project-5");
+    assertThat(result.getProjectsCount()).isEqualTo(3);
   }
 
   @Test
   public void return_only_projects_when_user_is_admin() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto clang = insertClang();
+    ProjectData jdk7 = insertJdk7();
+    ProjectData clang = insertClang();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -172,10 +174,10 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void does_not_return_views() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto portfolio = insertPortfolio();
+    ProjectData jdk7 = insertJdk7();
+    PortfolioDto portfolio = insertPortfolio();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
 
     SearchMyProjectsWsResponse result = callWs();
@@ -185,27 +187,27 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
+    ProjectData project = db.components().insertPublicProject();
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsList())
       .extracting(Project::getKey)
-      .containsExactlyInAnyOrder(project.getKey());
+      .containsExactlyInAnyOrder(project.getProjectDto().getKey());
   }
 
   @Test
   public void admin_via_groups() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto cLang = insertClang();
+    ProjectData jdk7 = insertJdk7();
+    ProjectData cLang = insertClang();
 
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
-    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, cLang);
+    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, jdk7.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, UserRole.USER, cLang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -214,18 +216,18 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void admin_via_groups_and_users() {
-    ComponentDto jdk7 = insertJdk7();
-    ComponentDto cLang = insertClang();
-    ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData jdk7 = insertJdk7();
+    ProjectData cLang = insertClang();
+    ProjectData sonarqube = db.components().insertPrivateProject();
 
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, cLang);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, cLang.getProjectDto());
     // admin via group and user
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, sonarqube);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, sonarqube.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -246,22 +248,22 @@ public class SearchMyProjectsActionIT {
       .isInstanceOf(UnauthorizedException.class);
   }
 
-  private ComponentDto insertClang() {
+  private ProjectData insertClang() {
     return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_01, p -> p
       .setName("Clang")
-      .setKey("clang")).getMainBranchComponent();
+      .setKey("clang"));
   }
 
-  private ComponentDto insertJdk7() {
+  private ProjectData insertJdk7() {
     return db.components().insertPrivateProject(Uuids.UUID_EXAMPLE_02, p -> p
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
-      .setDescription("JDK")).getMainBranchComponent();
+      .setDescription("JDK"));
   }
 
-  private ComponentDto insertPortfolio() {
+  private PortfolioDto insertPortfolio() {
     String uuid = "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc";
-    return db.components().insertPublicPortfolio(p -> p.setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
+    return db.components().insertPublicPortfolioDto(p -> p.setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
         .setName("Java")
         .setKey("Java"),
       p -> p.setRootUuid(uuid));

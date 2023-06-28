@@ -69,7 +69,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private DbSession session = null;
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
-  private final ProjectLinkDbTester componentLinkTester;
+  private final ProjectLinkDbTester projectLinkTester;
   private final FavoriteDbTester favoriteTester;
   private final EventDbTester eventTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
@@ -98,7 +98,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this, useDifferentProjectUuids);
-    this.componentLinkTester = new ProjectLinkDbTester(this);
+    this.projectLinkTester = new ProjectLinkDbTester(this);
     this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
@@ -193,8 +193,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return componentTester;
   }
 
-  public ProjectLinkDbTester componentLinks() {
-    return componentLinkTester;
+  public ProjectLinkDbTester projectLinks() {
+    return projectLinkTester;
   }
 
   public FavoriteDbTester favorites() {

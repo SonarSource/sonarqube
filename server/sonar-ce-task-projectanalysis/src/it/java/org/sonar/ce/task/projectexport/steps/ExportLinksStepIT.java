@@ -24,14 +24,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
@@ -41,26 +38,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 
 public class ExportLinksStepIT {
 
   private static final String PROJECT_UUID = "project_uuid";
-  private static final ComponentDto PROJECT = new ComponentDto()
-    // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.PROJECT)
-    .setKey("the_project")
-    .setName("The Project")
-    .setDescription("The project description")
-    .setEnabled(true)
-    .setUuid(PROJECT_UUID)
-    .setUuidPath(UUID_PATH_OF_ROOT)
-    .setBranchUuid(PROJECT_UUID);
+
+  private ProjectDto projectDto;
 
   @Rule
   public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
-
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -68,13 +54,13 @@ public class ExportLinksStepIT {
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private final ProjectHolder projectHolder = mock(ProjectHolder.class);
   private final ExportLinksStep underTest = new ExportLinksStep(db.getDbClient(), projectHolder, dumpWriter);
-  private ProjectDto project;
 
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    project = db.components().insertPublicProject(PROJECT).getProjectDto();
-    when(projectHolder.projectDto()).thenReturn(project);
+    ProjectData project = db.components().insertPublicProject(PROJECT_UUID);
+    this.projectDto = project.getProjectDto();
+    when(projectHolder.projectDto()).thenReturn(projectDto);
   }
 
   @Test
@@ -87,9 +73,9 @@ public class ExportLinksStepIT {
 
   @Test
   public void export_links() {
-    ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project);
-    ProjectLinkDto link2 = db.componentLinks().insertProvidedLink(project);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
+    ProjectLinkDto link1 = db.projectLinks().insertCustomLink(projectDto);
+    ProjectLinkDto link2 = db.projectLinks().insertProvidedLink(projectDto);
+    db.projectLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -103,10 +89,10 @@ public class ExportLinksStepIT {
 
   @Test
   public void throws_ISE_if_error() {
-    db.componentLinks().insertCustomLink(project);
-    db.componentLinks().insertProvidedLink(project);
-    db.componentLinks().insertProvidedLink(project);
-    db.componentLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
+    db.projectLinks().insertCustomLink(projectDto);
+    db.projectLinks().insertProvidedLink(projectDto);
+    db.projectLinks().insertProvidedLink(projectDto);
+    db.projectLinks().insertCustomLink(db.components().insertPrivateProject().getProjectDto());
 
     dumpWriter.failIfMoreThan(2, DumpElement.LINKS);
 
@@ -117,7 +103,7 @@ public class ExportLinksStepIT {
 
   @Test
   public void test_all_fields() {
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project, l -> l.setName("name").setHref("href").setType("type"));
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(projectDto, l -> l.setName("name").setHref("href").setType("type"));
 
     underTest.execute(new TestComputationStepContext());
 

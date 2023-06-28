@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.web.UserRole;
@@ -40,11 +41,11 @@ public class RoleDao implements Dao {
    * @throws IllegalArgumentException this method does not support permissions {@link UserRole#USER user} nor
    *         {@link UserRole#CODEVIEWER codeviewer} because it does not support public root components.
    */
-  public List<String> selectEntityUuidsByPermissionAndUserUuid(DbSession dbSession, String permission, String userUuid) {
+  public List<String> selectEntityUuidsByPermissionAndUserUuidAndQualifier(DbSession dbSession, String permission, String userUuid, Collection<String> qualifiers) {
     checkArgument(
       !UNSUPPORTED_PROJECT_PERMISSIONS.contains(permission),
-      "Permissions %s are not supported by selectEntityUuidsByPermissionAndUserUuid", UNSUPPORTED_PROJECT_PERMISSIONS);
-    return mapper(dbSession).selectEntityUuidsByPermissionAndUserUuid(permission, userUuid);
+      "Permissions %s are not supported by selectEntityUuidsByPermissionAndUserUuidAndQualifier", UNSUPPORTED_PROJECT_PERMISSIONS);
+    return mapper(dbSession).selectEntityUuidsByPermissionAndUserUuidAndQualifier(permission, userUuid, qualifiers);
   }
 
   public void deleteGroupRolesByGroupUuid(DbSession session, String groupUuid) {

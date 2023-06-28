@@ -40,6 +40,19 @@
       </foreach>
   </select>
 
+    <select id="selectByUuidsWithPagination" resultType="Project">
+    select
+      <include refid="projectColumns"/>
+    from projects p
+    where
+      p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid,jdbcType=VARCHAR}
+      </foreach>
+      order by p.name, uuid desc
+      offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </select>
+
   <select id="selectProjectsByKeys" resultType="Project">
     select
       <include refid="projectColumns"/>

@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface ProjectMapper {
 
@@ -45,6 +46,8 @@ public interface ProjectMapper {
   ProjectDto selectByUuid(String uuid);
 
   List<ProjectDto> selectByUuids(@Param("uuids") Collection<String> uuids);
+
+  List<ProjectDto> selectByUuidsWithPagination(@Param("uuids") Collection<String> uuids, @Param("pagination") Pagination pagination);
 
   List<ProjectDto> selectAll();
 

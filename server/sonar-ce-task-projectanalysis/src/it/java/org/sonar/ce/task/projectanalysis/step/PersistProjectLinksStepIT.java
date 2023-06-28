@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,10 +38,11 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -64,11 +66,19 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  private ProjectData project;
+
   private PersistProjectLinksStep underTest = new PersistProjectLinksStep(analysisMetadataHolder, db.getDbClient(), treeRootHolder, reportReader, UuidFactoryFast.getInstance());
 
   @Override
   protected ComputationStep step() {
     return underTest;
+  }
+
+  @Before
+  public void setup(){
+    this.project = db.components().insertPrivateProject();
+    analysisMetadataHolder.setProject(Project.fromProjectDtoWithTags(project.getProjectDto()));
   }
 
   @Test
@@ -88,8 +98,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void add_links_on_project() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
-
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
     // project
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -103,7 +112,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
+    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.projectUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref, ProjectLinkDto::getName)
       .containsExactlyInAnyOrder(
         tuple("homepage", "http://www.sonarqube.org", null),
@@ -115,10 +124,9 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void nothing_to_do_when_link_already_exists() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
-    db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonarqube.org"));
+    db.projectLinks().insertProvidedLink(project.getProjectDto(), l -> l.setType("homepage").setName("Home").setHref("http://www.sonarqube.org"));
 
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -128,7 +136,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
+    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.projectUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
       .containsExactlyInAnyOrder(tuple("homepage", "http://www.sonarqube.org"));
   }
@@ -136,7 +144,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void do_not_add_links_on_module() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
@@ -156,7 +164,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void do_not_add_links_on_file() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).addChildren(
       ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
       .build());
 
@@ -179,10 +187,8 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void update_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
-    db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    analysisMetadataHolder.setProject(Project.fromProjectDtoWithTags(project.getProjectDto()));
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -192,7 +198,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
+    assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.getProjectDto().getUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
       .containsExactlyInAnyOrder(tuple("homepage", "http://www.sonarqube.org"));
   }
@@ -200,10 +206,9 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void delete_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
-    db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
+    db.projectLinks().insertProvidedLink(project.getProjectDto(), l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
 
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -218,10 +223,9 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void not_delete_custom_link() {
     mockBranch(true);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD")).getMainBranchComponent();
-    db.componentLinks().insertCustomLink(project);
+    db.projectLinks().insertCustomLink(project.getProjectDto());
 
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -236,7 +240,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void fail_when_trying_to_add_same_link_type_multiple_times() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -247,7 +251,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
+      .hasMessage("Link of type 'homepage' has already been declared on component '%s'".formatted(project.projectUuid()));
   }
 
   private void mockBranch(boolean isMain) {

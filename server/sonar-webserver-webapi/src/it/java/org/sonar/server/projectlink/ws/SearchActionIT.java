@@ -28,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,7 +52,7 @@ public class SearchActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = db.getDbClient();
 
@@ -59,9 +60,9 @@ public class SearchActionIT {
 
   @Test
   public void example() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.componentLinks().insertProvidedLink(project, l -> l.setUuid("1").setType("homepage").setName("Homepage").setHref("http://example.org"));
-    db.componentLinks().insertCustomLink(project, l -> l.setUuid("2").setType("custom").setName("Custom").setHref("http://example.org/custom"));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.projectLinks().insertProvidedLink(project, l -> l.setUuid("1").setType("homepage").setName("Homepage").setHref("http://example.org"));
+    db.projectLinks().insertCustomLink(project, l -> l.setUuid("2").setType("custom").setName("Custom").setHref("http://example.org/custom"));
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -73,11 +74,11 @@ public class SearchActionIT {
 
   @Test
   public void request_by_project_id() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
-    SearchWsResponse response = callByUuid(project.uuid());
+    SearchWsResponse response = callByUuid(project.getUuid());
 
     assertThat(response.getLinksList())
       .extracting(Link::getId, Link::getName)
@@ -86,8 +87,8 @@ public class SearchActionIT {
 
   @Test
   public void request_by_project_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.getKey());
@@ -99,9 +100,9 @@ public class SearchActionIT {
 
   @Test
   public void response_fields() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto homepageLink = db.componentLinks().insertProvidedLink(project);
-    ProjectLinkDto customLink = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto homepageLink = db.projectLinks().insertProvidedLink(project);
+    ProjectLinkDto customLink = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.getKey());
@@ -114,10 +115,10 @@ public class SearchActionIT {
 
   @Test
   public void several_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project1);
-    ProjectLinkDto link2 = db.componentLinks().insertCustomLink(project2);
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link1 = db.projectLinks().insertCustomLink(project1);
+    ProjectLinkDto link2 = db.projectLinks().insertCustomLink(project2);
     userSession.addProjectPermission(USER, project1);
     userSession.addProjectPermission(USER, project2);
 
@@ -130,8 +131,8 @@ public class SearchActionIT {
 
   @Test
   public void request_does_not_fail_when_link_has_no_name() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.getKey());
@@ -143,8 +144,8 @@ public class SearchActionIT {
 
   @Test
   public void project_administrator_can_search_for_links() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.getKey());
@@ -156,8 +157,8 @@ public class SearchActionIT {
 
   @Test
   public void project_user_can_search_for_links() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     userSession.logIn().addProjectPermission(USER, project);
 
     SearchWsResponse response = callByKey(project.getKey());
@@ -207,12 +208,12 @@ public class SearchActionIT {
 
   @Test
   public void fail_when_both_id_and_key_are_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .execute())
       .isInstanceOf(IllegalArgumentException.class);
   }
@@ -263,7 +264,7 @@ public class SearchActionIT {
       .executeProtobuf(SearchWsResponse.class);
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(ADMIN, project);
   }
 
