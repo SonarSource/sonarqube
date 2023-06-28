@@ -32,7 +32,12 @@ it('renders card correctly', () => {
 });
 
 it('renders card correctly with classNames', () => {
-  render(<Card className="sw-bg-black sw-border-8">Hello</Card>);
+  render(
+    <Card className="sw-bg-black sw-border-8" role="tabpanel">
+      Hello
+    </Card>
+  );
   const cardContent = screen.getByText('Hello');
   expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
+  expect(cardContent).toHaveAttribute('role', 'tabpanel');
 });

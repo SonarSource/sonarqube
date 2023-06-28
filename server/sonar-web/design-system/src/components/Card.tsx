@@ -22,15 +22,14 @@ import * as React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  className?: string;
 }
 
 export function Card(props: CardProps) {
-  const { className, children } = props;
+  const { children, ...rest } = props;
 
-  return <CardStyled className={className}>{children}</CardStyled>;
+  return <CardStyled {...rest}>{children}</CardStyled>;
 }
 
 const CardStyled = styled.div`
