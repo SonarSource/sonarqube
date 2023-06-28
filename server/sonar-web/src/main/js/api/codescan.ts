@@ -22,9 +22,13 @@ import { throwGlobalError } from '../helpers/error';
 import { Visibility } from "../types/types";
 
 export function getNotificationsForOrganization(key: string) {
-  return getJSON('/_codescan/notifications', { organizationid: key }).then(
+  return getJSON('/_codescan/notifications', { organizationId: key }).then(
       r => r.organization, throwGlobalError
   );
+}
+
+export function getRawNotificationsForOrganization(key: string){
+  return getJSON('/_codescan/notifications', { organizationId: key });
 }
 
 export function deleteProject(data: {

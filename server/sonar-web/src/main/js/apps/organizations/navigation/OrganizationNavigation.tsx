@@ -24,6 +24,8 @@ import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import { rawSizes } from '../../../app/theme';
 import ContextNavBar from "../../../components/ui/ContextNavBar";
 import { Organization } from "../../../types/types";
+import { getRawNotificationsForOrganization } from '../../../../js/api/codescan';
+import { throwGlobalError } from '../../../../js/helpers/error';
 
 interface Props {
   location: { pathname: string };
@@ -31,15 +33,40 @@ interface Props {
   userOrganizations: Organization[];
 }
 
-export default function OrganizationNavigation({
-                                                 location,
-                                                 organization,
-                                                 userOrganizations
-                                               }: Props) {
+interface State{
+  error: string,
+}
 
-  const { contextNavHeightRaw } = rawSizes;
+export class OrganizationNavigation extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = {
+    error: ''
+  };
 
-  return (
+  async componentDidMount() {
+    this.mounted = true;
+    const {organization} = {...this.props}
+    await getRawNotificationsForOrganization(organization.kee).then((data:any)=>{
+      const notfication = data.organization?.notifications?.[0];
+      if(notfication.type==="error"){
+        this.setState({ error: notfication.message });
+      }
+    }).catch(throwGlobalError)
+ 
+ 
+ }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  render(){
+    const { contextNavHeightRaw } = rawSizes;
+    const {location,organization,userOrganizations} = {...this.props}  
+    const {error} = {...this.state};
+    
+    return (
+      <>
       <ContextNavBar height={contextNavHeightRaw} id="context-navigation">
         <div className="navbar-context-justified">
           <OrganizationNavigationHeader
@@ -55,5 +82,22 @@ export default function OrganizationNavigation({
             organization={organization}
         />
       </ContextNavBar>
+      {
+        error.length>0 ? (
+        <div className='alert'>
+          <div className='icon'>
+            x
+          </div>
+          <div className='msg'>
+            {error}
+          </div>
+        </div>
+        ) : (<></>)
+      }
+    </>
   );
+  }
+
 }
+
+export default OrganizationNavigation;
