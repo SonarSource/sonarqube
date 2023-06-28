@@ -84,7 +84,7 @@ export default function ComponentCell(props: ComponentCellProps) {
   }
 
   return (
-    <ContentCell className="sw-py-3 sw-truncate sw-flex">
+    <ContentCell className="sw-py-3 sw-truncate">
       <HoverLink
         aria-hidden
         tabIndex={-1}

@@ -75,7 +75,12 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
     <>
       {canBePinned && <ContentCell aria-label={translate('code.pin')} />}
       <ContentCell aria-label={translate('code.name')} />
-      {baseComponent && columns.map((column) => <Cell key={column}>{column}</Cell>)}
+      {baseComponent &&
+        columns.map((column) => (
+          <Cell className="sw-whitespace-nowrap" key={column}>
+            {column}
+          </Cell>
+        ))}
     </>
   );
 }

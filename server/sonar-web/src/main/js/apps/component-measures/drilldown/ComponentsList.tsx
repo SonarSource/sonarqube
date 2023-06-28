@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ContentCell, NumericalCell, Table, TableRow, TableRowInteractive } from 'design-system';
+import { times } from 'lodash';
 import * as React from 'react';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -48,7 +49,8 @@ export default function ComponentsList({ components, metric, metrics, ...props }
   const otherMetrics = (complementary[metric.key] || []).map((key) => metrics[key]);
   return (
     <Table
-      gridTemplate={`1fr repeat(${otherMetrics.length + 1}, min-content)`}
+      columnCount={otherMetrics.length + 2}
+      columnWidths={['auto', ...times(otherMetrics.length + 1, () => '1%')]}
       header={
         otherMetrics.length > 0 && (
           <TableRow>

@@ -19,31 +19,31 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { times } from 'lodash';
 import { ComponentProps, createContext, ReactNode, useContext } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers';
 import { FCProps } from '../types/misc';
 
-interface TableBaseProps extends ComponentProps<'table'> {
+export interface TableProps extends ComponentProps<'table'> {
+  columnCount: number;
+  columnWidths?: Array<number | string>;
   header?: ReactNode;
   noHeaderTopBorder?: boolean;
   noSidePadding?: boolean;
 }
 
-interface GenericTableProps extends TableBaseProps {
-  columnCount: number;
-  gridTemplate?: never;
-}
-
-interface CustomTableProps extends TableBaseProps {
-  columnCount?: never;
-  gridTemplate: string;
-}
-
-export type TableProps = GenericTableProps | CustomTableProps;
-
 export function Table(props: TableProps) {
-  const { className, header, children, noHeaderTopBorder, noSidePadding, ...rest } = props;
+  const {
+    className,
+    columnCount,
+    columnWidths = [],
+    header,
+    children,
+    noHeaderTopBorder,
+    noSidePadding,
+    ...rest
+  } = props;
 
   return (
     <StyledTable
@@ -53,6 +53,11 @@ export function Table(props: TableProps) {
       )}
       {...rest}
     >
+      <colgroup>
+        {times(columnCount, (i) => (
+          <col key={i} width={columnWidths[i] ?? 'auto'} />
+        ))}
+      </colgroup>
       {header && (
         <thead>
           <CellTypeContext.Provider value="th">{header}</CellTypeContext.Provider>
@@ -151,40 +156,56 @@ export const TableRowInteractive = styled(TableRowInteractiveBase)`
   }
 `;
 
-export const ContentCell = styled(CellComponent)`
-  ${tw`sw-text-left sw-justify-start`}
-`;
-export const NumericalCell = styled(CellComponent)`
-  ${tw`sw-text-right sw-justify-end`}
-`;
-export const RatingCell = styled(CellComponent)`
-  ${tw`sw-text-right sw-justify-end`}
-`;
-export const CheckboxCell = styled(CellComponent)`
-  ${tw`sw-text-center`}
-  ${tw`sw-flex`}
-  ${tw`sw-items-center sw-justify-center`}
-`;
+const CellTypeContext = createContext<'th' | 'td'>('td');
+type CellComponentProps = ComponentProps<'th' | 'td'>;
 
-const StyledTable = styled.table<GenericTableProps | CustomTableProps>`
-  display: grid;
-  grid-template-columns: ${(props) => props.gridTemplate ?? `repeat(${props.columnCount}, 1fr)`};
+export function CellComponent(props: CellComponentProps) {
+  const containerType = useContext(CellTypeContext);
+  return <CellComponentStyled as={containerType} {...props} />;
+}
+
+export function ContentCell({ children, ...props }: CellComponentProps) {
+  return (
+    <CellComponent {...props}>
+      <div className="sw-text-left sw-justify-start sw-flex sw-items-center">{children}</div>
+    </CellComponent>
+  );
+}
+
+export function NumericalCell({ children, ...props }: CellComponentProps) {
+  return (
+    <CellComponent {...props}>
+      <div className="sw-text-right sw-justify-end sw-flex sw-items-center">{children}</div>
+    </CellComponent>
+  );
+}
+
+export function RatingCell({ children, ...props }: CellComponentProps) {
+  return (
+    <CellComponent {...props}>
+      <div className="sw-text-right sw-justify-end sw-flex sw-items-center">{children}</div>
+    </CellComponent>
+  );
+}
+
+export function CheckboxCell({ children, ...props }: CellComponentProps) {
+  return (
+    <CellComponent {...props}>
+      <div className="sw-text-center sw-justify-center sw-flex sw-items-center">{children}</div>
+    </CellComponent>
+  );
+}
+
+const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-
-  thead,
-  tbody,
-  tr {
-    display: contents;
-  }
 `;
 
 const CellComponentStyled = styled.td`
   color: ${themeColor('pageContent')};
-  ${tw`sw-flex sw-items-center`}
   ${tw`sw-body-sm`}
   ${tw`sw-py-4 sw-px-2`}
-  ${tw`sw-align-top`}
+  ${tw`sw-align-middle`}
 
   thead > tr > & {
     color: ${themeColor('pageTitle')};
@@ -192,10 +213,3 @@ const CellComponentStyled = styled.td`
     ${tw`sw-body-sm-highlight`}
   }
 `;
-
-const CellTypeContext = createContext<'th' | 'td'>('td');
-
-export function CellComponent(props: ComponentProps<'th' | 'td'>) {
-  const containerType = useContext(CellTypeContext);
-  return <CellComponentStyled as={containerType} {...props} />;
-}

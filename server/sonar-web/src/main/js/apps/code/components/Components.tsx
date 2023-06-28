@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ContentCell, Table, TableRow } from 'design-system';
-import { sortBy } from 'lodash';
+import { sortBy, times } from 'lodash';
 import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
+import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, Metric } from '../../../types/types';
@@ -60,12 +61,16 @@ function Components(props: ComponentsProps) {
       ComponentQualifier.SubPortfolio,
     ].includes(baseComponent.qualifier as ComponentQualifier);
 
+  const columnCount = metrics.length + Number(canBePinned) + Number(showAnalysisDate) + 1;
   return (
     <div className="big-spacer-bottom table-wrapper">
       <Table
-        gridTemplate={`${canBePinned ? 'min-content' : ''} auto repeat(${
-          metrics.length + (showAnalysisDate ? 1 : 0)
-        }, max-content)`}
+        columnCount={columnCount}
+        columnWidths={[
+          canBePinned ? '1%' : undefined,
+          'auto',
+          ...times(columnCount - 1, () => '1%'),
+        ].filter(isDefined)}
         header={
           baseComponent && (
             <TableRow>
@@ -94,7 +99,7 @@ function Components(props: ComponentsProps) {
               showAnalysisDate={showAnalysisDate}
             />
             <TableRow>
-              <ContentCell className="sw-col-span-full" />
+              <ContentCell colSpan={columnCount} />
             </TableRow>
           </>
         )}

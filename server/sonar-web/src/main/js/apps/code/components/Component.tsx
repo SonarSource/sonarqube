@@ -95,7 +95,7 @@ export default function Component(props: Props) {
       ))}
 
       {showAnalysisDate && (
-        <NumericalCell>
+        <NumericalCell className="sw-whitespace-nowrap">
           {!isBaseComponent &&
             (component.analysisDate ? <DateFromNow date={component.analysisDate} /> : '—')}
         </NumericalCell>

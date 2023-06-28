@@ -59,7 +59,7 @@ export default function ComponentMeasure(props: Props) {
       const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
 
       return (
-        <ContentCell>
+        <ContentCell className="sw-whitespace-nowrap">
           <QualityGateIndicator
             status={(value as Status) ?? 'NONE'}
             className="sw-mr-2"
@@ -72,7 +72,7 @@ export default function ComponentMeasure(props: Props) {
     }
     case MetricType.Rating:
       return (
-        <RatingCell>
+        <RatingCell className="sw-whitespace-nowrap">
           <MetricsRatingBadge
             label={value ?? '—'}
             rating={formatMeasure(value, MetricType.Rating) as MetricsEnum}
@@ -81,7 +81,7 @@ export default function ComponentMeasure(props: Props) {
       );
     default:
       return (
-        <NumericalCell>
+        <NumericalCell className="sw-whitespace-nowrap">
           <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />
         </NumericalCell>
       );
