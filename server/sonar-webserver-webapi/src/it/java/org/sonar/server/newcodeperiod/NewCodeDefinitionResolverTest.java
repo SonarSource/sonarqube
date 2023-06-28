@@ -47,7 +47,6 @@ public class NewCodeDefinitionResolverTest {
   private static final String DEFAULT_PROJECT_ID = "12345";
 
   private static final String MAIN_BRANCH = "main";
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
 
   private DbSession dbSession = db.getSession();
   private DbClient dbClient = db.getDbClient();

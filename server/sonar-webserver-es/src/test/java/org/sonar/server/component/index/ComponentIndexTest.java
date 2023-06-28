@@ -56,11 +56,9 @@ public abstract class ComponentIndexTest {
   protected ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
 
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
-
   protected void assertResultOrder(String query, String... resultsInOrder) {
     List<ProjectDto> projects = Arrays.stream(resultsInOrder)
-      .map(r -> componentDbTester.insertPublicProject(c -> c.setName(r)).getProjectDto())
+      .map(r -> db.components().insertPublicProject(c -> c.setName(r)).getProjectDto())
       .toList();
 
     // index them, but not in the expected order
@@ -106,11 +104,11 @@ public abstract class ComponentIndexTest {
   }
 
   protected ProjectDto indexProject(String key, String name) {
-    return index(componentDbTester.insertPublicProject("UUID" + key, c -> c.setKey(key).setName(name)).getProjectDto());
+    return index(db.components().insertPublicProject("UUID" + key, c -> c.setKey(key).setName(name)).getProjectDto());
   }
 
   protected EntityDto newProject(String key, String name) {
-    return componentDbTester.insertPublicProject("UUID_" + key, c -> c.setKey(key).setName(name)).getProjectDto();
+    return db.components().insertPublicProject("UUID_" + key, c -> c.setKey(key).setName(name)).getProjectDto();
   }
 
   protected ProjectDto index(ProjectDto dto) {

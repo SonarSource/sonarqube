@@ -106,7 +106,6 @@ public class ChangeStatusActionIT {
   private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
   private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, hotspotWsSupport, transitionService, issueFieldsSetter, issueUpdater, hotspotChangeEventService);
   private WsActionTester actionTester = new WsActionTester(underTest);
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private BranchDto branchDto = mock(BranchDto.class);
 
   @Before

@@ -86,7 +86,6 @@ public class PullActionIT {
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
 
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   private final PullAction underTest = new PullAction(system2, componentFinder, db.getDbClient(), userSession,
     pullActionProtobufObjectGenerator);
@@ -228,7 +227,7 @@ public class PullActionIT {
 
   @Test
   public void wsExecution_whenHotspotOnAnotherBranchThanMain_shouldReturnOneIssue() throws IOException {
-    ProjectData projectData = componentDbTester.insertPrivateProjectWithCustomBranch("develop");
+    ProjectData projectData = db.components().insertPrivateProjectWithCustomBranch("develop");
     ProjectDto project = projectData.getProjectDto();
     ComponentDto developBranch = projectData.getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));

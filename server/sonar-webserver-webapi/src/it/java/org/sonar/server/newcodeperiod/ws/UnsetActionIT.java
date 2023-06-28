@@ -34,10 +34,13 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -58,8 +61,6 @@ public class UnsetActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
-
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
@@ -113,7 +114,7 @@ public class UnsetActionIT {
 
   @Test
   public void throw_NFE_if_branch_not_found() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -128,7 +129,7 @@ public class UnsetActionIT {
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -159,7 +160,7 @@ public class UnsetActionIT {
 
   @Test
   public void delete_project_period() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -170,31 +171,31 @@ public class UnsetActionIT {
 
   @Test
   public void delete_project_period_twice() {
-    ComponentDto project1 = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = componentDb.insertPublicProject().getMainBranchComponent();
-    db.newCodePeriods().insert(project1.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
-    db.newCodePeriods().insert(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
+    db.newCodePeriods().insert(project1.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    db.newCodePeriods().insert(project2.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     logInAsProjectAdministrator(project1);
     ws.newRequest()
       .setParam("project", project1.getKey())
       .execute();
-    assertTableContainsOnly(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+    assertTableContainsOnly(project2.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     ws.newRequest()
       .setParam("project", project1.getKey())
       .execute();
 
-    assertTableContainsOnly(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+    assertTableContainsOnly(project2.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
   }
 
   @Test
   public void delete_branch_period() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     logInAsProjectAdministrator(project);
 
@@ -203,15 +204,16 @@ public class UnsetActionIT {
       .setParam("branch", "branch")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "20");
   }
 
   @Test
   public void delete_branch_and_project_period_in_community_edition() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
 
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
-    db.newCodePeriods().insert(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    db.newCodePeriods().insert(project.getUuid(), projectData.getMainBranchComponent().uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
@@ -226,10 +228,10 @@ public class UnsetActionIT {
 
   @Test
   public void throw_IAE_if_unset_branch_NCD_and_project_NCD_not_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
 
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
@@ -245,10 +247,10 @@ public class UnsetActionIT {
 
   @Test
   public void throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_instance_NCD_not_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
 
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
@@ -263,9 +265,9 @@ public class UnsetActionIT {
 
   @Test
   public void throw_IAE_if_unset_project_NCD_and_instance_NCD_not_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "97");
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
 
     logInAsProjectAdministrator(project);
 
@@ -279,8 +281,8 @@ public class UnsetActionIT {
 
   @Test
   public void do_not_throw_IAE_if_unset_project_NCD_and_no_instance_NCD() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
 
     logInAsProjectAdministrator(project);
     ws.newRequest()
@@ -292,10 +294,10 @@ public class UnsetActionIT {
 
   @Test
   public void do_not_throw_IAE_if_unset_branch_NCD_and_project_NCD_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
 
     logInAsProjectAdministrator(project);
     ws.newRequest()
@@ -303,14 +305,14 @@ public class UnsetActionIT {
       .setParam("branch", "branch")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
   }
 
   @Test
   public void do_not_throw_IAE_if_unset_branch_NCD_and_project_NCD_not_compliant_and_no_branch_NCD() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
 
     logInAsProjectAdministrator(project);
     ws.newRequest()
@@ -318,14 +320,14 @@ public class UnsetActionIT {
       .setParam("branch", "branch")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
   }
 
   @Test
   public void do_not_throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_instance_NCD_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
     db.newCodePeriods().insert(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
 
     logInAsProjectAdministrator(project);
@@ -339,9 +341,9 @@ public class UnsetActionIT {
 
   @Test
   public void do_not_throw_IAE_if_unset_branch_NCD_and_no_project_NCD_and_no_instance() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
-    db.newCodePeriods().insert(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.newCodePeriods().insert(project.getUuid(), branch.getUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
 
     logInAsProjectAdministrator(project);
     ws.newRequest()
@@ -354,10 +356,10 @@ public class UnsetActionIT {
 
   @Test
   public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     db.newCodePeriods().insert(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
 
     logInAsProjectAdministrator(project);
     ws.newRequest()
@@ -369,8 +371,8 @@ public class UnsetActionIT {
 
   @Test
   public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_not_compliant_and_no_project_NCD() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
 
     logInAsProjectAdministrator(project);
@@ -391,7 +393,7 @@ public class UnsetActionIT {
       .containsOnly(entry("PROJECT_UUID", projectUuid), entry("BRANCH_UUID", branchUuid), entry("TYPE", type.name()), entry("VALUE", value));
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 

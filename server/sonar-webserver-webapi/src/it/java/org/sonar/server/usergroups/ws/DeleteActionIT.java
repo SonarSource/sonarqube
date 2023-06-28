@@ -63,8 +63,6 @@ public class DeleteActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
-
-  private final ComponentDbTester componentTester = new ComponentDbTester(db);
   private final GroupService groupService = new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE);
 
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
@@ -144,7 +142,7 @@ public class DeleteActionIT {
     addAdmin();
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = componentTester.insertPrivateProject().getMainBranchComponent();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
     loginAsAdmin();
 

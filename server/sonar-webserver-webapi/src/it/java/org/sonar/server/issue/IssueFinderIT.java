@@ -52,7 +52,6 @@ public class IssueFinderIT {
 
   private RuleDbTester ruleDbTester = new RuleDbTester(db);
   private IssueDbTester issueDbTester = new IssueDbTester(db);
-  private ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   private IssueFinder underTest = new IssueFinder(db.getDbClient(), userSession);
 
@@ -88,8 +87,8 @@ public class IssueFinderIT {
 
   private IssueDto insertIssue() {
     RuleDto rule = ruleDbTester.insert(newRule());
-    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     return issueDbTester.insert(newIssue(rule, project, file));
   }
 

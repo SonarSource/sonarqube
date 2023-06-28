@@ -50,10 +50,6 @@ public class ComponentDbTester {
   private final DbSession dbSession;
   private final boolean useDifferentUuids;
 
-  public ComponentDbTester(DbTester db) {
-    this(db, false);
-  }
-
   public ComponentDbTester(DbTester db, boolean useDifferentProjectUuids) {
     this.db = db;
     this.dbClient = db.getDbClient();

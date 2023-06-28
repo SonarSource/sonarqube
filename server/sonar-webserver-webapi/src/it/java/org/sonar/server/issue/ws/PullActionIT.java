@@ -81,7 +81,6 @@ public class PullActionIT {
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
 
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   private final PullAction underTest = new PullAction(system2, componentFinder, db.getDbClient(), userSession,
     pullActionProtobufObjectGenerator, taintChecker);
@@ -265,7 +264,7 @@ public class PullActionIT {
 
   @Test
   public void givenIssueOnAnotherBranch_returnOneIssue() throws IOException {
-    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
+    ComponentDto developBranch = db.components().insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateIssues(correctRule, developBranch, developFile, 1);
     loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());

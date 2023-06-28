@@ -54,7 +54,6 @@ public class SettingsUpdaterIT {
   DbSession dbSession = db.getSession();
 
   PropertyDbTester propertyDb = new PropertyDbTester(db);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
   PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   ProjectDto project;
@@ -63,7 +62,7 @@ public class SettingsUpdaterIT {
 
   @Before
   public void setUp() {
-    project = componentDb.insertPrivateProject().getProjectDto();
+    project = db.components().insertPrivateProject().getProjectDto();
   }
 
   @Test

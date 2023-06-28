@@ -61,7 +61,6 @@ public class PermissionIndexerDaoIT {
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private final UserDbTester userDbTester = new UserDbTester(dbTester);
 
   private ProjectDto publicProject;
@@ -78,12 +77,12 @@ public class PermissionIndexerDaoIT {
 
   @Before
   public void setUp() {
-    publicProject = componentDbTester.insertPublicProject().getProjectDto();
-    privateProject1 = componentDbTester.insertPrivateProject().getProjectDto();
-    privateProject2 = componentDbTester.insertPrivateProject().getProjectDto();
-    view1 = componentDbTester.insertPublicPortfolioDto();
-    view2 = componentDbTester.insertPublicPortfolioDto();
-    application = componentDbTester.insertPublicApplication().getProjectDto();
+    publicProject = dbTester.components().insertPublicProject().getProjectDto();
+    privateProject1 = dbTester.components().insertPrivateProject().getProjectDto();
+    privateProject2 = dbTester.components().insertPrivateProject().getProjectDto();
+    view1 = dbTester.components().insertPublicPortfolioDto();
+    view2 = dbTester.components().insertPublicPortfolioDto();
+    application = dbTester.components().insertPublicApplication().getProjectDto();
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
     group = userDbTester.insertGroup();

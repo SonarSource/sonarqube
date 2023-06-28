@@ -82,7 +82,6 @@ public class PullTaintActionIT {
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
   private PullTaintActionProtobufObjectGenerator objectGenerator = new PullTaintActionProtobufObjectGenerator(db.getDbClient(), userSession);
   private PullTaintAction underTest = new PullTaintAction(system2, componentFinder, db.getDbClient(), userSession,
@@ -264,7 +263,7 @@ public class PullTaintActionIT {
 
   @Test
   public void givenTaintOnAnotherBranch_returnOneTaint() throws IOException {
-    ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
+    ComponentDto developBranch = db.components().insertPrivateProjectWithCustomBranch("develop").getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     generateTaints(correctRule, developBranch, developFile, 1);
     loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());

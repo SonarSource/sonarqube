@@ -90,7 +90,6 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = dbTester.getDbClient();
   private Date now;
-  private final ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private final MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
 
@@ -459,7 +458,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
   }
 
   private void persistComponents(ComponentDto... componentDtos) {
-    componentDbTester.insertComponents(componentDtos);
+    dbTester.components().insertComponents(componentDtos);
   }
 
   private ComponentDto getComponentFromDb(String componentKey) {

@@ -29,12 +29,14 @@ import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -54,8 +56,6 @@ public class ShowActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
-
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
@@ -96,7 +96,7 @@ public class ShowActionIT {
 
   @Test
   public void throw_FE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -107,7 +107,7 @@ public class ShowActionIT {
 
   @Test
   public void throw_FE_if_project_issue_admin() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectIssueAdmin(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -129,11 +129,11 @@ public class ShowActionIT {
 
   @Test
   public void show_project_setting() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     tester.insert(new NewCodePeriodDto()
-      .setProjectUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("4"));
 
@@ -146,14 +146,14 @@ public class ShowActionIT {
 
   @Test
   public void show_branch_setting() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
     tester.insert(new NewCodePeriodDto()
-      .setProjectUuid(project.uuid())
-      .setBranchUuid(branch.uuid())
+      .setProjectUuid(project.getUuid())
+      .setBranchUuid(branch.getUuid())
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("1"));
 
@@ -167,7 +167,7 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_project_setting() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION));
 
@@ -180,13 +180,13 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_branch_setting_from_project() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
     tester.insert(new NewCodePeriodDto()
-      .setProjectUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("1"));
 
@@ -200,9 +200,9 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_branch_setting_from_global() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    BranchDto branchDto = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.NUMBER_OF_DAYS).setValue("3"));
 
     ShowWSResponse response = ws.newRequest()
@@ -226,10 +226,10 @@ public class ShowActionIT {
 
   @Test
   public void show_inherited_if_branch_not_found() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectScan(project);
 
-    tester.insert(project.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");
+    tester.insert(project.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");
 
     ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -247,15 +247,15 @@ public class ShowActionIT {
     assertThat(response.getType()).isEqualTo(type);
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
-  private void logInAsProjectScan(ComponentDto project) {
+  private void logInAsProjectScan(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.SCAN, project);
   }
 
-  private void logInAsProjectIssueAdmin(ComponentDto project) {
+  private void logInAsProjectIssueAdmin(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
   }
 

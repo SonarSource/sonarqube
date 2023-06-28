@@ -38,11 +38,14 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -65,8 +68,6 @@ public class SetActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
-
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
@@ -123,7 +124,7 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_type_is_invalid_for_project() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -136,7 +137,7 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_no_value_for_days() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -150,7 +151,7 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_no_value_for_analysis() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -164,7 +165,7 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_days_is_invalid() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -179,7 +180,7 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_setting_is_not_cayc_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     TestRequest request = ws.newRequest()
@@ -196,7 +197,7 @@ public class SetActionIT {
 
   @Test
   public void no_error_if_setting_is_cayc_compliant() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     ws.newRequest()
@@ -205,12 +206,12 @@ public class SetActionIT {
       .setParam("value", "90")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "90");
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "90");
   }
 
   @Test
   public void throw_IAE_if_analysis_is_not_found() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -225,8 +226,9 @@ public class SetActionIT {
 
   @Test
   public void throw_IAE_if_analysis_doesnt_belong_to_branch() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
+    ComponentDto branch = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
@@ -266,7 +268,7 @@ public class SetActionIT {
 
   @Test
   public void throw_NFE_if_branch_not_found() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -281,7 +283,7 @@ public class SetActionIT {
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -313,21 +315,22 @@ public class SetActionIT {
 
   @Test
   public void set_project_period_to_number_of_days() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
       .setParam("value", "5")
       .execute();
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
   }
 
   @Test
   @UseDataProvider("provideNewCodePeriodTypeAndValue")
   public void never_set_project_value_in_community_edition(NewCodePeriodType type, @Nullable String value) {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
 
     if (value != null && NewCodePeriodType.SPECIFIC_ANALYSIS.equals(type)) {
       db.components().insertSnapshot(project, snapshotDto -> snapshotDto.setUuid(value));
@@ -343,7 +346,7 @@ public class SetActionIT {
     }
 
     request.execute();
-    assertTableContainsOnly(project.uuid(), project.uuid(), type, value);
+    assertTableContainsOnly(project.getUuid(), projectData.getMainBranchComponent().uuid(), type, value);
   }
 
   @DataProvider
@@ -358,26 +361,27 @@ public class SetActionIT {
 
   @Test
   public void set_project_twice_period_to_number_of_days() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .execute();
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
 
     ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
       .setParam("value", "5")
       .execute();
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+    assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
   }
 
   @Test
   public void set_branch_period_to_analysis() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
+    ComponentDto branch = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
@@ -391,13 +395,14 @@ public class SetActionIT {
       .setParam("value", analysisBranch.getUuid())
       .execute();
 
-    assertTableContainsOnly(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
+    assertTableContainsOnly(project.getUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
   }
 
   @Test
   public void set_branch_period_twice_to_analysis() {
-    ComponentDto project = componentDb.insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+    ProjectData projectData = db.components().insertPublicProject();
+    ProjectDto project = projectData.getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(projectData.getProjectDto(), b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
@@ -417,7 +422,7 @@ public class SetActionIT {
       .setParam("branch", "branch")
       .execute();
 
-    assertTableContainsOnly(project.uuid(), branch.uuid(), NewCodePeriodType.PREVIOUS_VERSION, null);
+    assertTableContainsOnly(project.getUuid(), branch.getUuid(), NewCodePeriodType.PREVIOUS_VERSION, null);
   }
 
   private void assertTableContainsOnly(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {
@@ -426,7 +431,7 @@ public class SetActionIT {
       .containsOnly(entry("PROJECT_UUID", projectUuid), entry("BRANCH_UUID", branchUuid), entry("TYPE", type.name()), entry("VALUE", value));
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
