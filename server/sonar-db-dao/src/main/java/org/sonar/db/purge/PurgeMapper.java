@@ -112,22 +112,22 @@ public interface PurgeMapper {
   void deleteFileSourcesByFileUuid(@Param("fileUuids") List<String> fileUuids);
 
   void deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
-    @Nullable @Param("createdAtBefore") Long createdAtBefore);
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
   void deleteCeTaskInputOfCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
-    @Nullable @Param("createdAtBefore") Long createdAtBefore);
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
   void deleteCeScannerContextOfCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
-    @Nullable @Param("createdAtBefore") Long createdAtBefore);
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
   void deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
-    @Nullable @Param("createdAtBefore") Long createdAtBefore);
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
   /**
    * Delete rows in CE_ACTIVITY of tasks of the specified component and/or created before specified date.
    */
   void deleteCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
-    @Nullable @Param("createdAtBefore") Long createdAtBefore);
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
   void deleteCeScannerContextOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
@@ -183,5 +183,5 @@ public interface PurgeMapper {
 
   void deleteReportSchedulesByPortfolioUuids(@Param("portfolioUuids") List<String> portfolioUuids);
 
-  void deleteReportSubscriptionsByPortfolioUuids(@Param("portfolioUuids") List<String>  portfolioUuids);
+  void deleteReportSubscriptionsByPortfolioUuids(@Param("portfolioUuids") List<String> portfolioUuids);
 }

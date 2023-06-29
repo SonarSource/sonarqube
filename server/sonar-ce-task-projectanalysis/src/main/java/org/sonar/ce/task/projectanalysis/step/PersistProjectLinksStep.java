@@ -65,7 +65,6 @@ public class PersistProjectLinksStep implements ComputationStep {
     if (!analysisMetadataHolder.getBranch().isMain()) {
       return;
     }
-
     try (DbSession session = dbClient.openSession(false)) {
       Component rootComponent = treeRootHolder.getRoot();
       ScannerReport.Component batchComponent = reportReader.readComponent(rootComponent.getReportAttributes().getRef());

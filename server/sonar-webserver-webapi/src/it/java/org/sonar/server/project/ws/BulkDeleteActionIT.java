@@ -41,6 +41,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -70,7 +73,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFI
 public class BulkDeleteActionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
@@ -84,8 +88,8 @@ public class BulkDeleteActionIT {
   @Test
   public void delete_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto project1ToDelete = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2ToDelete = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1ToDelete = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2ToDelete = db.components().insertPrivateProject().getProjectDto();
     ComponentDto toKeep = db.components().insertPrivateProject().getMainBranchComponent();
 
     TestResponse result = ws.newRequest()
@@ -94,29 +98,29 @@ public class BulkDeleteActionIT {
 
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     assertThat(result.getInput()).isEmpty();
-    verifyComponentDeleted(project1ToDelete, project2ToDelete);
+    verifyEntityDeleted(project1ToDelete, project2ToDelete);
     verifyListenersOnProjectsDeleted(project1ToDelete, project2ToDelete);
   }
 
   @Test
   public void delete_projects_by_keys() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto toDeleteInOrg1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto toDeleteInOrg2 = db.components().insertPrivateProject().getProjectDto();
     ComponentDto toKeep = db.components().insertPrivateProject().getMainBranchComponent();
 
     ws.newRequest()
       .setParam(PARAM_PROJECTS, toDeleteInOrg1.getKey() + "," + toDeleteInOrg2.getKey())
       .execute();
 
-    verifyComponentDeleted(toDeleteInOrg1, toDeleteInOrg2);
+    verifyEntityDeleted(toDeleteInOrg1, toDeleteInOrg2);
     verifyListenersOnProjectsDeleted(toDeleteInOrg1, toDeleteInOrg2);
   }
 
   @Test
   public void throw_IllegalArgumentException_if_request_without_any_parameters() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     try {
       TestRequest request = ws.newRequest();
@@ -132,14 +136,14 @@ public class BulkDeleteActionIT {
   @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto toDelete1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto toDelete2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto toDelete1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto toDelete2 = db.components().insertPrivateProject().getProjectDto();
 
     ws.newRequest()
       .setParam("projects", toDelete1.getKey() + ",missing," + toDelete2.getKey() + ",doesNotExist")
       .execute();
 
-    verifyComponentDeleted(toDelete1, toDelete2);
+    verifyEntityDeleted(toDelete1, toDelete2);
     verifyListenersOnProjectsDeleted(toDelete1, toDelete2);
   }
 
@@ -148,11 +152,13 @@ public class BulkDeleteActionIT {
     userSession.logIn().addPermission(ADMINISTER);
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
-    ComponentDto oldProject = db.components().insertPublicProject().getMainBranchComponent();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
-    ComponentDto recentProject = db.components().insertPublicProject().getMainBranchComponent();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(aLongTimeAgo));
-    ComponentDto branch = db.components().insertProjectBranch(recentProject);
+    ProjectData oldProjectData = db.components().insertPublicProject();
+    ProjectDto oldProject = oldProjectData.getProjectDto();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProjectData.getMainBranchComponent()).setCreatedAt(aLongTimeAgo));
+    ProjectData recentProjectData = db.components().insertPublicProject();
+    ProjectDto recentProject = recentProjectData.getProjectDto();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProjectData.getMainBranchComponent()).setCreatedAt(aLongTimeAgo));
+    ComponentDto branch = db.components().insertProjectBranch(recentProjectData.getMainBranchComponent());
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(recentTime));
     db.commit();
 
@@ -160,60 +166,62 @@ public class BulkDeleteActionIT {
       .setParam(PARAM_ANALYZED_BEFORE, formatDate(new Date(recentTime)))
       .execute();
 
-    verifyComponentDeleted(oldProject);
+    verifyEntityDeleted(oldProject);
     verifyListenersOnProjectsDeleted(oldProject);
   }
 
   @Test
   public void provisioned_projects() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto provisionedProject = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto analyzedProject = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(newAnalysis(analyzedProject));
+    ProjectDto provisionedProject = db.components().insertPrivateProject().getProjectDto();
+    ProjectData analyzedProjectData = db.components().insertPrivateProject();
+    ProjectDto analyzedProject = analyzedProjectData.getProjectDto();
+    db.components().insertSnapshot(newAnalysis(analyzedProjectData.getMainBranchComponent()));
 
     ws.newRequest().setParam(PARAM_PROJECTS, provisionedProject.getKey() + "," + analyzedProject.getKey()).setParam(PARAM_ON_PROVISIONED_ONLY, "true").execute();
 
-    verifyComponentDeleted(provisionedProject);
+    verifyEntityDeleted(provisionedProject);
     verifyListenersOnProjectsDeleted(provisionedProject);
   }
 
   @Test
   public void delete_more_than_50_projects() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto[] projects = IntStream.range(0, 55).mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent()).toArray(ComponentDto[]::new);
+    ProjectDto[] projects = IntStream.range(0, 55).mapToObj(i -> db.components().insertPrivateProject().getProjectDto()).toArray(ProjectDto[]::new);
 
-    List<String> projectKeys = Stream.of(projects).map(ComponentDto::getKey).collect(Collectors.toList());
+    List<String> projectKeys = Stream.of(projects).map(ProjectDto::getKey).collect(Collectors.toList());
     ws.newRequest().setParam(PARAM_PROJECTS, String.join(",", projectKeys)).execute();
 
-    verifyComponentDeleted(projects);
+    verifyEntityDeleted(projects);
     verifyListenersOnProjectsDeleted(projects);
   }
 
   @Test
   public void projects_and_views() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ComponentDto view = db.components().insertPrivatePortfolio();
+    PortfolioDto portfolioDto = db.components().getPortfolioDto(view);
 
     ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getKey() + "," + view.getKey())
       .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW))
       .execute();
 
-    verifyComponentDeleted(project, view);
-    verifyListenersOnProjectsDeleted(project, view);
+    verifyEntityDeleted(project, portfolioDto);
+    verifyListenersOnProjectsDeleted(project, portfolioDto);
   }
 
   @Test
   public void delete_by_key_query_with_partial_match_case_insensitive() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setKey("project-_%-key")).getMainBranchComponent();
-    ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY")).getMainBranchComponent();
-    ComponentDto noMatchProject = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters")).getMainBranchComponent();
+    ProjectDto matchKeyProject = db.components().insertPrivateProject(p -> p.setKey("project-_%-key")).getProjectDto();
+    ProjectDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY")).getProjectDto();
+    ProjectDto noMatchProject = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters")).getProjectDto();
 
     ws.newRequest().setParam(Param.TEXT_QUERY, "JeCt-_%-k").execute();
 
-    verifyComponentDeleted(matchKeyProject, matchUppercaseKeyProject);
+    verifyEntityDeleted(matchKeyProject, matchUppercaseKeyProject);
     verifyListenersOnProjectsDeleted(matchKeyProject, matchUppercaseKeyProject);
   }
 
@@ -230,7 +238,7 @@ public class BulkDeleteActionIT {
       .setParam("projects", StringUtils.join(keys, ","))
       .execute();
 
-    verify(componentCleanerService, times(1_000)).deleteComponent(any(DbSession.class), any(ComponentDto.class));
+    verify(componentCleanerService, times(1_000)).delete(any(DbSession.class), any(EntityDto.class));
     ArgumentCaptor<Set<Project>> projectsCaptor = ArgumentCaptor.forClass(Set.class);
     verify(projectLifeCycleListeners).onProjectsDeleted(projectsCaptor.capture());
     assertThat(projectsCaptor.getValue()).hasSize(1_000);
@@ -239,9 +247,9 @@ public class BulkDeleteActionIT {
   @Test
   public void projectLifeCycleListeners_onProjectsDeleted_called_even_if_delete_fails() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
     ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
     RuntimeException expectedException = new RuntimeException("Faking delete failing on 2nd project");
     doNothing()
@@ -262,14 +270,14 @@ public class BulkDeleteActionIT {
   @Test
   public void global_administrator_deletes_projects_by_keys() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto toDelete1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto toDelete2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto toDelete1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto toDelete2 = db.components().insertPrivateProject().getProjectDto();
 
     ws.newRequest()
       .setParam("projects", toDelete1.getKey() + "," + toDelete2.getKey())
       .execute();
 
-    verifyComponentDeleted(toDelete1, toDelete2);
+    verifyEntityDeleted(toDelete1, toDelete2);
     verifyListenersOnProjectsDeleted(toDelete1, toDelete2);
   }
 
@@ -304,12 +312,12 @@ public class BulkDeleteActionIT {
     verifyNoMoreInteractions(projectLifeCycleListeners);
   }
 
-  private void verifyComponentDeleted(ComponentDto... projects) {
-    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
-    verify(componentCleanerService, times(projects.length)).deleteComponent(any(DbSession.class), argument.capture());
+  private void verifyEntityDeleted(EntityDto... entities) {
+    ArgumentCaptor<EntityDto> argument = ArgumentCaptor.forClass(EntityDto.class);
+    verify(componentCleanerService, times(entities.length)).delete(any(DbSession.class), argument.capture());
 
-    for (ComponentDto project : projects) {
-      assertThat(argument.getAllValues()).extracting(ComponentDto::uuid).contains(project.uuid());
+    for (EntityDto entity : entities) {
+      assertThat(argument.getAllValues()).extracting(EntityDto::getUuid).contains(entity.getUuid());
     }
   }
 
@@ -317,8 +325,8 @@ public class BulkDeleteActionIT {
     verifyNoMoreInteractions(componentCleanerService);
   }
 
-  private void verifyListenersOnProjectsDeleted(ComponentDto... components) {
+  private void verifyListenersOnProjectsDeleted(EntityDto... entityDtos) {
     verify(projectLifeCycleListeners)
-      .onProjectsDeleted(Arrays.stream(components).map(Project::from).collect(Collectors.toSet()));
+      .onProjectsDeleted(Arrays.stream(entityDtos).map(Project::from).collect(Collectors.toSet()));
   }
 }

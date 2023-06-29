@@ -151,7 +151,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
 
       try {
-        componentDtos.forEach(p -> componentCleanerService.deleteComponent(dbSession, p));
+        entities.forEach(e -> componentCleanerService.delete(dbSession, e));
       } finally {
         projectLifeCycleListeners.onProjectsDeleted(entities.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
       }

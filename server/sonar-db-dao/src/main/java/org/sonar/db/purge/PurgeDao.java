@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -68,8 +69,8 @@ public class PurgeDao implements Dao {
     purgeDisabledComponents(commands, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
     deleteOrphanIssues(mapper, rootUuid);
-    purgeOldCeActivities(rootUuid, commands);
-    purgeOldCeScannerContexts(rootUuid, commands);
+    purgeOldCeActivities(session, rootUuid, commands);
+    purgeOldCeScannerContexts(session, rootUuid, commands);
 
     deleteOldDisabledComponents(commands, mapper, rootUuid);
     purgeStaleBranches(commands, conf, mapper, rootUuid);
@@ -159,23 +160,42 @@ public class PurgeDao implements Dao {
   public void purgeCeActivities(DbSession session, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler, system2);
-    purgeOldCeActivities(null, commands);
+    purgeOldCeActivities(session, null, commands);
   }
 
-  private void purgeOldCeActivities(@Nullable String rootUuid, PurgeCommands commands) {
+  private void purgeOldCeActivities(DbSession session, @Nullable String rootUuid, PurgeCommands commands) {
+    String entityUuidToPurge = getEntityUuidToPurge(session, rootUuid);
     Date sixMonthsAgo = DateUtils.addDays(new Date(system2.now()), -180);
-    commands.deleteCeActivityBefore(rootUuid, sixMonthsAgo.getTime());
+    commands.deleteCeActivityBefore(rootUuid, entityUuidToPurge, sixMonthsAgo.getTime());
+  }
+
+  /**
+   * When the rootUuid is the main branch of a project, we also want to clean the old activities and context of other branches.
+   * This is probably to ensure that the cleanup happens regularly on branch that are not as active as the main branch.
+   */
+  @Nullable
+  private static String getEntityUuidToPurge(DbSession session, @Nullable String rootUuid) {
+    if (rootUuid == null) {
+      return null;
+    }
+    BranchDto branch = session.getMapper(BranchMapper.class).selectByUuid(rootUuid);
+    String entityUuidToPurge = null;
+    if (branch != null && branch.isMain()) {
+      entityUuidToPurge = branch.getProjectUuid();
+    }
+    return entityUuidToPurge;
   }
 
   public void purgeCeScannerContexts(DbSession session, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler, system2);
-    purgeOldCeScannerContexts(null, commands);
+    purgeOldCeScannerContexts(session, null, commands);
   }
 
-  private void purgeOldCeScannerContexts(@Nullable String rootUuid, PurgeCommands commands) {
+  private void purgeOldCeScannerContexts(DbSession session, @Nullable String rootUuid, PurgeCommands commands) {
     Date fourWeeksAgo = DateUtils.addDays(new Date(system2.now()), -28);
-    commands.deleteCeScannerContextBefore(rootUuid, fourWeeksAgo.getTime());
+    String entityUuidToPurge = getEntityUuidToPurge(session, rootUuid);
+    commands.deleteCeScannerContextBefore(rootUuid, entityUuidToPurge, fourWeeksAgo.getTime());
   }
 
   private static final class NewCodePeriodAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
@@ -206,8 +226,9 @@ public class PurgeDao implements Dao {
     long start = System2.INSTANCE.now();
 
     List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
+      //Main branch is deleted last
+      .sorted(Comparator.comparing(BranchDto::isMain))
       .map(BranchDto::getUuid)
-      .filter(branchUuid -> !uuid.equals(branchUuid))
       .toList();
 
     branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));

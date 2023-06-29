@@ -85,9 +85,6 @@ public class DeleteAction implements BranchWsAction {
         dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
-      if (branch.isMain()) {
-        throw new IllegalArgumentException("Only non-main branches can be deleted");
-      }
       componentCleanerService.deleteBranch(dbSession, branch);
       projectLifeCycleListeners.onProjectBranchesDeleted(singleton(Project.fromProjectDtoWithTags(project)));
       response.noContent();

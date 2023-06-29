@@ -35,7 +35,7 @@ class PurgeCommands {
 
   private static final int MAX_SNAPSHOTS_PER_QUERY = 1000;
   private static final int MAX_RESOURCES_PER_QUERY = 1000;
-  private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
+  private static final String[] UNPROCESSED_STATUS = new String[]{"U"};
 
   private final DbSession session;
   private final PurgeMapper purgeMapper;
@@ -322,54 +322,54 @@ class PurgeCommands {
 
   void deleteCeActivity(String rootUuid) {
     profiler.start("deleteCeActivity (ce_scanner_context)");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_characteristics)");
-    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_input)");
-    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_task_message)");
-    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivity (ce_activity)");
-    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, null);
+    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, null, null);
     session.commit();
     profiler.stop();
   }
 
-  void deleteCeActivityBefore(@Nullable String rootUuid, long createdAt) {
+  void deleteCeActivityBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
     profiler.start("deleteCeActivityBefore (ce_scanner_context)");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_characteristics)");
-    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_input)");
-    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_task_message)");
-    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeActivityBefore (ce_activity)");
-    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
     profiler.stop();
   }
 
-  void deleteCeScannerContextBefore(@Nullable String rootUuid, long createdAt) {
+  void deleteCeScannerContextBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
     // assuming CeScannerContext of rows in table CE_QUEUE can't be older than createdAt
     profiler.start("deleteCeScannerContextBefore");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, createdAt);
+    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
     session.commit();
   }
 
@@ -503,7 +503,7 @@ class PurgeCommands {
   }
 
 
-  public void deleteReportSubscriptions(String rootUuid){
+  public void deleteReportSubscriptions(String rootUuid) {
     profiler.start("deleteReportSubscriptions (report_subscriptions)");
     purgeMapper.deleteReportSubscriptionsByBranchUuid(rootUuid);
     session.commit();

@@ -20,9 +20,11 @@
 package org.sonar.server.project.ws;
 
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -31,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -51,8 +54,10 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -61,7 +66,7 @@ public class DeleteActionIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
   @Rule
   public final UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -79,35 +84,49 @@ public class DeleteActionIT {
     userSessionRule, projectLifeCycleListeners);
   private final WsActionTester tester = new WsActionTester(underTest);
 
+  @Before
+  public void before() {
+    mockResourceTypeAsValidProject();
+  }
+
+  private void mockResourceTypeAsValidProject() {
+    ResourceType resourceType = mock(ResourceType.class);
+    when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
+    when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
+  }
+
   @Test
   public void global_administrator_deletes_project_by_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     userSessionRule.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(projectData.getProjectDto())));
   }
 
   @Test
   public void project_administrator_deletes_the_project_by_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(projectData.getProjectDto())));
   }
 
   @Test
   public void project_deletion_also_ensure_that_homepage_on_this_project_if_it_exists_is_cleared() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     UserDto insert = dbClient.userDao().insert(dbSession,
-      newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
+      newUserDto().setHomepageType("PROJECT").setHomepageParameter(projectData.projectUuid()));
     dbSession.commit();
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
     DeleteAction underTest = new DeleteAction(
       new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);

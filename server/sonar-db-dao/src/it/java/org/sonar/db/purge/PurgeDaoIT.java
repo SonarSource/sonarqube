@@ -121,7 +121,7 @@ public class PurgeDaoIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -134,7 +134,7 @@ public class PurgeDaoIT {
     db.components().insertSnapshot(project.getMainBranchComponent(), t -> t.setStatus(STATUS_UNPROCESSED).setLast(false));
     SnapshotDto lastAnalysis = db.components().insertSnapshot(project.getMainBranchComponent(), t -> t.setStatus(STATUS_PROCESSED).setLast(true));
 
-    underTest.purge(dbSession, newConfigurationWith30Days(project.getMainBranchComponent().uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.getMainBranchComponent().uuid(), project.projectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsOfAnalysesOfRoot(project.getMainBranchComponent())).containsOnly(pastAnalysis.getUuid(), lastAnalysis.getUuid());
@@ -272,21 +272,22 @@ public class PurgeDaoIT {
   @Test
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    db.components().insertSnapshot(project);
-    db.components().insertSnapshot(project);
-    db.components().insertSnapshot(project, s -> s.setLast(false));
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.components().insertSnapshot(mainBranch);
+    db.components().insertSnapshot(mainBranch);
+    db.components().insertSnapshot(mainBranch, s -> s.setLast(false));
 
-    ComponentDto dir = db.components().insertComponent(newDirectory(project, "sub").setEnabled(false));
-    ComponentDto srcFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(false));
-    ComponentDto testFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(false));
-    ComponentDto enabledFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(true));
-    IssueDto openOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("OPEN"));
-    IssueDto confirmOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("CONFIRM"));
-    IssueDto openOnDir = db.issues().insert(rule, project, dir, issue -> issue.setStatus("OPEN"));
-    IssueDto confirmOnDir = db.issues().insert(rule, project, dir, issue -> issue.setStatus("CONFIRM"));
-    IssueDto openOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("OPEN"));
-    IssueDto confirmOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("CONFIRM"));
+    ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "sub").setEnabled(false));
+    ComponentDto srcFile = db.components().insertComponent(newFileDto(mainBranch, dir).setEnabled(false));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(mainBranch, dir).setEnabled(false));
+    ComponentDto enabledFile = db.components().insertComponent(newFileDto(mainBranch, dir).setEnabled(true));
+    IssueDto openOnFile = db.issues().insert(rule, mainBranch, srcFile, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnFile = db.issues().insert(rule, mainBranch, srcFile, issue -> issue.setStatus("CONFIRM"));
+    IssueDto openOnDir = db.issues().insert(rule, mainBranch, dir, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnDir = db.issues().insert(rule, mainBranch, dir, issue -> issue.setStatus("CONFIRM"));
+    IssueDto openOnEnabledComponent = db.issues().insert(rule, mainBranch, enabledFile, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnEnabledComponent = db.issues().insert(rule, mainBranch, enabledFile, issue -> issue.setStatus("CONFIRM"));
 
     assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isZero();
 
@@ -303,8 +304,8 @@ public class PurgeDaoIT {
     LiveMeasureDto liveMeasureMetric2OnFile = db.measures().insertLiveMeasure(srcFile, metric2);
     LiveMeasureDto liveMeasureMetric1OnDir = db.measures().insertLiveMeasure(dir, metric1);
     LiveMeasureDto liveMeasureMetric2OnDir = db.measures().insertLiveMeasure(dir, metric2);
-    LiveMeasureDto liveMeasureMetric1OnProject = db.measures().insertLiveMeasure(project, metric1);
-    LiveMeasureDto liveMeasureMetric2OnProject = db.measures().insertLiveMeasure(project, metric2);
+    LiveMeasureDto liveMeasureMetric1OnProject = db.measures().insertLiveMeasure(mainBranch, metric1);
+    LiveMeasureDto liveMeasureMetric2OnProject = db.measures().insertLiveMeasure(mainBranch, metric2);
     LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric1);
     LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric2);
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
@@ -312,12 +313,12 @@ public class PurgeDaoIT {
 
     // back to present
     Set<String> selectedComponentUuids = ImmutableSet.of(srcFile.uuid(), testFile.uuid());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), selectedComponentUuids),
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid(), selectedComponentUuids),
       purgeListener, new PurgeProfiler());
     dbSession.commit();
 
-    verify(purgeListener).onComponentsDisabling(project.uuid(), selectedComponentUuids);
-    verify(purgeListener).onComponentsDisabling(project.uuid(), ImmutableSet.of(dir.uuid()));
+    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), selectedComponentUuids);
+    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), ImmutableSet.of(dir.uuid()));
 
     // set purge_status=1 for non-last snapshot
     assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isOne();
@@ -342,11 +343,11 @@ public class PurgeDaoIT {
     // deletes live measure of selected
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
     List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao()
-      .selectByComponentUuidsAndMetricUuids(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), enabledFile.uuid()),
+      .selectByComponentUuidsAndMetricUuids(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), mainBranch.uuid(), enabledFile.uuid()),
         ImmutableSet.of(metric1.getUuid(), metric2.getUuid()));
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getComponentUuid)
-      .containsOnly(enabledFile.uuid(), project.uuid());
+      .containsOnly(enabledFile.uuid(), mainBranch.uuid());
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getMetricUuid)
       .containsOnly(metric1.getUuid(), metric2.getUuid());
@@ -739,31 +740,30 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ProjectData anotherProject = db.components().insertPrivateProject();
 
-    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
+    CeActivityDto projectTask = insertCeActivity(project.getMainBranchComponent(), project.getProjectDto().getUuid());
     insertCeTaskInput(projectTask.getUuid());
-    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
+    CeActivityDto branchTask = insertCeActivity(branch, project.getProjectDto().getUuid());
     insertCeTaskInput(branchTask.getUuid());
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.getProjectDto().getUuid());
     insertCeTaskInput(anotherBranchTask.getUuid());
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject.getMainBranchComponent(), anotherProject.getProjectDto().getUuid());
     insertCeTaskInput(anotherProjectTask.getUuid());
     insertCeTaskInput("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_input")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, project.getProjectDto().getUuid(), project.getProjectDto().getQualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -772,31 +772,29 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ProjectData anotherProject = db.components().insertPrivateProject();
 
-    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
-
-    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
+    CeActivityDto projectTask = insertCeActivity(project.getMainBranchComponent(), project.getProjectDto().getUuid());
     insertCeScannerContext(projectTask.getUuid());
-    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
+    CeActivityDto branchTask = insertCeActivity(branch, project.getProjectDto().getUuid());
     insertCeScannerContext(branchTask.getUuid());
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.getProjectDto().getUuid());
     insertCeScannerContext(anotherBranchTask.getUuid());
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject.getMainBranchComponent(), anotherProject.getProjectDto().getUuid());
     insertCeScannerContext(anotherProjectTask.getUuid());
     insertCeScannerContext("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, project.getProjectDto().getUuid(), project.getProjectDto().getQualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -805,31 +803,30 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ProjectData anotherProject = db.components().insertPrivateProject();
 
-    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
-    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
+    CeActivityDto projectTask = insertCeActivity(project.getMainBranchComponent(), project.projectUuid());
     insertCeTaskCharacteristics(projectTask.getUuid(), 3);
-    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
+    CeActivityDto branchTask = insertCeActivity(branch, project.projectUuid());
     insertCeTaskCharacteristics(branchTask.getUuid(), 2);
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.projectUuid());
     insertCeTaskCharacteristics(anotherBranchTask.getUuid(), 6);
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject.getMainBranchComponent(), anotherProject.projectUuid());
     insertCeTaskCharacteristics(anotherProjectTask.getUuid(), 2);
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_characteristics")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, project.getProjectDto().getUuid(), project.getProjectDto().getQualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -838,31 +835,29 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ProjectData anotherProject = db.components().insertPrivateProject();
 
-    insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
-
-    CeActivityDto projectTask = insertCeActivity(project, project.uuid());
+    CeActivityDto projectTask = insertCeActivity(project.getMainBranchComponent(), project.getProjectDto().getUuid());
     insertCeTaskMessages(projectTask.getUuid(), 3);
-    CeActivityDto branchTask = insertCeActivity(branch, project.uuid());
+    CeActivityDto branchTask = insertCeActivity(branch, project.getProjectDto().getUuid());
     insertCeTaskMessages(branchTask.getUuid(), 2);
-    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.uuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch, project.getProjectDto().getUuid());
     insertCeTaskMessages(anotherBranchTask.getUuid(), 6);
-    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject, anotherProject.uuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject.getMainBranchComponent(), anotherProject.getProjectDto().getUuid());
     insertCeTaskMessages(anotherProjectTask.getUuid(), 2);
     insertCeTaskMessages("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_message")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
+    underTest.deleteProject(dbSession, project.getProjectDto().getUuid(), project.getProjectDto().getQualifier(), project.getProjectDto().getName(), project.getProjectDto().getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -890,21 +885,23 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_tasks_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto anotherLivingProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectToBeDeleted = db.components().insertPrivateProject();
+    ProjectData anotherLivingProject = db.components().insertPrivateProject();
 
     // Insert 3 rows in CE_QUEUE: two for the project that will be deleted (in order to check that status
     // is not involved in deletion), and one on another project
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, projectToBeDeleted.uuid(), Status.PENDING));
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted, projectToBeDeleted.uuid(), Status.IN_PROGRESS));
-    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, anotherLivingProject.uuid(), Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted.getMainBranchComponent(), projectToBeDeleted.projectUuid(), Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(projectToBeDeleted.getMainBranchComponent(), projectToBeDeleted.projectUuid(), Status.IN_PROGRESS));
+    dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject.getMainBranchComponent(), anotherLivingProject.projectUuid(), Status.PENDING));
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
+    ProjectDto projectDto = projectToBeDeleted.getProjectDto();
+    underTest.deleteProject(dbSession, projectDto.getUuid(),
+      projectDto.getQualifier(), projectDto.getName(), projectDto.getKey());
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("ce_queue")).isOne();
-    assertThat(db.countSql("select count(*) from ce_queue where entity_uuid='" + projectToBeDeleted.uuid() + "'")).isZero();
+    assertThat(db.countSql("select count(*) from ce_queue where entity_uuid='" + projectToBeDeleted.projectUuid() + "'")).isZero();
   }
 
   @Test
@@ -1174,17 +1171,18 @@ public class PurgeDaoIT {
   @Test
   public void purge_shouldDeleteOrphanIssues() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
+    ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch, dir));
 
-    IssueDto issue1 = db.issues().insert(rule, project, file);
-    IssueDto orphanIssue = db.issues().insert(rule, project, file, issue -> issue.setComponentUuid("nonExisting"));
+    IssueDto issue1 = db.issues().insert(rule, mainBranch, file);
+    IssueDto orphanIssue = db.issues().insert(rule, mainBranch, file, issue -> issue.setComponentUuid("nonExisting"));
     IssueChangeDto orphanIssueChange = db.issues().insertChange(orphanIssue);
     db.issues().insertNewCodeReferenceIssue(orphanIssue);
 
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     db.commit();
 
     assertThat(db.countRowsOfTable("issue_changes")).isZero();
@@ -1195,27 +1193,28 @@ public class PurgeDaoIT {
   @Test
   public void should_delete_old_closed_issues() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
 
-    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
+    ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch, dir));
 
-    IssueDto oldClosed = db.issues().insert(rule, project, file, issue -> {
+    IssueDto oldClosed = db.issues().insert(rule, mainBranch, file, issue -> {
       issue.setStatus("CLOSED");
       issue.setIssueCloseDate(DateUtils.addDays(new Date(), -31));
     });
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(oldClosed));
 
-    IssueDto notOldEnoughClosed = db.issues().insert(rule, project, file, issue -> {
+    IssueDto notOldEnoughClosed = db.issues().insert(rule, mainBranch, file, issue -> {
       issue.setStatus("CLOSED");
       issue.setIssueCloseDate(new Date());
     });
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notOldEnoughClosed));
-    IssueDto notClosed = db.issues().insert(rule, project, file);
+    IssueDto notClosed = db.issues().insert(rule, mainBranch, file);
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notClosed));
 
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     // old closed got deleted
@@ -1238,19 +1237,20 @@ public class PurgeDaoIT {
 
   @Test
   public void delete_disabled_components_without_issues() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setEnabled(true)).getMainBranchComponent();
-    ComponentDto enabledFileWithIssues = db.components().insertComponent(newFileDto(project).setEnabled(true));
-    ComponentDto disabledFileWithIssues = db.components().insertComponent(newFileDto(project).setEnabled(false));
-    ComponentDto enabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(true));
-    ComponentDto disabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(false));
+    ProjectData projectData = db.components().insertPublicProject(p -> p.setEnabled(true));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto enabledFileWithIssues = db.components().insertComponent(newFileDto(mainBranch).setEnabled(true));
+    ComponentDto disabledFileWithIssues = db.components().insertComponent(newFileDto(mainBranch).setEnabled(false));
+    ComponentDto enabledFileWithoutIssues = db.components().insertComponent(newFileDto(mainBranch).setEnabled(true));
+    ComponentDto disabledFileWithoutIssues = db.components().insertComponent(newFileDto(mainBranch).setEnabled(false));
 
     RuleDto rule = db.rules().insert();
-    IssueDto closed1 = db.issues().insert(rule, project, enabledFileWithIssues, issue -> {
+    IssueDto closed1 = db.issues().insert(rule, mainBranch, enabledFileWithIssues, issue -> {
       issue.setStatus("CLOSED");
       issue.setResolution(Issue.RESOLUTION_FIXED);
       issue.setIssueCloseDate(new Date());
     });
-    IssueDto closed2 = db.issues().insert(rule, project, disabledFileWithIssues, issue -> {
+    IssueDto closed2 = db.issues().insert(rule, mainBranch, disabledFileWithIssues, issue -> {
       issue.setStatus("CLOSED");
       issue.setResolution(Issue.RESOLUTION_FIXED);
       issue.setIssueCloseDate(new Date());
@@ -1259,23 +1259,25 @@ public class PurgeDaoIT {
 
     Set<String> disabledComponentUuids = ImmutableSet.of(disabledFileWithIssues.uuid(), disabledFileWithoutIssues.uuid());
     underTest.purge(dbSession,
-      newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid(), disabledComponentUuids),
+      newConfigurationWith30Days(System2.INSTANCE, mainBranch.uuid(), projectData.projectUuid(), disabledComponentUuids),
       purgeListener, new PurgeProfiler());
 
-    assertThat(db.getDbClient().componentDao().selectByBranchUuid(project.uuid(), dbSession))
+    assertThat(db.getDbClient().componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession))
       .extracting("uuid")
-      .containsOnly(project.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
+      .containsOnly(mainBranch.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
         enabledFileWithoutIssues.uuid());
-    verify(purgeListener).onComponentsDisabling(project.uuid(), disabledComponentUuids);
+    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), disabledComponentUuids);
   }
 
   @Test
   public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
     LocalDateTime now = LocalDateTime.now();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    Consumer<CeQueueDto> belongsToProject2 = t -> t.setEntityUuid(project2.uuid()).setComponentUuid(project2.uuid());
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(projectData1.projectUuid()).setComponentUuid(mainBranch1.uuid());
+    ProjectData projectData2 = db.components().insertPublicProject();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+    Consumer<CeQueueDto> belongsToProject2 = t -> t.setEntityUuid(projectData2.projectUuid()).setComponentUuid(project2.uuid());
 
     insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
@@ -1287,7 +1289,7 @@ public class PurgeDaoIT {
     insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToProject2);
 
     when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
-    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, project1.uuid(), project1.uuid()),
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, mainBranch1.uuid(), projectData1.projectUuid()),
       PurgeListener.EMPTY, new PurgeProfiler());
 
     assertThat(selectActivity("VERY_OLD_1")).isEmpty();
@@ -1330,22 +1332,23 @@ public class PurgeDaoIT {
   @Test
   public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
     LocalDateTime now = LocalDateTime.now();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setExcludeFromPurge(true));
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
-    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch1 = projectData.getMainBranchComponent();
+    ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1, b -> b.setExcludeFromPurge(true));
+    Consumer<CeQueueDto> belongsToMainBranch1 = t -> t.setEntityUuid(projectData.projectUuid()).setComponentUuid(mainBranch1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(projectData.projectUuid()).setComponentUuid(branch1.uuid());
 
-    insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
-    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
-    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_1", now.minusDays(180), belongsToProject1);
-    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToMainBranch1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToMainBranch1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_1", now.minusDays(180), belongsToMainBranch1);
+    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1), belongsToMainBranch1);
     insertCeActivityAndChildDataWithDate("VERY_OLD_2", now.minusDays(180).minusMonths(10), belongsToBranch1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_2", now.minusDays(180).minusDays(1), belongsToBranch1);
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_2", now.minusDays(180), belongsToBranch1);
     insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToBranch1);
 
     when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
-    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, project1.uuid(), project1.uuid()),
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, mainBranch1.uuid(), projectData.projectUuid()),
       PurgeListener.EMPTY, new PurgeProfiler());
 
     assertThat(selectActivity("VERY_OLD_1")).isEmpty();
@@ -1388,10 +1391,11 @@ public class PurgeDaoIT {
   @Test
   public void delete_ce_analysis_of_branch_older_than_180_and_scanner_context_older_than_40_days_when_purging_branch() {
     LocalDateTime now = LocalDateTime.now();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch1 = db.components().insertProjectBranch(project1);
-    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(project1.uuid());
-    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(mainBranch1.uuid()).setComponentUuid(mainBranch1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setEntityUuid(mainBranch1.uuid()).setComponentUuid(branch1.uuid());
 
     insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
@@ -1403,7 +1407,7 @@ public class PurgeDaoIT {
     insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToBranch1);
 
     when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
-    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), branch1.uuid()),
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), projectData1.projectUuid()),
       PurgeListener.EMPTY, new PurgeProfiler());
 
     assertThat(selectActivity("VERY_OLD_1")).isNotEmpty();
@@ -1856,21 +1860,21 @@ public class PurgeDaoIT {
     dbSession.commit();
   }
 
-  private CeQueueDto createCeQueue(ComponentDto component, String mainBranch, Status status) {
+  private CeQueueDto createCeQueue(ComponentDto component, String entityUuid, Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setEntityUuid(mainBranch);
+    queueDto.setEntityUuid(entityUuid);
     queueDto.setSubmitterUuid("submitter uuid");
     queueDto.setCreatedAt(1_300_000_000_000L);
     queueDto.setStatus(status);
     return queueDto;
   }
 
-  private CeActivityDto insertCeActivity(ComponentDto component, String mainBranch) {
+  private CeActivityDto insertCeActivity(ComponentDto component, String entityUuid) {
     Status unusedStatus = Status.values()[RandomUtils.nextInt(Status.values().length)];
-    CeQueueDto queueDto = createCeQueue(component, mainBranch, unusedStatus);
+    CeQueueDto queueDto = createCeQueue(component, entityUuid, unusedStatus);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
@@ -1956,10 +1960,6 @@ public class PurgeDaoIT {
     return db.select("select " + columnName + " as \"UUID\" from " + tableName)
       .stream()
       .map(row -> (String) row.get("UUID"));
-  }
-
-  private static PurgeConfiguration newConfigurationWith30Days(String rootUuid) {
-    return new PurgeConfiguration(rootUuid, rootUuid, 30, Optional.of(30), System2.INSTANCE, emptySet());
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid) {

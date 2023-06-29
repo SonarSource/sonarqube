@@ -126,21 +126,6 @@ public class DeleteActionIT {
   }
 
   @Test
-  public void fail_if_branch_is_main() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    db.executeUpdateSql("UPDATE project_branches set KEE = 'main'");
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    // not found because the DB keys don't contain the name
-    assertThatThrownBy(() -> tester.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("branch", "main")
-      .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Only non-main branches can be deleted");
-  }
-
-  @Test
   public void definition() {
     WebService.Action definition = tester.getDef();
     assertThat(definition.key()).isEqualTo("delete");

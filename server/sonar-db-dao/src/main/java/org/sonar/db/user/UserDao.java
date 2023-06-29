@@ -37,6 +37,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserNewValue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Locale.ENGLISH;
@@ -166,8 +167,8 @@ public class UserDao implements Dao {
     auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));
   }
 
-  public void cleanHomepage(DbSession dbSession, ProjectDto project) {
-    mapper(dbSession).clearHomepages("PROJECT", project.getUuid(), system2.now());
+  public void cleanHomepage(DbSession dbSession, EntityDto entityDto) {
+    mapper(dbSession).clearHomepages("PROJECT", entityDto.getUuid(), system2.now());
   }
 
   public void cleanHomepage(DbSession dbSession, ComponentDto component) {
