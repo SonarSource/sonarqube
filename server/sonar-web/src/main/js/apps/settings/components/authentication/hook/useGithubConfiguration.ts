@@ -62,10 +62,11 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const { data: githubProvisioningStatus } = useGithubStatusQuery();
   const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
   const [newGithubProvisioningStatus, setNewGithubProvisioningStatus] = useState<boolean>();
+  const hasGithubProvisioningTypeChange =
+    newGithubProvisioningStatus !== undefined &&
+    newGithubProvisioningStatus !== githubProvisioningStatus;
   const hasGithubProvisioningConfigChange =
-    some(GITHUB_JIT_FIELDS, isValueChange) ||
-    (newGithubProvisioningStatus !== undefined &&
-      newGithubProvisioningStatus !== githubProvisioningStatus);
+    some(GITHUB_JIT_FIELDS, isValueChange) || hasGithubProvisioningTypeChange;
 
   const resetJitSetting = () => {
     GITHUB_JIT_FIELDS.forEach((s) => setNewValue(s));
@@ -80,7 +81,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const clientIdIsNotSet = values[GITHUB_CLIENT_ID_FIELD]?.isNotSet;
 
   const changeProvisioning = async () => {
-    if (newGithubProvisioningStatus !== githubProvisioningStatus) {
+    if (hasGithubProvisioningTypeChange) {
       await toggleGithubProvisioning.mutateAsync(!!newGithubProvisioningStatus);
     }
     if (!newGithubProvisioningStatus || !githubProvisioningStatus) {
@@ -109,6 +110,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
     githubProvisioningStatus,
     newGithubProvisioningStatus,
     setNewGithubProvisioningStatus,
+    hasGithubProvisioningTypeChange,
     hasGithubProvisioningConfigChange,
     changeProvisioning,
     saveGroup,

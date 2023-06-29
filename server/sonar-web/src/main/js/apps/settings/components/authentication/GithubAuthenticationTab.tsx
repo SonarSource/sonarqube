@@ -68,6 +68,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     enabled,
     newGithubProvisioningStatus,
     setNewGithubProvisioningStatus,
+    hasGithubProvisioningTypeChange,
     hasGithubProvisioningConfigChange,
     resetJitSetting,
     saveGroup,
@@ -165,7 +166,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                if (newGithubProvisioningStatus !== githubProvisioningStatus) {
+                if (hasGithubProvisioningTypeChange) {
                   setShowConfirmProvisioningModal(true);
                 } else {
                   await saveGroup();

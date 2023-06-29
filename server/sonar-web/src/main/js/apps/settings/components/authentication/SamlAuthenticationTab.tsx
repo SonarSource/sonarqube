@@ -68,6 +68,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     values,
     setNewValue,
     canBeSave,
+    hasScimTypeChange,
     hasScimConfigChange,
     newScimStatus,
     setNewScimStatus,
@@ -174,7 +175,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (newScimStatus !== scimStatus) {
+                if (hasScimTypeChange) {
                   setShowConfirmProvisioningModal(true);
                 } else {
                   handleSaveGroup();

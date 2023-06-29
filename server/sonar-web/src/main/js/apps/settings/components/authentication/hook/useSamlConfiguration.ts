@@ -56,8 +56,8 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
     setNewValue(SAML_GROUP_NAME, value);
   };
 
-  const hasScimConfigChange =
-    isValueChange(SAML_GROUP_NAME) || (newScimStatus !== undefined && newScimStatus !== scimStatus);
+  const hasScimTypeChange = newScimStatus !== undefined && newScimStatus !== scimStatus;
+  const hasScimConfigChange = isValueChange(SAML_GROUP_NAME) || hasScimTypeChange;
 
   return {
     ...config,
@@ -69,6 +69,7 @@ export default function useSamlConfiguration(definitions: ExtendedSettingDefinit
     groupValue,
     values,
     setNewValue,
+    hasScimTypeChange,
     hasScimConfigChange,
     newScimStatus,
     setNewScimStatus,
