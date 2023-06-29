@@ -279,18 +279,17 @@ public class UserDbTester {
     return dto;
   }
 
-  public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ProjectDto project) {
-    checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
+  public GroupPermissionDto insertEntityPermissionOnAnyone(String permission, EntityDto entity) {
+    checkArgument(!entity.isPrivate(), "No permission to group AnyOne can be granted on a private entity");
     checkArgument(!PUBLIC_PERMISSIONS.contains(permission),
-      "permission %s can't be granted on a public project", permission);
-    // I don't know if this check is worth it
+      "permission %s can't be granted on a public entity", permission);
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(permission)
-      .setEntityUuid(project.getUuid())
-      .setEntityName(project.getName());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
+      .setEntityUuid(entity.getUuid())
+      .setEntityName(entity.getName());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, entity, null);
     db.commit();
     return dto;
   }

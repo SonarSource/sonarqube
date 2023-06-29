@@ -44,7 +44,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 public class ScimGroupDaoTest {
   private static final String DISPLAY_NAME_FILTER = "displayName eq \"group2\"";
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   private final ScimGroupDao scimGroupDao = db.getDbClient().scimGroupDao();
 
   @Test

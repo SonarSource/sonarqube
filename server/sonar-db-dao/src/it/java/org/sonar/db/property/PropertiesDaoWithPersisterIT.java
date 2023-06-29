@@ -64,7 +64,7 @@ public class PropertiesDaoWithPersisterIT {
   private final ArgumentCaptor<PropertyNewValue> newValueCaptor = ArgumentCaptor.forClass(PropertyNewValue.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  public DbTester db = DbTester.create(system2, auditPersister, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();

@@ -42,7 +42,7 @@ public class InternalComponentPropertiesDaoIT {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2, true);
   private DbSession dbSession = dbTester.getSession();
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private InternalComponentPropertiesDao underTest = new InternalComponentPropertiesDao(system2, uuidFactory);

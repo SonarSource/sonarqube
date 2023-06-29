@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueChangeMapperIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private IssueChangeMapper underTest = dbTester.getSession().getMapper(IssueChangeMapper.class);
 

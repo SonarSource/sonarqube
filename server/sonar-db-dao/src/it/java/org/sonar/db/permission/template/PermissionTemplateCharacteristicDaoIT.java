@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PermissionTemplateCharacteristicDaoIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   private final DbSession dbSession = db.getSession();
   private final PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao(new NoOpAuditPersister());
 

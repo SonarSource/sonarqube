@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PurgeMapperIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbSession dbSession;
   private PurgeMapper purgeMapper;

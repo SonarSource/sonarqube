@@ -38,7 +38,7 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserTokenDaoIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbSession dbSession = db.getSession();
 

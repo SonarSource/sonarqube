@@ -674,24 +674,6 @@
       AND i.status != 'CLOSED'
   </select>
 
-  <select id="selectPrivateProjectsWithNcloc" resultType="org.sonar.db.component.ProjectNclocDistributionDto">
-    select p.kee as kee, p.name as name, max(lm.value) as ncloc
-    from live_measures lm
-    inner join metrics m on m.uuid = lm.metric_uuid
-    inner join project_branches b on b.uuid = lm.component_uuid
-    inner join components p on b.project_uuid = p.uuid
-    where
-      m.name = 'ncloc'
-    and b.branch_type = 'BRANCH'
-    and p.enabled = ${_true}
-    and p.private = ${_true}
-    and p.scope = 'PRJ'
-    and p.qualifier = 'TRK'
-    and p.copy_component_uuid is null
-    group by p.kee, p.name
-    order by ncloc desc
-  </select>
-
   <sql id="checkIfAnyOfComponentsWithQualifiersSql">
     select
     case when exists

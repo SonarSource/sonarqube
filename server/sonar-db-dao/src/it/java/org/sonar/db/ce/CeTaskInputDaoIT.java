@@ -43,7 +43,7 @@ public class CeTaskInputDaoIT {
   private static final String TABLE_NAME = "ce_task_input";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   private System2 system = mock(System2.class);
   private CeTaskInputDao underTest = new CeTaskInputDao(system);
 

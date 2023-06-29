@@ -44,7 +44,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 public class GroupWithPermissionTemplateDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbSession session = db.getSession();
   private PermissionTemplateDbTester permissionTemplateDbTester = db.permissionTemplates();

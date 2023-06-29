@@ -41,7 +41,7 @@ public class EventComponentChangeDaoIT {
   private static Random random = new Random();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private DbSession dbSession = dbTester.getSession();
 

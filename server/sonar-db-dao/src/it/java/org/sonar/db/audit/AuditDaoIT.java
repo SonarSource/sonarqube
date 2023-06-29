@@ -36,7 +36,7 @@ public class AuditDaoIT {
   private static final long NOW = 1000000L;
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, true);
   private final DbSession dbSession = db.getSession();
 
   private final AuditDao testAuditDao = new AuditDao(system2, UuidFactoryImpl.INSTANCE);

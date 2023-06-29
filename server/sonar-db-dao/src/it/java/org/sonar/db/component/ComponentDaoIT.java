@@ -108,7 +108,7 @@ public class ComponentDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
@@ -991,9 +991,9 @@ public class ComponentDaoIT {
     Date secondDate = new Date(system2.now());
     Date thirdDate = new Date(system2.now());
 
-    ComponentDto project3 = db.components().insertPrivateProject("project3", componentDto -> componentDto.setCreatedAt(thirdDate)).getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject("project1", componentDto -> componentDto.setCreatedAt(firstDate)).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject("project2", componentDto -> componentDto.setCreatedAt(secondDate)).getMainBranchComponent();
+    ComponentDto project3 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project3").setCreatedAt(thirdDate)).getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project1").setCreatedAt(firstDate)).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project2").setCreatedAt(secondDate)).getMainBranchComponent();
 
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1065,10 +1065,10 @@ public class ComponentDaoIT {
 
   @Test
   public void update() {
-    db.components().insertPrivateProject("U1").getMainBranchComponent();
+    ComponentDto mainBranch = db.components().insertPrivateProject("U1").getMainBranchComponent();
 
     underTest.update(dbSession, new ComponentUpdateDto()
-      .setUuid("U1")
+      .setUuid(mainBranch.uuid())
       .setBKey("key")
       .setBCopyComponentUuid("copy")
       .setBChanged(true)
@@ -1082,7 +1082,7 @@ public class ComponentDaoIT {
       .setBQualifier("qualifier"), "qualifier");
     dbSession.commit();
 
-    Map<String, Object> row = selectBColumnsForUuid("U1");
+    Map<String, Object> row = selectBColumnsForUuid(mainBranch.uuid());
     assertThat(row.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row)
       .containsEntry("bKey", "key")
@@ -1288,13 +1288,15 @@ public class ComponentDaoIT {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     // project with only a non-main and old analyzed branch
-    ComponentDto oldProject = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BRANCH));
+    ProjectData oldProjectData = db.components().insertPublicProject();
+    ComponentDto oldProject = oldProjectData.getMainBranchComponent();
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
 
     // project with only a old main branch and a recent non-main branch
-    ComponentDto recentProject = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BRANCH));
+    ProjectData recentProjectData = db.components().insertPublicProject();
+    ComponentDto recentProject = recentProjectData.getMainBranchComponent();
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
@@ -1325,13 +1327,15 @@ public class ComponentDaoIT {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     // project with only a non-main and old analyzed branch
-    ComponentDto oldProject = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BRANCH));
+    ProjectData oldProjectData = db.components().insertPublicProject();
+    ComponentDto oldProject = oldProjectData.getMainBranchComponent();
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
 
     // project with only a old main branch and a recent non-main branch
-    ComponentDto recentProject = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BRANCH));
+    ProjectData recentProjectData = db.components().insertPublicProject();
+    ComponentDto recentProject = recentProjectData.getMainBranchComponent();
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
@@ -1671,29 +1675,6 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectPrivateProjectsWithNcloc() {
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey("ncloc"));
-
-    // project1, not the biggest branch - not returned
-    final ComponentDto project1 = db.components().insertPrivateProject(b -> b.setName("foo")).getMainBranchComponent();
-    insertMeasure(20d, project1, metric);
-
-    // branch of project1 - returned
-    insertMeasure(30d, db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH)), metric);
-
-    // project2 - returned
-    insertMeasure(10d, db.components().insertPrivateProject(b -> b.setName("bar")).getMainBranchComponent(), metric);
-
-    // public project - not returned
-    insertMeasure(11d, db.components().insertPublicProject(b -> b.setName("other")).getMainBranchComponent(), metric);
-
-    List<ProjectNclocDistributionDto> result = underTest.selectPrivateProjectsWithNcloc(db.getSession());
-
-    assertThat(result).extracting(ProjectNclocDistributionDto::getName).containsExactly("foo", "bar");
-    assertThat(result).extracting(ProjectNclocDistributionDto::getNcloc).containsExactly(30L, 10L);
-  }
-
-  @Test
   public void existAnyOfComponentsWithQualifiers() {
     ComponentDto projectDto = db.components().insertComponent(newPrivateProjectDto());
 
@@ -1782,8 +1763,9 @@ public class ComponentDaoIT {
 
   @Test
   public void insert_branch_auditPersisterIsNotCalled() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    BranchDto branch = newBranchDto(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    BranchDto branch = newBranchDto(projectData.projectUuid(), BRANCH);
     ComponentDto branchComponent = newBranchComponent(project, branch);
 
     underTestWithAuditPersister.insert(dbSession, branchComponent, false);

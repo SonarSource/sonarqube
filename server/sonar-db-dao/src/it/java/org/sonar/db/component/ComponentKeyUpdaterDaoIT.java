@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 public class ComponentKeyUpdaterDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -57,9 +58,9 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_changes_the_key_of_tree_of_components() {
-    populateSomeData();
+    ProjectData projectData = populateSomeData();
 
-    underTest.updateKey(dbSession, "A", "org.struts:struts", "struts:core");
+    underTest.updateKey(dbSession, projectData.getProjectDto().getUuid(), "org.struts:struts", "struts:core");
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
@@ -73,18 +74,19 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_disabled_components() {
-    ComponentDto project = db.components().insertPrivateProject("A", p -> p.setKey("my_project")).getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("my_project"));
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(
-      newDirectory(project, "B")
+      newDirectory(mainBranch, "B")
         .setKey("my_project:directory"));
-    db.components().insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
-    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
-    db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
+    db.components().insertComponent(newFileDto(mainBranch, directory).setKey("my_project:directory/file"));
+    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(mainBranch, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
+    db.components().insertComponent(newFileDto(mainBranch, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
-    underTest.updateKey(dbSession, "A", "my_project", "your_project");
+    underTest.updateKey(dbSession, projectData.projectUuid(), "my_project", "your_project");
     dbSession.commit();
 
-    List<ComponentDto> result = dbClient.componentDao().selectByBranchUuid("A", dbSession);
+    List<ComponentDto> result = dbClient.componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession);
     assertThat(result)
       .hasSize(5)
       .extracting(ComponentDto::getKey)
@@ -93,24 +95,25 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_branches_too() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    db.components().insertComponent(newFileDto(branch, project.uuid()));
-    db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
+    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
+    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     int prComponentCount = 3;
 
-    String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    String oldProjectKey = mainBranch.getKey();
+    assertThat(dbClient.componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession)).hasSize(1);
     assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    underTest.updateKey(dbSession, project.uuid(), project.getKey(), newProjectKey);
+    underTest.updateKey(dbSession, projectData.projectUuid(), projectData.projectKey(), newProjectKey);
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
     assertThat(dbClient.componentDao().selectByKeyAndBranch(dbSession, newProjectKey, branchName)).isPresent();
-    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession)).hasSize(1);
     assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
     db.select(dbSession, "select kee from components")
@@ -119,25 +122,26 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_updates_pull_requests_too() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String pullRequestKey1 = randomAlphanumeric(100);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
+    ComponentDto pullRequest = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));
     int prComponentCount = 3;
 
-    String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    String oldProjectKey = mainBranch.getKey();
+    assertThat(dbClient.componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession)).hasSize(1);
     assertThat(dbClient.componentDao().selectByBranchUuid(pullRequest.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    underTest.updateKey(dbSession, project.uuid(), project.getKey(), newProjectKey);
+    underTest.updateKey(dbSession, projectData.projectUuid(), projectData.projectKey(), newProjectKey);
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
     assertThat(dbClient.componentDao().selectByKeyAndPullRequest(dbSession, newProjectKey, pullRequestKey1)).isPresent();
 
-    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession)).hasSize(1);
     assertThat(dbClient.componentDao().selectByBranchUuid(pullRequest.uuid(), dbSession)).hasSize(prComponentCount);
 
     db.select(dbSession, "select kee from components")
@@ -155,11 +159,13 @@ public class ComponentKeyUpdaterDaoIT {
 
   @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
-    ComponentDto project = db.components().insertPrivateProject("project-uuid", p -> p.setKey("old-project-key")).getMainBranchComponent();
-    db.components().insertComponent(newFileDto(project).setKey("old-project-key:file"));
+    ProjectData projectData = db.components().insertPrivateProject("project-uuid", p -> p.setKey("old-project-key"));
+    ProjectDto project = projectData.getProjectDto();
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
-
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), project.getKey(), newLongProjectKey))
+    String projectUuid = project.getUuid();
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectUuid, projectKey, newLongProjectKey))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
   }
@@ -179,10 +185,12 @@ public class ComponentKeyUpdaterDaoIT {
     verify(auditPersister, times(1)).componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
   }
 
-  private void populateSomeData() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A")).getMainBranchComponent();
-    ComponentDto directory1 = db.components().insertComponent(newDirectory(project1, "/src/org/struts").setUuid("B"));
-    db.components().insertComponent(ComponentTesting.newFileDto(project1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
+  private ProjectData populateSomeData() {
+    ProjectData projectData = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A"));
+    ComponentDto mainBranch1 = projectData.getMainBranchComponent();
+    ComponentDto directory1 = db.components().insertComponent(newDirectory(mainBranch1, "/src/org/struts").setUuid("B"));
+    db.components().insertComponent(ComponentTesting.newFileDto(mainBranch1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
     ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D")).getMainBranchComponent();
+    return projectData;
   }
 }

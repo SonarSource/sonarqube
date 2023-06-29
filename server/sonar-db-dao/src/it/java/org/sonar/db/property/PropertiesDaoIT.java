@@ -43,6 +43,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -75,7 +76,7 @@ public class PropertiesDaoIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  public DbTester db = DbTester.create(system2, auditPersister, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
@@ -90,10 +91,10 @@ public class PropertiesDaoIT {
   public void hasNotificationSubscribers() {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
-    String projectUuid = randomAlphabetic(8);
+    String projectUuid = db.components().insertPrivateProject().getProjectDto().getUuid();
     String projectKey = randomAlphabetic(4);
     String projectName = randomAlphabetic(4);
-    db.components().insertPrivateProject(projectUuid).getMainBranchComponent();
+
 
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null,
@@ -161,7 +162,7 @@ public class PropertiesDaoIT {
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
-    ComponentDto project = insertPrivateProject("PROJECT_A");
+    ProjectDto project = insertPrivateProject("PROJECT_A");
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
@@ -172,14 +173,14 @@ public class PropertiesDaoIT {
     // user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user3.getUuid(), user3.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user3.getUuid(), user3.getLogin(),
+      project.getKey(), project.getName());
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.uuid(), user4.getUuid(), user4.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.getUuid(), user4.getUuid(), user4.getLogin(),
+      project.getKey(), project.getName());
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null))
       .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user2", true, emailOf("user2")));
@@ -198,7 +199,7 @@ public class PropertiesDaoIT {
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
-    ComponentDto project = insertPrivateProject("PROJECT_A");
+    ProjectDto project = insertPrivateProject("PROJECT_A");
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
@@ -209,14 +210,14 @@ public class PropertiesDaoIT {
     // user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user3.getUuid(), user3.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user3.getUuid(), user3.getLogin(),
+      project.getKey(), project.getName());
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.uuid(), user4.getUuid(), user4.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.getUuid(), user4.getUuid(), user4.getLogin(),
+      project.getKey(), project.getName());
     Set<String> allLogins = of("user1", "user2", "user3", "user4");
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
@@ -274,7 +275,7 @@ public class PropertiesDaoIT {
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     String projectKey = randomAlphabetic(3);
     String otherProjectKey = randomAlphabetic(4);
-    ComponentDto project = insertPrivateProject(projectKey);
+    ProjectDto project = insertPrivateProject(projectKey);
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
@@ -285,14 +286,14 @@ public class PropertiesDaoIT {
     // user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user3.getUuid(), user3.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user3.getUuid(), user3.getLogin(),
+      project.getKey(), project.getName());
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.uuid(), user4.getUuid(), user4.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.getUuid(), user4.getUuid(), user4.getLogin(),
+      project.getKey(), project.getName());
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey))
       .containsOnly(
@@ -318,7 +319,7 @@ public class PropertiesDaoIT {
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     String projectKey = randomAlphabetic(3);
     String otherProjectKey = randomAlphabetic(4);
-    ComponentDto project = insertPrivateProject(projectKey);
+    ProjectDto project = insertPrivateProject(projectKey);
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
@@ -329,14 +330,14 @@ public class PropertiesDaoIT {
     // user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user3.getUuid(), user3.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user3.getUuid(), user3.getLogin(),
+      project.getKey(), project.getName());
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.uuid(), user4.getUuid(), user4.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", project.getUuid(), user4.getUuid(), user4.getLogin(),
+      project.getKey(), project.getName());
     Set<String> allLogins = of("user1", "user2", "user3", "user4");
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
@@ -372,18 +373,18 @@ public class PropertiesDaoIT {
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(noEmail("user4"));
     String projectKey = randomAlphabetic(3);
-    ComponentDto project = insertPrivateProject(projectKey);
+    ProjectDto project = insertPrivateProject(projectKey);
     String dispatcherKey = randomAlphabetic(4);
     String channelKey = randomAlphabetic(5);
     // user1 and user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user1.getUuid(), user1.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user1.getUuid(), user1.getLogin(),
+      project.getKey(), project.getName());
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 and user4 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user3.getUuid(), user3.getLogin(),
       null, null);
@@ -408,18 +409,18 @@ public class PropertiesDaoIT {
     UserDto user4 = db.users().insertUser(noEmail("user4"));
     Set<String> allLogins = of("user1", "user2", "user3");
     String projectKey = randomAlphabetic(3);
-    ComponentDto project = insertPrivateProject(projectKey);
+    ProjectDto project = insertPrivateProject(projectKey);
     String dispatcherKey = randomAlphabetic(4);
     String channelKey = randomAlphabetic(5);
     // user1 and user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user1.getUuid(), user1.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user1.getUuid(), user1.getLogin(),
+      project.getKey(), project.getName());
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user2.getUuid(), user2.getLogin(),
       project.getKey(), null);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.uuid(), user2.getUuid(), user2.getLogin(),
-      project.getKey(), project.name());
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", project.getUuid(), user2.getUuid(), user2.getLogin(),
+      project.getKey(), project.getName());
     // user3 and user4 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user3.getUuid(), user3.getLogin(),
       project.getKey(), null);
@@ -501,15 +502,15 @@ public class PropertiesDaoIT {
   @Test
   @UseDataProvider("allValuesForSelect")
   public void selectProjectProperties_supports_all_values(String dbValue, String expected) {
-    ComponentDto projectDto = insertPrivateProject("A");
-    insertProperty("project.one", dbValue, projectDto.uuid(), null, null, projectDto.getKey(), projectDto.name());
+    ProjectDto projectDto = insertPrivateProject("A");
+    insertProperty("project.one", dbValue, projectDto.getUuid(), null, null, projectDto.getKey(), projectDto.getName());
 
-    List<PropertyDto> dtos = underTest.selectEntityProperties(db.getSession(), projectDto.uuid());
+    List<PropertyDto> dtos = underTest.selectEntityProperties(db.getSession(), projectDto.getUuid());
     assertThat(dtos).hasSize(1);
 
     assertThat(dtos.iterator().next())
       .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid, PropertyDto::getValue)
-      .containsExactly("project.one", projectDto.uuid(), expected);
+      .containsExactly("project.one", projectDto.getUuid(), expected);
   }
 
   @DataProvider
@@ -1035,8 +1036,8 @@ public class PropertiesDaoIT {
       " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")).get("uuid");
   }
 
-  private ComponentDto insertPrivateProject(String projectKey) {
-    return db.components().insertPrivateProject(t -> t.setKey(projectKey)).getMainBranchComponent();
+  private ProjectDto insertPrivateProject(String projectKey) {
+    return db.components().insertPrivateProject(t -> t.setKey(projectKey)).getProjectDto();
   }
 
   private static Consumer<UserDto> withEmail(String login) {

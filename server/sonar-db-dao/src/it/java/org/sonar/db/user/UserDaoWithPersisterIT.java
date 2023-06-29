@@ -50,7 +50,7 @@ public class UserDaoWithPersisterIT {
   private final ArgumentCaptor<UserNewValue> newValueCaptor = ArgumentCaptor.forClass(UserNewValue.class);
 
   @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister);
+  public final DbTester db = DbTester.create(system2, auditPersister, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final UserDao underTest = db.getDbClient().userDao();

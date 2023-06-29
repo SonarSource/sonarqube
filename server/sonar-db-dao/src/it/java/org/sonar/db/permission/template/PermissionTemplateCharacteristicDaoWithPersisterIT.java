@@ -38,7 +38,7 @@ public class PermissionTemplateCharacteristicDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister, true);
   private final DbSession session = db.getSession();
   private final PermissionTemplateCharacteristicDao underTest = db.getDbClient().permissionTemplateCharacteristicDao();
   private final ArgumentCaptor<PermissionTemplateNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionTemplateNewValue.class);

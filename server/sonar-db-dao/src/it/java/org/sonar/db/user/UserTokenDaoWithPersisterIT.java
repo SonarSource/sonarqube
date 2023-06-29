@@ -44,7 +44,7 @@ public class UserTokenDaoWithPersisterIT {
   private final ArgumentCaptor<UserTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(UserTokenNewValue.class);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister, true);
 
   private final DbSession dbSession = db.getSession();
   private final DbClient dbClient = db.getDbClient();

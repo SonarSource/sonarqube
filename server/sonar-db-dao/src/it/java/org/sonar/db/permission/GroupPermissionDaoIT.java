@@ -100,7 +100,7 @@ public class GroupPermissionDaoIT {
     db.users().insertEntityPermissionOnGroup(group2, "p2", project2);
     db.users().insertEntityPermissionOnGroup(group3, "p2", project2);
     // anyone group
-    db.users().insertProjectPermissionOnAnyone("p2", project2);
+    db.users().insertEntityPermissionOnAnyone("p2", project2);
     db.users().insertEntityPermissionOnGroup(group1, "p3", project2);
     db.users().insertEntityPermissionOnGroup(group1, "p3", project3);
 
@@ -215,10 +215,10 @@ public class GroupPermissionDaoIT {
 
     db.users().insertEntityPermissionOnGroup(group1, "p1", project);
     db.users().insertEntityPermissionOnGroup(group1, "p2", project);
-    db.users().insertProjectPermissionOnAnyone("p3", project);
+    db.users().insertEntityPermissionOnAnyone("p3", project);
 
     db.users().insertEntityPermissionOnGroup(group1, "p4", anotherProject);
-    db.users().insertProjectPermissionOnAnyone("p4", anotherProject);
+    db.users().insertEntityPermissionOnAnyone("p4", anotherProject);
     db.users().insertEntityPermissionOnGroup(group3, "p1", anotherProject);
     db.users().insertPermissionOnGroup(group2, "p5");
 
@@ -338,7 +338,7 @@ public class GroupPermissionDaoIT {
 
     // Anyone group
     db.users().insertPermissionOnAnyone("p3");
-    db.users().insertProjectPermissionOnAnyone("p4", project);
+    db.users().insertEntityPermissionOnAnyone("p4", project);
 
     assertThat(underTest.selectByGroupUuids(dbSession, singletonList(group1.getUuid()), project.getUuid())).isEmpty();
 
@@ -450,9 +450,9 @@ public class GroupPermissionDaoIT {
     ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
     ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
     ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
-    db.users().insertProjectPermissionOnAnyone("perm1", project1);
-    db.users().insertProjectPermissionOnAnyone("perm1", project2);
-    db.users().insertProjectPermissionOnAnyone("perm1", project3);
+    db.users().insertEntityPermissionOnAnyone("perm1", project1);
+    db.users().insertEntityPermissionOnAnyone("perm1", project2);
+    db.users().insertEntityPermissionOnAnyone("perm1", project3);
     assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3))
       .containsExactly(project1.getKey(), project2.getKey(), project3.getKey());
   }
@@ -461,7 +461,7 @@ public class GroupPermissionDaoIT {
   public void selectProjectKeysWithAnyonePermissions_on_public_project_ordered_by_kee_max_5() {
     IntStream.rangeClosed(1, 9).forEach(i -> {
       ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
-      db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+      db.users().insertEntityPermissionOnAnyone("perm-" + i, project);
     });
 
     assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
@@ -475,7 +475,7 @@ public class GroupPermissionDaoIT {
 
     IntStream.rangeClosed(1, 9).forEach(i -> {
       ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
-      db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+      db.users().insertEntityPermissionOnAnyone("perm-" + i, project);
     });
 
     assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
@@ -635,8 +635,8 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnGroup(group1, "perm1");
     db.users().insertEntityPermissionOnGroup(group1, "perm2", project1);
     db.users().insertEntityPermissionOnGroup(group2, "perm3", project2);
-    db.users().insertProjectPermissionOnAnyone("perm4", project1);
-    db.users().insertProjectPermissionOnAnyone("perm5", project2);
+    db.users().insertEntityPermissionOnAnyone("perm4", project1);
+    db.users().insertEntityPermissionOnAnyone("perm5", project2);
 
     underTest.deleteByEntityUuid(dbSession, project1);
     dbSession.commit();
@@ -652,7 +652,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertEntityPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+    db.users().insertEntityPermissionOnAnyone("perm4", project1);
 
     underTest.delete(dbSession, "perm2", group1.getUuid(), group1.getName(), null);
     dbSession.commit();
@@ -683,7 +683,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertEntityPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+    db.users().insertEntityPermissionOnAnyone("perm4", project1);
 
     underTest.delete(dbSession, "perm1", null, null, null);
     dbSession.commit();
@@ -714,7 +714,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertEntityPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+    db.users().insertEntityPermissionOnAnyone("perm4", project1);
 
     underTest.delete(dbSession, "perm3", group1.getUuid(), group1.getName(), project1);
     dbSession.commit();
@@ -730,7 +730,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertEntityPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+    db.users().insertEntityPermissionOnAnyone("perm4", project1);
 
     underTest.delete(dbSession, "perm4", null, null, project1);
     dbSession.commit();
@@ -743,7 +743,7 @@ public class GroupPermissionDaoIT {
   public void deleteByRootEntityAndGroupUuid_deletes_all_permissions_of_group_AnyOne_of_specified_component_if_groupUuid_is_null() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnAnyone("p1", project);
+    db.users().insertEntityPermissionOnAnyone("p1", project);
     db.users().insertEntityPermissionOnGroup(group, "p2", project);
     db.users().insertPermissionOnAnyone("p3");
     db.users().insertPermissionOnGroup(group, "p4");
@@ -774,7 +774,7 @@ public class GroupPermissionDaoIT {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    db.users().insertProjectPermissionOnAnyone("p1", project);
+    db.users().insertEntityPermissionOnAnyone("p1", project);
     db.users().insertEntityPermissionOnGroup(group1, "p2", project);
     db.users().insertEntityPermissionOnGroup(group2, "p3", project);
     db.users().insertEntityPermissionOnGroup(group2, "p4", project);
@@ -903,7 +903,7 @@ public class GroupPermissionDaoIT {
       db.users().insertPermissionOnAnyone(permission);
       db.users().insertPermissionOnGroup(group, permission);
       db.users().insertEntityPermissionOnGroup(group, permission, project);
-      db.users().insertProjectPermissionOnAnyone(permission, project);
+      db.users().insertEntityPermissionOnAnyone(permission, project);
     });
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
@@ -949,7 +949,7 @@ public class GroupPermissionDaoIT {
     db.users().insertPermissionOnAnyone("p1");
     db.users().insertPermissionOnGroup(group, "p1");
     db.users().insertEntityPermissionOnGroup(group, "p1", project);
-    db.users().insertProjectPermissionOnAnyone("p1", project);
+    db.users().insertEntityPermissionOnAnyone("p1", project);
 
     ProjectDto anotherProject = ComponentTesting.newProjectDto();
 

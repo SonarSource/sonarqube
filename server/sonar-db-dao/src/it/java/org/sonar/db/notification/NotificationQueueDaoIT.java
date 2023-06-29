@@ -41,7 +41,7 @@ public class NotificationQueueDaoIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
 

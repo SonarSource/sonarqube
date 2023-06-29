@@ -39,7 +39,7 @@ public class UserGroupDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister, true);
 
   private final ArgumentCaptor<UserGroupNewValue> newValueCaptor = ArgumentCaptor.forClass(UserGroupNewValue.class);
 

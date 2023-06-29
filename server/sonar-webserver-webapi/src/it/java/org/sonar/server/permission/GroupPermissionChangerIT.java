@@ -261,7 +261,7 @@ public class GroupPermissionChangerIT {
 
   private void applyRemovesPermissionFromGroupAnyOneOnAPublicProject(String permission) {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
-    db.users().insertProjectPermissionOnAnyone(permission, publicProject);
+    db.users().insertEntityPermissionOnAnyone(permission, publicProject);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, permission, publicProject, groupUuid, permissionService));
 

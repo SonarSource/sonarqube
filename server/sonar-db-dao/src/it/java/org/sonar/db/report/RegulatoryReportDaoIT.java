@@ -44,7 +44,7 @@ public class RegulatoryReportDaoIT {
   private static final String BRANCH_NAME = "branch";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final RegulatoryReportDao underTest = db.getDbClient().regulatoryReportDao();
   private ComponentDto project;

@@ -111,7 +111,5 @@ public interface ComponentMapper {
 
   List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(@Param("branchUuids") List<String> branchUuids);
 
-  List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc();
-
   short checkIfAnyOfComponentsWithQualifiers(@Param("componentKeys") Collection<String> componentKeys, @Param("qualifiers") Set<String> qualifiers);
 }

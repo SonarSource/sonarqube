@@ -37,7 +37,7 @@ public class ExternalGroupDaoIT {
   private static final String PROVIDER = "provider1";
 
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
 
   private final DbSession dbSession = db.getSession();
 

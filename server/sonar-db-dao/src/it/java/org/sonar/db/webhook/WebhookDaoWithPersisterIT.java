@@ -44,7 +44,7 @@ public class WebhookDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister, true);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
@@ -158,7 +158,7 @@ public class WebhookDaoWithPersisterIT {
 
   @Test
   public void deleteProjectWebhooksIsPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProject(p ->
+    ProjectDto projectDto = componentDbTester.insertPrivateProject(c->{}, p ->
       p.setUuid("puuid").setName("pname").setKey("pkey")).getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
 

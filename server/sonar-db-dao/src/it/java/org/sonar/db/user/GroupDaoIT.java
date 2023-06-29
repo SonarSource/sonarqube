@@ -46,7 +46,7 @@ public class GroupDaoIT {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   private DbSession dbSession = db.getSession();
   private GroupDao underTest = db.getDbClient().groupDao();
 

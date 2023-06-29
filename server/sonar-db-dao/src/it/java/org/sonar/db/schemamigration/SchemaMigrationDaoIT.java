@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SchemaMigrationDaoIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private DbSession dbSession = dbTester.getSession();
   private SchemaMigrationDao underTest = dbTester.getDbClient().schemaMigrationDao();

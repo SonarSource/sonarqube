@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DatabaseMBeanIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final FakeDatabaseMBean underTest = new FakeDatabaseMBean(dbTester.getDbClient());
 

@@ -46,7 +46,7 @@ import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 public class IssueChangeDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final IssueChangeDao underTest = db.getDbClient().issueChangeDao();
 

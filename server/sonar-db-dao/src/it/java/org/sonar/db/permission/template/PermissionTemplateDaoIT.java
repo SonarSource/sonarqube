@@ -50,7 +50,7 @@ public class PermissionTemplateDaoIT {
   private static final Date NOW = new Date(500_000_000_000L);
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private System2 system2 = mock(System2.class);
   private DbSession dbSession = db.getSession();

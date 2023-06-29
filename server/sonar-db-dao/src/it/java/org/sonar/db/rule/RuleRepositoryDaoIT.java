@@ -41,7 +41,7 @@ public class RuleRepositoryDaoIT {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2, true);
 
   private RuleRepositoryDao underTest = new RuleRepositoryDao(system2);
 

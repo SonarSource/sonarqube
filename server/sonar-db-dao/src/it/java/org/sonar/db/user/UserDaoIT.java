@@ -64,7 +64,7 @@ public class UserDaoIT {
   private TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();

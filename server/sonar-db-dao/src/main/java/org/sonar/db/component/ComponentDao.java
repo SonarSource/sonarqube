@@ -274,10 +274,6 @@ public class ComponentDao implements Dao {
     mapper(session).scrollAllFilesForFileMove(branchUuid, handler);
   }
 
-  public List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(DbSession dbSession) {
-    return mapper(dbSession).selectPrivateProjectsWithNcloc();
-  }
-
   public boolean existAnyOfComponentsWithQualifiers(DbSession session, Collection<String> componentKeys, Set<String> qualifiers) {
     if (!componentKeys.isEmpty()) {
       List<Boolean> result = new LinkedList<>();

@@ -99,8 +99,7 @@ public class PropertiesDao implements Dao {
 
   private static PreparedStatement createStatement(String projectUuid, Collection<String> dispatcherKeys, Connection connection) throws SQLException {
     String sql = "SELECT count(1) FROM properties pp " +
-      "left outer join components pj on pp.entity_uuid = pj.uuid " +
-      "where pp.user_uuid is not null and (pp.entity_uuid is null or pj.uuid=?) " +
+      "where pp.user_uuid is not null and (pp.entity_uuid is null or pp.entity_uuid=?) " +
       "and (" + repeat("pp.prop_key like ?", " or ", dispatcherKeys.size()) + ")";
     PreparedStatement res = connection.prepareStatement(sql);
     res.setString(1, projectUuid);

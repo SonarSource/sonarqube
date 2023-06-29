@@ -42,7 +42,7 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 public class MetricDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbSession dbSession = db.getSession();
   private MetricDao underTest = new MetricDao();

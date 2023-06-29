@@ -37,7 +37,7 @@ import static org.sonar.db.user.GroupMembershipQuery.builder;
 public class GroupMembershipDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private UserDto user1;
   private UserDto user2;

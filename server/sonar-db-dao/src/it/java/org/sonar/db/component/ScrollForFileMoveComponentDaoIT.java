@@ -46,7 +46,7 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 @RunWith(DataProviderRunner.class)
 public class ScrollForFileMoveComponentDaoIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private Random random = new Random();
   private DbSession dbSession = db.getSession();

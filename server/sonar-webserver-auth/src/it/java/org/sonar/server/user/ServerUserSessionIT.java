@@ -397,7 +397,7 @@ public class ServerUserSessionIT {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_global_permissions() {
     ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertProjectPermissionOnAnyone("p1", publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnAnyone("p1", publicProject.getProjectDto());
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -465,7 +465,7 @@ public class ServerUserSessionIT {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_public_projects() {
     ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertProjectPermissionOnAnyone("p1", publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnAnyone("p1", publicProject.getProjectDto());
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -537,7 +537,7 @@ public class ServerUserSessionIT {
   @Test
   public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_anonymous_user() {
     ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertProjectPermissionOnAnyone(UserRole.ADMIN, publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnAnyone(UserRole.ADMIN, publicProject.getProjectDto());
 
     UserSession underTest = newAnonymousSession();
 
@@ -546,7 +546,7 @@ public class ServerUserSessionIT {
 
     // change permissions without updating the cache
     db.users().deleteProjectPermissionFromAnyone(publicProject.getProjectDto(), UserRole.ADMIN);
-    db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject.getProjectDto());
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ADMIN, publicProject.getMainBranchComponent())).isTrue();
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ISSUE_ADMIN, publicProject.getMainBranchComponent())).isFalse();
   }
@@ -572,7 +572,7 @@ public class ServerUserSessionIT {
   public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
     ProjectData publicProject = db.components().insertPublicProject();
     ProjectData privateProject = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject.getProjectDto());
+    db.users().insertEntityPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject.getProjectDto());
 
     UserSession underTest = newAnonymousSession();
 

@@ -46,6 +46,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -77,7 +78,7 @@ import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 public class PurgeCommandsIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2();
   private final PurgeProfiler profiler = new PurgeProfiler();
@@ -156,24 +157,25 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteNonMainBranchComponentsByProjectUuid_shouldDeletesAllBranchesOfAProjectExceptMainBranch() {
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = dbTester.components().insertProjectBranch(mainBranch);
 
-    ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "a"));
-    ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "b"));
-    dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(mainBranch, "a"));
+    ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(mainBranch, "b"));
+    dbTester.components().insertComponent(newFileDto(mainBranch));
     dbTester.components().insertComponent(newFileDto(directory1));
     dbTester.components().insertComponent(newFileDto(directory2));
 
     directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "a"));
     directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(branch, "b"));
-    dbTester.components().insertComponent(newFileDto(branch, project.uuid()));
+    dbTester.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     dbTester.components().insertComponent(newFileDto(directory1));
     dbTester.components().insertComponent(newFileDto(directory2));
 
-    underTest.deleteNonMainBranchComponentsByProjectUuid(project.uuid());
+    underTest.deleteNonMainBranchComponentsByProjectUuid(projectData.projectUuid());
 
-    assertThat(countComponentOfRoot(project)).isEqualTo(6);
+    assertThat(countComponentOfRoot(mainBranch)).isEqualTo(6);
     assertThat(countComponentOfRoot(branch)).isZero();
   }
 
@@ -213,18 +215,19 @@ public class PurgeCommandsIT {
 
   @Test
   public void deleteProjects() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), project.getKey()).get();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    SnapshotDto analysis = dbTester.components().insertSnapshot(project);
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), mainBranch.getKey()).get();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranch));
+    SnapshotDto analysis = dbTester.components().insertSnapshot(mainBranch);
     dbTester.events().insertEvent(analysis);
-    IssueDto issue = dbTester.issues().insert(dbTester.rules().insert(), project, file);
+    IssueDto issue = dbTester.issues().insert(dbTester.rules().insert(), mainBranch, file);
     dbTester.issues().insertChange(issue);
 
     assertThat(dbTester.countRowsOfTable("projects")).isOne();
 
-    underTest.deleteComponents(project.uuid());
-    underTest.deleteProject(project.uuid());
+    underTest.deleteComponents(mainBranch.uuid());
+    underTest.deleteProject(projectData.projectUuid());
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("components")).isZero();
@@ -564,11 +567,11 @@ public class PurgeCommandsIT {
 
   @Test
   public void deletePermissions_deletes_permissions_of_public_project() {
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = dbTester.components().insertPublicProject().getProjectDto();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.uuid());
+    purgeCommands.deletePermissions(project.getUuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
@@ -576,11 +579,11 @@ public class PurgeCommandsIT {
 
   @Test
   public void deletePermissions_deletes_permissions_of_private_project() {
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.uuid());
+    purgeCommands.deletePermissions(project.getUuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isOne();
     assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
@@ -589,7 +592,8 @@ public class PurgeCommandsIT {
   @Test
   public void deletePermissions_deletes_permissions_of_view() {
     ComponentDto portfolio = dbTester.components().insertPublicPortfolio();
-    addPermissions(portfolio);
+    PortfolioDto portfolioDto = dbTester.components().getPortfolioDto(portfolio);
+    addPermissions(portfolioDto);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(portfolio.uuid());
@@ -775,21 +779,21 @@ public class PurgeCommandsIT {
       .extracting(r -> r.getUuid()).containsExactly("uuid2");
   }
 
-  private void addPermissions(ComponentDto root) {
-    if (!root.isPrivate()) {
-      dbTester.users().insertProjectPermissionOnAnyone("foo1", root);
+  private void addPermissions(EntityDto projectDto) {
+    if (!projectDto.isPrivate()) {
+      dbTester.users().insertEntityPermissionOnAnyone("foo1", projectDto);
       dbTester.users().insertPermissionOnAnyone("not project level");
     }
 
     GroupDto group = dbTester.users().insertGroup();
-    dbTester.users().insertProjectPermissionOnGroup(group, "bar", root);
+    dbTester.users().insertEntityPermissionOnGroup(group, "bar", projectDto);
     dbTester.users().insertPermissionOnGroup(group, "not project level");
 
     UserDto user = dbTester.users().insertUser();
-    dbTester.users().insertProjectPermissionOnUser(user, "doh", root);
+    dbTester.users().insertProjectPermissionOnUser(user, "doh", projectDto);
     dbTester.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
-    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(root.isPrivate() ? 2 : 4);
+    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(projectDto.isPrivate() ? 2 : 4);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(2);
   }
 
