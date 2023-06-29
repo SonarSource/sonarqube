@@ -51,7 +51,7 @@ interface State {
   extensionElement?: React.ReactElement<any>;
 }
 
-export class Extension extends React.PureComponent<Props, State> {
+class Extension extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   stop?: Function;
   state: State = {};

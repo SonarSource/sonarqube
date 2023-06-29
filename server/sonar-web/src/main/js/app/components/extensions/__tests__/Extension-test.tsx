@@ -17,90 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
 import { lightTheme } from 'design-system';
-import { mount } from 'enzyme';
 import * as React from 'react';
-import { IntlShape } from 'react-intl';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import {
-  mockAppState,
-  mockCurrentUser,
-  mockLocation,
-  mockRouter,
-} from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { Extension } from '../Extension';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import Extension from '../Extension';
 
 jest.mock('../../../../helpers/extensions', () => ({
   getExtensionStart: jest.fn().mockResolvedValue({}),
-}));
-
-jest.mock('react-helmet-async', () => ({
-  Helmet: () => null,
 }));
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should render React extensions correctly', async () => {
-  const start = jest.fn().mockReturnValue(<div className="extension" />);
-  (getExtensionStart as jest.Mock).mockResolvedValue(start);
+const extensionView = <button type="button">Extension</button>;
 
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-  expect(getExtensionStart).toHaveBeenCalledWith('foo');
-  await waitAndUpdate(wrapper);
+it('should render React extensions correctly', async () => {
+  const start = jest.fn().mockReturnValue(extensionView);
+  jest.mocked(getExtensionStart).mockResolvedValue(start);
+
+  const { rerender } = renderExtension();
+  expect(await screen.findByRole('button', { name: 'Extension' })).toBeInTheDocument();
   expect(start).toHaveBeenCalled();
-  expect(wrapper).toMatchSnapshot();
+
+  rerender(<Extension extension={{ key: 'BAR', name: 'BAR' }} />);
+  expect(screen.queryByRole('button', { name: 'Extension' })).not.toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'Extension' })).toBeInTheDocument();
 });
 
 it('should handle Function extensions correctly', async () => {
   const stop = jest.fn();
-  const start = jest.fn(() => {
-    return stop;
-  });
-  (getExtensionStart as jest.Mock).mockResolvedValue(start);
+  const start = jest.fn(() => stop);
+  jest.mocked(getExtensionStart).mockResolvedValue(start);
 
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
+  const { rerender } = renderExtension();
+  await new Promise(setImmediate);
   expect(start).toHaveBeenCalled();
 
-  wrapper.setProps({ extension: { key: 'bar', name: 'Bar' } });
-  await waitAndUpdate(wrapper);
+  rerender(<Extension extension={{ key: 'BAR', name: 'BAR' }} />);
+
   expect(stop).toHaveBeenCalled();
 });
 
-it('should unmount an extension before starting a new one', async () => {
-  const reactExtension = jest.fn().mockReturnValue(<div className="extension" />);
-  (getExtensionStart as jest.Mock).mockResolvedValue(reactExtension);
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('extensionElement')).not.toBeUndefined();
-
-  const start = jest.fn();
-  (getExtensionStart as jest.Mock).mockResolvedValue(start);
-
-  wrapper.setProps({ extension: { key: 'bar', name: 'Bar' } });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('extensionElement')).toBeUndefined();
-  expect(start).toHaveBeenCalled();
-});
-
-function shallowRender(props: Partial<Extension['props']> = {}) {
-  // We need to mount, as we rely on refs.
-  return mount<Extension>(
-    <Extension
-      theme={lightTheme}
-      appState={mockAppState()}
-      currentUser={mockCurrentUser()}
-      extension={{ key: 'foo', name: 'Foo' }}
-      intl={{} as IntlShape}
-      location={mockLocation()}
-      router={mockRouter()}
-      updateCurrentUserHomepage={jest.fn()}
-      {...props}
-    />
+function renderExtension(props: Partial<typeof Extension> = {}) {
+  return renderComponent(
+    <Extension theme={lightTheme} extension={{ key: 'foo', name: 'Foo' }} {...props} />
   );
 }
