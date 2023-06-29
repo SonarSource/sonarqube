@@ -39,6 +39,7 @@ interface State {
   days: string;
   loading: boolean;
   currentSettingValue?: string;
+  isChanged: boolean;
   saving: boolean;
   selected?: NewCodeDefinitionType;
   success: boolean;
@@ -49,6 +50,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   state: State = {
     loading: true,
     days: getNumberOfDaysDefaultValue(),
+    isChanged: false,
     saving: false,
     success: false,
   };
@@ -79,15 +81,20 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   }
 
   onSelectDays = (days: string) => {
-    this.setState({ days, success: false });
+    this.setState({ days, success: false, isChanged: true });
   };
 
   onSelectSetting = (selected: NewCodeDefinitionType) => {
-    this.setState({ selected, success: false });
+    this.setState((currentState) => ({
+      selected,
+      success: false,
+      isChanged: selected !== currentState.selected,
+    }));
   };
 
   onCancel = () => {
     this.setState(({ currentSetting, currentSettingValue, days }) => ({
+      isChanged: false,
       selected: currentSetting,
       days:
         currentSetting === NewCodeDefinitionType.NumberOfDays ? String(currentSettingValue) : days,
@@ -113,6 +120,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
             saving: false,
             currentSetting: type,
             currentSettingValue: value || undefined,
+            isChanged: false,
             success: true,
           });
         }
@@ -128,12 +136,16 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const { currentSetting, days, loading, currentSettingValue, saving, selected, success } =
-      this.state;
-
-    const isChanged =
-      selected !== currentSetting ||
-      (selected === NewCodeDefinitionType.NumberOfDays && String(days) !== currentSettingValue);
+    const {
+      currentSetting,
+      days,
+      loading,
+      isChanged,
+      currentSettingValue,
+      saving,
+      selected,
+      success,
+    } = this.state;
 
     const isValid =
       selected !== NewCodeDefinitionType.NumberOfDays ||

@@ -276,9 +276,7 @@ it('can set a reference branch setting for branch', async () => {
 
   await ui.setBranchReferenceToBranchSetting('main', 'feature');
 
-  expect(
-    within(byRole('table').get()).getByText('baseline.reference_branch: feature')
-  ).toBeInTheDocument();
+  expect(byRole('table').byText('baseline.reference_branch: feature').get()).toBeInTheDocument();
 });
 
 function renderProjectBaselineApp(context: RenderContext = {}) {

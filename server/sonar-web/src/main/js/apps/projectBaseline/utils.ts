@@ -44,46 +44,20 @@ export function getSettingValue({
 }
 
 export function validateSetting(state: {
-  analysis?: string;
-  currentSetting?: NewCodeDefinitionType;
-  currentSettingValue?: string;
   days: string;
   overrideGeneralSetting?: boolean;
   referenceBranch?: string;
   selected?: NewCodeDefinitionType;
 }) {
-  const {
-    analysis = '',
-    currentSetting,
-    currentSettingValue,
-    days,
-    overrideGeneralSetting,
-    referenceBranch = '',
-    selected,
-  } = state;
+  const { days, overrideGeneralSetting, referenceBranch = '', selected } = state;
 
-  let isChanged;
-  if (!currentSetting && overrideGeneralSetting !== undefined) {
-    isChanged = overrideGeneralSetting;
-  } else {
-    isChanged =
-      overrideGeneralSetting === false ||
-      selected !== currentSetting ||
-      (selected === NewCodeDefinitionType.NumberOfDays && days !== currentSettingValue) ||
-      (selected === NewCodeDefinitionType.SpecificAnalysis && analysis !== currentSettingValue) ||
-      (selected === NewCodeDefinitionType.ReferenceBranch &&
-        referenceBranch !== currentSettingValue);
-  }
-
-  const isValid =
+  return (
     overrideGeneralSetting === false ||
     (!!selected &&
       isNewCodeDefinitionCompliant({
         type: selected,
         value: days,
       }) &&
-      (selected !== NewCodeDefinitionType.SpecificAnalysis || analysis.length > 0) &&
-      (selected !== NewCodeDefinitionType.ReferenceBranch || referenceBranch.length > 0));
-
-  return { isChanged, isValid };
+      (selected !== NewCodeDefinitionType.ReferenceBranch || referenceBranch.length > 0))
+  );
 }

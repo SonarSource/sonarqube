@@ -49,23 +49,17 @@ export default function NewCodeDefinitionSelector(props: Props) {
   const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
   const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
   const [days, setDays] = React.useState<string>('');
+  const [isChanged, setIsChanged] = React.useState<boolean>(false);
 
   const isGlobalNcdCompliant = React.useMemo(
     () => Boolean(globalNcd && isNewCodeDefinitionCompliant(globalNcd)),
     [globalNcd]
   );
 
-  const initialNumberOfDays = React.useMemo(() => {
+  React.useEffect(() => {
     const numberOfDays = getNumberOfDaysDefaultValue(globalNcd);
     setDays(numberOfDays);
-
-    return numberOfDays;
   }, [globalNcd]);
-
-  const isChanged = React.useMemo(
-    () => selectedNcdType === NewCodeDefinitionType.NumberOfDays && days !== initialNumberOfDays,
-    [selectedNcdType, days, initialNumberOfDays]
-  );
 
   const isCompliant = React.useMemo(
     () =>
@@ -75,6 +69,16 @@ export default function NewCodeDefinitionSelector(props: Props) {
         value: days,
       }),
     [selectedNcdType, days]
+  );
+
+  const handleNcdChanged = React.useCallback(
+    (newNcdType: NewCodeDefinitionType) => {
+      if (newNcdType && newNcdType !== selectedNcdType) {
+        setSelectedNcdType(newNcdType);
+        setIsChanged(true);
+      }
+    },
+    [selectedNcdType]
   );
 
   React.useEffect(() => {
@@ -105,7 +109,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           checked={selectedNcdType === NewCodeDefinitionType.Inherited}
           className="big-spacer-bottom"
           disabled={!isGlobalNcdCompliant}
-          onCheck={() => setSelectedNcdType(NewCodeDefinitionType.Inherited)}
+          onCheck={() => handleNcdChanged(NewCodeDefinitionType.Inherited)}
           value="general"
         >
           <Tooltip
@@ -133,7 +137,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           aria-label={translate('new_code_definition.specific_setting')}
           checked={Boolean(selectedNcdType && selectedNcdType !== NewCodeDefinitionType.Inherited)}
           className="huge-spacer-top"
-          onCheck={() => setSelectedNcdType(NewCodeDefinitionType.PreviousVersion)}
+          onCheck={() => handleNcdChanged(NewCodeDefinitionType.PreviousVersion)}
           value="specific"
         >
           {translate('new_code_definition.specific_setting')}
@@ -146,7 +150,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
             disabled={Boolean(
               !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
             )}
-            onSelect={setSelectedNcdType}
+            onSelect={handleNcdChanged}
             selected={selectedNcdType === NewCodeDefinitionType.PreviousVersion}
           />
 
@@ -158,7 +162,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
             isChanged={isChanged}
             isValid={isCompliant}
             onChangeDays={setDays}
-            onSelect={setSelectedNcdType}
+            onSelect={handleNcdChanged}
             selected={selectedNcdType === NewCodeDefinitionType.NumberOfDays}
           />
 
@@ -167,7 +171,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
             disabled={Boolean(
               !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
             )}
-            onClick={() => setSelectedNcdType(NewCodeDefinitionType.ReferenceBranch)}
+            onClick={() => handleNcdChanged(NewCodeDefinitionType.ReferenceBranch)}
             selected={selectedNcdType === NewCodeDefinitionType.ReferenceBranch}
             title={translate('new_code_definition.reference_branch')}
           >

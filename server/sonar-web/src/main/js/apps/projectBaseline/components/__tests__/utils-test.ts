@@ -54,93 +54,63 @@ describe('getSettingValue', () => {
 
 describe('validateSettings', () => {
   it('should validate at branch level', () => {
-    expect(validateSetting({ days: '' })).toEqual({ isChanged: false, isValid: false });
+    expect(validateSetting({ days: '' })).toEqual(false);
     expect(
       validateSetting({
-        currentSetting: NewCodeDefinitionType.PreviousVersion,
         days: '12',
         selected: NewCodeDefinitionType.NumberOfDays,
       })
-    ).toEqual({ isChanged: true, isValid: true });
+    ).toEqual(true);
     expect(
       validateSetting({
-        currentSetting: NewCodeDefinitionType.PreviousVersion,
         days: 'nope',
         selected: NewCodeDefinitionType.NumberOfDays,
       })
-    ).toEqual({ isChanged: true, isValid: false });
+    ).toEqual(false);
     expect(
       validateSetting({
-        currentSetting: NewCodeDefinitionType.NumberOfDays,
-        currentSettingValue: '15',
-        days: '15',
-        selected: NewCodeDefinitionType.NumberOfDays,
-      })
-    ).toEqual({ isChanged: false, isValid: true });
-    expect(
-      validateSetting({
-        currentSetting: NewCodeDefinitionType.NumberOfDays,
-        currentSettingValue: '15',
-        days: '13',
-        selected: NewCodeDefinitionType.NumberOfDays,
-      })
-    ).toEqual({ isChanged: true, isValid: true });
-    expect(
-      validateSetting({
-        analysis: 'analysis1',
-        currentSetting: NewCodeDefinitionType.SpecificAnalysis,
-        currentSettingValue: 'analysis1',
         days: '',
         selected: NewCodeDefinitionType.SpecificAnalysis,
       })
-    ).toEqual({ isChanged: false, isValid: false });
+    ).toEqual(false);
     expect(
       validateSetting({
-        analysis: 'analysis2',
-        currentSetting: NewCodeDefinitionType.SpecificAnalysis,
-        currentSettingValue: 'analysis1',
-        days: '',
-        selected: NewCodeDefinitionType.SpecificAnalysis,
-      })
-    ).toEqual({ isChanged: true, isValid: false });
-    expect(
-      validateSetting({
-        currentSetting: NewCodeDefinitionType.ReferenceBranch,
-        currentSettingValue: 'master',
         days: '',
         referenceBranch: 'master',
         selected: NewCodeDefinitionType.ReferenceBranch,
       })
-    ).toEqual({ isChanged: false, isValid: true });
+    ).toEqual(true);
     expect(
       validateSetting({
-        currentSetting: NewCodeDefinitionType.ReferenceBranch,
-        currentSettingValue: 'master',
         days: '',
         referenceBranch: '',
         selected: NewCodeDefinitionType.ReferenceBranch,
       })
-    ).toEqual({ isChanged: true, isValid: false });
+    ).toEqual(false);
   });
 
   it('should validate at project level', () => {
-    expect(validateSetting({ days: '', overrideGeneralSetting: false })).toEqual({
-      isChanged: false,
-      isValid: true,
-    });
-    expect(validateSetting({ days: '', overrideGeneralSetting: true })).toEqual({
-      isChanged: true,
-      isValid: false,
-    });
+    expect(validateSetting({ days: '', overrideGeneralSetting: false })).toEqual(true);
     expect(
       validateSetting({
-        currentSetting: NewCodeDefinitionType.PreviousVersion,
+        selected: NewCodeDefinitionType.PreviousVersion,
         days: '',
-        overrideGeneralSetting: false,
+        overrideGeneralSetting: true,
       })
-    ).toEqual({
-      isChanged: true,
-      isValid: true,
-    });
+    ).toEqual(true);
+    expect(
+      validateSetting({
+        selected: NewCodeDefinitionType.NumberOfDays,
+        days: '',
+        overrideGeneralSetting: true,
+      })
+    ).toEqual(false);
+    expect(
+      validateSetting({
+        selected: NewCodeDefinitionType.NumberOfDays,
+        days: '12',
+        overrideGeneralSetting: true,
+      })
+    ).toEqual(true);
   });
 });

@@ -40,7 +40,6 @@ import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
-import { ParsedAnalysis } from '../../../types/project-activity';
 import { Component } from '../../../types/types';
 import '../styles.css';
 import { getSettingValue } from '../utils';
@@ -62,6 +61,7 @@ interface State {
   currentSettingValue?: string;
   days: string;
   generalSetting?: NewCodeDefinition;
+  isChanged: boolean;
   loading: boolean;
   overrideGeneralSetting?: boolean;
   referenceBranch?: string;
@@ -75,6 +75,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
   state: State = {
     branchList: [],
     days: getNumberOfDaysDefaultValue(),
+    isChanged: false,
     loading: true,
     saving: false,
   };
@@ -113,6 +114,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
       currentSetting,
       currentSettingValue,
       generalSetting,
+      isChanged: false,
       selected: currentSetting || generalSetting.type,
       overrideGeneralSetting: Boolean(currentSetting),
       days:
@@ -175,6 +177,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
         this.setState({
           saving: false,
           currentSetting: undefined,
+          isChanged: false,
           selected: undefined,
           success: true,
         });
@@ -186,12 +189,10 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSelectAnalysis = (analysis: ParsedAnalysis) => this.setState({ analysis: analysis.key });
-
-  handleSelectDays = (days: string) => this.setState({ days });
+  handleSelectDays = (days: string) => this.setState({ days, isChanged: true });
 
   handleSelectReferenceBranch = (referenceBranch: string) => {
-    this.setState({ referenceBranch });
+    this.setState({ referenceBranch, isChanged: true });
   };
 
   handleCancel = () =>
@@ -203,23 +204,31 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
       }) => this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
     );
 
-  handleSelectSetting = (selected?: NewCodeDefinitionType) => this.setState({ selected });
+  handleSelectSetting = (selected?: NewCodeDefinitionType) => {
+    this.setState((currentState) => ({
+      selected,
+      isChanged: selected !== currentState.selected,
+    }));
+  };
 
   handleToggleSpecificSetting = (overrideGeneralSetting: boolean) =>
-    this.setState({ overrideGeneralSetting });
+    this.setState((currentState) => ({
+      overrideGeneralSetting,
+      isChanged: currentState.overrideGeneralSetting !== overrideGeneralSetting,
+    }));
 
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { component } = this.props;
-    const { analysis, days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
+    const { days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
 
     if (!overrideGeneralSetting) {
       this.resetSetting();
       return;
     }
 
-    const value = getSettingValue({ type, analysis, days, referenceBranch });
+    const value = getSettingValue({ type, days, referenceBranch });
 
     if (type) {
       this.setState({ saving: true });
@@ -233,6 +242,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
             saving: false,
             currentSetting: type,
             currentSettingValue: value || undefined,
+            isChanged: false,
             success: true,
           });
           this.resetSuccess();
@@ -252,6 +262,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
       currentSetting,
       days,
       generalSetting,
+      isChanged,
       loading,
       currentSettingValue,
       overrideGeneralSetting,
@@ -286,8 +297,8 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
                   currentSettingValue={currentSettingValue}
                   days={days}
                   generalSetting={generalSetting}
+                  isChanged={isChanged}
                   onCancel={this.handleCancel}
-                  onSelectAnalysis={this.handleSelectAnalysis}
                   onSelectDays={this.handleSelectDays}
                   onSelectReferenceBranch={this.handleSelectReferenceBranch}
                   onSelectSetting={this.handleSelectSetting}

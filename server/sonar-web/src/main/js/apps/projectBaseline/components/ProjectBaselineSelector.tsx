@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import { RadioButton } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
@@ -32,7 +33,6 @@ import { translate } from '../../../helpers/l10n';
 import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
 import { Branch } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
-import { ParsedAnalysis } from '../../../types/project-activity';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
@@ -49,8 +49,8 @@ export interface ProjectBaselineSelectorProps {
   currentSettingValue?: string;
   days: string;
   generalSetting: NewCodeDefinition;
+  isChanged: boolean;
   onCancel: () => void;
-  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
   onSelectReferenceBranch: (value: string) => void;
   onSelectSetting: (value?: NewCodeDefinitionType) => void;
@@ -78,6 +78,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     currentSettingValue,
     days,
     generalSetting,
+    isChanged,
     overrideGeneralSetting,
     referenceBranch,
     saving,
@@ -86,10 +87,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
 
   const isGlobalNcdCompliant = isNewCodeDefinitionCompliant(generalSetting);
 
-  const { isChanged, isValid } = validateSetting({
-    analysis,
-    currentSetting,
-    currentSettingValue,
+  const isValid = validateSetting({
     days,
     overrideGeneralSetting,
     referenceBranch,
@@ -172,7 +170,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           )}
           {!branchesEnabled && currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
             <BaselineSettingAnalysis
-              onSelect={() => {}}
+              onSelect={noop}
               selected={
                 overrideGeneralSetting && selected === NewCodeDefinitionType.SpecificAnalysis
               }
@@ -186,7 +184,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
               analysis={analysis || ''}
               branch={branch.name}
               component={component}
-              onSelectAnalysis={props.onSelectAnalysis}
+              onSelectAnalysis={noop}
             />
           )}
       </div>

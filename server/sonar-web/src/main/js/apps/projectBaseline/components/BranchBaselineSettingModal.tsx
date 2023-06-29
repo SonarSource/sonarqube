@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
 import Modal from '../../../components/controls/Modal';
@@ -30,7 +31,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definition';
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
-import { ParsedAnalysis } from '../../../types/project-activity';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
@@ -49,6 +49,7 @@ interface State {
   analysis: string;
   analysisDate?: Date;
   days: string;
+  isChanged: boolean;
   referenceBranch: string;
   saving: boolean;
   selected?: NewCodeDefinitionType;
@@ -69,6 +70,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       days:
         this.getValueFromProps(NewCodeDefinitionType.NumberOfDays) ||
         getNumberOfDaysDefaultValue(generalSetting, inheritedSetting),
+      isChanged: false,
       referenceBranch:
         this.getValueFromProps(NewCodeDefinitionType.ReferenceBranch) || defaultBranch,
       saving: false,
@@ -117,6 +119,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
           if (this.mounted) {
             this.setState({
               saving: false,
+              isChanged: false,
             });
             this.props.onClose(branch.name, {
               type,
@@ -138,28 +141,25 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   requestClose = () => this.props.onClose();
 
-  handleSelectAnalysis = (analysis: ParsedAnalysis) =>
-    this.setState({ analysis: analysis.key, analysisDate: analysis.date });
+  handleSelectDays = (days: string) => this.setState({ days, isChanged: true });
 
-  handleSelectDays = (days: string) => this.setState({ days });
+  handleSelectReferenceBranch = (referenceBranch: string) =>
+    this.setState({ referenceBranch, isChanged: true });
 
-  handleSelectReferenceBranch = (referenceBranch: string) => this.setState({ referenceBranch });
-
-  handleSelectSetting = (selected: NewCodeDefinitionType) => this.setState({ selected });
+  handleSelectSetting = (selected: NewCodeDefinitionType) => {
+    this.setState((currentState) => ({ selected, isChanged: selected !== currentState.selected }));
+  };
 
   render() {
     const { branch, branchList } = this.props;
-    const { analysis, days, referenceBranch, saving, selected } = this.state;
+    const { analysis, days, isChanged, referenceBranch, saving, selected } = this.state;
 
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
 
     const currentSetting = branch.newCodePeriod?.type;
     const currentSettingValue = branch.newCodePeriod?.value;
 
-    const { isChanged, isValid } = validateSetting({
-      analysis,
-      currentSetting,
-      currentSettingValue,
+    const isValid = validateSetting({
       days,
       referenceBranch,
       selected,
@@ -203,7 +203,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               />
               {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
                 <BaselineSettingAnalysis
-                  onSelect={() => {}}
+                  onSelect={noop}
                   selected={selected === NewCodeDefinitionType.SpecificAnalysis}
                 />
               )}
@@ -213,7 +213,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 analysis={analysis}
                 branch={branch.name}
                 component={this.props.component}
-                onSelectAnalysis={this.handleSelectAnalysis}
+                onSelectAnalysis={noop}
               />
             )}
           </div>
