@@ -54,10 +54,6 @@ public class AlmSettingsSupport {
     this.multipleAlmFeature = multipleAlmFeature;
   }
 
-  public MultipleAlmFeature getMultipleAlmFeatureProvider() {
-    return multipleAlmFeature;
-  }
-
   public void checkAlmSettingDoesNotAlreadyExist(DbSession dbSession, String almSetting) {
     dbClient.almSettingDao().selectByKey(dbSession, almSetting)
       .ifPresent(a -> {
