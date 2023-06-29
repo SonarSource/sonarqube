@@ -23,9 +23,9 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../helpers/measures';
 import {
   DIFF_METRIC_PREFIX_LENGTH,
-  getMaintainabilityGrid,
   GRID_INDEX_OFFSET,
   PERCENT_MULTIPLIER,
+  getMaintainabilityGrid,
 } from '../../helpers/ratings';
 import { AppState } from '../../types/appstate';
 import { MetricKey } from '../../types/metrics';

@@ -31,7 +31,7 @@ interface Props {
   metricKey: string;
   metricType: string;
   small?: boolean;
-  value: string | undefined;
+  value: string | number | undefined;
   ratingComponent?: JSX.Element;
 }
 
@@ -49,7 +49,7 @@ export default function Measure({
   }
 
   if (metricType === MetricType.Level) {
-    return <Level className={className} level={value} small={small} />;
+    return <Level className={className} level={value?.toString()} small={small} />;
   }
 
   if (metricType !== MetricType.Rating) {
