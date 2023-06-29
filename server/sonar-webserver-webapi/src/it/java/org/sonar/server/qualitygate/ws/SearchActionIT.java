@@ -51,7 +51,6 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
 
 public class SearchActionIT {
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

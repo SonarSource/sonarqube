@@ -47,7 +47,7 @@ public class GetByProjectActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
 
@@ -134,7 +134,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void get_with_project_admin_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -148,7 +148,7 @@ public class GetByProjectActionIT {
 
   @Test
   public void get_with_project_user_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
     userSession.logIn().addProjectPermission(UserRole.USER, project);

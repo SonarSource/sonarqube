@@ -35,9 +35,8 @@ public class QualityGateUpdaterIT {
 
   static final String QGATE_NAME = "Default";
 
-
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

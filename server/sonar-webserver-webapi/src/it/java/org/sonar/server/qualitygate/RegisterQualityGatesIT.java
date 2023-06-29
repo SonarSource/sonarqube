@@ -58,7 +58,7 @@ import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THA
 public class RegisterQualityGatesIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -71,7 +71,6 @@ public class RegisterQualityGatesIT {
   private final QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
   private final MetricDao metricDao = dbClient.metricDao();
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
-  private final QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
   private final RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
     UuidFactoryFast.getInstance(), System2.INSTANCE);

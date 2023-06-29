@@ -38,7 +38,7 @@ public class SetAsDefaultActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final WsActionTester ws = new WsActionTester(
     new SetAsDefaultAction(db.getDbClient(), userSession, new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));

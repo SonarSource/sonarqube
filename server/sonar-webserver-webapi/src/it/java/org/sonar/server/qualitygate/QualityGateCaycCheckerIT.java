@@ -47,7 +47,7 @@ import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 public class QualityGateCaycCheckerIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
   QualityGateCaycChecker underTest = new QualityGateCaycChecker(db.getDbClient());
 
   @Test

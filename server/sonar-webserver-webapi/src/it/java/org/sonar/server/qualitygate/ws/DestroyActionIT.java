@@ -54,7 +54,7 @@ public class DestroyActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);

@@ -56,7 +56,7 @@ import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 public class QualityGateConditionsUpdaterIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final QualityGateConditionsUpdater underTest = new QualityGateConditionsUpdater(db.getDbClient());
 

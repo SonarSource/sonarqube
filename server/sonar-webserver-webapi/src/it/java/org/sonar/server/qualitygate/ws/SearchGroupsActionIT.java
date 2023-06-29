@@ -47,8 +47,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.JSON;
 
 public class SearchGroupsActionIT {
-  private static final String XOO = "xoo";
-  private static final String FOO = "foo";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

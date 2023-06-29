@@ -61,7 +61,7 @@ public class ShowActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
 
   private final WsActionTester ws = new WsActionTester(

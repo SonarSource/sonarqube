@@ -59,15 +59,15 @@ public class ProjectsInWarningDaemonTest {
   @Rule
   public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
 
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(db.getDbClient(), es.client()));
-  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
-  private ProjectMeasuresIndex projectMeasuresIndex = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(null), System2.INSTANCE);
+  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(db.getDbClient(), es.client()));
+  private final ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+  private final ProjectMeasuresIndex projectMeasuresIndex = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(null), System2.INSTANCE);
 
-  private MapSettings settings = new MapSettings();
-  private GlobalLockManager lockManager = mock(GlobalLockManagerImpl.class);
-  private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
+  private final MapSettings settings = new MapSettings();
+  private final GlobalLockManager lockManager = mock(GlobalLockManagerImpl.class);
+  private final ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private ProjectsInWarningDaemon underTest = new ProjectsInWarningDaemon(db.getDbClient(), projectMeasuresIndex, settings.asConfig(), lockManager, projectsInWarning);
+  private final ProjectsInWarningDaemon underTest = new ProjectsInWarningDaemon(db.getDbClient(), projectMeasuresIndex, settings.asConfig(), lockManager, projectsInWarning);
 
   @Before
   public void setUp() {

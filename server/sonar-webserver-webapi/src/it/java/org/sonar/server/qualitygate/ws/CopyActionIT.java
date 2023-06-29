@@ -56,12 +56,11 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_SOU
 @RunWith(DataProviderRunner.class)
 public class CopyActionIT {
 
-
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
