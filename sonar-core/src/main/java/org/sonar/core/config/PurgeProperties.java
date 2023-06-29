@@ -36,6 +36,16 @@ public final class PurgeProperties {
 
   public static List<PropertyDefinition> all() {
     return asList(
+      PropertyDefinition.builder(PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE)
+        .name("Patterns to keep inactive branches")
+        .description("You can use naming patterns to protect specific branches, such as release branches, from automatic deletion. When a branch is created with a name that follows one of these patterns, it will be kept indefinitely.")
+        .defaultValue("master,develop,trunk")
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
+        .index(0)
+        .build(),
+
       PropertyDefinition.builder(PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY)
         .defaultValue("24")
         .name("Keep only one analysis a day after")

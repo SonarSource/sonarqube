@@ -36,11 +36,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserOrganizationGroup;
 import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
@@ -50,6 +53,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
@@ -70,15 +74,17 @@ public class CurrentAction implements UsersWsAction {
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
+  private final PermissionService permissionService;
   private final PlatformEditionProvider editionProvider;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver, HomepageTypes homepageTypes,
-    PlatformEditionProvider editionProvider) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver,
+          HomepageTypes homepageTypes, PlatformEditionProvider editionProvider, PermissionService permissionService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
     this.editionProvider = editionProvider;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -127,7 +133,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllGroups(groups)
       .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
       .addAllScmAccounts(user.getScmAccountsAsList())
-      .setPermissions(Permissions.newBuilder().addAllGlobal(List.of()).build())
+      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions(dbSession)).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
@@ -149,6 +155,14 @@ public class CurrentAction implements UsersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return !dbClient.propertiesDao().selectByQuery(query, dbSession).isEmpty();
     }
+  }
+
+  private List<String> getGlobalPermissions(DbSession dbSession) {
+    OrganizationDto defaultOrganization = dbClient.organizationDao().getDefaultOrganization(dbSession);
+    return permissionService.getGlobalPermissions().stream()
+            .map(GlobalPermission::getKey)
+            .filter(permission -> userSession.hasPermission(OrganizationPermission.fromKey(permission), defaultOrganization))
+            .collect(toList());
   }
 
   private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {

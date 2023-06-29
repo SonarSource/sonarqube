@@ -79,6 +79,7 @@ export interface Component extends LightComponent {
   extensions?: Extension[];
   isFavorite?: boolean;
   leakPeriodDate?: string;
+  id: string;
   name: string;
   needIssueSync?: boolean;
   path?: string;

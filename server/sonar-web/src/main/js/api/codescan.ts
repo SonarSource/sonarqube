@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON } from '../helpers/request';
+import { deleteRequest, getJSON, post, postJSON } from '../helpers/request';
 import { throwGlobalError } from '../helpers/error';
 import { Visibility } from "../types/types";
-
-export function getNotificationsForOrganization(key: string) {
-  return getJSON('/_codescan/notifications', { organizationId: key }).then(
-      r => r.organization, throwGlobalError
-  );
-}
 
 export function getRawNotificationsForOrganization(key: string){
   return getJSON('/_codescan/notifications', { organizationId: key });
 }
 
-export function deleteProject(data: {
-  organizationId: string;
-  projectKey: string;
-  projectDelete?: boolean;
-}): Promise<void> {
-  return post('/_codescan/integrations/destroy', data)
+export function deleteProject(uuid: string, deleteProject?: boolean): Promise<void> {
+  return deleteRequest(`/_codescan/integrations/${uuid}?deleteProject=${deleteProject}`)
       .catch(throwGlobalError);
 }
 
@@ -61,10 +51,5 @@ export function getApiKeyForZoho(data: {
   utype: string;
 }): Promise<string> {
   return postJSON('/_codescan/zoho/apiKey', data)
-      .catch(throwGlobalError);
-}
-
-export function getProjectAnalysis(organizationId: string, projectKey: string): Promise<object> {
-  return getJSON('/_codescan/integrations/list', { organizationId, projectKey })
       .catch(throwGlobalError);
 }

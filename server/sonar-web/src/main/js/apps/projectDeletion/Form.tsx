@@ -30,7 +30,7 @@ import { Component } from '../../types/types';
 import { deleteProject } from '../../api/codescan';
 
 interface Props {
-  component: Pick<Component, 'key' | 'name' | 'qualifier' | 'organization'>;
+  component: Pick<Component, 'id' | 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Router;
 }
 
@@ -44,11 +44,7 @@ export class Form extends React.PureComponent<Props> {
     } else if (isApplication(component.qualifier)) {
       await deleteApplication(component.key);
     } else {
-      await deleteProject({
-        organizationId: component.organization,
-        projectKey: component.key,
-        projectDelete: true
-      })
+      await deleteProject(component.id, true)
     }
 
     addGlobalSuccessMessage(
