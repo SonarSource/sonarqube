@@ -31,8 +31,8 @@ exports[`should be actionable 1`] = `
 
 exports[`should be actionable 2`] = `
 <div
-  aria-checked={true}
-  className="radio-card radio-card-actionable selected"
+  aria-checked={false}
+  className="radio-card radio-card-actionable"
   onClick={
     [MockFunction] {
       "calls": [
@@ -68,7 +68,7 @@ exports[`should be actionable 2`] = `
       className="display-flex-center link-radio"
     >
       <i
-        className="icon-radio spacer-right is-checked"
+        className="icon-radio spacer-right"
       />
       Radio Card
     </span>

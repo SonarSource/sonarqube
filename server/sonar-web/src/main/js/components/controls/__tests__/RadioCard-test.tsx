@@ -55,6 +55,6 @@ it('should be actionable', () => {
 
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
-  wrapper.setProps({ selected: true, titleInfo: 'info' });
+  wrapper.setProps({ selected: false, titleInfo: 'info' });
   expect(wrapper).toMatchSnapshot();
 });

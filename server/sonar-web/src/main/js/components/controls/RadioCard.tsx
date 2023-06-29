@@ -68,7 +68,7 @@ export default function RadioCard(props: Props) {
         },
         className
       )}
-      onClick={isActionable && !disabled ? onClick : undefined}
+      onClick={isActionable && !disabled && !selected ? onClick : undefined}
       role="radio"
       aria-label={label}
       aria-disabled={disabled}
