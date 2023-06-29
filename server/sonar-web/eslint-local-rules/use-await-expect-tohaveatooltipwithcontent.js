@@ -18,12 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = {
-  'use-jest-mocked': require('./use-jest-mocked'),
-  'convert-class-to-function-component': require('./convert-class-to-function-component'),
-  'no-conditional-rendering-of-deferredspinner': require('./no-conditional-rendering-of-deferredspinner'),
-  'use-visibility-enum': require('./use-visibility-enum'),
-  'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
-  'use-metrickey-enum': require('./use-metrickey-enum'),
-  'use-metrictype-enum': require('./use-metrictype-enum'),
-  'use-await-expect-tohaveatooltipwithcontent': require('./use-await-expect-tohaveatooltipwithcontent'),
+  meta: {
+    messages: {
+      useAwaitExpectToHaveATooltipWithContent:
+        'expect.toHaveATooltipWithContent() is asynchronous; you must prefix expect() with await',
+    },
+  },
+  create(context) {
+    return {
+      Identifier(node) {
+        if (
+          node.name === 'toHaveATooltipWithContent' &&
+          node.parent?.parent?.parent?.type !== 'AwaitExpression'
+        ) {
+          context.report({ node, messageId: 'useAwaitExpectToHaveATooltipWithContent' });
+        }
+      },
+    };
+  },
 };

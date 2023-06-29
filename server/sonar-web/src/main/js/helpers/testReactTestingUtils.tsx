@@ -262,11 +262,18 @@ export function dateInputEvent(user: UserEvent) {
 }
 /* eslint-enable testing-library/no-node-access */
 
+/**
+ * @deprecated Use our custom toHaveATooltipWithContent() matcher instead.
+ */
 export function findTooltipWithContent(
   text: Matcher,
   target?: HTMLElement,
   selector = 'svg > desc'
 ) {
+  // eslint-disable-next-line no-console
+  console.warn(`The usage of findTooltipWithContent() is deprecated; use expect.toHaveATooltipWithContent() instead.
+Example:
+  await expect(node).toHaveATooltipWithContent('foo.bar');`);
   return target
     ? within(target).getByText(text, { selector })
     : screen.getByText(text, { selector });

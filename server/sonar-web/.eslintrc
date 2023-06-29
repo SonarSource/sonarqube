@@ -15,6 +15,7 @@
     "local-rules/use-visibility-enum": "warn",
     "local-rules/convert-class-to-function-component": "warn",
     "local-rules/no-conditional-rendering-of-deferredspinner": "warn",
-    "local-rules/use-jest-mocked": "warn"
+    "local-rules/use-jest-mocked": "warn",
+    "local-rules/use-await-expect-tohaveatooltipwithcontent": "warn"
   }
 }

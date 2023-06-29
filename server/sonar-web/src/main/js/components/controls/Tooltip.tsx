@@ -403,7 +403,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         })}
         id={this.id}
         role="tooltip"
-        aria-hidden={!isInteractive || !isVisible}
+        aria-hidden={!isVisible}
       >
         {isInteractive && (
           <span className="a11y-hidden">{translate('tooltip_is_interactive')}</span>

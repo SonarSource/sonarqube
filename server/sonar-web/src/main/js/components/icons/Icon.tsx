@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { uniqueId } from 'lodash';
 import * as React from 'react';
 
 export interface IconProps extends React.AriaAttributes {
@@ -54,6 +55,7 @@ export default function Icon({
   'aria-hidden': hidden,
   ...iconProps
 }: Props) {
+  const id = uniqueId('icon');
   return (
     <svg
       className={className}
@@ -70,10 +72,12 @@ export default function Icon({
       width={width}
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
+      role="img"
+      aria-describedby={description && !hidden ? id : undefined}
       {...iconProps}
     >
       {label && !hidden && <title>{label}</title>}
-      {description && !hidden && <desc>{description}</desc>}
+      {description && !hidden && <desc id={id}>{description}</desc>}
       {children}
     </svg>
   );

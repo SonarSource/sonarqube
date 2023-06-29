@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = {
-  'use-jest-mocked': require('./use-jest-mocked'),
-  'convert-class-to-function-component': require('./convert-class-to-function-component'),
-  'no-conditional-rendering-of-deferredspinner': require('./no-conditional-rendering-of-deferredspinner'),
-  'use-visibility-enum': require('./use-visibility-enum'),
-  'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
-  'use-metrickey-enum': require('./use-metrickey-enum'),
-  'use-metrictype-enum': require('./use-metrictype-enum'),
-  'use-await-expect-tohaveatooltipwithcontent': require('./use-await-expect-tohaveatooltipwithcontent'),
-};
+const { RuleTester } = require('eslint');
+const useJestMocked = require('../use-await-expect-tohaveatooltipwithcontent');
+
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+});
+
+ruleTester.run('use-await-expect-tohaveatooltipwithcontent', useJestMocked, {
+  valid: [
+    {
+      code: `await expect(node).toHaveATooltipWithContent("Help text");`,
+    },
+  ],
+  invalid: [
+    {
+      code: `expect(node).toHaveATooltipWithContent("Help text");`,
+      errors: [{ messageId: 'useAwaitExpectToHaveATooltipWithContent' }],
+    },
+  ],
+});

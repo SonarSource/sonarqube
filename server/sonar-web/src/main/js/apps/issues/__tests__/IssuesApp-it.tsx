@@ -24,7 +24,6 @@ import selectEvent from 'react-select-event';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
-import { findTooltipWithContent } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import {
@@ -858,9 +857,10 @@ describe('issues item', () => {
     // Select an issue with an advanced rule
     await user.click(await ui.issueItemAction7.find());
 
-    expect(
-      findTooltipWithContent('issue.quick_fix_available_with_sonarlint_no_link')
-    ).toBeInTheDocument();
+    await expect(
+      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
+    ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
+
     expect(
       screen.getByRole('status', {
         name: 'issue.resolution.badge.DEPRECATED',

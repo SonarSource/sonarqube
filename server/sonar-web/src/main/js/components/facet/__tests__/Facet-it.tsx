@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { findTooltipWithContent, renderComponent } from '../../../helpers/testReactTestingUtils';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import FacetBox, { FacetBoxProps } from '../FacetBox';
 import FacetHeader from '../FacetHeader';
 import FacetItem from '../FacetItem';
@@ -58,9 +57,9 @@ it('should render and function correctly', () => {
 
 it('should correctly render a header with helper text', async () => {
   renderFacet(undefined, { helper: 'Help text' });
-  await userEvent.tab();
-  await userEvent.tab();
-  expect(findTooltipWithContent('Help text')).toBeInTheDocument();
+  await expect(screen.getByRole('img', { description: 'Help text' })).toHaveATooltipWithContent(
+    'Help text'
+  );
 });
 
 it('should correctly render a header with value data', () => {

@@ -26,7 +26,7 @@ import { Route } from 'react-router-dom';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
-import { findTooltipWithContent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import {
   IssueActions,
@@ -79,11 +79,11 @@ describe('rendering', () => {
     expect(screen.getByRole('status', { name: 'ESLINT' })).toBeInTheDocument();
   });
 
-  it('should render the SonarLint icon correctly', () => {
+  it('should render the SonarLint icon correctly', async () => {
     renderIssue({ issue: mockIssue(false, { quickFixAvailable: true }) });
-    expect(
-      findTooltipWithContent('issue.quick_fix_available_with_sonarlint_no_link')
-    ).toBeInTheDocument();
+    await expect(
+      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
+    ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
   });
 
   it('should render correctly with a checkbox', async () => {
@@ -95,11 +95,10 @@ describe('rendering', () => {
     expect(onCheck).toHaveBeenCalledWith(issue.key);
   });
 
-  it('should correctly render any code variants', () => {
+  it('should correctly render any code variants', async () => {
     const { ui } = getPageObject();
     renderIssue({ issue: mockIssue(false, { codeVariants: ['variant 1', 'variant 2'] }) });
-    expect(ui.variants(2).get()).toBeInTheDocument();
-    expect(findTooltipWithContent('variant 1, variant 2', undefined, 'div')).toBeInTheDocument();
+    await expect(ui.variants(2).get()).toHaveATooltipWithContent('variant 1, variant 2');
   });
 });
 
