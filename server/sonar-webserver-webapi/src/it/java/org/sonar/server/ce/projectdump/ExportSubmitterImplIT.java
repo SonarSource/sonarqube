@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.platform.NodeInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ public class ExportSubmitterImplIT {
 
   private final System2 system2 = System2.INSTANCE;
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final CeQueue ceQueue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance(), mock(NodeInformation.class));
@@ -65,24 +66,24 @@ public class ExportSubmitterImplIT {
 
   @Test
   public void submitProjectExport_submits_task_with_project_uuid_and_submitterLogin_if_present() {
-    ComponentDto projectDto = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
 
     underTest.submitProjectExport(projectDto.getKey(), SOME_SUBMITTER_UUID);
 
     assertThat(dbClient.ceQueueDao().selectAllInAscOrder(db.getSession()))
       .extracting(CeQueueDto::getComponentUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
-      .containsExactlyInAnyOrder(tuple(projectDto.uuid(), "PROJECT_EXPORT", SOME_SUBMITTER_UUID));
+      .containsExactlyInAnyOrder(tuple(projectDto.getUuid(), "PROJECT_EXPORT", SOME_SUBMITTER_UUID));
   }
 
   @Test
   public void submitProjectExport_submits_task_with_project_uuid_and_no_submitterLogin_if_null() {
-    ComponentDto projectDto = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
 
     underTest.submitProjectExport(projectDto.getKey(), null);
 
     assertThat(dbClient.ceQueueDao().selectAllInAscOrder(db.getSession()))
       .extracting(CeQueueDto::getComponentUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
-      .containsExactlyInAnyOrder(tuple(projectDto.uuid(), "PROJECT_EXPORT", null));
+      .containsExactlyInAnyOrder(tuple(projectDto.getUuid(), "PROJECT_EXPORT", null));
   }
 
 }

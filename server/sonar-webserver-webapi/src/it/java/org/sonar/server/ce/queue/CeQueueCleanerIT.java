@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class CeQueueCleanerIT {
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private final CeQueue queue = mock(CeQueue.class);

@@ -116,7 +116,7 @@ public class ShowActionIT {
   public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

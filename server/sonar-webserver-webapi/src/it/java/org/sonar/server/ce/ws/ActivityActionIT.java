@@ -39,9 +39,14 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.PortfolioData;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -88,7 +93,7 @@ public class ActivityActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
   private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
@@ -97,11 +102,11 @@ public class ActivityActionIT {
   @Test
   public void get_all_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
-    insertActivity("T1", project1, SUCCESS, analysisProject1);
-    insertActivity("T2", project2, FAILED, null);
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
+    SnapshotDto analysisProject1 = db.components().insertSnapshot(project1.getMainBranchDto());
+    insertActivity("T1", project1.projectUuid(), project1.mainBranchUuid(), SUCCESS, analysisProject1);
+    insertActivity("T2", project2.projectUuid(), project2.mainBranchUuid(), FAILED, null);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
@@ -112,7 +117,7 @@ public class ActivityActionIT {
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(task.getNodeName()).isEqualTo(NODE_NAME);
-    assertThat(task.getComponentId()).isEqualTo(project2.uuid());
+    assertThat(task.getComponentId()).isEqualTo(project2.getMainBranchComponent().uuid());
     assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getWarningCount()).isZero();
@@ -121,15 +126,15 @@ public class ActivityActionIT {
     assertThat(task.getId()).isEqualTo("T1");
     assertThat(task.getNodeName()).isEqualTo(NODE_NAME);
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
-    assertThat(task.getComponentId()).isEqualTo(project1.uuid());
+    assertThat(task.getComponentId()).isEqualTo(project1.getMainBranchComponent().uuid());
     assertThat(task.getWarningCount()).isZero();
   }
 
   @Test
   public void filter_by_status() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -145,8 +150,8 @@ public class ActivityActionIT {
   @Test
   public void filter_by_max_executed_at_exclude() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -161,7 +166,7 @@ public class ActivityActionIT {
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     insertActivity("T1", project, SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
@@ -175,7 +180,7 @@ public class ActivityActionIT {
   @Test
   public void filter_on_current_activities() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", project, SUCCESS);
     insertActivity("T2", project, FAILED);
@@ -203,8 +208,8 @@ public class ActivityActionIT {
   @Test
   public void limit_results() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -225,7 +230,7 @@ public class ActivityActionIT {
   @Test
   public void remove_queued_already_completed() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
 
     insertActivity("T1", project1, SUCCESS);
     insertQueue("T1", project1, IN_PROGRESS);
@@ -243,8 +248,8 @@ public class ActivityActionIT {
   @Test
   public void return_warnings_count_on_queue_and_activity_and_warnings_list() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
@@ -277,27 +282,27 @@ public class ActivityActionIT {
 
   @Test
   public void project_administrator_can_access_his_project_activity_using_component_key() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
     // no need to be a system admin
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1.getProjectDto());
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.getKey()));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.projectKey()));
 
     assertThat(activityResponse.getTasksCount()).isOne();
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
-    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
+    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.getMainBranchComponent().uuid());
   }
 
   @Test
   public void return_401_if_user_is_not_logged_in() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     userSession.anonymous();
 
-    TestRequest request = ws.newRequest().setParam("componentId", project.uuid());
+    TestRequest request = ws.newRequest().setParam("componentId", project.projectUuid());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(UnauthorizedException.class)
       .hasMessage("Authentication is required");
@@ -305,12 +310,12 @@ public class ActivityActionIT {
 
   @Test
   public void search_activity_by_component_name() {
-    ComponentDto struts = db.components().insertPrivateProject(c -> c.setName("old apache struts")).getMainBranchComponent();
-    ComponentDto zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper")).getMainBranchComponent();
-    ComponentDto eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse")).getMainBranchComponent();
-    db.components().insertSnapshot(struts);
-    db.components().insertSnapshot(zookeeper);
-    db.components().insertSnapshot(eclipse);
+    ProjectData struts = db.components().insertPrivateProject(c -> c.setName("old apache struts"));
+    ProjectData zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper"));
+    ProjectData eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse"));
+    db.components().insertSnapshot(struts.getMainBranchDto());
+    db.components().insertSnapshot(zookeeper.getMainBranchDto());
+    db.components().insertSnapshot(eclipse.getMainBranchDto());
     logInAsSystemAdministrator();
     insertActivity("T1", struts, SUCCESS);
     insertActivity("T2", zookeeper, SUCCESS);
@@ -323,8 +328,8 @@ public class ActivityActionIT {
 
   @Test
   public void search_activity_returns_views() {
-    ComponentDto apacheView = db.components().insertPrivatePortfolio(v -> v.setName("Apache View"));
-    db.components().insertSnapshot(apacheView);
+    PortfolioData apacheView = db.components().insertPrivatePortfolioData(v -> v.setName("Apache View"));
+    db.components().insertSnapshot(apacheView.getPortfolioDto());
     logInAsSystemAdministrator();
     insertActivity("T2", apacheView, SUCCESS);
 
@@ -335,8 +340,8 @@ public class ActivityActionIT {
 
   @Test
   public void search_activity_returns_application() {
-    ComponentDto apacheApp = db.components().insertPublicApplication(a -> a.setName("Apache App")).getMainBranchComponent();
-    db.components().insertSnapshot(apacheApp);
+    ProjectData apacheApp = db.components().insertPublicApplication(a -> a.setName("Apache App"));
+    db.components().insertSnapshot(apacheApp.getMainBranchDto());
     logInAsSystemAdministrator();
     insertActivity("T2", apacheApp, SUCCESS);
 
@@ -348,7 +353,7 @@ public class ActivityActionIT {
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     insertQueue("T1", project, IN_PROGRESS);
 
     ActivityResponse result = call(
@@ -363,7 +368,7 @@ public class ActivityActionIT {
   @Test
   public void search_task_id_in_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     insertActivity("T1", project, SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
@@ -377,9 +382,9 @@ public class ActivityActionIT {
     // WS api/ce/task must be used in order to search by task id.
     // Here it's a convenient feature of search by text query, which
     // is reserved to roots
-    ComponentDto view = db.components().insertPrivatePortfolio();
+    PortfolioData view = db.components().insertPrivatePortfolioData();
     insertActivity("T1", view, SUCCESS);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, view);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, view.getRootComponent());
 
     TestRequest request = ws.newRequest().setParam(TEXT_QUERY, "T1");
     assertThatThrownBy(() -> call(request))
@@ -390,12 +395,12 @@ public class ActivityActionIT {
   @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String branchName = "branch1";
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.mainBranchUuid(), SUCCESS, analysis);
     insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
@@ -432,12 +437,12 @@ public class ActivityActionIT {
   @Test
   public void pull_request_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
+    BranchDto pullRequest = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.getMainBranchComponent().uuid(), SUCCESS, analysis);
     insertCharacteristic(activity, PULL_REQUEST, pullRequestKey);
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
@@ -531,7 +536,7 @@ public class ActivityActionIT {
   @Test
   public void throws_IAE_if_page_is_higher_than_available() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
 
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project1, SUCCESS);
@@ -585,9 +590,9 @@ public class ActivityActionIT {
   @Test
   public void filter_out_duplicate_tasks_in_progress_and_success() {
     logInAsSystemAdministrator();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
+    ProjectData project3 = db.components().insertPrivateProject();
     insertQueue("T2", project2, IN_PROGRESS);
     insertQueue("T3", project3, IN_PROGRESS);
     insertActivity("T1", project1, SUCCESS);
@@ -604,12 +609,12 @@ public class ActivityActionIT {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto insertQueue(String taskUuid, @Nullable ComponentDto project, CeQueueDto.Status status) {
+  private CeQueueDto insertQueue(String taskUuid, @Nullable ProjectData project, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    if (project != null ) {
-      queueDto.setComponentUuid(project.uuid());
-      queueDto.setEntityUuid(project.uuid());
+    if (project != null) {
+      queueDto.setComponentUuid(project.mainBranchUuid());
+      queueDto.setEntityUuid(project.projectUuid());
     }
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
@@ -618,15 +623,19 @@ public class ActivityActionIT {
     return queueDto;
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status) {
-    return insertActivity(taskUuid, project, status, db.components().insertSnapshot(project));
+  private CeActivityDto insertActivity(String taskUuid, ProjectData project, Status status) {
+    return insertActivity(taskUuid, project.projectUuid(), project.mainBranchUuid(), status, db.components().insertSnapshot(project.getMainBranchDto()));
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status, @Nullable SnapshotDto analysis) {
+  private CeActivityDto insertActivity(String taskUuid, PortfolioData portfolio, Status status) {
+    return insertActivity(taskUuid, portfolio.portfolioUuid(), portfolio.rootComponentUuid(), status, db.components().insertSnapshot(portfolio.getPortfolioDto()));
+  }
+
+  private CeActivityDto insertActivity(String taskUuid, String entityUuid, String rootCompomentUuid, Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(project.uuid());
-    queueDto.setEntityUuid(project.uuid());
+    queueDto.setComponentUuid(rootCompomentUuid);
+    queueDto.setEntityUuid(entityUuid);
     queueDto.setUuid(taskUuid);
     queueDto.setCreatedAt(EXECUTED_AT);
     CeActivityDto activityDto = new CeActivityDto(queueDto);

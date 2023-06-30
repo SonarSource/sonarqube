@@ -52,7 +52,7 @@ public class TaskFormatterTest {
   private static final int WARNING_COUNT = 5;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = mock(System2.class);
   private final TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);

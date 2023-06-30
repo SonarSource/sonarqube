@@ -65,7 +65,7 @@ public class RuleCreatorIT {
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2, true);
 
   @Rule
   public EsTester es = EsTester.create();

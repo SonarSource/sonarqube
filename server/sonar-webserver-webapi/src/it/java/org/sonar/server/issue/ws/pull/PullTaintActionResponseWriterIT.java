@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 public class PullTaintActionResponseWriterIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

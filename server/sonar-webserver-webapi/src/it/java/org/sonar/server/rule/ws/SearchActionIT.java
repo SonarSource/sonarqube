@@ -114,7 +114,7 @@ public class SearchActionIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
   @org.junit.Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   @org.junit.Rule
   public EsTester es = EsTester.create();
 

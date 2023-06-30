@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -54,7 +55,7 @@ public class CreateActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -62,7 +63,7 @@ public class CreateActionIT {
 
   @Test
   public void example_with_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -77,12 +78,12 @@ public class CreateActionIT {
 
   @Test
   public void example_with_id() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute().getInput();
@@ -92,7 +93,7 @@ public class CreateActionIT {
 
   @Test
   public void require_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     createAndTest(project);
@@ -100,7 +101,7 @@ public class CreateActionIT {
 
   @Test
   public void with_long_name() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
     String longName = StringUtils.leftPad("", 60, "a");
     String expectedType = StringUtils.leftPad("", 20, "a");
@@ -259,7 +260,7 @@ public class CreateActionIT {
       .hasMessageContaining("Project '" + component.uuid() + "' not found");
   }
 
-  private void createAndTest(ComponentDto project, String name, String url, String type) {
+  private void createAndTest(ProjectDto project, String name, String url, String type) {
     ProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -275,11 +276,11 @@ public class CreateActionIT {
     assertThat(link.getType()).isEqualTo(type);
   }
 
-  private void createAndTest(ComponentDto project) {
+  private void createAndTest(ProjectDto project) {
     createAndTest(project, "Custom", "http://example.org", "custom");
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 }

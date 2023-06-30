@@ -46,7 +46,7 @@ public class RenameActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final WsActionTester ws = new WsActionTester(
     new RenameAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));

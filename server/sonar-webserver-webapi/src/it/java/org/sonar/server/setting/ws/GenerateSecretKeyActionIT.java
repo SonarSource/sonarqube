@@ -47,7 +47,7 @@ public class GenerateSecretKeyActionIT {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = db.getDbClient();
   private MapSettings settings = new MapSettings();

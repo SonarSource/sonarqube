@@ -80,7 +80,7 @@ public class SetActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final PropertyDbTester propertyDb = new PropertyDbTester(db);
   private final DbClient dbClient = db.getDbClient();

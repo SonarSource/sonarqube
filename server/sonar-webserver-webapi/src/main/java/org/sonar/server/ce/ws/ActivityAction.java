@@ -235,9 +235,9 @@ public class ActivityAction implements CeWsAction {
     String componentKey = request.getComponent();
 
     if (componentKey != null) {
-      Optional<EntityDto> foundComponent;
-      foundComponent = dbClient.entityDao().selectByKey(dbSession, componentKey);
-      return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentKey);
+      Optional<EntityDto> foundEntity;
+      foundEntity = dbClient.entityDao().selectByKey(dbSession, componentKey);
+      return checkFoundWithOptional(foundEntity, "Component '%s' does not exist", componentKey);
     } else {
       return null;
     }

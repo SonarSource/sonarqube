@@ -51,4 +51,9 @@ public class ProjectData {
   public String projectKey() {
     return projectDto.getKey();
   }
+
+  public String mainBranchUuid(){
+    return mainBranchDto.getUuid();
+  }
+
 }

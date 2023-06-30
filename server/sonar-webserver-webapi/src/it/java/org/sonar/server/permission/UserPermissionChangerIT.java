@@ -45,7 +45,7 @@ import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
 public class UserPermissionChangerIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
 
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);

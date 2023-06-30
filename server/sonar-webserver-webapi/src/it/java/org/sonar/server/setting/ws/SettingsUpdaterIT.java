@@ -48,7 +48,7 @@ public class SettingsUpdaterIT {
 
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();

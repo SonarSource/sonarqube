@@ -98,7 +98,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ComponentActionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
 

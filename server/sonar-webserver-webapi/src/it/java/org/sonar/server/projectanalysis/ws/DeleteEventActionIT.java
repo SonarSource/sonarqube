@@ -51,7 +51,7 @@ public class DeleteEventActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 

@@ -54,7 +54,7 @@ public class ActivityStatusActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = db.getDbClient();

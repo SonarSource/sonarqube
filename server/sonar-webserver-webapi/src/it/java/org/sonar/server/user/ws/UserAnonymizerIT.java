@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserAnonymizerIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient());
 
   @Test

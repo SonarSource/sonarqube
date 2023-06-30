@@ -64,7 +64,7 @@ public class QProfileFactoryImplIT {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbSession dbSession = db.getSession();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);

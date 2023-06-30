@@ -62,7 +62,7 @@ public class SearchActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient()));
 

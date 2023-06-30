@@ -68,7 +68,7 @@ public class SearchActionIT {
   private static final Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private final QualityProfileDbTester qualityProfileDb = db.qualityProfiles();

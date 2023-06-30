@@ -66,7 +66,7 @@ public class CreateActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   @Rule
   public EsTester es = EsTester.create();

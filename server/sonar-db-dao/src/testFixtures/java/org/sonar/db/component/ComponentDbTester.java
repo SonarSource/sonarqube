@@ -235,6 +235,12 @@ public class ComponentDbTester {
     return new PortfolioData(portfolioDto, component);
   }
 
+  public final PortfolioData insertPrivatePortfolioData(Consumer<ComponentDto> dtoPopulator) {
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, defaults());
+    PortfolioDto portfolioDto = getPortfolioDto(component);
+    return new PortfolioData(portfolioDto, component);
+  }
+
   public final PortfolioDto insertPrivatePortfolioDto(Consumer<ComponentDto> dtoPopulator) {
     ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, defaults());
     return getPortfolioDto(component);

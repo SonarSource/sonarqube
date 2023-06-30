@@ -71,7 +71,7 @@ public class DeactivateActionIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

@@ -35,6 +35,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.ProjectLastAnalysisDateDto;
@@ -102,7 +103,7 @@ public class SearchAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-          "If no visibility is specified, the default project visibility will be used.",
+        "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -159,13 +160,15 @@ public class SearchAction implements ProjectsWsAction {
       Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, paging.offset(), paging.pageSize());
       Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toHashSet(components.size()));
-      Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjectUuids(dbSession, componentUuids).stream()
+      List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, componentUuids);
+      Map<String, String> projectUuidByComponentUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,BranchDto::getProjectUuid));
+      Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjectUuids(dbSession, projectUuidByComponentUuid.values()).stream()
         .collect(Collectors.toMap(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate));
       Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
         .collect(MoreCollectors.uniqueIndex(SnapshotDto::getRootComponentUuid, identity()));
 
-      return buildResponse(components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, paging);
+      return buildResponse(components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, projectUuidByComponentUuid, paging);
     }
   }
 
@@ -194,7 +197,7 @@ public class SearchAction implements ProjectsWsAction {
   }
 
   private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, SnapshotDto> snapshotsByComponentUuid,
-    Map<String, Long> lastAnalysisDateByComponentUuid, Paging paging) {
+    Map<String, Long> lastAnalysisDateByComponentUuid, Map<String, String> projectUuidByComponentUuid, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -203,7 +206,7 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(dto.uuid())))
+      .map(dto -> dtoToProject(dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(projectUuidByComponentUuid.get(dto.uuid()))))
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }

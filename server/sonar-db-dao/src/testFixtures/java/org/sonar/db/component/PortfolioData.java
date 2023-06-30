@@ -39,4 +39,11 @@ public class PortfolioData {
     return portfolioDto;
   }
 
+  public String portfolioUuid(){
+    return portfolioDto.getUuid();
+  }
+
+  public String rootComponentUuid(){
+    return rootComponent.uuid();
+  }
 }

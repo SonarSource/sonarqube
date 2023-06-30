@@ -38,7 +38,7 @@ public class ListActionIT {
   private static final String RULE_KEY_2 = "S002";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   ListAction underTest = new ListAction(dbTester.getDbClient());
 

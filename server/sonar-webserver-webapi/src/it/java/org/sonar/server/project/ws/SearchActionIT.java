@@ -33,7 +33,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -77,7 +80,7 @@ public class SearchActionIT {
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(true);
 
   private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession));
 
@@ -129,11 +132,11 @@ public class SearchActionIT {
   @Test
   public void search_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2)).getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
     db.components().insertPublicPortfolio();
 
-    ComponentDto directory = newDirectory(project, "dir");
+    ComponentDto directory = newDirectory(project.getMainBranchComponent(), "dir");
     ComponentDto file = newFileDto(directory);
     db.components().insertComponents(directory, file);
 
@@ -145,7 +148,7 @@ public class SearchActionIT {
   @Test
   public void search_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("VW")).build());
@@ -156,7 +159,7 @@ public class SearchActionIT {
   @Test
   public void search_projects_and_views() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(asList("TRK", "VW")).build());
@@ -167,9 +170,9 @@ public class SearchActionIT {
   @Test
   public void search_all() {
     userSession.addPermission(ADMINISTER);
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2)).getMainBranchComponent();
-    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_3)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
+    db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_3));
     SearchWsResponse response = call(SearchRequest.builder().build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY_1, PROJECT_KEY_2, PROJECT_KEY_3);
@@ -182,22 +185,22 @@ public class SearchActionIT {
     long inBetween = 2_000_000_000L;
     long recentTime = 3_000_000_000L;
 
-    ComponentDto oldProject = db.components().insertPublicProject().getMainBranchComponent();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
-    ComponentDto branch = db.components().insertProjectBranch(oldProject);
+    ProjectData oldProject = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject.getMainBranchDto()).setCreatedAt(aLongTimeAgo));
+    BranchDto branch = db.components().insertProjectBranch(oldProject.getProjectDto());
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(inBetween));
 
-    ComponentDto recentProject = db.components().insertPublicProject().getMainBranchComponent();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(recentTime));
+    ProjectData recentProject = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject.getMainBranchDto()).setCreatedAt(recentTime));
     db.commit();
 
     SearchWsResponse result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(recentTime + 1_000))).build());
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate)
-      .containsExactlyInAnyOrder(tuple(oldProject.getKey(), formatDateTime(inBetween)), tuple(recentProject.getKey(), formatDateTime(recentTime)));
+      .containsExactlyInAnyOrder(tuple(oldProject.getProjectDto().getKey(), formatDateTime(inBetween)), tuple(recentProject.projectKey(), formatDateTime(recentTime)));
 
     result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(recentTime))).build());
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate)
-      .containsExactlyInAnyOrder(tuple(oldProject.getKey(), formatDateTime(inBetween)));
+      .containsExactlyInAnyOrder(tuple(oldProject.getProjectDto().getKey(), formatDateTime(inBetween)));
 
     result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(aLongTimeAgo + 1_000L))).build());
     assertThat(result.getComponentsList()).isEmpty();
@@ -210,8 +213,8 @@ public class SearchActionIT {
 
   @Test
   public void does_not_return_branches_when_searching_by_key() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.components().insertProjectBranch(project);
     userSession.addPermission(ADMINISTER);
 
     SearchWsResponse response = call(SearchRequest.builder().build());
@@ -222,10 +225,9 @@ public class SearchActionIT {
   @Test
   public void result_is_paginated() {
     userSession.addPermission(ADMINISTER);
-    List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
       int j = i;
-      componentDtoList.add(db.components().insertPrivateProject("project-uuid-" + i, p -> p.setKey("project-key-" + j).setName("Project Name " + j)).getMainBranchComponent());
+      db.components().insertPrivateProject("project-uuid-" + i, p -> p.setKey("project-key-" + j).setName("Project Name " + j));
     }
 
     SearchWsResponse response = call(SearchRequest.builder().setPage(2).setPageSize(3).build());
@@ -235,23 +237,23 @@ public class SearchActionIT {
   @Test
   public void provisioned_projects() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto provisionedProject = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto analyzedProject = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(newAnalysis(analyzedProject));
+    ProjectDto provisionedProject = db.components().insertPrivateProject().getProjectDto();
+    ProjectData analyzedProject = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(analyzedProject.getMainBranchDto()));
 
     SearchWsResponse response = call(SearchRequest.builder().setOnProvisionedOnly(true).build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(provisionedProject.getKey())
-      .doesNotContain(analyzedProject.getKey());
+      .doesNotContain(analyzedProject.projectKey());
   }
 
   @Test
   public void search_by_component_keys() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto jdk = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto sonarlint = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto jdk = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto sonarqube = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto sonarlint = db.components().insertPrivateProject().getProjectDto();
 
     SearchWsResponse result = call(SearchRequest.builder()
       .setProjects(Arrays.asList(jdk.getKey(), sonarqube.getKey()))
@@ -346,12 +348,12 @@ public class SearchActionIT {
   @Test
   public void json_example() {
     userSession.addPermission(ADMINISTER);
-    ComponentDto publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false)).getMainBranchComponent();
-    ComponentDto privateProject = db.components().insertPrivateProject("project-uuid-2", p -> p.setName("Project Name 1").setKey("project-key-2")).getMainBranchComponent();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject)
+    ProjectData publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false));
+    ProjectData privateProject = db.components().insertPrivateProject("project-uuid-2", p -> p.setName("Project Name 1").setKey("project-key-2"));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject.getMainBranchDto())
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime())
       .setRevision("cfb82f55c6ef32e61828c4cb3db2da12795fd767"));
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(privateProject)
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(privateProject.getMainBranchDto())
       .setCreatedAt(parseDateTime("2017-03-02T15:21:47+0300").getTime())
       .setRevision("7be96a94ac0c95a61ee6ee0ef9c6f808d386a355"));
     db.commit();

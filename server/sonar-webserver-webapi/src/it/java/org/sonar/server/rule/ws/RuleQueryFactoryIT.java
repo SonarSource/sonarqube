@@ -71,7 +71,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 public class RuleQueryFactoryIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
