@@ -1053,7 +1053,7 @@ export class App extends React.PureComponent<Props, State> {
           {({ top }) => (
             <nav
               aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-              className="it__issues-nav-bar sw-overflow-y-auto"
+              className="it__issues-nav-bar sw-overflow-y-auto issue-filters-list"
               style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
             >
               <div className="sw-w-[300px] lg:sw-w-[390px]">
