@@ -54,7 +54,7 @@ public class BulkIndexerIT {
   @Rule
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition().setReplicas(1));
   @Rule
-  public DbTester dbTester = DbTester.create(testSystem2);
+  public DbTester dbTester = DbTester.create(testSystem2, true);
   @Rule
   public LogTester logTester = new LogTester();
 

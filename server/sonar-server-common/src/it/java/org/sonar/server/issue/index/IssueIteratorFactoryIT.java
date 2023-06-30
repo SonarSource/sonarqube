@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -41,12 +42,13 @@ import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 public class IssueIteratorFactoryIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   @Test
   public void iterator_over_one_issue() {
     RuleDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = dbTester.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project)
       .setPath("src/main/java/Action.java"));
     IssueDto expected = dbTester.issues().insert(rule, project, file,
@@ -85,7 +87,7 @@ public class IssueIteratorFactoryIT {
     assertThat(issue.line()).isEqualTo(444);
     assertThat(issue.ruleUuid()).isEqualTo(rule.getUuid());
     assertThat(issue.componentUuid()).isEqualTo(file.uuid());
-    assertThat(issue.projectUuid()).isEqualTo(file.branchUuid());
+    assertThat(issue.projectUuid()).isEqualTo(projectData.projectUuid());
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");

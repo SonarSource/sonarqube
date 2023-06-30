@@ -40,7 +40,7 @@ public class OneToOneResilientIndexingListenerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   @Test
   public void onSuccess_deletes_rows_from_ES_QUEUE_table() {

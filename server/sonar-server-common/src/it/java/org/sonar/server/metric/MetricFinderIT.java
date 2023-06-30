@@ -33,7 +33,7 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 public class MetricFinderIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final MetricFinder underTest = new MetricFinder(db.getDbClient());
 

@@ -39,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
@@ -71,7 +72,7 @@ public class IssueIndexerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -108,7 +109,8 @@ public class IssueIndexerIT {
   @Test
   public void verify_indexed_fields() {
     RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -120,7 +122,7 @@ public class IssueIndexerIT {
     assertThat(doc.assigneeUuid()).isEqualTo(issue.getAssigneeUuid());
     assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
-    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
+    assertThat(doc.projectUuid()).isEqualTo(projectData.projectUuid());
     assertThat(doc.branchUuid()).isEqualTo(project.uuid());
     assertThat(doc.isMainBranch()).isTrue();
     assertThat(doc.closeDate()).isEqualTo(issue.getIssueCloseDate());

@@ -34,7 +34,7 @@ public class DatabaseSettingLoaderIT {
   private static final String A_KEY = "a_key";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private DatabaseSettingLoader underTest = new DatabaseSettingLoader(dbTester.getDbClient());
 

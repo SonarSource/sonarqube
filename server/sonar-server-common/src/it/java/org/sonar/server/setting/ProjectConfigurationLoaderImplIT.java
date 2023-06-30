@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectConfigurationLoaderImplIT {
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private final static String GLOBAL_PROP_KEY = "GLOBAL_PROP_KEY";
   private final static String GLOBAL_PROP_VALUE = "GLOBAL_PROP_VALUE";

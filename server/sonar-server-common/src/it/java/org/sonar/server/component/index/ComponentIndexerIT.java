@@ -29,9 +29,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentUpdateDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsClient;
@@ -57,7 +57,7 @@ public class ComponentIndexerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -77,8 +77,8 @@ public class ComponentIndexerIT {
 
   @Test
   public void indexOnStartup_indexes_all_components() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     underTest.indexOnStartup(emptySet());
 
@@ -87,8 +87,8 @@ public class ComponentIndexerIT {
 
   @Test
   public void indexOAll_indexes_all_components() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
 
     underTest.indexAll();
 
@@ -97,21 +97,21 @@ public class ComponentIndexerIT {
 
   @Test
   public void map_fields() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     underTest.indexOnStartup(emptySet());
 
     assertThatIndexContainsOnly(project);
     ComponentDoc doc = es.getDocuments(TYPE_COMPONENT, ComponentDoc.class).get(0);
-    assertThat(doc.getId()).isEqualTo(project.uuid());
+    assertThat(doc.getId()).isEqualTo(project.getUuid());
     assertThat(doc.getKey()).isEqualTo(project.getKey());
-    assertThat(doc.getName()).isEqualTo(project.name());
+    assertThat(doc.getName()).isEqualTo(project.getName());
   }
 
   @Test
   public void indexOnStartup_does_not_index_non_main_branches() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnStartup(emptySet());
 
@@ -120,56 +120,57 @@ public class ComponentIndexerIT {
 
   @Test
   public void indexOnAnalysis_indexes_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
 
-    underTest.indexOnAnalysis(project.uuid());
+    underTest.indexOnAnalysis(project.getMainBranchComponent().uuid());
 
-    assertThatIndexContainsOnly(project);
+    assertThatIndexContainsOnly(project.getProjectDto());
   }
 
   @Test
   public void indexOnAnalysis_indexes_new_components() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    underTest.indexOnAnalysis(project.uuid());
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    underTest.indexOnAnalysis(projectData.getMainBranchComponent().uuid());
     assertThatIndexContainsOnly(project);
 
-    underTest.indexOnAnalysis(project.uuid());
+    underTest.indexOnAnalysis(projectData.getMainBranchComponent().uuid());
     assertThatIndexContainsOnly(project);
   }
 
   @Test
   public void indexOnAnalysis_does_not_index_non_main_branches() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
-    underTest.indexOnAnalysis(branch.uuid());
+    underTest.indexOnAnalysis(branch.getUuid());
 
     assertThatIndexHasSize(0);
   }
 
   @Test
   public void do_not_update_index_on_project_tag_update() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    indexProject(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    indexEntity(project, ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
 
     assertThatIndexHasSize(0);
   }
 
   @Test
   public void do_not_update_index_on_permission_change() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    indexProject(project, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    indexEntity(project, ProjectIndexer.Cause.PERMISSION_CHANGE);
 
     assertThatIndexHasSize(0);
   }
 
   @Test
   public void update_index_on_project_creation() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    IndexingResult result = indexProject(project, PROJECT_CREATION);
+    IndexingResult result = indexEntity(project, PROJECT_CREATION);
 
     assertThatIndexContainsOnly(project);
     assertThat(result.getTotal()).isOne();
@@ -178,22 +179,22 @@ public class ComponentIndexerIT {
 
   @Test
   public void delete_some_components() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    indexProject(project, PROJECT_CREATION);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    indexEntity(project, PROJECT_CREATION);
 
-    underTest.delete(project.uuid(), emptySet());
+    underTest.delete(project.getUuid(), emptySet());
 
     assertThatIndexContainsOnly(project);
   }
 
   @Test
   public void delete_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    indexProject(project, PROJECT_CREATION);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    indexEntity(project, PROJECT_CREATION);
     assertThatIndexHasSize(1);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT, project.name(), project.getKey());
-    indexProject(project, PROJECT_DELETION);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), PROJECT, project.getName(), project.getKey());
+    indexEntity(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);
   }
@@ -201,8 +202,8 @@ public class ComponentIndexerIT {
   @Test
   public void indexOnAnalysis_updates_index_on_changes() {
   ProjectData project = db.components().insertPrivateProject();
-  underTest.indexOnAnalysis(project.projectUuid());
-  assertThatComponentHasName(project.projectUuid(), project.getProjectDto().getName());
+  underTest.indexOnAnalysis(project.getMainBranchComponent().uuid());
+  assertThatEntityHasName(project.projectUuid(), project.getProjectDto().getName());
 
   // modify
   ProjectDto projectDto = project.getProjectDto();
@@ -212,20 +213,20 @@ public class ComponentIndexerIT {
   db.commit();
 
   // verify that index is updated
-  underTest.indexOnAnalysis(projectDto.getUuid());
+  underTest.indexOnAnalysis(project.getMainBranchComponent().uuid());
 
   assertThatIndexContainsOnly(projectDto.getUuid());
-  assertThatComponentHasName(projectDto.getUuid(), "NewName");
+  assertThatEntityHasName(projectDto.getUuid(), "NewName");
 }
 
 
 
   @Test
   public void errors_during_indexing_are_recovered() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     es.lockWrites(TYPE_COMPONENT);
 
-    IndexingResult result = indexProject(project1, PROJECT_CREATION);
+    IndexingResult result = indexEntity(project1, PROJECT_CREATION);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getFailures()).isOne();
 
@@ -243,9 +244,9 @@ public class ComponentIndexerIT {
     assertThatIndexContainsOnly(project1);
   }
 
-  private IndexingResult indexProject(ComponentDto project, ProjectIndexer.Cause cause) {
+  private IndexingResult indexEntity(EntityDto entity, ProjectIndexer.Cause cause) {
     DbSession dbSession = db.getSession();
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(project.uuid()), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecovery(dbSession, singletonList(entity.getUuid()), cause);
     dbSession.commit();
     return underTest.index(dbSession, items);
   }
@@ -259,16 +260,16 @@ public class ComponentIndexerIT {
     assertThat(es.countDocuments(TYPE_COMPONENT)).isEqualTo(expectedSize);
   }
 
-  private void assertThatIndexContainsOnly(ComponentDto... expectedComponents) {
+  private void assertThatIndexContainsOnly(EntityDto... expectedEntities) {
     assertThat(es.getIds(TYPE_COMPONENT)).containsExactlyInAnyOrder(
-      Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new));
+      Arrays.stream(expectedEntities).map(EntityDto::getUuid).toArray(String[]::new));
   }
 
   private void assertThatIndexContainsOnly(String uuid) {
     assertThat(es.getIds(TYPE_COMPONENT)).containsExactlyInAnyOrder(uuid);
   }
 
-  private void assertThatComponentHasName(String uuid, String expectedName) {
+  private void assertThatEntityHasName(String uuid, String expectedName) {
     SearchHit[] hits = es.client()
       .search(EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
         .source(new SearchSourceBuilder()
