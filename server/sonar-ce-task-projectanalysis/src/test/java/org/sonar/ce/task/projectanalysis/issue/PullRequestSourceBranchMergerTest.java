@@ -73,7 +73,7 @@ public class PullRequestSourceBranchMergerTest {
   private NonClosedTracking<DefaultIssue, DefaultIssue> prTracking;
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private PullRequestSourceBranchMerger underTest;
   private RuleDto rule;

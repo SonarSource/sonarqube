@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class MapBasedRawMeasureRepositoryTest {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1)

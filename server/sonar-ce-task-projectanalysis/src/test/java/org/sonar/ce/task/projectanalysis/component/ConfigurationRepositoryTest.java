@@ -39,7 +39,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ConfigurationRepositoryTest {
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
