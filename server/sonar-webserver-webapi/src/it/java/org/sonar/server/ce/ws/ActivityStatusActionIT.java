@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -91,9 +92,9 @@ public class ActivityStatusActionIT {
   public void status_for_a_project_as_project_admin() {
     String projectKey = "project-key";
     String anotherProjectKey = "another-project-key";
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey)).getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ProjectData project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
+    ProjectData anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -117,9 +118,9 @@ public class ActivityStatusActionIT {
   @Test
   public void add_pending_time() {
     String projectKey = "project-key";
-    ComponentDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
     when(system2.now()).thenReturn(2000L);
     insertInQueue(CeQueueDto.Status.PENDING, project, 1000L);
     Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);
@@ -163,16 +164,16 @@ public class ActivityStatusActionIT {
       .hasMessage("Insufficient privileges");
   }
 
-  private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto) {
-    insertInQueue(status, componentDto, null);
+  private void insertInQueue(CeQueueDto.Status status, @Nullable ProjectData projectData) {
+    insertInQueue(status, projectData, null);
   }
 
-  private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto, @Nullable Long createdAt) {
+  private void insertInQueue(CeQueueDto.Status status, @Nullable ProjectData projectData, @Nullable Long createdAt) {
     CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast())
       .setStatus(status);
-    if(componentDto != null) {
-      ceQueueDto.setComponentUuid(componentDto.uuid())
-        .setEntityUuid(componentDto.uuid());
+    if(projectData != null) {
+      ceQueueDto.setComponentUuid(projectData.getMainBranchComponent().uuid())
+        .setEntityUuid(projectData.projectUuid());
     }
     if (createdAt != null) {
       ceQueueDto.setCreatedAt(createdAt);
@@ -181,10 +182,10 @@ public class ActivityStatusActionIT {
     db.commit();
   }
 
-  private void insertActivity(CeActivityDto.Status status, @Nullable ComponentDto dto) {
+  private void insertActivity(CeActivityDto.Status status, ProjectData dto) {
     CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast());
-    ceQueueDto.setComponentUuid(dto.uuid());
-    ceQueueDto.setEntityUuid(dto.uuid());
+    ceQueueDto.setComponentUuid(dto.getMainBranchComponent().uuid());
+    ceQueueDto.setEntityUuid(dto.projectUuid());
     dbClient.ceActivityDao().insert(dbSession, new CeActivityDto(ceQueueDto)
       .setStatus(status));
     db.commit();

@@ -31,6 +31,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -98,58 +99,58 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void return_204_on_success() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     TestResponse response = underTest.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", project.projectKey())
       .setParam("warning", taskMessageDismissible.getUuid())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(db.select("select * from user_dismissed_messages"))
       .extracting("USER_UUID", "PROJECT_UUID", "MESSAGE_TYPE")
-      .containsExactly(tuple(userSession.getUuid(), project.uuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
+      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
   }
 
   @Test
   public void is_idempotent() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     underTest.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", project.projectKey())
       .setParam("warning", taskMessageDismissible.getUuid())
       .execute();
     TestResponse response = underTest.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", project.projectKey())
       .setParam("warning", taskMessageDismissible.getUuid())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(db.select("select * from user_dismissed_messages"))
       .extracting("USER_UUID", "PROJECT_UUID", "MESSAGE_TYPE")
-      .containsExactly(tuple(userSession.getUuid(), project.uuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
+      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
   }
 
   @Test
   public void returns_400_if_warning_is_not_dismissable() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessage = createTaskMessage(activity, "generic warning");
 
     TestRequest request = underTest.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", project.projectKey())
       .setParam("warning", taskMessage.getUuid());
 
     assertThrows(format("Message '%s' cannot be dismissed.", taskMessage.getUuid()), IllegalArgumentException.class, request::execute);
@@ -159,14 +160,14 @@ public class DismissAnalysisWarningActionIT {
   @Test
   public void returns_404_if_warning_does_not_exist() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     String warningUuid = "78d1e2ff-3e67-4037-ba58-0d57d5f88e44";
 
     TestRequest request = underTest.newRequest()
-      .setParam("component", project.getKey())
+      .setParam("component", project.projectKey())
       .setParam("warning", warningUuid);
 
     assertThrows(format("Message '%s' not found", warningUuid), NotFoundException.class, request::execute);
@@ -192,7 +193,6 @@ public class DismissAnalysisWarningActionIT {
   private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis, String taskType) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(taskType);
-    queueDto.setComponentUuid(component.uuid());
     queueDto.setComponentUuid(component.uuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
