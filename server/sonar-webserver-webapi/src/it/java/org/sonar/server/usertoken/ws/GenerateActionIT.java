@@ -34,8 +34,8 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -161,7 +161,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_global_scan_permission() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.addPermission(SCAN);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -175,7 +175,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -189,7 +189,7 @@ public class GenerateActionIT {
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission_passing_login() {
     UserDto user = userLogin();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse responseWithLogin = newRequest(user.getLogin(), TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -284,7 +284,7 @@ public class GenerateActionIT {
   @Test
   public void fail_if_projectAnalysisToken_created_without_project_permission() {
     userLogin();
-    String projectKey = db.components().insertPublicProject().getMainBranchComponent().getKey();
+    String projectKey = db.components().insertPublicProject().getProjectDto().getKey();
 
     assertThatThrownBy(() -> newRequest(null, "token 1", PROJECT_ANALYSIS_TOKEN, projectKey))
       .isInstanceOf(ForbiddenException.class)
