@@ -46,7 +46,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -143,13 +145,13 @@ public class SetActionIT {
   @Test
   public void persist_new_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my project value", project.getKey());
 
     assertGlobalSetting("my.key", "my global value");
-    assertComponentSetting("my.key", "my project value", project.uuid());
+    assertComponentSetting("my.key", "my project value", project.getUuid());
     assertThat(settingsChangeNotifier.wasCalled).isFalse();
   }
 
@@ -158,7 +160,7 @@ public class SetActionIT {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ComponentDto subportfolio = db.components().insertSubportfolio(portfolio);
-    logInAsProjectAdministrator(portfolio);
+    logInAsPortfolioAdministrator(db.components().getPortfolioDto(portfolio));
 
     callForProjectSettingByKey("my.key", "my project value", subportfolio.getKey());
 
@@ -169,27 +171,27 @@ public class SetActionIT {
 
   @Test
   public void persist_project_property_with_project_admin_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my value", project.getKey());
 
-    assertComponentSetting("my.key", "my value", project.uuid());
+    assertComponentSetting("my.key", "my value", project.getUuid());
   }
 
   @Test
   public void update_existing_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null,
       null, null);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project), project.getKey(),
-      project.name(), null, null);
-    assertComponentSetting("my.key", "my project value", project.uuid());
+      project.getName(), null, null);
+    assertComponentSetting("my.key", "my project value", project.getUuid());
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my new project value", project.getKey());
 
-    assertComponentSetting("my.key", "my new project value", project.uuid());
+    assertComponentSetting("my.key", "my new project value", project.getUuid());
   }
 
   @Test
@@ -313,12 +315,12 @@ public class SetActionIT {
           .type(PropertyType.STRING)
           .build()))
       .build());
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     propertyDb.insertProperties(null, null, null, null,
       newGlobalPropertyDto("my.key", "1"),
       newGlobalPropertyDto("my.key.1.firstField", "oldFirstValue"),
       newGlobalPropertyDto("my.key.1.secondField", "oldSecondValue"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto("my.key", "1", project),
       newComponentPropertyDto("my.key.1.firstField", "componentFirstValue", project),
       newComponentPropertyDto("my.key.1.firstField", "componentSecondValue", project));
@@ -330,11 +332,11 @@ public class SetActionIT {
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
-    assertThat(dbClient.propertiesDao().selectEntityProperties(dbSession, project.uuid())).hasSize(5);
+    assertThat(dbClient.propertiesDao().selectEntityProperties(dbSession, project.getUuid())).hasSize(5);
     assertGlobalSetting("my.key", "1");
     assertGlobalSetting("my.key.1.firstField", "oldFirstValue");
     assertGlobalSetting("my.key.1.secondField", "oldSecondValue");
-    String projectUuid = project.uuid();
+    String projectUuid = project.getUuid();
     assertComponentSetting("my.key", "1,2", projectUuid);
     assertComponentSetting("my.key.1.firstField", "firstValue", projectUuid);
     assertComponentSetting("my.key.1.secondField", "secondValue", projectUuid);
@@ -794,7 +796,7 @@ public class SetActionIT {
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
 
     assertThatThrownBy(() -> {
-      logInAsProjectAdministrator(view);
+      logInAsPortfolioAdministrator(db.components().getPortfolioDto(view));
       callForProjectSettingByKey("my.key", "My Value", view.getKey());
     })
       .isInstanceOf(BadRequestException.class)
@@ -824,27 +826,27 @@ public class SetActionIT {
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_project_component() {
-    ComponentDto project = randomPublicOrPrivateProject();
+    ProjectDto project = randomPublicOrPrivateProject().getProjectDto();
     succeedForPropertyWithoutDefinitionAndValidComponent(project);
   }
 
   @Test
   public void fail_for_property_without_definition_when_set_on_directory_component() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
-    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, directory);
+    ProjectData projectData = randomPublicOrPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(projectData.getMainBranchComponent(), "A/B"));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(projectData.getProjectDto(), directory);
   }
 
   @Test
   public void fail_for_property_without_definition_when_set_on_file_component() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, file);
+    ProjectData projectData = randomPublicOrPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(projectData.getMainBranchComponent()));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(projectData.getProjectDto(), file);
   }
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_view_component() {
-    ComponentDto view = db.components().insertPrivatePortfolio();
+    PortfolioDto view = db.components().insertPrivatePortfolioDto();
     succeedForPropertyWithoutDefinitionAndValidComponent(view);
   }
 
@@ -852,7 +854,7 @@ public class SetActionIT {
   public void succeed_for_property_without_definition_when_set_on_subview_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
-    failForPropertyWithoutDefinitionOnUnsupportedComponent(view, subview);
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(db.components().getPortfolioDto(view), subview);
   }
 
   @Test
@@ -860,20 +862,37 @@ public class SetActionIT {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject().getMainBranchComponent(), view));
 
-    failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(db.components().getPortfolioDto(view), projectCopy);
   }
 
-  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto entity) {
-    logInAsProjectAdministrator(entity);
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(ProjectDto project) {
+    logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "My Value", entity.getKey());
+    callForProjectSettingByKey("my.key", "My Value", project.getKey());
 
-    assertComponentSetting("my.key", "My Value", entity.uuid());
+    assertComponentSetting("my.key", "My Value", project.getUuid());
   }
 
-  private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(PortfolioDto portfolioDto) {
+    logInAsPortfolioAdministrator(portfolioDto);
+
+    callForProjectSettingByKey("my.key", "My Value", portfolioDto.getKey());
+
+    assertComponentSetting("my.key", "My Value", portfolioDto.getUuid());
+  }
+
+  private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ProjectDto project, ComponentDto component) {
     i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
-    logInAsProjectAdministrator(root);
+    logInAsProjectAdministrator(project);
+
+    assertThatThrownBy(() -> callForProjectSettingByKey("my.key", "My Value", component.getKey()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component key '%s' not found", component.getKey()));
+  }
+
+  private void failForPropertyWithoutDefinitionOnUnsupportedComponent(PortfolioDto portfolio, ComponentDto component) {
+    i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
+    logInAsPortfolioAdministrator(portfolio);
 
     assertThatThrownBy(() -> callForProjectSettingByKey("my.key", "My Value", component.getKey()))
       .isInstanceOf(NotFoundException.class)
@@ -1115,7 +1134,7 @@ public class SetActionIT {
       .fields(List.of(PropertyFieldDefinition.build("firstField").name("First Field").type(PropertyType.STRING).build()))
       .build());
     i18n.put("qualifier." + Qualifiers.PROJECT, "Project");
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
     List<String> values = List.of(GSON.toJson(Map.of("firstField", "firstValue")));
@@ -1137,7 +1156,7 @@ public class SetActionIT {
 
   @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
@@ -1178,13 +1197,13 @@ public class SetActionIT {
       .containsExactly(tuple(key, value, userUuid));
   }
 
-  private void assertComponentSetting(String key, String value, String componentUuid) {
-    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(db.getSession(), componentUuid, key);
+  private void assertComponentSetting(String key, String value, String entityUuid) {
+    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(db.getSession(), entityUuid, key);
 
     assertThat(result)
       .isNotNull()
       .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getEntityUuid)
-      .containsExactly(key, value, componentUuid);
+      .containsExactly(key, value, entityUuid);
   }
 
   private void callForGlobalSetting(@Nullable String key, @Nullable String value) {
@@ -1249,11 +1268,11 @@ public class SetActionIT {
     userSession.logIn().addPortfolioPermission(UserRole.ADMIN, portfolio);
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
+  private void logInAsProjectAdministrator(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
-  private ComponentDto randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  private ProjectData randomPublicOrPrivateProject() {
+    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
   }
 }

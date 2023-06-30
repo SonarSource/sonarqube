@@ -21,7 +21,6 @@ package org.sonar.db.property;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserDto;
 
@@ -43,9 +42,9 @@ public class PropertyTesting {
     return newPropertyDto((String) null, null);
   }
 
-  public static PropertyDto newComponentPropertyDto(String key, String value, ComponentDto component) {
-    checkNotNull(component.uuid());
-    return newPropertyDto(key, value, component.uuid(), null);
+  public static PropertyDto newComponentPropertyDto(String key, String value, EntityDto component) {
+    checkNotNull(component.getUuid());
+    return newPropertyDto(key, value, component.getUuid(), null);
   }
 
   public static PropertyDto newComponentPropertyDto(EntityDto entity) {

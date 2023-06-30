@@ -30,6 +30,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.es.ProjectIndexers;
@@ -61,21 +63,24 @@ public class UpdateKeyActionIT {
 
   @Test
   public void update_key_of_project_referenced_by_its_key() {
-    ComponentDto project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+    ProjectData project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
-    call(project.getKey(), ANOTHER_KEY);
+    call(project.projectKey(), ANOTHER_KEY);
 
-    assertThat(selectByKey(project.getKey())).isEmpty();
-    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
+    assertThat(selectMainBranchByKey(project.projectKey())).isEmpty();
+    assertThat(selectMainBranchByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.getMainBranchComponent().uuid());
+
+    assertThat(selectProjectByKey(project.projectKey())).isEmpty();
+    assertThat(selectProjectByKey(ANOTHER_KEY).get().getUuid()).isEqualTo(project.getProjectDto().getUuid());
   }
 
   @Test
   public void fail_if_not_authorized() {
-    ComponentDto project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.USER, project);
+    ProjectData project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
 
-    String projectKey = project.getKey();
+    String projectKey = project.projectKey();
     assertThatThrownBy(() -> call(projectKey, ANOTHER_KEY))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
@@ -83,10 +88,10 @@ public class UpdateKeyActionIT {
 
   @Test
   public void fail_if_new_key_is_not_provided() {
-    ComponentDto project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+    ProjectData project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
-    String projectKey = project.getKey();
+    String projectKey = project.projectKey();
     assertThatThrownBy(() -> call(projectKey, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'to' parameter is missing");
@@ -119,8 +124,8 @@ public class UpdateKeyActionIT {
       .containsOnlyOnce("from", "to");
   }
 
-  private ComponentDto insertProject() {
-    return db.components().insertPrivateProject().getMainBranchComponent();
+  private ProjectData insertProject() {
+    return db.components().insertPrivateProject();
   }
 
   private String call(@Nullable String key, @Nullable String newKey) {
@@ -136,7 +141,11 @@ public class UpdateKeyActionIT {
     return request.execute().getInput();
   }
 
-  private Optional<ComponentDto> selectByKey(String key) {
+  private Optional<ComponentDto> selectMainBranchByKey(String key) {
     return db.getDbClient().componentDao().selectByKey(db.getSession(), key);
+  }
+
+  private Optional<ProjectDto> selectProjectByKey(String key) {
+    return db.getDbClient().projectDao().selectProjectByKey(db.getSession(), key);
   }
 }

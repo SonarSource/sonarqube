@@ -79,7 +79,7 @@ public class IssueSnippetsActionIT {
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject("projectUuid", c->c.setKey("KEY_projectUuid").setName("NAME_projectUuid"));
+    project = db.components().insertPrivateProject("projectUuid", c -> c.setKey("KEY_projectUuid").setName("NAME_projectUuid"));
     mainBranchComponent = project.getMainBranchComponent();
 
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);

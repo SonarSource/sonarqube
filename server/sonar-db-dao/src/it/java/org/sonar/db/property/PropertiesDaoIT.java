@@ -43,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -627,18 +626,18 @@ public class PropertiesDaoIT {
 
   @Test
   public void select_by_key_and_matching_value() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.properties().insertProperties(null, project1.getKey(), project1.name(), project1.qualifier(), newComponentPropertyDto("key", "value", project1));
-    db.properties().insertProperties(null, project2.getKey(), project2.name(), project2.qualifier(), newComponentPropertyDto("key", "value", project2));
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto("key", "value", project1));
+    db.properties().insertProperties(null, project2.getKey(), project2.getName(), project2.getQualifier(), newComponentPropertyDto("key", "value", project2));
     db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto("key", "value"));
-    db.properties().insertProperties(null, project1.getKey(), project1.name(), project1.qualifier(), newComponentPropertyDto("another key", "value", project1));
+    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto("another key", "value", project1));
 
     assertThat(underTest.selectByKeyAndMatchingValue(db.getSession(), "key", "value"))
       .extracting(PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsExactlyInAnyOrder(
-        tuple("value", project1.uuid()),
-        tuple("value", project2.uuid()),
+        tuple("value", project1.getUuid()),
+        tuple("value", project2.getUuid()),
         tuple("value", null));
   }
 

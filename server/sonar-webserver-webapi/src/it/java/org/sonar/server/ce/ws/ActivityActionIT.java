@@ -398,7 +398,7 @@ public class ActivityActionIT {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String branchName = "branch1";
-    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BRANCH).setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.mainBranchUuid(), SUCCESS, analysis);
     insertCharacteristic(activity, BRANCH_KEY, branchName);
@@ -440,7 +440,7 @@ public class ActivityActionIT {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
-    BranchDto pullRequest = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
     CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.getMainBranchComponent().uuid(), SUCCESS, analysis);
     insertCharacteristic(activity, PULL_REQUEST, pullRequestKey);
@@ -631,10 +631,10 @@ public class ActivityActionIT {
     return insertActivity(taskUuid, portfolio.portfolioUuid(), portfolio.rootComponentUuid(), status, db.components().insertSnapshot(portfolio.getPortfolioDto()));
   }
 
-  private CeActivityDto insertActivity(String taskUuid, String entityUuid, String rootCompomentUuid, Status status, @Nullable SnapshotDto analysis) {
+  private CeActivityDto insertActivity(String taskUuid, String entityUuid, String rootComponentUuid, Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(rootCompomentUuid);
+    queueDto.setComponentUuid(rootComponentUuid);
     queueDto.setEntityUuid(entityUuid);
     queueDto.setUuid(taskUuid);
     queueDto.setCreatedAt(EXECUTED_AT);

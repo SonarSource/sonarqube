@@ -78,7 +78,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
+  private static final String[] POSSIBLE_QUALIFIERS = new String[]{Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
   private static final String INVALID_QUERY_PARAM_ERROR_MESSAGE = "%s and %s must not be set at the same time";
 
   private final UserSession userSession;
@@ -101,8 +101,8 @@ public class ActivityAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
       .setDescription(format("Search for tasks.<br> " +
-        "Requires the system administration permission, " +
-        "or project administration permission if %s is set.", PARAM_COMPONENT))
+                             "Requires the system administration permission, " +
+                             "or project administration permission if %s is set.", PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setChangelog(
@@ -125,10 +125,10 @@ public class ActivityAction implements CeWsAction {
 
     action.createParam(TEXT_QUERY)
       .setDescription(format("Limit search to: <ul>" +
-        "<li>component names that contain the supplied string</li>" +
-        "<li>component keys that are exactly the same as the supplied string</li>" +
-        "<li>task ids that are exactly the same as the supplied string</li>" +
-        "</ul>"))
+                             "<li>component names that contain the supplied string</li>" +
+                             "<li>component keys that are exactly the same as the supplied string</li>" +
+                             "<li>task ids that are exactly the same as the supplied string</li>" +
+                             "</ul>"))
       .setExampleValue("Apache")
       .setSince("5.5");
     action.createParam(PARAM_STATUS)
@@ -287,19 +287,20 @@ public class ActivityAction implements CeWsAction {
     if (entity != null) {
       query.setEntityUuid(entity.getUuid());
     } else if (componentQuery != null) {
-      query.setEntityUuids(loadComponents(dbSession, componentQuery).stream()
-        .map(ComponentDto::uuid)
+      query.setEntityUuids(loadEntities(dbSession, componentQuery).stream()
+        .map(EntityDto::getUuid)
         .collect(toList()));
     }
     return query;
   }
 
-  private List<ComponentDto> loadComponents(DbSession dbSession, String componentQuery) {
+  private List<EntityDto> loadEntities(DbSession dbSession, String componentQuery) {
     ComponentQuery componentDtoQuery = ComponentQuery.builder()
       .setNameOrKeyQuery(componentQuery)
       .setQualifiers(POSSIBLE_QUALIFIERS)
       .build();
-    return dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
+    return dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
   }
 
   private Integer countQueuedTasks(DbSession dbSession, CeTaskQuery query) {

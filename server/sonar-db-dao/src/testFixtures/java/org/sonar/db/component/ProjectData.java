@@ -52,7 +52,7 @@ public class ProjectData {
     return projectDto.getKey();
   }
 
-  public String mainBranchUuid(){
+  public String mainBranchUuid() {
     return mainBranchDto.getUuid();
   }
 
