@@ -20,11 +20,11 @@
 
 import styled from '@emotion/styled';
 import { deburr } from 'lodash';
-import { createContext, useContext } from 'react';
+import * as React from 'react';
 import Highlighter from 'react-highlight-words';
 import { themeColor, themeContrast } from '../helpers/theme';
 
-export const SearchHighlighterContext = createContext<string | undefined>(undefined);
+export const SearchHighlighterContext = React.createContext<string | undefined>(undefined);
 SearchHighlighterContext.displayName = 'SearchHighlighterContext';
 
 interface Props {
@@ -33,7 +33,7 @@ interface Props {
 }
 
 export function SearchHighlighter({ children = '', term }: Props) {
-  const query = useContext(SearchHighlighterContext);
+  const query = React.useContext(SearchHighlighterContext);
 
   const searchTerm = term ?? query;
   if (searchTerm) {

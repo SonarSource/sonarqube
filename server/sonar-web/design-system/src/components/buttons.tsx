@@ -110,7 +110,7 @@ const buttonStyle = (props: ThemedProps) => css`
   box-sizing: border-box;
   text-decoration: none;
   outline: none;
-  border: var(--border);
+  border: var(--border) !important;
   color: var(--color);
   background-color: var(--background);
   transition: background-color 0.2s ease, outline 0.2s ease;
