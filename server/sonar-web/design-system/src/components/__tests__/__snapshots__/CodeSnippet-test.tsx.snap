@@ -21,7 +21,7 @@ exports[`should show full size when multiline with no editting 1`] = `
   -webkit-text-decoration: none;
   text-decoration: none;
   outline: none;
-  border: var(--border)!important;
+  border: var(--border);
   color: var(--color);
   background-color: var(--background);
   -webkit-transition: background-color 0.2s ease,outline 0.2s ease;
@@ -88,6 +88,12 @@ exports[`should show full size when multiline with no editting 1`] = `
 
 .emotion-4 [disabled] {
   pointer-events: none;
+}
+
+.emotion-4:hover,
+.emotion-4:active,
+.emotion-4:focus {
+  border-color: rgb(197,205,223);
 }
 
 .code-snippet-highlighted-oneline .emotion-4 {
@@ -221,7 +227,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
   -webkit-text-decoration: none;
   text-decoration: none;
   outline: none;
-  border: var(--border)!important;
+  border: var(--border);
   color: var(--color);
   background-color: var(--background);
   -webkit-transition: background-color 0.2s ease,outline 0.2s ease;
@@ -290,6 +296,12 @@ exports[`should show reduced size when single line with no editting 1`] = `
 
 .emotion-4 [disabled] {
   pointer-events: none;
+}
+
+.emotion-4:hover,
+.emotion-4:active,
+.emotion-4:focus {
+  border-color: rgb(197,205,223);
 }
 
 .code-snippet-highlighted-oneline .emotion-4 {

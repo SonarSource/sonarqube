@@ -110,7 +110,7 @@ const buttonStyle = (props: ThemedProps) => css`
   box-sizing: border-box;
   text-decoration: none;
   outline: none;
-  border: var(--border) !important;
+  border: var(--border);
   color: var(--color);
   background-color: var(--background);
   transition: background-color 0.2s ease, outline 0.2s ease;
@@ -186,6 +186,12 @@ export const ButtonSecondary: React.FC<ButtonProps> = styled(Button)`
   --color: ${themeContrast('buttonSecondary')};
   --focus: ${themeColor('buttonSecondaryBorder', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'buttonSecondaryBorder')};
+
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: ${themeColor('buttonSecondaryBorder')};
+  }
 `;
 
 export const DangerButtonPrimary: React.FC<ButtonProps> = styled(Button)`
@@ -202,6 +208,12 @@ export const DangerButtonSecondary: React.FC<ButtonProps> = styled(Button)`
   --color: ${themeContrast('dangerButtonSecondary')};
   --focus: ${themeColor('dangerButtonSecondaryFocus', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'dangerButtonSecondaryBorder')};
+
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: ${themeColor('dangerButtonSecondaryBorder')};
+  }
 `;
 
 export const WrapperButton: React.FC<ButtonProps> = styled(Button)`
