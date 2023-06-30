@@ -44,6 +44,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -71,7 +72,7 @@ public class WebhookQGChangeEventListenerIT {
   private static final Set<QGChangeEventListener.ChangedIssue> CHANGED_ISSUES_ARE_IGNORED = emptySet();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = dbTester.getDbClient();
 
@@ -267,10 +268,8 @@ public class WebhookQGChangeEventListenerIT {
   }
 
   public ProjectAndBranch insertMainBranch() {
-    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
-    BranchDto branch = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), project.getUuid()).get();
-    dbTester.commit();
-    return new ProjectAndBranch(project, branch);
+    ProjectData project = dbTester.components().insertPrivateProject();
+    return new ProjectAndBranch(project.getProjectDto(), project.getMainBranchDto());
   }
 
   public ProjectAndBranch insertBranch(BranchType type, String branchKey) {

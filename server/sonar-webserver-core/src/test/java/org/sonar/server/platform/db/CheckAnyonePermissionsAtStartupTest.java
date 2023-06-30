@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ public class CheckAnyonePermissionsAtStartupTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   private final DbClient dbClient = dbTester.getDbClient();
   private final MapSettings settings = new MapSettings();
   private final CheckAnyonePermissionsAtStartup underTest = new CheckAnyonePermissionsAtStartup(dbClient, settings.asConfig());
@@ -157,9 +158,9 @@ public class CheckAnyonePermissionsAtStartupTest {
 
   private void createPublicProjects(int projectCount, boolean includeAnyonePerm) {
     IntStream.rangeClosed(1, projectCount).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
+      ProjectDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
       if (includeAnyonePerm) {
-        dbTester.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+        dbTester.users().insertEntityPermissionOnAnyone("perm-" + i, project);
       }
     });
     underTest.start();

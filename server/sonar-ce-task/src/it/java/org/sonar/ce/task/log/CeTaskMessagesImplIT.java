@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 
 public class CeTaskMessagesImplIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private DbClient dbClient = dbTester.getDbClient();
   private UuidFactory uuidFactory = mock(UuidFactory.class);

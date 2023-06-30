@@ -69,7 +69,7 @@ public class IssueQueryFactoryTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -81,7 +81,8 @@ public class IssueQueryFactoryTest {
   public void create_from_parameters() {
     String ruleAdHocName = "New Name";
     UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
@@ -115,7 +116,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.resolved()).isTrue();
-    assertThat(query.projectUuids()).containsOnly(project.uuid());
+    assertThat(query.projectUuids()).containsOnly(projectData.projectUuid());
     assertThat(query.files()).containsOnly(file.uuid());
     assertThat(query.assignees()).containsOnly(user.getUuid());
     assertThat(query.scopes()).containsOnly("TEST", "MAIN");
@@ -316,15 +317,16 @@ public class IssueQueryFactoryTest {
     ProjectData projectData2 = db.components().insertPublicProject();
     ComponentDto project2 = projectData2.getMainBranchComponent();
     ProjectData applicationData = db.components().insertPublicApplication();
-    ComponentDto application = applicationData.getMainBranchComponent();
-    db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    db.components().insertComponents(newProjectCopy("PC2", project2, application));
+    ComponentDto applicationMainBranch = applicationData.getMainBranchComponent();
+    db.components().insertComponents(newProjectCopy("PC1", project1, applicationMainBranch));
+    db.components().insertComponents(newProjectCopy("PC2", project2, applicationMainBranch));
     userSession.registerApplication(applicationData.getProjectDto())
-      .registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto());
+      .registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto())
+      .registerBranches(applicationData.getMainBranchDto());
 
-    IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(application.uuid())));
+    IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(applicationMainBranch.uuid())));
 
-    assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
+    assertThat(result.viewUuids()).containsExactlyInAnyOrder(applicationMainBranch.uuid());
   }
 
   @Test
@@ -364,7 +366,8 @@ public class IssueQueryFactoryTest {
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
     db.components().insertComponents(newProjectCopy("PC4", project4, application));
-    userSession.registerApplication(applicationData.getProjectDto());
+    userSession.registerApplication(applicationData.getProjectDto())
+        .registerBranches(applicationData.getMainBranchDto());
     userSession.registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto(), projectData3.getProjectDto(), projectData4.getProjectDto());
 
     IssueQuery result = underTest.create(new SearchRequest()
@@ -393,12 +396,13 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_on_project_tree_by_default() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     SearchRequest request = new SearchRequest()
-      .setComponentUuids(asList(project.uuid()));
+      .setComponentUuids(asList(mainBranch.uuid()));
 
     IssueQuery query = underTest.create(request);
-    assertThat(query.projectUuids()).containsExactly(project.uuid());
+    assertThat(query.projectUuids()).containsExactly(projectData.projectUuid());
     assertThat(query.onComponentOnly()).isFalse();
   }
 
@@ -455,21 +459,22 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issue_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     assertThat(underTest.create(new SearchRequest()
       .setProjectKeys(singletonList(branch.getKey()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
+      .containsOnly(branch.uuid(), singletonList(projectData.projectUuid()), false);
 
     assertThat(underTest.create(new SearchRequest()
       .setComponentKeys(singletonList(branch.getKey()))
       .setBranch(branchName)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
+      .containsOnly(branch.uuid(), singletonList(projectData.projectUuid()), false);
   }
 
   @Test
@@ -517,19 +522,20 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issues_from_main_branch() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    db.components().insertProjectBranch(project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.components().insertProjectBranch(mainBranch);
 
     assertThat(underTest.create(new SearchRequest()
-      .setProjectKeys(singletonList(project.getKey()))
+      .setProjectKeys(singletonList(projectData.projectKey()))
       .setBranch(DEFAULT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+      .containsOnly(mainBranch.uuid(), singletonList(projectData.projectUuid()), true);
     assertThat(underTest.create(new SearchRequest()
-      .setComponentKeys(singletonList(project.getKey()))
+      .setComponentKeys(singletonList(mainBranch.getKey()))
       .setBranch(DEFAULT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+      .containsOnly(mainBranch.uuid(), singletonList(projectData.projectUuid()), true);
   }
 
   @Test
@@ -546,11 +552,12 @@ public class IssueQueryFactoryTest {
       .registerProjects(projectData1.getProjectDto(), projectData2.getProjectDto())
       .addProjectPermission(USER, applicationData.getProjectDto())
       .addProjectPermission(USER, projectData1.getProjectDto())
-      .addProjectPermission(USER, projectData2.getProjectDto());
+      .addProjectPermission(USER, projectData2.getProjectDto())
+        .registerBranches(applicationData.getMainBranchDto());
 
     assertThat(underTest.create(new SearchRequest()
         .setComponentKeys(singletonList(application.getKey())))
-      .viewUuids()).containsExactly(application.uuid());
+      .viewUuids()).containsExactly(applicationData.getMainBranchComponent().uuid());
   }
 
   @Test
@@ -560,10 +567,11 @@ public class IssueQueryFactoryTest {
     String branchName2 = "app-branch2";
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey(branchName1));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(branchName2));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1")).getMainBranchComponent();
-    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
-    db.components().insertComponent(newFileDto(project1Branch1, project1.uuid()));
-    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
+    ProjectData projectData1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(mainBranch1);
+    db.components().insertComponent(newFileDto(project1Branch1, mainBranch1.uuid()));
+    ComponentDto project1Branch2 = db.components().insertProjectBranch(mainBranch1);
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2")).getMainBranchComponent();
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
@@ -579,10 +587,10 @@ public class IssueQueryFactoryTest {
     // Search on project1Branch1
     assertThat(underTest.create(new SearchRequest()
       .setComponentKeys(singletonList(applicationBranch1.getKey()))
-      .setProjectKeys(singletonList(project1.getKey()))
+      .setProjectKeys(singletonList(mainBranch1.getKey()))
       .setBranch(branchName1)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(applicationBranch1.uuid(), singletonList(project1.uuid()), false);
+      .containsOnly(applicationBranch1.uuid(), singletonList(projectData1.projectUuid()), false);
   }
 
   @Test

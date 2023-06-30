@@ -36,7 +36,7 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 public class DbConnectionSectionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
   private final SonarRuntime runtime = mock(SonarRuntime.class);

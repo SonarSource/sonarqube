@@ -51,7 +51,7 @@ public class RegisterPluginsIT {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final long now = 12345L;
   private final DbClient dbClient = dbTester.getDbClient();

@@ -67,7 +67,7 @@ public class RecoveryIndexerTest {
   @Rule
   public EsTester es = EsTester.createCustom();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
   @Rule
   public LogTester logTester = new LogTester().setLevel(TRACE);
   @Rule

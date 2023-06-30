@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class SamlMessageIdCheckerIT {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   private DbSession dbSession = db.getSession();
 

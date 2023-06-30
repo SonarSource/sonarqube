@@ -32,7 +32,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
@@ -53,7 +55,7 @@ import static org.sonar.server.qualitygate.ProjectsInWarningDaemon.PROJECTS_IN_W
 public class ProjectsInWarningDaemonTest {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -115,15 +117,15 @@ public class ProjectsInWarningDaemonTest {
   public void stop_thread_when_number_of_projects_in_warning_reach_zero() throws InterruptedException {
     allowLockToBeAcquired();
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ComponentDto project = insertProjectInWarning(qualityGateStatus);
+    ProjectData project = insertProjectInWarning(qualityGateStatus);
 
     underTest.notifyStart();
     assertProjectsInWarningValue(1L);
     // Set quality gate status of the project to OK => No more projects in warning
     db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(),
-      newLiveMeasure(project, qualityGateStatus).setData(Metric.Level.OK.name()).setValue(null));
+      newLiveMeasure(project.getMainBranchComponent(), qualityGateStatus).setData(Metric.Level.OK.name()).setValue(null));
     db.commit();
-    projectMeasuresIndexer.indexOnAnalysis(project.uuid());
+    projectMeasuresIndexer.indexOnAnalysis(project.projectUuid());
 
     assertProjectsInWarningValue(0L);
     assertThat(logger.logs(Level.INFO))
@@ -208,11 +210,11 @@ public class ProjectsInWarningDaemonTest {
       .orElse(0L);
   }
 
-  private ComponentDto insertProjectInWarning(MetricDto qualityGateStatus) {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+  private ProjectData insertProjectInWarning(MetricDto qualityGateStatus) {
+    ProjectData project = db.components().insertPrivateProject();
     db.measures().insertLiveMeasure(project, qualityGateStatus, lm -> lm.setData(WARN.name()).setValue(null));
-    authorizationIndexerTester.allowOnlyAnyone(project);
-    projectMeasuresIndexer.indexOnAnalysis(project.uuid());
+    authorizationIndexerTester.allowOnlyAnyone(project.getProjectDto());
+    projectMeasuresIndexer.indexOnAnalysis(project.projectUuid());
     return project;
   }
 

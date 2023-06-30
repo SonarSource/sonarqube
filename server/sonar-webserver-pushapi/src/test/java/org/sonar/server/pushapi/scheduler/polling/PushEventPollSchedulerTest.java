@@ -55,7 +55,7 @@ public class PushEventPollSchedulerTest {
   private final Configuration config = mock(Configuration.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final SyncPushEventExecutorService executorService = new SyncPushEventExecutorService();
 

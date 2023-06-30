@@ -47,7 +47,7 @@ public class AnalysisCacheCleaningSchedulerImplIT {
   private System2 system2 = mock(System2.class);
   private final static UuidFactory uuidFactory = new SequenceUuidFactory();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2, true);
   private DbSession dbSession = dbTester.getSession();
   private ScannerAnalysisCacheDao scannerAnalysisCacheDao = dbTester.getDbClient().scannerAnalysisCacheDao();
 

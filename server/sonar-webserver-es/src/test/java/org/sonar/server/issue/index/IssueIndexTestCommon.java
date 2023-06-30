@@ -52,7 +52,7 @@ public class IssueIndexTestCommon {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   protected final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
   protected final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);

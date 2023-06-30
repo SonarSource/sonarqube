@@ -70,7 +70,7 @@ public class CeQueueImplIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbSession session = db.getSession();
 

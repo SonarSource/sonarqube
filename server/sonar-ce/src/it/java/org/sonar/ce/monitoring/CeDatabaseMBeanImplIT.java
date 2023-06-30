@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CeDatabaseMBeanImplIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final CeDatabaseMBeanImpl underTest = new CeDatabaseMBeanImpl(dbTester.getDbClient());
 

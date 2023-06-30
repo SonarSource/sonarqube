@@ -33,7 +33,7 @@
 
   <select id="selectAnalysisPropertyValueInLastAnalysisPerProject" parameterType="string" resultType="AnalysisPropertyValuePerProject">
     select
-      cp.uuid as "projectUuid", ap.text_value as "propertyValue"
+      pb.project_uuid as "projectUuid", ap.text_value as "propertyValue"
     from components cp
     inner join snapshots s on s.root_component_uuid = cp.uuid
     inner join analysis_properties ap on ap.analysis_uuid = s.uuid

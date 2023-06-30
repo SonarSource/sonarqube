@@ -35,7 +35,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class HotspotChangeEventServiceImplTest {
 
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(true);
 
   public final HotspotChangeEventServiceImpl underTest = new HotspotChangeEventServiceImpl(db.getDbClient());
 

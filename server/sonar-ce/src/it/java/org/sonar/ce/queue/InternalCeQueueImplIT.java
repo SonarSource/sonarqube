@@ -76,7 +76,7 @@ public class InternalCeQueueImplIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final DbSession session = db.getSession();
   private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
@@ -376,7 +376,7 @@ public class InternalCeQueueImplIT {
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(peek.get().getComponent()).contains(new CeTask.Component(mainBranchComponent.uuid(), mainBranchComponent.getKey(), mainBranchComponent.name()));
-    assertThat(peek.get().getEntity()).contains(peek.get().getComponent().get());
+    assertThat(peek.get().getEntity()).contains(new CeTask.Component(projectData.getProjectDto().getUuid(), projectData.getProjectDto().getKey(), projectData.getProjectDto().getName()));
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);

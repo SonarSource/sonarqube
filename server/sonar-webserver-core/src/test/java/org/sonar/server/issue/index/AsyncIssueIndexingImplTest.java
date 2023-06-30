@@ -65,7 +65,7 @@ import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 public class AsyncIssueIndexingImplTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
   @Rule
   public LogTester logTester = new LogTester();
 

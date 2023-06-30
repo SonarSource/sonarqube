@@ -43,7 +43,7 @@ import static org.sonar.server.property.InternalProperties.DEFAULT_PROJECT_TEMPL
 public class RegisterPermissionTemplatesTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
   @Rule
   public LogTester logTester = new LogTester();
 

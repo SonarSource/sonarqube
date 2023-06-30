@@ -85,7 +85,7 @@ public class CeWorkerImplIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private DbSession session = db.getSession();
 

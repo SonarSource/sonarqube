@@ -60,7 +60,7 @@ public class ServerIdManagerIT {
   private static final String CHECKSUM_1 = randomAlphanumeric(12);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private final ServerIdChecksum serverIdChecksum = mock(ServerIdChecksum.class);
   private final ServerIdFactory serverIdFactory = mock(ServerIdFactory.class);

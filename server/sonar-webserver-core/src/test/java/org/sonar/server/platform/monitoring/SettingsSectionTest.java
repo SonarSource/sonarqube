@@ -49,7 +49,7 @@ public class SettingsSectionTest {
   private static final String PASSWORD_PROPERTY = "sonar.password";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
   private Settings settings = new MapSettings(defs);

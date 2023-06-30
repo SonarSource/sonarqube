@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
 
@@ -47,7 +48,7 @@ public class AsynchronousWebHooksImplIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = create(system2);
+  public DbTester db = create(system2, true);
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentDbTester componentDbTester = db.components();
 
@@ -62,14 +63,14 @@ public class AsynchronousWebHooksImplIT {
 
   @Test
   public void send_global_webhooks() {
-    ComponentDto project = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
     webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
 
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(project.uuid(), "1", "#1"), () -> mock, mock(LogStatistics.class));
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(project.getUuid(), "1", "#1"), () -> mock, mock(LogStatistics.class));
 
     assertThat(caller.countSent()).isZero();
     verifyNoInteractions(deliveryStorage);
@@ -78,7 +79,7 @@ public class AsynchronousWebHooksImplIT {
 
     assertThat(caller.countSent()).isEqualTo(2);
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(project.uuid());
+    verify(deliveryStorage).purge(project.getUuid());
   }
 
   private static class RecordingAsyncExecution implements AsyncExecution {

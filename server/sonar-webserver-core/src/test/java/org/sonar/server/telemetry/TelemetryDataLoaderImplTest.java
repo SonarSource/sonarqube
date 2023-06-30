@@ -48,6 +48,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -102,7 +103,7 @@ public class TelemetryDataLoaderImplTest {
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, true);
 
   private final FakeServer server = new FakeServer();
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
@@ -166,27 +167,29 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project1, lines, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(project1, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
-    db.measures().insertLiveMeasure(project1, bugsDto, m -> m.setValue(1d));
-    db.measures().insertLiveMeasure(project1, vulnerabilitiesDto, m -> m.setValue(1d).setData((String) null));
-    db.measures().insertLiveMeasure(project1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
-    db.measures().insertLiveMeasure(project1, developmentCostDto, m -> m.setData("50").setValue(null));
-    db.measures().insertLiveMeasure(project1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    db.measures().insertLiveMeasure(mainBranch1, lines, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(mainBranch1, ncloc, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(mainBranch1, coverage, m -> m.setValue(80d));
+    db.measures().insertLiveMeasure(mainBranch1, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+    db.measures().insertLiveMeasure(mainBranch1, bugsDto, m -> m.setValue(1d));
+    db.measures().insertLiveMeasure(mainBranch1, vulnerabilitiesDto, m -> m.setValue(1d).setData((String) null));
+    db.measures().insertLiveMeasure(mainBranch1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
+    db.measures().insertLiveMeasure(mainBranch1, developmentCostDto, m -> m.setData("50").setValue(null));
+    db.measures().insertLiveMeasure(mainBranch1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
 
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(200d));
-    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(200d));
-    db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=180;js=20"));
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+    db.measures().insertLiveMeasure(mainBranch2, lines, m -> m.setValue(200d));
+    db.measures().insertLiveMeasure(mainBranch2, ncloc, m -> m.setValue(200d));
+    db.measures().insertLiveMeasure(mainBranch2, coverage, m -> m.setValue(80d));
+    db.measures().insertLiveMeasure(mainBranch2, nclocDistrib, m -> m.setValue(null).setData("java=180;js=20"));
 
-    SnapshotDto project1Analysis = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project2Analysis = db.components().insertSnapshot(project2, t -> t.setLast(true).setBuildDate(analysisDate));
-    db.measures().insertMeasure(project1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
-    db.measures().insertMeasure(project2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
+    SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setBuildDate(analysisDate));
+    db.measures().insertMeasure(mainBranch1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(mainBranch2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
 
     insertAnalysisProperty(project1Analysis, "prop-uuid-1", SONAR_ANALYSIS_DETECTEDCI, "ci-1");
     insertAnalysisProperty(project2Analysis, "prop-uuid-2", SONAR_ANALYSIS_DETECTEDCI, "ci-2");
@@ -198,21 +201,21 @@ public class TelemetryDataLoaderImplTest {
     db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
-    db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDtoByMainBranch(project1));
-    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDtoByMainBranch(project2));
+    db.almSettings().insertAzureProjectAlmSetting(almSettingDto, projectData1.getProjectDto());
+    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, projectData2.getProjectDto());
 
     // quality gates
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
     // link one project to a non-default QG
-    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(mainBranch1), qualityGate1);
 
-    var branch1 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("reference"));
-    var branch2 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("custom"));
+    var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
+    var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
 
-    var ncd1 = db.newCodePeriods().insert(project1.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
-    var ncd2 = db.newCodePeriods().insert(project1.uuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
+    var ncd1 = db.newCodePeriods().insert(projectData1.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    var ncd2 = db.newCodePeriods().insert(projectData1.projectUuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
 
     var instanceNcdId = NewCodeDefinition.getInstanceDefault().hashCode();
     var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
@@ -240,11 +243,11 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getProjects())
       .extracting(TelemetryData.Project::projectUuid, TelemetryData.Project::language, TelemetryData.Project::loc, TelemetryData.Project::lastAnalysis)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), "java", 70L, analysisDate),
-        tuple(project1.uuid(), "js", 30L, analysisDate),
-        tuple(project1.uuid(), "kotlin", 10L, analysisDate),
-        tuple(project2.uuid(), "java", 180L, analysisDate),
-        tuple(project2.uuid(), "js", 20L, analysisDate));
+        tuple(projectData1.projectUuid(), "java", 70L, analysisDate),
+        tuple(projectData1.projectUuid(), "js", 30L, analysisDate),
+        tuple(projectData1.projectUuid(), "kotlin", 10L, analysisDate),
+        tuple(projectData2.projectUuid(), "java", 180L, analysisDate),
+        tuple(projectData2.projectUuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
       .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getPullRequestCount, ProjectStatistics::getQualityGate,
         ProjectStatistics::getScm, ProjectStatistics::getCi, ProjectStatistics::getDevopsPlatform,
@@ -261,8 +264,8 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(
         tuple(branch1.uuid(), projectNcdId),
         tuple(branch2.uuid(), branchNcdId),
-        tuple(project1.uuid(), projectNcdId),
-        tuple(project2.uuid(), instanceNcdId));
+        tuple(mainBranch1.uuid(), projectNcdId),
+        tuple(mainBranch2.uuid(), instanceNcdId));
 
     assertThat(data.getNewCodeDefinitions())
       .extracting(NewCodeDefinition::scope, NewCodeDefinition::type, NewCodeDefinition::value)
@@ -286,22 +289,24 @@ public class TelemetryDataLoaderImplTest {
 
     MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
 
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
 
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
 
-    SnapshotDto project1Analysis1 = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project1Analysis2 = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project2Analysis = db.components().insertSnapshot(project2, t -> t.setLast(true).setBuildDate(analysisDate));
-    db.measures().insertMeasure(project1, project1Analysis1, qg, pm -> pm.setData("OK"));
-    db.measures().insertMeasure(project1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
-    db.measures().insertMeasure(project2, project2Analysis, qg, pm -> pm.setData("ERROR"));
+    SnapshotDto project1Analysis1 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project1Analysis2 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setBuildDate(analysisDate));
+    db.measures().insertMeasure(mainBranch1, project1Analysis1, qg, pm -> pm.setData("OK"));
+    db.measures().insertMeasure(mainBranch1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
+    db.measures().insertMeasure(mainBranch2, project2Analysis, qg, pm -> pm.setData("ERROR"));
 
-    var branch1 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("reference"));
-    var branch2 = db.components().insertProjectBranch(project1, branchDto -> branchDto.setKey("custom"));
+    var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
+    var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
 
-    db.newCodePeriods().insert(project1.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
-    db.newCodePeriods().insert(project1.uuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
+    db.newCodePeriods().insert(projectData1.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    db.newCodePeriods().insert(projectData1.projectUuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
 
     var instanceNcdId = NewCodeDefinition.getInstanceDefault().hashCode();
     var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
@@ -314,8 +319,8 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(
         tuple(branch1.uuid(), projectNcdId, 0, 0),
         tuple(branch2.uuid(), branchNcdId, 0, 0),
-        tuple(project1.uuid(), projectNcdId, 1, 2),
-        tuple(project2.uuid(), instanceNcdId, 0, 1));
+        tuple(mainBranch1.uuid(), projectNcdId, 1, 2),
+        tuple(mainBranch2.uuid(), instanceNcdId, 0, 1));
 
   }
 
@@ -349,30 +354,31 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project, lines, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(project, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.measures().insertLiveMeasure(mainBranch, lines, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(mainBranch, coverage, m -> m.setValue(80d));
+    db.measures().insertLiveMeasure(mainBranch, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
 
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH));
     db.measures().insertLiveMeasure(branch, lines, m -> m.setValue(180d));
     db.measures().insertLiveMeasure(branch, ncloc, m -> m.setValue(180d));
     db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(80d));
     db.measures().insertLiveMeasure(branch, nclocDistrib, m -> m.setValue(null).setData("java=100;js=50;kotlin=30"));
 
-    SnapshotDto project1Analysis = db.components().insertSnapshot(project, t -> t.setLast(true));
+    SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
     SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
-    db.measures().insertMeasure(project, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
     db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
 
     TelemetryData data = communityUnderTest.load();
 
     assertThat(data.getProjects()).extracting(TelemetryData.Project::projectUuid, TelemetryData.Project::language, TelemetryData.Project::loc)
       .containsExactlyInAnyOrder(
-        tuple(project.uuid(), "java", 100L),
-        tuple(project.uuid(), "js", 50L),
-        tuple(project.uuid(), "kotlin", 30L));
+        tuple(projectData.projectUuid(), "java", 100L),
+        tuple(projectData.projectUuid(), "js", 50L),
+        tuple(projectData.projectUuid(), "kotlin", 30L));
     assertThat(data.getProjectStatistics())
       .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getPullRequestCount,
         ProjectStatistics::getScm, ProjectStatistics::getCi)
@@ -385,11 +391,11 @@ public class TelemetryDataLoaderImplTest {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
 
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPublicProject();
 
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH));
 
-    db.newCodePeriods().insert(project.uuid(), branch.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    db.newCodePeriods().insert(project.projectUuid(), branch.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
 
     var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
 

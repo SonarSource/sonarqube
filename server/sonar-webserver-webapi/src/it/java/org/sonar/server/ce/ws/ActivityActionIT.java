@@ -96,7 +96,7 @@ public class ActivityActionIT {
   public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[]{mock(CeTaskProcessor.class)});
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test

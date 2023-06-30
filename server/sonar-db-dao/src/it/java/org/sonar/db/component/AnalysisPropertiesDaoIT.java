@@ -161,7 +161,7 @@ public class AnalysisPropertiesDaoIT {
     String analysisUuid = randomAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
-      newAnalysisPropertyDto(random.nextInt(10), "key1",analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(10), "key1", analysisUuid),
       newAnalysisPropertyDto(random.nextInt(10), "key2", analysisUuid),
       newAnalysisPropertyDto(random.nextInt(10), "key3", analysisUuid)
     );
@@ -182,7 +182,8 @@ public class AnalysisPropertiesDaoIT {
     final String analysisPropertyKey = "key";
     for (int i = 0; i < 7; i++) {
       String uuid = "uuid" + i;
-      ProjectDto project = dbTester.components().insertPrivateProject(p -> p.setUuid(uuid).setBranchUuid(uuid)).getProjectDto();
+      ProjectDto project = dbTester.components().insertPrivateProject(c -> {
+      }, p -> p.setUuid(uuid)).getProjectDto();
       dbTester.components().insertSnapshot(project, s -> s.setLast(true).setUuid(uuid));
       // branches shouldn't be taken into account
       dbTester.components().insertProjectBranch(project);
@@ -206,7 +207,7 @@ public class AnalysisPropertiesDaoIT {
         tuple("uuid3", "undetected"),
         tuple("uuid4", "git"),
         tuple("uuid5", "git")
-        );
+      );
   }
 
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {

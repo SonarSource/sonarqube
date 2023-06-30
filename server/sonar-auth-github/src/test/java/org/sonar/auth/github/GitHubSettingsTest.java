@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 public class GitHubSettingsTest {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE, true);
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
   private InternalProperties internalProperties = mock(InternalProperties.class);

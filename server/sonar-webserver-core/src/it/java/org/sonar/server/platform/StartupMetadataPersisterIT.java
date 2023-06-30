@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StartupMetadataPersisterIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
 
   private StartupMetadata metadata = new StartupMetadata(123_456_789L);
   private StartupMetadataPersister underTest = new StartupMetadataPersister(metadata, dbTester.getDbClient());
