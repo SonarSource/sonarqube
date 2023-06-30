@@ -62,7 +62,7 @@ public class BasicAuthenticationTest {
   private static final String AUTHORIZATION_HEADER = "Authorization";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(true);
 
   private final CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
   private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);

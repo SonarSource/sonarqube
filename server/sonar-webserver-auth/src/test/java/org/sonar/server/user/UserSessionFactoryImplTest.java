@@ -32,12 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UserSessionFactoryImplTest {
 
-  @Mock
-  private DbClient dbClient;
-
-  @Mock
-  private UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
-
   @InjectMocks
   private UserSessionFactoryImpl userSessionFactory;
 
