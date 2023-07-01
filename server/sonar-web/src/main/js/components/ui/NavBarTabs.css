@@ -49,14 +49,14 @@
 .navbar-tabs > li > .button-link:focus {
   border-bottom-color: var(--blue);
 }
-.alert{
+.org-alert{
   border: 1px solid #f4b1b0;
   background-color: #f2dede;
   color: #862422;
   height: 30px;
   padding: 0 110px;
 }
-.alert .icon{
+.org-alert .icon{
   float: left;
   color: #f2dede;
   border-radius: 54px;
@@ -67,7 +67,7 @@
   padding-left: 8px;
   font-size: 12px;
 }
-.alert .msg{
+.org-alert .msg{
   float:left;
   padding: 7px;
 }

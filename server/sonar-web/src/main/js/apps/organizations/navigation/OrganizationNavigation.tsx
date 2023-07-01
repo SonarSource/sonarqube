@@ -84,7 +84,7 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
       </ContextNavBar>
       {
         error.length>0 ? (
-        <div className='alert'>
+        <div className='org-alert'>
           <div className='icon'>
             x
           </div>
