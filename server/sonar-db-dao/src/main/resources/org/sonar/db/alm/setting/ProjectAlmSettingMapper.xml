@@ -58,6 +58,16 @@
       </foreach>
   </select>
 
+  <select id="selectByAlm" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    inner join
+      alm_settings alm_settings on p.alm_setting_uuid = alm_settings.uuid
+    where
+      alm_settings.alm_id=#{alm, jdbcType=VARCHAR}
+  </select>
+
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO project_alm_settings
     (

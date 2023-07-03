@@ -41,5 +41,7 @@ public interface ProjectAlmSettingMapper {
 
   List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(@Param("almSettingUuid") String almSettingUuid, @Param("repos") List<String> repos);
 
+  List<ProjectAlmSettingDto> selectByAlm(@Param("alm") String alm);
+
   List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject();
 }

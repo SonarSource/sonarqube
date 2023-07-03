@@ -20,6 +20,7 @@
 package org.sonar.db.alm.setting;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,6 +92,27 @@ public class ProjectAlmSettingDaoIT {
     assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs))
       .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled)
       .containsExactly(tuple(project.getUuid(), bitbucketProjectAlmSettingDto2.getSummaryCommentEnabled()));
+  }
+
+  @Test
+  public void selectByAlm_whenGivenGithub_onlyReturnsGithubProjects() {
+    ProjectAlmSettingDto githubProject1 = createAlmProject(db.almSettings().insertGitHubAlmSetting());
+    ProjectAlmSettingDto githubProject2 = createAlmProject(db.almSettings().insertGitHubAlmSetting());
+    createAlmProject(db.almSettings().insertGitlabAlmSetting());
+
+    List<ProjectAlmSettingDto> projectAlmSettingDtos = underTest.selectByAlm(dbSession, ALM.GITHUB);
+
+    assertThat(projectAlmSettingDtos)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactlyInAnyOrder(githubProject1, githubProject2);
+  }
+
+  private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto) {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    when(uuidFactory.create()).thenReturn(project.getUuid() + "_forSetting");
+    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
+    return githubProjectAlmSettingDto;
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.db.alm.setting;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
@@ -100,6 +101,10 @@ public class ProjectAlmSettingDao implements Dao {
 
   public List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> almRepos) {
     return executeLargeInputs(almRepos, repos -> getMapper(dbSession).selectByAlmSettingAndRepos(almSettingDto.getUuid(), repos));
+  }
+
+  public List<ProjectAlmSettingDto> selectByAlm(DbSession dbSession, ALM alm) {
+    return getMapper(dbSession).selectByAlm(alm.getId().toLowerCase(Locale.ROOT));
   }
 
   public List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject(DbSession dbSession) {
