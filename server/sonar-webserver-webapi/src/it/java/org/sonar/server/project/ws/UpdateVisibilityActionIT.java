@@ -20,13 +20,11 @@
 package org.sonar.server.project.ws;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.commons.lang.NotImplementedException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -61,12 +59,11 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.DelegatingManagedInstanceService;
-import org.sonar.server.management.ManagedInstanceService;
-import org.sonar.server.management.ManagedProjectService;
+import org.sonar.server.management.DelegatingManagedServices;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.project.VisibilityService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -78,6 +75,8 @@ import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
@@ -110,10 +109,10 @@ public class UpdateVisibilityActionIT {
   private final DbSession dbSession = dbTester.getSession();
   private final TestIndexers projectIndexers = new TestIndexers();
   private final Configuration configuration = mock(Configuration.class);
-  private final DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(Set.of(new ControllableManagedProjectService()));
+  private final DelegatingManagedServices delegatingManagedServices = mock(DelegatingManagedServices.class);
 
   private final VisibilityService visibilityService = new VisibilityService(dbClient, projectIndexers, new SequenceUuidFactory());
-  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, configuration, visibilityService, delegatingManagedInstanceService);
+  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, configuration, visibilityService, delegatingManagedServices);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -311,9 +310,10 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_throws_BadRequestException_if_entity_is_project_and_managed() {
+    when(delegatingManagedServices.isProjectManaged(any(), eq(MANAGED_PROJECT_KEY))).thenReturn(true);
     ProjectDto project = dbTester.components().insertPublicProject(p -> p.setKey(MANAGED_PROJECT_KEY)).getProjectDto();
     request.setParam(PARAM_PROJECT, project.getKey())
-      .setParam(PARAM_VISIBILITY, randomVisibility);
+      .setParam(PARAM_VISIBILITY, Visibility.PUBLIC.getLabel());
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(request::execute)
@@ -715,52 +715,6 @@ public class UpdateVisibilityActionIT {
 
   private ProjectData randomPublicOrPrivateProject() {
     return random.nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-  }
-
-  private static class ControllableManagedProjectService implements ManagedInstanceService, ManagedProjectService {
-
-    @Override
-    public boolean isInstanceExternallyManaged() {
-      return true;
-    }
-
-    @Override
-    public String getProviderName() {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public String getManagedUsersSqlFilter(boolean filterByManaged) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public String getManagedGroupsSqlFilter(boolean filterByManaged) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public boolean isUserManaged(DbSession dbSession, String login) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public boolean isProjectManaged(DbSession dbSession, String projectKey) {
-      if (projectKey.equals(MANAGED_PROJECT_KEY)) {
-        return true;
-      }
-      return false;
-    }
   }
 
 }

@@ -34,12 +34,12 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 @ServerSide
 @Priority(ManagedInstanceService.DELEGATING_INSTANCE_PRIORITY)
-public class DelegatingManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
+public class DelegatingManagedServices implements ManagedInstanceService, ManagedProjectService {
 
   private static final IllegalStateException NOT_MANAGED_INSTANCE_EXCEPTION = new IllegalStateException("This instance is not managed.");
   private final Set<ManagedInstanceService> delegates;
 
-  public DelegatingManagedInstanceService(Set<ManagedInstanceService> delegates) {
+  public DelegatingManagedServices(Set<ManagedInstanceService> delegates) {
     this.delegates = delegates;
   }
 

@@ -21,7 +21,6 @@ package org.sonar.server.management;
 
 import java.util.Map;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,14 +35,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DelegatingManagedInstanceServiceTest {
+public class DelegatingManagedServicesTest {
+
+  private static final DelegatingManagedServices NO_MANAGED_SERVICES = new DelegatingManagedServices(emptySet());
 
   @Mock
   private DbSession dbSession;
 
   @Test
   public void getProviderName_whenNotManaged_shouldThrow() {
-    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
     assertThatThrownBy(managedInstanceService::getProviderName)
       .isInstanceOf(IllegalStateException.class)
@@ -52,21 +53,21 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Test
   public void getProviderName_whenManaged_shouldReturnName() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new AlwaysManagedInstanceService()));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new AlwaysManagedInstanceService()));
 
     assertThat(managedInstanceService.getProviderName()).isEqualTo("Always");
   }
 
   @Test
   public void isInstanceExternallyManaged_whenNoManagedInstanceService_returnsFalse() {
-    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
     assertThat(managedInstanceService.isInstanceExternallyManaged()).isFalse();
   }
 
   @Test
   public void isInstanceExternallyManaged_whenAllManagedInstanceServiceReturnsFalse_returnsFalse() {
     Set<ManagedInstanceService> delegates = Set.of(new NeverManagedInstanceService(), new NeverManagedInstanceService());
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(delegates);
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(delegates);
 
     assertThat(managedInstanceService.isInstanceExternallyManaged()).isFalse();
   }
@@ -74,7 +75,7 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void isInstanceExternallyManaged_whenOneManagedInstanceServiceReturnsTrue_returnsTrue() {
     Set<ManagedInstanceService> delegates = Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService());
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(delegates);
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(delegates);
 
     assertThat(managedInstanceService.isInstanceExternallyManaged()).isTrue();
   }
@@ -82,7 +83,7 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getUserUuidToManaged_whenNoDelegates_setAllUsersAsNonManaged() {
     Set<String> userUuids = Set.of("a", "b");
-    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
     Map<String, Boolean> userUuidToManaged = managedInstanceService.getUserUuidToManaged(dbSession, userUuids);
 
@@ -95,7 +96,7 @@ public class DelegatingManagedInstanceServiceTest {
     Map<String, Boolean> serviceResponse = Map.of("a", false, "b", true);
 
     ManagedInstanceService anotherManagedInstanceService = getManagedInstanceService(userUuids, serviceResponse);
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), anotherManagedInstanceService));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), anotherManagedInstanceService));
 
     Map<String, Boolean> userUuidToManaged = managedInstanceService.getUserUuidToManaged(dbSession, userUuids);
 
@@ -105,7 +106,7 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getGroupUuidToManaged_whenNoDelegates_setAllUsersAsNonManaged() {
     Set<String> groupUuids = Set.of("a", "b");
-    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
     Map<String, Boolean> groupUuidToManaged = managedInstanceService.getGroupUuidToManaged(dbSession, groupUuids);
 
@@ -114,14 +115,14 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Test
   public void isUserManaged_delegatesToRightService_andPropagateAnswer() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
 
     assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isTrue();
   }
 
   @Test
   public void isUserManaged_whenNoDelegates_returnsFalse() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of());
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of());
 
     assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isFalse();
   }
@@ -132,7 +133,7 @@ public class DelegatingManagedInstanceServiceTest {
     Map<String, Boolean> serviceResponse = Map.of("a", false, "b", true);
 
     ManagedInstanceService anotherManagedInstanceService = getManagedInstanceService(groupUuids, serviceResponse);
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), anotherManagedInstanceService));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), anotherManagedInstanceService));
 
     Map<String, Boolean> groupUuidToManaged = managedInstanceService.getGroupUuidToManaged(dbSession, groupUuids);
 
@@ -142,34 +143,34 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getGroupUuidToManaged_ifMoreThanOneDelegatesActivated_throws() {
     Set<ManagedInstanceService> managedInstanceServices = Set.of(new AlwaysManagedInstanceService(), new AlwaysManagedInstanceService());
-    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    DelegatingManagedServices delegatingManagedServices = new DelegatingManagedServices(managedInstanceServices);
     assertThatIllegalStateException()
-      .isThrownBy(() -> delegatingManagedInstanceService.getGroupUuidToManaged(dbSession, Set.of("a")))
+      .isThrownBy(() -> delegatingManagedServices.getGroupUuidToManaged(dbSession, Set.of("a")))
       .withMessage("The instance can't be managed by more than one identity provider and 2 were found.");
   }
 
   @Test
   public void getUserUuidToManaged_ifMoreThanOneDelegatesActivated_throws() {
     Set<ManagedInstanceService> managedInstanceServices = Set.of(new AlwaysManagedInstanceService(), new AlwaysManagedInstanceService());
-    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    DelegatingManagedServices delegatingManagedServices = new DelegatingManagedServices(managedInstanceServices);
     assertThatIllegalStateException()
-      .isThrownBy(() -> delegatingManagedInstanceService.getUserUuidToManaged(dbSession, Set.of("a")))
+      .isThrownBy(() -> delegatingManagedServices.getUserUuidToManaged(dbSession, Set.of("a")))
       .withMessage("The instance can't be managed by more than one identity provider and 2 were found.");
   }
 
   @Test
   public void getManagedUsersSqlFilter_whenNoDelegates_throws() {
     Set<ManagedInstanceService> managedInstanceServices = emptySet();
-    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    DelegatingManagedServices delegatingManagedServices = new DelegatingManagedServices(managedInstanceServices);
     assertThatIllegalStateException()
-      .isThrownBy(() -> delegatingManagedInstanceService.getManagedUsersSqlFilter(true))
+      .isThrownBy(() -> delegatingManagedServices.getManagedUsersSqlFilter(true))
       .withMessage("This instance is not managed.");
   }
 
   @Test
   public void getManagedUsersSqlFilter_delegatesToRightService_andPropagateAnswer() {
     AlwaysManagedInstanceService alwaysManagedInstanceService = new AlwaysManagedInstanceService();
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
 
     assertThat(managedInstanceService.getManagedUsersSqlFilter(true)).isNotNull().isEqualTo(alwaysManagedInstanceService.getManagedUsersSqlFilter(
       true));
@@ -178,16 +179,16 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getManagedGroupsSqlFilter_whenNoDelegates_throws() {
     Set<ManagedInstanceService> managedInstanceServices = emptySet();
-    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    DelegatingManagedServices delegatingManagedServices = new DelegatingManagedServices(managedInstanceServices);
     assertThatIllegalStateException()
-      .isThrownBy(() -> delegatingManagedInstanceService.getManagedGroupsSqlFilter(true))
+      .isThrownBy(() -> delegatingManagedServices.getManagedGroupsSqlFilter(true))
       .withMessage("This instance is not managed.");
   }
 
   @Test
   public void getManagedGroupsSqlFilter_delegatesToRightService_andPropagateAnswer() {
     AlwaysManagedInstanceService alwaysManagedInstanceService = new AlwaysManagedInstanceService();
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
 
     assertThat(managedInstanceService.getManagedGroupsSqlFilter(true)).isNotNull().isEqualTo(alwaysManagedInstanceService.getManagedGroupsSqlFilter(
       true));
@@ -203,21 +204,16 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Test
   public void isProjectManaged_whenManagedInstanceServices_shouldDelegatesToRightService() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
 
     assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isTrue();
   }
 
   @Test
   public void isProjectManaged_whenManagedNoInstanceServices_returnsFalse() {
-    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
     assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isFalse();
-  }
-
-  @NotNull
-  private static DelegatingManagedInstanceService noManagedInstanceService() {
-    return new DelegatingManagedInstanceService(emptySet());
   }
 
   private static class NeverManagedInstanceService implements ManagedInstanceService, ManagedProjectService {

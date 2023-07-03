@@ -27,7 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.management.DelegatingManagedInstanceService;
+import org.sonar.server.management.DelegatingManagedServices;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.project.VisibilityService;
 import org.sonar.server.user.UserSession;
@@ -48,15 +48,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final Configuration configuration;
   private final VisibilityService visibilityService;
-  private final DelegatingManagedInstanceService delegatingManagedInstanceService;
+  private final DelegatingManagedServices delegatingInstanceService;
 
   public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, Configuration configuration,
-    VisibilityService visibilityService, DelegatingManagedInstanceService delegatingManagedInstanceService) {
+    VisibilityService visibilityService, DelegatingManagedServices delegatingInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.configuration = configuration;
-    this.delegatingManagedInstanceService = delegatingManagedInstanceService;
     this.visibilityService = visibilityService;
+    this.delegatingInstanceService = delegatingInstanceService;
   }
 
   public void define(WebService.NewController context) {
@@ -103,12 +103,12 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     if (!isProjectAdmin || (!isGlobalAdmin && !allowChangingPermissionsByProjectAdmins)) {
       throw insufficientPrivilegesException();
     }
-    checkRequest(notManagedProject(dbSession, entityDto), "Cannot change visibility of a managed project");
+    checkRequest(!isManagedProject(dbSession, entityDto), "Cannot change visibility of a managed project");
   }
 
 
-  private boolean notManagedProject(DbSession dbSession, EntityDto entityDto) {
-    return !entityDto.isProject() || !delegatingManagedInstanceService.isProjectManaged(dbSession, entityDto.getKey());
+  private boolean isManagedProject(DbSession dbSession, EntityDto entityDto) {
+    return entityDto.isProject() && delegatingInstanceService.isProjectManaged(dbSession, entityDto.getKey());
   }
 
 }
