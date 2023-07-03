@@ -21,6 +21,7 @@ package org.sonar.server.management;
 
 import java.util.Map;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -42,9 +43,9 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Test
   public void getProviderName_whenNotManaged_shouldThrow() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(emptySet());
+    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
 
-    assertThatThrownBy(() -> managedInstanceService.getProviderName())
+    assertThatThrownBy(managedInstanceService::getProviderName)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("This instance is not managed.");
   }
@@ -58,7 +59,7 @@ public class DelegatingManagedInstanceServiceTest {
 
   @Test
   public void isInstanceExternallyManaged_whenNoManagedInstanceService_returnsFalse() {
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(emptySet());
+    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
     assertThat(managedInstanceService.isInstanceExternallyManaged()).isFalse();
   }
 
@@ -81,7 +82,7 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getUserUuidToManaged_whenNoDelegates_setAllUsersAsNonManaged() {
     Set<String> userUuids = Set.of("a", "b");
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(emptySet());
+    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
 
     Map<String, Boolean> userUuidToManaged = managedInstanceService.getUserUuidToManaged(dbSession, userUuids);
 
@@ -104,7 +105,7 @@ public class DelegatingManagedInstanceServiceTest {
   @Test
   public void getGroupUuidToManaged_whenNoDelegates_setAllUsersAsNonManaged() {
     Set<String> groupUuids = Set.of("a", "b");
-    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(emptySet());
+    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
 
     Map<String, Boolean> groupUuidToManaged = managedInstanceService.getGroupUuidToManaged(dbSession, groupUuids);
 
@@ -200,7 +201,26 @@ public class DelegatingManagedInstanceServiceTest {
     return anotherManagedInstanceService;
   }
 
-  private static class NeverManagedInstanceService implements ManagedInstanceService {
+  @Test
+  public void isProjectManaged_whenManagedInstanceServices_shouldDelegatesToRightService() {
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+
+    assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isTrue();
+  }
+
+  @Test
+  public void isProjectManaged_whenManagedNoInstanceServices_returnsFalse() {
+    DelegatingManagedInstanceService managedInstanceService = noManagedInstanceService();
+
+    assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isFalse();
+  }
+
+  @NotNull
+  private static DelegatingManagedInstanceService noManagedInstanceService() {
+    return new DelegatingManagedInstanceService(emptySet());
+  }
+
+  private static class NeverManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
 
     @Override
     public boolean isInstanceExternallyManaged() {
@@ -236,9 +256,14 @@ public class DelegatingManagedInstanceServiceTest {
     public boolean isUserManaged(DbSession dbSession, String login) {
       return false;
     }
+
+    @Override
+    public boolean isProjectManaged(DbSession dbSession, String projectKey) {
+      return false;
+    }
   }
 
-  private static class AlwaysManagedInstanceService implements ManagedInstanceService {
+  private static class AlwaysManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
 
     @Override
     public boolean isInstanceExternallyManaged() {
@@ -272,6 +297,11 @@ public class DelegatingManagedInstanceServiceTest {
 
     @Override
     public boolean isUserManaged(DbSession dbSession, String login) {
+      return true;
+    }
+
+    @Override
+    public boolean isProjectManaged(DbSession dbSession, String projectKey) {
       return true;
     }
   }

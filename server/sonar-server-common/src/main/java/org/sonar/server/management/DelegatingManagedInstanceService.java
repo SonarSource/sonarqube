@@ -34,7 +34,7 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 @ServerSide
 @Priority(ManagedInstanceService.DELEGATING_INSTANCE_PRIORITY)
-public class DelegatingManagedInstanceService implements ManagedInstanceService {
+public class DelegatingManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
 
   private static final IllegalStateException NOT_MANAGED_INSTANCE_EXCEPTION = new IllegalStateException("This instance is not managed.");
   private final Set<ManagedInstanceService> delegates;
@@ -58,14 +58,14 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
   public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
     return findManagedInstanceService()
       .map(managedInstanceService -> managedInstanceService.getUserUuidToManaged(dbSession, userUuids))
-      .orElse(returnNonManagedForAllGroups(userUuids));
+      .orElse(returnNonManagedForAll(userUuids));
   }
 
   @Override
   public Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids) {
     return findManagedInstanceService()
       .map(managedInstanceService -> managedInstanceService.getGroupUuidToManaged(dbSession, groupUuids))
-      .orElse(returnNonManagedForAllGroups(groupUuids));
+      .orElse(returnNonManagedForAll(groupUuids));
   }
 
   @Override
@@ -99,7 +99,20 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
     return managedInstanceServices.stream().collect(MoreCollectors.toOptional());
   }
 
-  private static Map<String, Boolean> returnNonManagedForAllGroups(Set<String> resourcesUuid) {
+  private static Map<String, Boolean> returnNonManagedForAll(Set<String> resourcesUuid) {
     return resourcesUuid.stream().collect(toMap(identity(), any -> false));
+  }
+
+  @Override
+  public boolean isProjectManaged(DbSession dbSession, String projectKey) {
+    return findManagedProjectService()
+      .map(managedProjectService -> managedProjectService.isProjectManaged(dbSession, projectKey))
+      .orElse(false);
+  }
+
+  private Optional<ManagedProjectService> findManagedProjectService() {
+    return findManagedInstanceService()
+      .filter(ManagedProjectService.class::isInstance)
+      .map(ManagedProjectService.class::cast);
   }
 }

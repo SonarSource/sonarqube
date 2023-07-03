@@ -36,6 +36,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.DelegatingManagedInstanceService;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
@@ -59,13 +60,16 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final Indexers indexers;
   private final UuidFactory uuidFactory;
   private final Configuration configuration;
+  private final DelegatingManagedInstanceService delegatingManagedInstanceService;
 
-  public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, Indexers indexers, UuidFactory uuidFactory, Configuration configuration) {
+  public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, Indexers indexers, UuidFactory uuidFactory, Configuration configuration,
+    DelegatingManagedInstanceService delegatingManagedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.indexers = indexers;
     this.uuidFactory = uuidFactory;
     this.configuration = configuration;
+    this.delegatingManagedInstanceService = delegatingManagedInstanceService;
   }
 
   public void define(WebService.NewController context) {
@@ -95,8 +99,13 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     if (!isProjectAdmin || (!isGlobalAdmin && !allowChangingPermissionsByProjectAdmins)) {
       throw insufficientPrivilegesException();
     }
+    checkRequest(notManagedProject(dbSession, entityDto), "Cannot change visibility of a managed project");
     //This check likely can be removed when we remove the column 'private' from components table
     checkRequest(noPendingTask(dbSession, entityDto.getKey()), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
+  }
+
+  private boolean notManagedProject(DbSession dbSession, EntityDto entityDto) {
+    return !entityDto.isProject() || !delegatingManagedInstanceService.isProjectManaged(dbSession, entityDto.getKey());
   }
 
   @Override

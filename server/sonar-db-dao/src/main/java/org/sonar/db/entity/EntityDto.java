@@ -82,8 +82,12 @@ public class EntityDto {
     return Qualifiers.VIEW.equals(qualifier) || Qualifiers.SUBVIEW.equals(qualifier);
   }
 
+  public boolean isProject() {
+    return Qualifiers.PROJECT.equals(qualifier);
+  }
+
   public boolean isProjectOrApp() {
-    return Qualifiers.APP.equals(qualifier) || Qualifiers.PROJECT.equals(qualifier);
+    return Qualifiers.APP.equals(qualifier) || isProject();
   }
 
   @Override
