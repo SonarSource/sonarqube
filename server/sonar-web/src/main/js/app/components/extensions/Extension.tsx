@@ -36,7 +36,7 @@ import * as theme from '../../theme';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
-interface Props extends WrappedComponentProps {
+export interface ExtensionProps extends WrappedComponentProps {
   theme: Theme;
   appState: AppState;
   currentUser: CurrentUser;
@@ -51,7 +51,7 @@ interface State {
   extensionElement?: React.ReactElement<any>;
 }
 
-class Extension extends React.PureComponent<Props, State> {
+class Extension extends React.PureComponent<ExtensionProps, State> {
   container?: HTMLElement | null;
   stop?: Function;
   state: State = {};
@@ -60,7 +60,7 @@ class Extension extends React.PureComponent<Props, State> {
     this.startExtension();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: ExtensionProps) {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();

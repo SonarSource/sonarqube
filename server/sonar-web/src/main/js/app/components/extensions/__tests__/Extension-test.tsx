@@ -17,52 +17,120 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { lightTheme } from 'design-system';
 import * as React from 'react';
-import { getExtensionStart } from '../../../../helpers/extensions';
+import { IntlShape } from 'react-intl';
+import { getEnhancedWindow } from '../../../../helpers/browser';
+import { installExtensionsHandler } from '../../../../helpers/extensionsHandler';
+import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
+import {
+  mockAppState,
+  mockCurrentUser,
+  mockLocation,
+  mockRouter,
+} from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import Extension from '../Extension';
+import { ExtensionStartMethodParameter } from '../../../../types/extension';
+import Extension, { ExtensionProps } from '../Extension';
 
-jest.mock('../../../../helpers/extensions', () => ({
-  getExtensionStart: jest.fn().mockResolvedValue({}),
-}));
+jest.mock('../../../../helpers/globalMessages');
 
-beforeEach(() => {
-  jest.clearAllMocks();
+beforeAll(() => {
+  installExtensionsHandler();
+
+  getEnhancedWindow().registerExtension(
+    'first-react-extension',
+    ({ location, router }: ExtensionStartMethodParameter) => {
+      const suffix = location.pathname === '/new' ? ' change' : '';
+      const handleClick = () => {
+        router.push('new');
+      };
+      return (
+        <div>
+          <button onClick={handleClick} type="button">
+            Click first react{suffix}
+          </button>
+        </div>
+      );
+    }
+  );
+
+  getEnhancedWindow().registerExtension(
+    'not-react-extension',
+    ({ el }: ExtensionStartMethodParameter) => {
+      if (el) {
+        el.innerHTML = '<button type="button">Click not react</button>';
+        return () => {
+          el.innerHTML = '';
+        };
+      }
+    }
+  );
+
+  getEnhancedWindow().registerExtension('second-extension', () => {
+    return (
+      <div>
+        <button type="button">Click second</button>
+      </div>
+    );
+  });
 });
-
-const extensionView = <button type="button">Extension</button>;
 
 it('should render React extensions correctly', async () => {
-  const start = jest.fn().mockReturnValue(extensionView);
-  jest.mocked(getExtensionStart).mockResolvedValue(start);
+  const user = userEvent.setup();
+  renderExtention();
 
-  const { rerender } = renderExtension();
-  expect(await screen.findByRole('button', { name: 'Extension' })).toBeInTheDocument();
-  expect(start).toHaveBeenCalled();
+  expect(await screen.findByRole('button', { name: 'Click first react' })).toBeInTheDocument();
 
-  rerender(<Extension extension={{ key: 'BAR', name: 'BAR' }} />);
-  expect(screen.queryByRole('button', { name: 'Extension' })).not.toBeInTheDocument();
-  expect(await screen.findByRole('button', { name: 'Extension' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Click first react' }));
+
+  expect(
+    await screen.findByRole('button', { name: 'Click first react change' })
+  ).toBeInTheDocument();
 });
 
-it('should handle Function extensions correctly', async () => {
-  const stop = jest.fn();
-  const start = jest.fn(() => stop);
-  jest.mocked(getExtensionStart).mockResolvedValue(start);
+it('should unmount an extension before starting a new one', async () => {
+  const rerender = renderExtention();
+  await screen.findByRole('button', { name: 'Click first react' });
 
-  const { rerender } = renderExtension();
+  rerender({ extension: { key: 'not-react-extension', name: 'not-react-extension' } });
+  expect(await screen.findByRole('button', { name: 'Click not react' })).toBeInTheDocument();
+
+  rerender({ extension: { key: 'second-extension', name: 'second-extension' } });
+  expect(await screen.findByRole('button', { name: 'Click second' })).toBeInTheDocument();
+});
+
+it('should warn when no extension found', async () => {
+  renderExtention({ extension: { key: 'unknown', name: 'null' } });
+
+  // JSDOM is not handling script loading so we need to simulate that.
+  await waitFor(() => {
+    // eslint-disable-next-line testing-library/no-node-access
+    const script = document.querySelector('script');
+    expect(script).toBeInTheDocument();
+    script!.onload!(new Event(''));
+  });
+
   await new Promise(setImmediate);
-  expect(start).toHaveBeenCalled();
-
-  rerender(<Extension extension={{ key: 'BAR', name: 'BAR' }} />);
-
-  expect(stop).toHaveBeenCalled();
+  expect(addGlobalErrorMessage).toHaveBeenCalled();
 });
 
-function renderExtension(props: Partial<typeof Extension> = {}) {
-  return renderComponent(
-    <Extension theme={lightTheme} extension={{ key: 'foo', name: 'Foo' }} {...props} />
-  );
+function renderExtention(props: Partial<ExtensionProps> = {}) {
+  const originalProp = {
+    theme: lightTheme,
+    appState: mockAppState(),
+    currentUser: mockCurrentUser(),
+    extension: { key: 'first-react-extension', name: 'first-react-extension' },
+    intl: {} as IntlShape,
+    location: mockLocation(),
+    router: mockRouter(),
+    updateCurrentUserHomepage: jest.fn(),
+  } as const;
+  const { rerender } = renderComponent(<Extension {...originalProp} {...props} />);
+
+  return (rerenderProp: Partial<ExtensionProps> = {}) => {
+    rerender(<Extension {...originalProp} {...props} {...rerenderProp} />);
+  };
 }
