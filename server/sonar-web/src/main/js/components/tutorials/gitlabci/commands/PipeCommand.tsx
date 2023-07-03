@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
-import { CompilationInfo } from '../../components/CompilationInfo';
 import { BuildTools } from '../../types';
 
 export interface PipeCommandProps {
-  branchesEnabled?: boolean;
-  buildTool: BuildTools;
-  mainBranchName: string;
+  buildTool: Exclude<BuildTools, BuildTools.CFamily>;
   projectKey: string;
-  projectName: string;
 }
 
 const BUILD_TOOL_SPECIFIC = {
-  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonar' },
+  [BuildTools.Gradle]: {
+    image: 'gradle:jre11-slim',
+    script: () => 'gradle sonar',
+  },
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
-    script: (projectKey: string, projectName: string) => `
-    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'`,
+    script: () => `
+    - mvn verify sonar:sonar`,
   },
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/core/sdk:latest',
@@ -58,49 +58,16 @@ const BUILD_TOOL_SPECIFIC = {
 };
 
 export default function PipeCommand(props: PipeCommandProps) {
-  const { projectKey, branchesEnabled, buildTool, mainBranchName, projectName } = props;
-  let command: string;
-  if (buildTool === BuildTools.CFamily) {
-    command = `image: <image ready for your build toolchain>
+  const { projectKey, buildTool } = props;
 
-cache:
-  paths:
-    - .sonar
+  const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
 
-stages:
-  - download
-  - build
-  - scan
-
-download:
-  stage: download
-  script:
-      - mkdir -p .sonar
-      - curl -sSLo build-wrapper-linux-x86.zip  $SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip
-      - unzip -o build-wrapper-linux-x86.zip -d .sonar
-
-build:
-  stage: build
-  script:
-      - .sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir .sonar/bw-output <your clean build command>
+  const command = `stages:
+    - sonarqube-check
+    - vulnerability-report
 
 sonarqube-check:
-  stage: scan
-  script: 
-    - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-    - unzip -o sonar-scanner.zip -d .sonar
-    - .sonar/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=.sonar/bw-output
-  allow_failure: true`;
-  } else {
-    const onlyBlock = branchesEnabled
-      ? `- if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == '${mainBranchName}'
-    - if: $CI_COMMIT_BRANCH == 'develop'`
-      : `- if: $CI_COMMIT_BRANCH == '${mainBranchName}'`;
-
-    const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
-
-    command = `sonarqube-check:
+  stage: sonarqube-check
   image: ${image}
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -109,16 +76,31 @@ sonarqube-check:
     key: "\${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: ${script(projectKey, projectName)}
+  script: ${script(projectKey)}
   allow_failure: true
-  rules:
-    ${onlyBlock}
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
+
+vulnerability-report:
+  stage: vulnerability-report
+  script:
+    - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${projectKey}&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+  dependencies:
+    - sonarqube-check
 `;
-  }
-  return (
-    <>
-      <CodeSnippet snippet={command} />
-      {buildTool === BuildTools.CFamily && <CompilationInfo />}
-    </>
-  );
+
+  return <CodeSnippet snippet={command} />;
 }

@@ -36,12 +36,11 @@ export interface GitLabCITutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  mainBranchName: string;
   willRefreshAutomatically?: boolean;
 }
 
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
-  const { baseUrl, component, currentUser, willRefreshAutomatically, mainBranchName } = props;
+  const { baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
   const [step, setStep] = React.useState(Steps.ENV_VARIABLES);
 
@@ -64,7 +63,6 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
       <YmlFileStep
         finished={step > Steps.YML}
         component={component}
-        mainBranchName={mainBranchName}
         onDone={() => setStep(Steps.ALL_SET)}
         onOpen={() => setStep(Steps.YML)}
         open={step === Steps.YML}

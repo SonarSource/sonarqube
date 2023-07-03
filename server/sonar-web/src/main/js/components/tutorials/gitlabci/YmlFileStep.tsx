@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
@@ -25,7 +27,6 @@ import withAvailableFeatures, {
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { GRADLE_SCANNER_VERSION } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import CodeSnippet from '../../common/CodeSnippet';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
@@ -38,16 +39,17 @@ import { BuildTools, GradleBuildDSL, TutorialModes } from '../types';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps extends WithAvailableFeaturesProps {
-  finished: boolean;
   component: Component;
+  finished: boolean;
   hasCLanguageFeature: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  mainBranchName: string;
 }
 
-const mavenSnippet = () => `<properties>
+const mavenSnippet = (key: string, name: string) => `<properties>
+  <sonar.projectKey>${key}</sonar.projectKey>
+  <sonar.projectName>${name}</sonar.projectName>
   <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 </properties>`;
 
@@ -84,29 +86,30 @@ sonar.qualitygate.wait=true
 `;
 
 const snippetForBuildTool = {
-  [BuildTools.Maven]: mavenSnippet,
-  [BuildTools.Gradle]: gradleSnippet,
   [BuildTools.CFamily]: otherSnippet,
+  [BuildTools.Gradle]: gradleSnippet,
+  [BuildTools.Maven]: mavenSnippet,
   [BuildTools.Other]: otherSnippet,
 };
 
 const filenameForBuildTool = {
-  [BuildTools.Maven]: 'pom.xml',
-  [BuildTools.Gradle]: GradleBuildDSL.Groovy,
   [BuildTools.CFamily]: 'sonar-project.properties',
+  [BuildTools.Gradle]: GradleBuildDSL.Groovy,
+  [BuildTools.Maven]: 'pom.xml',
   [BuildTools.Other]: 'sonar-project.properties',
 };
 
 export function YmlFileStep(props: YmlFileStepProps) {
-  const { open, finished, mainBranchName, hasCLanguageFeature, component } = props;
-  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
+  const { component, hasCLanguageFeature, finished, open } = props;
 
   const [buildTool, setBuildTool] = React.useState<BuildTools>();
 
   const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
+
   if (hasCLanguageFeature) {
     buildTools.push(BuildTools.CFamily);
   }
+
   buildTools.push(BuildTools.Other);
 
   const renderForm = () => (
@@ -114,103 +117,122 @@ export function YmlFileStep(props: YmlFileStepProps) {
       <ol className="list-styled">
         <li>
           {translate('onboarding.build')}
+
           <RenderOptions
-            label={translate('onboarding.build')}
             checked={buildTool}
+            label={translate('onboarding.build')}
             onCheck={setBuildTool as (key: string) => void}
             optionLabelKey="onboarding.build"
             options={buildTools}
           />
+
           {buildTool === BuildTools.CFamily && (
             <GithubCFamilyExampleRepositories
-              className="big-spacer-bottom big-spacer-top abs-width-600"
               ci={TutorialModes.GitLabCI}
+              className="sw-mb-4 sw-mt-4 sw-w-[600px]"
             />
           )}
         </li>
-        {buildTool !== undefined && buildTool !== BuildTools.DotNet && (
-          <li className="abs-width-600">
-            <FormattedMessage
-              defaultMessage={translate(
-                `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`
+
+        {buildTool !== undefined &&
+          buildTool !== BuildTools.CFamily &&
+          buildTool !== BuildTools.DotNet && (
+            <li className="sw-w-[600px]">
+              <FormattedMessage
+                defaultMessage={translate(
+                  `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`
+                )}
+                id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
+                values={Object.assign(
+                  {
+                    file: (
+                      <>
+                        <code className="rule">{filenameForBuildTool[buildTool]}</code>
+
+                        <ClipboardIconButton
+                          className="little-spacer-left"
+                          copyValue={filenameForBuildTool[buildTool]}
+                        />
+                      </>
+                    ),
+                  },
+                  buildTool === BuildTools.Gradle
+                    ? {
+                        file2: (
+                          <>
+                            <code className="rule">{GradleBuildDSL.Kotlin}</code>
+
+                            <ClipboardIconButton
+                              className="sw-ml-1"
+                              copyValue={GradleBuildDSL.Kotlin}
+                            />
+                          </>
+                        ),
+                      }
+                    : {}
+                )}
+              />
+
+              {buildTool === BuildTools.Gradle ? (
+                <GradleBuildSelection className="sw-mb-4 sw-mt-2">
+                  {(build) => (
+                    <CodeSnippet
+                      snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
+                    />
+                  )}
+                </GradleBuildSelection>
+              ) : (
+                <CodeSnippet
+                  snippet={snippetForBuildTool[buildTool](component.key, component.name)}
+                />
               )}
-              id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
-              values={Object.assign(
-                {
-                  file: (
-                    <>
-                      <code className="rule">{filenameForBuildTool[buildTool]}</code>
-                      <ClipboardIconButton
-                        className="little-spacer-left"
-                        copyValue={filenameForBuildTool[buildTool]}
-                      />
-                    </>
-                  ),
-                },
-                buildTool === BuildTools.Gradle
-                  ? {
-                      file2: (
+            </li>
+          )}
+
+        {buildTool && (
+          <li className="sw-w-[600px]">
+            {buildTool !== BuildTools.CFamily && (
+              <>
+                <div className="sw-mb-4">
+                  <FormattedMessage
+                    defaultMessage={translate(
+                      'onboarding.tutorial.with.gitlab_ci.yaml.description'
+                    )}
+                    id="onboarding.tutorial.with.gitlab_ci.yaml.description"
+                    values={{
+                      filename: (
                         <>
-                          <code className="rule">{GradleBuildDSL.Kotlin}</code>
+                          <code className="rule">
+                            {translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
+                          </code>
+
                           <ClipboardIconButton
-                            className="little-spacer-left"
-                            copyValue={GradleBuildDSL.Kotlin}
+                            className="sw-ml-1"
+                            copyValue={translate(
+                              'onboarding.tutorial.with.gitlab_ci.yaml.filename'
+                            )}
                           />
                         </>
                       ),
-                    }
-                  : {}
-              )}
-            />
-            {buildTool === BuildTools.Gradle ? (
-              <GradleBuildSelection className="spacer-top big-spacer-bottom">
-                {(build) => (
-                  <CodeSnippet
-                    snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
+                    }}
                   />
-                )}
-              </GradleBuildSelection>
-            ) : (
-              <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key)} />
+                </div>
+
+                <div className="sw-mb-4 sw-w-[600px]">
+                  <PipeCommand buildTool={buildTool} projectKey={component.key} />
+                </div>
+
+                <FlagMessage className="sw-mb-4" variant="warning">
+                  {translate('onboarding.tutorial.with.gitlab_ci.yaml.premium')}
+                </FlagMessage>
+
+                <p className="sw-mb-1">
+                  {translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig')}
+                </p>
+
+                <p>{translate('onboarding.tutorial.with.gitlab_ci.yaml.existing')}</p>
+              </>
             )}
-          </li>
-        )}
-        {buildTool && (
-          <li className="abs-width-600">
-            <div className="big-spacer-bottom">
-              <FormattedMessage
-                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yaml.description')}
-                id="onboarding.tutorial.with.gitlab_ci.yaml.description"
-                values={{
-                  filename: (
-                    <>
-                      <code className="rule">
-                        {translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
-                      </code>
-                      <ClipboardIconButton
-                        className="little-spacer-left"
-                        copyValue={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
-                      />
-                    </>
-                  ),
-                }}
-              />
-            </div>
-            <div className="big-spacer-bottom abs-width-600">
-              <PipeCommand
-                buildTool={buildTool}
-                branchesEnabled={branchSupportEnabled}
-                mainBranchName={mainBranchName}
-                projectKey={component.key}
-                projectName={component.name}
-              />
-            </div>
-            <p className="little-spacer-bottom">
-              {branchSupportEnabled
-                ? translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig')
-                : translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig.no_branches')}
-            </p>
-            <p>{translate('onboarding.tutorial.with.gitlab_ci.yaml.existing')}</p>
             <FinishButton onClick={props.onDone} />
           </li>
         )}

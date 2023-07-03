@@ -255,7 +255,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
-          mainBranchName={mainBranchName}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}

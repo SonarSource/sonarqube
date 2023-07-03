@@ -24,7 +24,7 @@ import selectEvent from 'react-select-event';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import {
   getCommonNodes,
   getCopyToClipboardValue,
@@ -81,11 +81,6 @@ it('should follow and complete all steps', async () => {
   await user.click(ui.dotnetBuildButton.get());
   expect(getCopyToClipboardValue(1)).toMatchSnapshot('.NET: gitlab-ci.yml');
 
-  // CFamily
-  await user.click(ui.cFamilyBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('CFamily: sonar-project.properties');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('CFamily: gitlab-ci.yml');
-
   // Other
   await user.click(ui.otherBuildButton.get());
   expect(getCopyToClipboardValue(1)).toMatchSnapshot('Other: sonar-project.properties');
@@ -139,7 +134,6 @@ function renderGitLabTutorial(
     '/',
     <GitLabCITutorial
       baseUrl="http://localhost:9000"
-      mainBranchName="main"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       {...overrides}
