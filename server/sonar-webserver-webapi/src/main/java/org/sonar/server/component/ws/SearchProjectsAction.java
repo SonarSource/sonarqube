@@ -60,7 +60,6 @@ import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchRe
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -108,15 +107,13 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final ProjectMeasuresIndex index;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
-  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
   public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
-    PlatformEditionProvider editionProvider, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
+    PlatformEditionProvider editionProvider) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
-    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
   }
 
   @Override
@@ -127,8 +124,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("10.2", "Field 'needIssueSync' removed from response"),
         new Change("8.3", "Add 'qualifier' filter and facet"),
-        new Change("8.0", "Field 'id' from response has been removed"))
+        new Change("8.0", "Field 'id' removed from response"))
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
@@ -219,8 +217,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchResults searchResults = searchData(dbSession, request);
-      boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-      return buildResponse(request, searchResults, needIssueSync);
+      return buildResponse(request, searchResults);
     }
   }
 
@@ -255,21 +252,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .stream()
       .collect(Collectors.toMap(e -> mainBranchByUuid.get(e.getKey()).getProjectUuid(), Entry::getValue));
 
-    List<String> projectsInsync = getProjectUuidsWithBranchesNeedIssueSync(dbSession, Sets.newHashSet(projectUuids));
-
     return SearchResultsBuilder.builder()
       .projects(projects)
       .favoriteProjectUuids(favoriteProjectUuids)
       .searchResults(esResults)
       .analysisByProjectUuid(analysisByProjectUuid)
       .applicationsLeakPeriods(applicationsLeakPeriod)
-      .projectsWithIssuesInSync(projectsInsync)
       .query(query)
       .build();
-  }
-
-  private List<String> getProjectUuidsWithBranchesNeedIssueSync(DbSession dbSession, Set<String> projectUuids) {
-    return issueIndexSyncProgressChecker.findProjectUuidsWithIssuesSyncNeed(dbSession, projectUuids);
   }
 
   private Set<String> getQualifiersBasedOnEdition(ProjectMeasuresQuery query) {
@@ -368,8 +358,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, boolean needIssueSync) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn(), needIssueSync);
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -465,22 +455,17 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Set<String> favoriteProjectUuids;
-    private final List<String> projectsWithIssuesInSync;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriod;
-    private final boolean needIssueSync;
 
-    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn,
-      boolean needIssueSync) {
+    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
       this.wsComponent = Component.newBuilder();
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
-      this.projectsWithIssuesInSync = searchResults.projectsWithIssuesInSync;
       this.isUserLoggedIn = isUserLoggedIn;
-      this.needIssueSync = needIssueSync;
     }
 
     @Override
@@ -511,11 +496,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
         wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbProject.getUuid()));
       }
 
-      if (Qualifiers.APP.equals(dbProject.getQualifier())) {
-        wsComponent.setNeedIssueSync(needIssueSync);
-      } else {
-        wsComponent.setNeedIssueSync(projectsWithIssuesInSync.contains(dbProject.getUuid()));
-      }
       return wsComponent.build();
     }
   }
@@ -523,7 +503,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
   public static class SearchResults {
     private final List<ProjectDto> projects;
     private final Set<String> favoriteProjectUuids;
-    private final List<String> projectsWithIssuesInSync;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriods;
@@ -531,10 +510,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final int total;
 
     private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
-      Map<String, Long> applicationsLeakPeriods, List<String> projectsWithIssuesInSync, ProjectMeasuresQuery query) {
+      Map<String, Long> applicationsLeakPeriods, ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
-      this.projectsWithIssuesInSync = projectsWithIssuesInSync;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
@@ -546,7 +524,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       private List<ProjectDto> projects;
       private Set<String> favoriteProjectUuids;
-      private List<String> projectsWithIssuesInSync;
       private Map<String, SnapshotDto> analysisByProjectUuid;
       private Map<String, Long> applicationsLeakPeriods;
       private ProjectMeasuresQuery query;
@@ -566,11 +543,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       public SearchResultsBuilder favoriteProjectUuids(Set<String> favoriteProjectUuids) {
         this.favoriteProjectUuids = favoriteProjectUuids;
-        return this;
-      }
-
-      public SearchResultsBuilder projectsWithIssuesInSync(List<String> projectsWithIssuesInSync) {
-        this.projectsWithIssuesInSync = projectsWithIssuesInSync;
         return this;
       }
 
@@ -595,8 +567,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       }
 
       public SearchResults build() {
-        return new SearchResults(projects, favoriteProjectUuids, searchResults, analysisByProjectUuid, applicationsLeakPeriods,
-          projectsWithIssuesInSync, query);
+        return new SearchResults(projects, favoriteProjectUuids, searchResults, analysisByProjectUuid, applicationsLeakPeriods, query);
       }
     }
   }

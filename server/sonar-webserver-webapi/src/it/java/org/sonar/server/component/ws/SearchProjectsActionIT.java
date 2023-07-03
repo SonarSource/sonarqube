@@ -56,7 +56,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -167,8 +166,7 @@ public class SearchProjectsActionIT {
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock,
-    new IssueIndexSyncProgressChecker(db.getDbClient())));
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock));
 
   private RequestBuilder request = SearchProjectsRequest.builder();
 
@@ -182,7 +180,7 @@ public class SearchProjectsActionIT {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).toList()).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).hasSize(2);
+    assertThat(def.changelog()).hasSize(3);
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
@@ -232,8 +230,6 @@ public class SearchProjectsActionIT {
       c -> c.setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project 1"),
       p -> p.setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
-
-    db.components().insertProjectBranch(db.components().getProjectDtoByMainBranch(project1), branchDto -> branchDto.setNeedIssueSync(true));
 
     ComponentDto project2 = insertProject(
       c -> c.setKey(KEY_PROJECT_EXAMPLE_002).setName("My Project 2"),
