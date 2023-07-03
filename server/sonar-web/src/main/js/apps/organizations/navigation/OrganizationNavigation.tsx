@@ -47,8 +47,8 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
     this.mounted = true;
     const {organization} = {...this.props}
     await getRawNotificationsForOrganization(organization.kee).then((data:any)=>{
-      const notfication = data.organization?.notifications?.[0];
-      if(notfication.type==="error"){
+      const notfication = data?.organization?.notifications?.[0];
+      if(notfication?.type==="error"){
         this.setState({ error: notfication.message });
       }
     }).catch(throwGlobalError)
@@ -83,7 +83,7 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
         />
       </ContextNavBar>
       {
-        error.length>0 ? (
+        error?.length>0 ? (
         <div className='org-alert'>
           <div className='icon'>
             x

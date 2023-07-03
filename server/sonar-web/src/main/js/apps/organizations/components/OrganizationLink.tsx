@@ -27,11 +27,17 @@ interface Props {
   [x: string]: any;
 }
 
+function handleClick(){
+  setTimeout(()=>{
+    window.location.reload();
+  },1000);
+  }
+
 export default function OrganizationLink(props: Props) {
   const { children, organization, ...other } = props;
 
   return (
-      <Link to={`/organizations/${organization.kee}`} {...other}>
+      <Link onClick={handleClick} to={`/organizations/${organization.kee}`} {...other}>
         {children}
       </Link>
   );
