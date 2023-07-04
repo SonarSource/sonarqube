@@ -97,7 +97,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       },
     } = this.props;
 
-    return (
+    return !this.isSystemAdmin ? null : (
       <IndexationNotificationRenderer
         type={notificationType}
         percentCompleted={percentCompleted}
