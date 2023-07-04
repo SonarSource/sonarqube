@@ -57,9 +57,13 @@ export function parseAsOptionalBoolean(value: string | undefined): boolean | und
 
 export function parseAsDate(value?: string): Date | undefined {
   if (value) {
-    // We atttemp to parse date that does not have time.
-    // Otherwise date will create a date at midnight UTC
-    // and it does not play well when we get the local day.
+    /**
+     * When the time zone offset is absent, date-only forms are interpreted as a UTC time
+     * and date-time forms are interpreted as local time.
+     * To ensure we always parse dates as date-time, we first try and add the time to the date,
+     * and if it fails, we try and parse the date as is.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+     */
     let date = parseDate(value + ' 00:00:00');
     if (isValidDate(date)) {
       return date;
