@@ -752,6 +752,9 @@
           #{status,jdbcType=VARCHAR}
         </foreach>
       </if>
+      <if test="query.resolved != null">
+          AND i.resolution is <if test="query.resolved">not</if> null
+      </if>
       <if test="query.resolutions.size() > 0">
         AND i.resolution IN
         <foreach collection="query.resolutions" open="(" close=")" item="resolution" separator=",">
@@ -762,7 +765,7 @@
         AND n.uuid IS NOT NULL
       </if>
       <if test="query.createdAfter != null">
-        AND i.created_at &gt;= #{query.createdAfter,jdbcType=BIGINT}
+        AND i.issue_creation_date &gt;= #{query.createdAfter,jdbcType=BIGINT}
       </if>
     </where>
     order by i.kee asc

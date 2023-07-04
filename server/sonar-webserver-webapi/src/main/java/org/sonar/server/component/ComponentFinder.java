@@ -136,6 +136,12 @@ public class ComponentFinder {
     return new ProjectAndBranch(projectOrApp, branch);
   }
 
+  public ProjectAndBranch getProjectAndBranch(DbSession dbSession, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    ProjectDto project = getProjectByKey(dbSession, projectKey);
+    BranchDto branch = getBranchOrPullRequest(dbSession, project, branchKey, pullRequestKey);
+    return new ProjectAndBranch(project, branch);
+  }
+
   public static class ProjectAndBranch {
     private final ProjectDto project;
     private final BranchDto branch;

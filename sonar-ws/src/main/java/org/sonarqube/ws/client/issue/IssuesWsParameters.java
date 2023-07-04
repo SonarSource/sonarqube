@@ -27,6 +27,7 @@ public class IssuesWsParameters {
   public static final String CONTROLLER_ISSUES = "api/issues";
 
   public static final String ACTION_SEARCH = "search";
+  public static final String ACTION_LIST = "list";
   public static final String ACTION_CHANGELOG = "changelog";
   public static final String ACTION_ADD_COMMENT = "add_comment";
   public static final String ACTION_EDIT_COMMENT = "edit_comment";

@@ -21,6 +21,7 @@ package org.sonar.db.issue;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -720,8 +721,8 @@ public class IssueDaoIT {
 
   @Test
   public void selectByQuery_whenFilteredWithCreatedAfter_shouldGetIssuesCreatedAfterDate() {
-    List<IssueDto> createdBeforeIssues = generateIssues(3, i -> createIssueWithKey("createdBefore-" + i).setCreatedAt(1_400_000_000_000L));
-    List<IssueDto> createdAfterIssues = generateIssues(3, i -> createIssueWithKey("createdAfter-" + i).setCreatedAt(1_420_000_000_000L));
+    List<IssueDto> createdBeforeIssues = generateIssues(3, i -> createIssueWithKey("createdBefore-" + i).setResolution(null).setIssueCreationDate(new Date(1_400_000_000_000L)));
+    List<IssueDto> createdAfterIssues = generateIssues(3, i -> createIssueWithKey("createdAfter-" + i).setResolution(null).setIssueCreationDate(new Date(1_420_000_000_000L)));
     Stream.of(createdBeforeIssues, createdAfterIssues)
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));

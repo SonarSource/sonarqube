@@ -296,3 +296,9 @@ message Flow {
   optional string description = 2;
   optional sonarqube.ws.commons.FlowType type = 3;
 }
+
+// Response of GET api/issues/list
+message ListWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Issue issues = 2;
+}
