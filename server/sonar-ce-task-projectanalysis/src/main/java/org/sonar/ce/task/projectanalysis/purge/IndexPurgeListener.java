@@ -19,26 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
-import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 @ServerSide
 public class IndexPurgeListener implements PurgeListener {
   private final IssueIndexer issueIndexer;
-  private final EntityDefinitionIndexer entityDefinitionIndexer;
 
-  public IndexPurgeListener(IssueIndexer issueIndexer, EntityDefinitionIndexer entityDefinitionIndexer) {
+  public IndexPurgeListener(IssueIndexer issueIndexer) {
     this.issueIndexer = issueIndexer;
-    this.entityDefinitionIndexer = entityDefinitionIndexer;
-  }
-
-  @Override
-  public void onComponentsDisabling(String projectUuid, Collection<String> disabledComponentUuids) {
-    entityDefinitionIndexer.delete(projectUuid, disabledComponentUuids);
   }
 
   @Override

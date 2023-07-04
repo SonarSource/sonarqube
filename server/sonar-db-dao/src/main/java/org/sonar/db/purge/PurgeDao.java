@@ -104,7 +104,6 @@ public class PurgeDao implements Dao {
 
   private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf, PurgeListener listener) {
     String rootUuid = conf.rootUuid();
-    listener.onComponentsDisabling(rootUuid, conf.getDisabledComponentUuids());
     commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener);
   }
 

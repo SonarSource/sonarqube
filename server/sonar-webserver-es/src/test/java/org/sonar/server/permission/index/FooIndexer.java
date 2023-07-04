@@ -19,8 +19,12 @@
  */
 package org.sonar.server.permission.index;
 
+import java.util.Optional;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
@@ -32,9 +36,11 @@ public class FooIndexer implements AnalysisIndexer, NeedAuthorizationIndexer {
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_FOO, p -> true);
 
   private final EsClient esClient;
+  private final DbClient dbClient;
 
-  public FooIndexer(EsClient esClient) {
+  public FooIndexer(EsClient esClient, DbClient dbClient) {
     this.esClient = esClient;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -49,8 +55,19 @@ public class FooIndexer implements AnalysisIndexer, NeedAuthorizationIndexer {
 
   @Override
   public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
-    addToIndex(branchUuid, "bar");
-    addToIndex(branchUuid, "baz");
+    try(DbSession dbSession = dbClient.openSession(true)){
+      Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid);
+      if (branchDto.isEmpty()) {
+        //For portfolio, adding branchUuid directly
+        addToIndex(branchUuid, "bar");
+        addToIndex(branchUuid, "baz");
+      }else{
+        addToIndex(branchDto.get().getProjectUuid(), "bar");
+        addToIndex(branchDto.get().getProjectUuid(), "baz");
+      }
+    }
+
+
   }
 
   private void addToIndex(String projectUuid, String name) {

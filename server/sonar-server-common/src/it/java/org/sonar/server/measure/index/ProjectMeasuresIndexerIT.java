@@ -32,7 +32,9 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.project.ProjectDto;
@@ -172,22 +174,32 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexOnAnalysis_indexes_provisioned_project() {
-    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
 
-    underTest.indexOnAnalysis(project1.getUuid());
+    underTest.indexOnAnalysis(project1.getMainBranchComponent().uuid());
 
-    assertThatIndexContainsOnly(project1);
+    assertThatIndexContainsOnly(project1.getProjectDto());
+  }
+
+  @Test
+  public void indexOnAnalysis_whenPassingANonMainBranch_ShouldNotIndexProject() {
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
+    BranchDto branchDto = db.components().insertProjectBranch(project1.getProjectDto());
+    underTest.indexOnAnalysis(branchDto.getUuid());
+
+    assertThatIndexContainsOnly(new ProjectDto[]{});
   }
 
   @Test
   public void indexOnAnalysis_indexes_provisioned_application() {
-    ProjectDto app1 = db.components().insertPrivateApplication().getProjectDto();
-    ProjectDto app2 = db.components().insertPrivateApplication().getProjectDto();
+    ProjectData app1 = db.components().insertPrivateApplication();
+    ProjectData app2 = db.components().insertPrivateApplication();
 
-    underTest.indexOnAnalysis(app1.getUuid());
+    underTest.indexOnAnalysis(app1.getMainBranchComponent().uuid());
 
-    assertThatIndexContainsOnly(app1);
+    assertThatIndexContainsOnly(app1.getProjectDto());
   }
 
   @Test

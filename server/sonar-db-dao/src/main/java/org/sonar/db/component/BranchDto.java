@@ -31,11 +31,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class BranchDto {
   public static final String DEFAULT_MAIN_BRANCH_NAME = "main";
-  /**
-   * The only use of this constant is for applications that were created before SQ 9.8. Sometimes (in example during XML import of
-   * portfolios and applications) we don't have access to default branch name of the application so we default to "master".
-   */
-  public static final String OLD_DEFAULT_MAIN_BRANCH_NAME = "master";
 
   /**
    * Maximum length of column "kee"

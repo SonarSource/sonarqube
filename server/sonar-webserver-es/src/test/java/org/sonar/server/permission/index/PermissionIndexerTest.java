@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -59,7 +60,7 @@ public class PermissionIndexerTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private FooIndex fooIndex = new FooIndex(es.client(), new WebAuthorizationTypeSupport(userSession));
-  private FooIndexer fooIndexer = new FooIndexer(es.client());
+  private FooIndexer fooIndexer = new FooIndexer(es.client(), db.getDbClient());
   private PermissionIndexer underTest = new PermissionIndexer(db.getDbClient(), es.client(), fooIndexer);
 
   @Test
@@ -394,15 +395,15 @@ public class PermissionIndexerTest {
   }
 
   private ProjectDto createAndIndexPrivateProject() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    fooIndexer.indexOnAnalysis(project.getUuid());
-    return project;
+    ProjectData project = db.components().insertPrivateProject();
+    fooIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    return project.getProjectDto();
   }
 
   private ProjectDto createAndIndexPublicProject() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    fooIndexer.indexOnAnalysis(project.getUuid());
-    return project;
+    ProjectData project = db.components().insertPublicProject();
+    fooIndexer.indexOnAnalysis(project.getMainBranchDto().getUuid());
+    return project.getProjectDto();
   }
 
   private PortfolioDto createAndIndexPortfolio() {

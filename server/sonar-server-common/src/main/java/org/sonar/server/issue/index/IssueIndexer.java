@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -169,16 +168,16 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
     };
   }
 
-  private List<EsQueueDto> createProjectDeleteRecoveryItems(Collection<String> entityUuids) {
+  private static List<EsQueueDto> createProjectDeleteRecoveryItems(Collection<String> entityUuids) {
     return entityUuids.stream()
       .map(entityUuid -> createQueueDto(entityUuid, ID_TYPE_DELETE_PROJECT_UUID, entityUuid))
-      .collect(Collectors.toList());
+      .toList();
   }
 
-  private List<EsQueueDto> createBranchRecoveryItems(Collection<String> branchUuids) {
+  private static List<EsQueueDto> createBranchRecoveryItems(Collection<String> branchUuids) {
     return branchUuids.stream()
       .map(branchUuid -> createQueueDto(branchUuid, ID_TYPE_BRANCH_UUID, branchUuid))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**

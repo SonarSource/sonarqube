@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
@@ -47,9 +46,9 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 import static org.sonar.server.es.Indexers.EntityEvent.CREATION;
 import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
+import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
@@ -178,16 +177,6 @@ public class EntityDefinitionIndexerIT {
     assertThatIndexContainsOnly(project);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getSuccess()).isOne();
-  }
-
-  @Test
-  public void delete_some_components() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    indexProject(project, CREATION);
-
-    underTest.delete(project.getUuid(), emptySet());
-
-    assertThatIndexContainsOnly(project);
   }
 
   @Test

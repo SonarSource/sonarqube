@@ -20,6 +20,7 @@
 package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -113,12 +114,16 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
         // measures, tags and permissions does not affect the definition of entities
         emptyList();
       case CREATION, DELETION, PROJECT_KEY_UPDATE -> {
-        List<EsQueueDto> items = entityUuids.stream()
-          .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
-          .collect(MoreCollectors.toArrayList(entityUuids.size()));
+        List<EsQueueDto> items = createEsQueueDtosFromEntities(entityUuids);
         yield dbClient.esQueueDao().insert(dbSession, items);
       }
     };
+  }
+
+  private static ArrayList<EsQueueDto> createEsQueueDtosFromEntities(Collection<String> entityUuids) {
+    return entityUuids.stream()
+      .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
+      .collect(MoreCollectors.toArrayList(entityUuids.size()));
   }
 
   @Override
@@ -188,13 +193,6 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
       .source(new SearchSourceBuilder().query(QueryBuilders.termQuery(ComponentIndexDefinition.FIELD_UUID, projectUuid)))
       .routing(AuthorizationDoc.idOf(projectUuid));
     bulkIndexer.addDeletion(searchRequest);
-  }
-
-  public void delete(String projectUuid, Collection<String> disabledComponentUuids) {
-    BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, Size.REGULAR);
-    bulk.start();
-    disabledComponentUuids.forEach(uuid -> bulk.addDeletion(TYPE_COMPONENT, uuid, AuthorizationDoc.idOf(projectUuid)));
-    bulk.stop();
   }
 
   @VisibleForTesting

@@ -34,7 +34,6 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.es.EventIndexer;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.project.Visibility;

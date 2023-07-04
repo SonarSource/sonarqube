@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -107,8 +108,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
         // nothing to do, permissions are not used in index type projectmeasures/projectmeasure
         Collections.emptyList();
       case PROJECT_KEY_UPDATE, CREATION, PROJECT_TAGS_UPDATE, DELETION ->
-        // when MEASURE_CHANGE or PROJECT_KEY_UPDATE project must be re-indexed because key is used in this index
-        // when PROJECT_CREATION provisioned projects are supported by WS api/components/search_projects
+        // when CREATION provisioned projects are supported by WS api/components/search_projects
         prepareForRecovery(dbSession, entityUuids);
     };
   }
@@ -118,6 +118,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     return switch (cause) {
       case DELETION -> Collections.emptyList();
       case MEASURE_CHANGE -> {
+        // when MEASURE_CHANGE or PROJECT_KEY_UPDATE project must be re-indexed because key is used in this index
         Set<String> entityUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids)
           .stream().map(BranchDto::getProjectUuid)
           .collect(Collectors.toSet());
@@ -171,17 +172,29 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     return bulkIndexer.stop();
   }
 
-  private void doIndex(Size size, @Nullable String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false);
-      ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+  private void doIndex(Size size, @Nullable String branchUuid) {
 
-      BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.FAIL_ON_ERROR);
-      bulkIndexer.start();
-      while (rowIt.hasNext()) {
-        ProjectMeasures doc = rowIt.next();
-        bulkIndexer.add(toProjectMeasuresDoc(doc).toIndexRequest());
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String projectUuid = null;
+      if (branchUuid != null) {
+        Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid);
+        if (branchDto.isEmpty() || !branchDto.get().isMain()) {
+          return;
+        } else {
+          projectUuid = branchDto.get().getProjectUuid();
+        }
       }
-      bulkIndexer.stop();
+
+      try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+        BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.FAIL_ON_ERROR);
+        bulkIndexer.start();
+        while (rowIt.hasNext()) {
+          ProjectMeasures doc = rowIt.next();
+          bulkIndexer.add(toProjectMeasuresDoc(doc).toIndexRequest());
+        }
+        bulkIndexer.stop();
+      }
     }
   }
 

@@ -102,7 +102,7 @@ public class PermissionIndexer implements EventIndexer {
   public Collection<EsQueueDto> prepareForRecoveryOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, Indexers.EntityEvent cause) {
     return switch (cause) {
       case PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE ->
-        // nothing to change. Measures, project key and tags are not part of this index
+        // nothing to change. project key and tags are not part of this index
         emptyList();
       case CREATION, DELETION, PERMISSION_CHANGE -> insertIntoEsQueue(dbSession, entityUuids);
     };

@@ -71,8 +71,8 @@ public class AuthorsAction implements IssuesWsAction {
     NewAction action = controller.createAction("authors")
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query.<br/>" +
-        "Requires authentication."
-        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+                      "Requires authentication."
+                      + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setChangelog(new Change("7.4", "The maximum size of 'ps' is set to 100"))
       .setHandler(this);
@@ -119,17 +119,16 @@ public class AuthorsAction implements IssuesWsAction {
 
   private List<String> getAuthors(DbSession session, @Nullable EntityDto entity, Request request) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
-    ofNullable(entity).ifPresent(e -> {
-      switch (e.getQualifier()) {
-        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(e.getUuid()));
-        case Qualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(e.getUuid()));
+    ofNullable(entity).ifPresent(p -> {
+      switch (p.getQualifier()) {
+        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(p.getUuid()));
+        case Qualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(p.getUuid()));
         case Qualifiers.APP -> {
-          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(session, e.getUuid())
-            .orElseThrow(() -> new IllegalStateException("Couldn't find main branch for APP " + e.getUuid()));
-          issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
-          issueQueryBuilder.branchUuid(appMainBranch.getUuid());
+          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(session, entity.getUuid())
+            .orElseThrow(() -> new IllegalStateException("Couldn't find main branch for APP " + entity.getUuid()));
+          issueQueryBuilder.viewUuids(Set.of(appMainBranch.getUuid()));
         }
-        default -> throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", e.getQualifier()));
+        default -> throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", p.getQualifier()));
       }
     });
     return issueIndex.searchAuthors(

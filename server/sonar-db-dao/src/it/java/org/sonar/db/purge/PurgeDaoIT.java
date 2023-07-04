@@ -91,13 +91,11 @@ import org.sonar.db.webhook.WebhookDto;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
@@ -316,9 +314,6 @@ public class PurgeDaoIT {
     underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid(), selectedComponentUuids),
       purgeListener, new PurgeProfiler());
     dbSession.commit();
-
-    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), selectedComponentUuids);
-    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), ImmutableSet.of(dir.uuid()));
 
     // set purge_status=1 for non-last snapshot
     assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isOne();
@@ -1266,7 +1261,6 @@ public class PurgeDaoIT {
       .extracting("uuid")
       .containsOnly(mainBranch.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
         enabledFileWithoutIssues.uuid());
-    verify(purgeListener).onComponentsDisabling(mainBranch.uuid(), disabledComponentUuids);
   }
 
   @Test
