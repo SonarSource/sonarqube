@@ -76,4 +76,6 @@ public interface IssueMapper {
 
 
   List<String> selectRecentlyClosedIssues(@Param("queryParams") IssueQueryParams issueQueryParams);
+
+  List<IssueDto> selectByQuery(@Param("query") IssueListQuery issueListQuery, @Param("pagination") Pagination pagination);
 }

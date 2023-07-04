@@ -54,7 +54,6 @@ import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 class IssueIteratorForSingleChunk implements IssueIterator {
 
   private static final String[] FIELDS = {
-    // column 1
     "i.kee",
     "i.assignee",
     "i.line",
@@ -65,8 +64,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.author_login",
     "i.issue_close_date",
     "i.issue_creation_date",
-
-    // column 11
     "i.issue_update_date",
     "r.uuid",
     "r.language",
@@ -76,8 +73,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "c.branch_uuid",
     "pb.is_main",
     "pb.project_uuid",
-
-    // column 22
     "i.tags",
     "i.issue_type",
     "r.security_standards",

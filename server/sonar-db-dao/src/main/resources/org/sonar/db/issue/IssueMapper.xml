@@ -718,4 +718,55 @@
         </if>
   </select>
 
+  <select id="selectByQuery" parameterType="map" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.uuid=i.rule_uuid
+    inner join components p on p.uuid=i.component_uuid
+    inner join components root on root.uuid=i.project_uuid
+    inner join project_branches pb on pb.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
+    <where>
+      <if test="query.project != null">
+        root.kee = #{query.project,jdbcType=VARCHAR}
+      </if>
+      <if test="query.component != null">
+        AND p.kee = #{query.component,jdbcType=VARCHAR}
+      </if>
+      <if test="query.branch != null">
+        AND pb.kee = #{query.branch,jdbcType=VARCHAR}
+      </if>
+      <if test="query.pullRequest != null">
+        AND pb.kee = #{query.pullRequest,jdbcType=VARCHAR}
+      </if>
+      <if test="query.types.size() > 0">
+        AND i.issue_type IN
+        <foreach collection="query.types" open="(" close=")" item="type" separator=",">
+          #{type,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.statuses.size() > 0">
+        AND i.status IN
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.resolutions.size() > 0">
+        AND i.resolution IN
+        <foreach collection="query.resolutions" open="(" close=")" item="resolution" separator=",">
+          #{resolution,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.newCodeOnReference == true">
+        AND n.uuid IS NOT NULL
+      </if>
+      <if test="query.createdAfter != null">
+        AND i.created_at &gt;= #{query.createdAfter,jdbcType=BIGINT}
+      </if>
+    </where>
+    order by i.kee asc
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </select>
+
 </mapper>

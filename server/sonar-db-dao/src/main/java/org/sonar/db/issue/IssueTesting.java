@@ -20,6 +20,9 @@
 package org.sonar.db.issue;
 
 import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
@@ -99,6 +102,13 @@ public class IssueTesting {
       .setUuid(Uuids.createFast())
       .setIssueKey(issue.getKey())
       .setCreatedAt(1_400_000_000_000L);
+  }
+
+  public static List<IssueDto> generateIssues(int total, Function<Integer, IssueDto> issueGenerator) {
+    return Stream.iterate(0, i -> i + 1)
+      .map(issueGenerator)
+      .limit(total)
+      .toList();
   }
 
 }
