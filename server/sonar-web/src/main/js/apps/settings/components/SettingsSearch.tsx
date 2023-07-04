@@ -170,7 +170,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     const { selectedResult } = this.state;
     if (selectedResult) {
       const definition = this.definitionsByKey[selectedResult];
-      router.push(buildSettingLink(definition));
+      router.push(buildSettingLink(definition, this.props.component));
       this.setState({ showResults: false });
     }
   };
