@@ -15,13 +15,13 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.PP
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
 import NavBar from '../../components/ui/NavBar';
 import { rawSizes } from '../theme';
-import GlobalFooter from './GlobalFooter';
+import GlobalFooterCodescan from './GlobalFooterCodescan';
 
 /*
  * We need to render either children or the Outlet,
@@ -34,7 +34,7 @@ export default function SimpleContainer({ children }: { children?: React.ReactNo
         <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
         {children !== undefined ? children : <Outlet />}
       </div>
-      <GlobalFooter />
+      <GlobalFooterCodescan />
     </div>
   );
 }
