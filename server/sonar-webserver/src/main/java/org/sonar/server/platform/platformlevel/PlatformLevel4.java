@@ -188,6 +188,7 @@ import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectQGChangeEventListener;
+import org.sonar.server.project.VisibilityService;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
@@ -419,6 +420,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GroupPermissionChanger.class,
       CheckAnyonePermissionsAtStartup.class,
       CheckLanguageSpecificParamsAtStartup.class,
+      VisibilityService.class,
 
       // components
       new BranchWsModule(),

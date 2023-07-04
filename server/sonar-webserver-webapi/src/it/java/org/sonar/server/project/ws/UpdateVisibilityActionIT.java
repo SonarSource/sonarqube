@@ -67,6 +67,7 @@ import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
+import org.sonar.server.project.VisibilityService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -111,8 +112,8 @@ public class UpdateVisibilityActionIT {
   private final Configuration configuration = mock(Configuration.class);
   private final DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(Set.of(new ControllableManagedProjectService()));
 
-  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, projectIndexers, new SequenceUuidFactory(), configuration,
-    delegatingManagedInstanceService);
+  private final VisibilityService visibilityService = new VisibilityService(dbClient, projectIndexers, new SequenceUuidFactory());
+  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, configuration, visibilityService, delegatingManagedInstanceService);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -281,7 +282,7 @@ public class UpdateVisibilityActionIT {
   }
 
   @Test
-  public void execute_throws_BadRequestException_if_specified_component_has_pending_tasks() {
+  public void execute_throws_IllegalStateException_if_specified_component_has_pending_tasks() {
     ProjectData project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .forEach(i -> insertPendingTask(project.getMainBranchDto()));
@@ -290,12 +291,12 @@ public class UpdateVisibilityActionIT {
     userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(BadRequestException.class)
+      .isInstanceOf(IllegalStateException.class)
       .hasMessage("Component visibility can't be changed as long as it has background task(s) pending or in progress");
   }
 
   @Test
-  public void execute_throws_BadRequestException_if_main_component_of_specified_component_has_in_progress_tasks() {
+  public void execute_throws_IllegalStateException_if_main_component_of_specified_component_has_in_progress_tasks() {
     ProjectData project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .forEach(i -> insertInProgressTask(project.getMainBranchDto()));
@@ -304,7 +305,7 @@ public class UpdateVisibilityActionIT {
     userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(BadRequestException.class)
+      .isInstanceOf(IllegalStateException.class)
       .hasMessage("Component visibility can't be changed as long as it has background task(s) pending or in progress");
   }
 
