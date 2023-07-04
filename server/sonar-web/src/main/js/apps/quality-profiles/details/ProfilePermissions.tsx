@@ -20,9 +20,9 @@
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import {
+  SearchUsersGroupsParameters,
   searchGroups,
   searchUsers,
-  SearchUsersGroupsParameters,
 } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
@@ -138,7 +138,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
 
   render() {
     return (
-      <div className="boxed-group">
+      <section aria-label={translate('permissions.page')} className="boxed-group">
         <h2>{translate('permissions.page')}</h2>
         <div className="boxed-group-inner">
           <p className="note">{translate('quality_profiles.default_permissions')}</p>
@@ -184,7 +184,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
             profile={this.props.profile}
           />
         )}
-      </div>
+      </section>
     );
   }
 }

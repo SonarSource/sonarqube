@@ -118,7 +118,10 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
     const extendsBuiltIn = ancestors != null && ancestors.some((profile) => profile.isBuiltIn);
 
     return (
-      <div className="boxed-group quality-profile-inheritance">
+      <section
+        aria-label={translate('quality_profiles.profile_inheritance')}
+        className="boxed-group quality-profile-inheritance"
+      >
         {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
           <div className="boxed-group-actions">
             <Button className="pull-right js-change-parent" onClick={this.handleChangeParentClick}>
@@ -184,7 +187,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
             profiles={profiles.filter((p) => p !== profile && p.language === profile.language)}
           />
         )}
-      </div>
+      </section>
     );
   }
 }

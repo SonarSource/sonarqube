@@ -28,24 +28,23 @@ import ProfilePermissions from './ProfilePermissions';
 import ProfileProjects from './ProfileProjects';
 import ProfileRules from './ProfileRules';
 
-export interface ProfileDetailsProps {
+interface ProfileDetailsProps {
   exporters: Exporter[];
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 
-export function ProfileDetails(props: ProfileDetailsProps) {
-  const { profile } = props;
+function ProfileDetails(props: ProfileDetailsProps) {
+  const { profile, profiles, exporters } = props;
+
   return (
     <div>
       <div className="quality-profile-grid">
         <div className="quality-profile-grid-left">
           <ProfileRules profile={profile} />
-          <ProfileExporters exporters={props.exporters} profile={profile} />
-          {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
-            <ProfilePermissions profile={profile} />
-          )}
+          <ProfileExporters exporters={exporters} profile={profile} />
+          {profile.actions?.edit && !profile.isBuiltIn && <ProfilePermissions profile={profile} />}
         </div>
         <div className="quality-profile-grid-right">
           {profile.activeRuleCount === 0 && (profile.projectCount || profile.isDefault) && (
@@ -61,7 +60,7 @@ export function ProfileDetails(props: ProfileDetailsProps) {
 
           <ProfileInheritance
             profile={profile}
-            profiles={props.profiles}
+            profiles={profiles}
             updateProfiles={props.updateProfiles}
           />
           <ProfileProjects profile={profile} />

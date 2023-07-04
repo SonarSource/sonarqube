@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';

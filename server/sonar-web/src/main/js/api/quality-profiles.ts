@@ -144,13 +144,6 @@ export function changeProfileParent(
   }).catch(throwGlobalError);
 }
 
-export function getQualityProfileBackupUrl({ language, name: qualityProfile }: Profile) {
-  const queryParams = Object.entries({ language, qualityProfile })
-    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-    .join('&');
-  return `/api/qualityprofiles/backup?${queryParams}`;
-}
-
 export function getQualityProfileExporterUrl(
   { key: exporterKey }: Exporter,
   { language, name: qualityProfile }: Profile

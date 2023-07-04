@@ -33,7 +33,7 @@ export interface Exporter {
 
 export interface ProfileChangelogEvent {
   action: string;
-  authorName: string;
+  authorName?: string;
   date: string;
   params?: Dict<string | null>;
   ruleKey: string;

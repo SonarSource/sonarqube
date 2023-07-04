@@ -25,7 +25,6 @@ import {
   copyProfile,
   createQualityProfile,
   deleteProfile,
-  getQualityProfileBackupUrl,
   renameProfile,
   setDefaultProfile,
 } from '../../../api/quality-profiles';
@@ -57,7 +56,7 @@ interface State {
   openModal?: ProfileActionModals;
 }
 
-export class ProfileActions extends React.PureComponent<Props, State> {
+class ProfileActions extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     loading: false,
@@ -178,12 +177,19 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     }
   };
 
+  getQualityProfileBackupUrl = ({ language, name: qualityProfile }: Profile) => {
+    const queryParams = Object.entries({ language, qualityProfile })
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+    return `/api/qualityprofiles/backup?${queryParams}`;
+  };
+
   render() {
     const { profile, isComparable } = this.props;
     const { loading, openModal } = this.state;
     const { actions = {} } = profile;
 
-    const backupUrl = `${getBaseUrl()}${getQualityProfileBackupUrl(profile)}`;
+    const backupUrl = `${getBaseUrl()}${this.getQualityProfileBackupUrl(profile)}`;
 
     const activateMoreUrl = getRulesUrl({
       qprofile: profile.key,

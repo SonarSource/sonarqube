@@ -19,10 +19,10 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
 import { changeProfileParent } from '../../../api/quality-profiles';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';

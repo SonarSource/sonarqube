@@ -31,11 +31,6 @@ export function searchRules(data: SearchRulesQuery): Promise<SearchRulesResponse
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 
-export function takeFacet(response: SearchRulesResponse, property: string) {
-  const facet = response.facets?.find((f) => f.property === property);
-  return facet ? facet.values : [];
-}
-
 export function getRuleRepositories(parameters: {
   q: string;
 }): Promise<Array<{ key: string; language: string; name: string }>> {

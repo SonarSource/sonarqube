@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeGroup } from '../../../api/quality-profiles';
-import { Button, DeleteButton, ResetButtonLink } from '../../../components/controls/buttons';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
+import { Button, DeleteButton, ResetButtonLink } from '../../../components/controls/buttons';
 import GroupIcon from '../../../components/icons/GroupIcon';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group } from './ProfilePermissions';
 
 interface Props {
@@ -103,6 +103,10 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
     return (
       <div className="clearfix big-spacer-bottom">
         <DeleteButton
+          aria-label={translateWithParameters(
+            'quality_profiles.permissions.remove.group_x',
+            group.name
+          )}
           className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}
         />

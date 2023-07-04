@@ -20,12 +20,13 @@
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getQualityProfile } from '../../../api/quality-profiles';
-import { searchRules, takeFacet } from '../../../api/rules';
+import { searchRules } from '../../../api/rules';
 import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { SearchRulesResponse } from '../../../types/coding-rules';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
@@ -118,8 +119,8 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
           const [allRules, activatedRules, showProfile] = responses;
           this.setState({
             activatedTotal: activatedRules.paging.total,
-            allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
-            activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
+            allByType: keyBy<ByType>(this.takeFacet(allRules, 'types'), 'val'),
+            activatedByType: keyBy<ByType>(this.takeFacet(activatedRules, 'types'), 'val'),
             compareToSonarWay: showProfile && showProfile.compareToSonarWay,
             total: allRules.paging.total,
           });
@@ -140,6 +141,11 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
       : null;
   }
 
+  takeFacet(response: SearchRulesResponse, property: string) {
+    const facet = response.facets?.find((f) => f.property === property);
+    return facet ? facet.values : [];
+  }
+
   render() {
     const { profile } = this.props;
     const { compareToSonarWay } = this.state;
@@ -147,7 +153,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     const { actions = {} } = profile;
 
     return (
-      <div className="boxed-group quality-profile-rules">
+      <section aria-label={translate('rules')} className="boxed-group quality-profile-rules">
         <div className="quality-profile-rules-distribution">
           <table className="data condensed">
             <thead>
@@ -212,7 +218,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             sonarway={compareToSonarWay.profile}
           />
         )}
-      </div>
+      </section>
     );
   }
 }

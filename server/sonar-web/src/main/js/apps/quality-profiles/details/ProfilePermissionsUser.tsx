@@ -23,7 +23,7 @@ import { removeUser } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
 import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import LegacyAvatar from '../../../components/ui/LegacyAvatar';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 
 interface Props {
@@ -107,6 +107,10 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
     return (
       <div className="clearfix big-spacer-bottom">
         <DeleteButton
+          aria-label={translateWithParameters(
+            'quality_profiles.permissions.remove.user_x',
+            user.name
+          )}
           className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}
         />

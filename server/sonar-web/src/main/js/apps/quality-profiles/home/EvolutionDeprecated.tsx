@@ -106,7 +106,10 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
     const sortedProfiles = sortBy(profilesWithDeprecations, (p) => -p.activeDeprecatedRuleCount);
 
     return (
-      <div className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated">
+      <section
+        className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated"
+        aria-label={translate('quality_profiles.deprecated_rules')}
+      >
         <h2 className="h4 spacer-bottom">{translate('quality_profiles.deprecated_rules')}</h2>
         <div className="spacer-bottom">
           {translateWithParameters(
@@ -144,7 +147,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
             </li>
           ))}
         </ul>
-      </div>
+      </section>
     );
   }
 }

@@ -169,7 +169,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     const { profile } = this.props;
     const hasNoActiveRules = profile.activeRuleCount === 0;
     return (
-      <div className="boxed-group quality-profile-projects">
+      <section className="boxed-group quality-profile-projects" aria-label={translate('projects')}>
         {profile.actions && profile.actions.associateProjects && (
           <div className="boxed-group-actions">
             <Tooltip
@@ -199,7 +199,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         </div>
 
         {this.state.formOpen && <ChangeProjectsForm onClose={this.closeForm} profile={profile} />}
-      </div>
+      </section>
     );
   }
 }

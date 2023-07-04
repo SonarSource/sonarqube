@@ -20,7 +20,7 @@
 import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
-import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { LogsLevels } from '../apps/system/utils';
 import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
@@ -54,6 +54,7 @@ import {
   SysInfoLogging,
   SysInfoStandalone,
   UserGroupMember,
+  UserSelected,
 } from '../types/types';
 import { CurrentUser, LoggedInUser, User } from '../types/users';
 
@@ -500,7 +501,9 @@ export function mockQualityProfileInheritance(
   };
 }
 
-export function mockQualityProfileChangelogEvent(eventOverride?: any) {
+export function mockQualityProfileChangelogEvent(
+  eventOverride?: Partial<ProfileChangelogEvent>
+): ProfileChangelogEvent {
   return {
     action: 'ACTIVATED',
     date: '2019-04-23T02:12:32+0100',
@@ -673,6 +676,16 @@ export function mockUser(overrides: Partial<User> = {}): User {
     login: 'john.doe',
     name: 'John Doe',
     managed: false,
+    ...overrides,
+  };
+}
+
+export function mockUserSelected(overrides: Partial<UserSelected> = {}): UserSelected {
+  return {
+    active: true,
+    login: 'john.doe',
+    name: 'John Doe',
+    selected: true,
     ...overrides,
   };
 }

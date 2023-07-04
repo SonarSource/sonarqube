@@ -27,7 +27,6 @@ import SeverityIcon from '../../../components/icons/SeverityIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
-import ComparisonEmpty from './ComparisonEmpty';
 import ComparisonResultActivation from './ComparisonResultActivation';
 
 type Params = Dict<string>;
@@ -201,7 +200,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
 
   render() {
     if (!this.props.inLeft.length && !this.props.inRight.length && !this.props.modified.length) {
-      return <ComparisonEmpty />;
+      return <div className="big-spacer-top">{translate('quality_profile.empty_comparison')}</div>;
     }
 
     return (

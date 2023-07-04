@@ -43,7 +43,7 @@ interface State {
   total?: number;
 }
 
-export class ChangelogContainer extends React.PureComponent<Props, State> {
+class ChangelogContainer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 

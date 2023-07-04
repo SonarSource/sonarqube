@@ -18,14 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
+import { ProfileChangelogEvent } from '../../apps/quality-profiles/types';
 import { RequestData } from '../../helpers/request';
 import {
   mockCompareResult,
+  mockGroup,
   mockPaging,
   mockQualityProfile,
+  mockQualityProfileChangelogEvent,
   mockRuleDetails,
+  mockUserSelected,
 } from '../../helpers/testMocks';
 import { SearchRulesResponse } from '../../types/coding-rules';
+import { SearchRulesQuery } from '../../types/rules';
 import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
 import {
   CompareResponse,
@@ -34,22 +39,41 @@ import {
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse,
   activateRule,
+  addGroup,
+  addUser,
+  associateProject,
   changeProfileParent,
   compareProfiles,
   copyProfile,
   createQualityProfile,
+  deleteProfile,
+  dissociateProject,
+  getExporters,
   getImporters,
+  getProfileChangelog,
   getProfileInheritance,
   getProfileProjects,
+  getQualityProfile,
+  removeGroup,
+  removeUser,
+  renameProfile,
+  restoreQualityProfile,
+  searchGroups,
   searchQualityProfiles,
+  searchUsers,
+  setDefaultProfile,
 } from '../quality-profiles';
 import { getRuleDetails, searchRules } from '../rules';
+
+jest.mock('../../api/rules');
 
 export default class QualityProfilesServiceMock {
   isAdmin = false;
   listQualityProfile: Profile[] = [];
   languageMapping: Dict<Partial<Profile>> = {
     c: { language: 'c', languageName: 'C' },
+    php: { language: 'php', languageName: 'PHP' },
+    java: { language: 'java', languageName: 'Java' },
   };
 
   comparisonResult: CompareResponse = mockCompareResult();
@@ -58,21 +82,43 @@ export default class QualityProfilesServiceMock {
     paging: mockPaging(),
   };
 
+  profileProjects: {
+    [profileKey: string]: ProfileProject[];
+  } = {};
+
+  changelogEvents: ProfileChangelogEvent[] = [];
+
   constructor() {
     this.resetQualityProfile();
     this.resetComparisonResult();
+    this.resetChangelogEvents();
 
-    (searchQualityProfiles as jest.Mock).mockImplementation(this.handleSearchQualityProfiles);
-    (createQualityProfile as jest.Mock).mockImplementation(this.handleCreateQualityProfile);
-    (changeProfileParent as jest.Mock).mockImplementation(this.handleChangeProfileParent);
-    (getProfileInheritance as jest.Mock).mockImplementation(this.handleGetProfileInheritance);
-    (getProfileProjects as jest.Mock).mockImplementation(this.handleGetProfileProjects);
-    (copyProfile as jest.Mock).mockImplementation(this.handleCopyProfile);
-    (getImporters as jest.Mock).mockImplementation(this.handleGetImporters);
-    (searchRules as jest.Mock).mockImplementation(this.handleSearchRules);
-    (compareProfiles as jest.Mock).mockImplementation(this.handleCompareQualityProfiles);
-    (activateRule as jest.Mock).mockImplementation(this.handleActivateRule);
-    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(searchQualityProfiles).mockImplementation(this.handleSearchQualityProfiles);
+    jest.mocked(createQualityProfile).mockImplementation(this.handleCreateQualityProfile);
+    jest.mocked(changeProfileParent).mockImplementation(this.handleChangeProfileParent);
+    jest.mocked(getProfileInheritance).mockImplementation(this.handleGetProfileInheritance);
+    jest.mocked(getProfileProjects).mockImplementation(this.handleGetProfileProjects);
+    jest.mocked(copyProfile).mockImplementation(this.handleCopyProfile);
+    jest.mocked(getImporters).mockImplementation(this.handleGetImporters);
+    jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
+    jest.mocked(compareProfiles).mockImplementation(this.handleCompareQualityProfiles);
+    jest.mocked(activateRule).mockImplementation(this.handleActivateRule);
+    jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(restoreQualityProfile).mockImplementation(this.handleRestoreQualityProfile);
+    jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
+    jest.mocked(addUser).mockImplementation(this.handleAddUser);
+    jest.mocked(searchGroups).mockImplementation(this.handleSearchGroups);
+    jest.mocked(addGroup).mockImplementation(this.handleAddGroup);
+    jest.mocked(removeGroup).mockImplementation(this.handleRemoveGroup);
+    jest.mocked(removeUser).mockImplementation(this.handleRemoveUser);
+    jest.mocked(associateProject).mockImplementation(this.handleAssociateProject);
+    jest.mocked(getProfileChangelog).mockImplementation(this.handleGetProfileChangelog);
+    jest.mocked(dissociateProject).mockImplementation(this.handleDissociateProject);
+    jest.mocked(getQualityProfile).mockImplementation(this.handleGetQualityProfile);
+    jest.mocked(getExporters).mockImplementation(this.handleGetExporters);
+    jest.mocked(deleteProfile).mockImplementation(this.handleDeleteProfile);
+    jest.mocked(renameProfile).mockImplementation(this.handleRenameProfile);
+    jest.mocked(setDefaultProfile).mockImplementation(this.handleSetDefaultProfile);
   }
 
   resetQualityProfile() {
@@ -98,8 +144,65 @@ export default class QualityProfilesServiceMock {
         name: 'java quality profile #2',
         activeDeprecatedRuleCount: 1,
         actions: {
-          edit: true,
+          edit: this.isAdmin,
         },
+      }),
+      mockQualityProfile({
+        key: 'sonar',
+        language: 'java',
+        languageName: 'Java',
+        name: 'Sonar way',
+        isBuiltIn: true,
+        isDefault: true,
+      }),
+      mockQualityProfile({
+        key: 'old-php-qp',
+        language: 'php',
+        languageName: 'PHP',
+        name: 'Good old PHP quality profile',
+        activeDeprecatedRuleCount: 8,
+        rulesUpdatedAt: '2019-09-16T21:10:36+0000',
+        parentKey: 'php-sonar-way-1',
+        actions: {
+          edit: this.isAdmin,
+          associateProjects: this.isAdmin,
+          delete: this.isAdmin,
+          setAsDefault: this.isAdmin,
+          copy: this.isAdmin,
+        },
+      }),
+      mockQualityProfile({
+        key: 'no-rule-qp',
+        activeRuleCount: 0,
+        actions: {
+          associateProjects: true,
+          setAsDefault: this.isAdmin,
+        },
+      }),
+      mockQualityProfile({
+        activeRuleCount: 6,
+        isBuiltIn: true,
+        key: 'php-sonar-way-1',
+        name: 'PHP Sonar way 1',
+        language: 'php',
+        languageName: 'PHP',
+      }),
+      mockQualityProfile({
+        activeRuleCount: 6,
+        isBuiltIn: false,
+        key: 'php-sonar-way-2',
+        name: 'PHP Sonar way 2',
+        language: 'php',
+        languageName: 'PHP',
+      }),
+      mockQualityProfile({
+        activeRuleCount: 3,
+        isBuiltIn: false,
+        key: 'php-sonar-way',
+        parentKey: 'old-php-qp',
+        name: 'PHP way',
+        language: 'php',
+        languageName: 'PHP',
       }),
     ];
   }
@@ -108,14 +211,92 @@ export default class QualityProfilesServiceMock {
     this.comparisonResult = mockCompareResult();
   }
 
+  resetChangelogEvents() {
+    this.changelogEvents = [
+      mockQualityProfileChangelogEvent({
+        date: '2019-05-23T04:12:32+0100',
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-05-23T03:12:32+0100',
+        action: 'DEACTIVATED',
+        ruleKey: 'php:rule1',
+        ruleName: 'PHP Rule',
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-05-23T03:12:32+0100',
+        action: 'ACTIVATED',
+        ruleKey: 'c:rule0',
+        ruleName: 'Rule 0',
+        params: {},
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-04-23T03:12:32+0100',
+        action: 'DEACTIVATED',
+        ruleKey: 'c:rule0',
+        ruleName: 'Rule 0',
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-04-23T03:12:32+0100',
+        action: 'DEACTIVATED',
+        ruleKey: 'c:rule1',
+        ruleName: 'Rule 1',
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-04-23T02:12:32+0100',
+        action: 'DEACTIVATED',
+        ruleKey: 'c:rule2',
+        ruleName: 'Rule 2',
+        authorName: 'John Doe',
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-03-23T02:12:32+0100',
+        ruleKey: 'c:rule2',
+        ruleName: 'Rule 2',
+        authorName: 'John Doe',
+        params: {
+          severity: 'CRITICAL',
+          credentialWords: 'foo,bar',
+        },
+      }),
+    ];
+  }
+
   resetSearchRulesResponse() {
     this.searchRulesResponse = {
+      facets: [
+        {
+          property: 'types',
+          values: [
+            { val: 'CODE_SMELL', count: 250 },
+            { val: 'BUG', count: 60 },
+            { val: 'VULNERABILITY', count: 40 },
+            { val: 'SECURITY_HOTSPOT', count: 50 },
+          ],
+        },
+      ],
       rules: [],
       paging: {
         pageIndex: 1,
-        pageSize: 500,
-        total: 0,
+        pageSize: 400,
+        total: 400,
       },
+    };
+  }
+
+  resetProfileProjects() {
+    this.profileProjects = {
+      'old-php-qp': [
+        {
+          key: 'Benflix',
+          name: 'Benflix',
+          selected: true,
+        },
+        {
+          key: 'Twitter',
+          name: 'Twitter',
+          selected: false,
+        },
+      ],
     };
   }
 
@@ -142,11 +323,19 @@ export default class QualityProfilesServiceMock {
     return this.reply(copiedQualityProfile);
   };
 
-  handleGetProfileProjects = (): Promise<{
+  handleGetProfileProjects = (
+    data: RequestData
+  ): Promise<{
     more: boolean;
     paging: Paging;
     results: ProfileProject[];
   }> => {
+    const results = (this.profileProjects[data.key] ?? []).filter(
+      (project) =>
+        project.selected ===
+        (data.selected !== undefined ? Boolean(data.selected === 'selected') : true)
+    );
+
     return this.reply({
       more: false,
       paging: {
@@ -154,7 +343,7 @@ export default class QualityProfilesServiceMock {
         pageSize: 10,
         total: 0,
       },
-      results: [],
+      results,
     });
   };
 
@@ -173,10 +362,16 @@ export default class QualityProfilesServiceMock {
       });
     }
 
-    // Lets fake it for now
+    const ancestors = this.listQualityProfile.filter(
+      (p) => p.key === profile.parentKey
+    ) as ProfileInheritanceDetails[];
+    const children = this.listQualityProfile.filter(
+      (p) => p.parentKey === profile.key
+    ) as ProfileInheritanceDetails[];
+
     return this.reply({
-      ancestors: [],
-      children: [],
+      ancestors,
+      children,
       profile: {
         name: profile.name,
         activeRuleCount: 0,
@@ -226,8 +421,52 @@ export default class QualityProfilesServiceMock {
     return this.reply({ profile: newQualityProfile });
   };
 
-  handleSearchRules = (): Promise<SearchRulesResponse> => {
+  handleSearchRules = (data: SearchRulesQuery): Promise<SearchRulesResponse> => {
+    if (data.activation) {
+      this.setRulesSearchResponse({
+        facets: [
+          {
+            property: 'types',
+            values: [
+              {
+                val: 'CODE_SMELL',
+                count: 200,
+              },
+              {
+                val: 'BUG',
+                count: 50,
+              },
+              {
+                val: 'VULNERABILITY',
+                count: 30,
+              },
+              {
+                val: 'SECURITY_HOTSPOT',
+                count: 20,
+              },
+            ],
+          },
+        ],
+        rules: [],
+        paging: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 300,
+        },
+      });
+    }
     return this.reply(this.searchRulesResponse);
+  };
+
+  handleGetQualityProfile = () => {
+    return this.reply({
+      profile: mockQualityProfile(),
+      compareToSonarWay: {
+        profile: '',
+        profileName: 'Sonar way',
+        missingRuleCount: 2,
+      },
+    });
   };
 
   handleSearchQualityProfiles = (
@@ -288,8 +527,169 @@ export default class QualityProfilesServiceMock {
     });
   };
 
+  handleRestoreQualityProfile = () => {
+    return this.reply({
+      profile: {
+        key: 'c-sonarsource-06756',
+        name: 'SonarSource',
+        language: 'c',
+        isDefault: false,
+        isInherited: false,
+        languageName: 'C',
+      },
+      ruleSuccesses: 231,
+      ruleFailures: 0,
+    });
+  };
+
+  handleSearchUsers = () => {
+    return this.reply({
+      users: [
+        mockUserSelected({
+          login: 'buzz',
+          name: 'Buzz',
+        }),
+      ],
+      paging: mockPaging(),
+    });
+  };
+
+  handleAddUser = () => {
+    return this.reply(undefined);
+  };
+
+  handleRemoveUser = () => {
+    return this.reply(undefined);
+  };
+
+  handleSearchGroups = () => {
+    return this.reply({
+      groups: [mockGroup({ name: 'ACDC' })],
+      paging: mockPaging(),
+    });
+  };
+
+  handleAddGroup = () => {
+    return this.reply(undefined);
+  };
+
+  handleRemoveGroup = () => {
+    return this.reply(undefined);
+  };
+
+  handleAssociateProject = ({ key }: Profile, project: string) => {
+    const projects = this.profileProjects[key].map((profileProject) => {
+      if (profileProject.key === project) {
+        return {
+          ...profileProject,
+          selected: true,
+        };
+      }
+      return profileProject;
+    });
+    this.profileProjects[key] = projects;
+
+    return this.reply({});
+  };
+
+  handleDissociateProject = ({ key }: Profile, project: string) => {
+    const projects = this.profileProjects[key].map((profileProject) => {
+      if (profileProject.key === project) {
+        return {
+          ...profileProject,
+          selected: false,
+        };
+      }
+      return profileProject;
+    });
+    this.profileProjects[key] = projects;
+
+    return this.reply({});
+  };
+
+  handleGetProfileChangelog: typeof getProfileChangelog = (since, to, { language }, page) => {
+    const PAGE_SIZE = 50;
+    const p = page || 1;
+    const events = this.changelogEvents.filter((event) => {
+      if (event.ruleKey.split(':')[0] !== language) {
+        return false;
+      }
+      if (since && new Date(since) >= new Date(event.date)) {
+        return false;
+      }
+      if (to && new Date(to) <= new Date(event.date)) {
+        return false;
+      }
+      return true;
+    });
+
+    return this.reply({
+      events: events.slice((p - 1) * PAGE_SIZE, (p - 1) * PAGE_SIZE + PAGE_SIZE),
+      paging: mockPaging({
+        total: events.length,
+        pageSize: PAGE_SIZE,
+        pageIndex: p,
+      }),
+    });
+  };
+
+  handleGetExporters = () => {
+    return this.reply([
+      {
+        key: 'sonarlint-vs',
+        name: 'SonarLint for Visual Studio',
+        languages: ['php'],
+      },
+      {
+        key: 'sonarlint-eclipse',
+        name: 'SonarLint for Eclipse',
+        languages: ['php'],
+      },
+    ]);
+  };
+
+  handleDeleteProfile = ({ name }: Profile) => {
+    // delete Children
+    const qualityProfileToDelete = this.listQualityProfile.find((profile) => profile.name === name);
+    this.listQualityProfile = this.listQualityProfile.filter(
+      (profile) => profile.parentKey !== qualityProfileToDelete?.key
+    );
+
+    // delete profile
+    this.listQualityProfile = this.listQualityProfile.filter((profile) => profile.name !== name);
+
+    return this.reply({});
+  };
+
+  handleRenameProfile = (key: string, newName: string) => {
+    this.listQualityProfile = this.listQualityProfile.map((profile) => {
+      if (profile.key === key) {
+        return {
+          ...profile,
+          name: newName,
+        };
+      }
+      return profile;
+    });
+    return this.reply({});
+  };
+
+  handleSetDefaultProfile = ({ name }: Profile) => {
+    this.listQualityProfile = this.listQualityProfile.map((profile) => {
+      if (profile.name === name) {
+        return {
+          ...profile,
+          isDefault: true,
+        };
+      }
+      return profile;
+    });
+    return Promise.resolve();
+  };
+
   setAdmin() {
     this.isAdmin = true;
+    this.resetQualityProfile();
   }
 
   setRulesSearchResponse(overrides: Partial<SearchRulesResponse>) {
@@ -304,6 +704,8 @@ export default class QualityProfilesServiceMock {
     this.resetQualityProfile();
     this.resetComparisonResult();
     this.resetSearchRulesResponse();
+    this.resetProfileProjects();
+    this.resetChangelogEvents();
   }
 
   reply<T>(response: T): Promise<T> {

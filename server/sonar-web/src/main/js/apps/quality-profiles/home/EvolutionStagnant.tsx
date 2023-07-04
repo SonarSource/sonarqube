@@ -36,7 +36,10 @@ export default function EvolutionStagnant(props: Props) {
   }
 
   return (
-    <div className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant">
+    <section
+      className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant"
+      aria-label={translate('quality_profiles.stagnant_profiles')}
+    >
       <h2 className="h4 spacer-bottom">{translate('quality_profiles.stagnant_profiles')}</h2>
       <div className="spacer-bottom">
         {translate('quality_profiles.not_updated_more_than_year')}
@@ -69,6 +72,6 @@ export default function EvolutionStagnant(props: Props) {
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

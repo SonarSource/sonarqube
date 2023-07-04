@@ -37,7 +37,10 @@ export default function ProfileExporters({ exporters, profile }: Props) {
   }
 
   return (
-    <div className="boxed-group quality-profile-exporters">
+    <section
+      aria-label={translate('quality_profiles.exporters')}
+      className="boxed-group quality-profile-exporters"
+    >
       <h2>{translate('quality_profiles.exporters')}</h2>
       <div className="boxed-group-inner">
         <Alert className="big-spacer-bottom" variant="warning">
@@ -57,6 +60,6 @@ export default function ProfileExporters({ exporters, profile }: Props) {
           ))}
         </ul>
       </div>
-    </div>
+    </section>
   );
 }

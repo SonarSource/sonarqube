@@ -106,7 +106,10 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
     )}`;
 
     return (
-      <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
+      <section
+        className="boxed-group boxed-group-inner quality-profiles-evolution-rules"
+        aria-label={newRulesTitle}
+      >
         <h2 className="h4 spacer-bottom">{newRulesTitle}</h2>
         <ul>
           {latestRules.map((rule) => (
@@ -143,7 +146,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
             </Link>
           </div>
         )}
-      </div>
+      </section>
     );
   }
 }

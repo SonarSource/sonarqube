@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, getByText } from '@testing-library/react';
+import { act, getByText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
@@ -50,10 +50,13 @@ const ui = {
     name: 'copy',
   }),
   createButton: byRole('button', { name: 'create' }),
+  restoreButton: byRole('button', { name: 'restore' }),
   compareButton: byRole('link', { name: 'compare' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
   compareDropdown: byRole('combobox', { name: 'quality_profiles.compare_with' }),
   changelogLink: byRole('link', { name: 'changelog' }),
   popup: byRole('dialog'),
+  restoreProfileDialog: byRole('dialog', { name: 'quality_profiles.restore_profile' }),
   copyRadio: byRole('radio', {
     name: 'quality_profiles.creation_from_copy quality_profiles.creation_from_copy_description_1 quality_profiles.creation_from_copy_description_2',
   }),
@@ -90,6 +93,9 @@ const ui = {
     byRole('table', {
       name: `quality_profiles.x_rules_have_different_configuration.${rulesQuantity}`,
     }),
+  deprecatedRulesRegion: byRole('region', { name: 'quality_profiles.deprecated_rules' }),
+  stagnantProfilesRegion: byRole('region', { name: 'quality_profiles.stagnant_profiles' }),
+  recentlyAddedRulesRegion: byRole('region', { name: 'quality_profiles.latest_new_rules' }),
   newRuleLink: byRole('link', { name: 'Recently Added Rule' }),
   seeAllNewRulesLink: byRole('link', { name: 'see_all 20 quality_profiles.latest_new_rules' }),
 };
@@ -115,97 +121,139 @@ it('should list Quality Profiles and filter by language', async () => {
   expect(ui.createButton.get(ui.popup.get())).toBeEnabled();
 });
 
-it('should list recently added rules', async () => {
-  serviceMock.setAdmin();
-  serviceMock.setRulesSearchResponse({
-    rules: [mockRule({ name: 'Recently Added Rule' })],
-    paging: mockPaging({
-      total: 20,
-    }),
+describe('Evolution', () => {
+  it('should list deprecated rules', async () => {
+    serviceMock.setAdmin();
+    renderQualityProfiles();
+
+    expect(await ui.deprecatedRulesRegion.find()).toBeInTheDocument();
+    expect(
+      ui.deprecatedRulesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get()
+    ).toBeInTheDocument();
+    expect(
+      ui.deprecatedRulesRegion.byRole('link', { name: 'java quality profile #2' }).get()
+    ).toBeInTheDocument();
   });
 
-  renderQualityProfiles();
-  expect(await ui.newRuleLink.find()).toBeInTheDocument();
-  expect(ui.seeAllNewRulesLink.get()).toBeInTheDocument();
+  it('should list stagnant profiles', async () => {
+    serviceMock.setAdmin();
+    renderQualityProfiles();
+
+    expect(await ui.stagnantProfilesRegion.find()).toBeInTheDocument();
+    expect(
+      ui.stagnantProfilesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get()
+    ).toBeInTheDocument();
+  });
+
+  it('should list recently added rules', async () => {
+    serviceMock.setAdmin();
+    serviceMock.setRulesSearchResponse({
+      rules: [mockRule({ name: 'Recently Added Rule' })],
+      paging: mockPaging({
+        total: 20,
+      }),
+    });
+
+    renderQualityProfiles();
+    expect(await ui.recentlyAddedRulesRegion.find()).toBeInTheDocument();
+    expect(ui.newRuleLink.get()).toBeInTheDocument();
+    expect(ui.seeAllNewRulesLink.get()).toBeInTheDocument();
+  });
 });
 
-it('should be able to extend Quality Profile', async () => {
-  // From the list page
-  const user = userEvent.setup();
-  serviceMock.setAdmin();
-  renderQualityProfiles();
+describe('Create', () => {
+  it('should be able to extend an existing Quality Profile', async () => {
+    const user = userEvent.setup();
+    serviceMock.setAdmin();
+    renderQualityProfiles();
 
-  await user.click(await ui.profileActions('c quality profile', 'C').find());
-  await user.click(ui.extendButton.get());
-
-  await user.clear(ui.namePropupInput.get());
-  await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
-  await act(async () => {
+    await user.click(await ui.profileActions('c quality profile', 'C').find());
     await user.click(ui.extendButton.get());
+    await user.clear(ui.namePropupInput.get());
+    await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
+    await act(async () => {
+      await user.click(ui.extendButton.get());
+    });
+
+    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+
+    await user.click(ui.returnToList.get());
+    await user.click(ui.createButton.get());
+    await selectEvent.select(ui.languageSelect.get(), 'C');
+    await selectEvent.select(ui.profileExtendSelect.get(), ui.newCQualityProfileName);
+    await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
+    await act(async () => {
+      await user.click(ui.createButton.get(ui.popup.get()));
+    });
+
+    expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
-  expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
 
-  // From the create form
-  await user.click(ui.returnToList.get());
-  await user.click(ui.createButton.get());
+  it('should be able to copy an existing Quality Profile', async () => {
+    const user = userEvent.setup();
+    serviceMock.setAdmin();
+    renderQualityProfiles();
 
-  await selectEvent.select(ui.languageSelect.get(), 'C');
-  await selectEvent.select(ui.profileExtendSelect.get(), ui.newCQualityProfileName);
-  await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
-  await act(async () => {
-    await user.click(ui.createButton.get(ui.popup.get()));
+    await user.click(await ui.profileActions('c quality profile', 'C').find());
+    await user.click(ui.copyButton.get());
+    await user.clear(ui.namePropupInput.get());
+    await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
+    await act(async () => {
+      await user.click(ui.copyButton.get(ui.popup.get()));
+    });
+
+    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+
+    await user.click(ui.returnToList.get());
+    await user.click(ui.createButton.get());
+    await user.click(ui.copyRadio.get());
+    await selectEvent.select(ui.languageSelect.get(), 'C');
+    await selectEvent.select(ui.profileCopySelect.get(), ui.newCQualityProfileName);
+    await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
+    await act(async () => {
+      await user.click(ui.createButton.get(ui.popup.get()));
+    });
+
+    expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
 
-  expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
+  it('should be able to create blank Quality Profile', async () => {
+    const user = userEvent.setup();
+    serviceMock.setAdmin();
+    renderQualityProfiles();
+    await user.click(await ui.createButton.find());
+    await user.click(ui.blankRadio.get());
+    await selectEvent.select(ui.languageSelect.get(), 'C');
+    await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
+    await act(async () => {
+      await user.click(ui.createButton.get(ui.popup.get()));
+    });
+
+    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+  });
 });
 
-it('should be able to copy Quality Profile', async () => {
-  // From the list page
+it('should be able to restore a quality profile', async () => {
   const user = userEvent.setup();
   serviceMock.setAdmin();
   renderQualityProfiles();
 
-  await user.click(await ui.profileActions('c quality profile', 'C').find());
-  await user.click(ui.copyButton.get());
+  await user.click(await ui.restoreButton.find());
+  expect(await ui.restoreProfileDialog.find()).toBeInTheDocument();
 
-  await user.clear(ui.namePropupInput.get());
-  await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
-  await act(async () => {
-    await user.click(ui.copyButton.get(ui.popup.get()));
+  const profileXMLBackup = new File(['c-sonarsource-06756'], 'c-sonarsource-06756', {
+    type: 'application/xml',
   });
-  expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+  const input = screen.getByLabelText<HTMLInputElement>(/backup/);
+  // Very hacky way to upload the file in the test
+  input.removeAttribute('required');
 
-  // From the create form
-  await user.click(ui.returnToList.get());
-  await user.click(ui.createButton.get());
+  await userEvent.upload(input, profileXMLBackup);
+  expect(input.files?.item(0)).toStrictEqual(profileXMLBackup);
 
-  await user.click(ui.copyRadio.get());
-  await selectEvent.select(ui.languageSelect.get(), 'C');
-  await selectEvent.select(ui.profileCopySelect.get(), ui.newCQualityProfileName);
-  await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
-  await act(async () => {
-    await user.click(ui.createButton.get(ui.popup.get()));
-  });
+  await user.click(ui.restoreProfileDialog.byRole('button', { name: 'restore' }).get());
 
-  expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
-});
-
-it('should be able to create blank Quality Profile', async () => {
-  // From the list page
-  const user = userEvent.setup();
-  serviceMock.setAdmin();
-  renderQualityProfiles();
-
-  await user.click(await ui.createButton.find());
-
-  await user.click(ui.blankRadio.get());
-  await selectEvent.select(ui.languageSelect.get(), 'C');
-  await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
-  await act(async () => {
-    await user.click(ui.createButton.get(ui.popup.get()));
-  });
-
-  expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+  expect(await screen.findByText(/quality_profiles.restore_profile.success/)).toBeInTheDocument();
 });
 
 it('should be able to compare profiles', async () => {
