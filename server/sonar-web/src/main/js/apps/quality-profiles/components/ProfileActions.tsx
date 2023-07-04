@@ -164,7 +164,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       this.setState({ loading: false, openModal: undefined });
       this.props.updateProfiles().then(
         () => {
-          router.push(getProfilePath(name, profile.language, this.props.organization));
+          router.push(getProfilePath(name.trim(), profile.language, this.props.organization));
         },
         () => {
           /* noop */
