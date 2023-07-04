@@ -74,6 +74,7 @@
     FROM users u
     LEFT JOIN qgate_user_permissions qup ON qup.user_uuid=u.uuid AND
     qup.quality_gate_uuid=#{query.qualityGateUuid, jdbcType=VARCHAR}
+    INNER JOIN organization_members om ON u.uuid=om.user_uuid AND om.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <where>
       <choose>
         <when test="query.getMembership() == 'IN'">
