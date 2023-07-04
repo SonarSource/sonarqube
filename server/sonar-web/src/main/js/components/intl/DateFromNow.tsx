@@ -28,12 +28,13 @@ import { getRelativeTimeProps } from './dateUtils';
 
 export interface DateFromNowProps {
   children?: (formattedDate: string) => React.ReactNode;
+  className?: string;
   date?: ParsableDate;
   hourPrecision?: boolean;
 }
 
 export default function DateFromNow(props: DateFromNowProps) {
-  const { children: originalChildren = (f: string) => f, date, hourPrecision } = props;
+  const { children: originalChildren = (f: string) => f, date, hourPrecision, className } = props;
   let children = originalChildren;
 
   if (!date) {
@@ -56,7 +57,7 @@ export default function DateFromNow(props: DateFromNowProps) {
   return (
     <DateTimeFormatter date={parsedDate}>
       {(formattedDate) => (
-        <span title={formattedDate}>
+        <span className={className} title={formattedDate}>
           <FormattedRelativeTime {...relativeTimeProps}>
             {(d) => <>{children(d)}</>}
           </FormattedRelativeTime>

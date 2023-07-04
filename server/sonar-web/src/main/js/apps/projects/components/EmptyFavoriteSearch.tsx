@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, Note, StandoutLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import '../../../components/common/EmptySearch.css';
-import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
@@ -28,26 +28,28 @@ import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {
   return (
-    <div aria-live="assertive" className="empty-search">
-      <h3>{translate('no_results_search.favorites')}</h3>
-      <p className="big-spacer-top">
-        <FormattedMessage
-          defaultMessage={translate('no_results_search.favorites.2')}
-          id="no_results_search.favorites.2"
-          values={{
-            url: (
-              <Link
-                to={{
-                  pathname: '/projects',
-                  search: queryToSearch(query as Dict<string | undefined | number>),
-                }}
-              >
-                {translate('all')}
-              </Link>
-            ),
-          }}
-        />
-      </p>
-    </div>
+    <Card aria-live="assertive">
+      <Note className="sw-text-center sw-flex-column">
+        <h3>{translate('no_results_search.favorites')}</h3>
+        <div>
+          <FormattedMessage
+            defaultMessage={translate('no_results_search.favorites.2')}
+            id="no_results_search.favorites.2"
+            values={{
+              url: (
+                <StandoutLink
+                  to={{
+                    pathname: '/projects',
+                    search: queryToSearch(query as Dict<string | undefined | number>),
+                  }}
+                >
+                  {translate('all')}
+                </StandoutLink>
+              ),
+            }}
+          />
+        </div>
+      </Note>
+    </Card>
   );
 }

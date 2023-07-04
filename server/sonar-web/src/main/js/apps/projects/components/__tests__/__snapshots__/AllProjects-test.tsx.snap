@@ -198,6 +198,7 @@ exports[`renders 1`] = `
           loading={false}
           ready={true}
           total={0}
+          useMIUIButtons={true}
         />
       </div>
     </div>

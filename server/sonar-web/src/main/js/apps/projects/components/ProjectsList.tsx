@@ -31,7 +31,7 @@ import EmptyInstance from './EmptyInstance';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import ProjectCard from './project-card/ProjectCard';
 
-const PROJECT_CARD_HEIGHT = 145;
+const PROJECT_CARD_HEIGHT = 185;
 const PROJECT_CARD_MARGIN = 20;
 
 interface Props {
@@ -58,11 +58,10 @@ export default class ProjectsList extends React.PureComponent<Props> {
 
     return (
       <div key={key} role="row" style={{ ...style, height: PROJECT_CARD_HEIGHT }}>
-        <div role="gridcell">
+        <div className="sw-h-full" role="gridcell">
           <ProjectCard
             currentUser={this.props.currentUser}
             handleFavorite={this.props.handleFavorite}
-            height={PROJECT_CARD_HEIGHT}
             key={project.key}
             project={project}
             type={this.props.cardType}
@@ -91,6 +90,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
                   rowRenderer={this.renderRow}
                   scrollTop={scrollTop}
                   style={{ outline: 'none' }}
+                  tabIndex={-1}
                   width={width}
                 />
               </div>
@@ -105,7 +105,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
     const { projects } = this.props;
 
     return (
-      <div className="projects-list">
+      <div className="it__projects-list">
         {projects.length > 0 ? this.renderList() : this.renderNoProjects()}
       </div>
     );

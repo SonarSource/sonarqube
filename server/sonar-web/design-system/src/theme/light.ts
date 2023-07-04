@@ -76,6 +76,9 @@ export const lightTheme = {
     // danger
     danger: danger.dark,
 
+    //Project list card
+    projectCardDisabled: COLORS.blueGrey[200],
+
     // buttons
     button: primary.default,
     buttonHover: primary.dark,

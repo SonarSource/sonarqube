@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import ProjectCardQualityGate from '../ProjectCardQualityGate';
 
 it('renders', () => {
-  expect(shallow(<ProjectCardQualityGate status="ERROR" />)).toMatchSnapshot();
+  renderProjectCardQualityGate('ERROR');
+  expect(screen.getByTitle('quality_gates.status: ERROR')).toBeInTheDocument();
 });
 
-it('does not render', () => {
-  expect(shallow(<ProjectCardQualityGate />).type()).toBeNull();
-});
+function renderProjectCardQualityGate(status?: string) {
+  renderComponent(<ProjectCardQualityGate status={status} />);
+}

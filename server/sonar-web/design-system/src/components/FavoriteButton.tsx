@@ -19,30 +19,34 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { InteractiveIcon } from './InteractiveIcon';
+import { StarFillIcon, StarIcon } from './icons';
 
-export interface ProjectCardMeasureProps {
-  label: string;
-  metricKey: string;
+interface Props {
   className?: string;
+  favorite: boolean;
+  innerRef?: React.Ref<HTMLButtonElement>;
+  overlay: string;
+  toggleFavorite: VoidFunction;
+  tooltip?: React.ComponentType<{ overlay: React.ReactNode }>;
 }
 
-export default function ProjectCardMeasure(
-  props: React.PropsWithChildren<ProjectCardMeasureProps>
-) {
-  const { label, metricKey, children, className } = props;
+export function FavoriteButton(props: Props) {
+  const { className, favorite, overlay, toggleFavorite, tooltip, innerRef } = props;
+  const Tooltip = tooltip ?? React.Fragment;
 
   return (
-    <div
-      data-key={metricKey}
-      className={classNames(
-        'it__project_card_measure sw-flex-column sw-box-border sw-text-center',
-        className
-      )}
-    >
-      <div className="sw-text-center">{children}</div>
-      <div className="sw-body-sm sw-mt-1/2 sw-whitespace-nowrap" title={label}>
-        {label}
-      </div>
-    </div>
+    <Tooltip overlay={overlay}>
+      <InteractiveIcon
+        Icon={favorite ? StarFillIcon : StarIcon}
+        aria-label={overlay}
+        className={classNames('it__favorite-link', className, {
+          'it__is-filled': favorite,
+        })}
+        innerRef={innerRef}
+        onClick={toggleFavorite}
+        size="small"
+      />
+    </Tooltip>
   );
 }

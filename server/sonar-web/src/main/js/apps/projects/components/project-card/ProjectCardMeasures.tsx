@@ -17,28 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { differenceInMilliseconds } from 'date-fns';
+import {
+  CoverageIndicator,
+  DuplicationsIndicator,
+  MetricsLabel,
+  MetricsRatingBadge,
+  Note,
+} from 'design-system';
 import * as React from 'react';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Measure from '../../../../components/measure/Measure';
-import CoverageRating from '../../../../components/ui/CoverageRating';
-import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
-import Rating from '../../../../components/ui/Rating';
-import { parseDate } from '../../../../helpers/dates';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { duplicationRatingConverter } from '../../../../components/measure/utils';
+import { translate } from '../../../../helpers/l10n';
+import { formatRating } from '../../../../helpers/measures';
 import { isDefined } from '../../../../helpers/types';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
+import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Dict } from '../../../../types/types';
-import { formatDuration } from '../../utils';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
 export interface ProjectCardMeasuresProps {
   isNewCode: boolean;
   measures: Dict<string | undefined>;
   componentQualifier: ComponentQualifier;
-  newCodeStartingDate?: string;
 }
 
 function renderCoverage(props: ProjectCardMeasuresProps) {
@@ -47,18 +47,19 @@ function renderCoverage(props: ProjectCardMeasuresProps) {
 
   return (
     <ProjectCardMeasure metricKey={coverageMetric} label={translate('metric.coverage.name')}>
-      <div className="display-flex-center">
-        <Measure
-          className="big"
-          metricKey={coverageMetric}
-          metricType="PERCENT"
-          value={measures[coverageMetric]}
-        />
+      <div>
         {measures[coverageMetric] && (
-          <span className="spacer-left project-card-measure-secondary-info">
-            <CoverageRating value={measures[coverageMetric]} />
+          <span>
+            <CoverageIndicator value={measures[coverageMetric]} />
           </span>
         )}
+        <span className="sw-ml-2 sw-body-md-highlight">
+          <Measure
+            metricKey={coverageMetric}
+            metricType={MetricType.Percent}
+            value={measures[coverageMetric]}
+          />
+        </span>
       </div>
     </ProjectCardMeasure>
   );
@@ -70,23 +71,29 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
     ? MetricKey.new_duplicated_lines_density
     : MetricKey.duplicated_lines_density;
 
+  const rating =
+    measures[duplicationMetric] !== undefined
+      ? duplicationRatingConverter(Number(measures[duplicationMetric]))
+      : undefined;
+
   return (
     <ProjectCardMeasure
       metricKey={duplicationMetric}
       label={translate('metric.duplicated_lines_density.short_name')}
     >
-      <div className="display-flex-center">
-        <Measure
-          className="big"
-          metricKey={duplicationMetric}
-          metricType="PERCENT"
-          value={measures[duplicationMetric]}
-        />
+      <div>
         {measures[duplicationMetric] != null && (
-          <span className="spacer-left project-card-measure-secondary-info">
-            <DuplicationsRating value={Number(measures[duplicationMetric])} />
+          <span>
+            <DuplicationsIndicator rating={rating} />
           </span>
         )}
+        <span className="sw-ml-2 sw-body-md-highlight">
+          <Measure
+            metricKey={duplicationMetric}
+            metricType={MetricType.Percent}
+            value={measures[duplicationMetric]}
+          />
+        </span>
       </div>
     </ProjectCardMeasure>
   );
@@ -101,13 +108,13 @@ function renderRatings(props: ProjectCardMeasuresProps) {
       noShrink: true,
       metricKey: isNewCode ? MetricKey.new_bugs : MetricKey.bugs,
       metricRatingKey: isNewCode ? MetricKey.new_reliability_rating : MetricKey.reliability_rating,
-      metricType: 'SHORT_INT',
+      metricType: MetricType.ShortInteger,
     },
     {
       iconLabel: translate('metric.vulnerabilities.name'),
       metricKey: isNewCode ? MetricKey.new_vulnerabilities : MetricKey.vulnerabilities,
       metricRatingKey: isNewCode ? MetricKey.new_security_rating : MetricKey.security_rating,
-      metricType: 'SHORT_INT',
+      metricType: MetricType.ShortInteger,
     },
     {
       iconKey: 'security_hotspots',
@@ -118,35 +125,26 @@ function renderRatings(props: ProjectCardMeasuresProps) {
       metricRatingKey: isNewCode
         ? MetricKey.new_security_review_rating
         : MetricKey.security_review_rating,
-      metricType: 'PERCENT',
+      metricType: MetricType.Percent,
     },
     {
       iconLabel: translate('metric.code_smells.name'),
       metricKey: isNewCode ? MetricKey.new_code_smells : MetricKey.code_smells,
       metricRatingKey: isNewCode ? MetricKey.new_maintainability_rating : MetricKey.sqale_rating,
-      metricType: 'SHORT_INT',
+      metricType: MetricType.ShortInteger,
     },
   ];
 
   return measureList.map((measure) => {
-    const { iconKey, iconLabel, metricKey, metricRatingKey, metricType, noShrink } = measure;
+    const { iconLabel, metricKey, metricRatingKey, metricType } = measure;
+    const value = formatRating(measures[metricRatingKey]);
 
     return (
-      <ProjectCardMeasure
-        className={classNames({ 'flex-0': noShrink })}
-        key={metricKey}
-        metricKey={metricKey}
-        iconKey={iconKey}
-        label={iconLabel}
-      >
-        <Measure
-          className="spacer-right big project-card-measure-secondary-info"
-          metricKey={metricKey}
-          metricType={metricType}
-          value={measures[metricKey]}
-        />
-        <span className="big">
-          <Rating value={measures[metricRatingKey]} />
+      <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
+        <MetricsRatingBadge label={metricKey} rating={value as MetricsLabel} />
+
+        <span className="sw-ml-2 sw-body-md-highlight">
+          <Measure metricKey={metricKey} metricType={metricType} value={measures[metricKey]} />
         </span>
       </ProjectCardMeasure>
     );
@@ -154,23 +152,19 @@ function renderRatings(props: ProjectCardMeasuresProps) {
 }
 
 export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
-  const { isNewCode, measures, componentQualifier, newCodeStartingDate } = props;
+  const { isNewCode, measures, componentQualifier } = props;
 
   const { ncloc } = measures;
 
   if (!isNewCode && !ncloc) {
     return (
-      <div className="note big-spacer-top">
+      <Note>
         {componentQualifier === ComponentQualifier.Application
           ? translate('portfolio.app.empty')
           : translate('overview.project.main_branch_empty')}
-      </div>
+      </Note>
     );
   }
-
-  const newCodeTimespan = newCodeStartingDate
-    ? differenceInMilliseconds(Date.now(), parseDate(newCodeStartingDate))
-    : 0;
 
   const measureList = [
     ...renderRatings(props),
@@ -179,28 +173,11 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   ].filter(isDefined);
 
   return (
-    <>
-      {isNewCode && newCodeTimespan !== undefined && newCodeStartingDate && (
-        <DateTimeFormatter date={newCodeStartingDate}>
-          {(formattedNewCodeStartingDate) => (
-            <p className="spacer-top spacer-bottom" title={formattedNewCodeStartingDate}>
-              {translateWithParameters(
-                'projects.new_code_period_x',
-                formatDuration(newCodeTimespan)
-              )}
-            </p>
-          )}
-        </DateTimeFormatter>
-      )}
-      <div className="display-flex-row display-flex-space-between">
-        {measureList.map((measure, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <React.Fragment key={i}>
-            {i > 0 && <span className="bordered-left little-spacer" />}
-            {measure}
-          </React.Fragment>
-        ))}
-      </div>
-    </>
+    <div className="sw-flex sw-gap-8">
+      {measureList.map((measure, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={i}>{measure}</React.Fragment>
+      ))}
+    </div>
   );
 }

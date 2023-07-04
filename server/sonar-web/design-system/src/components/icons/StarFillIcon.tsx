@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import * as React from 'react';
-import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import ProjectCardMeasure, { ProjectCardMeasureProps } from '../ProjectCardMeasure';
+import styled from '@emotion/styled';
+import { StarFillIcon as OcticonStarFillIcon } from '@primer/octicons-react';
+import { themeColor } from '../../helpers';
+import { OcticonHoc } from './Icon';
 
-it('should render correctly', () => {
-  renderProjectCardMeasure();
-  expect(screen.getByTitle('test-label')).toBeInTheDocument();
-});
+// provide a default fill color that is different from the default icon
+export const StarFillIcon = styled(OcticonHoc(OcticonStarFillIcon))`
+  fill: ${themeColor('iconFavorite')};
+`;
 
-function renderProjectCardMeasure(props: Partial<ProjectCardMeasureProps> = {}) {
-  renderComponent(<ProjectCardMeasure metricKey="test-metric-key" label="test-label" {...props} />);
-}
+StarFillIcon.displayName = 'StarFillIcon';

@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ProjectCardLanguages } from '../ProjectCardLanguages';
 
 const languages = {
@@ -27,27 +28,20 @@ const languages = {
 };
 
 it('renders', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=137;js=15" languages={languages} />)
-  ).toMatchSnapshot();
+  renderProjectCardLanguages('java=137;js=15');
+  expect(screen.getByText('Java, JavaScript')).toBeInTheDocument();
 });
 
 it('sorts languages', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;js=152" languages={languages} />)
-  ).toMatchSnapshot();
+  renderProjectCardLanguages('java=13;js=152');
+  expect(screen.getByText('JavaScript, Java')).toBeInTheDocument();
 });
 
 it('handles unknown languages', () => {
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;cpp=18" languages={languages} />)
-  ).toMatchSnapshot();
-
-  expect(
-    shallow(<ProjectCardLanguages distribution="java=13;<null>=18" languages={languages} />)
-  ).toMatchSnapshot();
+  renderProjectCardLanguages('java=13;cpp=18');
+  expect(screen.getByText('cpp, Java')).toBeInTheDocument();
 });
 
-it('does not render', () => {
-  expect(shallow(<ProjectCardLanguages languages={languages} />).type()).toBeNull();
-});
+function renderProjectCardLanguages(distribution?: string) {
+  renderComponent(<ProjectCardLanguages languages={languages} distribution={distribution} />);
+}

@@ -275,6 +275,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
           loading={this.state.loading}
           loadMore={this.fetchMoreProjects}
           ready={!this.state.loading}
+          useMIUIButtons
           total={this.state.total !== undefined ? this.state.total : 0}
         />
       </div>

@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { FavoriteButton } from 'design-system';
 import * as React from 'react';
 import { addFavorite, removeFavorite } from '../../api/favorites';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import FavoriteIcon from '../icons/FavoriteIcon';
-import { ButtonLink } from './buttons';
 import Tooltip from './Tooltip';
 
 interface Props {
@@ -87,20 +85,19 @@ export default class Favorite extends React.PureComponent<Props, State> {
     const { favorite } = this.state;
 
     const actionName = favorite ? 'remove' : 'add';
-    const tooltip = componentName
+    const overlay = componentName
       ? translateWithParameters(`favorite.action.${qualifier}.${actionName}_x`, componentName)
       : translate('favorite.action', qualifier, actionName);
 
     return (
-      <Tooltip overlay={tooltip}>
-        <ButtonLink
-          innerRef={(node) => (this.buttonNode = node)}
-          className={classNames('favorite-link', 'link-no-underline', className)}
-          onClick={this.toggleFavorite}
-        >
-          <FavoriteIcon aria-label={tooltip} favorite={favorite} />
-        </ButtonLink>
-      </Tooltip>
+      <FavoriteButton
+        className={className}
+        overlay={overlay}
+        toggleFavorite={this.toggleFavorite}
+        tooltip={Tooltip}
+        favorite={favorite}
+        innerRef={(node) => (this.buttonNode = node)}
+      />
     );
   }
 }

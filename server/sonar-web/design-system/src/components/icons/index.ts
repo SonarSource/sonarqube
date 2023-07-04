@@ -71,6 +71,7 @@ export { SeverityMajorIcon } from './SeverityMajorIcon';
 export { SeverityMinorIcon } from './SeverityMinorIcon';
 export { SortAscendIcon } from './SortAscendIcon';
 export { SortDescendIcon } from './SortDescendIcon';
+export { StarFillIcon } from './StarFillIcon';
 export { StarIcon } from './StarIcon';
 export { StatusConfirmedIcon } from './StatusConfirmedIcon';
 export { StatusOpenIcon } from './StatusOpenIcon';

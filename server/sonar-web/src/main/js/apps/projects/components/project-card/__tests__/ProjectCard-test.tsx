@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
-import TagsList from '../../../../../components/tags/TagsList';
+import { screen } from '@testing-library/react';
+import React from 'react';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../../../types/component';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
-import ProjectCardQualityGate from '../ProjectCardQualityGate';
 
 const MEASURES = {
   alert_status: 'OK',
@@ -48,63 +46,51 @@ const PROJECT: Project = {
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
 
-it('should display correclty when project need issue synch', () => {
-  expect(shallowRender({ ...PROJECT, needIssueSync: true })).toMatchSnapshot();
+it('should display correclty when project need issue synch and not setup', () => {
+  renderProjectCard({ ...PROJECT, needIssueSync: true });
+  expect(screen.getByLabelText('overview.quality_gate_x.OK')).toBeInTheDocument();
+  expect(screen.getByText('overview.project.main_branch_empty')).toBeInTheDocument();
 });
 
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
-  expect(shallowRender(project).find(ProjectCardQualityGate).exists()).toBe(false);
+  renderProjectCard(project);
+  expect(screen.getByText('projects.not_analyzed.TRK')).toBeInTheDocument();
 });
 
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
-  expect(shallowRender(project).find(TagsList).exists()).toBe(true);
+  renderProjectCard(project);
+  expect(screen.getByTitle('foo, bar')).toBeInTheDocument();
 });
 
 it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: Visibility.Private };
-  expect(shallowRender(project).find(PrivacyBadgeContainer).exists()).toBe(true);
-});
-
-it('should display the overall measures and quality gate', () => {
-  expect(shallowRender(PROJECT)).toMatchSnapshot();
-});
-
-it('should display not analyzed yet', () => {
-  expect(shallowRender({ ...PROJECT, analysisDate: undefined })).toMatchSnapshot();
+  renderProjectCard(project);
+  expect(screen.getByLabelText('visibility.private')).toBeInTheDocument();
 });
 
 it('should display configure analysis button for logged in user', () => {
-  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot(
-    'default'
-  );
-  expect(
-    shallowRender({ ...PROJECT, analysisDate: undefined, needIssueSync: true }, USER_LOGGED_IN)
-  ).toMatchSnapshot('hidden if sync in place');
+  renderProjectCard({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN);
+  expect(screen.getByText('projects.configure_analysis')).toBeInTheDocument();
 });
 
 it('should display applications', () => {
-  expect(
-    shallowRender({ ...PROJECT, qualifier: ComponentQualifier.Application })
-  ).toMatchSnapshot();
-  expect(
-    shallowRender({
-      ...PROJECT,
-      qualifier: ComponentQualifier.Application,
-      measures: { ...MEASURES, projects: '3' },
-    })
-  ).toMatchSnapshot('with project count');
+  renderProjectCard({ ...PROJECT, qualifier: ComponentQualifier.Application });
+  expect(screen.getByLabelText('qualifier.APP')).toBeInTheDocument();
 });
 
-function shallowRender(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
-  return shallow(
-    <ProjectCard
-      currentUser={user}
-      handleFavorite={jest.fn()}
-      height={100}
-      project={project}
-      type={type}
-    />
+it('should display 3 aplication', () => {
+  renderProjectCard({
+    ...PROJECT,
+    qualifier: ComponentQualifier.Application,
+    measures: { ...MEASURES, projects: '3' },
+  });
+  expect(screen.getByText(/x_projects_.3/)).toBeInTheDocument();
+});
+
+function renderProjectCard(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
+  renderComponent(
+    <ProjectCard currentUser={user} handleFavorite={jest.fn()} project={project} type={type} />
   );
 }
