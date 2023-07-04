@@ -383,16 +383,20 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                     view={view}
                   />
 
-                  <KeyboardHint
-                    className="sw-mr-4 sw-ml-6"
-                    command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
-                    title={translate('component_measures.select_files')}
-                  />
+                  {view !== MeasurePageView.treemap && (
+                    <>
+                      <KeyboardHint
+                        className="sw-mr-4 sw-ml-6"
+                        command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
+                        title={translate('component_measures.select_files')}
+                      />
 
-                  <KeyboardHint
-                    command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
-                    title={translate('component_measures.navigate')}
-                  />
+                      <KeyboardHint
+                        command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
+                        title={translate('component_measures.navigate')}
+                      />
+                    </>
+                  )}
 
                   {paging && paging.total > 0 && (
                     <FilesCounter
