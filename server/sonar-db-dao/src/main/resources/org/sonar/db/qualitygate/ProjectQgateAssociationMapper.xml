@@ -13,6 +13,7 @@
     and proj.enabled = ${_true}
     and proj.main_branch_project_uuid is null
     and proj.copy_component_uuid is null
+    and proj.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <choose>
       <when test="query.membership() == 'selected'">
         and qg.uuid IS NOT NULL
