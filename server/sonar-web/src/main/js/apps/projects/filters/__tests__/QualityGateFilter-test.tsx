@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { FCProps } from '../../../../helpers/testUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import QualityGateFacet from '../QualityGateFilter';
 
 it('renders options', () => {
@@ -57,7 +57,7 @@ it('handles multiselection', async () => {
   expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK,ERROR' });
 });
 
-function renderQualityGateFilter(props: Partial<FCProps<typeof QualityGateFacet>> = {}) {
+function renderQualityGateFilter(props: Partial<ComponentPropsType<typeof QualityGateFacet>> = {}) {
   renderComponent(
     <QualityGateFacet
       maxFacetValue={9}

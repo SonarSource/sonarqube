@@ -18,18 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { Location } from '../../../components/hoc/withRouter';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { BranchLike } from '../../../types/branch-like';
-import { Issue, Measure } from '../../../types/types';
+import { Measure } from '../../../types/types';
 
 export interface SourceViewerWrapperProps {
   branchLike?: BranchLike;
   component: string;
   componentMeasures: Measure[] | undefined;
   location: Location;
-  onIssueChange?: (issue: Issue) => void;
 }
 
 function SourceViewerWrapper(props: SourceViewerWrapperProps) {
@@ -53,7 +52,6 @@ function SourceViewerWrapper(props: SourceViewerWrapperProps) {
       component={component}
       componentMeasures={componentMeasures}
       highlightedLine={finalLine}
-      onIssueChange={props.onIssueChange}
       onLoaded={handleLoaded}
       showMeasures
     />

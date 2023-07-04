@@ -19,38 +19,26 @@
  */
 import * as React from 'react';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
-import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
-import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import { Breadcrumb } from './Breadcrumb';
+import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 
 export interface HeaderProps {
-  branchLikes: BranchLike[];
   component: Component;
-  currentBranchLike: BranchLike | undefined;
   currentUser: CurrentUser;
   projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function Header(props: HeaderProps) {
-  const { branchLikes, component, currentBranchLike, currentUser, projectBinding } = props;
+  const { component, currentUser, projectBinding } = props;
 
   return (
     <div className="sw-flex sw-flex-shrink sw-items-center">
       <Breadcrumb component={component} currentUser={currentUser} />
-      {currentBranchLike && (
-        <>
-          <span className="slash-separator sw-mx-2" />
-          <BranchLikeNavigation
-            branchLikes={branchLikes}
-            component={component}
-            currentBranchLike={currentBranchLike}
-            projectBinding={projectBinding}
-          />
-        </>
-      )}
+
+      <BranchLikeNavigation component={component} projectBinding={projectBinding} />
     </div>
   );
 }

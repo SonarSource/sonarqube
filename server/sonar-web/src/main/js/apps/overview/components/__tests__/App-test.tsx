@@ -19,13 +19,20 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
-import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
+
+const handler = new BranchesServiceMock();
+
+beforeEach(() => {
+  handler.reset();
+});
 
 it('should render Empty Overview for Application with no analysis', async () => {
   renderApp({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
@@ -37,7 +44,7 @@ it('should render Empty Overview on main branch with no analysis', async () => {
   renderApp({}, mockCurrentUser());
 
   expect(
-    await screen.findByText('provisioning.no_analysis_on_main_branch.master')
+    await screen.findByText('provisioning.no_analysis_on_main_branch.main')
   ).toBeInTheDocument();
 });
 
@@ -46,7 +53,7 @@ it('should render Empty Overview on main branch with multiple branches with bad 
 
   expect(
     await screen.findByText(
-      'provisioning.no_analysis_on_main_branch.bad_configuration.master.branches.main_branch'
+      'provisioning.no_analysis_on_main_branch.bad_configuration.main.branches.main_branch'
     )
   ).toBeInTheDocument();
 });
@@ -68,13 +75,8 @@ it('should not render for portfolios and subportfolios', () => {
 function renderApp(props = {}, userProps = {}) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={mockCurrentUser({ isLoggedIn: true, ...userProps })}>
-      <App
-        hasFeature={jest.fn().mockReturnValue(false)}
-        branchLikes={[]}
-        branchLike={mockMainBranch()}
-        component={mockComponent()}
-        {...props}
-      />
-    </CurrentUserContextProvider>
+      <App hasFeature={jest.fn().mockReturnValue(false)} component={mockComponent()} {...props} />
+    </CurrentUserContextProvider>,
+    '/?id=my-project'
   );
 }

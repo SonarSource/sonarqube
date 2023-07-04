@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { withTheme } from '@emotion/react';
+import { QueryClient } from '@tanstack/react-query';
 import { Theme } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -28,6 +29,7 @@ import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentL10nBundle } from '../../../helpers/l10nBundle';
 import { getBaseUrl } from '../../../helpers/system';
+import { withQueryClient } from '../../../queries/withQueryClientHoc';
 import { AppState } from '../../../types/appstate';
 import { ExtensionStartMethod } from '../../../types/extension';
 import { Dict, Extension as TypeExtension } from '../../../types/types';
@@ -44,6 +46,7 @@ export interface ExtensionProps extends WrappedComponentProps {
   location: Location;
   options?: Dict<any>;
   router: Router;
+  queryClient: QueryClient;
   updateCurrentUserHomepage: (homepage: HomePage) => void;
 }
 
@@ -74,7 +77,7 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
   }
 
   handleStart = (start: ExtensionStartMethod) => {
-    const { theme: dsTheme } = this.props;
+    const { theme: dsTheme, queryClient } = this.props;
     const result = start({
       appState: this.props.appState,
       el: this.container,
@@ -90,6 +93,7 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
       // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
       // for more information on why we're passing this as a prop to an extension.
       updateCurrentUserHomepage: this.props.updateCurrentUserHomepage,
+      queryClient,
       ...this.props.options,
     });
 
@@ -134,5 +138,5 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
 }
 
 export default injectIntl(
-  withRouter(withTheme(withAppStateContext(withCurrentUserContext(Extension))))
+  withRouter(withTheme(withAppStateContext(withCurrentUserContext(withQueryClient(Extension)))))
 );

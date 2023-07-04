@@ -21,18 +21,11 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
+import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
 import { TaskStatuses } from '../../../../../types/tasks';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
-
-it('renders correctly when there are warnings', () => {
-  renderComponentNav({ warnings: [mockTaskWarning()] });
-  expect(
-    screen.getByText('project_navigation.analysis_status.warnings', { exact: false })
-  ).toBeInTheDocument();
-});
 
 it('renders correctly when there is a background task in progress', () => {
   renderComponentNav({ isInProgress: true });
@@ -74,15 +67,11 @@ function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
   return renderApp(
     '/',
     <ComponentNav
-      branchLikes={[]}
       component={mockComponent({
         breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
       })}
-      currentBranchLike={undefined}
       isInProgress={false}
       isPending={false}
-      onWarningDismiss={jest.fn()}
-      warnings={[]}
       {...props}
     />
   );

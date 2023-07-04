@@ -22,7 +22,5 @@ import * as React from 'react';
 import { ComponentContextShape } from '../../../types/component';
 
 export const ComponentContext = React.createContext<ComponentContextShape>({
-  branchLikes: [],
-  onBranchesChange: noop,
   onComponentChange: noop,
 });

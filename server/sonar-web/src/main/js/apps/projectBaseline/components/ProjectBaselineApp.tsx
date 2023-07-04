@@ -36,6 +36,7 @@ import {
   DEFAULT_NEW_CODE_DEFINITION_TYPE,
   getNumberOfDaysDefaultValue,
 } from '../../../helpers/new-code-definition';
+import { withBranchLikes } from '../../../queries/branch';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
@@ -130,7 +131,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
 
   sortAndFilterBranches(branchLikes: BranchLike[] = []) {
     const branchList = sortBranches(branchLikes.filter(isBranch));
-    this.setState({ branchList, referenceBranch: branchList[0].name });
+    this.setState({ branchList, referenceBranch: branchList[0]?.name });
   }
 
   fetchLeakPeriodSetting() {
@@ -141,7 +142,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike.name,
+        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
         project: component.key,
       }),
     ]).then(
@@ -344,4 +345,6 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withComponentContext(withAvailableFeatures(withAppStateContext(ProjectBaselineApp)));
+export default withComponentContext(
+  withAvailableFeatures(withAppStateContext(withBranchLikes(ProjectBaselineApp)))
+);

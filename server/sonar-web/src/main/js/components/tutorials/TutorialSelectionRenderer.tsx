@@ -28,10 +28,13 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
+import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { getProjectTutorialLocation, getProjectUrl } from '../../helpers/urls';
+import { useBranchesQuery } from '../../queries/branch';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
 import { Alert } from '../ui/Alert';
@@ -43,6 +46,8 @@ import JenkinsTutorial from './jenkins/JenkinsTutorial';
 import OtherTutorial from './other/OtherTutorial';
 import { TutorialModes } from './types';
 
+const DEFAULT_MAIN_BRANCH_NAME = 'main';
+
 export interface TutorialSelectionRendererProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
@@ -50,7 +55,6 @@ export interface TutorialSelectionRendererProps {
   currentUser: LoggedInUser;
   currentUserCanScanProject: boolean;
   loading: boolean;
-  mainBranchName: string;
   projectBinding?: ProjectAlmBindingResponse;
   selectedTutorial?: TutorialModes;
   willRefreshAutomatically?: boolean;
@@ -85,11 +89,17 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     currentUser,
     currentUserCanScanProject,
     loading,
-    mainBranchName,
     projectBinding,
     selectedTutorial,
     willRefreshAutomatically,
   } = props;
+
+  const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
+
+  const mainBranchName =
+    (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
+    DEFAULT_MAIN_BRANCH_NAME;
+
   if (loading) {
     return <i aria-label={translate('loading')} className="spinner" />;
   }

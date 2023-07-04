@@ -23,7 +23,8 @@ import { dismissNotice } from '../../../../api/users';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { NoticeType } from '../../../../types/users';
-import { PromotionNotification, PromotionNotificationProps } from '../PromotionNotification';
+import { CurrentUserContextInterface } from '../../current-user/CurrentUserContext';
+import { PromotionNotification } from '../PromotionNotification';
 
 jest.mock('../../../../api/users', () => ({
   dismissNotice: jest.fn().mockResolvedValue({}),
@@ -67,7 +68,7 @@ it('should remove the toaster and navigate to sonarlint when click on learn more
   expect(updateDismissedNotices).toHaveBeenCalled();
 });
 
-function shallowRender(props: Partial<PromotionNotificationProps> = {}) {
+function shallowRender(props: Partial<CurrentUserContextInterface> = {}) {
   return shallow(
     <PromotionNotification
       currentUser={mockCurrentUser()}

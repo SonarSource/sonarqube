@@ -166,7 +166,6 @@ export class SidebarClass extends React.PureComponent<Props> {
 
     const displayPeriodFilter = component !== undefined && !isPortfolioLike(component.qualifier);
     const displayProjectsFacet = !component || isView(component.qualifier);
-    const displayAuthorFacet = !component || component.qualifier !== ComponentQualifier.Developper;
 
     return (
       <>
@@ -356,7 +355,7 @@ export class SidebarClass extends React.PureComponent<Props> {
           </>
         )}
 
-        {displayAuthorFacet && !disableDeveloperAggregatedInfo && (
+        {!disableDeveloperAggregatedInfo && (
           <>
             <BasicSeparator className="sw-my-4" />
 

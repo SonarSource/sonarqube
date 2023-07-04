@@ -19,11 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getParents } from '../../../api/components';
-import { mockPullRequest } from '../../../helpers/mocks/branch-like';
-import { mockIssue } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
-import { Props, WorkspaceComponentViewer } from '../WorkspaceComponentViewer';
+import WorkspaceComponentViewer, { Props } from '../WorkspaceComponentViewer';
 
 jest.mock('../../../api/components', () => ({
   getParents: jest.fn().mockResolvedValue([{ key: 'bar' }]),
@@ -55,28 +51,10 @@ it('should call back after load', () => {
   expect(onLoad).toHaveBeenCalledWith({ key: 'foo', name: 'src/foo.js', qualifier: 'FIL' });
 });
 
-it('should refresh branch status if issues are updated', async () => {
-  const fetchBranchStatus = jest.fn();
-  const branchLike = mockPullRequest();
-  const component = {
-    branchLike,
-    key: 'foo',
-  };
-  const wrapper = shallowRender({ component, fetchBranchStatus });
-  const instance = wrapper.instance();
-  await waitAndUpdate(wrapper);
-
-  instance.handleIssueChange(mockIssue());
-  expect(getParents).toHaveBeenCalledWith(component.key);
-  await waitAndUpdate(wrapper);
-  expect(fetchBranchStatus).toHaveBeenCalledWith(branchLike, 'bar');
-});
-
 function shallowRender(props?: Partial<Props>) {
   return shallow<WorkspaceComponentViewer>(
     <WorkspaceComponentViewer
       component={{ branchLike: undefined, key: 'foo' }}
-      fetchBranchStatus={jest.fn()}
       height={300}
       onClose={jest.fn()}
       onCollapse={jest.fn()}

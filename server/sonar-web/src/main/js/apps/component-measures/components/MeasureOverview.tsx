@@ -30,7 +30,6 @@ import {
   ComponentMeasureEnhanced,
   ComponentMeasureIntern,
   Dict,
-  Issue,
   Metric,
   Paging,
   Period,
@@ -49,7 +48,6 @@ interface Props {
   leakPeriod?: Period;
   loading: boolean;
   metrics: Dict<Metric>;
-  onIssueChange?: (issue: Issue) => void;
   rootComponent: ComponentMeasure;
   updateLoading: (param: Dict<boolean>) => void;
   updateSelected: (component: ComponentMeasureIntern) => void;
@@ -127,12 +125,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     if (isFile) {
       return (
         <div className="measure-details-viewer">
-          <SourceViewer
-            hideHeader
-            branchLike={branchLike}
-            component={component.key}
-            onIssueChange={this.props.onIssueChange}
-          />
+          <SourceViewer hideHeader branchLike={branchLike} component={component.key} />
         </div>
       );
     }

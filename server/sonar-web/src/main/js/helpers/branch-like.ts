@@ -23,11 +23,9 @@ import {
   BranchLike,
   BranchLikeTree,
   BranchParameters,
-  BranchStatusData,
   MainBranch,
   PullRequest,
 } from '../types/branch-like';
-import { Dict } from '../types/types';
 
 export function isBranch(branchLike?: BranchLike): branchLike is Branch {
   return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
@@ -138,13 +136,4 @@ export function fillBranchLike(
     return { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;
   }
   return undefined;
-}
-
-export function getBranchStatusByBranchLike(
-  branchStatusByComponent: Dict<Dict<BranchStatusData>>,
-  component: string,
-  branchLike: BranchLike
-): BranchStatusData {
-  const branchLikeKey = getBranchLikeKey(branchLike);
-  return branchStatusByComponent[component] && branchStatusByComponent[component][branchLikeKey];
 }

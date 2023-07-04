@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AnalysisWarningsModal from '../../../components/common/AnalysisWarningsModal';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Task, TaskStatuses } from '../../../types/tasks';
+import AnalysisWarningsModal from './AnalysisWarningsModal';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 

@@ -27,12 +27,11 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
-import { debounce, keyBy } from 'lodash';
+import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -40,18 +39,12 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { useBranchesQuery } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
-import {
-  ComponentMeasure,
-  Dict,
-  Issue,
-  MeasureEnhanced,
-  Metric,
-  Period,
-} from '../../../types/types';
+import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
@@ -74,7 +67,6 @@ import MeasuresEmpty from './MeasuresEmpty';
 interface Props {
   branchLike?: BranchLike;
   component: ComponentMeasure;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   location: Location;
   router: Router;
 }
@@ -97,7 +89,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
       measures: [],
       metrics: {},
     };
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
 
   componentDidMount() {
@@ -180,10 +171,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     return metric;
   };
 
-  handleIssueChange = (_: Issue) => {
-    this.refreshBranchStatus();
-  };
-
   updateQuery = (newQuery: Partial<Query>) => {
     const query: Query = { ...parseQuery(this.props.location.query), ...newQuery };
 
@@ -206,13 +193,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     });
   };
 
-  refreshBranchStatus = () => {
-    const { branchLike, component } = this.props;
-    if (branchLike && component && isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
-    }
-  };
-
   renderContent = (displayOverview: boolean, query: Query, metric?: Metric) => {
     const { branchLike, component } = this.props;
     const { leakPeriod } = this.state;
@@ -225,7 +205,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
             domain={query.metric}
             leakPeriod={leakPeriod}
             metrics={this.state.metrics}
-            onIssueChange={this.handleIssueChange}
             rootComponent={component}
             router={this.props.router}
             selected={query.selected}
@@ -261,7 +240,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
           branchLike={branchLike}
           leakPeriod={leakPeriod}
           metrics={this.state.metrics}
-          onIssueChange={this.handleIssueChange}
           requestedMetric={metric}
           rootComponent={component}
           router={this.props.router}
@@ -323,10 +301,11 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
  * is that we can't use the usual withComponentContext HOC, because the type
  * of `component` isn't the same. It probably used to work because of the lazy loading
  */
-const WrappedApp = withRouter(withBranchStatusActions(ComponentMeasuresApp));
+const WrappedApp = withRouter(ComponentMeasuresApp);
 
 function AppWithComponentContext() {
-  const { branchLike, component } = React.useContext(ComponentContext);
+  const { component } = React.useContext(ComponentContext);
+  const { data: { branchLike } = {} } = useBranchesQuery(component);
 
   return <WrappedApp branchLike={branchLike} component={component as ComponentMeasure} />;
 }

@@ -19,29 +19,39 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../../../types/features';
 import { AnalysisErrorMessage } from '../AnalysisErrorMessage';
+
+const handler = new BranchesServiceMock();
+
+beforeEach(() => {
+  handler.reset();
+});
 
 it('should work when error is on a different branch', () => {
   renderAnalysisErrorMessage({
     currentTask: mockTask({ branch: 'branch-1.2' }),
-    currentTaskOnSameBranch: false,
   });
 
   expect(screen.getByText(/component_navigation.status.failed_branch_X/)).toBeInTheDocument();
   expect(screen.getByText(/branch-1\.2/)).toBeInTheDocument();
 });
 
-it('should work for errors on Pull Requests', () => {
-  renderAnalysisErrorMessage({
-    currentTask: mockTask({ pullRequest: '2342', pullRequestTitle: 'Fix stuff' }),
-    currentTaskOnSameBranch: true,
-  });
+it('should work for errors on Pull Requests', async () => {
+  renderAnalysisErrorMessage(
+    {
+      currentTask: mockTask({ pullRequest: '01', pullRequestTitle: 'Fix stuff' }),
+    },
+    undefined,
+    'pullRequest=01&id=my-project'
+  );
 
-  expect(screen.getByText(/component_navigation.status.failed_X/)).toBeInTheDocument();
-  expect(screen.getByText(/2342 - Fix stuff/)).toBeInTheDocument();
+  expect(await screen.findByText(/component_navigation.status.failed_X/)).toBeInTheDocument();
+  expect(screen.getByText(/01 - Fix stuff/)).toBeInTheDocument();
 });
 
 it('should provide a link to admins', () => {
@@ -67,7 +77,8 @@ it('should explain to admins how to get the staktrace', () => {
 
 function renderAnalysisErrorMessage(
   overrides: Partial<Parameters<typeof AnalysisErrorMessage>[0]> = {},
-  location = '/'
+  location = '/',
+  params?: string
 ) {
   return renderApp(
     location,
@@ -75,8 +86,8 @@ function renderAnalysisErrorMessage(
       component={mockComponent()}
       currentTask={mockTask()}
       onLeave={jest.fn()}
-      currentTaskOnSameBranch
       {...overrides}
-    />
+    />,
+    { navigateTo: params ? `/?${params}` : undefined, featureList: [Feature.BranchSupport] }
   );
 }

@@ -26,6 +26,7 @@ import CurrentUserContextProvider from '../../../../app/components/current-user/
 import { SEVERITIES } from '../../../../helpers/constants';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { IssueType } from '../../../../types/issues';
 import { Issue } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
@@ -187,7 +188,7 @@ it('should properly submit', async () => {
 
 function renderBulkChangeModal(
   issues: Issue[],
-  props: Partial<BulkChangeModal['props']> = {},
+  props: Partial<ComponentPropsType<typeof BulkChangeModal>> = {},
   currentUser: CurrentUser = mockLoggedInUser()
 ) {
   return renderComponent(

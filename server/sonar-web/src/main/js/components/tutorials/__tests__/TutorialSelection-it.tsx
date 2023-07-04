@@ -25,23 +25,22 @@ import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
 import { getScannableProjects } from '../../../api/components';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
-import {
-  mockGithubBindingDefinition,
-  mockProjectAlmBindingResponse,
-} from '../../../helpers/mocks/alm-settings';
+import { mockProjectAlmBindingResponse } from '../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
+import { ComponentPropsType } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
 import { SettingsKey } from '../../../types/settings';
-import { withRouter } from '../../hoc/withRouter';
-import { TutorialSelection } from '../TutorialSelection';
+import TutorialSelection from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
 jest.mock('../../../api/user-tokens');
+
+jest.mock('../../../api/branches');
 
 jest.mock('../../../helpers/urls', () => ({
   ...jest.requireActual('../../../helpers/urls'),
@@ -120,9 +119,11 @@ it.each([
 });
 
 it('should correctly fetch the corresponding ALM setting', async () => {
-  (getAlmSettingsNoCatch as jest.Mock).mockResolvedValueOnce([
-    mockGithubBindingDefinition({ key: 'binding', url: 'https://enterprise.github.com' }),
-  ]);
+  jest
+    .mocked(getAlmSettingsNoCatch)
+    .mockResolvedValueOnce([
+      { key: 'binding', url: 'https://enterprise.github.com', alm: AlmKeys.GitHub },
+    ]);
   const user = userEvent.setup();
   renderTutorialSelection(
     {
@@ -160,7 +161,9 @@ it('should fallback on the host URL', async () => {
 });
 
 it('should not display a warning if the user has no global scan permission, but can scan the project', async () => {
-  (getScannableProjects as jest.Mock).mockResolvedValueOnce({ projects: [{ key: 'foo' }] });
+  jest
+    .mocked(getScannableProjects)
+    .mockResolvedValueOnce({ projects: [{ key: 'foo', name: 'foo' }] });
   renderTutorialSelection({ currentUser: mockLoggedInUser() });
   await waitOnDataLoaded();
 
@@ -194,16 +197,12 @@ async function startJenkinsTutorial(user: UserEvent) {
 }
 
 function renderTutorialSelection(
-  props: Partial<TutorialSelection['props']> = {},
+  props: Partial<ComponentPropsType<typeof TutorialSelection>> = {},
   navigateTo: string = 'dashboard?id=bar'
 ) {
-  const Wrapper = withRouter(({ location, ...subProps }: TutorialSelection['props']) => {
-    return <TutorialSelection location={location} {...subProps} />;
-  });
-
   return renderApp(
     '/dashboard',
-    <Wrapper
+    <TutorialSelection
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
       {...props}

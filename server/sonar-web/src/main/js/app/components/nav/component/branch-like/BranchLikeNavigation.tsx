@@ -22,8 +22,8 @@ import * as React from 'react';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
+import { useBranchesQuery } from '../../../../../queries/branch';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
-import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
@@ -36,91 +36,95 @@ import Menu from './Menu';
 import PRLink from './PRLink';
 
 export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
-  branchLikes: BranchLike[];
   component: Component;
-  currentBranchLike: BranchLike;
   projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const {
-    branchLikes,
     component,
     component: { configuration },
-    currentBranchLike,
     projectBinding,
   } = props;
+
+  const { data: { branchLikes, branchLike: currentBranchLike } = { branchLikes: [] } } =
+    useBranchesQuery(component);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  if (currentBranchLike === undefined) {
+    return null;
+  }
 
   const isApplication = component.qualifier === ComponentQualifier.Application;
   const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;
 
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const canAdminComponent = configuration?.showSettings;
   const hasManyBranches = branchLikes.length >= 2;
   const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
-  const currentBranchLikeElement = (
-    <CurrentBranchLike component={component} currentBranchLike={currentBranchLike} />
-  );
+  const currentBranchLikeElement = <CurrentBranchLike currentBranchLike={currentBranchLike} />;
 
   const handleOutsideClick = () => {
     setIsMenuOpen(false);
   };
 
   return (
-    <div className="sw-flex sw-items-center it__branch-like-navigation-toggler-container">
-      <Popup
-        allowResizing
-        overlay={
-          isMenuOpen && (
-            <FocusOutHandler onFocusOut={handleOutsideClick}>
-              <EscKeydownHandler onKeydown={handleOutsideClick}>
-                <OutsideClickHandler onClickOutside={handleOutsideClick}>
-                  <Menu
-                    branchLikes={branchLikes}
-                    canAdminComponent={canAdminComponent}
-                    component={component}
-                    currentBranchLike={currentBranchLike}
-                    onClose={() => {
-                      setIsMenuOpen(false);
-                    }}
-                  />
-                </OutsideClickHandler>
-              </EscKeydownHandler>
-            </FocusOutHandler>
-          )
-        }
-        placement={PopupPlacement.BottomLeft}
-        zLevel={PopupZLevel.Global}
-      >
-        <ButtonSecondary
-          className="sw-max-w-abs-350 sw-px-3"
-          onClick={() => {
-            setIsMenuOpen(!isMenuOpen);
-          }}
-          disabled={!isMenuEnabled}
-          aria-expanded={isMenuOpen}
-          aria-haspopup="menu"
+    <>
+      <span className="slash-separator sw-mx-2" />
+      <div className="sw-flex sw-items-center it__branch-like-navigation-toggler-container">
+        <Popup
+          allowResizing
+          overlay={
+            isMenuOpen && (
+              <FocusOutHandler onFocusOut={handleOutsideClick}>
+                <EscKeydownHandler onKeydown={handleOutsideClick}>
+                  <OutsideClickHandler onClickOutside={handleOutsideClick}>
+                    <Menu
+                      branchLikes={branchLikes}
+                      canAdminComponent={canAdminComponent}
+                      component={component}
+                      currentBranchLike={currentBranchLike}
+                      onClose={() => {
+                        setIsMenuOpen(false);
+                      }}
+                    />
+                  </OutsideClickHandler>
+                </EscKeydownHandler>
+              </FocusOutHandler>
+            )
+          }
+          placement={PopupPlacement.BottomLeft}
+          zLevel={PopupZLevel.Global}
         >
-          {currentBranchLikeElement}
-        </ButtonSecondary>
-      </Popup>
+          <ButtonSecondary
+            className="sw-max-w-abs-350 sw-px-3"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            disabled={!isMenuEnabled}
+            aria-expanded={isMenuOpen}
+            aria-haspopup="menu"
+          >
+            {currentBranchLikeElement}
+          </ButtonSecondary>
+        </Popup>
 
-      <div className="sw-ml-2">
-        <BranchHelpTooltip
-          component={component}
-          isApplication={isApplication}
-          projectBinding={projectBinding}
-          hasManyBranches={hasManyBranches}
-          canAdminComponent={canAdminComponent}
-          branchSupportEnabled={branchSupportEnabled}
-          isGitLab={isGitLab}
-        />
+        <div className="sw-ml-2">
+          <BranchHelpTooltip
+            component={component}
+            isApplication={isApplication}
+            projectBinding={projectBinding}
+            hasManyBranches={hasManyBranches}
+            canAdminComponent={canAdminComponent}
+            branchSupportEnabled={branchSupportEnabled}
+            isGitLab={isGitLab}
+          />
+        </div>
+
+        <PRLink currentBranchLike={currentBranchLike} component={component} />
       </div>
-
-      <PRLink currentBranchLike={currentBranchLike} component={component} />
-    </div>
+    </>
   );
 }
 

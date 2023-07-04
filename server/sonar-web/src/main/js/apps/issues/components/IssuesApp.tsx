@@ -31,13 +31,12 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
-import { debounce, keyBy, omit, without } from 'lodash';
+import { keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
-import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
@@ -51,12 +50,7 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import {
-  fillBranchLike,
-  getBranchLikeQuery,
-  isPullRequest,
-  isSameBranchLike,
-} from '../../../helpers/branch-like';
+import { fillBranchLike, getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -69,6 +63,7 @@ import {
   removeWhitePageClass,
 } from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
+import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike, isProject } from '../../../types/component';
 import {
@@ -115,11 +110,9 @@ interface Props {
   branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
   location: Location;
   router: Router;
 }
-
 export interface State {
   bulkChangeModal: boolean;
   cannotShowOpenIssue?: boolean;
@@ -153,7 +146,6 @@ export interface State {
 
 const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
-const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
 const VARIANTS_FACET = 'codeVariants';
 
 export class App extends React.PureComponent<Props, State> {
@@ -197,8 +189,6 @@ export class App extends React.PureComponent<Props, State> {
       referencedUsers: {},
       selected: getOpen(props.location.query),
     };
-
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, BRANCH_STATUS_REFRESH_INTERVAL);
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
@@ -835,8 +825,6 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleIssueChange = (issue: Issue) => {
-    this.refreshBranchStatus();
-
     this.setState((state) => ({
       issues: state.issues.map((candidate) => (candidate.key === issue.key ? issue : candidate)),
     }));
@@ -856,7 +844,6 @@ export class App extends React.PureComponent<Props, State> {
 
   handleBulkChangeDone = () => {
     this.setState({ checkAll: false });
-    this.refreshBranchStatus();
     this.fetchFirstIssues(false).catch(() => undefined);
     this.handleCloseBulkChange();
   };
@@ -908,14 +895,6 @@ export class App extends React.PureComponent<Props, State> {
 
   selectPreviousFlow = () => {
     this.setState(actions.selectPreviousFlow);
-  };
-
-  refreshBranchStatus = () => {
-    const { branchLike, component } = this.props;
-
-    if (branchLike && component && isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
-    }
   };
 
   renderBulkChange() {
@@ -1324,7 +1303,7 @@ export class App extends React.PureComponent<Props, State> {
 }
 
 export default withIndexationGuard(
-  withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(App)))),
+  withRouter(withComponentContext(withCurrentUserContext(withBranchLikes(App)))),
   PageContext.Issues
 );
 

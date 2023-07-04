@@ -19,13 +19,17 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
+import { useRefreshBranches } from '../../../queries/branch';
 import NotFound from '../NotFound';
 import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
 
 export default function ProjectAdminPageExtension() {
   const { extensionKey, pluginKey } = useParams();
-  const { component, onBranchesChange, onComponentChange } = React.useContext(ComponentContext);
+  const { component, onComponentChange } = React.useContext(ComponentContext);
+
+  // We keep that for compatibility but ideally should advocate to use tanstack query
+  const onBranchesChange = useRefreshBranches();
 
   const extension =
     component &&
@@ -35,7 +39,7 @@ export default function ProjectAdminPageExtension() {
     );
 
   return extension ? (
-    <Extension extension={extension} options={{ component, onBranchesChange, onComponentChange }} />
+    <Extension extension={extension} options={{ component, onComponentChange, onBranchesChange }} />
   ) : (
     <NotFound withContainer={false} />
   );

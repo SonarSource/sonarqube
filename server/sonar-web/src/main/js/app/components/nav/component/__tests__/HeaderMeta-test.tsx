@@ -20,23 +20,39 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
+import { getAnalysisStatus } from '../../../../../api/ce';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
+import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../../../types/features';
 import { TaskStatuses } from '../../../../../types/tasks';
 import { CurrentUser } from '../../../../../types/users';
 import HeaderMeta, { HeaderMetaProps } from '../HeaderMeta';
 
+jest.mock('../../../../../api/ce');
+
+const handler = new BranchesServiceMock();
+
+beforeEach(() => handler.reset());
+
 it('should render correctly for a branch with warnings', async () => {
   const user = userEvent.setup();
+  jest.mocked(getAnalysisStatus).mockResolvedValue({
+    component: {
+      warnings: [{ dismissable: false, key: 'key', message: 'bar' }],
+      key: 'compkey',
+      name: 'me',
+    },
+  });
+  renderHeaderMeta({}, undefined, 'branch=normal-branch&id=my-project');
 
-  renderHeaderMeta();
+  expect(await screen.findByText('version_x.0.0.1')).toBeInTheDocument();
 
-  expect(screen.getByText('version_x.0.0.1')).toBeInTheDocument();
-
-  expect(screen.getByText('project_navigation.analysis_status.warnings')).toBeInTheDocument();
+  expect(
+    await screen.findByText('project_navigation.analysis_status.warnings')
+  ).toBeInTheDocument();
 
   await user.click(screen.getByText('project_navigation.analysis_status.details_link'));
 
@@ -44,7 +60,14 @@ it('should render correctly for a branch with warnings', async () => {
 });
 
 it('should handle a branch with missing version and no warnings', () => {
-  renderHeaderMeta({ component: mockComponent({ version: undefined }), warnings: [] });
+  jest.mocked(getAnalysisStatus).mockResolvedValue({
+    component: {
+      warnings: [],
+      key: 'compkey',
+      name: 'me',
+    },
+  });
+  renderHeaderMeta({ component: mockComponent({ version: undefined }) });
 
   expect(screen.queryByText('version_x.0.0.1')).not.toBeInTheDocument();
   expect(screen.queryByText('project_navigation.analysis_status.warnings')).not.toBeInTheDocument();
@@ -60,22 +83,20 @@ it('should render correctly with a failed analysis', async () => {
     }),
   });
 
-  expect(screen.getByText('project_navigation.analysis_status.failed')).toBeInTheDocument();
+  expect(await screen.findByText('project_navigation.analysis_status.failed')).toBeInTheDocument();
 
   await user.click(screen.getByText('project_navigation.analysis_status.details_link'));
 
   expect(screen.getByRole('heading', { name: 'error' })).toBeInTheDocument();
 });
 
-it('should render correctly for a pull request', () => {
-  renderHeaderMeta({
-    branchLike: mockPullRequest({
-      url: 'https://example.com/pull/1234',
-    }),
-  });
+it('should render correctly for a pull request', async () => {
+  renderHeaderMeta({}, undefined, 'pullRequest=01&id=my-project');
 
+  expect(
+    await screen.findByText('branch_like_navigation.for_merge_into_x_from_y')
+  ).toBeInTheDocument();
   expect(screen.queryByText('version_x.0.0.1')).not.toBeInTheDocument();
-  expect(screen.getByText('branch_like_navigation.for_merge_into_x_from_y')).toBeInTheDocument();
 });
 
 it('should render correctly when the user is not logged in', () => {
@@ -87,20 +108,12 @@ it('should render correctly when the user is not logged in', () => {
 
 function renderHeaderMeta(
   props: Partial<HeaderMetaProps> = {},
-  currentUser: CurrentUser = mockLoggedInUser()
+  currentUser: CurrentUser = mockLoggedInUser(),
+  params?: string
 ) {
-  return renderApp(
-    '/',
-    <HeaderMeta
-      branchLike={mockBranch()}
-      component={mockComponent({ version: '0.0.1' })}
-      onWarningDismiss={jest.fn()}
-      warnings={[
-        mockTaskWarning({ key: '1', message: 'ERROR_1' }),
-        mockTaskWarning({ key: '2', message: 'ERROR_2' }),
-      ]}
-      {...props}
-    />,
-    { currentUser }
-  );
+  return renderApp('/', <HeaderMeta component={mockComponent({ version: '0.0.1' })} {...props} />, {
+    currentUser,
+    navigateTo: params ? `/?id=my-project&${params}` : '/?id=my-project',
+    featureList: [Feature.BranchSupport],
+  });
 }

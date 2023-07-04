@@ -97,6 +97,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     this.loadHistory();
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.branch !== this.props.branch) {
+      this.loadStatus();
+      this.loadHistory();
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }

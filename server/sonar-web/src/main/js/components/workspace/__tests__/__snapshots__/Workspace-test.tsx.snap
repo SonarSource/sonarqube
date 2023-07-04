@@ -53,7 +53,7 @@ exports[`should render correctly: open component 1`] = `
         }
       }
     />
-    <withBranchStatusActions(WorkspaceComponentViewer)
+    <WorkspaceComponentViewer
       component={
         {
           "branchLike": {

@@ -24,12 +24,10 @@ import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branch-like';
 import { translate } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
-import { Component } from '../../../../../types/types';
 import QualityGateStatus from './QualityGateStatus';
 
 export interface MenuItemProps {
   branchLike: BranchLike;
-  component: Component;
   onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
   indent: boolean;
@@ -37,7 +35,7 @@ export interface MenuItemProps {
 }
 
 export function MenuItem(props: MenuItemProps) {
-  const { branchLike, component, setSelectedNode, onSelect, selected, indent } = props;
+  const { branchLike, setSelectedNode, onSelect, selected, indent } = props;
   const displayName = getBranchLikeDisplayName(branchLike);
 
   return (
@@ -64,7 +62,6 @@ export function MenuItem(props: MenuItemProps) {
         </div>
         <QualityGateStatus
           branchLike={branchLike}
-          component={component}
           className="sw-flex sw-items-center sw-w-24"
           showStatusText
         />

@@ -21,11 +21,11 @@ import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
 import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/security-hotspots';
 import { searchUsers } from '../../../api/users';
-import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { get, save } from '../../../helpers/storage';
@@ -107,6 +107,7 @@ const ui = {
 const originalScrollTo = window.scrollTo;
 const hotspotsHandler = new SecurityHotspotServiceMock();
 const rulesHandles = new CodingRulesServiceMock();
+const branchHandler = new BranchesServiceMock();
 let showDialog = 'true';
 
 jest.mocked(save).mockImplementation((_key: string, value?: string) => {
@@ -143,6 +144,7 @@ beforeEach(() => {
 afterEach(() => {
   hotspotsHandler.reset();
   rulesHandles.reset();
+  branchHandler.reset();
 });
 
 describe('rendering', () => {
@@ -309,6 +311,7 @@ describe('navigation', () => {
     const user = userEvent.setup();
     renderSecurityHotspotsApp();
 
+    expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
     await user.keyboard('{ArrowDown}');
     expect(await ui.hotspotTitle(/'2' is a magic number./).find()).toBeInTheDocument();
     await user.keyboard('{ArrowUp}');
@@ -343,16 +346,13 @@ describe('navigation', () => {
     const rtl = renderSecurityHotspotsApp(
       'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-1'
     );
-
     expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
 
     // On specific branch
     rtl.unmount();
     renderSecurityHotspotsApp(
-      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=b1',
-      { branchLike: mockBranch({ name: 'b1' }) }
+      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=normal-branch'
     );
-
     expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
   });
 
@@ -417,7 +417,7 @@ it('should be able to filter the hotspot list', async () => {
 
   await user.click(ui.filterDropdown.get());
   await user.click(ui.filterAssigneeToMe.get());
-  expect(ui.noHotspotForFilter.get()).toBeInTheDocument();
+  expect(await ui.noHotspotForFilter.find()).toBeInTheDocument();
 
   await user.click(ui.filterToReview.get());
 
@@ -432,7 +432,7 @@ it('should be able to filter the hotspot list', async () => {
   });
 
   await user.click(ui.filterDropdown.get());
-  await user.click(ui.filterNewCode.get());
+  await user.click(await ui.filterNewCode.find());
 
   expect(getSecurityHotspots).toHaveBeenLastCalledWith({
     inNewCodePeriod: true,
@@ -458,15 +458,15 @@ function renderSecurityHotspotsApp(
     'security_hotspots',
     () => <Route path="security_hotspots" element={<SecurityHotspotsApp />} />,
     {
-      navigateTo,
+      navigateTo:
+        navigateTo ??
+        'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
       currentUser: mockLoggedInUser({
         login: 'foo',
         name: 'foo',
       }),
     },
     {
-      branchLike: mockMainBranch(),
-      onBranchesChange: jest.fn(),
       onComponentChange: jest.fn(),
       component: mockComponent({
         key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',

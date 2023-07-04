@@ -22,16 +22,14 @@ import * as React from 'react';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
 import { BranchLike, BranchStatusData } from '../../../../../types/branch-like';
-import { Component } from '../../../../../types/types';
 import QualityGateStatus from './QualityGateStatus';
 
 export interface CurrentBranchLikeProps extends Pick<BranchStatusData, 'status'> {
-  component: Component;
   currentBranchLike: BranchLike;
 }
 
 export function CurrentBranchLike(props: CurrentBranchLikeProps) {
-  const { component, currentBranchLike } = props;
+  const { currentBranchLike } = props;
 
   const displayName = getBranchLikeDisplayName(currentBranchLike);
 
@@ -39,7 +37,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
     <div className="sw-flex sw-items-center text-ellipsis">
       <BranchLikeIcon branchLike={currentBranchLike} />
       <TextMuted text={displayName} className="sw-ml-3" />
-      <QualityGateStatus branchLike={currentBranchLike} component={component} className="sw-ml-4" />
+      <QualityGateStatus branchLike={currentBranchLike} className="sw-ml-4" />
       <ChevronDownIcon className="sw-ml-1" />
     </div>
   );

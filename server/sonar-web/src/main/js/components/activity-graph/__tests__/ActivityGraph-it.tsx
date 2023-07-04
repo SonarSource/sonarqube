@@ -26,7 +26,7 @@ import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/proj
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
-import { FCProps } from '../../../helpers/testUtils';
+import { ComponentPropsType } from '../../../helpers/testUtils';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
@@ -238,7 +238,7 @@ function getPageObject() {
 
 function renderActivityGraph(
   graphsHistoryProps: Partial<GraphsHistory['props']> = {},
-  graphsHeaderProps: Partial<FCProps<typeof GraphsHeader>> = {}
+  graphsHeaderProps: Partial<ComponentPropsType<typeof GraphsHeader>> = {}
 ) {
   function ActivityGraph() {
     const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([]);

@@ -21,7 +21,6 @@ import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
-import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
@@ -30,6 +29,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpe
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
+import { withBranchLikes } from '../../queries/branch';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
@@ -46,19 +46,14 @@ import './styles.css';
 import { SECURITY_STANDARDS, getLocations } from './utils';
 
 const PAGE_SIZE = 500;
-interface DispatchProps {
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-}
 
-interface OwnProps {
+interface Props {
   branchLike?: BranchLike;
   currentUser: CurrentUser;
   component: Component;
   location: Location;
   router: Router;
 }
-
-type Props = DispatchProps & OwnProps;
 
 interface State {
   filterByCategory?: { standard: SecurityStandard; category: string };
@@ -117,6 +112,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   componentDidUpdate(previous: Props) {
     if (
+      !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
       SECURITY_STANDARDS.some((s) => this.props.location.query[s] !== previous.location.query[s]) ||
@@ -434,12 +430,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   handleHotspotUpdate = (hotspotKey: string) => {
     const { hotspots, hotspotsPageIndex } = this.state;
-    const { branchLike, component } = this.props;
     const index = hotspots.findIndex((h) => h.key === hotspotKey);
-
-    if (isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key);
-    }
 
     return Promise.all(
       range(hotspotsPageIndex).map((p) =>
@@ -550,5 +541,5 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(
-  withComponentContext(withCurrentUserContext(withBranchStatusActions(SecurityHotspotsApp)))
+  withComponentContext(withCurrentUserContext(withBranchLikes(SecurityHotspotsApp)))
 );

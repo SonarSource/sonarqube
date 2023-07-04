@@ -25,20 +25,18 @@ import {
   Modal,
 } from 'design-system';
 import * as React from 'react';
-import { dismissAnalysisWarning, getTask } from '../../api/ce';
-import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { translate } from '../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../helpers/sanitize';
-import { TaskWarning } from '../../types/tasks';
-import { CurrentUser } from '../../types/users';
+import { dismissAnalysisWarning, getTask } from '../../../api/ce';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { translate } from '../../../helpers/l10n';
+import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { TaskWarning } from '../../../types/tasks';
+import { CurrentUser } from '../../../types/users';
 
 interface Props {
   componentKey?: string;
   currentUser: CurrentUser;
   onClose: () => void;
-  onWarningDismiss?: () => void;
-  taskId?: string;
-  warnings?: TaskWarning[];
+  taskId: string;
 }
 
 interface State {
@@ -53,24 +51,20 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      loading: !props.warnings,
-      warnings: props.warnings || [],
+      loading: false,
+      warnings: [],
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    if (!this.props.warnings && this.props.taskId) {
-      this.loadWarnings(this.props.taskId);
-    }
+    this.loadWarnings(this.props.taskId);
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { taskId, warnings } = this.props;
-    if (!warnings && taskId && prevProps.taskId !== taskId) {
+    const { taskId } = this.props;
+    if (prevProps.taskId !== taskId) {
       this.loadWarnings(taskId);
-    } else if (warnings && prevProps.warnings !== warnings) {
-      this.setState({ warnings });
     }
   }
 
@@ -86,13 +80,8 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
     }
 
     this.setState({ dismissedWarning: messageKey });
-
     try {
       await dismissAnalysisWarning(componentKey, messageKey);
-
-      if (this.props.onWarningDismiss) {
-        this.props.onWarningDismiss();
-      }
     } catch (e) {
       // Noop
     }

@@ -22,20 +22,39 @@ import { Link } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';
+import { isBranch, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate } from '../../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
+import { useBranchesQuery } from '../../../../queries/branch';
+import { BranchLike } from '../../../../types/branch-like';
 import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 
 interface Props {
   component: Component;
   currentTask: Task;
-  currentTaskOnSameBranch?: boolean;
   onLeave: () => void;
 }
 
+function isSameBranch(task: Task, branchLike?: BranchLike) {
+  if (branchLike) {
+    if (isMainBranch(branchLike)) {
+      return (!task.pullRequest && !task.branch) || branchLike.name === task.branch;
+    }
+    if (isPullRequest(branchLike)) {
+      return branchLike.key === task.pullRequest;
+    }
+    if (isBranch(branchLike)) {
+      return branchLike.name === task.branch;
+    }
+  }
+  return !task.branch && !task.pullRequest;
+}
+
 export function AnalysisErrorMessage(props: Props) {
-  const { component, currentTask, currentTaskOnSameBranch } = props;
+  const { component, currentTask } = props;
+  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const currentTaskOnSameBranch = isSameBranch(currentTask, branchLike);
 
   const location = useLocation();
 

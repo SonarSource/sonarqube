@@ -20,6 +20,7 @@
 import {
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
+  QualityGateProjectStatusCondition,
   QualityGateStatus,
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced,
@@ -44,6 +45,20 @@ export function mockQualityGateStatus(
     key: 'foo',
     name: 'Foo',
     status: 'ERROR',
+    ...overrides,
+  };
+}
+
+export function mockQualityGateProjectCondition(
+  overrides: Partial<QualityGateProjectStatusCondition> = {}
+): QualityGateProjectStatusCondition {
+  return {
+    actualValue: '10',
+    errorThreshold: '0',
+    status: 'ERROR',
+    metricKey: 'foo',
+    comparator: 'GT',
+    periodIndex: 1,
     ...overrides,
   };
 }

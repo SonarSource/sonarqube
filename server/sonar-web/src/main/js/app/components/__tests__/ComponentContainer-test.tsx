@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../../api/branches';
-import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
+import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/navigation';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
@@ -97,7 +97,6 @@ afterEach(() => {
 it('changes component', () => {
   const wrapper = shallowRender();
   wrapper.setState({
-    branchLikes: [mockMainBranch()],
     component: {
       qualifier: ComponentQualifier.Project,
       visibility: Visibility.Public,
@@ -147,42 +146,6 @@ it("doesn't load branches portfolio", async () => {
   });
 });
 
-it('updates branches on change', async () => {
-  const updateBranchStatus = jest.fn();
-  const wrapper = shallowRender({
-    hasFeature: () => true,
-    location: mockLocation({ query: { id: 'portfolioKey' } }),
-    updateBranchStatus,
-  });
-  wrapper.setState({
-    branchLikes: [mockMainBranch()],
-    component: mockComponent({
-      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: ComponentQualifier.Project }],
-    }),
-    loading: false,
-  });
-  wrapper.instance().handleBranchesChange();
-  expect(getBranches).toHaveBeenCalledWith('projectKey');
-  expect(getPullRequests).toHaveBeenCalledWith('projectKey');
-  await waitAndUpdate(wrapper);
-  expect(updateBranchStatus).toHaveBeenCalledTimes(2);
-});
-
-it('sets main branch when current branch is not found', async () => {
-  const router = mockRouter();
-  const wrapper = shallowRender({
-    hasFeature: () => true,
-    location: mockLocation({ query: { id: 'portfolioKey', branch: 'any-branch' } }),
-    router,
-  });
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleBranchesChange();
-  await waitAndUpdate(wrapper);
-
-  expect(router.replace).toHaveBeenCalledWith({ query: { id: 'portfolioKey' } });
-});
-
 it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
     component: {},
@@ -198,31 +161,29 @@ it('filters correctly the pending tasks for a main branch', () => {
   const component = wrapper.instance();
   const mainBranch = mockMainBranch();
   const branch3 = mockBranch({ name: 'branch-3' });
-  const branch2 = mockBranch({ name: 'branch-2' });
   const pullRequest = mockPullRequest();
 
   expect(component.isSameBranch({})).toBe(true);
-  expect(component.isSameBranch({}, mainBranch)).toBe(true);
-  expect(component.isSameBranch({ branch: mainBranch.name }, mainBranch)).toBe(true);
-  expect(component.isSameBranch({}, branch3)).toBe(false);
-  expect(component.isSameBranch({ branch: branch3.name }, branch3)).toBe(true);
-  expect(component.isSameBranch({ branch: 'feature' }, branch2)).toBe(false);
-  expect(component.isSameBranch({ branch: 'branch-6.6' }, branch2)).toBe(false);
-  expect(component.isSameBranch({ branch: branch2.name }, branch2)).toBe(true);
-  expect(component.isSameBranch({ branch: 'branch-6.7' }, pullRequest)).toBe(false);
-  expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBe(true);
+  wrapper.setProps({ location: mockLocation({ query: { branch: mainBranch.name } }) });
+  expect(component.isSameBranch({ branch: mainBranch.name })).toBe(true);
+  expect(component.isSameBranch({})).toBe(false);
+  wrapper.setProps({ location: mockLocation({ query: { branch: branch3.name } }) });
+  expect(component.isSameBranch({ branch: branch3.name })).toBe(true);
+  wrapper.setProps({ location: mockLocation({ query: { pullRequest: pullRequest.key } }) });
+  expect(component.isSameBranch({ pullRequest: pullRequest.key })).toBe(true);
 
   const currentTask = mockTask({ pullRequest: pullRequest.key, status: TaskStatuses.InProgress });
   const failedTask = { ...currentTask, status: TaskStatuses.Failed };
   const pendingTasks = [currentTask, mockTask({ branch: branch3.name }), mockTask()];
+  expect(component.getCurrentTask(failedTask)).toBe(failedTask);
+  wrapper.setProps({ location: mockLocation({ query: {} }) });
   expect(component.getCurrentTask(currentTask)).toBeUndefined();
-  expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
-  expect(component.getCurrentTask(currentTask, mainBranch)).toBeUndefined();
-  expect(component.getCurrentTask(currentTask, pullRequest)).toMatchObject(currentTask);
-  expect(component.getPendingTasksForBranchLike(pendingTasks, mainBranch)).toMatchObject([{}]);
-  expect(component.getPendingTasksForBranchLike(pendingTasks, pullRequest)).toMatchObject([
-    currentTask,
-  ]);
+  wrapper.setProps({ location: mockLocation({ query: { pullRequest: pullRequest.key } }) });
+  expect(component.getCurrentTask(currentTask)).toMatchObject(currentTask);
+
+  expect(component.getPendingTasksForBranchLike(pendingTasks)).toMatchObject([currentTask]);
+  wrapper.setProps({ location: mockLocation({ query: {} }) });
+  expect(component.getPendingTasksForBranchLike(pendingTasks)).toMatchObject([{}]);
 });
 
 it('reload component after task progress finished', async () => {
@@ -393,22 +354,6 @@ it('should display display the unavailable page if the component needs issue syn
   expect(wrapper.find(PageUnavailableDueToIndexation).exists()).toBe(true);
 });
 
-it('should correctly reload last task warnings if anything got dismissed', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: mockComponent({
-      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
-    }),
-  });
-  (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  (getAnalysisStatus as jest.Mock).mockClear();
-
-  wrapper.instance().handleWarningDismiss();
-  expect(getAnalysisStatus).toHaveBeenCalledTimes(1);
-});
-
 describe('should correctly validate the project binding depending on the context', () => {
   const COMPONENT = mockComponent({
     breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
@@ -461,7 +406,6 @@ function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
     <ComponentContainer
       hasFeature={jest.fn().mockReturnValue(false)}
       location={mockLocation({ query: { id: 'foo' } })}
-      updateBranchStatus={jest.fn()}
       router={mockRouter()}
       {...props}
     >

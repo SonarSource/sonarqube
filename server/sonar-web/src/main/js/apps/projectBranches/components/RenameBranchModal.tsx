@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { renameBranch } from '../../../api/branches';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import { useState } from 'react';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { useRenameMainBranchMutation } from '../../../queries/branch';
 import { MainBranch } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 
@@ -31,90 +32,62 @@ interface Props {
   branch: MainBranch;
   component: Component;
   onClose: () => void;
-  onRename: () => void;
 }
 
-interface State {
-  loading: boolean;
-  name?: string;
-}
+export default function RenameBranchModal(props: Props) {
+  const { branch, component } = props;
+  const [name, setName] = useState<string>();
 
-export default class RenameBranchModal extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
+  const { mutate: renameMainBranch, isLoading } = useRenameMainBranchMutation();
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!this.state.name) {
+    if (!name) {
       return;
     }
-    this.setState({ loading: true });
-    renameBranch(this.props.component.key, this.state.name).then(
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-          this.props.onRename();
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
+
+    renameMainBranch({ component, name }, { onSuccess: props.onClose });
   };
 
-  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ name: event.currentTarget.value });
+  const handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
   };
 
-  render() {
-    const { branch } = this.props;
-    const header = translate('project_branch_pull_request.branch.rename');
-    const submitDisabled =
-      this.state.loading || !this.state.name || this.state.name === branch.name;
+  const header = translate('project_branch_pull_request.branch.rename');
+  const submitDisabled = isLoading || !name || name === branch.name;
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            <MandatoryFieldsExplanation className="modal-field" />
-            <div className="modal-field">
-              <label htmlFor="rename-branch-name">
-                {translate('new_name')}
-                <MandatoryFieldMarker />
-              </label>
-              <input
-                autoFocus
-                id="rename-branch-name"
-                maxLength={100}
-                name="name"
-                onChange={this.handleNameChange}
-                required
-                size={50}
-                type="text"
-                value={this.state.name !== undefined ? this.state.name : branch.name}
-              />
-            </div>
+  return (
+    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <form onSubmit={handleSubmit}>
+        <div className="modal-body">
+          <MandatoryFieldsExplanation className="modal-field" />
+          <div className="modal-field">
+            <label htmlFor="rename-branch-name">
+              {translate('new_name')}
+              <MandatoryFieldMarker />
+            </label>
+            <input
+              autoFocus
+              id="rename-branch-name"
+              maxLength={100}
+              name="name"
+              onChange={handleNameChange}
+              required
+              size={50}
+              type="text"
+              value={name ?? branch.name}
+            />
           </div>
-          <footer className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitDisabled}>{translate('rename')}</SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
-    );
-  }
+        </div>
+        <footer className="modal-foot">
+          {isLoading && <i className="spinner spacer-right" />}
+          <SubmitButton disabled={submitDisabled}>{translate('rename')}</SubmitButton>
+          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
+        </footer>
+      </form>
+    </Modal>
+  );
 }

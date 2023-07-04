@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, noop } from 'lodash';
 import * as React from 'react';
-import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { isPullRequest } from '../../../helpers/branch-like';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
+import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
@@ -35,8 +33,8 @@ import CodeAppRenderer from './CodeAppRenderer';
 
 interface Props {
   branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: Component;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   location: Location;
   router: Router;
   metrics: Dict<Metric>;
@@ -68,7 +66,6 @@ class CodeApp extends React.Component<Props, State> {
       total: 0,
       newCodeSelected: true,
     };
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
 
   componentDidMount() {
@@ -184,10 +181,6 @@ class CodeApp extends React.Component<Props, State> {
     this.setState({ highlighted });
   };
 
-  handleIssueChange = (_: Issue) => {
-    this.refreshBranchStatus();
-  };
-
   handleSearchClear = () => {
     this.setState({ searchResults: undefined });
   };
@@ -223,13 +216,6 @@ class CodeApp extends React.Component<Props, State> {
     this.loadComponent(finalKey);
   };
 
-  refreshBranchStatus = () => {
-    const { branchLike, component } = this.props;
-    if (branchLike && component && isPullRequest(branchLike)) {
-      this.props.fetchBranchStatus(branchLike, component.key).catch(noop);
-    }
-  };
-
   render() {
     return (
       <CodeAppRenderer
@@ -237,7 +223,6 @@ class CodeApp extends React.Component<Props, State> {
         {...this.state}
         handleGoToParent={this.handleGoToParent}
         handleHighlight={this.handleHighlight}
-        handleIssueChange={this.handleIssueChange}
         handleLoadMore={this.handleLoadMore}
         handleSearchClear={this.handleSearchClear}
         handleSearchResults={this.handleSearchResults}
@@ -248,6 +233,4 @@ class CodeApp extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(
-  withComponentContext(withBranchStatusActions(withMetricsContext(CodeApp)))
-);
+export default withRouter(withComponentContext(withMetricsContext(withBranchLikes(CodeApp))));

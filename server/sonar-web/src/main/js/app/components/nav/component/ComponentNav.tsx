@@ -24,9 +24,8 @@ import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
-import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
-import { Task, TaskWarning } from '../../../../types/tasks';
+import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
@@ -35,34 +34,17 @@ import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
 
 export interface ComponentNavProps {
-  branchLikes: BranchLike[];
-  currentBranchLike: BranchLike | undefined;
   component: Component;
   currentTask?: Task;
-  currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  onWarningDismiss: () => void;
   projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
-  warnings: TaskWarning[];
 }
 
 export default function ComponentNav(props: ComponentNavProps) {
-  const {
-    branchLikes,
-    component,
-    currentBranchLike,
-    currentTask,
-    currentTaskOnSameBranch,
-    isInProgress,
-    isPending,
-    projectBinding,
-    projectBindingErrors,
-    warnings,
-  } = props;
-
-  const [displayProjectInfo, setDisplayProjectInfo] = React.useState(false);
+  const { component, currentTask, isInProgress, isPending, projectBinding, projectBindingErrors } =
+    props;
 
   React.useEffect(() => {
     const { breadcrumbs, key, name } = component;
@@ -72,7 +54,6 @@ export default function ComponentNav(props: ComponentNavProps) {
         ComponentQualifier.Project,
         ComponentQualifier.Portfolio,
         ComponentQualifier.Application,
-        ComponentQualifier.Developper,
       ].includes(qualifier as ComponentQualifier)
     ) {
       RecentHistory.add(key, name, qualifier.toLowerCase());
@@ -88,34 +69,15 @@ export default function ComponentNav(props: ComponentNavProps) {
     <>
       <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
         <div className="sw-min-h-10 sw-flex sw-justify-between">
-          <Header
-            branchLikes={branchLikes}
-            component={component}
-            currentBranchLike={currentBranchLike}
-            projectBinding={projectBinding}
-          />
+          <Header component={component} projectBinding={projectBinding} />
           <HeaderMeta
-            branchLike={currentBranchLike}
             component={component}
             currentTask={currentTask}
-            currentTaskOnSameBranch={currentTaskOnSameBranch}
             isInProgress={isInProgress}
             isPending={isPending}
-            onWarningDismiss={props.onWarningDismiss}
-            warnings={warnings}
           />
         </div>
-        <Menu
-          branchLike={currentBranchLike}
-          branchLikes={branchLikes}
-          component={component}
-          isInProgress={isInProgress}
-          isPending={isPending}
-          onToggleProjectInfo={() => {
-            setDisplayProjectInfo(!displayProjectInfo);
-          }}
-          projectInfoDisplayed={displayProjectInfo}
-        />
+        <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
       </TopBar>
       {prDecoNotifComponent}
     </>

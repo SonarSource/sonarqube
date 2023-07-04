@@ -27,9 +27,7 @@ import { CurrentUserContextInterface } from '../current-user/CurrentUserContext'
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import './PromotionNotification.css';
 
-export interface PromotionNotificationProps extends CurrentUserContextInterface {}
-
-export function PromotionNotification(props: PromotionNotificationProps) {
+export function PromotionNotification(props: CurrentUserContextInterface) {
   const { currentUser } = props;
 
   if (!isLoggedIn(currentUser) || currentUser.dismissedNotices[NoticeType.SONARLINT_AD]) {

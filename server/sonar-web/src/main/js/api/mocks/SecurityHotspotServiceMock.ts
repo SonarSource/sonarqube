@@ -137,7 +137,7 @@ export default class SecurityHotspotServiceMock {
       branch?: string;
     }
   ) => {
-    if (data?.branch === 'b1') {
+    if (data?.branch === 'normal-branch') {
       return this.reply({
         paging: mockPaging(),
         hotspots: [
@@ -198,7 +198,7 @@ export default class SecurityHotspotServiceMock {
     inNewCodePeriod?: boolean;
     branch?: string;
   }) => {
-    if (data?.branch === 'b1') {
+    if (data?.branch === 'normal-branch') {
       return this.reply({
         paging: mockPaging({ pageIndex: 1, pageSize: data.ps, total: 2 }),
         hotspots: [

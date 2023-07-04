@@ -21,15 +21,16 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
 import selectEvent from 'react-select-event';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
-import { mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure, mockMetric } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byTestId, byText } from '../../../helpers/testSelector';
 import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import routes from '../routes';
 
@@ -46,11 +47,13 @@ jest.mock('../../../api/metrics', () => {
 const componentsHandler = new ComponentsServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 const issuesHandler = new IssuesServiceMock();
+const branchHandler = new BranchesServiceMock();
 
 afterEach(() => {
   componentsHandler.reset();
   measuresHandler.reset();
   issuesHandler.reset();
+  branchHandler.reset();
 });
 
 describe('rendering', () => {
@@ -144,12 +147,10 @@ describe('rendering', () => {
 
   it('should render correctly if on a pull request and viewing coverage', async () => {
     const { ui } = getPageObject();
-    renderMeasuresApp('component_measures?id=foo&metric=coverage&pullRequest=1', {
-      branchLike: mockPullRequest({ key: '1' }),
-    });
+    renderMeasuresApp('component_measures?id=foo&metric=coverage&pullRequest=01');
     await ui.appLoaded();
 
-    expect(ui.detailsUnavailableText.get()).toBeInTheDocument();
+    expect(await ui.detailsUnavailableText.find()).toBeInTheDocument();
   });
 
   it('should render a warning message if the user does not have access to all components', async () => {
@@ -538,7 +539,7 @@ function renderMeasuresApp(navigateTo?: string, componentContext?: Partial<Compo
   return renderAppWithComponentContext(
     'component_measures',
     routes,
-    { navigateTo },
+    { navigateTo, featureList: [Feature.BranchSupport] },
     { component: mockComponent({ key: 'foo' }), ...componentContext }
   );
 }

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import PullRequestIcon from '../../../components/icons/PullRequestIcon';
@@ -29,22 +30,15 @@ import {
   sortPullRequests,
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../types/branch-like';
+import { useBranchesQuery } from '../../../queries/branch';
+import { Branch, BranchLike, PullRequest } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
 
 interface Props {
-  branchLikes: BranchLike[];
   component: Component;
-  onBranchesChange: () => void;
-}
-
-interface State {
-  currentTab: Tabs;
-  deleting?: BranchLike;
-  renaming?: BranchLike;
 }
 
 export enum Tabs {
@@ -77,87 +71,57 @@ const TABS = [
   },
 ];
 
-export default class BranchLikeTabs extends React.PureComponent<Props, State> {
-  state: State = { currentTab: Tabs.Branch };
+export default function BranchLikeTabs(props: Props) {
+  const { component } = props;
+  const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Branch);
+  const [renaming, setRenaming] = useState<BranchLike>();
 
-  handleTabSelect = (currentTab: Tabs) => {
-    this.setState({ currentTab });
+  const [deleting, setDeleting] = useState<BranchLike>();
+
+  const handleClose = () => {
+    setRenaming(undefined);
+    setDeleting(undefined);
   };
 
-  handleDeleteBranchLike = (branchLike: BranchLike) => {
-    this.setState({ deleting: branchLike });
-  };
+  const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
 
-  handleRenameBranchLike = (branchLike: BranchLike) => {
-    this.setState({ renaming: branchLike });
-  };
+  const isBranchMode = currentTab === Tabs.Branch;
+  const branchLikesToDisplay: BranchLike[] = isBranchMode
+    ? sortBranches(branchLikes.filter(isBranch) as Branch[])
+    : sortPullRequests(branchLikes.filter(isPullRequest) as PullRequest[]);
+  const title = translate(
+    isBranchMode
+      ? 'project_branch_pull_request.table.branch'
+      : 'project_branch_pull_request.table.pull_request'
+  );
 
-  handleUpdatePurgeSetting = () => {
-    this.props.onBranchesChange();
-  };
+  return (
+    <>
+      <BoxedTabs
+        className="branch-like-tabs"
+        onSelect={setCurrentTab}
+        selected={currentTab}
+        tabs={TABS}
+      />
 
-  handleClose = () => {
-    this.setState({ deleting: undefined, renaming: undefined });
-  };
-
-  handleModalActionFulfilled = () => {
-    this.handleClose();
-    this.props.onBranchesChange();
-  };
-
-  render() {
-    const { branchLikes, component } = this.props;
-    const { currentTab, deleting, renaming } = this.state;
-
-    const isBranchMode = currentTab === Tabs.Branch;
-    const branchLikesToDisplay: BranchLike[] = isBranchMode
-      ? sortBranches(branchLikes.filter(isBranch))
-      : sortPullRequests(branchLikes.filter(isPullRequest));
-    const title = translate(
-      isBranchMode
-        ? 'project_branch_pull_request.table.branch'
-        : 'project_branch_pull_request.table.pull_request'
-    );
-
-    return (
-      <>
-        <BoxedTabs
-          className="branch-like-tabs"
-          onSelect={this.handleTabSelect}
-          selected={currentTab}
-          tabs={TABS}
+      <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
+        <BranchLikeTable
+          branchLikes={branchLikesToDisplay}
+          component={component}
+          displayPurgeSetting={isBranchMode}
+          onDelete={setDeleting}
+          onRename={setRenaming}
+          title={title}
         />
+      </div>
 
-        <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
-          <BranchLikeTable
-            branchLikes={branchLikesToDisplay}
-            component={component}
-            displayPurgeSetting={isBranchMode}
-            onDelete={this.handleDeleteBranchLike}
-            onRename={this.handleRenameBranchLike}
-            onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
-            title={title}
-          />
-        </div>
+      {deleting && (
+        <DeleteBranchModal branchLike={deleting} component={component} onClose={handleClose} />
+      )}
 
-        {deleting && (
-          <DeleteBranchModal
-            branchLike={deleting}
-            component={component}
-            onClose={this.handleClose}
-            onDelete={this.handleModalActionFulfilled}
-          />
-        )}
-
-        {renaming && isMainBranch(renaming) && (
-          <RenameBranchModal
-            branch={renaming}
-            component={component}
-            onClose={this.handleClose}
-            onRename={this.handleModalActionFulfilled}
-          />
-        )}
-      </>
-    );
-  }
+      {renaming && isMainBranch(renaming) && (
+        <RenameBranchModal branch={renaming} component={component} onClose={handleClose} />
+      )}
+    </>
+  );
 }

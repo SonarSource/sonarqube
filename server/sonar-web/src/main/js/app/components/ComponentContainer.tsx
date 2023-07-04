@@ -22,17 +22,10 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
-import { getBranches, getPullRequests } from '../../api/branches';
-import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
+import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import {
-  getBranchLikeQuery,
-  isBranch,
-  isMainBranch,
-  isPullRequest,
-} from '../../helpers/branch-like';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
@@ -40,30 +33,25 @@ import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse,
 } from '../../types/alm-settings';
-import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Feature } from '../../types/features';
-import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
-import { Component, Status } from '../../types/types';
+import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
+import { Component } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
-import withBranchStatusActions from './branch-status/withBranchStatusActions';
 import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props extends WithAvailableFeaturesProps {
   location: Location;
-  updateBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
   router: Router;
 }
 
 interface State {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component?: Component;
   currentTask?: Task;
   isPending: boolean;
@@ -71,7 +59,6 @@ interface State {
   projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   tasksInProgress?: Task[];
-  warnings: TaskWarning[];
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -79,7 +66,7 @@ const FETCH_STATUS_WAIT_TIME = 3000;
 export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
-  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [] };
+  state: State = { isPending: false, loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -135,8 +122,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       this.props.router.replace(getPortfolioUrl(componentWithQualifier.key));
     }
 
-    const { branchLike, branchLikes } = await this.fetchBranches(componentWithQualifier);
-
     let projectBinding;
     if (componentWithQualifier.qualifier === ComponentQualifier.Project) {
       projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
@@ -144,48 +129,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     if (this.mounted) {
       this.setState({
-        branchLike,
-        branchLikes,
         component: componentWithQualifier,
         projectBinding,
         loading: false,
       });
 
       this.fetchStatus(componentWithQualifier.key);
-      this.fetchWarnings(componentWithQualifier, branchLike);
       this.fetchProjectBindingErrors(componentWithQualifier);
     }
-  };
-
-  fetchBranches = async (componentWithQualifier: Component) => {
-    const { hasFeature } = this.props;
-
-    const breadcrumb = componentWithQualifier.breadcrumbs.find(({ qualifier }) => {
-      return ([ComponentQualifier.Application, ComponentQualifier.Project] as string[]).includes(
-        qualifier
-      );
-    });
-
-    let branchLike = undefined;
-    let branchLikes: BranchLike[] = [];
-
-    if (breadcrumb) {
-      const { key } = breadcrumb;
-      const [branches, pullRequests] = await Promise.all([
-        getBranches(key),
-        !hasFeature(Feature.BranchSupport) ||
-        breadcrumb.qualifier === ComponentQualifier.Application
-          ? Promise.resolve([])
-          : getPullRequests(key),
-      ]);
-
-      branchLikes = [...branches, ...pullRequests];
-      branchLike = this.getCurrentBranchLike(branchLikes);
-
-      this.registerBranchStatuses(branchLikes, componentWithQualifier);
-    }
-
-    return { branchLike, branchLikes };
   };
 
   fetchStatus = (componentKey: string) => {
@@ -194,9 +145,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         if (this.mounted) {
           let shouldFetchComponent = false;
           this.setState(
-            ({ branchLike, component, currentTask, tasksInProgress }) => {
-              const newCurrentTask = this.getCurrentTask(current, branchLike);
-              const pendingTasks = this.getPendingTasksForBranchLike(queue, branchLike);
+            ({ component, currentTask, tasksInProgress }) => {
+              const newCurrentTask = this.getCurrentTask(current);
+              const pendingTasks = this.getPendingTasksForBranchLike(queue);
               const newTasksInProgress = this.getInProgressTasks(pendingTasks);
 
               shouldFetchComponent = this.computeShouldFetchComponent(
@@ -235,20 +186,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchWarnings = (component: Component, branchLike?: BranchLike) => {
-    if (component.qualifier === ComponentQualifier.Project) {
-      getAnalysisStatus({
-        component: component.key,
-        ...getBranchLikeQuery(branchLike),
-      }).then(
-        ({ component }) => {
-          this.setState({ warnings: component.warnings });
-        },
-        () => {}
-      );
-    }
-  };
-
   fetchProjectBindingErrors = async (component: Component) => {
     if (
       component.qualifier === ComponentQualifier.Project &&
@@ -269,27 +206,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier,
   });
 
-  getCurrentBranchLike = (branchLikes: BranchLike[]) => {
-    const { query } = this.props.location;
-    return query.pullRequest
-      ? branchLikes.find((b) => isPullRequest(b) && b.key === query.pullRequest)
-      : branchLikes.find((b) => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
-  };
-
-  getCurrentTask = (current: Task, branchLike?: BranchLike) => {
+  getCurrentTask = (current: Task) => {
     if (!current || !this.isReportRelatedTask(current)) {
       return undefined;
     }
 
-    return current.status === TaskStatuses.Failed || this.isSameBranch(current, branchLike)
+    return current.status === TaskStatuses.Failed || this.isSameBranch(current)
       ? current
       : undefined;
   };
 
-  getPendingTasksForBranchLike = (pendingTasks: Task[], branchLike?: BranchLike) => {
-    return pendingTasks.filter(
-      (task) => this.isReportRelatedTask(task) && this.isSameBranch(task, branchLike)
-    );
+  getPendingTasksForBranchLike = (pendingTasks: Task[]) => {
+    return pendingTasks.filter((task) => this.isReportRelatedTask(task) && this.isSameBranch(task));
   };
 
   getInProgressTasks = (pendingTasks: Task[]) => {
@@ -346,31 +274,19 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  isSameBranch = (task: Pick<Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {
-    if (branchLike) {
-      if (isMainBranch(branchLike)) {
-        return (!task.pullRequest && !task.branch) || branchLike.name === task.branch;
-      }
-      if (isPullRequest(branchLike)) {
-        return branchLike.key === task.pullRequest;
-      }
-      if (isBranch(branchLike)) {
-        return branchLike.name === task.branch;
-      }
-    }
-    return !task.branch && !task.pullRequest;
-  };
+  isSameBranch = (task: Pick<Task, 'branch' | 'pullRequest'>) => {
+    const { branch, pullRequest } = this.props.location.query;
 
-  registerBranchStatuses = (branchLikes: BranchLike[], component: Component) => {
-    branchLikes.forEach((branchLike) => {
-      if (branchLike.status) {
-        this.props.updateBranchStatus(
-          branchLike,
-          component.key,
-          branchLike.status.qualityGateStatus
-        );
-      }
-    });
+    if (!pullRequest && !branch) {
+      return !task.branch && !task.pullRequest;
+    }
+    if (pullRequest) {
+      return pullRequest === task.pullRequest;
+    }
+    if (branch) {
+      return branch === task.branch;
+    }
+    return false;
   };
 
   handleComponentChange = (changes: Partial<Component>) => {
@@ -385,33 +301,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  handleBranchesChange = () => {
-    const { router, location } = this.props;
-    const { component } = this.state;
-
-    if (this.mounted && component) {
-      this.fetchBranches(component).then(
-        ({ branchLike, branchLikes }) => {
-          if (this.mounted) {
-            this.setState({ branchLike, branchLikes });
-
-            if (branchLike === undefined) {
-              router.replace({ query: { ...location.query, branch: undefined } });
-            }
-          }
-        },
-        () => {}
-      );
-    }
-  };
-
-  handleWarningDismiss = () => {
-    const { component } = this.state;
-    if (component !== undefined) {
-      this.fetchWarnings(component);
-    }
-  };
-
   render() {
     const { component, loading } = this.state;
 
@@ -423,16 +312,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <PageUnavailableDueToIndexation component={component} />;
     }
 
-    const {
-      branchLike,
-      branchLikes,
-      currentTask,
-      isPending,
-      projectBinding,
-      projectBindingErrors,
-      tasksInProgress,
-      warnings,
-    } = this.state;
+    const { currentTask, isPending, projectBinding, projectBindingErrors, tasksInProgress } =
+      this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
@@ -449,17 +330,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             component.qualifier
           ) && (
             <ComponentNav
-              branchLikes={branchLikes}
               component={component}
-              currentBranchLike={branchLike}
               currentTask={currentTask}
-              currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
               isInProgress={isInProgress}
               isPending={isPending}
-              onWarningDismiss={this.handleWarningDismiss}
               projectBinding={projectBinding}
               projectBindingErrors={projectBindingErrors}
-              warnings={warnings}
             />
           )}
         {loading ? (
@@ -469,12 +345,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         ) : (
           <ComponentContext.Provider
             value={{
-              branchLike,
-              branchLikes,
               component,
               isInProgress,
               isPending,
-              onBranchesChange: this.handleBranchesChange,
               onComponentChange: this.handleComponentChange,
               projectBinding,
             }}
@@ -487,4 +360,4 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAvailableFeatures(withBranchStatusActions(ComponentContainer)));
+export default withRouter(withAvailableFeatures(ComponentContainer));

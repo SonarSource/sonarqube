@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { FCProps } from '../../../../helpers/testUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import CoverageFilter from '../CoverageFilter';
 
 it('renders options', () => {
@@ -47,7 +47,7 @@ it('updates the filter query', async () => {
   expect(onQueryChange).toHaveBeenCalledWith({ coverage: '3' });
 });
 
-function renderCoverageFilter(props: Partial<FCProps<typeof CoverageFilter>> = {}) {
+function renderCoverageFilter(props: Partial<ComponentPropsType<typeof CoverageFilter>> = {}) {
   renderComponent(
     <CoverageFilter
       maxFacetValue={9}

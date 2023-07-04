@@ -370,7 +370,6 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
       component={componentsHandler.getNonEmptyFileKey()}
       displayAllIssues
       displayLocationMarkers
-      onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
       onLoaded={jest.fn()}
       onLocationSelect={jest.fn()}
@@ -385,7 +384,6 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
         component={componentsHandler.getNonEmptyFileKey()}
         displayAllIssues
         displayLocationMarkers
-        onIssueChange={jest.fn()}
         onIssueSelect={jest.fn()}
         onLoaded={jest.fn()}
         onLocationSelect={jest.fn()}

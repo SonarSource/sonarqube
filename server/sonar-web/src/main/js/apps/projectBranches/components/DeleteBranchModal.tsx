@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { deleteBranch, deletePullRequest } from '../../../api/branches';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useDeletBranchMutation } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 
@@ -30,83 +30,50 @@ interface Props {
   branchLike: BranchLike;
   component: Component;
   onClose: () => void;
-  onDelete: () => void;
 }
 
-interface State {
-  loading: boolean;
-}
+export default function DeleteBranchModal(props: Props) {
+  const { branchLike, component } = props;
+  const { mutate: deleteBranch, isLoading } = useDeletBranchMutation();
 
-export default class DeleteBranchModal extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.setState({ loading: true });
-    const request = isPullRequest(this.props.branchLike)
-      ? deletePullRequest({
-          project: this.props.component.key,
-          pullRequest: this.props.branchLike.key,
-        })
-      : deleteBranch({
-          branch: this.props.branchLike.name,
-          project: this.props.component.key,
-        });
-    request.then(
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-          this.props.onDelete();
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+    deleteBranch(
+      { component, branchLike },
+      {
+        onSuccess: props.onClose,
       }
     );
   };
 
-  render() {
-    const { branchLike } = this.props;
-    const header = translate(
-      isPullRequest(branchLike)
-        ? 'project_branch_pull_request.pull_request.delete'
-        : 'project_branch_pull_request.branch.delete'
-    );
+  const header = translate(
+    isPullRequest(branchLike)
+      ? 'project_branch_pull_request.pull_request.delete'
+      : 'project_branch_pull_request.branch.delete'
+  );
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            {translateWithParameters(
-              isPullRequest(branchLike)
-                ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
-                : 'project_branch_pull_request.branch.delete.are_you_sure',
-              getBranchLikeDisplayName(branchLike)
-            )}
-          </div>
-          <footer className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton className="button-red" disabled={this.state.loading}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
-    );
-  }
+  return (
+    <Modal contentLabel={header} onRequestClose={props.onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <form onSubmit={handleSubmit}>
+        <div className="modal-body">
+          {translateWithParameters(
+            isPullRequest(branchLike)
+              ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
+              : 'project_branch_pull_request.branch.delete.are_you_sure',
+            getBranchLikeDisplayName(branchLike)
+          )}
+        </div>
+        <footer className="modal-foot">
+          {isLoading && <i className="spinner spacer-right" />}
+          <SubmitButton className="button-red" disabled={isLoading}>
+            {translate('delete')}
+          </SubmitButton>
+          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
+        </footer>
+      </form>
+    </Modal>
+  );
 }

@@ -28,6 +28,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
+import { ComponentPropsType } from '../../../helpers/testUtils';
 import {
   IssueActions,
   IssueSeverity,
@@ -416,8 +417,12 @@ function getPageObject() {
   return { ui, user };
 }
 
-function renderIssue(props: Partial<Omit<Issue['props'], 'onChange' | 'onPopupToggle'>> = {}) {
-  function Wrapper(wrapperProps: Omit<Issue['props'], 'onChange' | 'onPopupToggle'>) {
+function renderIssue(
+  props: Partial<Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>> = {}
+) {
+  function Wrapper(
+    wrapperProps: Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>
+  ) {
     const [issue, setIssue] = React.useState(wrapperProps.issue);
     const [openPopup, setOpenPopup] = React.useState<string | undefined>();
     return (

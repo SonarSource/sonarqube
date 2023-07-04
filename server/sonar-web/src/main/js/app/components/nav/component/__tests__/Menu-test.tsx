@@ -20,21 +20,23 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import {
-  mockBranch,
-  mockMainBranch,
-  mockPullRequest,
-} from '../../../../../helpers/mocks/branch-like';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Feature } from '../../../../../types/features';
 import { Menu } from '../Menu';
+
+const handler = new BranchesServiceMock();
 
 const BASE_COMPONENT = mockComponent({
   analysisDate: '2019-12-01',
   key: 'foo',
   name: 'foo',
 });
+
+beforeEach(() => handler.reset());
 
 it('should render correctly', async () => {
   const user = userEvent.setup();
@@ -90,33 +92,37 @@ it('should render correctly when on a Portofolio', () => {
   expect(screen.getByRole('link', { name: 'portfolio_breakdown.page' })).toBeInTheDocument();
 });
 
-it('should render correctly when on a branch', () => {
-  renderMenu({
-    branchLike: mockBranch(),
-    component: {
-      ...BASE_COMPONENT,
-      configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+it('should render correctly when on a branch', async () => {
+  renderMenu(
+    {
+      component: {
+        ...BASE_COMPONENT,
+        configuration: { showSettings: true },
+        extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+      },
     },
-  });
+    'branch=normal-branch'
+  );
 
-  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
-it('should render correctly when on a pull request', () => {
-  renderMenu({
-    branchLike: mockPullRequest(),
-    component: {
-      ...BASE_COMPONENT,
-      configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+it('should render correctly when on a pull request', async () => {
+  renderMenu(
+    {
+      component: {
+        ...BASE_COMPONENT,
+        configuration: { showSettings: true },
+        extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+      },
     },
-  });
+    'pullRequest=01'
+  );
 
-  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
 
@@ -153,19 +159,16 @@ it('should disable links if application has inaccessible projects', () => {
   expect(screen.queryByRole('button', { name: 'application.info.title' })).not.toBeInTheDocument();
 });
 
-function renderMenu(props: Partial<Menu['props']> = {}) {
-  const mainBranch = mockMainBranch();
+function renderMenu(props: Partial<ComponentPropsType<typeof Menu>> = {}, params?: string) {
   return renderComponent(
     <Menu
       hasFeature={jest.fn().mockReturnValue(false)}
-      branchLike={mainBranch}
-      branchLikes={[mainBranch]}
       component={BASE_COMPONENT}
       isInProgress={false}
       isPending={false}
-      onToggleProjectInfo={jest.fn()}
-      projectInfoDisplayed={false}
       {...props}
-    />
+    />,
+    params ? `/?${params}` : '/',
+    { featureList: [Feature.BranchSupport] }
   );
 }

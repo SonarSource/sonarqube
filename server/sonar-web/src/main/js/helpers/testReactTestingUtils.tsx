@@ -94,7 +94,7 @@ export function renderAppWithAdminContext(
 export function renderComponent(
   component: React.ReactElement,
   pathname = '/',
-  { appState = mockAppState() }: RenderContext = {}
+  { appState = mockAppState(), featureList = [] }: RenderContext = {}
 ) {
   function Wrapper({ children }: { children: React.ReactElement }) {
     const queryClient = new QueryClient();
@@ -103,13 +103,15 @@ export function renderComponent(
       <IntlProvider defaultLocale="en" locale="en">
         <QueryClientProvider client={queryClient}>
           <HelmetProvider>
-            <AppStateContextProvider appState={appState}>
-              <MemoryRouter initialEntries={[pathname]}>
-                <Routes>
-                  <Route path="*" element={children} />
-                </Routes>
-              </MemoryRouter>
-            </AppStateContextProvider>
+            <AvailableFeaturesContext.Provider value={featureList}>
+              <AppStateContextProvider appState={appState}>
+                <MemoryRouter initialEntries={[pathname]}>
+                  <Routes>
+                    <Route path="*" element={children} />
+                  </Routes>
+                </MemoryRouter>
+              </AppStateContextProvider>
+            </AvailableFeaturesContext.Provider>
           </HelmetProvider>
         </QueryClientProvider>
       </IntlProvider>
@@ -132,8 +134,6 @@ export function renderAppWithComponentContext(
     return (
       <ComponentContext.Provider
         value={{
-          branchLikes: [],
-          onBranchesChange: jest.fn(),
           onComponentChange: (changes: Partial<Component>) => {
             setRealComponent({ ...realComponent, ...changes });
           },

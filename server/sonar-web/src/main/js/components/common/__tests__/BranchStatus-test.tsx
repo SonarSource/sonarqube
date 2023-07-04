@@ -17,24 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { BranchStatus, BranchStatusProps } from '../BranchStatus';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
+import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import BranchStatus, { BranchStatusProps } from '../BranchStatus';
 
-it('should render correctly', () => {
-  expect(shallowRender().type()).toBeNull();
-  expect(
-    shallowRender({
-      status: 'OK',
-    })
-  ).toMatchSnapshot('Successful');
-  expect(
-    shallowRender({
-      status: 'ERROR',
-    })
-  ).toMatchSnapshot('Error');
+const handler = new BranchesServiceMock();
+
+beforeEach(() => {
+  handler.reset();
 });
 
-function shallowRender(overrides: Partial<BranchStatusProps> = {}) {
-  return shallow(<BranchStatus {...overrides} />);
+it('should render ok status', async () => {
+  renderBranchStatus({ branchLike: mockBranch({ status: { qualityGateStatus: 'OK' } }) });
+
+  expect(await screen.findByText('OK')).toBeInTheDocument();
+});
+
+it('should render error status', async () => {
+  renderBranchStatus({ branchLike: mockBranch({ status: { qualityGateStatus: 'ERROR' } }) });
+
+  expect(await screen.findByText('ERROR')).toBeInTheDocument();
+});
+
+function renderBranchStatus(overrides: Partial<BranchStatusProps> = {}) {
+  const defaultProps = {
+    branchLike: mockBranch(),
+  } as const;
+  return renderComponent(<BranchStatus {...defaultProps} {...overrides} />);
 }

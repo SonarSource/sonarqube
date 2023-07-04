@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { FCProps } from '../../../../helpers/testUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { LanguagesFilter } from '../LanguagesFilter';
 
 it('renders language names', () => {
@@ -61,7 +61,7 @@ it('updates the filter query', async () => {
   expect(onQueryChange).toHaveBeenCalledWith({ languages: 'java' });
 });
 
-function renderLanguagesFilter(props: Partial<FCProps<typeof LanguagesFilter>> = {}) {
+function renderLanguagesFilter(props: Partial<ComponentPropsType<typeof LanguagesFilter>> = {}) {
   renderComponent(
     <LanguagesFilter
       languages={{

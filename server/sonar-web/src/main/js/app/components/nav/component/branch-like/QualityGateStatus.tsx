@@ -19,45 +19,34 @@
  */
 import classNames from 'classnames';
 import { QualityGateIndicator } from 'design-system';
-import React, { useContext } from 'react';
-import { getBranchStatusByBranchLike } from '../../../../../helpers/branch-like';
+import React from 'react';
 import { translateWithParameters } from '../../../../../helpers/l10n';
 import { formatMeasure } from '../../../../../helpers/measures';
 import { BranchLike } from '../../../../../types/branch-like';
 import { MetricType } from '../../../../../types/metrics';
-import { Component } from '../../../../../types/types';
-import { BranchStatusContext } from '../../../branch-status/BranchStatusContext';
 
 interface Props {
-  component: Component;
   branchLike: BranchLike;
   className: string;
   showStatusText?: boolean;
 }
 
-export default function QualityGateStatus({
-  component,
-  branchLike,
-  className,
-  showStatusText,
-}: Props) {
-  const { branchStatusByComponent } = useContext(BranchStatusContext);
-  const branchStatus = getBranchStatusByBranchLike(
-    branchStatusByComponent,
-    component.key,
-    branchLike
-  );
-
+export default function QualityGateStatus({ className, showStatusText, branchLike }: Props) {
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/no-unnecessary-condition
-  if (!branchStatus || !branchStatus.status) {
+  if (!branchLike.status?.qualityGateStatus) {
     return null;
   }
-  const { status } = branchStatus;
-  const formatted = formatMeasure(status, MetricType.Level);
+
+  const formatted = formatMeasure(branchLike.status?.qualityGateStatus, MetricType.Level);
   const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
-    <div className={classNames(`it__level-${status}`, className)}>
-      <QualityGateIndicator status={status} className="sw-mr-2" ariaLabel={ariaLabel} size="sm" />
+    <div className={classNames(`it__level-${branchLike.status.qualityGateStatus}`, className)}>
+      <QualityGateIndicator
+        status={branchLike.status?.qualityGateStatus}
+        className="sw-mr-2"
+        ariaLabel={ariaLabel}
+        size="sm"
+      />
       {showStatusText && <span>{formatted}</span>}
     </div>
   );

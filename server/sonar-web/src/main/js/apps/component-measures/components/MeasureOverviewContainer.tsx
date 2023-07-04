@@ -28,7 +28,6 @@ import {
   ComponentMeasure,
   ComponentMeasureIntern,
   Dict,
-  Issue,
   Metric,
   Period,
 } from '../../../types/types';
@@ -41,7 +40,6 @@ interface Props {
   domain: string;
   leakPeriod?: Period;
   metrics: Dict<Metric>;
-  onIssueChange?: (issue: Issue) => void;
   rootComponent: ComponentMeasure;
   router: Router;
   selected?: string;
@@ -135,7 +133,6 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
         leakPeriod={this.props.leakPeriod}
         loading={this.state.loading.component || this.state.loading.bubbles}
         metrics={this.props.metrics}
-        onIssueChange={this.props.onIssueChange}
         rootComponent={this.props.rootComponent}
         updateLoading={this.updateLoading}
         updateSelected={this.updateSelected}

@@ -17,29 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { BranchLike, BranchStatusData } from '../../../types/branch-like';
-import { QualityGateStatusCondition } from '../../../types/quality-gates';
-import { Dict, Status } from '../../../types/types';
+import { ComponentClass, VFC } from 'react';
 
-export interface BranchStatusContextInterface {
-  branchStatusByComponent: Dict<Dict<BranchStatusData>>;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-  updateBranchStatus: (
-    branchLike: BranchLike,
-    projectKey: string,
-    status: Status,
-    conditions?: QualityGateStatusCondition[],
-    ignoredConditions?: boolean
-  ) => void;
+export function withQueryClient<P>(
+  Component:
+    | ComponentClass<P & { queryClient: QueryClient }>
+    | VFC<P & { queryClient: QueryClient }>
+): VFC<Omit<P, 'queryClient'>> {
+  return function WithQueryClient(props: P) {
+    const queryClient = useQueryClient();
+    return <Component {...props} queryClient={queryClient} />;
+  };
 }
-
-export const BranchStatusContext = React.createContext<BranchStatusContextInterface>({
-  branchStatusByComponent: {},
-  fetchBranchStatus: () => {
-    throw Error('BranchStatusContext is not provided');
-  },
-  updateBranchStatus: () => {
-    throw Error('BranchStatusContext is not provided');
-  },
-});

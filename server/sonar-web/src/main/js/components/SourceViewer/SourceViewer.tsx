@@ -77,7 +77,6 @@ export interface Props {
   highlightedLocationMessage?: { index: number; text: string | undefined };
   onLoaded?: (component: SourceViewerFile, sources: SourceLine[], issues: Issue[]) => void;
   onLocationSelect?: (index: number) => void;
-  onIssueChange?: (issue: Issue) => void;
   onIssueSelect?: (issueKey: string) => void;
   onIssueUnselect?: () => void;
   selectedIssue?: string;
@@ -466,9 +465,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       );
       return { issues: newIssues, issuesByLine: issuesByLine(newIssues) };
     });
-    if (this.props.onIssueChange) {
-      this.props.onIssueChange(issue);
-    }
   };
 
   renderDuplicationPopup = (index: number, line: number) => {

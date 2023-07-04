@@ -19,25 +19,23 @@
  */
 import { DeferredSpinner, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import AnalysisWarningsModal from '../../../../components/common/AnalysisWarningsModal';
 import { translate } from '../../../../helpers/l10n';
-import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
+import { useBranchWarrningQuery } from '../../../../queries/branch';
+import { Task, TaskStatuses } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import { AnalysisErrorModal } from './AnalysisErrorModal';
+import AnalysisWarningsModal from './AnalysisWarningsModal';
 
 export interface HeaderMetaProps {
   currentTask?: Task;
-  currentTaskOnSameBranch?: boolean;
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
-  onWarningDismiss: () => void;
-  warnings: TaskWarning[];
 }
 
 export function AnalysisStatus(props: HeaderMetaProps) {
-  const { component, currentTask, currentTaskOnSameBranch, isInProgress, isPending, warnings } =
-    props;
+  const { component, currentTask, isInProgress, isPending } = props;
+  const { data: warnings, isLoading } = useBranchWarrningQuery(component);
 
   const [modalIsVisible, setDisplayModal] = React.useState(false);
   const openModal = React.useCallback(() => {
@@ -73,7 +71,6 @@ export function AnalysisStatus(props: HeaderMetaProps) {
           <AnalysisErrorModal
             component={component}
             currentTask={currentTask}
-            currentTaskOnSameBranch={currentTaskOnSameBranch}
             onClose={closeModal}
           />
         )}
@@ -81,7 +78,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
     );
   }
 
-  if (warnings.length > 0) {
+  if (!isLoading && warnings && warnings.length > 0) {
     return (
       <>
         <FlagMessage variant="warning">
@@ -91,13 +88,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
           </Link>
         </FlagMessage>
         {modalIsVisible && (
-          <AnalysisWarningsModal
-            componentKey={component.key}
-            onClose={closeModal}
-            taskId={currentTask?.id}
-            onWarningDismiss={props.onWarningDismiss}
-            warnings={warnings}
-          />
+          <AnalysisWarningsModal component={component} onClose={closeModal} warnings={warnings} />
         )}
       </>
     );

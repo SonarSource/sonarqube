@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { getTask } from '../../../api/ce';
+import { AnalysisWarningsModal } from '../../../app/components/nav/component/AnalysisWarningsModal';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
 import { mockCurrentUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
+import { ComponentPropsType } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/ce', () => ({
   dismissAnalysisWarning: jest.fn().mockResolvedValue(null),
@@ -60,26 +61,12 @@ describe('should render correctly', () => {
   });
 });
 
-it('should not fetch task warnings if it does not have to', () => {
-  renderAnalysisWarningsModal();
-
-  expect(getTask).not.toHaveBeenCalled();
-});
-
-it('should fetch task warnings if it has to', async () => {
-  renderAnalysisWarningsModal({ taskId: 'abcd1234', warnings: undefined });
-
-  expect(screen.queryByText('message foo')).not.toBeInTheDocument();
-  expect(getTask).toHaveBeenCalledWith('abcd1234', ['warnings']);
-
-  await waitFor(() => {
-    expect(screen.getByText('message foo')).toBeInTheDocument();
-  });
-});
-
-function renderAnalysisWarningsModal(props: Partial<AnalysisWarningsModal['props']> = {}) {
+function renderAnalysisWarningsModal(
+  props: Partial<ComponentPropsType<typeof AnalysisWarningsModal>> = {}
+) {
   return renderComponent(
     <AnalysisWarningsModal
+      component={mockComponent()}
       currentUser={mockCurrentUser({ isLoggedIn: true })}
       onClose={jest.fn()}
       warnings={[

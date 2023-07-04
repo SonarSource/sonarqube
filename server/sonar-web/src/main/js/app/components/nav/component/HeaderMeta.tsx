@@ -22,8 +22,8 @@ import * as React from 'react';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { translateWithParameters } from '../../../../helpers/l10n';
-import { BranchLike } from '../../../../types/branch-like';
-import { Task, TaskWarning } from '../../../../types/tasks';
+import { useBranchesQuery } from '../../../../queries/branch';
+import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
@@ -32,28 +32,17 @@ import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMe
 import { getCurrentPage } from './utils';
 
 export interface HeaderMetaProps {
-  branchLike?: BranchLike;
   component: Component;
   currentUser: CurrentUser;
   currentTask?: Task;
-  currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  onWarningDismiss: () => void;
-  warnings: TaskWarning[];
 }
 
 export function HeaderMeta(props: HeaderMetaProps) {
-  const {
-    branchLike,
-    component,
-    currentUser,
-    currentTask,
-    currentTaskOnSameBranch,
-    isInProgress,
-    isPending,
-    warnings,
-  } = props;
+  const { component, currentUser, currentTask, isInProgress, isPending } = props;
+
+  const { data: { branchLike } = {} } = useBranchesQuery(component);
 
   const isABranch = isBranch(branchLike);
 
@@ -64,11 +53,8 @@ export function HeaderMeta(props: HeaderMetaProps) {
       <AnalysisStatus
         component={component}
         currentTask={currentTask}
-        currentTaskOnSameBranch={currentTaskOnSameBranch}
         isInProgress={isInProgress}
         isPending={isPending}
-        onWarningDismiss={props.onWarningDismiss}
-        warnings={warnings}
       />
       {branchLike && <CurrentBranchLikeMergeInformation currentBranchLike={branchLike} />}
       {component.version !== undefined && isABranch && (

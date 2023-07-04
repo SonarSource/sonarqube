@@ -41,6 +41,7 @@ import {
   getPathUrlAsString,
   getRuleUrl,
 } from '../../../helpers/urls';
+import { useRefreshBranchStatus } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
@@ -68,6 +69,7 @@ interface StyledHeaderProps {
 export function HotspotHeader(props: HotspotHeaderProps) {
   const { hotspot, component, branchLike, standards, tabs, isCompressed, isScrolled } = props;
   const { message, messageFormattings, rule, key } = hotspot;
+  const refrechBranchStatus = useRefreshBranchStatus();
 
   const permalink = getPathUrlAsString(
     getComponentSecurityHotspotsUrl(component.key, {
@@ -78,14 +80,15 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   );
 
   const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;
+  const handleStatusChange = async (statusOption: HotspotStatusOption) => {
+    await props.onUpdateHotspot(true, statusOption);
+    refrechBranchStatus();
+  };
 
   const content = isCompressed ? (
     <div className="sw-flex sw-justify-between">
       {tabs}
-      <StatusReviewButton
-        hotspot={hotspot}
-        onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
-      />
+      <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />
     </div>
   ) : (
     <>
@@ -110,10 +113,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
               {rule.key}
             </Link>
           </div>
-          <Status
-            hotspot={hotspot}
-            onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
-          />
+          <Status hotspot={hotspot} onStatusChange={handleStatusChange} />
         </div>
         <div className="sw-flex sw-flex-col sw-gap-4">
           <HotspotHeaderRightSection

@@ -24,12 +24,10 @@ import { getBranchLikeKey, isSameBranchLike } from '../../../../../helpers/branc
 import { translate } from '../../../../../helpers/l10n';
 import { isDefined } from '../../../../../helpers/types';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
-import { Component } from '../../../../../types/types';
 import MenuItem from './MenuItem';
 
 export interface MenuItemListProps {
   branchLikeTree: BranchLikeTree;
-  component: Component;
   hasResults: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selectedBranchLike: BranchLike | undefined;
@@ -45,12 +43,11 @@ export function MenuItemList(props: MenuItemListProps) {
     }
   });
 
-  const { branchLikeTree, component, hasResults, onSelect, selectedBranchLike } = props;
+  const { branchLikeTree, hasResults, onSelect, selectedBranchLike } = props;
 
   const renderItem = (branchLike: BranchLike, indent = false) => (
     <MenuItem
       branchLike={branchLike}
-      component={component}
       key={getBranchLikeKey(branchLike)}
       onSelect={onSelect}
       selected={isSameBranchLike(branchLike, selectedBranchLike)}

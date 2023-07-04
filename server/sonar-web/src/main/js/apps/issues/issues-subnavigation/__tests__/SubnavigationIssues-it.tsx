@@ -23,7 +23,7 @@ import * as React from 'react';
 import { mockFlowLocation, mockIssue, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import { FCProps } from '../../../../helpers/testUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { FlowType, Issue } from '../../../../types/types';
 import { VISIBLE_LOCATIONS_COLLAPSE } from '../IssueLocationsCrossFile';
 import SubnavigationIssuesList from '../SubnavigationIssuesList';
@@ -245,7 +245,7 @@ function getPageObject() {
 
 function renderConciseIssues(
   issues: Issue[],
-  listProps: Partial<FCProps<typeof SubnavigationIssuesList>> = {}
+  listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {}
 ) {
   const wrapper = renderComponent(
     <SubnavigationIssuesList
@@ -266,7 +266,7 @@ function renderConciseIssues(
 
   function override(
     issues: Issue[],
-    listProps: Partial<FCProps<typeof SubnavigationIssuesList>> = {}
+    listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {}
   ) {
     wrapper.rerender(
       <SubnavigationIssuesList

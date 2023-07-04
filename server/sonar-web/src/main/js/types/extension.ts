@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QueryClient } from '@tanstack/react-query';
 import { Theme } from 'design-system';
 import { IntlShape } from 'react-intl';
 import { Location, Router } from '../components/hoc/withRouter';
@@ -59,6 +60,7 @@ export interface ExtensionStartMethodParameter {
   dsTheme: Theme;
   baseUrl: string;
   l10nBundle: L10nBundle;
+  queryClient: QueryClient;
   // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
   // for more information on why we're passing this as a prop to an extension.
   updateCurrentUserHomepage: (homepage: HomePage) => void;

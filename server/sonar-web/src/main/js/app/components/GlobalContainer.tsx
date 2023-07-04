@@ -29,7 +29,6 @@ import Workspace from '../../components/workspace/Workspace';
 import GlobalFooter from './GlobalFooter';
 import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
-import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
@@ -68,21 +67,19 @@ export default function GlobalContainer() {
                 id="container"
               >
                 <div className="page-container">
-                  <BranchStatusContextProvider>
-                    <Workspace>
-                      <IndexationContextProvider>
-                        <LanguagesContextProvider>
-                          <MetricsContextProvider>
-                            <SystemAnnouncement />
-                            <IndexationNotification />
-                            <UpdateNotification dismissable />
-                            <GlobalNav location={location} />
-                            <Outlet />
-                          </MetricsContextProvider>
-                        </LanguagesContextProvider>
-                      </IndexationContextProvider>
-                    </Workspace>
-                  </BranchStatusContextProvider>
+                  <Workspace>
+                    <IndexationContextProvider>
+                      <LanguagesContextProvider>
+                        <MetricsContextProvider>
+                          <SystemAnnouncement />
+                          <IndexationNotification />
+                          <UpdateNotification dismissable />
+                          <GlobalNav location={location} />
+                          <Outlet />
+                        </MetricsContextProvider>
+                      </LanguagesContextProvider>
+                    </IndexationContextProvider>
+                  </Workspace>
                 </div>
                 <PromotionNotification />
               </div>

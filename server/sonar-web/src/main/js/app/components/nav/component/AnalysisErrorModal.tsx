@@ -29,12 +29,11 @@ import { AnalysisLicenseError } from './AnalysisLicenseError';
 interface Props {
   component: Component;
   currentTask: Task;
-  currentTaskOnSameBranch?: boolean;
   onClose: () => void;
 }
 
 export function AnalysisErrorModal(props: Props) {
-  const { component, currentTask, currentTaskOnSameBranch } = props;
+  const { component, currentTask } = props;
 
   const header = translate('error');
 
@@ -55,7 +54,6 @@ export function AnalysisErrorModal(props: Props) {
           <AnalysisErrorMessage
             component={component}
             currentTask={currentTask}
-            currentTaskOnSameBranch={currentTaskOnSameBranch}
             onLeave={props.onClose}
           />
         )}

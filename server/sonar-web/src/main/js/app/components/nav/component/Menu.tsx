@@ -30,8 +30,14 @@ import Tooltip from '../../../../components/controls/Tooltip';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
-import { BranchLike, BranchParameters } from '../../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
+import { useBranchesQuery } from '../../../../queries/branch';
+import { BranchParameters } from '../../../../types/branch-like';
+import {
+  ComponentQualifier,
+  isApplication,
+  isPortfolioLike,
+  isProject,
+} from '../../../../types/component';
 import { Feature } from '../../../../types/features';
 import { Component, Dict, Extension } from '../../../../types/types';
 import withAvailableFeatures, {
@@ -55,84 +61,39 @@ const SETTINGS_URLS = [
 ];
 
 interface Props extends WithAvailableFeaturesProps {
-  branchLike: BranchLike | undefined;
-  branchLikes: BranchLike[] | undefined;
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
-  onToggleProjectInfo: () => void;
-  projectInfoDisplayed: boolean;
 }
 
 type Query = BranchParameters & { id: string };
 
-export class Menu extends React.PureComponent<Props> {
-  projectInfoLink: HTMLElement | null = null;
+export function Menu(props: Props) {
+  const { component, isInProgress, isPending } = props;
+  const { extensions = [], canBrowseAllChildProjects, qualifier, configuration = {} } = component;
+  const { data: { branchLikes, branchLike } = { branchLikes: [] } } = useBranchesQuery(component);
+  const isApplicationChildInaccessble = isApplication(qualifier) && !canBrowseAllChildProjects;
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.projectInfoDisplayed &&
-      !this.props.projectInfoDisplayed &&
-      this.projectInfoLink
-    ) {
-      this.projectInfoLink.focus();
-    }
-  }
-
-  hasAnalysis = () => {
-    const { branchLikes = [], component, isInProgress, isPending } = this.props;
+  const hasAnalysis = () => {
     const hasBranches = branchLikes.length > 1;
     return hasBranches || isInProgress || isPending || component.analysisDate !== undefined;
   };
 
-  isProject = () => {
-    return this.props.component.qualifier === ComponentQualifier.Project;
+  const isGovernanceEnabled = extensions.some((extension) =>
+    extension.key.startsWith('governance/')
+  );
+
+  const getQuery = (): Query => {
+    return { id: component.key, ...getBranchLikeQuery(branchLike) };
   };
 
-  isDeveloper = () => {
-    return this.props.component.qualifier === ComponentQualifier.Developper;
-  };
-
-  isPortfolio = () => {
-    const { qualifier } = this.props.component;
-    return isPortfolioLike(qualifier);
-  };
-
-  isApplication = () => {
-    return this.props.component.qualifier === ComponentQualifier.Application;
-  };
-
-  isAllChildProjectAccessible = () => {
-    return Boolean(this.props.component.canBrowseAllChildProjects);
-  };
-
-  isApplicationChildInaccessble = () => {
-    return this.isApplication() && !this.isAllChildProjectAccessible();
-  };
-
-  isGovernanceEnabled = () => {
-    const {
-      component: { extensions },
-    } = this.props;
-
-    return extensions && extensions.some((extension) => extension.key.startsWith('governance/'));
-  };
-
-  getConfiguration = () => {
-    return this.props.component.configuration || {};
-  };
-
-  getQuery = (): Query => {
-    return { id: this.props.component.key, ...getBranchLikeQuery(this.props.branchLike) };
-  };
-
-  renderLinkWhenInaccessibleChild(label: React.ReactNode) {
+  const renderLinkWhenInaccessibleChild = (label: React.ReactNode) => {
     return (
       <li>
         <Tooltip
           overlay={translateWithParameters(
             'layout.all_project_must_be_accessible',
-            translate('qualifier', this.props.component.qualifier)
+            translate('qualifier', qualifier)
           )}
         >
           <a aria-disabled="true" className="disabled-link">
@@ -141,9 +102,9 @@ export class Menu extends React.PureComponent<Props> {
         </Tooltip>
       </li>
     );
-  }
+  };
 
-  renderMenuLink = ({
+  const renderMenuLink = ({
     label,
     pathname,
     additionalQueryParams = {},
@@ -152,13 +113,11 @@ export class Menu extends React.PureComponent<Props> {
     pathname: string;
     additionalQueryParams?: Dict<string>;
   }) => {
-    const hasAnalysis = this.hasAnalysis();
-    const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
-    const query = this.getQuery();
+    const query = getQuery();
     if (isApplicationChildInaccessble) {
-      return this.renderLinkWhenInaccessibleChild(label);
+      return renderLinkWhenInaccessibleChild(label);
     }
-    return hasAnalysis ? (
+    return hasAnalysis() ? (
       <NavBarTabLink
         to={{
           pathname,
@@ -171,86 +130,82 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderDashboardLink = () => {
-    const { id, ...branchLike } = this.getQuery();
+  const renderDashboardLink = () => {
+    const { id, ...branchLike } = getQuery();
 
-    if (this.isPortfolio()) {
-      return this.isGovernanceEnabled() ? (
+    if (isPortfolioLike(qualifier)) {
+      return isGovernanceEnabled ? (
         <NavBarTabLink to={getPortfolioUrl(id)} text={translate('overview.page')} />
       ) : null;
     }
 
-    const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
     if (isApplicationChildInaccessble) {
-      return this.renderLinkWhenInaccessibleChild(translate('overview.page'));
+      return renderLinkWhenInaccessibleChild(translate('overview.page'));
     }
     return (
       <NavBarTabLink to={getProjectQueryUrl(id, branchLike)} text={translate('overview.page')} />
     );
   };
 
-  renderBreakdownLink = () => {
-    return this.isPortfolio() && this.isGovernanceEnabled()
-      ? this.renderMenuLink({
+  const renderBreakdownLink = () => {
+    return isPortfolioLike(qualifier) && isGovernanceEnabled
+      ? renderMenuLink({
           label: translate('portfolio_breakdown.page'),
           pathname: '/code',
         })
       : null;
   };
 
-  renderCodeLink = () => {
-    if (this.isPortfolio() || this.isDeveloper()) {
+  const renderCodeLink = () => {
+    if (isPortfolioLike(qualifier)) {
       return null;
     }
 
-    const label = this.isApplication() ? translate('view_projects.page') : translate('code.page');
+    const label = isApplication(qualifier)
+      ? translate('view_projects.page')
+      : translate('code.page');
 
-    return this.renderMenuLink({ label, pathname: '/code' });
+    return renderMenuLink({ label, pathname: '/code' });
   };
 
-  renderActivityLink = () => {
-    const { branchLike } = this.props;
-
+  const renderActivityLink = () => {
     if (isPullRequest(branchLike)) {
       return null;
     }
 
-    return this.renderMenuLink({
+    return renderMenuLink({
       label: translate('project_activity.page'),
       pathname: '/project/activity',
     });
   };
 
-  renderIssuesLink = () => {
-    return this.renderMenuLink({
+  const renderIssuesLink = () => {
+    return renderMenuLink({
       label: translate('issues.page'),
       pathname: '/project/issues',
       additionalQueryParams: { resolved: 'false' },
     });
   };
 
-  renderComponentMeasuresLink = () => {
-    return this.renderMenuLink({
+  const renderComponentMeasuresLink = () => {
+    return renderMenuLink({
       label: translate('layout.measures'),
       pathname: '/component_measures',
     });
   };
 
-  renderSecurityHotspotsLink = () => {
-    const isPortfolio = this.isPortfolio();
+  const renderSecurityHotspotsLink = () => {
+    const isPortfolio = isPortfolioLike(qualifier);
     return (
       !isPortfolio &&
-      this.renderMenuLink({
+      renderMenuLink({
         label: translate('layout.security_hotspots'),
         pathname: '/security_hotspots',
       })
     );
   };
 
-  renderSecurityReports = () => {
-    const { branchLike, component } = this.props;
-    const { extensions = [] } = component;
-
+  const renderSecurityReports = () => {
     if (isPullRequest(branchLike)) {
       return null;
     }
@@ -263,26 +218,27 @@ export class Menu extends React.PureComponent<Props> {
       return null;
     }
 
-    return this.renderMenuLink({
+    return renderMenuLink({
       label: translate('layout.security_reports'),
       pathname: '/project/extension/securityreport/securityreport',
     });
   };
 
-  renderAdministration = () => {
-    const { branchLike, component } = this.props;
-    const isProject = this.isProject();
-    const isPortfolio = this.isPortfolio();
-    const isApplication = this.isApplication();
-    const query = this.getQuery();
+  const renderAdministration = () => {
+    const query = getQuery();
 
-    if (!this.getConfiguration().showSettings || isPullRequest(branchLike)) {
+    if (!configuration.showSettings || isPullRequest(branchLike)) {
       return null;
     }
 
     const isSettingsActive = SETTINGS_URLS.some((url) => window.location.href.includes(url));
 
-    const adminLinks = this.renderAdministrationLinks(query, isProject, isApplication, isPortfolio);
+    const adminLinks = renderAdministrationLinks(
+      query,
+      isProject(qualifier),
+      isApplication(qualifier),
+      isPortfolioLike(qualifier)
+    );
     if (!adminLinks.some((link) => link != null)) {
       return null;
     }
@@ -313,46 +269,43 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderAdministrationLinks = (
+  const renderAdministrationLinks = (
     query: Query,
     isProject: boolean,
     isApplication: boolean,
     isPortfolio: boolean
   ) => {
     return [
-      this.renderSettingsLink(query, isApplication, isPortfolio),
-      this.renderBranchesLink(query, isProject),
-      this.renderBaselineLink(query, isApplication, isPortfolio),
-      ...this.renderAdminExtensions(query, isApplication),
-      this.renderImportExportLink(query, isProject),
-      this.renderProfilesLink(query),
-      this.renderQualityGateLink(query),
-      this.renderLinksLink(query),
-      this.renderPermissionsLink(query),
-      this.renderBackgroundTasksLink(query),
-      this.renderUpdateKeyLink(query),
-      this.renderWebhooksLink(query, isProject),
-      this.renderDeletionLink(query),
+      renderSettingsLink(query, isApplication, isPortfolio),
+      renderBranchesLink(query, isProject),
+      renderBaselineLink(query, isApplication, isPortfolio),
+      ...renderAdminExtensions(query, isApplication),
+      renderImportExportLink(query, isProject),
+      renderProfilesLink(query),
+      renderQualityGateLink(query),
+      renderLinksLink(query),
+      renderPermissionsLink(query),
+      renderBackgroundTasksLink(query),
+      renderUpdateKeyLink(query),
+      renderWebhooksLink(query, isProject),
+      renderDeletionLink(query),
     ];
   };
 
-  renderProjectInformationButton = () => {
-    const isProject = this.isProject();
-    const isApplication = this.isApplication();
-    const label = translate(isProject ? 'project' : 'application', 'info.title');
-    const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
-    const query = this.getQuery();
+  const renderProjectInformationButton = () => {
+    const label = translate(isProject(qualifier) ? 'project' : 'application', 'info.title');
+    const query = getQuery();
 
-    if (isPullRequest(this.props.branchLike)) {
+    if (isPullRequest(branchLike)) {
       return null;
     }
 
     if (isApplicationChildInaccessble) {
-      return this.renderLinkWhenInaccessibleChild(label);
+      return renderLinkWhenInaccessibleChild(label);
     }
 
     return (
-      (isProject || isApplication) && (
+      (isProject(qualifier) || isApplication(qualifier)) && (
         <NavBarTabLink
           to={{ pathname: '/project/information', search: new URLSearchParams(query).toString() }}
           text={label}
@@ -361,8 +314,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderSettingsLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
-    if (!this.getConfiguration().showSettings || isApplication || isPortfolio) {
+  const renderSettingsLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
+    if (!configuration.showSettings || isApplication || isPortfolio) {
       return null;
     }
     return (
@@ -375,12 +328,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderBranchesLink = (query: Query, isProject: boolean) => {
-    if (
-      !this.props.hasFeature(Feature.BranchSupport) ||
-      !isProject ||
-      !this.getConfiguration().showSettings
-    ) {
+  const renderBranchesLink = (query: Query, isProject: boolean) => {
+    if (!props.hasFeature(Feature.BranchSupport) || !isProject || !configuration.showSettings) {
       return null;
     }
 
@@ -394,8 +343,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderBaselineLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
-    if (!this.getConfiguration().showSettings || isApplication || isPortfolio) {
+  const renderBaselineLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
+    if (!configuration.showSettings || isApplication || isPortfolio) {
       return null;
     }
     return (
@@ -408,7 +357,7 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderImportExportLink = (query: Query, isProject: boolean) => {
+  const renderImportExportLink = (query: Query, isProject: boolean) => {
     if (!isProject) {
       return null;
     }
@@ -425,8 +374,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderProfilesLink = (query: Query) => {
-    if (!this.getConfiguration().showQualityProfiles) {
+  const renderProfilesLink = (query: Query) => {
+    if (!configuration.showQualityProfiles) {
       return null;
     }
     return (
@@ -442,8 +391,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderQualityGateLink = (query: Query) => {
-    if (!this.getConfiguration().showQualityGates) {
+  const renderQualityGateLink = (query: Query) => {
+    if (!configuration.showQualityGates) {
       return null;
     }
     return (
@@ -456,8 +405,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderLinksLink = (query: Query) => {
-    if (!this.getConfiguration().showLinks) {
+  const renderLinksLink = (query: Query) => {
+    if (!configuration.showLinks) {
       return null;
     }
     return (
@@ -470,8 +419,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderPermissionsLink = (query: Query) => {
-    if (!this.getConfiguration().showPermissions) {
+  const renderPermissionsLink = (query: Query) => {
+    if (!configuration.showPermissions) {
       return null;
     }
     return (
@@ -484,8 +433,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderBackgroundTasksLink = (query: Query) => {
-    if (!this.getConfiguration().showBackgroundTasks) {
+  const renderBackgroundTasksLink = (query: Query) => {
+    if (!configuration.showBackgroundTasks) {
       return null;
     }
     return (
@@ -501,8 +450,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderUpdateKeyLink = (query: Query) => {
-    if (!this.getConfiguration().showUpdateKey) {
+  const renderUpdateKeyLink = (query: Query) => {
+    if (!configuration.showUpdateKey) {
       return null;
     }
     return (
@@ -515,8 +464,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderWebhooksLink = (query: Query, isProject: boolean) => {
-    if (!this.getConfiguration().showSettings || !isProject) {
+  const renderWebhooksLink = (query: Query, isProject: boolean) => {
+    if (!configuration.showSettings || !isProject) {
       return null;
     }
     return (
@@ -529,10 +478,8 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderDeletionLink = (query: Query) => {
-    const { qualifier } = this.props.component;
-
-    if (!this.getConfiguration().showSettings) {
+  const renderDeletionLink = (query: Query) => {
+    if (!configuration.showSettings) {
       return null;
     }
 
@@ -556,9 +503,9 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderExtension = ({ key, name }: Extension, isAdmin: boolean, baseQuery: Query) => {
+  const renderExtension = ({ key, name }: Extension, isAdmin: boolean, baseQuery: Query) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
-    const query = { ...baseQuery, qualifier: this.props.component.qualifier };
+    const query = { ...baseQuery, qualifier };
     return (
       <ItemNavLink key={key} to={{ pathname, search: new URLSearchParams(query).toString() }}>
         {name}
@@ -566,16 +513,15 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderAdminExtensions = (query: Query, isApplication: boolean) => {
-    const extensions = this.getConfiguration().extensions || [];
+  const renderAdminExtensions = (query: Query, isApplication: boolean) => {
+    const extensions = component.configuration?.extensions ?? [];
     return extensions
       .filter((e) => !isApplication || e.key !== 'governance/console')
-      .map((e) => this.renderExtension(e, true, query));
+      .map((e) => renderExtension(e, true, query));
   };
 
-  renderExtensions = () => {
-    const query = this.getQuery();
-    const extensions = this.props.component.extensions ?? [];
+  const renderExtensions = () => {
+    const query = getQuery();
     const withoutSecurityExtension = extensions.filter(
       (extension) =>
         !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/')
@@ -591,7 +537,7 @@ export class Menu extends React.PureComponent<Props> {
         id="component-navigation-more"
         size="auto"
         zLevel={PopupZLevel.Global}
-        overlay={withoutSecurityExtension.map((e) => this.renderExtension(e, false, query))}
+        overlay={withoutSecurityExtension.map((e) => renderExtension(e, false, query))}
       >
         {({ onToggleClick, open, a11yAttrs }) => (
           <NavBarTabLink
@@ -608,27 +554,25 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  render() {
-    return (
-      <div className="sw-flex sw-justify-between sw-pt-4 it__navbar-tabs">
-        <NavBarTabs>
-          {this.renderDashboardLink()}
-          {this.renderBreakdownLink()}
-          {this.renderIssuesLink()}
-          {this.renderSecurityHotspotsLink()}
-          {this.renderSecurityReports()}
-          {this.renderComponentMeasuresLink()}
-          {this.renderCodeLink()}
-          {this.renderActivityLink()}
-          {this.renderExtensions()}
-        </NavBarTabs>
-        <NavBarTabs>
-          {this.renderAdministration()}
-          {this.renderProjectInformationButton()}
-        </NavBarTabs>
-      </div>
-    );
-  }
+  return (
+    <div className="sw-flex sw-justify-between sw-pt-4 it__navbar-tabs">
+      <NavBarTabs>
+        {renderDashboardLink()}
+        {renderBreakdownLink()}
+        {renderIssuesLink()}
+        {renderSecurityHotspotsLink()}
+        {renderSecurityReports()}
+        {renderComponentMeasuresLink()}
+        {renderCodeLink()}
+        {renderActivityLink()}
+        {renderExtensions()}
+      </NavBarTabs>
+      <NavBarTabs>
+        {renderAdministration()}
+        {renderProjectInformationButton()}
+      </NavBarTabs>
+    </div>
+  );
 }
 
 export default withAvailableFeatures(Menu);

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -59,17 +60,20 @@ function renderProjectAdminPageExtension(
   }
 ) {
   const { pluginKey, extensionKey } = params;
+  const queryClient = new QueryClient();
   return render(
-    <HelmetProvider context={{}}>
-      <IntlProvider defaultLocale="en" locale="en">
-        <ComponentContext.Provider value={{ component } as ComponentContextShape}>
-          <MemoryRouter initialEntries={[`/${pluginKey}/${extensionKey}`]}>
-            <Routes>
-              <Route path="/:pluginKey/:extensionKey" element={<ProjectAdminPageExtension />} />
-            </Routes>
-          </MemoryRouter>
-        </ComponentContext.Provider>
-      </IntlProvider>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider context={{}}>
+        <IntlProvider defaultLocale="en" locale="en">
+          <ComponentContext.Provider value={{ component } as ComponentContextShape}>
+            <MemoryRouter initialEntries={[`/${pluginKey}/${extensionKey}`]}>
+              <Routes>
+                <Route path="/:pluginKey/:extensionKey" element={<ProjectAdminPageExtension />} />
+              </Routes>
+            </MemoryRouter>
+          </ComponentContext.Provider>
+        </IntlProvider>
+      </HelmetProvider>
+    </QueryClientProvider>
   );
 }

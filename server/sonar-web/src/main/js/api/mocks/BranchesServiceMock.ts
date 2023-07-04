@@ -32,7 +32,7 @@ import {
 jest.mock('../branches');
 
 const defaultBranches: Branch[] = [
-  mockBranch({ isMain: true, name: 'master', status: { qualityGateStatus: 'OK' } }),
+  mockBranch({ isMain: true, name: 'main', status: { qualityGateStatus: 'OK' } }),
   mockBranch({
     excludedFromPurge: false,
     name: 'delete-branch',
@@ -113,8 +113,17 @@ export default class BranchesServiceMock {
     this.branches = [];
   };
 
+  emptyBranchesAndPullRequest = () => {
+    this.branches = [];
+    this.pullRequests = [];
+  };
+
   addBranch = (branch: Branch) => {
     this.branches.push(branch);
+  };
+
+  addPullRequest = (branch: PullRequest) => {
+    this.pullRequests.push(branch);
   };
 
   reset = () => {

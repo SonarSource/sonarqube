@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import * as React from 'react';
 import { colors, sizes } from '../../app/theme';
 
-export interface BoxedTabsProps<K extends string | number> {
+export interface BoxedTabsProps<K> {
   className?: string;
   onSelect: (key: K) => void;
   selected?: K;
@@ -72,7 +72,7 @@ const ActiveBorder = styled.div<{ active: boolean }>`
   top: -1px;
 `;
 
-export default function BoxedTabs<K extends string | number>(props: BoxedTabsProps<K>) {
+export default function BoxedTabs<K>(props: BoxedTabsProps<K>) {
   const { className, tabs, selected } = props;
 
   return (
@@ -96,10 +96,10 @@ export default function BoxedTabs<K extends string | number>(props: BoxedTabsPro
   );
 }
 
-export function getTabPanelId(key: string | number) {
+export function getTabPanelId<K>(key: K) {
   return `tabpanel-${key}`;
 }
 
-export function getTabId(key: string | number) {
+export function getTabId<K>(key: K) {
   return `tab-${key}`;
 }

@@ -42,6 +42,7 @@ import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import { SEVERITIES } from '../../../helpers/constants';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { withBranchStatusRefresh } from '../../../queries/branch';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict, Issue, IssueType, Paging } from '../../../types/types';
 import AssigneeSelect from './AssigneeSelect';
@@ -51,6 +52,7 @@ interface Props {
   fetchIssues: (x: {}) => Promise<{ issues: Issue[]; paging: Paging }>;
   onClose: () => void;
   onDone: () => void;
+  refreshBranchStatus: () => void;
 }
 
 interface FormFields {
@@ -84,7 +86,7 @@ enum InputField {
 
 export const MAX_PAGE_SIZE = 500;
 
-export default class BulkChangeModal extends React.PureComponent<Props, State> {
+export class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -185,6 +187,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     bulkChangeIssues(issueKeys, query).then(
       () => {
         this.setState({ submitting: false });
+        this.props.refreshBranchStatus();
         this.props.onDone();
       },
       (error) => {
@@ -499,3 +502,5 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 function hasAction(action: string) {
   return (issue: Issue) => issue.actions && issue.actions.includes(action);
 }
+
+export default withBranchStatusRefresh(BulkChangeModal);

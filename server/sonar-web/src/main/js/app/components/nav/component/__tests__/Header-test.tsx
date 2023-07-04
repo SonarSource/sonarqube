@@ -20,19 +20,15 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockProjectAlmBindingResponse } from '../../../../../helpers/mocks/alm-settings';
-import {
-  mockMainBranch,
-  mockPullRequest,
-  mockSetOfBranchAndPullRequestForBranchSelector,
-} from '../../../../../helpers/mocks/branch-like';
+import { mockMainBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
-import { BranchStatusContext } from '../../../branch-status/BranchStatusContext';
 import { Header, HeaderProps } from '../Header';
 
 jest.mock('../../../../../api/favorites', () => ({
@@ -40,34 +36,51 @@ jest.mock('../../../../../api/favorites', () => ({
   removeFavorite: jest.fn().mockResolvedValue({}),
 }));
 
-it('should render correctly when there is only 1 branch', () => {
-  renderHeader({ branchLikes: [mockMainBranch()] });
+const handler = new BranchesServiceMock();
+
+beforeEach(() => handler.reset());
+
+it('should render correctly when there is only 1 branch', async () => {
+  handler.emptyBranchesAndPullRequest();
+  handler.addBranch(mockMainBranch({ status: { qualityGateStatus: 'OK' } }));
+  renderHeader();
+  expect(await screen.findByLabelText('help-tooltip')).toBeInTheDocument();
   expect(screen.getByText('project')).toBeInTheDocument();
-  expect(screen.getByLabelText('help-tooltip')).toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'branch-1 overview.quality_gate_x.OK' })
+    await screen.findByRole('button', { name: 'master overview.quality_gate_x.OK' })
   ).toBeDisabled();
 });
 
 it('should render correctly when there are multiple branch', async () => {
   const user = userEvent.setup();
   renderHeader();
-  expect(screen.getByRole('button', { name: 'branch-1 overview.quality_gate_x.OK' })).toBeEnabled();
+
+  expect(
+    await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' })
+  ).toBeEnabled();
+
   expect(screen.queryByLabelText('help-tooltip')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'branch-1 overview.quality_gate_x.OK' }));
+  await user.click(screen.getByRole('button', { name: 'main overview.quality_gate_x.OK' }));
   expect(screen.getByText('branches.main_branch')).toBeInTheDocument();
   expect(
-    screen.getByRole('menuitem', { name: 'branch-2 overview.quality_gate_x.ERROR ERROR' })
+    screen.getByRole('menuitem', {
+      name: '03 – TEST-193 dumb commit overview.quality_gate_x.ERROR ERROR',
+    })
   ).toBeInTheDocument();
-  expect(screen.getByRole('menuitem', { name: 'branch-3' })).toBeInTheDocument();
-  expect(screen.getByRole('menuitem', { name: '1 – PR-1' })).toBeInTheDocument();
-  expect(screen.getByRole('menuitem', { name: '2 – PR-2' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('menuitem', {
+      name: '01 – TEST-191 update master overview.quality_gate_x.OK OK',
+    })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' })
+  ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('menuitem', { name: 'branch-2 overview.quality_gate_x.ERROR ERROR' })
+    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' })
   );
-  expect(screen.getByText('/dashboard?branch=branch-2&id=my-project')).toBeInTheDocument();
+  expect(screen.getByText('/dashboard?branch=normal-branch&id=header-project')).toBeInTheDocument();
 });
 
 it('should show manage branch and pull request button for admin', async () => {
@@ -75,16 +88,17 @@ it('should show manage branch and pull request button for admin', async () => {
   renderHeader({
     currentUser: mockLoggedInUser(),
     component: mockComponent({
+      key: 'header-project',
       configuration: { showSettings: true },
       breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
     }),
   });
-  await user.click(screen.getByRole('button', { name: 'branch-1 overview.quality_gate_x.OK' }));
+  await user.click(await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' }));
 
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toHaveAttribute(
     'href',
-    '/project/branches?id=my-project'
+    '/project/branches?id=header-project'
   );
 });
 
@@ -104,45 +118,41 @@ it('should render favorite button if the user is logged in', async () => {
 
 it.each([['github'], ['gitlab'], ['bitbucket'], ['azure']])(
   'should show correct %s links for a PR',
-  (alm: string) => {
-    renderHeader({
-      currentUser: mockLoggedInUser(),
-      currentBranchLike: mockPullRequest({
-        key: '1',
-        title: 'PR-1',
-        status: { qualityGateStatus: 'OK' },
-        url: alm,
-      }),
-      branchLikes: [
-        mockPullRequest({
-          key: '1',
-          title: 'PR-1',
-          status: { qualityGateStatus: 'OK' },
-          url: alm,
-        }),
-      ],
-    });
-    const image = screen.getByAltText(alm);
+  async (alm: string) => {
+    handler.emptyBranchesAndPullRequest();
+    handler.addPullRequest(mockPullRequest({ url: alm }));
+    renderHeader(
+      {
+        currentUser: mockLoggedInUser(),
+      },
+      undefined,
+      'pullRequest=1001&id=compa'
+    );
+    const image = await screen.findByAltText(alm);
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', `/images/alm/${alm}.svg`);
   }
 );
 
-it('should show the correct help tooltip for applications', () => {
+it('should show the correct help tooltip for applications', async () => {
+  handler.emptyBranchesAndPullRequest();
+  handler.addBranch(mockMainBranch());
   renderHeader({
     currentUser: mockLoggedInUser(),
     component: mockComponent({
+      key: 'header-project',
       configuration: { showSettings: true },
       breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Application }],
       qualifier: 'APP',
     }),
-    branchLikes: [mockMainBranch()],
   });
-  expect(screen.getByText('application.branches.help')).toBeInTheDocument();
+  expect(await screen.findByText('application.branches.help')).toBeInTheDocument();
   expect(screen.getByText('application.branches.link')).toBeInTheDocument();
 });
 
-it('should show the correct help tooltip when branch support is not enabled', () => {
+it('should show the correct help tooltip when branch support is not enabled', async () => {
+  handler.emptyBranchesAndPullRequest();
+  handler.addBranch(mockMainBranch());
   renderHeader(
     {
       currentUser: mockLoggedInUser(),
@@ -154,47 +164,29 @@ it('should show the correct help tooltip when branch support is not enabled', ()
     },
     []
   );
-  expect(screen.getByText('branch_like_navigation.no_branch_support.title.mr')).toBeInTheDocument();
+  expect(
+    await screen.findByText('branch_like_navigation.no_branch_support.title.mr')
+  ).toBeInTheDocument();
   expect(
     screen.getByText('branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab')
   ).toBeInTheDocument();
 });
 
-function renderHeader(props?: Partial<HeaderProps>, featureList = [Feature.BranchSupport]) {
-  const branchLikes = mockSetOfBranchAndPullRequestForBranchSelector();
-
+function renderHeader(
+  props?: Partial<HeaderProps>,
+  featureList = [Feature.BranchSupport],
+  params?: string
+) {
   return renderApp(
     '/',
-    <BranchStatusContext.Provider
-      value={{
-        branchStatusByComponent: {
-          'my-project': {
-            'branch-branch-1': {
-              status: 'OK',
-            },
-            'branch-branch-2': {
-              status: 'ERROR',
-            },
-          },
-        },
-        fetchBranchStatus: () => {
-          /*noop*/
-        },
-        updateBranchStatus: () => {
-          /*noop*/
-        },
-      }}
-    >
-      <Header
-        branchLikes={branchLikes}
-        component={mockComponent({
-          breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
-        })}
-        currentBranchLike={branchLikes[0]}
-        currentUser={mockCurrentUser()}
-        {...props}
-      />
-    </BranchStatusContext.Provider>,
-    { featureList }
+    <Header
+      component={mockComponent({
+        key: 'header-project',
+        breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
+      })}
+      currentUser={mockCurrentUser()}
+      {...props}
+    />,
+    { featureList, navigateTo: params ? `/?id=header-project&${params}` : '/?id=header-project' }
   );
 }

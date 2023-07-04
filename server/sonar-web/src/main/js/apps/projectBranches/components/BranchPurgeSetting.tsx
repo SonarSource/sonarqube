@@ -18,88 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { excludeBranchFromPurge } from '../../../api/branches';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Toggle from '../../../components/controls/Toggle';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { useExcludeFromPurgeMutation } from '../../../queries/branch';
 import { Branch } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 
 interface Props {
   branch: Branch;
   component: Component;
-  onUpdatePurgeSetting: () => void;
 }
 
-interface State {
-  excludedFromPurge: boolean;
-  loading: boolean;
-}
+export default function BranchPurgeSetting(props: Props) {
+  const { branch, component } = props;
+  const { mutate: excludeFromPurge, isLoading } = useExcludeFromPurgeMutation();
 
-export default class BranchPurgeSetting extends React.PureComponent<Props, State> {
-  mounted = false;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = { excludedFromPurge: props.branch.excludedFromPurge, loading: false };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleOnChange = () => {
-    const { branch, component } = this.props;
-    const { excludedFromPurge } = this.state;
-    const newValue = !excludedFromPurge;
-
-    this.setState({ loading: true });
-
-    excludeBranchFromPurge(component.key, branch.name, newValue)
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            excludedFromPurge: newValue,
-            loading: false,
-          });
-          this.props.onUpdatePurgeSetting();
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      });
+  const handleOnChange = (exclude: boolean) => {
+    excludeFromPurge({ component, key: branch.name, exclude });
   };
 
-  render() {
-    const { branch } = this.props;
-    const { excludedFromPurge, loading } = this.state;
+  const isTheMainBranch = isMainBranch(branch);
+  const disabled = isTheMainBranch || isLoading;
 
-    const isTheMainBranch = isMainBranch(branch);
-    const disabled = isTheMainBranch || loading;
-
-    return (
-      <>
-        <Toggle disabled={disabled} onChange={this.handleOnChange} value={excludedFromPurge} />
-        <span className="spacer-left">
-          <DeferredSpinner loading={loading} />
-        </span>
-        {isTheMainBranch && (
-          <HelpTooltip
-            overlay={translate(
-              'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip'
-            )}
-          />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      <Toggle disabled={disabled} onChange={handleOnChange} value={branch.excludedFromPurge} />
+      <span className="spacer-left">
+        <DeferredSpinner loading={isLoading} />
+      </span>
+      {isTheMainBranch && (
+        <HelpTooltip
+          overlay={translate(
+            'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip'
+          )}
+        />
+      )}
+    </>
+  );
 }

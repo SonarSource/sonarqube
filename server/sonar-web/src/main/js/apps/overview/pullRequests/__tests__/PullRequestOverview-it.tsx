@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
+import {
+  mockQualityGateProjectCondition,
+  mockQualityGateStatusCondition,
+} from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMetric, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
-import { PullRequestOverview } from '../PullRequestOverview';
+import { CaycStatus } from '../../../../types/types';
+import PullRequestOverview from '../PullRequestOverview';
 
 jest.mock('../../../../api/measures', () => {
   return {
@@ -112,40 +118,59 @@ jest.mock('../../../../api/quality-gates', () => {
 });
 
 it('should render correctly for a passed QG', async () => {
-  renderPullRequestOverview({ status: 'OK', conditions: [] });
+  jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce({
+    status: 'OK',
+    conditions: [],
+    caycStatus: CaycStatus.Compliant,
+    ignoredConditions: false,
+  });
+  renderPullRequestOverview();
 
-  expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
+  await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
 });
 
 it('should render correctly if conditions are ignored', async () => {
-  renderPullRequestOverview({ conditions: [], ignoredConditions: true });
+  jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce({
+    status: 'OK',
+    conditions: [],
+    caycStatus: CaycStatus.Compliant,
+    ignoredConditions: true,
+  });
+  renderPullRequestOverview();
 
-  expect(await screen.findByText('overview.quality_gate.ignored_conditions')).toBeInTheDocument();
+  await waitFor(async () =>
+    expect(await screen.findByText('overview.quality_gate.ignored_conditions')).toBeInTheDocument()
+  );
 });
 
 it('should render correctly for a failed QG', async () => {
-  renderPullRequestOverview({
+  jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce({
     status: 'ERROR',
     conditions: [
-      mockQualityGateStatusCondition({
-        error: '2.0',
-        metric: MetricKey.new_coverage,
-        period: 1,
+      mockQualityGateProjectCondition({
+        errorThreshold: '2.0',
+        metricKey: MetricKey.new_coverage,
+        periodIndex: 1,
       }),
-      mockQualityGateStatusCondition({
-        error: '1.0',
-        metric: MetricKey.duplicated_lines,
-        period: 1,
+      mockQualityGateProjectCondition({
+        errorThreshold: '1.0',
+        metricKey: MetricKey.duplicated_lines,
+        periodIndex: 1,
       }),
-      mockQualityGateStatusCondition({
-        error: '3',
-        metric: MetricKey.new_bugs,
-        period: 1,
+      mockQualityGateProjectCondition({
+        errorThreshold: '3',
+        metricKey: MetricKey.new_bugs,
+        periodIndex: 1,
       }),
     ],
+    caycStatus: CaycStatus.Compliant,
+    ignoredConditions: true,
   });
+  renderPullRequestOverview();
 
-  expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
+  await waitFor(async () =>
+    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument()
+  );
 
   expect(await screen.findByText('metric.new_coverage.name')).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 2.0%')).toBeInTheDocument();
@@ -158,11 +183,12 @@ it('should render correctly for a failed QG', async () => {
   expect(screen.getByText('quality_gates.operator.GT 3')).toBeInTheDocument();
 });
 
-function renderPullRequestOverview(props: Partial<PullRequestOverview['props']> = {}) {
+function renderPullRequestOverview(
+  props: Partial<ComponentPropsType<typeof PullRequestOverview>> = {}
+) {
   renderComponent(
     <CurrentUserContextProvider currentUser={mockLoggedInUser()}>
       <PullRequestOverview
-        fetchBranchStatus={jest.fn()}
         branchLike={mockPullRequest()}
         component={mockComponent({
           breadcrumbs: [mockComponent({ key: 'foo' })],

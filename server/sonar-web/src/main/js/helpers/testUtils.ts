@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ReactWrapper, ShallowWrapper } from 'enzyme';
+import { ComponentClass, FunctionComponent } from 'react';
 import { setImmediate } from 'timers';
 import { KeyboardKeys } from './keycodes';
 
-export type FCProps<T extends React.FunctionComponent<any>> = Parameters<T>[0];
+export type ComponentPropsType<T extends ComponentClass | FunctionComponent<any>> =
+  T extends ComponentClass<infer P> ? P : T extends FunctionComponent<infer P> ? P : never;
 
 export function mockEvent(overrides = {}) {
   return {

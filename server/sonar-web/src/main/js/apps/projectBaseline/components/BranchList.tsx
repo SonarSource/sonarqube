@@ -54,6 +54,12 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.fetchBranches();
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.branchList !== this.props.branchList) {
+      this.fetchBranches();
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }

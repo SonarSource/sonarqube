@@ -21,13 +21,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockAnalysisEvent } from '../../../helpers/mocks/project-activity';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
-import { BranchLike } from '../../../types/branch-like';
-import { ComponentContextShape } from '../../../types/component';
+import { Branch, BranchLike } from '../../../types/branch-like';
 import {
   ApplicationAnalysisEventCategory,
   DefinitionChangeType,
@@ -43,8 +43,8 @@ const ui = {
   definitionChangeLabel: byText('event.category.DEFINITION_CHANGE', { exact: false }),
   projectAddedTxt: (branch: BranchLike) =>
     isMainBranch(branch)
-      ? byText('event.definition_change.added')
-      : byText('event.definition_change.branch_added'),
+      ? byText(/event\.definition_change\.added/)
+      : byText(/event\.definition_change\.branch_added/),
   projectRemovedTxt: (branch: BranchLike) =>
     isMainBranch(branch)
       ? byText('event.definition_change.removed')
@@ -57,10 +57,17 @@ const ui = {
   versionLabel: byText('event.category.VERSION', { exact: false }),
 };
 
+const handler = new BranchesServiceMock();
+
+beforeEach(() => {
+  handler.reset();
+});
+
 describe('DEFINITION_CHANGE events', () => {
   it.each([mockMainBranch(), mockBranch()])(
     'should render correctly for "ADDED" events',
-    async (branchLike: BranchLike) => {
+    async (branchLike: Branch) => {
+      handler.addBranch(branchLike);
       const user = userEvent.setup();
       renderEventInner(
         {
@@ -78,14 +85,14 @@ describe('DEFINITION_CHANGE events', () => {
             },
           }),
         },
-        { branchLike }
+        `branch=${branchLike.name}&id=my-project`
       );
 
-      expect(ui.definitionChangeLabel.get()).toBeInTheDocument();
+      expect(await ui.definitionChangeLabel.find()).toBeInTheDocument();
 
       await user.click(ui.showMoreBtn.get());
 
-      expect(ui.projectAddedTxt(branchLike).get()).toBeInTheDocument();
+      expect(await ui.projectAddedTxt(branchLike).find()).toBeInTheDocument();
       expect(ui.projectLink('Foo').get()).toBeInTheDocument();
       expect(screen.getByText('master-foo')).toBeInTheDocument();
     }
@@ -93,8 +100,9 @@ describe('DEFINITION_CHANGE events', () => {
 
   it.each([mockMainBranch(), mockBranch()])(
     'should render correctly for "REMOVED" events',
-    async (branchLike: BranchLike) => {
+    async (branchLike: Branch) => {
       const user = userEvent.setup();
+      handler.addBranch(branchLike);
       renderEventInner(
         {
           event: mockAnalysisEvent({
@@ -111,14 +119,14 @@ describe('DEFINITION_CHANGE events', () => {
             },
           }),
         },
-        { branchLike }
+        `branch=${branchLike.name}&id=my-project`
       );
 
       expect(ui.definitionChangeLabel.get()).toBeInTheDocument();
 
       await user.click(ui.showMoreBtn.get());
 
-      expect(ui.projectRemovedTxt(branchLike).get()).toBeInTheDocument();
+      expect(await ui.projectRemovedTxt(branchLike).find()).toBeInTheDocument();
       expect(ui.projectLink('Bar').get()).toBeInTheDocument();
       expect(screen.getByText('master-bar')).toBeInTheDocument();
     }
@@ -228,14 +236,10 @@ describe('VERSION events', () => {
   });
 });
 
-function renderEventInner(
-  props: Partial<EventInnerProps> = {},
-  componentContext: Partial<ComponentContextShape> = {}
-) {
+function renderEventInner(props: Partial<EventInnerProps> = {}, params?: string) {
   return renderAppWithComponentContext(
     '/',
     () => <Route path="*" element={<EventInner event={mockAnalysisEvent()} {...props} />} />,
-    {},
-    componentContext
+    { navigateTo: params ? `/?id=my-project&${params}` : '/?id=my-project' }
   );
 }

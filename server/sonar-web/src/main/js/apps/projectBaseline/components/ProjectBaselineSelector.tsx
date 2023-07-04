@@ -40,7 +40,7 @@ import BranchAnalysisList from './BranchAnalysisList';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
-  branch: Branch;
+  branch?: Branch;
   branchList: Branch[];
   branchesEnabled?: boolean;
   canAdmin: boolean | undefined;
@@ -93,6 +93,10 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     referenceBranch,
     selected,
   });
+
+  if (branch === undefined) {
+    return null;
+  }
 
   return (
     <form className="project-baseline-selector" onSubmit={props.onSubmit}>

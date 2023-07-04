@@ -52,6 +52,15 @@ export interface ReactTestingQuery {
   byLabelText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery;
   byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
   byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
+
+  getAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T;
+  findAt<T extends HTMLElement = HTMLElement>(
+    index: number,
+    container?: HTMLElement,
+    waitForOptions?: waitForOptions
+  ): Promise<T>;
+
+  queryAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T | null;
 }
 
 abstract class ChainingQuery implements ReactTestingQuery {
@@ -72,6 +81,26 @@ abstract class ChainingQuery implements ReactTestingQuery {
   abstract query<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T | null;
 
   abstract queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[] | null;
+
+  getAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T {
+    return this.getAll<T>(container)[index];
+  }
+
+  async findAt<T extends HTMLElement = HTMLElement>(
+    index: number,
+    container?: HTMLElement,
+    waitForOptions?: waitForOptions
+  ): Promise<T> {
+    return (await this.findAll<T>(container, waitForOptions))[index];
+  }
+
+  queryAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T | null {
+    const all = this.queryAll<T>(container);
+    if (all) {
+      return all[index];
+    }
+    return null;
+  }
 
   byText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery {
     return new ChainDispatch(this, new DispatchByText(args));

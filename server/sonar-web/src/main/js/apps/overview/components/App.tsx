@@ -26,8 +26,8 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { useBranchesQuery } from '../../../queries/branch';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -36,8 +36,6 @@ import PullRequestOverview from '../pullRequests/PullRequestOverview';
 import EmptyOverview from './EmptyOverview';
 
 interface AppProps extends WithAvailableFeaturesProps {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -45,12 +43,15 @@ interface AppProps extends WithAvailableFeaturesProps {
 }
 
 export function App(props: AppProps) {
-  const { branchLike, branchLikes, component, projectBinding, isPending, isInProgress } = props;
+  const { component, projectBinding, isPending, isInProgress } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
+  const { data } = useBranchesQuery(component);
 
-  if (isPortfolioLike(component.qualifier)) {
+  if (isPortfolioLike(component.qualifier) || !data) {
     return null;
   }
+
+  const { branchLike, branchLikes } = data;
 
   return (
     <>

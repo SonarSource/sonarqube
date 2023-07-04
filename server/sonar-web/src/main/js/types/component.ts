@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ProjectAlmBindingResponse } from './alm-settings';
-import { BranchLike } from './branch-like';
 import { Component, LightComponent } from './types';
 
 export enum Visibility {
@@ -29,7 +28,6 @@ export enum Visibility {
 export enum ComponentQualifier {
   Application = 'APP',
   Directory = 'DIR',
-  Developper = 'DEV',
   File = 'FIL',
   Portfolio = 'VW',
   Project = 'TRK',
@@ -98,12 +96,9 @@ export function isView(
 }
 
 export interface ComponentContextShape {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component?: Component;
   isInProgress?: boolean;
   isPending?: boolean;
-  onBranchesChange: (updateBranches?: boolean, updatePRs?: boolean) => void;
   onComponentChange: (changes: Partial<Component>) => void;
   projectBinding?: ProjectAlmBindingResponse;
 }

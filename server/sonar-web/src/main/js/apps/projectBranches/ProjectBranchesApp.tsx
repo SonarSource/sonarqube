@@ -21,19 +21,16 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { translate } from '../../helpers/l10n';
-import { BranchLike } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import BranchLikeTabs from './components/BranchLikeTabs';
 import LifetimeInformation from './components/LifetimeInformation';
 
 export interface ProjectBranchesAppProps {
-  branchLikes: BranchLike[];
   component: Component;
-  onBranchesChange: () => void;
 }
 
 function ProjectBranchesApp(props: ProjectBranchesAppProps) {
-  const { branchLikes, component } = props;
+  const { component } = props;
 
   return (
     <div className="page page-limited" id="project-branch-like">
@@ -43,11 +40,7 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
         <LifetimeInformation />
       </header>
 
-      <BranchLikeTabs
-        branchLikes={branchLikes}
-        component={component}
-        onBranchesChange={props.onBranchesChange}
-      />
+      <BranchLikeTabs component={component} />
     </div>
   );
 }

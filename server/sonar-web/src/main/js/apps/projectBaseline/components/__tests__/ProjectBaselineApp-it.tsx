@@ -21,9 +21,9 @@ import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first, last } from 'lodash';
 import selectEvent from 'react-select-event';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
-import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-definition';
 import { mockAppState } from '../../../../helpers/testMocks';
@@ -38,11 +38,14 @@ import routes from '../../routes';
 
 jest.mock('../../../../api/newCodePeriod');
 jest.mock('../../../../api/projectActivity');
+jest.mock('../../../../api/branches');
 
 const codePeriodsMock = new NewCodePeriodsServiceMock();
 const projectActivityMock = new ProjectActivityServiceMock();
+const branchHandler = new BranchesServiceMock();
 
 afterEach(() => {
+  branchHandler.reset();
   codePeriodsMock.reset();
   projectActivityMock.reset();
 });
@@ -52,7 +55,7 @@ it('renders correctly without branch support feature', async () => {
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(await ui.generalSettingRadio.find()).toBeChecked();
   expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 
   // User is not admin
@@ -74,7 +77,7 @@ it('prevents selection of global setting if it is not compliant and warns non-ad
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(await ui.generalSettingRadio.find()).toBeChecked();
   expect(ui.generalSettingRadio.get()).toBeDisabled();
   expect(ui.complianceWarning.get()).toBeVisible();
 });
@@ -90,7 +93,7 @@ it('prevents selection of global setting if it is not compliant and warns admin 
   renderProjectBaselineApp({ appState: mockAppState({ canAdmin: true }) });
   await ui.appIsLoaded();
 
-  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(await ui.generalSettingRadio.find()).toBeChecked();
   expect(ui.generalSettingRadio.get()).toBeDisabled();
   expect(ui.complianceWarningAdmin.get()).toBeVisible();
   expect(ui.complianceWarning.query()).not.toBeInTheDocument();
@@ -104,7 +107,7 @@ it('renders correctly with branch support feature', async () => {
   });
   await ui.appIsLoaded();
 
-  expect(ui.generalSettingRadio.get()).toBeChecked();
+  expect(await ui.generalSettingRadio.find()).toBeChecked();
   expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 
   // User is admin
@@ -120,7 +123,7 @@ it('can set previous version specific setting', async () => {
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.previousVersionRadio.get()).toHaveClass('disabled');
+  expect(await ui.previousVersionRadio.find()).toHaveClass('disabled');
   await ui.setPreviousVersionSetting();
   expect(ui.previousVersionRadio.get()).toBeChecked();
 
@@ -141,7 +144,7 @@ it('can set number of days specific setting', async () => {
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.numberDaysRadio.get()).toHaveClass('disabled');
+  expect(await ui.numberDaysRadio.find()).toHaveClass('disabled');
   await ui.setNumberDaysSetting('10');
   expect(ui.numberDaysRadio.get()).toBeChecked();
 
@@ -164,7 +167,7 @@ it('can set reference branch specific setting', async () => {
   });
   await ui.appIsLoaded();
 
-  expect(ui.referenceBranchRadio.get()).toHaveClass('disabled');
+  expect(await ui.referenceBranchRadio.find()).toHaveClass('disabled');
   await ui.setReferenceBranchSetting('main');
   expect(ui.referenceBranchRadio.get()).toBeChecked();
 
@@ -183,7 +186,7 @@ it('cannot set specific analysis setting', async () => {
   renderProjectBaselineApp();
   await ui.appIsLoaded();
 
-  expect(ui.specificAnalysisRadio.get()).toBeChecked();
+  expect(await ui.specificAnalysisRadio.find()).toBeChecked();
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
   expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
 
@@ -274,18 +277,25 @@ it('can set a reference branch setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchReferenceToBranchSetting('main', 'feature');
+  await ui.setBranchReferenceToBranchSetting('main', 'normal-branch');
 
-  expect(byRole('table').byText('baseline.reference_branch: feature').get()).toBeInTheDocument();
+  expect(
+    byRole('table').byText('baseline.reference_branch: normal-branch').get()
+  ).toBeInTheDocument();
 });
 
-function renderProjectBaselineApp(context: RenderContext = {}) {
-  const branch = mockBranch({ name: 'main', isMain: true });
-  return renderAppWithComponentContext('baseline', routes, context, {
-    component: mockComponent(),
-    branchLike: branch,
-    branchLikes: [branch, mockBranch({ name: 'feature' })],
-  });
+function renderProjectBaselineApp(context: RenderContext = {}, params?: string) {
+  return renderAppWithComponentContext(
+    'baseline',
+    routes,
+    {
+      ...context,
+      navigateTo: params ? `baseline?id=my-project&${params}` : 'baseline?id=my-project',
+    },
+    {
+      component: mockComponent(),
+    }
+  );
 }
 
 function getPageObjects() {
@@ -293,6 +303,7 @@ function getPageObjects() {
 
   const ui = {
     pageHeading: byRole('heading', { name: 'project_baseline.page' }),
+    branchTableHeading: byText('branch_list.branch'),
     branchListHeading: byRole('heading', { name: 'project_baseline.default_setting' }),
     generalSettingsLink: byRole('link', { name: 'project_baseline.page.description2.link' }),
     generalSettingRadio: byRole('radio', { name: 'project_baseline.global_setting' }),

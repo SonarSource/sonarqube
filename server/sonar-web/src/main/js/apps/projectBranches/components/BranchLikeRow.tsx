@@ -39,7 +39,6 @@ export interface BranchLikeRowProps {
   displayPurgeSetting?: boolean;
   onDelete: () => void;
   onRename: () => void;
-  onUpdatePurgeSetting: () => void;
 }
 
 function BranchLikeRow(props: BranchLikeRowProps) {
@@ -58,16 +57,12 @@ function BranchLikeRow(props: BranchLikeRowProps) {
         </span>
       </td>
       <td className="nowrap">
-        <BranchStatus branchLike={branchLike} component={component} />
+        <BranchStatus branchLike={branchLike} />
       </td>
       <td className="nowrap">{<DateFromNow date={branchLike.analysisDate} />}</td>
       {displayPurgeSetting && isBranch(branchLike) && (
         <td className="nowrap js-test-purge-toggle-container">
-          <BranchPurgeSetting
-            branch={branchLike}
-            component={component}
-            onUpdatePurgeSetting={props.onUpdatePurgeSetting}
-          />
+          <BranchPurgeSetting branch={branchLike} component={component} />
         </td>
       )}
       <td className="nowrap">

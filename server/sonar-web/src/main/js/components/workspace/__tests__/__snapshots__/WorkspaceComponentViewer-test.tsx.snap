@@ -34,7 +34,6 @@ exports[`should render 1`] = `
       displayIssueLocationsCount={true}
       displayIssueLocationsLink={true}
       displayLocationMarkers={true}
-      onIssueChange={[Function]}
       onLoaded={[Function]}
     />
   </div>

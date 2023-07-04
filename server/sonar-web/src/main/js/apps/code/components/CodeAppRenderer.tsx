@@ -38,7 +38,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isPortfolioLike } from '../../../types/component';
-import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
+import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import '../code.css';
 import { getCodeMetrics } from '../utils';
 import CodeBreadcrumbs from './CodeBreadcrumbs';
@@ -63,7 +63,6 @@ interface Props {
 
   handleGoToParent: () => void;
   handleHighlight: (highlighted: ComponentMeasure) => void;
-  handleIssueChange: (issue: Issue) => void;
   handleLoadMore: () => void;
   handleSearchClear: () => void;
   handleSearchResults: (searchResults: ComponentMeasure[]) => void;
@@ -230,7 +229,6 @@ export default function CodeAppRenderer(props: Props) {
             isFile
             location={location}
             onGoToParent={props.handleGoToParent}
-            onIssueChange={props.handleIssueChange}
           />
         </div>
       )}

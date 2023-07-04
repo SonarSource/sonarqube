@@ -18,20 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withBranchStatus from '../../app/components/branch-status/withBranchStatus';
 import Level from '../../components/ui/Level';
-import { BranchStatusData } from '../../types/branch-like';
+import { BranchLike } from '../../types/branch-like';
 
-export type BranchStatusProps = Pick<BranchStatusData, 'status'>;
+export interface BranchStatusProps {
+  branchLike: BranchLike;
+}
 
-export function BranchStatus(props: BranchStatusProps) {
-  const { status } = props;
+export default function BranchStatus(props: BranchStatusProps) {
+  const { branchLike } = props;
 
-  if (!status) {
+  if (!branchLike.status) {
     return null;
   }
 
-  return <Level level={status} small />;
+  return <Level level={branchLike.status.qualityGateStatus} small />;
 }
-
-export default withBranchStatus(BranchStatus);

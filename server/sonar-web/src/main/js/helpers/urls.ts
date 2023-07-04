@@ -451,10 +451,13 @@ export function isRelativeUrl(url?: string): boolean {
   return Boolean(url && regex.test(url));
 }
 
-export function searchParamsToQuery(searchParams: URLSearchParams) {
+export function searchParamsToQuery(searchParams: URLSearchParams, omitKey: string[] = []) {
   const result: RawQuery = {};
 
   searchParams.forEach((value, key) => {
+    if (omitKey.includes(key)) {
+      return;
+    }
     if (result[key]) {
       result[key] = ([] as string[]).concat(result[key], value);
     } else {

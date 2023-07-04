@@ -21,7 +21,6 @@ import { sortBy } from 'lodash';
 import { ComponentQualifier } from '../../../../js/types/component';
 
 const ORDER = [
-  ComponentQualifier.Developper,
   ComponentQualifier.Portfolio,
   ComponentQualifier.SubPortfolio,
   ComponentQualifier.Application,

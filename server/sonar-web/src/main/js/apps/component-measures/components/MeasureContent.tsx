@@ -42,7 +42,6 @@ import {
   ComponentMeasureEnhanced,
   ComponentMeasureIntern,
   Dict,
-  Issue,
   Measure,
   Metric,
   Paging,
@@ -62,7 +61,6 @@ interface Props {
   leakPeriod?: Period;
   requestedMetric: Pick<Metric, 'key' | 'direction'>;
   metrics: Dict<Metric>;
-  onIssueChange?: (issue: Issue) => void;
   rootComponent: ComponentMeasure;
   router: Router;
   selected?: string;
@@ -438,7 +436,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 branchLike={branchLike}
                 component={baseComponent.key}
                 metricKey={this.state.metric?.key}
-                onIssueChange={this.props.onIssueChange}
               />
             </div>
           ) : (
