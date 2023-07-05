@@ -150,18 +150,29 @@ public class GithubBinding {
     String emails;
     @SerializedName("contents")
     String contents;
+    @SerializedName("metadata")
+    String metadata;
+    @SerializedName("administration")
+    String administration;
 
-    public Permissions(@Nullable String checks, @Nullable String members, @Nullable String emails, @Nullable String contents) {
+    public Permissions(@Nullable String checks, @Nullable String members, @Nullable String emails, @Nullable String contents, @Nullable String metadata,
+      @Nullable String administration) {
       this.checks = checks;
       this.members = members;
       this.emails = emails;
       this.contents = contents;
+      this.metadata = metadata;
+      this.administration = administration;
     }
 
     public Permissions() {
       // even if empty constructor is not required for Gson, it is strongly
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public static Builder builder() {
+      return new Builder();
     }
 
     @CheckForNull
@@ -182,6 +193,63 @@ public class GithubBinding {
     @CheckForNull
     public String getContents() {
       return contents;
+    }
+
+    @CheckForNull
+    public String getMetadata() {
+      return metadata;
+    }
+
+    @CheckForNull
+    public String getAdministration() {
+      return administration;
+    }
+
+    public static class Builder {
+      private String checks;
+      private String members;
+      private String emails;
+      private String contents;
+      private String metadata;
+      private String administration;
+
+      private Builder() {
+        // Use static factory method
+      }
+
+      public Builder setChecks(String checks) {
+        this.checks = checks;
+        return this;
+      }
+
+      public Builder setMembers(String members) {
+        this.members = members;
+        return this;
+      }
+
+      public Builder setEmails(String emails) {
+        this.emails = emails;
+        return this;
+      }
+
+      public Builder setContents(String contents) {
+        this.contents = contents;
+        return this;
+      }
+
+      public Builder setMetadata(String metadata) {
+        this.metadata = metadata;
+        return this;
+      }
+
+      public Builder setAdministration(String administration) {
+        this.administration = administration;
+        return this;
+      }
+
+      public GithubBinding.Permissions build() {
+        return new GithubBinding.Permissions(checks, members, emails, contents, metadata, administration);
+      }
     }
   }
 

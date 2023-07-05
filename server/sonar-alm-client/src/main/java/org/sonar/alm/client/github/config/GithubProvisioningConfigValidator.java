@@ -39,8 +39,10 @@ import static org.sonar.alm.client.github.config.ConfigCheckResult.InstallationS
 @ComputeEngineSide
 public class GithubProvisioningConfigValidator {
 
-  private static final String MEMBERS_PERMISSION = "Organization permissions -> Members";
-  private static final String EMAILS_PERMISSION = "Account permissions -> Email addresses";
+  private static final String ORG_MEMBERS_PERMISSION = "Organization permissions -> Members (Read-only)";
+  private static final String ACCOUNT_EMAILS_PERMISSION = "Account permissions -> Email addresses (Read-only)";
+  private static final String REPO_ADMIN_PERMISSION = "Repository permissions -> Administration (Read-only)";
+  private static final String REPO_METADATA_PERMISSION = "Repository permissions -> Metadata (Read-only)";
   private static final ConfigStatus INVALID_APP_CONFIG_STATUS = ConfigStatus.failed("The GitHub App configuration is not complete.");
   private static final ConfigStatus INVALID_APP_ID_STATUS = ConfigStatus.failed("GitHub App ID must be a number.");
   private static final ConfigStatus SUSPENDED_INSTALLATION_STATUS = ConfigStatus.failed("Installation suspended");
@@ -117,7 +119,7 @@ public class GithubProvisioningConfigValidator {
 
   private static ConfigStatus jitAppConfigStatus(Permissions permissions) {
     if (permissions.getEmails() == null) {
-      return failedStatus(List.of(EMAILS_PERMISSION));
+      return failedStatus(List.of(ACCOUNT_EMAILS_PERMISSION));
     }
     return ConfigStatus.SUCCESS;
   }
@@ -125,10 +127,16 @@ public class GithubProvisioningConfigValidator {
   private static ConfigStatus autoProvisioningAppConfigStatus(Permissions permissions) {
     List<String> missingPermissions = new ArrayList<>();
     if (permissions.getEmails() == null) {
-      missingPermissions.add(EMAILS_PERMISSION);
+      missingPermissions.add(ACCOUNT_EMAILS_PERMISSION);
     }
     if (permissions.getMembers() == null) {
-      missingPermissions.add(MEMBERS_PERMISSION);
+      missingPermissions.add(ORG_MEMBERS_PERMISSION);
+    }
+    if (permissions.getAdministration() == null) {
+      missingPermissions.add(REPO_ADMIN_PERMISSION);
+    }
+    if (permissions.getMetadata() == null) {
+      missingPermissions.add(REPO_METADATA_PERMISSION);
     }
     if (missingPermissions.isEmpty()) {
       return ConfigStatus.SUCCESS;
@@ -137,7 +145,7 @@ public class GithubProvisioningConfigValidator {
   }
 
   private static ConfigStatus failedStatus(List<String> missingPermissions) {
-    return ConfigStatus.failed("Missing permissions: " + String.join(",", missingPermissions));
+    return ConfigStatus.failed("Missing GitHub permissions: " + String.join(", ", missingPermissions));
   }
 
   private List<InstallationStatus> checkInstallations(GithubAppConfiguration githubAppConfiguration, ApplicationStatus appStatus) {
@@ -158,10 +166,20 @@ public class GithubProvisioningConfigValidator {
   }
 
   private static ConfigStatus autoProvisioningInstallationConfigStatus(Permissions permissions) {
+    List<String> missingPermissions = new ArrayList<>();
     if (permissions.getMembers() == null) {
-      return failedStatus(List.of(MEMBERS_PERMISSION));
+      missingPermissions.add(ORG_MEMBERS_PERMISSION);
     }
-    return ConfigStatus.SUCCESS;
+    if (permissions.getAdministration() == null) {
+      missingPermissions.add(REPO_ADMIN_PERMISSION);
+    }
+    if (permissions.getMetadata() == null) {
+      missingPermissions.add(REPO_METADATA_PERMISSION);
+    }
+    if (missingPermissions.isEmpty()) {
+      return ConfigStatus.SUCCESS;
+    }
+    return failedStatus(missingPermissions);
   }
 
 }

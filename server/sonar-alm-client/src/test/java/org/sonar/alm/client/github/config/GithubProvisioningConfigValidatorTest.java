@@ -51,9 +51,11 @@ public class GithubProvisioningConfigValidatorTest {
   private static final String APP_FETCHING_FAILED = "Exception while fetching the App.";
   private static final String INVALID_APP_ID_STATUS = "GitHub App ID must be a number.";
   private static final String INCOMPLETE_APP_CONFIG_STATUS = "The GitHub App configuration is not complete.";
-  private static final String MISSING_EMAIL_PERMISSION = "Missing permissions: Account permissions -> Email addresses";
-  private static final String MISSING_MEMBERS_PERMISSION = "Missing permissions: Organization permissions -> Members";
-  private static final String MISSING_EMAILS_AND_MEMBERS_PERMISSION = "Missing permissions: Account permissions -> Email addresses,Organization permissions -> Members";
+  private static final String MISSING_EMAIL_PERMISSION = "Missing GitHub permissions: Account permissions -> Email addresses (Read-only)";
+  private static final String MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS = "Missing GitHub permissions: Organization permissions -> Members (Read-only), "
+    + "Repository permissions -> Administration (Read-only), Repository permissions -> Metadata (Read-only)";
+  private static final String MISSING_ALL_PERMISSIONS = "Missing GitHub permissions: Account permissions -> Email addresses (Read-only), "
+    + "Organization permissions -> Members (Read-only), Repository permissions -> Administration (Read-only), Repository permissions -> Metadata (Read-only)";
   private static final String NO_INSTALLATIONS_STATUS = "The GitHub App is not installed on any organizations or the organization is not white-listed.";
   private static final String SUSPENDED_INSTALLATION = "Installation suspended";
 
@@ -138,41 +140,41 @@ public class GithubProvisioningConfigValidatorTest {
   }
 
   @Test
-  public void checkConfig_whenAppDoesntHaveEmailsPermissions_shouldReturnFailedAppJitCheck() {
+  public void checkConfig_whenAppDoesntHaveAnyPermissions_shouldReturnFailedAppJitCheck() {
     mockGithubConfiguration();
     ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
     GsonApp githubApp = mockGithubApp(appConfigurationCaptor);
 
-    when(githubApp.getPermissions()).thenReturn(new Permissions());
+    when(githubApp.getPermissions()).thenReturn(Permissions.builder().build());
     mockOrganizationsWithoutPermissions(appConfigurationCaptor, "org1", "org2");
 
     ConfigCheckResult checkResult = configValidator.checkConfig();
 
-    assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(MISSING_EMAILS_AND_MEMBERS_PERMISSION));
+    assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(MISSING_ALL_PERMISSIONS));
     assertThat(checkResult.application().jit()).isEqualTo(ConfigStatus.failed(MISSING_EMAIL_PERMISSION));
     assertThat(checkResult.installations()).hasSize(2);
     assertThat(checkResult.installations())
       .extracting(InstallationStatus::jit, InstallationStatus::autoProvisioning)
       .containsExactly(
-        tuple(ConfigStatus.failed(MISSING_EMAIL_PERMISSION), ConfigStatus.failed(MISSING_MEMBERS_PERMISSION)),
-        tuple(ConfigStatus.failed(MISSING_EMAIL_PERMISSION), ConfigStatus.failed(MISSING_MEMBERS_PERMISSION)));
+        tuple(ConfigStatus.failed(MISSING_EMAIL_PERMISSION), ConfigStatus.failed(MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS)),
+        tuple(ConfigStatus.failed(MISSING_EMAIL_PERMISSION), ConfigStatus.failed(MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS)));
     verifyAppConfiguration(appConfigurationCaptor.getValue());
 
   }
 
   @Test
-  public void checkConfig_whenAppDoesntHaveMembersPermissions_shouldReturnFailedAppAutoProvisioningCheck() {
+  public void checkConfig_whenAppDoesntHaveOrgMembersPermissions_shouldReturnFailedAppAutoProvisioningCheck() {
     mockGithubConfiguration();
     ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
 
     GsonApp githubApp = mockGithubApp(appConfigurationCaptor);
-    when(githubApp.getPermissions()).thenReturn(new Permissions(null, null, "read", null));
+    when(githubApp.getPermissions()).thenReturn(Permissions.builder().setEmails("read").build());
     mockOrganizations(appConfigurationCaptor, "org1", "org2");
 
     ConfigCheckResult checkResult = configValidator.checkConfig();
 
     assertThat(checkResult.application().jit()).isEqualTo(ConfigStatus.SUCCESS);
-    assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(MISSING_MEMBERS_PERMISSION));
+    assertThat(checkResult.application().autoProvisioning()).isEqualTo(ConfigStatus.failed(MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS));
     assertThat(checkResult.installations()).hasSize(2);
     verifyAppConfiguration(appConfigurationCaptor.getValue());
   }
@@ -195,7 +197,7 @@ public class GithubProvisioningConfigValidatorTest {
   }
 
   @Test
-  public void checkConfig_whenInstallationsDoesntHaveMembersPermissions_shouldReturnFailedAppAutoProvisioningCheck() {
+  public void checkConfig_whenInstallationsDoesntHaveOrgMembersPermissions_shouldReturnFailedAppAutoProvisioningCheck() {
     mockGithubConfiguration();
     ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
     mockGithubAppWithValidConfig(appConfigurationCaptor);
@@ -206,7 +208,7 @@ public class GithubProvisioningConfigValidatorTest {
     assertSuccessfulAppConfig(checkResult);
     assertThat(checkResult.installations())
       .extracting(InstallationStatus::organization, InstallationStatus::autoProvisioning)
-      .containsExactly(tuple("org1", ConfigStatus.failed(MISSING_MEMBERS_PERMISSION)));
+      .containsExactly(tuple("org1", ConfigStatus.failed(MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS)));
     verifyAppConfiguration(appConfigurationCaptor.getValue());
 
   }
@@ -242,7 +244,7 @@ public class GithubProvisioningConfigValidatorTest {
       .extracting(InstallationStatus::organization, InstallationStatus::autoProvisioning)
       .containsExactlyInAnyOrder(
         tuple("org1", SUCCESS_CHECK),
-        tuple("org2", ConfigStatus.failed(MISSING_MEMBERS_PERMISSION)));
+        tuple("org2", ConfigStatus.failed(MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS)));
     verifyAppConfiguration(appConfigurationCaptor.getValue());
 
   }
@@ -268,7 +270,7 @@ public class GithubProvisioningConfigValidatorTest {
   private GsonApp mockGithubAppWithValidConfig(ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor) {
     GsonApp githubApp = mock(GsonApp.class);
     when(githubClient.getApp(appConfigurationCaptor.capture())).thenReturn(githubApp);
-    when(githubApp.getPermissions()).thenReturn(new Permissions(null, "read", "read", null));
+    when(githubApp.getPermissions()).thenReturn(Permissions.builder().setMembers("read").setEmails("read").setMetadata("read").setAdministration("read").build());
 
     return githubApp;
   }
@@ -297,15 +299,15 @@ public class GithubProvisioningConfigValidatorTest {
     return installation;
   }
 
-  private static GithubAppInstallation mockInstallationWithMembersPermission(String org) {
+  private static GithubAppInstallation mockInstallationWithAllPermissions(String org) {
     GithubAppInstallation installation = mockInstallation(org);
-    when(installation.permissions()).thenReturn(new Permissions(null, "read", "read", null));
+    when(installation.permissions()).thenReturn(Permissions.builder().setMembers("read").setEmails("read").setMetadata("read").setAdministration("read").build());
     return installation;
   }
 
   private void mockOrganizations(ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor, String orgWithMembersPermission, String orgWithoutMembersPermission) {
     List<GithubAppInstallation> installations = List.of(
-      mockInstallationWithMembersPermission(orgWithMembersPermission),
+      mockInstallationWithAllPermissions(orgWithMembersPermission),
       mockInstallation(orgWithoutMembersPermission));
     when(githubClient.getWhitelistedGithubAppInstallations(appConfigurationCaptor.capture())).thenReturn(installations);
   }
