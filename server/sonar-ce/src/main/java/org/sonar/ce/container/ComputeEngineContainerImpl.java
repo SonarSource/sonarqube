@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.EmailSettings;
@@ -38,7 +39,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.slf4j.LoggerFactory;
 import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.CeHttpModule;
@@ -115,6 +115,7 @@ import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -387,6 +388,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QGChangeNotificationHandler.newMetadata(),
       ProjectMeasuresIndexer.class,
       EntityDefinitionIndexer.class,
+      PermissionIndexer.class,
 
       // views
       ViewIndexer.class,
