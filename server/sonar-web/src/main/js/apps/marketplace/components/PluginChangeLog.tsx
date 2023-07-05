@@ -31,7 +31,7 @@ export interface Props {
 export default function PluginChangeLog({ release, update }: Props) {
   return (
     <div className="abs-width-300">
-      <h6>{translate('changelog')}</h6>
+      <b className="sw-leading-6">{translate('changelog')}</b>
       <ul className="js-plugin-changelog-list">
         {update.previousUpdates &&
           sortBy(update.previousUpdates, (prevUpdate) => prevUpdate.release?.date).map(

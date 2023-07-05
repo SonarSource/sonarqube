@@ -31,7 +31,7 @@ export interface MarketplaceAppContainerProps {
   appState: AppState;
 }
 
-export function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
+function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
   const { appState, location } = props;
 
   const propsToPass = {

@@ -122,7 +122,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     return (
       <div className="it__js-actions">
         {isAvailablePlugin(plugin) && plugin.termsAndConditionsUrl && (
-          <p className="little-spacer-bottom">
+          <div className="little-spacer-bottom">
             <Checkbox
               checked={this.state.acceptTerms}
               className="js-terms"
@@ -141,7 +141,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             >
               {translate('marketplace.terms_and_conditions')}
             </a>
-          </p>
+          </div>
         )}
         {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
         {isInstalledPlugin(plugin) && (

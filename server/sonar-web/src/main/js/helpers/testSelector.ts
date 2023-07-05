@@ -112,14 +112,14 @@ class ChainDispatch extends ChainingQuery {
     container?: HTMLElement,
     waitForOptions?: waitForOptions
   ) {
-    return this.elementQuery.get<T>(await this.insideQuery.find(container, waitForOptions));
+    return this.elementQuery.find<T>(await this.insideQuery.find(container, waitForOptions));
   }
 
   async findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions
   ) {
-    return this.elementQuery.getAll<T>(await this.insideQuery.find(container, waitForOptions));
+    return this.elementQuery.findAll<T>(await this.insideQuery.find(container, waitForOptions));
   }
 
   get<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
@@ -131,11 +131,19 @@ class ChainDispatch extends ChainingQuery {
   }
 
   query<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    return this.elementQuery.query<T>(this.insideQuery.get(container));
+    const innerContainer = this.insideQuery.query(container);
+    if (innerContainer) {
+      return this.elementQuery.query<T>(innerContainer);
+    }
+    return null;
   }
 
   queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    return this.elementQuery.queryAll<T>(this.insideQuery.get(container));
+    const innerContainer = this.insideQuery.query(container);
+    if (innerContainer) {
+      return this.elementQuery.queryAll<T>(innerContainer);
+    }
+    return null;
   }
 }
 

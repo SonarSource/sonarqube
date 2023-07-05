@@ -38,6 +38,7 @@ import {
   getValues,
   resetSettingValue,
   setSettingValue,
+  setSimpleSettingValue,
 } from '../settings';
 
 jest.mock('../settings');
@@ -126,6 +127,7 @@ export default class SettingsServiceMock {
     jest.mocked(getValues).mockImplementation(this.handleGetValues);
     jest.mocked(getAllValues).mockImplementation(this.handleGetAllValues);
     jest.mocked(setSettingValue).mockImplementation(this.handleSetSettingValue);
+    jest.mocked(setSimpleSettingValue).mockImplementation(this.handleSetSimpleSettingValue);
     jest.mocked(resetSettingValue).mockImplementation(this.handleResetSettingValue);
     jest.mocked(checkSecretKey).mockImplementation(this.handleCheckSecretKey);
     jest.mocked(generateSecretKey).mockImplementation(this.handleGenerateSecretKey);
@@ -217,6 +219,11 @@ export default class SettingsServiceMock {
 
   handleEcnryptValue = () => {
     return this.reply({ encryptedValue: 'encryptedValue' });
+  };
+
+  handleSetSimpleSettingValue: typeof setSimpleSettingValue = (data) => {
+    this.set(data.key, data.value);
+    return this.reply(undefined);
   };
 
   setSecretKeyAvailable = (val = false) => {

@@ -29,49 +29,22 @@ interface Props {
   release: Release;
 }
 
-interface State {
-  changelogOpen: boolean;
-}
-
-export default class PluginUpdateItem extends React.PureComponent<Props, State> {
-  state: State = { changelogOpen: false };
-
-  handleChangelogClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.toggleChangelog();
-  };
-
-  toggleChangelog = (show?: boolean) => {
-    if (show !== undefined) {
-      this.setState({ changelogOpen: show });
-    } else {
-      this.setState((state) => ({ changelogOpen: !state.changelogOpen }));
-    }
-  };
-
-  render() {
-    const { release, update } = this.props;
-    return (
-      <li className="display-flex-row little-spacer-bottom" key={release.version}>
-        <div className="pull-left spacer-right">
-          {update.status === 'COMPATIBLE' ? (
-            <span className="js-update-version badge badge-success">{release.version}</span>
-          ) : (
-            <Tooltip overlay={translate('marketplace.update_status', update.status)}>
-              <span className="js-update-version badge badge-warning">{release.version}</span>
-            </Tooltip>
-          )}
-        </div>
-        <div>
-          {release.description}
-          <PluginChangeLogButton
-            pluginName={this.props.pluginName}
-            release={release}
-            update={update}
-          />
-        </div>
-      </li>
-    );
-  }
+export default function PluginUpdateItem({ release, update, pluginName }: Props) {
+  return (
+    <li className="display-flex-row little-spacer-bottom" key={release.version}>
+      <div className="pull-left spacer-right">
+        {update.status === 'COMPATIBLE' ? (
+          <span className="js-update-version badge badge-success">{release.version}</span>
+        ) : (
+          <Tooltip overlay={translate('marketplace.update_status', update.status)}>
+            <span className="js-update-version badge badge-warning">{release.version}</span>
+          </Tooltip>
+        )}
+      </div>
+      <div>
+        {release.description}
+        <PluginChangeLogButton pluginName={pluginName} release={release} update={update} />
+      </div>
+    </li>
+  );
 }

@@ -21,12 +21,7 @@ import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import {
-  getAvailablePlugins,
-  getInstalledPlugins,
-  getInstalledPluginsWithUpdates,
-  getPluginUpdates,
-} from '../../api/plugins';
+import { getAvailablePlugins, getInstalledPlugins } from '../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../api/settings';
 import DocLink from '../../components/common/DocLink';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
@@ -37,14 +32,21 @@ import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
-import PluginRiskConsentBox from './components/PluginRiskConsentBox';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import Header from './Header';
 import PluginsList from './PluginsList';
 import Search from './Search';
+import PluginRiskConsentBox from './components/PluginRiskConsentBox';
 import './style.css';
-import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
+import {
+  Query,
+  filterPlugins,
+  getInstalledPluginsWithUpdates,
+  getPluginUpdates,
+  parseQuery,
+  serializeQuery,
+} from './utils';
 
 interface Props {
   currentEdition?: EditionKey;
@@ -62,7 +64,7 @@ interface State {
   riskConsent?: RiskConsent;
 }
 
-export class App extends React.PureComponent<Props, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loadingPlugins: true, plugins: [] };
 

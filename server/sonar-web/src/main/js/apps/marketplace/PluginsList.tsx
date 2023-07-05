@@ -19,6 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 import { isAvailablePlugin, isInstalledPlugin, PendingPlugin, Plugin } from '../../types/plugins';
 import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
@@ -53,7 +54,7 @@ export default function PluginsList(props: PluginsListProps) {
   const installedPlugins = plugins.filter(isInstalledPlugin);
   return (
     <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
-      <ul>
+      <ul aria-label={translate('marketplace.page.plugins')}>
         {sortBy(plugins, ({ name }) => name).map((plugin) => (
           <li className="panel panel-vertical" key={plugin.key}>
             <table className="marketplace-plugin-table">
