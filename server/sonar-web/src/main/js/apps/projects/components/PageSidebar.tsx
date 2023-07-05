@@ -78,7 +78,7 @@ export default function PageSidebar(props: PageSidebarProps) {
   }, [onClearAll, heading]);
 
   return (
-    <div className="sw-body-sm sw-pb-24">
+    <div className="sw-body-sm sw-px-4 sw-pt-12 sw-pb-24">
       <FavoriteFilter />
 
       <div className="sw-flex sw-items-center sw-justify-between">

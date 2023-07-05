@@ -17,6 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import {
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system/lib';
 import { keyBy, mapValues, omitBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -26,7 +33,6 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
@@ -220,15 +226,15 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   renderSide = () => (
-    <ScreenPositionHelper className="layout-page-side-outer">
-      {({ top }) => (
-        <section
-          aria-label={translate('filters')}
-          className="layout-page-side projects-page-side"
-          style={{ top }}
-        >
-          <div className="layout-page-side-inner">
-            <div className="layout-page-filters">
+    <SideBarStyle>
+      <ScreenPositionHelper className="sw-z-filterbar">
+        {({ top }) => (
+          <nav
+            aria-label={translate('filters')}
+            className="sw-overflow-y-auto"
+            style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60 for the footer
+          >
+            <div className="sw-w-[300px] lg:sw-w-[390px]">
               <A11ySkipTarget
                 anchor="projects_filters"
                 label={translate('projects.skip_to_filters')}
@@ -247,14 +253,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
                 view={this.getView()}
               />
             </div>
-          </div>
-        </section>
-      )}
-    </ScreenPositionHelper>
+          </nav>
+        )}
+      </ScreenPositionHelper>
+    </SideBarStyle>
   );
 
   renderHeader = () => (
-    <div style={{ height: '120px' }}>
+    <div className="sw-w-full" style={{ height: '120px' }}>
       <PageHeader
         currentUser={this.props.currentUser}
         onPerspectiveChange={this.handlePerspectiveChange}
@@ -274,7 +280,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="layout-page-main-inner">
+      <div className="it__layout-page-main-inner it__projects-list sw-h-full">
         {this.state.projects && (
           <ProjectsList
             cardType={this.getView()}
@@ -284,41 +290,40 @@ export class AllProjects extends React.PureComponent<Props, State> {
             isFiltered={hasFilterParams(this.state.query)}
             projects={this.state.projects}
             query={this.state.query}
+            loadMore={this.fetchMoreProjects}
+            loading={this.state.loading}
+            total={this.state.total}
           />
         )}
-        <ListFooter
-          loadMoreAriaLabel={translate('projects.show_more')}
-          count={this.state.projects !== undefined ? this.state.projects.length : 0}
-          loading={this.state.loading}
-          loadMore={this.fetchMoreProjects}
-          ready={!this.state.loading}
-          useMIUIButtons
-          total={this.state.total !== undefined ? this.state.total : 0}
-        />
       </div>
     );
   };
 
   render() {
     return (
-      <div className="layout-page projects-page" id="projects-page">
+      <StyledWrapper id="projects-page">
         <Suggestions suggestions="projects" />
         <Helmet defer={false} title={translate('projects.page')} />
 
         <h1 className="a11y-hidden">{translate('projects.page')}</h1>
 
-        {this.renderSide()}
+        <LargeCenteredLayout>
+          <PageContentFontWrapper className="sw-flex sw-w-full sw-body-md">
+            {this.renderSide()}
 
-        <div className="layout-page-main">
-          <A11ySkipTarget anchor="projects_main" />
+            <div
+              role="main"
+              className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1"
+            >
+              <A11ySkipTarget anchor="projects_main" />
 
-          <div role="main">
-            <h2 className="a11y-hidden">{translate('list_of_projects')}</h2>
-            {this.renderHeader()}
-            {this.renderMain()}
-          </div>
-        </div>
-      </div>
+              <h2 className="a11y-hidden">{translate('list_of_projects')}</h2>
+              {this.renderHeader()}
+              {this.renderMain()}
+            </div>
+          </PageContentFontWrapper>
+        </LargeCenteredLayout>
+      </StyledWrapper>
     );
   }
 }
@@ -363,3 +368,13 @@ function SetSearchParamsWrapper(props: Props) {
 }
 
 export default withRouter(withCurrentUserContext(withAppStateContext(SetSearchParamsWrapper)));
+
+const StyledWrapper = styled.div`
+  background-color: ${themeColor('backgroundPrimary')};
+`;
+
+const SideBarStyle = styled.div`
+  border-left: ${themeBorder('default', 'filterbarBorder')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  background-color: ${themeColor('backgroundSecondary')};
+`;

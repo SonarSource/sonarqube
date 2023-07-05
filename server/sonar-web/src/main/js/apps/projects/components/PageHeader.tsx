@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
 import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
@@ -51,18 +50,18 @@ export default function PageHeader(props: Props) {
   };
 
   return (
-    <StyledHeader className="it__page-header sw-flex sw-flex-col sw-z-project-list-header new-background sw-fixed sw-py-6 sw-pl-5">
+    <div className="it__page-header sw-flex sw-flex-col">
       <div className="sw-flex sw-justify-end sw-mb-4">
         <ProjectCreationMenu />
         <ApplicationCreation className="sw-ml-2" />
       </div>
       <div className="sw-flex sw-justify-between">
-        <div className="sw-flex">
+        <div className="sw-flex sw-flex-1">
           <InputSearch
-            className="sw-w-abs-300 sw-mr-4 it__page-header-search"
+            className="sw-mr-4 it__page-header-search sw-max-w-abs-300 sw-flex-1"
             minLength={MIN_SEARCH_QUERY_LENGTH}
             onChange={handleSearch}
-            size="large"
+            size="auto"
             placeholder={translate('projects.search')}
             value={props.query.search ?? ''}
             tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
@@ -89,18 +88,6 @@ export default function PageHeader(props: Props) {
           <HomePageSelect currentPage={{ type: 'PROJECTS' }} />
         </div>
       </div>
-    </StyledHeader>
+    </div>
   );
 }
-
-const StyledHeader = styled.div`
-  @media (max-width: 1320px) {
-    left: 301px;
-  }
-
-  right: 0;
-  left: calc(50vw - 369px);
-  top: 52px;
-  min-width: 740px;
-  max-width: 980px;
-`;

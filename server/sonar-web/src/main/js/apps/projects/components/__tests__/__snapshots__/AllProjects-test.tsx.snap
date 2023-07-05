@@ -55,8 +55,7 @@ exports[`handles updating the favorite status of a project 2`] = `
 `;
 
 exports[`renders 1`] = `
-<div
-  className="layout-page projects-page"
+<Styled(div)
   id="projects-page"
 >
   <Suggestions
@@ -73,135 +72,135 @@ exports[`renders 1`] = `
   >
     projects.page
   </h1>
-  <ScreenPositionHelper
-    className="layout-page-side-outer"
-  >
-    <Component />
-  </ScreenPositionHelper>
-  <div
-    className="layout-page-main"
-  >
-    <A11ySkipTarget
-      anchor="projects_main"
-    />
-    <div
-      role="main"
+  <LargeCenteredLayout>
+    <PageContentFontWrapper
+      className="sw-flex sw-w-full sw-body-md"
     >
-      <h2
-        className="a11y-hidden"
-      >
-        list_of_projects
-      </h2>
+      <Styled(div)>
+        <ScreenPositionHelper
+          className="sw-z-filterbar"
+        >
+          <Component />
+        </ScreenPositionHelper>
+      </Styled(div)>
       <div
-        style={
-          {
-            "height": "120px",
-          }
-        }
+        className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1"
+        role="main"
       >
-        <PageHeader
-          currentUser={
-            {
-              "dismissedNotices": {},
-              "isLoggedIn": true,
-            }
-          }
-          onPerspectiveChange={[Function]}
-          onQueryChange={[Function]}
-          onSortChange={[Function]}
-          query={
-            {
-              "coverage": undefined,
-              "duplications": undefined,
-              "gate": undefined,
-              "languages": undefined,
-              "maintainability": undefined,
-              "new_coverage": undefined,
-              "new_duplications": undefined,
-              "new_lines": undefined,
-              "new_maintainability": undefined,
-              "new_reliability": undefined,
-              "new_security": undefined,
-              "new_security_review_rating": undefined,
-              "qualifier": undefined,
-              "reliability": undefined,
-              "search": undefined,
-              "security": undefined,
-              "security_review_rating": undefined,
-              "size": undefined,
-              "sort": undefined,
-              "tags": undefined,
-              "view": undefined,
-            }
-          }
-          selectedSort="name"
-          total={0}
-          view="overall"
+        <A11ySkipTarget
+          anchor="projects_main"
         />
-      </div>
-      <div
-        className="layout-page-main-inner"
-      >
-        <ProjectsList
-          cardType="overall"
-          currentUser={
+        <h2
+          className="a11y-hidden"
+        >
+          list_of_projects
+        </h2>
+        <div
+          className="sw-w-full"
+          style={
             {
-              "dismissedNotices": {},
-              "isLoggedIn": true,
+              "height": "120px",
             }
           }
-          handleFavorite={[Function]}
-          isFavorite={false}
-          isFiltered={false}
-          projects={
-            [
+        >
+          <PageHeader
+            currentUser={
               {
-                "key": "foo",
-                "measures": {},
-                "name": "Foo",
-                "qualifier": "TRK",
-                "tags": [],
-                "visibility": "public",
-              },
-            ]
-          }
-          query={
-            {
-              "coverage": undefined,
-              "duplications": undefined,
-              "gate": undefined,
-              "languages": undefined,
-              "maintainability": undefined,
-              "new_coverage": undefined,
-              "new_duplications": undefined,
-              "new_lines": undefined,
-              "new_maintainability": undefined,
-              "new_reliability": undefined,
-              "new_security": undefined,
-              "new_security_review_rating": undefined,
-              "qualifier": undefined,
-              "reliability": undefined,
-              "search": undefined,
-              "security": undefined,
-              "security_review_rating": undefined,
-              "size": undefined,
-              "sort": undefined,
-              "tags": undefined,
-              "view": undefined,
+                "dismissedNotices": {},
+                "isLoggedIn": true,
+              }
             }
-          }
-        />
-        <ListFooter
-          count={1}
-          loadMore={[Function]}
-          loadMoreAriaLabel="projects.show_more"
-          loading={false}
-          ready={true}
-          total={0}
-          useMIUIButtons={true}
-        />
+            onPerspectiveChange={[Function]}
+            onQueryChange={[Function]}
+            onSortChange={[Function]}
+            query={
+              {
+                "coverage": undefined,
+                "duplications": undefined,
+                "gate": undefined,
+                "languages": undefined,
+                "maintainability": undefined,
+                "new_coverage": undefined,
+                "new_duplications": undefined,
+                "new_lines": undefined,
+                "new_maintainability": undefined,
+                "new_reliability": undefined,
+                "new_security": undefined,
+                "new_security_review_rating": undefined,
+                "qualifier": undefined,
+                "reliability": undefined,
+                "search": undefined,
+                "security": undefined,
+                "security_review_rating": undefined,
+                "size": undefined,
+                "sort": undefined,
+                "tags": undefined,
+                "view": undefined,
+              }
+            }
+            selectedSort="name"
+            total={0}
+            view="overall"
+          />
+        </div>
+        <div
+          className="it__layout-page-main-inner it__projects-list sw-h-full"
+        >
+          <ProjectsList
+            cardType="overall"
+            currentUser={
+              {
+                "dismissedNotices": {},
+                "isLoggedIn": true,
+              }
+            }
+            handleFavorite={[Function]}
+            isFavorite={false}
+            isFiltered={false}
+            loadMore={[Function]}
+            loading={false}
+            projects={
+              [
+                {
+                  "key": "foo",
+                  "measures": {},
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                  "tags": [],
+                  "visibility": "public",
+                },
+              ]
+            }
+            query={
+              {
+                "coverage": undefined,
+                "duplications": undefined,
+                "gate": undefined,
+                "languages": undefined,
+                "maintainability": undefined,
+                "new_coverage": undefined,
+                "new_duplications": undefined,
+                "new_lines": undefined,
+                "new_maintainability": undefined,
+                "new_reliability": undefined,
+                "new_security": undefined,
+                "new_security_review_rating": undefined,
+                "qualifier": undefined,
+                "reliability": undefined,
+                "search": undefined,
+                "security": undefined,
+                "security_review_rating": undefined,
+                "size": undefined,
+                "sort": undefined,
+                "tags": undefined,
+                "view": undefined,
+              }
+            }
+            total={0}
+          />
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+    </PageContentFontWrapper>
+  </LargeCenteredLayout>
+</Styled(div)>
 `;
