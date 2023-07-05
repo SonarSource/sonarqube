@@ -87,25 +87,15 @@ export default function useConfiguration(
 
   const setNewValue = (key: string, newValue?: string | boolean | string[]) => {
     const value = values[key];
-    if (value.multiValues) {
-      const newValues = {
-        ...values,
-        [key]: {
-          ...value,
-          newValue: newValue as string[],
-        },
-      };
-      setValues(newValues);
-    } else {
-      const newValues = {
-        ...values,
-        [key]: {
-          ...value,
-          newValue: newValue as string | boolean,
-        },
-      };
-      setValues(newValues);
-    }
+    setValues((values) => {
+      const newValues = { ...values };
+      if (value.multiValues) {
+        newValues[key] = { ...value, newValue: newValue as string[] | undefined };
+      } else {
+        newValues[key] = { ...value, newValue: newValue as string | boolean | undefined };
+      }
+      return newValues;
+    });
   };
 
   const canBeSave = every(
