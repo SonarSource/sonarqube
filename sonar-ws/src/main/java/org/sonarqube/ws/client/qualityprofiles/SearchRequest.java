@@ -32,6 +32,7 @@ public class SearchRequest {
 
   private String defaults;
   private String language;
+  private String organization;
   private String project;
   private String qualityProfile;
 
@@ -62,6 +63,19 @@ public class SearchRequest {
 
   public String getLanguage() {
     return language;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public SearchRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

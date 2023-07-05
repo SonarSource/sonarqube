@@ -32,6 +32,7 @@ public class CreateRequest {
 
   private String language;
   private String name;
+  private String organization;
 
   /**
    * This is a mandatory parameter.
@@ -57,6 +58,19 @@ public class CreateRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public CreateRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
 }

@@ -31,6 +31,7 @@ import javax.annotation.Generated;
 public class DeleteRequest {
 
   private String language;
+  private String organization;
   private String qualityProfile;
 
   /**
@@ -43,6 +44,19 @@ public class DeleteRequest {
 
   public String getLanguage() {
     return language;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public DeleteRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

@@ -40,6 +40,7 @@ public class ActivateRulesRequest {
   private List<String> inheritance;
   private String isTemplate;
   private List<String> languages;
+  private String organization;
   private List<String> owaspTop10;
   private String q;
   private String qprofile;
@@ -195,6 +196,19 @@ public class ActivateRulesRequest {
 
   public List<String> getLanguages() {
     return languages;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public ActivateRulesRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

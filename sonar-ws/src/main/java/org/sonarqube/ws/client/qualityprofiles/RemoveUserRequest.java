@@ -31,6 +31,7 @@ import javax.annotation.Generated;
 public class RemoveUserRequest {
 
   private String language;
+  private String organization;
   private String login;
   private String qualityProfile;
 
@@ -57,6 +58,19 @@ public class RemoveUserRequest {
 
   public String getLogin() {
     return login;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public RemoveUserRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

@@ -31,6 +31,7 @@ import javax.annotation.Generated;
 public class AddProjectRequest {
 
   private String language;
+  private String organization;
   private String project;
   private String qualityProfile;
 
@@ -44,6 +45,19 @@ public class AddProjectRequest {
 
   public String getLanguage() {
     return language;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public AddProjectRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**
