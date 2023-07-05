@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityProfile, mockQualityProfileExporter } from '../../../../helpers/testMocks';
+import { FCProps } from '../../../../types/misc';
 import ProfileExporters from '../ProfileExporters';
 
 it('should render correctly', () => {
@@ -27,9 +28,9 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<ProfileExporters['props']> = {}) {
+function shallowRender(props: Partial<FCProps<typeof ProfileExporters>> = {}) {
   const profile = mockQualityProfile();
-  return shallow<ProfileExporters>(
+  return shallow(
     <ProfileExporters
       exporters={[mockQualityProfileExporter({ languages: [profile.language] })]}
       profile={profile}

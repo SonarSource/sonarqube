@@ -20,6 +20,7 @@
 import { Link, Note } from 'design-system';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/system';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 
 export interface FormattingTipsProps {
@@ -30,7 +31,7 @@ export default function FormattingTips({ className }: FormattingTipsProps) {
   const handleClick = React.useCallback((evt: React.MouseEvent<HTMLAnchorElement>) => {
     evt.preventDefault();
     window.open(
-      getFormattingHelpUrl(),
+      `${getBaseUrl()}${getFormattingHelpUrl()}`,
       'Formatting',
       'height=300,width=600,scrollbars=1,resizable=1'
     );

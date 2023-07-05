@@ -22,7 +22,6 @@ import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
 import Link from '../../../components/common/Link';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { Exporter, Profile } from '../types';
 
 interface Props {
@@ -30,42 +29,34 @@ interface Props {
   profile: Profile;
 }
 
-export default class ProfileExporters extends React.PureComponent<Props> {
-  getExportUrl(exporter: Exporter) {
-    const { profile } = this.props;
-    return `${getBaseUrl()}${getQualityProfileExporterUrl(exporter, profile)}`;
+export default function ProfileExporters({ exporters, profile }: Props) {
+  const exportersForLanguage = exporters.filter((e) => e.languages.includes(profile.language));
+
+  if (exportersForLanguage.length === 0) {
+    return null;
   }
 
-  render() {
-    const { exporters, profile } = this.props;
-    const exportersForLanguage = exporters.filter((e) => e.languages.includes(profile.language));
-
-    if (exportersForLanguage.length === 0) {
-      return null;
-    }
-
-    return (
-      <div className="boxed-group quality-profile-exporters">
-        <h2>{translate('quality_profiles.exporters')}</h2>
-        <div className="boxed-group-inner">
-          <Alert className="big-spacer-bottom" variant="warning">
-            {translate('quality_profiles.exporters.deprecated')}
-          </Alert>
-          <ul>
-            {exportersForLanguage.map((exporter, index) => (
-              <li
-                className={index > 0 ? 'spacer-top' : undefined}
-                data-key={exporter.key}
-                key={exporter.key}
-              >
-                <Link to={this.getExportUrl(exporter)} target="_blank">
-                  {exporter.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+  return (
+    <div className="boxed-group quality-profile-exporters">
+      <h2>{translate('quality_profiles.exporters')}</h2>
+      <div className="boxed-group-inner">
+        <Alert className="big-spacer-bottom" variant="warning">
+          {translate('quality_profiles.exporters.deprecated')}
+        </Alert>
+        <ul>
+          {exportersForLanguage.map((exporter, index) => (
+            <li
+              className={index > 0 ? 'spacer-top' : undefined}
+              data-key={exporter.key}
+              key={exporter.key}
+            >
+              <Link to={getQualityProfileExporterUrl(exporter, profile)} target="_blank">
+                {exporter.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-    );
-  }
+    </div>
+  );
 }

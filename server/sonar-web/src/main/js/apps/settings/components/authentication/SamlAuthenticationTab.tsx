@@ -30,7 +30,6 @@ import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { useSaveValueMutation } from '../../queries/settings';
 import { getPropertyName } from '../../utils';
@@ -150,11 +149,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
               </Button>
             </div>
             <div>
-              <Link
-                className="button spacer-right"
-                target="_blank"
-                to={`${getBaseUrl()}${CONFIG_TEST_PATH}`}
-              >
+              <Link className="button spacer-right" target="_blank" to={CONFIG_TEST_PATH}>
                 {translate('settings.authentication.saml.form.test')}
               </Link>
               <Button className="spacer-right" onClick={handleCreateConfiguration}>

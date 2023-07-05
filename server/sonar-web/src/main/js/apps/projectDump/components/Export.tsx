@@ -25,7 +25,6 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { DumpStatus, DumpTask } from '../../../types/project-dump';
 
 interface Props {
@@ -100,7 +99,7 @@ export default class Export extends React.Component<Props> {
 
   renderWhenExportFailed() {
     const { componentKey } = this.props;
-    const detailsUrl = `${getBaseUrl()}/project/background_tasks?id=${encodeURIComponent(
+    const detailsUrl = `/project/background_tasks?id=${encodeURIComponent(
       componentKey
     )}&status=FAILED&taskType=PROJECT_EXPORT`;
 

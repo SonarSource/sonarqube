@@ -361,7 +361,7 @@ export function getRuleUrl(rule: string) {
 }
 
 export function getFormattingHelpUrl(): string {
-  return getBaseUrl() + '/formatting/help';
+  return '/formatting/help';
 }
 
 export function getCodeUrl(
