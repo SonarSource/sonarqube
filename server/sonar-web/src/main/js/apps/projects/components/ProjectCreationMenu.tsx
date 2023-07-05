@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  ChevronDownIcon,
+  Dropdown,
+  ItemDivider,
+  ItemLink,
+  PopupPlacement,
+  PopupZLevel,
+} from 'design-system';
 import * as React from 'react';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
-import Dropdown from '../../../components/controls/Dropdown';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
-import EllipsisIcon from '../../../components/icons/EllipsisIcon';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
@@ -34,7 +38,6 @@ import { LoggedInUser } from '../../../types/users';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
-  className?: string;
   currentUser: LoggedInUser;
 }
 
@@ -96,7 +99,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { className, currentUser } = this.props;
+    const { currentUser } = this.props;
     const { boundAlms } = this.state;
 
     const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
@@ -107,30 +110,26 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     return (
       <Dropdown
-        className={className}
-        onOpen={this.fetchAlmBindings}
+        id="project-creation-menu"
+        size="auto"
+        placement={PopupPlacement.BottomRight}
+        zLevel={PopupZLevel.Global}
         overlay={
-          <ul className="menu">
+          <>
             {[...boundAlms, 'manual'].map((alm) => (
-              <li className="little-spacer-bottom" key={alm}>
-                <ProjectCreationMenuItem alm={alm} />
-              </li>
+              <ProjectCreationMenuItem alm={alm} key={alm} />
             ))}
+            <ItemDivider />
             {boundAlms.length < IMPORT_COMPATIBLE_ALMS.length && (
-              <li className="bordered-top little-padded-top">
-                <Link className="display-flex-center" to={{ pathname: '/projects/create' }}>
-                  <EllipsisIcon className="spacer-right" size={16} />
-                  {translate('more')}
-                </Link>
-              </li>
+              <ItemLink to={{ pathname: '/projects/create' }}>{translate('more')}</ItemLink>
             )}
-          </ul>
+          </>
         }
       >
-        <Button className="button-primary">
+        <ButtonSecondary>
           {translate('projects.add')}
-          <DropdownIcon className="spacer-left " />
-        </Button>
+          <ChevronDownIcon className="sw-ml-1" />
+        </ButtonSecondary>
       </Dropdown>
     );
   }

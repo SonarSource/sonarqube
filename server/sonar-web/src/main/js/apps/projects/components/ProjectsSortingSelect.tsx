@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  InputSelect,
+  InteractiveIcon,
+  LabelValueSelectOption,
+  SortAscendIcon,
+  SortDescendIcon,
+  StyledPageTitle,
+} from 'design-system';
 import { omit, sortBy } from 'lodash';
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
-import { colors } from '../../../app/theme';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import Select from '../../../components/controls/Select';
+import { OptionProps, components } from 'react-select';
 import Tooltip from '../../../components/controls/Tooltip';
-import SortAscIcon from '../../../components/icons/SortAscIcon';
-import SortDescIcon from '../../../components/icons/SortDescIcon';
 import { translate } from '../../../helpers/l10n';
-import { parseSorting, SORTING_LEAK_METRICS, SORTING_METRICS } from '../utils';
+import { SORTING_LEAK_METRICS, SORTING_METRICS, parseSorting } from '../utils';
 
 interface Props {
   className?: string;
@@ -92,18 +95,24 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
     const { sortDesc, value } = this.getSorting();
 
     return (
-      <div className={this.props.className}>
-        <label id="aria-projects-sort">{translate('projects.sort_by')}:</label>
-        <Select
+      <div className="sw-flex sw-items-center">
+        <StyledPageTitle
+          id="aria-projects-sort"
+          as="label"
+          className="sw-body-sm-highlight sw-mr-2"
+        >
+          {translate('projects.sort_by')}
+        </StyledPageTitle>
+        <InputSelect
           aria-labelledby="aria-projects-sort"
-          className="little-spacer-left input-medium it__projects-sort-select"
-          isClearable={false}
-          onChange={this.handleSortChange}
+          className="sw-body-sm"
+          onChange={(data: LabelValueSelectOption<string>) => this.handleSortChange(data)}
+          options={this.getOptions()}
           components={{
             Option: this.projectsSortingSelectOption,
           }}
-          options={this.getOptions()}
-          isSearchable={false}
+          placeholder={translate('project_activity.filter_events')}
+          size="small"
           value={value}
         />
         <Tooltip
@@ -112,21 +121,19 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }
         >
-          <ButtonIcon
+          <InteractiveIcon
+            Icon={sortDesc ? SortDescendIcon : SortAscendIcon}
             aria-label={
               sortDesc
                 ? translate('projects.sort_descending')
                 : translate('projects.sort_ascending')
             }
-            className="js-projects-sorting-invert spacer-left"
-            color={colors.gray52}
+            className="js-projects-invert-sort sw-ml-2"
             onClick={this.handleDescToggle}
             innerRef={(sortButtonRef) => {
               this.sortOrderButtonNode = sortButtonRef;
             }}
-          >
-            {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
-          </ButtonIcon>
+          />
         </Tooltip>
       </div>
     );

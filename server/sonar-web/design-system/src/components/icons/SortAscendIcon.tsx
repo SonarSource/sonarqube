@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import SearchFilterContainer from '../SearchFilterContainer';
+import { SortAscIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-it('searches', () => {
-  const onQueryChange = jest.fn();
-  const wrapper = shallow(<SearchFilterContainer onQueryChange={onQueryChange} query={{}} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.find('SearchBox').prop<Function>('onChange')('foo');
-  expect(onQueryChange).toHaveBeenCalledWith({ search: 'foo' });
-});
+export const SortAscendIcon = OcticonHoc(SortAscIcon, 'SortAscendIcon');

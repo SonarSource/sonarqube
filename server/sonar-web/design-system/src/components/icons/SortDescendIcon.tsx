@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import MandatoryFieldsExplanation, {
-  MandatoryFieldsExplanationProps,
-} from '../MandatoryFieldsExplanation';
+import { SortDescIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ className: 'foo-bar' })).toMatchSnapshot('with className');
-});
-
-function shallowRender(props: Partial<MandatoryFieldsExplanationProps> = {}) {
-  return shallow<MandatoryFieldsExplanationProps>(<MandatoryFieldsExplanation {...props} />);
-}
+export const SortDescendIcon = OcticonHoc(SortDescIcon, 'SortDescendIcon');

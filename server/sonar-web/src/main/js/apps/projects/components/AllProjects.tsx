@@ -38,10 +38,10 @@ import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { hasFilterParams, parseUrlQuery, Query } from '../query';
+import { Query, hasFilterParams, parseUrlQuery } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
-import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
+import { SORTING_SWITCH, fetchProjects, parseSorting } from '../utils';
 import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
@@ -237,22 +237,17 @@ export class AllProjects extends React.PureComponent<Props, State> {
   );
 
   renderHeader = () => (
-    <div className="layout-page-header-panel layout-page-main-header">
-      <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-        <div className="layout-page-main-inner">
-          <PageHeader
-            currentUser={this.props.currentUser}
-            loading={this.state.loading}
-            onPerspectiveChange={this.handlePerspectiveChange}
-            onQueryChange={this.updateLocationQuery}
-            onSortChange={this.handleSortChange}
-            query={this.state.query}
-            selectedSort={this.getSort()}
-            total={this.state.total}
-            view={this.getView()}
-          />
-        </div>
-      </div>
+    <div style={{ height: '120px' }}>
+      <PageHeader
+        currentUser={this.props.currentUser}
+        onPerspectiveChange={this.handlePerspectiveChange}
+        onQueryChange={this.updateLocationQuery}
+        onSortChange={this.handleSortChange}
+        query={this.state.query}
+        selectedSort={this.getSort()}
+        total={this.state.total}
+        view={this.getView()}
+      />
     </div>
   );
 

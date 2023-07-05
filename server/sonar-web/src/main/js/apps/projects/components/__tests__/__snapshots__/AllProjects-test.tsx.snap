@@ -93,56 +93,51 @@ exports[`renders 1`] = `
         list_of_projects
       </h2>
       <div
-        className="layout-page-header-panel layout-page-main-header"
+        style={
+          {
+            "height": "120px",
+          }
+        }
       >
-        <div
-          className="layout-page-header-panel-inner layout-page-main-header-inner"
-        >
-          <div
-            className="layout-page-main-inner"
-          >
-            <PageHeader
-              currentUser={
-                {
-                  "dismissedNotices": {},
-                  "isLoggedIn": true,
-                }
-              }
-              loading={false}
-              onPerspectiveChange={[Function]}
-              onQueryChange={[Function]}
-              onSortChange={[Function]}
-              query={
-                {
-                  "coverage": undefined,
-                  "duplications": undefined,
-                  "gate": undefined,
-                  "languages": undefined,
-                  "maintainability": undefined,
-                  "new_coverage": undefined,
-                  "new_duplications": undefined,
-                  "new_lines": undefined,
-                  "new_maintainability": undefined,
-                  "new_reliability": undefined,
-                  "new_security": undefined,
-                  "new_security_review_rating": undefined,
-                  "qualifier": undefined,
-                  "reliability": undefined,
-                  "search": undefined,
-                  "security": undefined,
-                  "security_review_rating": undefined,
-                  "size": undefined,
-                  "sort": undefined,
-                  "tags": undefined,
-                  "view": undefined,
-                }
-              }
-              selectedSort="name"
-              total={0}
-              view="overall"
-            />
-          </div>
-        </div>
+        <PageHeader
+          currentUser={
+            {
+              "dismissedNotices": {},
+              "isLoggedIn": true,
+            }
+          }
+          onPerspectiveChange={[Function]}
+          onQueryChange={[Function]}
+          onSortChange={[Function]}
+          query={
+            {
+              "coverage": undefined,
+              "duplications": undefined,
+              "gate": undefined,
+              "languages": undefined,
+              "maintainability": undefined,
+              "new_coverage": undefined,
+              "new_duplications": undefined,
+              "new_lines": undefined,
+              "new_maintainability": undefined,
+              "new_reliability": undefined,
+              "new_security": undefined,
+              "new_security_review_rating": undefined,
+              "qualifier": undefined,
+              "reliability": undefined,
+              "search": undefined,
+              "security": undefined,
+              "security_review_rating": undefined,
+              "size": undefined,
+              "sort": undefined,
+              "tags": undefined,
+              "view": undefined,
+            }
+          }
+          selectedSort="name"
+          total={0}
+          view="overall"
+        />
       </div>
       <div
         className="layout-page-main-inner"

@@ -98,4 +98,5 @@ const MessagesContainer = styled.div`
   left: 50%;
   width: 350px;
   margin-left: -175px;
+  z-index: 8600;
 `;

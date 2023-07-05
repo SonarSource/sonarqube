@@ -17,16 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
+import { InputSelect, LabelValueSelectOption, StyledPageTitle } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
-import Select from '../../../components/controls/Select';
-import ListIcon from '../../../components/icons/ListIcon';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS } from '../utils';
 
 interface Props {
-  className?: string;
   onChange: (x: { view: string }) => void;
   view: string;
 }
@@ -41,19 +37,6 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
     this.props.onChange({ view: option.value });
   };
 
-  perspectiveOptionRender = (props: OptionProps<PerspectiveOption, false>) => {
-    const { data, className } = props;
-    return (
-      <components.Option
-        {...omit(props, ['children', 'className'])}
-        className={`it__projects-perspective-option-${data.value} ${className}`}
-      >
-        <ListIcon className="little-spacer-right" />
-        {props.children}
-      </components.Option>
-    );
-  };
-
   render() {
     const { view } = this.props;
     const options: PerspectiveOption[] = [
@@ -63,18 +46,21 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
       })),
     ];
     return (
-      <div className={this.props.className}>
-        <label id="aria-projects-perspective">{translate('projects.perspective')}:</label>
-        <Select
+      <div className="sw-flex sw-items-center">
+        <StyledPageTitle
+          id="aria-projects-perspective"
+          as="label"
+          className="sw-body-sm-highlight sw-mr-2"
+        >
+          {translate('projects.perspective')}
+        </StyledPageTitle>
+        <InputSelect
           aria-labelledby="aria-projects-perspective"
-          className="little-spacer-left input-medium it__projects-perspective-select"
-          isClearable={false}
-          onChange={this.handleChange}
-          components={{
-            Option: this.perspectiveOptionRender,
-          }}
+          className="sw-mr-4 sw-body-sm"
+          onChange={(data: LabelValueSelectOption<string>) => this.handleChange(data)}
           options={options}
-          isSearchable={false}
+          placeholder={translate('project_activity.filter_events')}
+          size="small"
           value={options.find((option) => option.value === view)}
         />
       </div>

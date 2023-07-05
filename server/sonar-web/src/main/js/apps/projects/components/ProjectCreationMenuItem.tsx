@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ItemLink } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { queryToSearch } from '../../../helpers/urls';
@@ -36,13 +35,11 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
     almIcon = 'bitbucket';
   }
   return (
-    <Link
+    <ItemLink
       className="display-flex-center"
       to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}
     >
-      {alm === 'manual' ? (
-        <ChevronsIcon className="spacer-right" />
-      ) : (
+      {alm !== 'manual' && (
         <img
           alt={alm}
           className="spacer-right"
@@ -51,6 +48,6 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
         />
       )}
       {translate('my_account.add_project', alm)}
-    </Link>
+    </ItemLink>
   );
 }

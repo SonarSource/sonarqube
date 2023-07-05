@@ -33,6 +33,7 @@ interface Props {
   id?: string;
   label: string | ReactNode;
   required?: boolean;
+  requiredAriaLabel?: string;
   title?: string;
 }
 
@@ -47,13 +48,16 @@ export function FormField({
   htmlFor,
   title,
   ariaLabel,
+  requiredAriaLabel,
 }: Props) {
   return (
     <FieldWrapper className={className} id={id}>
       <label aria-label={ariaLabel} className="sw-mb-2" htmlFor={htmlFor} title={title}>
         <Highlight className="sw-flex sw-items-center sw-gap-2">
           {label}
-          {required && <RequiredIcon className="sw--ml-1" />}
+          {required && (
+            <RequiredIcon aria-label={requiredAriaLabel ?? 'required'} className="sw--ml-1" />
+          )}
           {help}
         </Highlight>
       </label>

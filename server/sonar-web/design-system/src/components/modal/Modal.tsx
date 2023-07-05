@@ -89,7 +89,7 @@ export function Modal({
 
       <ReactModal
         aria={{ labelledby: '#modal_header_title' }}
-        className={classNames('design-system-modal-contents', { large: isLarge })}
+        className={classNames('design-system-modal-contents modal', { large: isLarge })}
         isOpen={isOpen}
         onRequestClose={onClose}
         overlayClassName="design-system-modal-overlay"

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import SearchFilterContainer from '../filters/SearchFilterContainer';
 import ApplicationCreation from './ApplicationCreation';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectCreationMenu from './ProjectCreationMenu';
@@ -31,7 +31,6 @@ import ProjectsSortingSelect from './ProjectsSortingSelect';
 
 interface Props {
   currentUser: CurrentUser;
-  loading: boolean;
   onPerspectiveChange: (x: { view: string }) => void;
   onQueryChange: (change: RawQuery) => void;
   onSortChange: (sort: string, desc: boolean) => void;
@@ -41,53 +40,67 @@ interface Props {
   view: string;
 }
 
+const MIN_SEARCH_QUERY_LENGTH = 2;
+
 export default function PageHeader(props: Props) {
-  const { loading, total, currentUser, view } = props;
+  const { total, currentUser, view } = props;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
 
-  return (
-    <div className="page-header">
-      <div className="display-flex-center projects-header-row display-flex-space-between">
-        <SearchFilterContainer onQueryChange={props.onQueryChange} query={props.query} />
-        <div className="display-flex-center">
-          <ProjectCreationMenu className="little-spacer-right" />
-          <ApplicationCreation className="little-spacer-right" />
-          <HomePageSelect
-            className="spacer-left little-spacer-right"
-            currentPage={{ type: 'PROJECTS' }}
-          />
-        </div>
-      </div>
-      <div className="spacer-top projects-header-row display-flex-space-between">
-        <div
-          className={classNames('display-flex-center', {
-            'is-loading': loading,
-          })}
-        >
-          {total != null && (
-            <span className="projects-total-label">
-              <strong id="projects-total">{total}</strong> {translate('projects_')}
-            </span>
-          )}
-        </div>
+  const handleSearch = (search?: string) => {
+    props.onQueryChange({ search });
+  };
 
-        <div className="display-flex-center">
-          <PerspectiveSelect
-            className="projects-topbar-item"
-            onChange={props.onPerspectiveChange}
+  return (
+    <StyledHeader className="it__page-header sw-flex sw-flex-col sw-z-project-list-header new-background sw-fixed sw-py-6 sw-pl-5">
+      <div className="sw-flex sw-justify-end sw-mb-4">
+        <ProjectCreationMenu />
+        <ApplicationCreation className="sw-ml-2" />
+      </div>
+      <div className="sw-flex sw-justify-between">
+        <div className="sw-flex">
+          <InputSearch
+            className="sw-w-abs-300 sw-mr-4 it__page-header-search"
+            minLength={MIN_SEARCH_QUERY_LENGTH}
+            onChange={handleSearch}
+            size="large"
+            placeholder={translate('projects.search')}
+            value={props.query.search ?? ''}
+            tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
+            searchInputAriaLabel={translate('search_verb')}
+            clearIconAriaLabel={translate('clear')}
+          />
+          <PerspectiveSelect onChange={props.onPerspectiveChange} view={view} />
+          <ProjectsSortingSelect
+            defaultOption={defaultOption}
+            onChange={props.onSortChange}
+            selectedSort={props.selectedSort}
             view={view}
           />
-
-          <div className={classNames('projects-topbar-item')}>
-            <ProjectsSortingSelect
-              defaultOption={defaultOption}
-              onChange={props.onSortChange}
-              selectedSort={props.selectedSort}
-              view={view}
-            />
-          </div>
+        </div>
+        <div className="sw-flex sw-items-center">
+          {total != null && (
+            <>
+              <LightPrimary id="projects-total" className="sw-font-semibold sw-mr-1">
+                {total}
+              </LightPrimary>
+              <LightLabel>{translate('projects_')}</LightLabel>
+            </>
+          )}
+          <HomePageSelect currentPage={{ type: 'PROJECTS' }} />
         </div>
       </div>
-    </div>
+    </StyledHeader>
   );
 }
+
+const StyledHeader = styled.div`
+  @media (max-width: 1320px) {
+    left: 301px;
+  }
+
+  right: 0;
+  left: calc(50vw - 369px);
+  top: 52px;
+  min-width: 740px;
+  max-width: 980px;
+`;
