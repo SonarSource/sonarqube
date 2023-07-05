@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import React, { useState } from 'react';
 import Modal from '../../components/controls/Modal';
 import Radio from '../../components/controls/Radio';
 import { Button, ResetButtonLink } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
+import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 
 export interface Props {
   defaultVisibility: Visibility;
@@ -31,66 +32,62 @@ export interface Props {
   onConfirm: (visiblity: Visibility) => void;
 }
 
-interface State {
-  visibility: Visibility;
-}
+export default function ChangeDefaultVisibilityForm(props: Props) {
+  const [visibility, setVisibility] = useState(props.defaultVisibility);
+  const { data: githubProbivisioningEnabled } = useGithubStatusQuery();
 
-export default class ChangeDefaultVisibilityForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { visibility: props.defaultVisibility };
-  }
-
-  handleConfirmClick = () => {
-    this.props.onConfirm(this.state.visibility);
-    this.props.onClose();
+  const handleConfirmClick = () => {
+    props.onConfirm(visibility);
+    props.onClose();
   };
 
-  handleVisibilityChange = (visibility: Visibility) => {
-    this.setState({ visibility });
+  const handleVisibilityChange = (visibility: Visibility) => {
+    setVisibility(visibility);
   };
 
-  render() {
-    const header = translate('settings.projects.change_visibility_form.header');
+  const header = translate('settings.projects.change_visibility_form.header');
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
+  return (
+    <Modal contentLabel={header} onRequestClose={props.onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
 
-        <div className="modal-body">
-          {Object.values(Visibility).map((visibility) => (
-            <div className="big-spacer-bottom" key={visibility}>
-              <Radio
-                value={visibility}
-                checked={this.state.visibility === visibility}
-                onCheck={this.handleVisibilityChange}
-              >
-                <div>
-                  {translate('visibility', visibility)}
-                  <p className="text-muted spacer-top">
-                    {translate('visibility', visibility, 'description.short')}
-                  </p>
-                </div>
-              </Radio>
-            </div>
-          ))}
+      <div className="modal-body">
+        {Object.values(Visibility).map((visibilityValue) => (
+          <div className="big-spacer-bottom" key={visibilityValue}>
+            <Radio
+              value={visibilityValue}
+              checked={visibility === visibilityValue}
+              onCheck={handleVisibilityChange}
+            >
+              <div>
+                {translate('visibility', visibilityValue)}
+                <p className="text-muted spacer-top">
+                  {translate('visibility', visibilityValue, 'description.short')}
+                </p>
+              </div>
+            </Radio>
+          </div>
+        ))}
 
-          <Alert variant="warning">
-            {translate('settings.projects.change_visibility_form.warning')}
-          </Alert>
-        </div>
+        <Alert variant="warning">
+          {translate(
+            `settings.projects.change_visibility_form.warning${
+              githubProbivisioningEnabled ? '.github' : ''
+            }`
+          )}
+        </Alert>
+      </div>
 
-        <footer className="modal-foot">
-          <Button className="js-confirm" type="submit" onClick={this.handleConfirmClick}>
-            {translate('settings.projects.change_visibility_form.submit')}
-          </Button>
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('cancel')}
-          </ResetButtonLink>
-        </footer>
-      </Modal>
-    );
-  }
+      <footer className="modal-foot">
+        <Button className="js-confirm" type="submit" onClick={handleConfirmClick}>
+          {translate('settings.projects.change_visibility_form.submit')}
+        </Button>
+        <ResetButtonLink className="js-modal-close" onClick={props.onClose}>
+          {translate('cancel')}
+        </ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }

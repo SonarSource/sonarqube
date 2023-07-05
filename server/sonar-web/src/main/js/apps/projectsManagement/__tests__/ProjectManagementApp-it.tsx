@@ -20,16 +20,18 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
+import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockProject } from '../../../helpers/mocks/projects';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
-import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
+import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
 import { GlobalSettingKeys } from '../../../types/settings';
 import { LoggedInUser } from '../../../types/users';
@@ -39,6 +41,7 @@ let login: string;
 
 const permissionsHandler = new PermissionsServiceMock();
 const settingsHandler = new SettingsServiceMock();
+const authHandler = new AuthenticationServiceMock();
 const handler = new ProjectManagementServiceMock(settingsHandler);
 
 jest.mock('../../../api/navigation', () => ({
@@ -137,6 +140,7 @@ const ui = {
   visibilityPublicRadio: byRole('radio', {
     name: 'visibility.public visibility.public.description.short',
   }),
+  defaultVisibilityWarning: byText(/settings.projects.change_visibility_form.warning/),
   submitDefaultVisibilityChange: byRole('button', {
     name: 'settings.projects.change_visibility_form.submit',
   }),
@@ -159,6 +163,7 @@ afterEach(() => {
 
   permissionsHandler.reset();
   settingsHandler.reset();
+  authHandler.reset();
   handler.reset();
 });
 
@@ -342,6 +347,7 @@ it('should create project', async () => {
   expect(ui.defaultVisibility.get()).toHaveTextContent('—');
   await user.click(ui.editDefaultVisibility.get());
   expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
+  expect(ui.defaultVisibilityWarning.get()).not.toHaveTextContent('.github');
   await user.click(ui.visibilityPublicRadio.get(ui.changeDefaultVisibilityDialog.get()));
   await user.click(ui.submitDefaultVisibilityChange.get(ui.changeDefaultVisibilityDialog.get()));
   expect(ui.changeDefaultVisibilityDialog.query()).not.toBeInTheDocument();
@@ -406,9 +412,19 @@ it('should restore access to admin', async () => {
   expect(ui.editPermissions.get()).toBeInTheDocument();
 });
 
+it('should show github warning on changing default visibility to admin', async () => {
+  const user = userEvent.setup();
+  authHandler.githubProvisioningStatus = true;
+  renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
+  await user.click(ui.editDefaultVisibility.get());
+  expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
+  expect(ui.defaultVisibilityWarning.get()).toHaveTextContent('.github');
+});
+
 function renderProjectManagementApp(
   overrides: Partial<AppState> = {},
-  user: Partial<LoggedInUser> = {}
+  user: Partial<LoggedInUser> = {},
+  context: Partial<RenderContext> = {}
 ) {
   login = user?.login ?? 'gooduser1';
   renderAppWithAdminContext('admin/projects_management', routes, {
@@ -421,5 +437,6 @@ function renderProjectManagementApp(
       ...overrides,
     }),
     currentUser: mockCurrentUser(user),
+    ...context,
   });
 }

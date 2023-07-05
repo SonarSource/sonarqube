@@ -20,6 +20,7 @@
 
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
@@ -27,20 +28,32 @@ import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   PERMISSIONS_ORDER_FOR_VIEW,
 } from '../../../../../helpers/permissions';
-import { renderAppWithComponentContext } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier, Visibility } from '../../../../../types/component';
+import {
+  RenderContext,
+  renderAppWithComponentContext,
+} from '../../../../../helpers/testReactTestingUtils';
+import { AlmKeys } from '../../../../../types/alm-settings';
+import {
+  ComponentContextShape,
+  ComponentQualifier,
+  Visibility,
+} from '../../../../../types/component';
+import { Feature } from '../../../../../types/features';
 import { Permissions } from '../../../../../types/permissions';
 import { Component, PermissionGroup, PermissionUser } from '../../../../../types/types';
 import { projectPermissionsRoutes } from '../../../routes';
 import { getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
+let authHandler: AuthenticationServiceMock;
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
+  authHandler = new AuthenticationServiceMock();
 });
 
 afterEach(() => {
   serviceMock.reset();
+  authHandler.reset();
 });
 
 describe('rendering', () => {
@@ -220,20 +233,80 @@ it('should correctly handle pagination', async () => {
   expect(screen.getAllByRole('row').length).toBe(21);
 });
 
-function renderPermissionsProjectApp(override?: Partial<Component>) {
-  return renderAppWithComponentContext(
-    'project_roles',
-    projectPermissionsRoutes,
+it('should not allow to change visibility for GH Project with auto-provisioning', async () => {
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+  authHandler.githubProvisioningStatus = true;
+  renderPermissionsProjectApp(
     {},
-    {
-      component: mockComponent({
-        visibility: Visibility.Public,
-        configuration: {
-          canUpdateProjectVisibilityToPrivate: true,
-          canApplyPermissionTemplate: true,
-        },
-        ...override,
-      }),
-    }
+    { featureList: [Feature.GithubProvisioning] },
+    { projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false } }
   );
+  await ui.appLoaded();
+
+  expect(ui.visibilityRadio(Visibility.Public).get()).toHaveClass('disabled');
+  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+  expect(ui.visibilityRadio(Visibility.Private).get()).toHaveClass('disabled');
+  await act(async () => {
+    await ui.turnProjectPrivate();
+  });
+  expect(ui.visibilityRadio(Visibility.Private).get()).not.toBeChecked();
+});
+
+it('should allow to change visibility for non-GH Project', async () => {
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+  authHandler.githubProvisioningStatus = true;
+  renderPermissionsProjectApp(
+    {},
+    { featureList: [Feature.GithubProvisioning] },
+    { projectBinding: { alm: AlmKeys.Azure, key: 'test', repository: 'test', monorepo: false } }
+  );
+  await ui.appLoaded();
+
+  expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+  expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+  await act(async () => {
+    await ui.turnProjectPrivate();
+  });
+  expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
+});
+
+it('should allow to change visibility for GH Project with disabled auto-provisioning', async () => {
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+  authHandler.githubProvisioningStatus = false;
+  renderPermissionsProjectApp(
+    {},
+    { featureList: [Feature.GithubProvisioning] },
+    { projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false } }
+  );
+  await ui.appLoaded();
+
+  expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+  expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+  await act(async () => {
+    await ui.turnProjectPrivate();
+  });
+  expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
+});
+
+function renderPermissionsProjectApp(
+  override: Partial<Component> = {},
+  contextOverride: Partial<RenderContext> = {},
+  componentContextOverride: Partial<ComponentContextShape> = {}
+) {
+  return renderAppWithComponentContext('project_roles', projectPermissionsRoutes, contextOverride, {
+    component: mockComponent({
+      visibility: Visibility.Public,
+      configuration: {
+        canUpdateProjectVisibilityToPrivate: true,
+        canApplyPermissionTemplate: true,
+      },
+      ...override,
+    }),
+    ...componentContextOverride,
+  });
 }

@@ -29,11 +29,12 @@ export interface VisibilitySelectorProps {
   onChange: (visibility: Visibility) => void;
   showDetails?: boolean;
   visibility?: Visibility;
+  disabled?: boolean;
   loading?: boolean;
 }
 
 export default function VisibilitySelector(props: VisibilitySelectorProps) {
-  const { className, canTurnToPrivate, visibility, showDetails, loading = false } = props;
+  const { className, canTurnToPrivate, visibility, showDetails, disabled, loading = false } = props;
   return (
     <div className={classNames(className)}>
       {Object.values(Visibility).map((v) => (
@@ -43,7 +44,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
           value={v}
           checked={v === visibility}
           onCheck={props.onChange}
-          disabled={(v === Visibility.Private && !canTurnToPrivate) || loading}
+          disabled={disabled || (v === Visibility.Private && !canTurnToPrivate) || loading}
         >
           <div>
             {translate('visibility', v)}

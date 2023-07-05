@@ -30,6 +30,7 @@ import {
 } from '../../../../../api/provisioning';
 import { getSystemInfo } from '../../../../../api/system';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import { mapReactQueryResult } from '../../../../../helpers/react-query';
 import { useSyncStatusQuery } from '../../../../../queries/github-sync';
 import { Feature } from '../../../../../types/features';
 import { SysInfoCluster } from '../../../../../types/types';
@@ -53,9 +54,9 @@ export function useScimStatusQuery() {
 }
 
 export function useGithubStatusQuery() {
-  const res = useSyncStatusQuery();
+  const res = useSyncStatusQuery({ noRefetch: true });
 
-  return { ...res, data: res.data?.enabled };
+  return mapReactQueryResult(res, (data) => data.enabled);
 }
 
 export function useToggleScimMutation() {

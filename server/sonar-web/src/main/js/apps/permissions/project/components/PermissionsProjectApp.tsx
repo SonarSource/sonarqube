@@ -25,14 +25,17 @@ import withComponentContext from '../../../../app/components/componentContext/wi
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
+import UseQuery from '../../../../helpers/UseQuery';
 import { translate } from '../../../../helpers/l10n';
 import {
   PERMISSIONS_ORDER_BY_QUALIFIER,
   convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import { useGithubStatusQuery } from '../../../settings/components/authentication/queries/identity-provider';
 import '../../styles.css';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
@@ -319,7 +322,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component } = this.props;
+    const { component, projectBinding } = this.props;
     const {
       filter,
       groups,
@@ -346,13 +349,19 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
         <PageHeader component={component} loadHolders={this.loadHolders} loading={loading} />
         <div>
-          <VisibilitySelector
-            canTurnToPrivate={canTurnToPrivate}
-            className="big-spacer-top big-spacer-bottom"
-            onChange={this.handleVisibilityChange}
-            loading={loading}
-            visibility={component.visibility}
-          />
+          <UseQuery query={useGithubStatusQuery}>
+            {({ data: githubProvisioningStatus, isFetching }) => (
+              <VisibilitySelector
+                canTurnToPrivate={canTurnToPrivate}
+                className="big-spacer-top big-spacer-bottom"
+                onChange={this.handleVisibilityChange}
+                loading={loading || isFetching}
+                disabled={projectBinding?.alm === AlmKeys.GitHub && !!githubProvisioningStatus}
+                visibility={component.visibility}
+              />
+            )}
+          </UseQuery>
+
           {disclaimer && (
             <PublicProjectDisclaimer
               component={component}

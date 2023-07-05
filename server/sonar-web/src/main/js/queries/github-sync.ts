@@ -23,13 +23,17 @@ import { fetchGithubProvisioningStatus, syncNowGithubProvisioning } from '../api
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
 import { Feature } from '../types/features';
 
-export function useSyncStatusQuery() {
+interface GithubSyncStatusOptions {
+  noRefetch?: boolean;
+}
+
+export function useSyncStatusQuery(options: GithubSyncStatusOptions = {}) {
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
     Feature.GithubProvisioning
   );
   return useQuery(['github_sync', 'status'], fetchGithubProvisioningStatus, {
     enabled: hasGithubProvisioning,
-    refetchInterval: 10_000,
+    refetchInterval: options.noRefetch ? undefined : 10_000,
   });
 }
 
