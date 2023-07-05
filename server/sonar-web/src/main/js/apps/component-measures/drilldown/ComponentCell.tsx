@@ -21,7 +21,7 @@ import { ContentCell, HoverLink, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
 import { fillBranchLike } from '../../../helpers/branch-like';
-import { splitPath } from '../../../helpers/path';
+import { limitComponentName, splitPath } from '../../../helpers/path';
 import { getComponentDrilldownUrlWithSelection, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isApplication, isProject } from '../../../types/component';
@@ -36,6 +36,8 @@ export interface ComponentCellProps {
   rootComponent: ComponentMeasure;
   view: MeasurePageView;
 }
+
+const COMPONENT_PATH_MAX_CHARS = 50;
 
 export default function ComponentCell(props: ComponentCellProps) {
   const { branchLike, component, metric, rootComponent, view } = props;
@@ -84,7 +86,7 @@ export default function ComponentCell(props: ComponentCellProps) {
   }
 
   return (
-    <ContentCell className="sw-py-3 sw-truncate">
+    <ContentCell className="sw-py-3">
       <HoverLink
         aria-hidden
         tabIndex={-1}
@@ -92,8 +94,8 @@ export default function ComponentCell(props: ComponentCellProps) {
         to={path}
         title={component.path}
       />
-      <HoverLink to={path} title={component.path}>
-        {head.length > 0 && <Note>{head}/</Note>}
+      <HoverLink to={path} title={component.path} className="sw-flex sw-flex-wrap">
+        {head.length > 0 && <Note>{limitComponentName(head, COMPONENT_PATH_MAX_CHARS)}/</Note>}
         <strong>{tail}</strong>
       </HoverLink>
     </ContentCell>
