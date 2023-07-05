@@ -116,6 +116,7 @@ public class UsersService extends BaseService {
     return call(
       new GetRequest(path("groups"))
         .setParam("login", request.getLogin())
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())

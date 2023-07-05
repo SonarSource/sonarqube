@@ -33,6 +33,15 @@ public class CreateTemplateRequest {
   private String description;
   private String name;
   private String projectKeyPattern;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "Permissions for all projects related to the financial service"

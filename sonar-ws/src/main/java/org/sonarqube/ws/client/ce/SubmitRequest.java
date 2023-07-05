@@ -35,6 +35,15 @@ public class SubmitRequest {
   private String projectKey;
   private String projectName;
   private String report;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "branchType=long"

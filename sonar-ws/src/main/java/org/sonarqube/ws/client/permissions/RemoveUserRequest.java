@@ -34,6 +34,15 @@ public class RemoveUserRequest {
   private String permission;
   private String projectId;
   private String projectKey;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

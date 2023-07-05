@@ -35,6 +35,16 @@ public class UpdateConditionRequest {
   private String metric;
   private String op;
 
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
+
+  private String organization;
+
   /**
    * Example value: "10"
    */

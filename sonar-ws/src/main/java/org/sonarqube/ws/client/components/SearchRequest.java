@@ -36,6 +36,15 @@ public class SearchRequest {
   private String ps;
   private String q;
   private List<String> qualifiers;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: ""

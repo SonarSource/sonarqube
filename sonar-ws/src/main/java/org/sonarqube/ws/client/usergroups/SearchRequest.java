@@ -35,6 +35,15 @@ public class SearchRequest {
   private String p;
   private String ps;
   private String q;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Possible values:

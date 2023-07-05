@@ -35,6 +35,15 @@ public class GroupsRequest {
   private String ps;
   private String q;
   private String selected;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

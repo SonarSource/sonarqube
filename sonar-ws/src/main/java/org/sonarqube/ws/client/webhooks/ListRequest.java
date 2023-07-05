@@ -31,6 +31,15 @@ import javax.annotation.Generated;
 public class ListRequest {
 
   private String project;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "my_project"

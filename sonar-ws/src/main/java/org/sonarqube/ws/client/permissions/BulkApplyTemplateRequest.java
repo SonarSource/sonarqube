@@ -39,6 +39,15 @@ public class BulkApplyTemplateRequest {
   private String templateId;
   private String templateName;
   private String visibility;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"

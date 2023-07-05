@@ -32,6 +32,15 @@ public class DeselectRequest {
 
   private String projectId;
   private String projectKey;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "AU-Tpxb--iU5OvuD2FLy"

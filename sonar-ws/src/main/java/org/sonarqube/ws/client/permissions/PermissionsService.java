@@ -55,6 +55,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("add_group"))
         .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
@@ -74,6 +75,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("add_group_to_template"))
         .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -91,6 +93,7 @@ public class PermissionsService extends BaseService {
   public void addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest request) {
     call(
       new PostRequest(path("add_project_creator_to_template"))
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -109,6 +112,7 @@ public class PermissionsService extends BaseService {
     call(
       new PostRequest(path("add_user"))
         .setParam("login", request.getLogin())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
@@ -127,6 +131,7 @@ public class PermissionsService extends BaseService {
     call(
       new PostRequest(path("add_user_to_template"))
         .setParam("login", request.getLogin())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -144,6 +149,7 @@ public class PermissionsService extends BaseService {
   public void applyTemplate(ApplyTemplateRequest request) {
     call(
       new PostRequest(path("apply_template"))
+        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setParam("templateId", request.getTemplateId())
@@ -164,6 +170,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("bulk_apply_template"))
         .setParam("analyzedBefore", request.getAnalyzedBefore())
         .setParam("onProvisionedOnly", request.getOnProvisionedOnly())
+        .setParam("organization", request.getOrganization())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qualifiers", request.getQualifiers() == null ? null : request.getQualifiers().stream().collect(Collectors.joining(",")))
@@ -186,6 +193,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("create_template"))
         .setParam("description", request.getDescription())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setParam("projectKeyPattern", request.getProjectKeyPattern()),
       CreateTemplateWsResponse.parser());
   }
@@ -200,6 +208,7 @@ public class PermissionsService extends BaseService {
   public void deleteTemplate(DeleteTemplateRequest request) {
     call(
       new PostRequest(path("delete_template"))
+        .setParam("organization", request.getOrganization())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
         .setMediaType(MediaTypes.JSON)
@@ -216,6 +225,7 @@ public class PermissionsService extends BaseService {
   public WsGroupsResponse groups(GroupsRequest request) {
     return call(
       new GetRequest(path("groups"))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())
@@ -237,6 +247,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("remove_group"))
         .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
@@ -256,6 +267,7 @@ public class PermissionsService extends BaseService {
       new PostRequest(path("remove_group_from_template"))
         .setParam("groupId", request.getGroupId())
         .setParam("groupName", request.getGroupName())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -273,6 +285,7 @@ public class PermissionsService extends BaseService {
   public void removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateRequest request) {
     call(
       new PostRequest(path("remove_project_creator_from_template"))
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -291,6 +304,7 @@ public class PermissionsService extends BaseService {
     call(
       new PostRequest(path("remove_user"))
         .setParam("login", request.getLogin())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
@@ -309,6 +323,7 @@ public class PermissionsService extends BaseService {
     call(
       new PostRequest(path("remove_user_from_template"))
         .setParam("login", request.getLogin())
+        .setParam("organization", request.getOrganization())
         .setParam("permission", request.getPermission())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -326,6 +341,7 @@ public class PermissionsService extends BaseService {
   public SearchTemplatesWsResponse searchTemplates(SearchTemplatesRequest request) {
     return call(
       new GetRequest(path("search_templates"))
+        .setParam("organization", request.getOrganization())
         .setParam("q", request.getQ()),
       SearchTemplatesWsResponse.parser());
   }
@@ -340,6 +356,7 @@ public class PermissionsService extends BaseService {
   public void setDefaultTemplate(SetDefaultTemplateRequest request) {
     call(
       new PostRequest(path("set_default_template"))
+        .setParam("organization", request.getOrganization())
         .setParam("qualifier", request.getQualifier())
         .setParam("templateId", request.getTemplateId())
         .setParam("templateName", request.getTemplateName())
@@ -357,6 +374,7 @@ public class PermissionsService extends BaseService {
   public WsTemplateGroupsResponse templateGroups(TemplateGroupsRequest request) {
     return call(
       new GetRequest(path("template_groups"))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("permission", request.getPermission())
         .setParam("ps", request.getPs())
@@ -376,6 +394,7 @@ public class PermissionsService extends BaseService {
   public String templateUsers(TemplateUsersRequest request) {
     return call(
       new GetRequest(path("template_users"))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("permission", request.getPermission())
         .setParam("ps", request.getPs())
@@ -413,6 +432,7 @@ public class PermissionsService extends BaseService {
   public UsersWsResponse users(UsersRequest request) {
     return call(
       new GetRequest(path("users"))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())

@@ -32,6 +32,15 @@ public class DeleteTemplateRequest {
 
   private String templateId;
   private String templateName;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "AU-Tpxb--iU5OvuD2FLy"

@@ -34,6 +34,15 @@ public class CreateRequest {
   private String project;
   private String secret;
   private String url;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

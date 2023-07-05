@@ -31,6 +31,15 @@ import javax.annotation.Generated;
 public class CreateRequest {
 
   private String name;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

@@ -35,6 +35,15 @@ public class SearchRequest {
   private String pageSize;
   private String query;
   private String selected;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

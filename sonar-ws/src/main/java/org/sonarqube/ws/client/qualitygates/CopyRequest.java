@@ -32,6 +32,15 @@ public class CopyRequest {
 
   private String id;
   private String name;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

@@ -57,6 +57,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("copy"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -70,7 +71,8 @@ public class QualitygatesService extends BaseService {
   public CreateResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
-        .setParam("name", request.getName()),
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
       CreateResponse.parser());
   }
 
@@ -80,7 +82,8 @@ public class QualitygatesService extends BaseService {
   public CreateResponse createJson(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
-        .setParam("name", request.getName()),
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
       new QualityGatesServiceCreateResponseJsonParser(), MediaTypes.JSON);
   }
 
@@ -97,7 +100,8 @@ public class QualitygatesService extends BaseService {
         .setParam("error", request.getError())
         .setParam("gateId", request.getGateId())
         .setParam("metric", request.getMetric())
-        .setParam("op", request.getOp()),
+        .setParam("op", request.getOp())
+        .setParam("organization", request.getOrganization()),
       CreateConditionResponse.parser());
   }
 
@@ -112,6 +116,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("delete_condition"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -125,6 +130,7 @@ public class QualitygatesService extends BaseService {
   public void deselect(DeselectRequest request) {
     call(
       new PostRequest(path("deselect"))
+         .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
@@ -141,6 +147,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("destroy"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -154,6 +161,7 @@ public class QualitygatesService extends BaseService {
   public GetByProjectResponse getByProject(GetByProjectRequest request) {
     return call(
       new GetRequest(path("get_by_project"))
+        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject()),
       GetByProjectResponse.parser());
   }
@@ -167,7 +175,8 @@ public class QualitygatesService extends BaseService {
    */
   public ListWsResponse list(ListRequest request) {
     return call(
-      new GetRequest(path("list")),
+      new GetRequest(path("list"))
+      .setParam("organization", request.getOrganization()),
       ListWsResponse.parser());
   }
 
@@ -215,6 +224,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("rename"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -229,6 +239,7 @@ public class QualitygatesService extends BaseService {
     return call(
       new GetRequest(path("search"))
         .setParam("gateId", request.getGateId())
+        .setParam("organization", request.getOrganization())
         .setParam("page", request.getPage())
         .setParam("pageSize", request.getPageSize())
         .setParam("query", request.getQuery())
@@ -247,6 +258,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("select"))
         .setParam("gateId", request.getGateId())
+        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
@@ -263,6 +275,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("set_as_default"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -277,7 +290,8 @@ public class QualitygatesService extends BaseService {
     return call(
       new GetRequest(path("show"))
         .setParam("id", request.getId())
-        .setParam("name", request.getName()),
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
       ShowWsResponse.parser());
   }
 
@@ -294,7 +308,8 @@ public class QualitygatesService extends BaseService {
         .setParam("error", request.getError())
         .setParam("id", request.getId())
         .setParam("metric", request.getMetric())
-        .setParam("op", request.getOp()),
+        .setParam("op", request.getOp())
+        .setParam("organization", request.getOrganization()),
       UpdateConditionResponse.parser());
   }
 

@@ -53,6 +53,7 @@ public class UserGroupsService extends BaseService {
         .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -101,6 +102,7 @@ public class UserGroupsService extends BaseService {
         .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -115,6 +117,7 @@ public class UserGroupsService extends BaseService {
     return call(
       new GetRequest(path("search"))
         .setParam("f", request.getF() == null ? null : request.getF().stream().collect(Collectors.joining(",")))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
@@ -149,6 +152,7 @@ public class UserGroupsService extends BaseService {
       new GetRequest(path("users"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())

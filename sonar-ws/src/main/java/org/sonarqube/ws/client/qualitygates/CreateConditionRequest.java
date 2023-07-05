@@ -34,6 +34,15 @@ public class CreateConditionRequest {
   private String gateId;
   private String metric;
   private String op;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "10"

@@ -36,6 +36,15 @@ public class TemplateUsersRequest {
   private String q;
   private String templateId;
   private String templateName;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "42"

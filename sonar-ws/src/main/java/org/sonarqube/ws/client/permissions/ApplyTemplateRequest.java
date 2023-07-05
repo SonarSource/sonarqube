@@ -34,6 +34,15 @@ public class ApplyTemplateRequest {
   private String projectKey;
   private String templateId;
   private String templateName;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"

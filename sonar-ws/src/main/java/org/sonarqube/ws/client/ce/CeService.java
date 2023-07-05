@@ -208,6 +208,7 @@ public class CeService extends BaseService {
     return call(
       new PostRequest(path("submit"))
         .setParam("characteristic", request.getCharacteristic())
+        .setParam("organization", request.getOrganization())
         .setParam("projectBranch", request.getProjectBranch())
         .setParam("projectKey", request.getProjectKey())
         .setParam("projectName", request.getProjectName())

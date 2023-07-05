@@ -67,6 +67,15 @@ public class SearchRequest {
   private List<String> statuses;
   private List<String> tags;
   private List<String> types;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * Possible values:

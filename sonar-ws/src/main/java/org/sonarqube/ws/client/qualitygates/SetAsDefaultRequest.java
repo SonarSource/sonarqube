@@ -32,6 +32,16 @@ public class SetAsDefaultRequest {
 
   private String id;
 
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
+
+  private String organization;
+
   /**
    * This is a mandatory parameter.
    * Example value: "1"

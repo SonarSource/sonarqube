@@ -90,6 +90,7 @@ public class IssuesService extends BaseService {
   public AuthorsResponse authors(AuthorsRequest request) {
     return call(
       new GetRequest(path("authors"))
+        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
@@ -234,6 +235,7 @@ public class IssuesService extends BaseService {
         .setParam("issues", request.getIssues() == null ? null : request.getIssues().stream().collect(Collectors.joining(",")))
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
         .setParam("onComponentOnly", request.getOnComponentOnly())
+        .setParam("organization", request.getOrganization())
         .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
@@ -308,6 +310,7 @@ public class IssuesService extends BaseService {
   public TagsResponse tags(TagsRequest request) {
     return call(
       new GetRequest(path("tags"))
+        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),

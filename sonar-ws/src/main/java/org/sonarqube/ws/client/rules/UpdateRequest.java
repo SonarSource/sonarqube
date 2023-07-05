@@ -42,6 +42,15 @@ public class UpdateRequest {
   private String severity;
   private String status;
   private List<String> tags;
+  private String organization;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
   /**
    * This is a mandatory parameter.

@@ -52,6 +52,7 @@ public class RulesService extends BaseService {
   public String app(AppRequest request) {
     return call(
       new GetRequest(path("app"))
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -164,6 +165,7 @@ public class RulesService extends BaseService {
         .setParam("is_template", request.getIsTemplate())
         .setParam("include_external", request.getIncludeExternal())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
+        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
@@ -194,7 +196,8 @@ public class RulesService extends BaseService {
     return call(
       new GetRequest(path("show"))
         .setParam("actives", request.getActives())
-        .setParam("key", request.getKey()),
+        .setParam("key", request.getKey())
+        .setParam("organization", request.getOrganization()),
       ShowResponse.parser());
   }
 
@@ -208,6 +211,7 @@ public class RulesService extends BaseService {
   public String tags(TagsRequest request) {
     return call(
       new GetRequest(path("tags"))
+        .setParam("organization", request.getOrganization())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
         .setMediaType(MediaTypes.JSON)).content();
@@ -227,6 +231,7 @@ public class RulesService extends BaseService {
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("markdown_note", request.getMarkdownNote())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
         .setParam("remediation_fn_base_effort", request.getRemediationFnBaseEffort())
         .setParam("remediation_fn_type", request.getRemediationFnType())
