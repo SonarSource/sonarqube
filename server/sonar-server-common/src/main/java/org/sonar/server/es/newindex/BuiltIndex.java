@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.NORMS;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.STORE;
@@ -48,7 +48,7 @@ public final class BuiltIndex<T extends NewIndex<T>> {
   BuiltIndex(T newIndex) {
     this.mainType = newIndex.getMainType();
     this.settings = newIndex.getSettings().build();
-    this.relationTypes = newIndex.getRelationsStream().collect(toSet());
+    this.relationTypes = newIndex.getRelationsStream().collect(Collectors.toSet());
     this.attributes = buildAttributes(newIndex);
   }
 

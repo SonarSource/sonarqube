@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -65,7 +64,7 @@ public class CoreExtensionsLoader {
     Set<String> duplicatedNames = nameCounts.entrySet().stream()
       .filter(t -> t.getValue() > 1)
       .map(Map.Entry::getKey)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     checkState(duplicatedNames.isEmpty(),
       "Multiple core extensions declare the following names: %s",
       duplicatedNames.stream().sorted().collect(Collectors.joining(", ")));

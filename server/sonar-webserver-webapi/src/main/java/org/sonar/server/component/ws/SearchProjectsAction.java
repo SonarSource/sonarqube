@@ -329,7 +329,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     return dbClient.projectDao().selectByUuids(dbSession, favoriteDbUuids).stream()
       .map(ProjectDto::getUuid)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
   }
 
   private List<SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, Collection<String> mainBranchUuids) {

@@ -74,7 +74,6 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
@@ -426,7 +425,7 @@ public class SearchAction implements IssuesWsAction {
 
     Set<String> facetsRequiringProjectParameter = options.getFacets().stream()
       .filter(FACETS_REQUIRING_PROJECT::contains)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     checkArgument(facetsRequiringProjectParameter.isEmpty() ||
         (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
       String.join(",", facetsRequiringProjectParameter));

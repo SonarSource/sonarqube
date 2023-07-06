@@ -41,7 +41,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.LOW;
@@ -338,11 +337,11 @@ public final class SecurityStandards {
    * @throws IllegalStateException if {@code securityStandards} maps to multiple {@link SQCategory SQCategories}
    */
   public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
-    Set<String> standards = securityStandards.stream().filter(Objects::nonNull).collect(toSet());
+    Set<String> standards = securityStandards.stream().filter(Objects::nonNull).collect(Collectors.toSet());
     Set<String> cwe = toCwes(standards);
     List<SQCategory> sq = toSortedSQCategories(cwe);
     SQCategory sqCategory = sq.iterator().next();
-    Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(toSet());
+    Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
@@ -360,14 +359,14 @@ public final class SecurityStandards {
     return securityStandards.stream()
       .filter(s -> s.startsWith(prefix))
       .map(s -> s.substring(prefix.length()))
-      .collect(toSet());
+      .collect(Collectors.toSet());
   }
 
   private static Set<String> toCwes(Collection<String> securityStandards) {
     Set<String> result = securityStandards.stream()
       .filter(s -> s.startsWith(CWE_PREFIX))
       .map(s -> s.substring(CWE_PREFIX.length()))
-      .collect(toSet());
+      .collect(Collectors.toSet());
     return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
   }
 
@@ -376,7 +375,7 @@ public final class SecurityStandards {
       .keySet()
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_CWE_TOP_25.get(k)::contains))
-      .collect(toSet());
+      .collect(Collectors.toSet());
   }
 
   private static Set<String> toSansTop25(Collection<String> cwe) {
@@ -384,7 +383,7 @@ public final class SecurityStandards {
       .keySet()
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SANS_TOP_25.get(k)::contains))
-      .collect(toSet());
+      .collect(Collectors.toSet());
   }
 
   private static List<SQCategory> toSortedSQCategories(Collection<String> cwe) {

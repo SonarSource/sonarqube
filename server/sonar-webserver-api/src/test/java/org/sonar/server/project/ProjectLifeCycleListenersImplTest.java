@@ -25,12 +25,12 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -203,7 +203,7 @@ public class ProjectLifeCycleListenersImplTest {
   public static Object[][] oneOrManyProjects() {
     return new Object[][] {
       {singleton(newUniqueProject())},
-      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueProject()).collect(MoreCollectors.toSet())}
+      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueProject()).collect(Collectors.toSet())}
     };
   }
 
@@ -212,7 +212,7 @@ public class ProjectLifeCycleListenersImplTest {
     return new Object[][] {
       {singleton(newUniqueProject())},
       {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> new DeletedProject(newUniqueProject(), "branch_" + i))
-        .collect(MoreCollectors.toSet())}
+        .collect(Collectors.toSet())}
     };
   }
 
@@ -294,7 +294,7 @@ public class ProjectLifeCycleListenersImplTest {
   public static Object[][] oneOrManyRekeyedProjects() {
     return new Object[][] {
       {singleton(newUniqueRekeyedProject())},
-      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueRekeyedProject()).collect(MoreCollectors.toSet())}
+      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueRekeyedProject()).collect(Collectors.toSet())}
     };
   }
 

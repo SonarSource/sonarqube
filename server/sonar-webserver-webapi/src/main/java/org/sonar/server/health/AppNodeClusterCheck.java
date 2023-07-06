@@ -21,10 +21,10 @@ package org.sonar.server.health;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
@@ -35,7 +35,7 @@ public class AppNodeClusterCheck implements ClusterHealthCheck {
   public Health check(Set<NodeHealth> nodeHealths) {
     Set<NodeHealth> appNodes = nodeHealths.stream()
       .filter(s -> s.getDetails().getType() == NodeDetails.Type.APPLICATION)
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     return Arrays.stream(AppNodeClusterHealthSubChecks.values())
       .map(s -> s.check(appNodes))

@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.Math.abs;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -103,7 +102,7 @@ public class DBSessionsImplTest {
     underTest.enableCaching();
 
     int size = 1 + abs(random.nextInt(10));
-    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(false)).collect(MoreCollectors.toSet());
+    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(false)).collect(Collectors.toSet());
     assertThat(dbSessions).hasSize(size);
     assertThat(getWrappedDbSessions(dbSessions))
       .hasSize(1)
@@ -119,7 +118,7 @@ public class DBSessionsImplTest {
     underTest.enableCaching();
 
     int size = 1 + abs(random.nextInt(10));
-    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(true)).collect(MoreCollectors.toSet());
+    Set<DbSession> dbSessions = IntStream.range(0, size).mapToObj(ignored -> underTest.openSession(true)).collect(Collectors.toSet());
     assertThat(dbSessions).hasSize(size);
     assertThat(getWrappedDbSessions(dbSessions))
       .hasSize(1)

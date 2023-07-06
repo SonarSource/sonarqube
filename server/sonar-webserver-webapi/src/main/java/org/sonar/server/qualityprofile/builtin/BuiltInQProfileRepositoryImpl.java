@@ -191,7 +191,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     Set<String> declaredDefaultProfileNames = entry.getValue().stream()
       .filter(BuiltInQProfile.Builder::isDeclaredDefault)
       .map(BuiltInQProfile.Builder::getName)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     checkState(declaredDefaultProfileNames.size() <= 1, "Several Quality profiles are flagged as default for the language %s: %s", entry.getKey(), declaredDefaultProfileNames);
     return true;
   }

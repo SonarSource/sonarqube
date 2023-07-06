@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -76,7 +77,6 @@ import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSe
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -266,7 +266,7 @@ public class ShowAction implements HotspotsWsAction {
     Set<UserDto> preloadedUsers = Stream.of(users.getAssignee(), users.getAuthor())
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     FormattingContext formattingContext = issueChangeSupport
       .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, Set.of(components.component));
 

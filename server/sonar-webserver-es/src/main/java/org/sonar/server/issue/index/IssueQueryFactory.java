@@ -74,7 +74,6 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -119,7 +118,7 @@ public class IssueQueryFactory {
       Collection<RuleDto> ruleDtos = ruleKeysToRuleId(dbSession, request.getRules());
       Collection<String> ruleUuids = ruleDtos.stream().map(RuleDto::getUuid).collect(Collectors.toSet());
 
-      if (request.getRules() != null && request.getRules().stream().collect(toSet()).size() != ruleDtos.size()) {
+      if (request.getRules() != null && request.getRules().stream().collect(Collectors.toSet()).size() != ruleDtos.size()) {
         ruleUuids.add("non-existing-uuid");
       }
 
@@ -371,7 +370,7 @@ public class IssueQueryFactory {
     Set<String> authorizedAppBranchUuids = appBranchComponents.stream()
       .filter(app -> userSession.hasComponentPermission(USER, app) && userSession.hasChildProjectsPermission(USER, app))
       .map(ComponentDto::uuid)
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     builder.viewUuids(authorizedAppBranchUuids.isEmpty() ? singleton(UNKNOWN) : authorizedAppBranchUuids);
     addCreatedAfterByProjects(builder, dbSession, request, authorizedAppBranchUuids);
@@ -384,7 +383,7 @@ public class IssueQueryFactory {
 
     Set<String> projectBranchUuids = appBranchUuids.stream()
       .flatMap(app -> dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, app, app).stream())
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     List<SnapshotDto> snapshots = getLastAnalysis(dbSession, projectBranchUuids);
 
@@ -392,7 +391,7 @@ public class IssueQueryFactory {
       .stream()
       .filter(s -> isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
       .map(SnapshotDto::getRootComponentUuid)
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     Map<String, PeriodStart> leakByProjects = snapshots
       .stream()

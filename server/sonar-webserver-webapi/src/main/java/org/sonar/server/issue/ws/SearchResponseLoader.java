@@ -173,7 +173,7 @@ public class SearchResponseLoader {
     for (ComponentDto component : loadedComponents) {
       collector.addBranchUuid(component.branchUuid());
     }
-    Set<String> loadedBranchUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.branchUuid())).map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+    Set<String> loadedBranchUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.branchUuid())).map(ComponentDto::uuid).collect(Collectors.toSet());
     Set<String> branchUuidsToLoad = copyOf(difference(collector.getBranchUuids(), loadedBranchUuids));
     if (!branchUuidsToLoad.isEmpty()) {
       List<ComponentDto> branchComponents = dbClient.componentDao().selectByUuids(dbSession, collector.getBranchUuids());

@@ -22,6 +22,7 @@ package org.sonar.server.setting.ws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
@@ -31,7 +32,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -120,7 +120,7 @@ public class ResetAction implements SettingsWsAction {
         PropertyDefinition definition = definitions.get(key);
         return definition != null ? definition.key() : key;
       })
-      .collect(MoreCollectors.toSet()));
+      .collect(Collectors.toSet()));
   }
 
   private static ResetRequest toWsRequest(Request request) {

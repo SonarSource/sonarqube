@@ -87,7 +87,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -504,7 +503,7 @@ public class SearchAction implements HotspotsWsAction {
       .stream()
       .filter(s -> !isNullOrEmpty(s.getPeriodMode()) && s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
       .map(SnapshotDto::getRootComponentUuid)
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     Map<String, IssueQuery.PeriodStart> leakByProjects = snapshots
       .stream()

@@ -30,7 +30,6 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
 import org.sonar.ce.task.projectanalysis.task.ListTaskContainer;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +65,7 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
       .filter(Objects::nonNull)
       .filter(ComputationStep.class::isAssignableFrom)
       .map(Class::getCanonicalName)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
 
     assertThat(difference(retrieveStepPackageStepsCanonicalNames(PROJECTANALYSIS_STEP_PACKAGE), computationStepClassNames)).isEmpty();
   }

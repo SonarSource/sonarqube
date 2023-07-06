@@ -47,7 +47,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -386,16 +385,16 @@ public class BulkChangeAction implements IssuesWsAction {
         .filter(issueDto -> SECURITY_HOTSPOT.getDbConstant() != issueDto.getType())
         .toList();
 
-      List<ComponentDto> allBranches = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
+      List<ComponentDto> allBranches = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
       this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, branchComponentByUuid.keySet()).stream()
         .collect(uniqueIndex(BranchDto::getUuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
-        issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
           .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
-        issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
         .collect(uniqueIndex(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
@@ -413,7 +412,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
-      Set<String> branchUuids = branchComponentByUuid.values().stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+      Set<String> branchUuids = branchComponentByUuid.values().stream().map(ComponentDto::uuid).collect(Collectors.toSet());
       return allIssues.stream()
         .filter(issue -> branchUuids.contains(issue.getProjectUuid()))
         .map(IssueDto::toDefaultIssue)

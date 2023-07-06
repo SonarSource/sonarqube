@@ -22,6 +22,7 @@ package org.sonar.server.platform.web;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
@@ -29,7 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.FilterChain;
 import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
@@ -60,7 +60,7 @@ public class WebServiceFilter extends HttpFilter {
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .map(toPath()))
-          .collect(MoreCollectors.toSet());
+          .collect(Collectors.toSet());
     this.excludeUrls = concat(MOVED_WEB_SERVICES.stream(),
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())

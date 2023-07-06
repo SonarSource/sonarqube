@@ -55,7 +55,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
@@ -99,7 +98,7 @@ public class IssueChangeWSSupport {
   }
 
   public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load, Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {
-    Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(toSet());
+    Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(Collectors.toSet());
 
     List<IssueChangeDto> changes = List.of();
     List<IssueChangeDto> comments = List.of();
@@ -156,7 +155,7 @@ public class IssueChangeWSSupport {
           .map(IssueChangeDto::getUserUuid)
       )
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     if (userUuids.isEmpty()) {
       return emptyMap();
     }
@@ -188,7 +187,7 @@ public class IssueChangeWSSupport {
       })
       .map(Strings::emptyToNull)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     if (fileUuids.isEmpty()) {
       return emptyMap();
     }

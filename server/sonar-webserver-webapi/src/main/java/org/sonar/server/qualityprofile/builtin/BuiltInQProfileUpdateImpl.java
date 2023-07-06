@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -35,8 +36,6 @@ import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
@@ -64,7 +63,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     Set<String> ruleUuids = Stream.concat(
         deactivatedRuleUuids.stream(),
         builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleUuid))
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     Collection<RuleActivation> activations = new ArrayList<>();
     for (BuiltInQProfile.ActiveRule ar : builtInDefinition.getActiveRules()) {

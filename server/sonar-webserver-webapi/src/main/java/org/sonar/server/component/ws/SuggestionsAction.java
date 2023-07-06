@@ -61,7 +61,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -225,7 +224,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         .map(ComponentHitsPerQualifier::getHits)
         .flatMap(Collection::stream)
         .map(ComponentHit::getUuid)
-        .collect(toSet());
+        .collect(Collectors.toSet());
       List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
       Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(MoreCollectors.toSet(favorites.size()));
       SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, entities, skip + limit);
@@ -248,7 +247,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private List<String> getQualifiers(@Nullable String more) {
     Set<String> availableQualifiers = resourceTypes.getAll().stream()
       .map(ResourceType::getQualifier)
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     if (more == null) {
       return stream(SuggestionCategory.values())
         .map(SuggestionCategory::getQualifier)

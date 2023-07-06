@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -54,7 +55,6 @@ import static org.sonar.api.measures.CoreMetrics.TESTS;
 import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS;
 import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * This class is used to know the list of metrics that can be sent in the analysis report.
@@ -104,7 +104,7 @@ public class ScannerMetrics {
 
   @Autowired(required = false)
   public ScannerMetrics(Metrics[] metricsRepositories) {
-    this.metrics = Stream.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS.stream()).collect(toSet());
+    this.metrics = Stream.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS.stream()).collect(Collectors.toSet());
   }
 
   /**

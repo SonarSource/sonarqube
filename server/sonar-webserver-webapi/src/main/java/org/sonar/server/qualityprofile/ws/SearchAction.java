@@ -226,7 +226,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private Set<String> getLanguageKeys() {
-    return Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet());
+    return Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet());
   }
 
   private SearchWsResponse buildResponse(SearchData data) {

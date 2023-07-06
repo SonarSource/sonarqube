@@ -206,8 +206,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private List<MetricDto> searchMetrics(DbSession dbSession, SearchHistoryRequest request) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetrics());
     if (request.getMetrics().size() > metrics.size()) {
-      Set<String> requestedMetrics = request.getMetrics().stream().collect(MoreCollectors.toSet());
-      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(MoreCollectors.toSet());
+      Set<String> requestedMetrics = request.getMetrics().stream().collect(Collectors.toSet());
+      Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
 
       Set<String> unfoundMetrics = Sets.difference(requestedMetrics, foundMetrics).immutableCopy();
       throw new IllegalArgumentException(format("Metrics %s are not found", String.join(", ", unfoundMetrics)));

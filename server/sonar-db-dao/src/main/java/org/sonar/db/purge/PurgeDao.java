@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -154,7 +153,7 @@ public class PurgeDao implements Dao {
     return mapper.selectPurgeableAnalyses(componentUuid).stream()
       .filter(new NewCodePeriodAnalysisFilter(mapper, componentUuid))
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public void purgeCeActivities(DbSession session, PurgeProfiler profiler) {
@@ -293,7 +292,7 @@ public class PurgeDao implements Dao {
    * </p>
    */
   public void deleteNonRootComponentsInView(DbSession dbSession, Collection<ComponentDto> components) {
-    Set<ComponentDto> nonRootComponents = components.stream().filter(PurgeDao::isNotRoot).collect(MoreCollectors.toSet());
+    Set<ComponentDto> nonRootComponents = components.stream().filter(PurgeDao::isNotRoot).collect(Collectors.toSet());
     if (nonRootComponents.isEmpty()) {
       return;
     }
@@ -307,9 +306,9 @@ public class PurgeDao implements Dao {
     List<String> subviewsOrProjectCopies = nonRootComponents.stream()
       .filter(PurgeDao::isSubview)
       .map(ComponentDto::uuid)
-      .collect(Collectors.toList());
+      .toList();
     purgeCommands.deleteByRootAndSubviews(subviewsOrProjectCopies);
-    List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(Collectors.toList());
+    List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).toList();
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);
     purgeCommands.deleteComponents(nonRootComponentUuids);
   }

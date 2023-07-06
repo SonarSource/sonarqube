@@ -138,7 +138,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<ComponentDto> searchProjects() {
       List<ComponentDto> componentDtos = searchByProjectKeys(dbSession, request.getProjectKeys());
-      checkArgument(ALLOWED_QUALIFIERS.containsAll(componentDtos.stream().map(ComponentDto::qualifier).collect(MoreCollectors.toSet())),
+      checkArgument(ALLOWED_QUALIFIERS.containsAll(componentDtos.stream().map(ComponentDto::qualifier).collect(Collectors.toSet())),
         "Only component of qualifiers %s are allowed", ALLOWED_QUALIFIERS);
       return getAuthorizedProjects(componentDtos);
     }

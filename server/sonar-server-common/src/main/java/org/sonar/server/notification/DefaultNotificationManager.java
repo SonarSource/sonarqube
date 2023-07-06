@@ -33,7 +33,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -148,7 +147,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
     return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, subscriberPermissionsOnProject)
       .map(emailSubscriber -> new EmailRecipient(emailSubscriber.getLogin(), emailSubscriber.getEmail()))
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
   }
 
   private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,

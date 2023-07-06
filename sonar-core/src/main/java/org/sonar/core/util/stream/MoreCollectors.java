@@ -56,16 +56,12 @@ public final class MoreCollectors {
     return ImmutableList.toImmutableList();
   }
 
-  public static <T> Collector<T, ?, Set<T>> toSet() {
-    return Collectors.toSet();
-  }
-
   public static <E> Collector<E, ?, ImmutableSet<E>> toImmutableSet() {
     return ImmutableSet.toImmutableSet();
   }
 
   public static <T> Collector<T, ?, Set<T>> toSet(int expectedSize) {
-    return toSet();
+    return Collectors.toSet();
   }
 
   /**

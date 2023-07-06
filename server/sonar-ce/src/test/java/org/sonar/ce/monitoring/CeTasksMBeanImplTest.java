@@ -39,7 +39,6 @@ import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerController;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -64,7 +63,7 @@ public class CeTasksMBeanImplTest {
       when(res.getUUID()).thenReturn(uuid);
       return res;
     })
-    .collect(MoreCollectors.toSet());
+    .collect(Collectors.toSet());
 
   private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
   private final CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), ceWorkerController);

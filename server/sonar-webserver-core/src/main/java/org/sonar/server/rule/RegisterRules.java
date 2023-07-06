@@ -77,7 +77,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
@@ -140,7 +139,7 @@ public class RegisterRules implements Startable {
       persistRepositories(dbSession, ruleDefinitionContext.repositories());
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
-      ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDto::getUuid).collect(toSet()));
+      ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));
       changes.forEach(arChange -> dbClient.qProfileChangeDao().insert(dbSession, arChange.toDto(null)));
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       registerRulesContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
@@ -812,7 +811,7 @@ public class RegisterRules implements Startable {
     return Stream.concat(
         context.stream().map(RulesDefinition.ExtendedRepository::key),
         recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
-      .collect(toSet());
+      .collect(Collectors.toSet());
   }
 
   private void update(DbSession session, RuleDto rule) {
@@ -827,7 +826,7 @@ public class RegisterRules implements Startable {
 
     Set<RuleKey> definedRuleKeys = definedRules.stream()
       .map(r -> RuleKey.of(r.repository().key(), r.key()))
-      .collect(toSet());
+      .collect(Collectors.toSet());
 
     List<RuleKey> definedDeprecatedRuleKeys = definedRules.stream()
       .flatMap(r -> r.deprecatedRuleKeys().stream())

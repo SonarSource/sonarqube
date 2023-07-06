@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
       .filter(e -> connectedWorkerUUIDs.contains(e.getKey()))
       .map(Map.Entry::getValue)
       .flatMap(Set::stream)
-      .collect(toSet());
+      .collect(Collectors.toSet());
   }
 
   @Override

@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
@@ -79,13 +78,13 @@ public class AuthorizationDaoIT {
     group2 = db.users().insertGroup("group2");
     randomExistingUserUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> db.users().insertUser().getUuid())
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     randomPublicEntityUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> db.components().insertPublicProject().getProjectDto().getUuid())
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
     randomPrivateEntityUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> db.components().insertPrivateProject().getProjectDto().getUuid())
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -232,7 +231,7 @@ public class AuthorizationDaoIT {
   public void keepAuthorizedEntityUuids_returns_empty_for_group_AnyOne_for_non_existent_projects() {
     Set<String> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> Integer.toString(3_562 + i))
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, null, UserRole.USER))
       .isEmpty();
@@ -242,7 +241,7 @@ public class AuthorizationDaoIT {
   public void keepAuthorizedEntityUuids_returns_empty_for_user_for_non_existent_projects() {
     Set<String> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> Integer.toString(9_666 + i))
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, user.getUuid(), UserRole.USER))
       .isEmpty();
@@ -495,7 +494,7 @@ public class AuthorizationDaoIT {
     ProjectDto project = random.nextBoolean() ? db.components().insertPublicProject().getProjectDto() : db.components().insertPrivateProject().getProjectDto();
     Set<String> randomNonExistingUserUuidsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToObj(i -> Uuids.createFast())
-      .collect(MoreCollectors.toSet());
+      .collect(Collectors.toSet());
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomNonExistingUserUuidsSet, UserRole.USER, project.getUuid()))
       .isEmpty();

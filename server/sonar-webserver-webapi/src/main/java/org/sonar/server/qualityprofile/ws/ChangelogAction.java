@@ -46,7 +46,6 @@ import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
@@ -123,7 +122,7 @@ public class ChangelogAction implements QProfileWsAction {
     Set<String> userUuids = changes.stream()
       .map(Change::getUserUuid)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     return dbClient.userDao()
       .selectByUuids(dbSession, userUuids)
       .stream()
@@ -134,7 +133,7 @@ public class ChangelogAction implements QProfileWsAction {
     Set<String> ruleUuids = changes.stream()
       .map(c -> c.ruleUuid)
       .filter(Objects::nonNull)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     return dbClient.ruleDao()
       .selectByUuids(dbSession, Lists.newArrayList(ruleUuids))
       .stream()
