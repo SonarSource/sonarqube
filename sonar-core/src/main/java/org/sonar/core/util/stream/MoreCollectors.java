@@ -26,9 +26,9 @@ import com.google.common.collect.ImmutableSetMultimap;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -57,12 +57,8 @@ public final class MoreCollectors {
     return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
   }
 
-  public static <T> Collector<T, ?, HashSet<T>> toHashSet() {
-    return java.util.stream.Collectors.toCollection(HashSet::new);
-  }
-
-  public static <T> Collector<T, ?, HashSet<T>> toHashSet(int size) {
-    return java.util.stream.Collectors.toCollection(() -> new HashSet<>(size));
+  public static <T> Collector<T, ?, Set<T>> toHashSet(int size) {
+    return Collectors.toSet();
   }
 
   /**

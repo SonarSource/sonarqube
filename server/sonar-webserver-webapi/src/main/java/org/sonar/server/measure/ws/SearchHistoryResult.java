@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
@@ -88,7 +87,7 @@ public class SearchHistoryResult {
   }
 
   public SearchHistoryResult setMeasures(List<MeasureDto> measures) {
-    Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(MoreCollectors.toHashSet());
+    Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toSet());
     ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
     List<MeasureDto> filteredMeasures = measures.stream()
       .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))

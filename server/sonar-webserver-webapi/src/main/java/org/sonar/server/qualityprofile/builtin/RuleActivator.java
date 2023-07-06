@@ -475,7 +475,7 @@ public class RuleActivator {
       Collection<QProfileDto> profiles = db.qualityProfileDao().selectDescendants(dbSession, parents);
       Set<String> ruleProfileUuids = profiles.stream()
         .map(QProfileDto::getRulesProfileUuid)
-        .collect(MoreCollectors.toHashSet());
+        .collect(Collectors.toSet());
       Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
       List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
       List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);

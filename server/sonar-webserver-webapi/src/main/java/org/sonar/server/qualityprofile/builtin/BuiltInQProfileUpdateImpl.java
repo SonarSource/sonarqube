@@ -57,7 +57,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     Set<String> deactivatedRuleUuids = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
       .stream()
       .map(ActiveRuleDto::getRuleUuid)
-      .collect(MoreCollectors.toHashSet());
+      .collect(Collectors.toSet());
 
     // all rules, including those which are removed from built-in profile
     Set<String> ruleUuids = Stream.concat(

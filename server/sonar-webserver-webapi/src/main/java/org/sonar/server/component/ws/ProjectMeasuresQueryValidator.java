@@ -28,7 +28,6 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
@@ -42,7 +41,7 @@ public class ProjectMeasuresQueryValidator {
   }
 
   public static void validate(ProjectMeasuresQuery query) {
-    validateFilterKeys(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(toHashSet()));
+    validateFilterKeys(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(Collectors.toSet()));
     validateSort(query.getSort());
   }
 

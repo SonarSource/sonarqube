@@ -79,18 +79,6 @@ public class MoreCollectorsTest {
   }
 
   @Test
-  public void toHashSet_builds_an_HashSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet());
-    assertThat(res).isInstanceOf(HashSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toHashSet_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toHashSet())).isEqualTo(HUGE_SET);
-  }
-
-  @Test
   public void toHashSet_with_size_builds_an_ArrayList() {
     Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet(30));
     assertThat(res).isInstanceOf(HashSet.class)

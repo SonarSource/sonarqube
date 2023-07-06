@@ -164,7 +164,7 @@ public class PermissionIndexer implements EventIndexer {
     PermissionIndexerDao permissionIndexerDao = new PermissionIndexerDao();
     Set<String> remainingEntityUuids = items.stream().map(EsQueueDto::getDocId)
       .map(AuthorizationDoc::entityUuidOf)
-      .collect(MoreCollectors.toHashSet());
+      .collect(Collectors.toSet());
     permissionIndexerDao.selectByUuids(dbClient, dbSession, remainingEntityUuids).forEach(p -> {
       remainingEntityUuids.remove(p.getEntityUuid());
       bulkIndexers.forEach(bi -> bi.add(AuthorizationDoc.fromDto(bi.getIndexType(), p).toIndexRequest()));

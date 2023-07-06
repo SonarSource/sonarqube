@@ -72,7 +72,6 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -311,7 +310,7 @@ public class IssueQueryFactory {
       return;
     }
 
-    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(toHashSet());
+    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(Collectors.toSet());
     checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
     setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), dbSession);

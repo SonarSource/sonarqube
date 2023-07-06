@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.ResourceTypes;
@@ -48,10 +49,9 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
@@ -127,7 +127,7 @@ public class SearchAction implements ComponentsWsAction {
   private Map<String, String> searchProjectsKeysByUuids(DbSession dbSession, List<EntityDto> entities) {
     Set<String> projectUuidsToSearch = entities.stream()
       .map(EntityDto::getAuthUuid)
-      .collect(toHashSet());
+      .collect(Collectors.toSet());
     List<EntityDto> projects = dbClient.entityDao().selectByUuids(dbSession, projectUuidsToSearch);
     return projects.stream().collect(toMap(EntityDto::getUuid, EntityDto::getKey));
   }
