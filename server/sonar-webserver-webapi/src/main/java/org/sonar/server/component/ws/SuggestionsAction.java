@@ -177,7 +177,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         return newBuilder().build();
       }
 
-      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(MoreCollectors.toSet(favorites.size()));
+      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
       Comparator<EntityDto> favoriteComparator = Comparator.comparing(c -> favoriteUuids.contains(c.getUuid()) ? -1 : +1);
       Comparator<EntityDto> comparator = favoriteComparator.thenComparing(EntityDto::getName);
 
@@ -207,7 +207,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     }
 
     List<EntityDto> favorites = favoriteFinder.list();
-    Set<String> favoriteKeys = favorites.stream().map(EntityDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
+    Set<String> favoriteKeys = favorites.stream().map(EntityDto::getKey).collect(Collectors.toSet());
     SuggestionQuery.Builder queryBuilder = SuggestionQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
@@ -226,7 +226,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         .map(ComponentHit::getUuid)
         .collect(Collectors.toSet());
       List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
-      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(MoreCollectors.toSet(favorites.size()));
+      Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
       SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, entities, skip + limit);
       getWarning(query).ifPresent(searchWsResponse::setWarning);
       return searchWsResponse.build();

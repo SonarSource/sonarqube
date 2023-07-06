@@ -164,7 +164,7 @@ public class CeQueueImpl implements CeQueue {
         .filter(Optional::isPresent)
         .map(Optional::get)
         .map(CeTaskSubmit.Component::getEntityUuid)
-        .collect(MoreCollectors.toSet(submissions.size()));
+        .collect(Collectors.toSet());
       if (mainComponentUuids.isEmpty()) {
         return t -> true;
       }
@@ -236,7 +236,7 @@ public class CeQueueImpl implements CeQueue {
 
     // load characteristics
     // TODO could be avoided, characteristics are already present in submissions
-    Set<String> taskUuids = dtos.stream().map(CeQueueDto::getUuid).collect(MoreCollectors.toSet(dtos.size()));
+    Set<String> taskUuids = dtos.stream().map(CeQueueDto::getUuid).collect(Collectors.toSet());
     Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
       .selectByTaskUuids(dbSession, taskUuids).stream()
       .collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));

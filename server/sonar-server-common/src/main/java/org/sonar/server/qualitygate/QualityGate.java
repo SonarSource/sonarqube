@@ -21,10 +21,10 @@ package org.sonar.server.qualitygate;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 @Immutable
 public class QualityGate {
@@ -38,7 +38,7 @@ public class QualityGate {
     this.conditions = requireNonNull(conditions, "conditions can't be null")
       .stream()
       .map(c -> requireNonNull(c, "condition can't be null"))
-      .collect(toSet(conditions.size()));
+      .collect(Collectors.toSet());
   }
 
   public String getId() {

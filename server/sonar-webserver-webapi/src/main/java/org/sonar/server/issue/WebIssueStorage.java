@@ -45,7 +45,6 @@ import org.sonar.server.rule.ServerRuleFinder;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Save issues into database. It is executed :
@@ -88,10 +87,10 @@ public class WebIssueStorage extends IssueStorage {
     Collection<IssueDto> updated = update(issuesToUpdate, now);
 
     doAfterSave(dbSession, Stream.concat(inserted.stream(), updated.stream())
-      .collect(toSet(issuesToInsert.size() + issuesToUpdate.size())));
+      .collect(Collectors.toSet()));
 
     return Stream.concat(inserted.stream(), updated.stream())
-      .collect(toSet(issuesToInsert.size() + issuesToUpdate.size()));
+      .collect(Collectors.toSet());
   }
 
   private void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {

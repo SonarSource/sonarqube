@@ -111,7 +111,7 @@ public class SearchResponseLoader {
 
   private List<IssueDto> loadIssues(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession) {
     List<IssueDto> preloadedIssues = preloadedResponseData.getIssues();
-    Set<String> preloadedIssueKeys = preloadedIssues.stream().map(IssueDto::getKey).collect(MoreCollectors.toSet(preloadedIssues.size()));
+    Set<String> preloadedIssueKeys = preloadedIssues.stream().map(IssueDto::getKey).collect(Collectors.toSet());
 
     ImmutableSet<String> issueKeys = ImmutableSet.copyOf(collector.getIssueKeys());
     Set<String> issueKeysToLoad = copyOf(difference(issueKeys, preloadedIssueKeys));
@@ -141,7 +141,7 @@ public class SearchResponseLoader {
 
   private void loadComponents(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
     Collection<ComponentDto> preloadedComponents = preloadedResponseData.getComponents();
-    Set<String> preloadedComponentUuids = preloadedComponents.stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet(preloadedComponents.size()));
+    Set<String> preloadedComponentUuids = preloadedComponents.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
     Set<String> componentUuidsToLoad = copyOf(difference(collector.getComponentUuids(), preloadedComponentUuids));
 
     result.addComponents(preloadedComponents);

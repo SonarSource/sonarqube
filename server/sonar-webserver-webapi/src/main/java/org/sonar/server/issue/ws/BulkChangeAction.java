@@ -90,7 +90,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
@@ -279,7 +278,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .filter(issue -> issue.updateDate() != null)
       .map(issue -> toNotification(bulkChangeData, userDtoByUuid, issue))
       .filter(Objects::nonNull)
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     if (changedIssues.isEmpty()) {
       return;
@@ -304,7 +303,7 @@ public class BulkChangeAction implements IssuesWsAction {
       // should not happen but filter it out anyway to avoid NPE in oldestUpdateDate call below
       .filter(issue -> issue.updateDate() != null)
       .filter(Objects::nonNull)
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     if (changedIssues.isEmpty()) {
       return;

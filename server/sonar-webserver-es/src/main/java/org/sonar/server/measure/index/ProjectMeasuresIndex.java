@@ -105,7 +105,6 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
@@ -242,7 +241,7 @@ public class ProjectMeasuresIndex {
       .map(FACETS_BY_NAME::get)
       .filter(Objects::nonNull)
       .map(Facet::getTopAggregationDef)
-      .collect(toSet(facetNames.size()));
+      .collect(Collectors.toSet());
     return new RequestFiltersComputer(allFilters, facets);
   }
 

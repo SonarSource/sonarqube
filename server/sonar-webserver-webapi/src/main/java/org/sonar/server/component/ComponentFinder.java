@@ -22,12 +22,12 @@ package org.sonar.server.component;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -229,7 +229,7 @@ public class ComponentFinder {
     return rootTypes
       .stream()
       .map(ResourceType::getQualifier)
-      .collect(MoreCollectors.toSet(rootTypes.size()));
+      .collect(Collectors.toSet());
   }
 
   public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {

@@ -21,7 +21,6 @@ package org.sonar.server.es;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
@@ -63,7 +62,7 @@ public interface Indexers {
   default void commitAndIndexEntities(DbSession dbSession, Collection<? extends EntityDto> entities, EntityEvent cause) {
     Collection<String> entityUuids = entities.stream()
       .map(EntityDto::getUuid)
-      .collect(MoreCollectors.toSet(entities.size()));
+      .collect(Collectors.toSet());
     commitAndIndexOnEntityEvent(dbSession, entityUuids, cause);
   }
 

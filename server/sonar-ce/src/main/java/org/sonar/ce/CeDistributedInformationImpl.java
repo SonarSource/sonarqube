@@ -33,7 +33,6 @@ import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastObjects;
 
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
 
 /**
@@ -64,7 +63,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
   @Override
   public void broadcastWorkerUUIDs() {
     Set<CeWorker> workers = ceCeWorkerFactory.getWorkers();
-    Set<String> workerUuids = workers.stream().map(CeWorker::getUUID).collect(toSet(workers.size()));
+    Set<String> workerUuids = workers.stream().map(CeWorker::getUUID).collect(Collectors.toSet());
     getClusteredWorkerUUIDs().put(hazelcastMember.getUuid(), workerUuids);
   }
 

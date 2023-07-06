@@ -41,7 +41,6 @@ import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -111,7 +110,7 @@ public class PersistComponentsStep implements ComputationStep {
     Set<String> uuids = dtos.stream()
       .filter(ComponentDto::isEnabled)
       .map(ComponentDto::uuid)
-      .collect(MoreCollectors.toSet(dtos.size()));
+      .collect(Collectors.toSet());
     dbClient.componentDao().updateBEnabledToFalse(dbSession, uuids);
     disabledComponentsHolder.setUuids(uuids);
   }

@@ -48,7 +48,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -325,7 +324,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Set<String> favoriteDbUuids = props.stream()
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toSet(props.size()));
+      .collect(Collectors.toSet());
 
     return dbClient.projectDao().selectByUuids(dbSession, favoriteDbUuids).stream()
       .map(ProjectDto::getUuid)

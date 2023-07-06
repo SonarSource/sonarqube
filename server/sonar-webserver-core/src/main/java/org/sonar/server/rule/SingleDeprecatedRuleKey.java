@@ -21,12 +21,12 @@ package org.sonar.server.rule;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 
 @Immutable
@@ -46,13 +46,14 @@ class SingleDeprecatedRuleKey {
   }
 
   public static Set<SingleDeprecatedRuleKey> from(RulesDefinition.Rule rule) {
+    rule.deprecatedRuleKeys();
     return rule.deprecatedRuleKeys().stream()
       .map(r -> new SingleDeprecatedRuleKey()
         .setNewRepositoryKey(rule.repository().key())
         .setNewRuleKey(rule.key())
         .setOldRepositoryKey(r.repository())
         .setOldRuleKey(r.rule()))
-      .collect(MoreCollectors.toSet(rule.deprecatedRuleKeys().size()));
+      .collect(Collectors.toSet());
   }
 
   public static SingleDeprecatedRuleKey from(DeprecatedRuleKeyDto rule) {

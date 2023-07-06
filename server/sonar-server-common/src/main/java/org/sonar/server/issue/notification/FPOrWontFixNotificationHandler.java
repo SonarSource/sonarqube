@@ -42,7 +42,6 @@ import static com.google.common.collect.Sets.intersection;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
 import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
@@ -105,7 +104,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
       Set<EmailRecipient> recipients = notificationManager.findSubscribedEmailRecipients(KEY, projectKeys.iterator().next(), ALL_MUST_HAVE_ROLE_USER);
       return changeNotificationsWithFpOrWontFix.stream()
         .flatMap(notification -> toRequests(notification, projectKeys, recipients))
-        .collect(toSet(changeNotificationsWithFpOrWontFix.size()));
+        .collect(Collectors.toSet());
     }
 
     Set<EmailRecipientAndProject> recipientsByProjectKey = projectKeys.stream()
@@ -130,7 +129,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
         return recipientsByProjectKeys.asMap().entrySet().stream()
           .flatMap(entry -> toRequests(notification, entry.getKey(), entry.getValue()));
       })
-      .collect(toSet(changeNotificationsWithFpOrWontFix.size()));
+      .collect(Collectors.toSet());
   }
 
   private static Stream<EmailDeliveryRequest> toRequests(NotificationWithProjectKeys notification, Set<String> projectKeys, Collection<EmailRecipient> recipients) {

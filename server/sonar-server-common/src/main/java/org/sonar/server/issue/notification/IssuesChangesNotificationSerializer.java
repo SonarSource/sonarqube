@@ -36,7 +36,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class IssuesChangesNotificationSerializer {
@@ -93,7 +92,7 @@ public class IssuesChangesNotificationSerializer {
         .setRule(rules.get(issue.ruleKey))
         .setProject(projects.get(issue.projectUuid))
         .build())
-      .collect(toSet(issues.size()));
+      .collect(Collectors.toSet());
   }
 
   private static void serializeIssues(IssuesChangesNotification res, Set<ChangedIssue> issues) {

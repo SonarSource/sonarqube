@@ -72,7 +72,6 @@ import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -653,7 +652,7 @@ public class IssueIndex {
           .map(FACETS_BY_NAME::get)
           .filter(Objects::nonNull)
           .map(Facet::getTopAggregationDef))
-      .collect(MoreCollectors.toSet(facetNames.size()));
+      .collect(Collectors.toSet());
 
     return new RequestFiltersComputer(allFilters, facets);
   }

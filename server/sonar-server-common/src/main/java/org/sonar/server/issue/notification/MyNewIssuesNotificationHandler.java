@@ -81,7 +81,7 @@ public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyN
     return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
-      .collect(MoreCollectors.toSet(notifications.size()));
+      .collect(Collectors.toSet());
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<MyNewIssuesNotification> notifications) {

@@ -22,6 +22,7 @@ package org.sonar.server.project.ws;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -34,7 +35,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -84,7 +84,7 @@ public class UpdateVisibilityActionIT {
   private static final String PRIVATE = "private";
 
   private static final Set<String> GLOBAL_PERMISSIONS_NAME_SET = stream(GlobalPermission.values()).map(GlobalPermission::getKey)
-    .collect(MoreCollectors.toSet(GlobalPermission.values().length));
+    .collect(Collectors.toSet());
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -96,8 +96,8 @@ public class UpdateVisibilityActionIT {
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private final Set<String> PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER = permissionService.getAllProjectPermissions().stream()
-    .filter(perm -> !perm.equals(UserRole.USER) && !perm.equals(UserRole.CODEVIEWER))
-    .collect(MoreCollectors.toSet(permissionService.getAllProjectPermissions().size() - 2));
+      .filter(perm -> !perm.equals(UserRole.USER) && !perm.equals(UserRole.CODEVIEWER))
+      .collect(Collectors.toSet());
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();

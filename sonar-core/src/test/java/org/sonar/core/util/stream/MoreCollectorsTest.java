@@ -47,7 +47,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toImmutableList;
 import static org.sonar.core.util.stream.MoreCollectors.toImmutableSet;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
@@ -98,11 +97,6 @@ public class MoreCollectorsTest {
     Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toSet_with_size_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
   }
 
   @Test

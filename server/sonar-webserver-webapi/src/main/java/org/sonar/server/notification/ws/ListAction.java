@@ -159,7 +159,7 @@ public class ListAction implements NotificationsWsAction {
     Set<String> entityUuids = properties.stream()
       .map(PropertyDto::getEntityUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toSet(properties.size()));
+      .collect(Collectors.toSet());
     Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, userSession.getUuid(), UserRole.USER);
     return dbClient.entityDao().selectByUuids(dbSession, entityUuids)
       .stream()

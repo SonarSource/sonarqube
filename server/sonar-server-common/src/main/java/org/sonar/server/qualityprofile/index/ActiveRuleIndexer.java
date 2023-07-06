@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -52,7 +53,6 @@ import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.qualityprofile.index.ActiveRuleDoc.docIdOf;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
@@ -179,7 +179,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     Set<String> docIds = activeRuleItems.keySet();
     return docIds.stream()
       .map(ActiveRuleDoc::activeRuleUuidOf)
-      .collect(toSet(docIds.size()));
+      .collect(Collectors.toSet());
   }
 
   private IndexingResult doIndexRuleProfiles(DbSession dbSession, Map<String, EsQueueDto> ruleProfileItems) {

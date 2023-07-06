@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -36,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
@@ -94,7 +94,7 @@ public class NotificationFactory {
         .setRule(getRuleByRuleKey(issue.ruleKey()))
         .setProject(getProject())
         .build())
-      .collect(MoreCollectors.toSet(issues.size()));
+      .collect(Collectors.toSet());
 
     return issuesChangesSerializer.serialize(new IssuesChangesNotificationBuilder(changedIssues, change));
   }

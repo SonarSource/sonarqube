@@ -48,7 +48,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
@@ -194,7 +193,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeQueueDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(toSet(ceQueueDtos.size()));
+        .collect(Collectors.toSet());
     }
 
     static DtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
@@ -216,7 +215,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeActivityDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(toSet(ceActivityDtos.size()));
+        .collect(Collectors.toSet());
     }
 
     @CheckForNull

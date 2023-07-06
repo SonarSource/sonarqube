@@ -34,7 +34,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -340,7 +339,7 @@ public class ServerUserSession extends AbstractUserSession {
     }
     return permissionKeys.stream()
       .map(GlobalPermission::fromKey)
-      .collect(MoreCollectors.toSet(permissionKeys.size()));
+      .collect(toSet());
   }
 
   private Set<String> loadDbPermissions(DbSession dbSession, String entityUuid) {
@@ -383,7 +382,7 @@ public class ServerUserSession extends AbstractUserSession {
     Set<String> copyComponentsUuid = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toSet(components.size()));
+      .collect(toSet());
     return dbClient.componentDao().selectByUuids(dbSession, copyComponentsUuid).stream()
       .collect(Collectors.toMap(ComponentDto::uuid, componentDto -> componentDto));
   }

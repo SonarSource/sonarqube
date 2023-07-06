@@ -57,7 +57,6 @@ import org.sonar.server.notification.NotificationService;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 /**
@@ -207,7 +206,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
         return myNewIssuesNotification;
       })
-      .collect(toSet(statistics.getAssigneesStatistics().size()));
+      .collect(Collectors.toSet());
 
     notificationStatistics.myNewIssuesDeliveries += service.deliverEmails(myNewIssuesNotifications);
     notificationStatistics.myNewIssues += myNewIssuesNotifications.size();

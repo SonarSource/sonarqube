@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -37,7 +38,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -166,7 +166,7 @@ public class NotificationService {
       .filter(Optional::isPresent)
       .map(Optional::get)
       .map(NotificationDispatcherMetadata::getDispatcherKey)
-      .collect(MoreCollectors.toSet(notificationTypes.size()));
+      .collect(Collectors.toSet());
 
     return dbClient.propertiesDao().hasProjectNotificationSubscribersForDispatchers(projectUuid, dispatcherKeys);
   }
