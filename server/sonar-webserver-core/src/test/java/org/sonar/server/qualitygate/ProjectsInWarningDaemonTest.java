@@ -31,10 +31,8 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
@@ -125,7 +123,7 @@ public class ProjectsInWarningDaemonTest {
     db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(),
       newLiveMeasure(project.getMainBranchComponent(), qualityGateStatus).setData(Metric.Level.OK.name()).setValue(null));
     db.commit();
-    projectMeasuresIndexer.indexOnAnalysis(project.projectUuid());
+    projectMeasuresIndexer.indexOnAnalysis(project.mainBranchUuid());
 
     assertProjectsInWarningValue(0L);
     assertThat(logger.logs(Level.INFO))
@@ -214,7 +212,7 @@ public class ProjectsInWarningDaemonTest {
     ProjectData project = db.components().insertPrivateProject();
     db.measures().insertLiveMeasure(project, qualityGateStatus, lm -> lm.setData(WARN.name()).setValue(null));
     authorizationIndexerTester.allowOnlyAnyone(project.getProjectDto());
-    projectMeasuresIndexer.indexOnAnalysis(project.projectUuid());
+    projectMeasuresIndexer.indexOnAnalysis(project.mainBranchUuid());
     return project;
   }
 
