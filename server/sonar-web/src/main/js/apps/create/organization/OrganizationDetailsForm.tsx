@@ -20,6 +20,7 @@
 import * as React from 'react';
 import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
+import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
 import {ResetButtonLink, SubmitButton} from "../../../components/controls/buttons";
 import DropdownIcon from "../../../components/icons/DropdownIcon";
@@ -60,7 +61,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
       avatar: (organization && organization.avatar) || '',
       description: (organization && organization.description) || '',
       kee: (organization && organization.kee) || undefined,
-      name: (organization && organization.name) || '',
+      name: (organization && organization.name) || undefined,
       submitting: false,
       url: (organization && organization.url) || ''
     };
@@ -77,7 +78,6 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
   canSubmit(state: State): state is ValidState {
     return Boolean(
       state.kee !== undefined &&
-        state.name !== undefined &&
         state.description !== undefined &&
         state.avatar !== undefined &&
         state.url !== undefined
@@ -100,8 +100,8 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
     this.setState({ kee });
   };
 
-  handleNameUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.currentTarget.value });
+  handleNameUpdate = (name: string | undefined) => {
+    this.setState({ name });
   };
 
   handleUrlUpdate = (url: string | undefined) => {
@@ -155,14 +155,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
               <strong>{translate('onboarding.create_organization.display_name')}</strong>
             </label>
             <div className="little-spacer-top">
-              <input
-                className="input-super-large text-middle"
-                id="organization-display-name"
-                maxLength={80}
-                onChange={this.handleNameUpdate}
-                type="text"
-                value={this.state.name}
-              />
+              <OrganizationNameInput initialValue={this.state.name} onChange={this.handleNameUpdate} />
             </div>
             <div className="note abs-width-400">
               {translate('onboarding.create_organization.display_name.description')}

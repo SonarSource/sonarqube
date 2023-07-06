@@ -97,7 +97,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="branches-support-disabled"
             links={[
               {
-                href: 'https://knowledgebase.autorabit.com/codescan/docs/set-up-codescan-payment',
+                href: 'https://www.codescan.io/pricing/',
                 label: translate('learn_more'),
                 doc: false,
               },
