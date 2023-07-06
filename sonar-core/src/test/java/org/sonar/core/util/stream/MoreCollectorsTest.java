@@ -20,7 +20,6 @@
 package org.sonar.core.util.stream;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.toImmutableSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
@@ -67,21 +65,6 @@ public class MoreCollectorsTest {
   private static final List<MyObj2> LIST2_WITH_DUPLICATE_ID = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_1_C);
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
   private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
-
-
-  @Test
-  public void toSet_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
-    assertThat(res).isInstanceOf(ImmutableSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toSet_with_size_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
-    assertThat(res).isInstanceOf(ImmutableSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
 
   @Test
   public void toEnumSet() {

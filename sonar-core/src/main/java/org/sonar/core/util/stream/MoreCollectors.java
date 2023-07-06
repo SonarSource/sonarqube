@@ -22,7 +22,6 @@ package org.sonar.core.util.stream;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -48,10 +47,6 @@ public final class MoreCollectors {
 
   private MoreCollectors() {
     // prevents instantiation
-  }
-
-  public static <E> Collector<E, ?, ImmutableSet<E>> toImmutableSet() {
-    return ImmutableSet.toImmutableSet();
   }
 
 

@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -53,6 +52,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
@@ -170,7 +170,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
     ImmutableSet<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity), mainBranchUuidByEntityUuid.get(entity.getUuid())))
-      .collect(MoreCollectors.toImmutableSet());
+      .collect(toImmutableSet());
     projectLifeCycleListeners.onProjectsDeleted(deletedProjects);
   }
 

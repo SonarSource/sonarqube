@@ -30,6 +30,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.String.format;
 
 /**
@@ -80,7 +81,7 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   private static ImmutableSet<ChangedIssue> toChangedIssues(Collection<DefaultIssue> defaultIssues, boolean fromAlm) {
     return defaultIssues.stream()
       .map(defaultIssue -> new ChangedIssueImpl(defaultIssue, fromAlm))
-      .collect(MoreCollectors.toImmutableSet());
+      .collect(toImmutableSet());
   }
 
   private void broadcastChangeEventToListeners(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent) {
