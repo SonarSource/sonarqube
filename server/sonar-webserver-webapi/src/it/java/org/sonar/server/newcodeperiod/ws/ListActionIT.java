@@ -53,8 +53,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
@@ -85,11 +83,11 @@ public class ListActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, true);
-  private DbClient dbClient = db.getDbClient();
-  private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
-  private NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
-  private DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final ComponentFinder componentFinder = TestComponentFinder.from(db);
+  private final NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
+  private final NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
+  private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
   private WsActionTester ws;
 
   @Before
@@ -125,7 +123,9 @@ public class ListActionIT {
 
   @Test
   public void throw_FE_if_no_project_permission() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    userSession.registerProjects(project);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
@@ -135,13 +135,30 @@ public class ListActionIT {
   }
 
   @Test
+  public void list_on_private_project_with_browse_permission() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    userSession.registerProjects(project);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ListWSResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWSResponse.class);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getNewCodePeriodsCount()).isEqualTo(1);
+    assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
+      .contains(DEFAULT_MAIN_BRANCH_NAME);
+  }
+
+  @Test
   public void list_only_branches() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
     createBranches(project, 5, BranchType.BRANCH);
     createBranches(project, 3, BranchType.PULL_REQUEST);
 
-    logInAsProjectAdministrator(project);
+    userSession.registerProjects(project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -164,7 +181,7 @@ public class ListActionIT {
 
     createBranches(project, 5, BranchType.BRANCH);
 
-    logInAsProjectAdministrator(project);
+    userSession.registerProjects(project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -198,7 +215,7 @@ public class ListActionIT {
 
     createBranches(projectWithOwnSettings, 5, BranchType.BRANCH);
 
-    logInAsProjectAdministrator(projectWithOwnSettings, projectWithGlobalSettings);
+    userSession.registerProjects(projectWithGlobalSettings, projectWithOwnSettings);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", projectWithOwnSettings.getKey())
@@ -253,7 +270,7 @@ public class ListActionIT {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("branch_uuid"));
 
-    logInAsProjectAdministrator(project);
+    userSession.registerProjects(project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -309,7 +326,7 @@ public class ListActionIT {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("branch_uuid"));
 
-    logInAsProjectAdministrator(project);
+    userSession.registerProjects(project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -372,7 +389,7 @@ public class ListActionIT {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(analysis.getUuid()));
 
-    logInAsProjectAdministrator(project);
+    userSession.registerProjects(project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -398,7 +415,4 @@ public class ListActionIT {
     }
   }
 
-  private void logInAsProjectAdministrator(ProjectDto... project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-  }
 }
