@@ -27,6 +27,9 @@ import { dismissNotice } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import IssueHeader from '../../apps/issues/components/IssueHeader';
+import StyledHeader from '../../apps/issues/components/StyledHeader';
+import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { Issue, RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
@@ -34,7 +37,6 @@ import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
-
 import './style.css';
 
 interface IssueTabViewerProps extends CurrentUserContextInterface {
@@ -47,9 +49,9 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   location: Location;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
-  issue?: Issue;
+  issue: Issue;
+  onIssueChange: (issue: Issue) => void;
 }
-
 interface State {
   tabs: Tab[];
   selectedTab?: Tab;
@@ -77,6 +79,7 @@ export enum TabKeys {
 const DEBOUNCE_FOR_SCROLL = 250;
 
 export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, State> {
+  headerNode?: HTMLElement | null = null;
   state: State = {
     tabs: [],
   };
@@ -335,7 +338,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   };
 
   render() {
-    const { scrollInTab } = this.props;
+    const { scrollInTab, issue, ruleDetails } = this.props;
     const { tabs, selectedTab } = this.state;
 
     if (!tabs || tabs.length === 0 || !selectedTab) {
@@ -343,24 +346,34 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
     }
 
     return (
-      <>
-        <div className="sw-mb-4">
-          <ToggleButton
-            role="tablist"
-            value={selectedTab.key}
-            options={tabs}
-            onChange={this.handleSelectTabs}
-          />
-        </div>
-        <ScreenPositionHelper>
-          {({ top }) => (
+      <ScreenPositionHelper>
+        {({ top }) => (
+          <div
+            style={{
+              // We substract the footer height with padding (80) and the main layout padding (20)
+              // and the tabs padding (20)
+              maxHeight: scrollInTab ? `calc(100vh - ${top + 120}px)` : 'initial',
+            }}
+            className="sw-overflow-y-auto"
+          >
+            <StyledHeader headerHeight={this.headerNode?.clientHeight ?? 0} className="sw-z-normal">
+              <div className="sw-p-6 sw-pb-4" ref={(node) => (this.headerNode = node)}>
+                <IssueHeader
+                  issue={issue}
+                  ruleDetails={ruleDetails}
+                  branchLike={fillBranchLike(issue.branch, issue.pullRequest)}
+                  onIssueChange={this.props.onIssueChange}
+                />
+                <ToggleButton
+                  role="tablist"
+                  value={selectedTab.key}
+                  options={tabs}
+                  onChange={this.handleSelectTabs}
+                />
+              </div>
+            </StyledHeader>
             <div
-              style={{
-                // We substract the footer height with padding (80) and the main layout padding (20)
-                // and the tabs padding (20)
-                maxHeight: scrollInTab ? `calc(100vh - ${top + 120}px)` : 'initial',
-              }}
-              className="sw-flex sw-flex-col"
+              className="sw-flex sw-flex-col sw-px-6"
               role="tabpanel"
               aria-labelledby={`tab-${selectedTab.key}`}
               id={`tabpanel-${selectedTab.key}`}
@@ -369,7 +382,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                 // Preserve tabs state by always rendering all of them. Only hide them when not selected
                 tabs.map((tab) => (
                   <div
-                    className={classNames('sw-overflow-y-auto', {
+                    className={classNames({
                       hidden: tab.key !== selectedTab.key,
                     })}
                     key={tab.key}
@@ -379,9 +392,9 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                 ))
               }
             </div>
-          )}
-        </ScreenPositionHelper>
-      </>
+          </div>
+        )}
+      </ScreenPositionHelper>
     );
   }
 }

@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import {
   ButtonSecondary,
   Checkbox,
@@ -101,13 +102,13 @@ import {
   shouldOpenStandardsFacet,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
-import IssueHeader from './IssueHeader';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
+import StyledHeader, { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
 
 interface Props {
   branchLike?: BranchLike;
@@ -1170,8 +1171,8 @@ export class App extends React.PureComponent<Props, State> {
     ) : (
       <>
         <A11ySkipTarget anchor="issues_main" />
-        <div className="sw-flex sw-mb-6 sw-gap-4">
-          <div className="sw-flex sw-w-full sw-items-center sw-justify-between">
+        <StyledHeader headerHeight={84}>
+          <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between">
             {this.renderBulkChange()}
 
             <PageActions
@@ -1181,7 +1182,7 @@ export class App extends React.PureComponent<Props, State> {
               selectedIndex={selectedIndex}
             />
           </div>
-        </div>
+        </StyledHeader>
       </>
     );
   }
@@ -1197,79 +1198,86 @@ export class App extends React.PureComponent<Props, State> {
       paging,
       loadingRule,
     } = this.state;
+
+    const selectedIndex = this.getSelectedIndex();
     const topMargin = openIssue ? '120px' : '150px'; // 60px(footer) + 90px(bulk change)/60px(navbar)
 
     return (
       <ScreenPositionHelper>
         {({ top }) => (
           <div
-            className="it__layout-page-main-inner sw-overflow-y-auto"
+            className={classNames('it__layout-page-main-inner sw-pt-0', {
+              'sw-overflow-y-auto': !(openIssue && openRuleDetails),
+            })}
             style={{ height: `calc((100vh - ${top}px) - ${topMargin})` }}
           >
+            {this.renderHeader({ openIssue, paging, selectedIndex })}
+
             <DeferredSpinner loading={loadingRule}>
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
               {openIssue && openRuleDetails ? (
-                <>
-                  <IssueHeader
-                    issue={openIssue}
-                    ruleDetails={openRuleDetails}
-                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                    onIssueChange={this.handleIssueChange}
-                  />
-
-                  <IssueTabViewer
-                    ruleDetails={openRuleDetails}
-                    extendedDescription={openRuleDetails.htmlNote}
-                    ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
-                    issue={openIssue}
-                    selectedFlowIndex={this.state.selectedFlowIndex}
-                    selectedLocationIndex={this.state.selectedLocationIndex}
-                    codeTabContent={
-                      <IssuesSourceViewer
-                        branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                        issues={issues}
-                        locationsNavigator={this.state.locationsNavigator}
-                        onIssueSelect={this.openIssue}
-                        onLocationSelect={this.selectLocation}
-                        openIssue={openIssue}
-                        selectedFlowIndex={this.state.selectedFlowIndex}
-                        selectedLocationIndex={this.state.selectedLocationIndex}
-                      />
-                    }
-                    scrollInTab
-                    activityTabContent={
-                      <IssueReviewHistoryAndComments
-                        issue={openIssue}
-                        onChange={this.handleIssueChange}
-                      />
-                    }
-                  />
-                </>
+                <IssueTabViewer
+                  ruleDetails={openRuleDetails as RuleDetails}
+                  extendedDescription={openRuleDetails.htmlNote}
+                  ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                  issue={openIssue}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
+                  selectedLocationIndex={this.state.selectedLocationIndex}
+                  onIssueChange={this.handleIssueChange}
+                  codeTabContent={
+                    <IssuesSourceViewer
+                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                      issues={issues}
+                      locationsNavigator={this.state.locationsNavigator}
+                      onIssueSelect={this.openIssue}
+                      onLocationSelect={this.selectLocation}
+                      openIssue={openIssue}
+                      selectedFlowIndex={this.state.selectedFlowIndex}
+                      selectedLocationIndex={this.state.selectedLocationIndex}
+                    />
+                  }
+                  scrollInTab
+                  activityTabContent={
+                    <IssueReviewHistoryAndComments
+                      issue={openIssue}
+                      onChange={this.handleIssueChange}
+                    />
+                  }
+                />
               ) : (
-                <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
-                  {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                    <FlagMessage variant="warning">
-                      <span>
-                        <FormattedMessage
-                          defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                          id="issue_bulk_change.max_issues_reached"
-                          values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                        />
-                      </span>
-                    </FlagMessage>
-                  )}
+                <div
+                  className="sw-px-6 sw-pb-6"
+                  style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}
+                >
+                  <DeferredSpinner
+                    className="sw-mt-4"
+                    loading={loading}
+                    ariaLabel={translate('issues.loading_issues')}
+                  >
+                    {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+                      <FlagMessage variant="warning">
+                        <span>
+                          <FormattedMessage
+                            defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                            id="issue_bulk_change.max_issues_reached"
+                            values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                          />
+                        </span>
+                      </FlagMessage>
+                    )}
 
-                  {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-                    <FlagMessage className="sw-mb-4" variant="warning">
-                      {translateWithParameters(
-                        'issues.cannot_open_issue_max_initial_X_fetched',
-                        MAX_INITAL_FETCH
-                      )}
-                    </FlagMessage>
-                  )}
+                    {cannotShowOpenIssue && (!paging || paging.total > 0) && (
+                      <FlagMessage className="sw-mb-4" variant="warning">
+                        {translateWithParameters(
+                          'issues.cannot_open_issue_max_initial_X_fetched',
+                          MAX_INITAL_FETCH
+                        )}
+                      </FlagMessage>
+                    )}
 
-                  {this.renderList()}
-                </DeferredSpinner>
+                    {this.renderList()}
+                  </DeferredSpinner>
+                </div>
               )}
             </DeferredSpinner>
           </div>
@@ -1279,8 +1287,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { openIssue, paging } = this.state;
-    const selectedIndex = this.getSelectedIndex();
+    const { openIssue } = this.state;
 
     return (
       <PageWrapperStyle id="issues-page">
@@ -1306,9 +1313,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {this.renderSide(openIssue)}
 
-              <MainContentStyle role="main" className="sw-relative sw-ml-12 sw-p-6 sw-flex-1">
-                {this.renderHeader({ openIssue, paging, selectedIndex })}
-
+              <MainContentStyle className="sw-relative sw-ml-12 sw-flex-1">
                 {this.renderPage()}
               </MainContentStyle>
             </div>
@@ -1328,7 +1333,7 @@ const PageWrapperStyle = styled.div`
   background-color: ${themeColor('backgroundPrimary')};
 `;
 
-const MainContentStyle = styled.div`
+const MainContentStyle = styled.main`
   background-color: ${themeColor('subnavigation')};
   border-left: ${themeBorder('default', 'filterbarBorder')};
   border-right: ${themeBorder('default', 'filterbarBorder')};
