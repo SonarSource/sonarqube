@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -55,10 +54,6 @@ public final class MoreCollectors {
    */
   public static <E extends Enum<E>> Collector<E, ?, EnumSet<E>> toEnumSet(Class<E> enumClass) {
     return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
-  }
-
-  public static <T> Collector<T, ?, Set<T>> toHashSet(int size) {
-    return Collectors.toSet();
   }
 
   /**

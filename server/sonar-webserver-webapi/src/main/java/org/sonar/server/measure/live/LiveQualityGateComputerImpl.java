@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
@@ -46,7 +47,6 @@ import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
@@ -65,7 +65,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   public QualityGate loadQualityGate(DbSession dbSession, ProjectDto project, BranchDto branch) {
     QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, project);
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
-    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(toHashSet(conditionDtos.size()));
+    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet());
     Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(uniqueIndex(MetricDto::getUuid));
 
     Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
@@ -78,7 +78,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       conditions = conditions.filter(Condition::isOnLeakPeriod);
     }
 
-    return new QualityGate(String.valueOf(qg.getUuid()), qg.getName(), conditions.collect(toHashSet(conditionDtos.size())));
+    return new QualityGate(String.valueOf(qg.getUuid()), qg.getName(), conditions.collect(Collectors.toSet()));
   }
 
   @Override

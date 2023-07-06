@@ -159,7 +159,7 @@ public class SearchAction implements ProjectsWsAction {
       ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, paging.offset(), paging.pageSize());
-      Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toHashSet(components.size()));
+      Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
       List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, componentUuids);
       Map<String, String> projectUuidByComponentUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,BranchDto::getProjectUuid));
       Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjectUuids(dbSession, projectUuidByComponentUuid.values()).stream()

@@ -35,7 +35,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
@@ -439,7 +438,7 @@ public class RuleActivator {
     // load active rules
     Collection<String> ruleProfileUuids = Stream
       .concat(Stream.of(builtInProfile.getUuid()), profiles.stream().map(QProfileDto::getRulesProfileUuid))
-      .collect(MoreCollectors.toHashSet(profiles.size() + 1));
+      .collect(Collectors.toSet());
     completeWithActiveRules(dbSession, builder, ruleUuids, ruleProfileUuids);
     return builder.build();
   }
@@ -464,7 +463,7 @@ public class RuleActivator {
     // load active rules
     Collection<String> ruleProfileUuids = profiles.stream()
       .map(QProfileDto::getRulesProfileUuid)
-      .collect(MoreCollectors.toHashSet(profiles.size()));
+      .collect(Collectors.toSet());
     completeWithActiveRules(dbSession, builder, ruleUuids, ruleProfileUuids);
 
     return builder.build();

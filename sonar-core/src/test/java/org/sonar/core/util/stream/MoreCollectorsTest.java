@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
@@ -76,18 +75,6 @@ public class MoreCollectorsTest {
     Set<MyEnum> res = Stream.<MyEnum>empty().collect(MoreCollectors.toEnumSet(MyEnum.class));
     assertThat(res).isInstanceOf(EnumSet.class)
       .isEmpty();
-  }
-
-  @Test
-  public void toHashSet_with_size_builds_an_ArrayList() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet(30));
-    assertThat(res).isInstanceOf(HashSet.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toHashSet_with_size_parallel_stream() {
-    assertThat(HUGE_SET.parallelStream().collect(toHashSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
   }
 
   @Test

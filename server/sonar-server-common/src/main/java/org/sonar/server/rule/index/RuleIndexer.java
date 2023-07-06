@@ -47,7 +47,6 @@ import org.sonar.server.security.SecurityStandards;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 
@@ -135,7 +134,7 @@ public class RuleIndexer implements ResilientIndexer {
     Set<String> ruleUuids = items
       .stream()
       .map(EsQueueDto::getDocId)
-      .collect(toHashSet(items.size()));
+      .collect(Collectors.toSet());
 
     dbClient.ruleDao().selectIndexingRulesByKeys(dbSession, ruleUuids,
       r -> {

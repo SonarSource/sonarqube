@@ -41,7 +41,6 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
 
-import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexer implements ResilientIndexer {
@@ -157,7 +156,7 @@ public class ViewIndexer implements ResilientIndexer {
     Set<String> viewUuids = items
       .stream()
       .map(EsQueueDto::getDocId)
-      .collect(toHashSet(items.size()));
+      .collect(Collectors.toSet());
 
     BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();

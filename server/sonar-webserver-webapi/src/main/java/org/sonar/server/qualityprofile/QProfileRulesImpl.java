@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -62,7 +62,7 @@ public class QProfileRulesImpl implements QProfileRules {
   public List<ActiveRuleChange> activateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
     verifyNotBuiltIn(profile);
 
-    Set<String> ruleUuids = activations.stream().map(RuleActivation::getRuleUuid).collect(MoreCollectors.toHashSet(activations.size()));
+    Set<String> ruleUuids = activations.stream().map(RuleActivation::getRuleUuid).collect(Collectors.toSet());
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     List<ActiveRuleChange> changes = new ArrayList<>();

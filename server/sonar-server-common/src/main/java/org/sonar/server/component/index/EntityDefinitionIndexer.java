@@ -20,7 +20,6 @@
 package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -121,7 +119,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     };
   }
 
-  private static ArrayList<EsQueueDto> createEsQueueDtosFromEntities(Collection<String> entityUuids) {
+  private static List<EsQueueDto> createEsQueueDtosFromEntities(Collection<String> entityUuids) {
     return entityUuids.stream()
       .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
       .collect(Collectors.toList());
@@ -141,7 +139,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     OneToManyResilientIndexingListener listener = new OneToManyResilientIndexingListener(dbClient, dbSession, items);
     BulkIndexer bulkIndexer = new BulkIndexer(esClient, TYPE_COMPONENT, Size.REGULAR, listener);
     bulkIndexer.start();
-    Set<String> entityUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toHashSet(items.size()));
+    Set<String> entityUuids = items.stream().map(EsQueueDto::getDocId).collect(Collectors.toSet());
     Set<String> remaining = new HashSet<>(entityUuids);
 
     dbClient.entityDao().selectByUuids(dbSession, entityUuids).forEach(dto -> {
