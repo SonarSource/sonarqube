@@ -64,6 +64,7 @@ const Message = styled.div`
   ${tw`sw-px-1`}
   ${tw`sw-left-0`}
 
+  z-index: 1;
   bottom: calc(100% + 0.25rem);
   width: max-content;
   max-width: var(--max-width);
